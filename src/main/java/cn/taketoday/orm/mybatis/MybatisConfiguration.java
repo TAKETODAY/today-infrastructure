@@ -46,7 +46,6 @@ import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -56,7 +55,7 @@ import cn.taketoday.util.StringUtils;
 @cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(MybatisConfiguration.class);
 
   public static final String DEFAULT_CONFIG_LOCATION = "classpath:mybatis.xml";
 
@@ -72,12 +71,10 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
       if (repository.isPresent()) {
         String className = metadata.getAnnotationMetadata().getClassName();
         log.debug("Found Mapper: [{}]", className);
-        String[] names = repository.getStringValueArray();
-        BeanDefinition beanDefinition = createBeanDefinition(className);
-        String name = ObjectUtils.isNotEmpty(names)
-                      ? names[0] : loadingContext.generateBeanName(beanDefinition);
 
-        loadingContext.registerBeanDefinition(name, beanDefinition);
+        BeanDefinition beanDefinition = createBeanDefinition(className);
+        loadingContext.populateName(beanDefinition);
+        loadingContext.registerBeanDefinition(beanDefinition);
       }
     }
 

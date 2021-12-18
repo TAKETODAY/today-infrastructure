@@ -123,7 +123,7 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
 
-    String configBeanName = loadingContext.generateBeanName(configBeanDef);
+    String configBeanName = loadingContext.populateName(configBeanDef);
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
     loadingContext.registerBeanDefinition(configBeanName, configBeanDef);

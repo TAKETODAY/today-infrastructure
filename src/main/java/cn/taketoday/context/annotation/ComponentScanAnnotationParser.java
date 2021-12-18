@@ -25,8 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanDefinitionHolder;
-import cn.taketoday.beans.factory.BeanNameGenerator;
+import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
@@ -56,14 +56,14 @@ class ComponentScanAnnotationParser {
     this.loadingContext = loadingContext;
   }
 
-  public Set<BeanDefinitionHolder> parse(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
+  public Set<BeanDefinition> parse(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(
             loadingContext.getRegistry(), componentScan.getBoolean("useDefaultFilters"),
             loadingContext.getEnvironment()
     );
 
-    Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
-    boolean useInheritedGenerator = BeanNameGenerator.class == generatorClass;
+    Class<? extends BeanNamePopulator> generatorClass = componentScan.getClass("nameGenerator");
+    boolean useInheritedGenerator = BeanNamePopulator.class == generatorClass;
     scanner.setBeanNameGenerator(
             useInheritedGenerator ? loadingContext.getBeanNameGenerator()
                                   : BeanUtils.newInstance(generatorClass));

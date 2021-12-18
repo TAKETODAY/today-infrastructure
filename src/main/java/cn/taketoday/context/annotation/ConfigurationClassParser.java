@@ -43,7 +43,6 @@ import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
@@ -264,16 +263,12 @@ class ConfigurationClassParser {
             && loadingContext.passCondition(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
       for (MergedAnnotation<ComponentScan> componentScan : componentScans) {
         // The config class is annotated with @ComponentScan -> perform the scan immediately
-        Set<BeanDefinitionHolder> scannedBeanDefinitions =
-                this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+        Set<BeanDefinition> scannedBeanDefinitions =
+                componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
         // Check the set of scanned definitions for any further config classes and parse recursively if needed
-        for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
-          BeanDefinition bdCand = holder.getBeanDefinition();
-          if (bdCand == null) {
-            bdCand = holder.getBeanDefinition();
-          }
-          if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, loadingContext)) {
-            parse(bdCand.getBeanClassName(), holder.getBeanName());
+        for (BeanDefinition definition : scannedBeanDefinitions) {
+          if (ConfigurationClassUtils.checkConfigurationClassCandidate(definition, loadingContext)) {
+            parse(definition.getBeanClassName(), definition.getName());
           }
         }
       }

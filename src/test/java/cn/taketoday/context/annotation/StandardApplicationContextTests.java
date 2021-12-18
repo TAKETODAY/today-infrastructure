@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.DefaultBeanNameGenerator;
+import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -121,7 +121,7 @@ class StandardApplicationContextTests {
   /**
    * Tests that Configuration classes are registered according to convention
    *
-   * @see DefaultBeanNameGenerator#generateBeanName
+   * @see DefaultBeanNamePopulator#populateName
    */
   @Test
   void defaultConfigClassBeanNameIsGeneratedProperly() {

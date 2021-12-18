@@ -20,16 +20,15 @@
 
 package cn.taketoday.context.loader;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeanNameGenerator;
-import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ScannedBeanDefinition;
@@ -70,7 +69,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
   private final BeanDefinitionRegistry registry;
 
-  private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
+  private BeanNamePopulator beanNamePopulator = AnnotationBeanNamePopulator.INSTANCE;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
@@ -181,11 +180,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
   /**
    * Set the BeanNameGenerator to use for detected bean classes.
-   * <p>Default is a {@link AnnotationBeanNameGenerator}.
+   * <p>Default is a {@link AnnotationBeanNamePopulator}.
    */
-  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
-    this.beanNameGenerator =
-            (beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE);
+  public void setBeanNameGenerator(@Nullable BeanNamePopulator beanNamePopulator) {
+    this.beanNamePopulator =
+            beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE;
   }
 
   /**
@@ -235,26 +234,30 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param basePackages the packages to check for annotated classes
    * @return set of beans registered if any for tooling registration purposes (never {@code null})
    */
-  public Set<BeanDefinitionHolder> scanning(String... basePackages) {
+  public Set<BeanDefinition> scanning(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
-    LinkedHashSet<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+    LinkedHashSet<BeanDefinition> beanDefinitions = new LinkedHashSet<>();
     for (String basePackage : basePackages) {
-      Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
-      for (BeanDefinition candidate : candidates) {
-        ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
-        candidate.setScope(scopeMetadata.getScopeName());
-        String beanName = beanNameGenerator.generateBeanName(candidate, this.registry);
-        postProcessBeanDefinition(candidate, beanName);
+      try {
+        scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
+          ScannedBeanDefinition candidate = new ScannedBeanDefinition(metadataReader);
+          candidate.setSource(metadataReader.getResource());
 
-        if (candidate instanceof AnnotatedBeanDefinition) {
-          // TODO
-          AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
-        }
-        if (checkCandidate(beanName, candidate)) {
-          BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
-          beanDefinitions.add(definitionHolder);
-          registerBeanDefinition(definitionHolder, this.registry);
-        }
+          ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
+          candidate.setScope(scopeMetadata.getScopeName());
+          AnnotationConfigUtils.processCommonDefinitionAnnotations(candidate);
+
+          String beanName = beanNamePopulator.populateName(candidate, registry);
+          postProcessBeanDefinition(candidate, beanName);
+
+          if (checkCandidate(beanName, candidate)) {
+            beanDefinitions.add(candidate);
+            registerBeanDefinition(candidate, registry);
+          }
+        });
+      }
+      catch (IOException ex) {
+        throw new BeanDefinitionStoreException("I/O failure during classpath scanning", ex);
       }
     }
     return beanDefinitions;
@@ -274,11 +277,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * <p>Can be overridden in subclasses, e.g. to adapt the registration
    * process or to register further bean definitions for each scanned bean.
    *
-   * @param definitionHolder the bean definition plus bean name for the bean
+   * @param definition the bean definition plus bean name for the bean
    * @param registry the BeanDefinitionRegistry to register the bean with
    */
-  protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
-    BeanFactoryUtils.registerBeanDefinition(registry, definitionHolder);
+  protected void registerBeanDefinition(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    registry.registerBeanDefinition(definition);
   }
 
   /**

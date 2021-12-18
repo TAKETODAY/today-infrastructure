@@ -378,15 +378,15 @@ class ComponentScanWithNoPackagesConfig {
 }
 
 @Configuration
-@ComponentScan(basePackages = "example.scannable", nameGenerator = MyBeanNameGenerator.class)
+@ComponentScan(basePackages = "example.scannable", nameGenerator = MyBeanNamePopulator.class)
 class ComponentScanWithBeanNameGenerator {
 }
 
-class MyBeanNameGenerator extends AnnotationBeanNameGenerator {
+class MyBeanNamePopulator extends AnnotationBeanNamePopulator {
 
   @Override
-  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    return "custom_" + super.generateBeanName(definition, registry);
+  public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    return "custom_" + super.populateName(definition, registry);
   }
 }
 

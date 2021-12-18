@@ -33,11 +33,11 @@ import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanNameGenerator;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
+import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
@@ -77,7 +77,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   private boolean enableConditionEvaluation = true;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
-  private BeanNameGenerator beanNameGenerator;
+  private BeanNamePopulator beanNamePopulator;
 
   public AnnotatedBeanDefinitionReader() { }
 
@@ -291,7 +291,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
         definition.setScope(Scope.PROTOTYPE);
       }
 
-      String beanName = this.beanNameGenerator.generateBeanName(definition, this.registry);
+      String beanName = this.beanNamePopulator.populateName(definition, this.registry);
 
       String defaultName = createBeanName(clazz);
       definition.setInstanceSupplier(supplier);
@@ -471,11 +471,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
   /**
    * Set the {@code BeanNameGenerator} to use for detected bean classes.
-   * <p>The default is a {@link AnnotationBeanNameGenerator}.
+   * <p>The default is a {@link AnnotationBeanNamePopulator}.
    */
-  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
-    this.beanNameGenerator =
-            (beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE);
+  public void setBeanNameGenerator(@Nullable BeanNamePopulator beanNamePopulator) {
+    this.beanNamePopulator =
+            (beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE);
   }
 
 }

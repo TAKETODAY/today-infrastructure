@@ -40,7 +40,7 @@ public class QualifierRetrievers implements QualifierRetriever {
     shared = new QualifierRetrievers();
     try { // @formatter:off
       shared.addRetriever(new AnnotationQualifierRetriever(
-              ClassUtils.forName("jakarta.inject.Inject")));
+              ClassUtils.forName("jakarta.inject.Named")));
     }
     catch (Exception ignored) {}
     try {

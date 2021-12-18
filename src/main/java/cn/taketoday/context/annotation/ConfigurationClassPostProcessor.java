@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeanNameGenerator;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
@@ -82,8 +82,8 @@ public class ConfigurationClassPostProcessor
   private static final String IMPORT_REGISTRY_BEAN_NAME =
           ConfigurationClassPostProcessor.class.getName() + ".importRegistry";
 
-  public static final AnnotationBeanNameGenerator IMPORT_BEAN_NAME_GENERATOR =
-          FullyQualifiedAnnotationBeanNameGenerator.INSTANCE;
+  public static final AnnotationBeanNamePopulator IMPORT_BEAN_NAME_GENERATOR =
+          FullyQualifiedAnnotationBeanNamePopulator.INSTANCE;
 
   private final DefinitionLoadingContext loadingContext;
 
@@ -116,9 +116,9 @@ public class ConfigurationClassPostProcessor
   }
 
   /**
-   * Set the {@link BeanNameGenerator} to be used when triggering component scanning
+   * Set the {@link BeanNamePopulator} to be used when triggering component scanning
    * from {@link Configuration} classes and when registering {@link Import}'ed
-   * configuration classes. The default is a standard {@link AnnotationBeanNameGenerator}
+   * configuration classes. The default is a standard {@link AnnotationBeanNamePopulator}
    * for scanned components (compatible with the default in {@link ClassPathBeanDefinitionScanner})
    * and a variant thereof for imported configuration classes (using unique fully-qualified
    * class names instead of standard component overriding).
@@ -128,12 +128,12 @@ public class ConfigurationClassPostProcessor
    * application contexts or the {@code <context:annotation-config>} element. Any bean name
    * generator specified against the application context will take precedence over any set here.
    *
-   * @see cn.taketoday.context.StandardApplicationContext#setBeanNameGenerator(BeanNameGenerator)
+   * @see cn.taketoday.context.StandardApplicationContext#setBeanNameGenerator(BeanNamePopulator)
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
-  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
-    Assert.notNull(beanNameGenerator, "BeanNameGenerator must not be null");
-    loadingContext.setBeanNameGenerator(beanNameGenerator);
+  public void setBeanNameGenerator(BeanNamePopulator beanNamePopulator) {
+    Assert.notNull(beanNamePopulator, "BeanNameGenerator must not be null");
+    loadingContext.setBeanNameGenerator(beanNamePopulator);
   }
 
   @Override

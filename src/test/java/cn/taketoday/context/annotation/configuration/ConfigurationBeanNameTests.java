@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
+import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
@@ -68,11 +68,11 @@ public class ConfigurationBeanNameTests {
   @Test
   public void registerOuterConfig_withBeanNameGenerator() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.setBeanNameGenerator(new AnnotationBeanNameGenerator() {
+    ctx.setBeanNameGenerator(new AnnotationBeanNamePopulator() {
       @Override
-      public String generateBeanName(
+      public String populateName(
               BeanDefinition definition, BeanDefinitionRegistry registry) {
-        return "custom-" + super.generateBeanName(definition, registry);
+        return "custom-" + super.populateName(definition, registry);
       }
     });
     ctx.register(A.class);

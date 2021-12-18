@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -89,6 +90,10 @@ public class BeanDefinition
 
   /** bean name. */
   private String name;
+
+  // @since 4.0
+  private String[] aliases;
+
   /** bean class. */
   private Object beanClass;
   /** bean scope. */
@@ -202,6 +207,27 @@ public class BeanDefinition
   public BeanDefinition(String name, Class<?> beanClass) {
     setName(name);
     setBeanClass(beanClass);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public String[] getAliases() {
+    return aliases;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public void setAliases(String... aliases) {
+    this.aliases = aliases;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean hasAliases() {
+    return ObjectUtils.isNotEmpty(aliases);
   }
 
   /**

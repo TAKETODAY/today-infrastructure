@@ -31,10 +31,10 @@ import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanNameGenerator;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
+import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
@@ -80,7 +80,7 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   private PropertySourceFactory propertySourceFactory;
 
   /* Using short class names as default bean names by default. */
-  private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
+  private BeanNamePopulator beanNamePopulator = AnnotationBeanNamePopulator.INSTANCE;
 
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
@@ -144,8 +144,8 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
    * @param definition the bean definition to generate a name for
    * @return the generated bean name
    */
-  public String generateBeanName(BeanDefinition definition) {
-    return beanNameGenerator.generateBeanName(definition, registry);
+  public String populateName(BeanDefinition definition) {
+    return beanNamePopulator.populateName(definition, registry);
   }
 
   @NonNull
@@ -390,14 +390,14 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   /**
    * Set the {@code BeanNameGenerator} to use for detected bean classes.
-   * <p>The default is a {@link AnnotationBeanNameGenerator}.
+   * <p>The default is a {@link AnnotationBeanNamePopulator}.
    */
-  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
-    this.beanNameGenerator = beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE;
+  public void setBeanNameGenerator(@Nullable BeanNamePopulator beanNamePopulator) {
+    this.beanNamePopulator = beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE;
   }
 
-  public BeanNameGenerator getBeanNameGenerator() {
-    return beanNameGenerator;
+  public BeanNamePopulator getBeanNameGenerator() {
+    return beanNamePopulator;
   }
 
   public void setProblemReporter(ProblemReporter problemReporter) {

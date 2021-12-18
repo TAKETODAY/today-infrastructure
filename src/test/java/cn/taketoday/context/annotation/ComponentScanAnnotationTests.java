@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.DefaultBeanNameGenerator;
+import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.core.type.filter.TypeFilter;
@@ -49,7 +49,7 @@ public class ComponentScanAnnotationTests {
 @Configuration
 @ComponentScan(
         basePackageClasses = TestBean.class,
-        nameGenerator = DefaultBeanNameGenerator.class,
+        nameGenerator = DefaultBeanNamePopulator.class,
 //        scopedProxy = ScopedProxyMode.NO,
         scopeResolver = AnnotationScopeMetadataResolver.class,
         resourcePattern = "**/*custom.class",

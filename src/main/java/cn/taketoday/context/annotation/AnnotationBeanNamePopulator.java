@@ -22,25 +22,26 @@ package cn.taketoday.context.annotation;
 
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanNameGenerator;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * {@link BeanNameGenerator} implementation for bean classes annotated with the
+ * {@link BeanNamePopulator} implementation for bean classes annotated with the
  * {@link cn.taketoday.lang.Component @Component} annotation or
  * with another annotation that is itself annotated with {@code @Component} as a
  * meta-annotation. For example, Framework's stereotype annotations (such as
@@ -60,59 +61,58 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @author Mark Fisher
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.lang.Component#value()
  * @see cn.taketoday.lang.Repository#value()
  * @see cn.taketoday.lang.Service#value()
  * @see jakarta.inject.Named#value()
- * @see FullyQualifiedAnnotationBeanNameGenerator
+ * @see FullyQualifiedAnnotationBeanNamePopulator
  * @since 4.0
  */
-public class AnnotationBeanNameGenerator implements BeanNameGenerator {
+public class AnnotationBeanNamePopulator implements BeanNamePopulator {
 
   /**
    * A convenient constant for a default {@code AnnotationBeanNameGenerator} instance,
    * as used for component scanning purposes.
    */
-  public static final AnnotationBeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();
+  public static final AnnotationBeanNamePopulator INSTANCE = new AnnotationBeanNamePopulator();
 
   private static final String COMPONENT_ANNOTATION_CLASSNAME = "cn.taketoday.lang.Component";
 
-  private final Map<String, Set<String>> metaAnnotationTypesCache = new ConcurrentHashMap<>();
-
   @Override
-  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+  public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
     if (definition instanceof AnnotatedBeanDefinition) {
-      String beanName = determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
-      if (StringUtils.hasText(beanName)) {
-        // Explicit bean name found.
-        return beanName;
-      }
+      determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
     }
-    // Fallback: generate a unique default bean name.
-    return buildDefaultBeanName(definition, registry);
+    if (!StringUtils.hasText(definition.getName())) {
+      // Fallback: generate a unique default bean name.
+      String beanName = buildDefaultBeanName(definition, registry);
+      definition.setName(beanName);
+    }
+    return definition.getName();
   }
 
   /**
    * Derive a bean name from one of the annotations on the class.
    *
    * @param annotatedDef the annotation-aware bean definition
-   * @return the bean name, or {@code null} if none is found
    */
   @Nullable
-  protected String determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
-    AnnotationMetadata metadata = annotatedDef.getMetadata();
-    Set<String> types = metadata.getAnnotationTypes();
-    String beanName = null;
-    for (String type : types) {
-      MergedAnnotation<Annotation> annotation = metadata.getAnnotation(type);
-      if (annotation.isPresent()) {
-        Set<String> metaTypes = this.metaAnnotationTypesCache.computeIfAbsent(type, key -> {
-          Set<String> result = metadata.getMetaAnnotationTypes(key);
-          return result.isEmpty() ? Collections.emptySet() : result;
-        });
-        if (isStereotypeWithNameValue(type, metaTypes, annotation)) {
-          Optional<Object> optional = annotation.getValue(MergedAnnotation.VALUE);
-          if (optional.get() instanceof String strVal) {
+  protected void determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
+    Object attribute = annotatedDef.getAttribute(Component.ANNOTATION);
+    if (attribute instanceof MergedAnnotation annotation) {
+      apply(annotatedDef, annotation);
+    }
+    else {
+      AnnotationMetadata metadata = annotatedDef.getMetadata();
+      Set<String> types = metadata.getAnnotationTypes();
+      String beanName = null;
+      for (String type : types) {
+        MergedAnnotation<Annotation> annotation = metadata.getAnnotation(type);
+        if (annotation.isPresent()) {
+          Set<String> metaTypes = metadata.getMetaAnnotationTypes(type);
+          if (isStereotypeWithNameValue(type, metaTypes, annotation)) {
+            String strVal = apply(annotatedDef, annotation);
             if (StringUtils.isNotEmpty(strVal)) {
               if (beanName != null && !strVal.equals(beanName)) {
                 throw new IllegalStateException("Stereotype annotations suggest inconsistent " +
@@ -124,7 +124,35 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
         }
       }
     }
-    return beanName;
+  }
+
+  private String apply(AnnotatedBeanDefinition annotatedDef, MergedAnnotation<?> annotation) {
+    Optional<Object> value = annotation.getValue("value");
+    if (value.isPresent()) {
+      Object attribute = value.get();
+      if (attribute instanceof String beanName) {
+        annotatedDef.setName(beanName);
+        return beanName;
+      }
+      else if (attribute instanceof String[] nameArray && ObjectUtils.isNotEmpty(nameArray)) {
+        String beanName = nameArray[0];
+        annotatedDef.setName(beanName);
+        if (nameArray.length > 1) {
+          ArrayList<String> aliases = new ArrayList<>();
+          for (int i = 1; i < nameArray.length; i++) {
+            if (StringUtils.hasText(nameArray[i])) {
+              aliases.add(nameArray[i]);
+            }
+          }
+          if (!aliases.isEmpty()) {
+            annotatedDef.setAliases(aliases.toArray(Constant.EMPTY_STRING_ARRAY));
+          }
+        }
+        return beanName;
+      }
+    }
+
+    return null;
   }
 
   /**

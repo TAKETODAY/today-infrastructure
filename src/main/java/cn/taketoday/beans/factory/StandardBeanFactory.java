@@ -206,6 +206,11 @@ public class StandardBeanFactory
       beanDefinitionNames.add(beanName);
     }
 
+    if (def.hasAliases()) {
+      for (String alias : def.getAliases()) {
+        registerAlias(beanName, alias);
+      }
+    }
     if (existBeanDef != null || containsSingleton(beanName)) {
       resetBeanDefinition(beanName);
     }

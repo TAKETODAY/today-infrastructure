@@ -24,7 +24,6 @@ import cn.taketoday.context.annotation.ScannedBeanDefinition;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Component;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author TODAY 2021/10/10 22:20
@@ -39,22 +38,11 @@ public class ComponentAnnotationBeanDefinitionCreator implements BeanDefinitionL
     AnnotationMetadata annotationMetadata = metadata.getAnnotationMetadata();
     annotationMetadata.getAnnotations().stream(Component.class).forEach(component -> {
 
-      String[] nameArray = component.getStringValueArray();
       // first is bean name, after name is aliases
       ScannedBeanDefinition definition = new ScannedBeanDefinition(metadata);
-      if (ObjectUtils.isEmpty(nameArray)) {
-        String beanName = loadingContext.generateBeanName(definition);
-        definition.setName(beanName);
-      }
-      else {
-        // >= 1
-        definition.setName(nameArray[0]);
-        if (nameArray.length > 1) {
-          for (int i = 1; i < nameArray.length; i++) {
-            loadingContext.registerAlias(nameArray[0], nameArray[i]);
-          }
-        }
-      }
+      definition.setAttribute(Component.ANNOTATION, component);
+
+      loadingContext.populateName(definition);
       loadingContext.registerBeanDefinition(definition);
     });
   }

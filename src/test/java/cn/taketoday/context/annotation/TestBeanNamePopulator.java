@@ -26,11 +26,11 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 /**
  * @author Mark Fisher
  */
-public class TestBeanNameGenerator extends AnnotationBeanNameGenerator {
+public class TestBeanNamePopulator extends AnnotationBeanNamePopulator {
 
   @Override
-  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    String beanName = super.generateBeanName(definition, registry);
+  public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    String beanName = super.populateName(definition, registry);
     return "testing." + beanName;
   }
 
