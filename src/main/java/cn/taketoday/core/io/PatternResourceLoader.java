@@ -81,6 +81,17 @@ public interface PatternResourceLoader extends ResourceLoader {
   Set<Resource> getResources(String locationPattern) throws IOException;
 
   /**
+   * Scan the given location pattern into {@code Resource} objects.
+   * <p>Overlapping resource entries that point to the same physical
+   * resource should be avoided, as far as possible. The result should
+   * have set semantics.
+   *
+   * @param locationPattern the location pattern to resolve
+   * @throws IOException in case of I/O errors
+   */
+  void scan(String locationPattern, ResourceConsumer consumer) throws IOException;
+
+  /**
    * Resolve the given location pattern into {@code Resource} objects.
    * <p>Overlapping resource entries that point to the same physical
    * resource should be avoided, as far as possible. The result should
@@ -90,7 +101,7 @@ public interface PatternResourceLoader extends ResourceLoader {
    * @return the corresponding {@code Resource} objects
    * @throws IOException in case of I/O errors
    */
-  default Resource[] getResourcesArray(String locationPattern) throws IOException{
+  default Resource[] getResourcesArray(String locationPattern) throws IOException {
     return getResources(locationPattern).toArray(Resource.EMPTY_ARRAY);
   }
 

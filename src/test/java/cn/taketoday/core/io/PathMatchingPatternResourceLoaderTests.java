@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 import cn.taketoday.util.ResourceUtils;
 
@@ -67,8 +70,11 @@ class PathMatchingPatternResourceLoaderTests {
           "PatternResourceLoader.class",
           "PropertiesUtilsTests.class",
           "ResourcePropertySource.class",
+          "PropertiesLoaderSupport.class",
+          "ResourceTestUtils.class",
           "PropertySourceFactory.class",
           "ResourceRegion.class",
+          "ResourceConsumer.class",
           "DefaultPropertySourceFactory.class",
           "JarEntryResource$JarEntryInputStream.class", //
   };
@@ -144,12 +150,25 @@ class PathMatchingPatternResourceLoaderTests {
       }
     }
     assertTrue(found, "Could not find pom.properties");
+
+    AtomicInteger times = new AtomicInteger();
+    resolver.scan("classpath*:**/pom.properties", resource -> {
+      times.getAndIncrement();
+    });
+    System.out.println(times);
+    System.out.println(resources.length);
   }
 
-  private void assertProtocolAndFilenames(Resource[] resources,
-                                          String protocol,
-                                          String... filenames) throws IOException {
-
+  private void assertProtocolAndFilenames(
+          Resource[] resources, String protocol, String... filenames) throws IOException {
+    if (filenames.length != resources.length) {
+      // find which file is forget add
+      Set<String> filenames1 = Set.of(filenames);
+      Arrays.stream(resources)
+              .map(Resource::getName)
+              .filter(Predicate.not(filenames1::contains))
+              .forEach(System.err::println);
+    }
     assertEquals(filenames.length, resources.length, "Correct number of files found");
     for (Resource resource : resources) {
       String actualProtocol = resource.getLocation().getProtocol();
@@ -161,7 +180,7 @@ class PathMatchingPatternResourceLoaderTests {
   private void assertFilenameIn(Resource resource, String... filenames) {
     String filename = resource.getName();
     assertTrue(Arrays.stream(filenames).anyMatch(filename::endsWith),
-               resource + " does not have a filename that matches any of the specified names");
+            resource + " does not have a filename that matches any of the specified names");
   }
 
 }

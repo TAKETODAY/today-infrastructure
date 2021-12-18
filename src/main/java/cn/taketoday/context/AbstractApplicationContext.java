@@ -70,6 +70,7 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -217,6 +218,11 @@ public abstract class AbstractApplicationContext
   @Override
   public Set<Resource> getResources(String locationPattern) throws IOException {
     return patternResourceLoader.getResources(locationPattern);
+  }
+
+  @Override
+  public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
+    patternResourceLoader.scan(locationPattern, consumer);
   }
 
   //---------------------------------------------------------------------

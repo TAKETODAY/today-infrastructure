@@ -38,6 +38,7 @@ import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
@@ -179,6 +180,23 @@ public class DefaultApplicationContext
       return ((PatternResourceLoader) this.resourceLoader).getResources(locationPattern);
     }
     return super.getResources(locationPattern);
+  }
+
+  /**
+   * This implementation delegates to this context's ResourceLoader if it
+   * implements the ResourcePatternResolver interface, falling back to the
+   * default superclass behavior else.
+   *
+   * @see #setResourceLoader
+   */
+  @Override
+  public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
+    if (this.resourceLoader instanceof PatternResourceLoader) {
+      ((PatternResourceLoader) this.resourceLoader).scan(locationPattern, consumer);
+    }
+    else {
+      super.scan(locationPattern, consumer);
+    }
   }
 
   @Override
