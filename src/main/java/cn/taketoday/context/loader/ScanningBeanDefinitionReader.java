@@ -27,9 +27,6 @@ import java.util.Collection;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.core.io.PatternResourceLoader;
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -44,8 +41,6 @@ public class ScanningBeanDefinitionReader {
   public static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
   private final BeanDefinitionRegistry registry;
-
-  private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
@@ -75,13 +70,12 @@ public class ScanningBeanDefinitionReader {
       scanFromPackage(location);
     }
     int afterScanCount = registry.getBeanDefinitionCount();
-    log.info("There are [{}] candidates components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(basePackages));
+    log.info("There are [{}] components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(basePackages));
     return afterScanCount - beanDefinitionCount;
   }
 
   public void scanFromPackage(String packageName) {
-    String resourceToUse = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(packageName) + '/' + this.resourcePattern;
-    doScanning(resourceToUse);
+    doScanning(packageName);
   }
 
   /**
@@ -101,7 +95,7 @@ public class ScanningBeanDefinitionReader {
     }
 
     int afterScanCount = registry.getBeanDefinitionCount();
-    log.info("There are [{}] candidates components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(patternLocations));
+    log.info("There are [{}] components in {}", afterScanCount - beanDefinitionCount, Arrays.toString(patternLocations));
     return afterScanCount - beanDefinitionCount;
   }
 
@@ -117,28 +111,6 @@ public class ScanningBeanDefinitionReader {
     catch (IOException e) {
       throw new BeanDefinitionStoreException("I/O failure during classpath scanning", e);
     }
-  }
-
-  /**
-   * Determine whether the given class is a candidate component based on any
-   * {@code @Conditional} annotations.
-   *
-   * @param metadataReader the ASM ClassReader for the class
-   * @return whether the class qualifies as a candidate component
-   */
-  private boolean isConditionMatch(MetadataReader metadataReader) {
-    return loadingContext.passCondition(metadataReader.getAnnotationMetadata());
-  }
-
-  /**
-   * Set the resource pattern to use when scanning the classpath.
-   * This value will be appended to each base package name.
-   *
-   * @see #DEFAULT_RESOURCE_PATTERN
-   */
-  public void setResourcePattern(String resourcePattern) {
-    Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
-    this.resourcePattern = resourcePattern;
   }
 
   /**

@@ -27,12 +27,12 @@ import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -145,19 +145,14 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * @throws IOException sneaky throw from {@link PatternResourceLoader#getResources(String)}
    */
   public void scan(String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
-    doScanCandidateComponents(basePackage, metadataReaderConsumer);
-  }
-
-  private void doScanCandidateComponents(
-          String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     boolean traceEnabled = log.isTraceEnabled();
-    MetadataReaderFactory factory = getMetadataReaderFactory();
-    String packageSearchPath = resourcePrefix + resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-    for (Resource resource : getResourceLoader().getResources(packageSearchPath)) {
+    String packageSearchPath = getPatternLocation(basePackage);
+    getResourceLoader().scan(packageSearchPath, resource -> {
       if (traceEnabled) {
         log.trace("Scanning {}", resource);
       }
       try {
+        MetadataReaderFactory factory = getMetadataReaderFactory();
         MetadataReader metadataReader = factory.getMetadataReader(resource);
         metadataReaderConsumer.accept(metadataReader, factory);
       }
@@ -166,7 +161,12 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
           log.trace("Ignored non-readable {}: {}", resource, ex.getMessage());
         }
       }
-    }
+    });
+  }
+
+  @NonNull
+  protected String getPatternLocation(String input) {
+    return resourcePrefix + resolveBasePackage(input) + '/' + this.resourcePattern;
   }
 
   /**
