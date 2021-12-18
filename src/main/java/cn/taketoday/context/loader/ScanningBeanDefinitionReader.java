@@ -111,7 +111,7 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      componentProvider.scanCandidateComponents(patternLocation, metadataReader -> {
+      componentProvider.scan(patternLocation, metadataReader -> {
         scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
       });
     }

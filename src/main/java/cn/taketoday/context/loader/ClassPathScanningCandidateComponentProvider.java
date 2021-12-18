@@ -20,14 +20,12 @@
 
 package cn.taketoday.context.loader;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -35,18 +33,14 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ScannedBeanDefinition;
-import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -83,12 +77,9 @@ import cn.taketoday.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/9 21:33
  */
-public class ClassPathScanningCandidateComponentProvider implements EnvironmentCapable, ResourceLoaderAware {
+public class ClassPathScanningCandidateComponentProvider
+        extends ClassPathScanningComponentProvider implements EnvironmentCapable {
   private static final Logger log = LoggerFactory.getLogger(ClassPathScanningCandidateComponentProvider.class);
-
-  public static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
-
-  private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
   private final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
   private final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
@@ -98,12 +89,6 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
   @Nullable
   private ConditionEvaluator conditionEvaluator;
-
-  @Nullable
-  private PatternResourceLoader resourcePatternResolver;
-
-  @Nullable
-  private MetadataReaderFactory metadataReaderFactory;
 
   @Nullable
   private CandidateComponentsIndex componentsIndex;
@@ -139,18 +124,6 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
     }
     setEnvironment(environment);
     setResourceLoader(null);
-  }
-
-  /**
-   * Set the resource pattern to use when scanning the classpath.
-   * This value will be appended to each base package name.
-   *
-   * @see #findCandidateComponents(String)
-   * @see #DEFAULT_RESOURCE_PATTERN
-   */
-  public void setResourcePattern(String resourcePattern) {
-    Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
-    this.resourcePattern = resourcePattern;
   }
 
   /**
@@ -254,44 +227,8 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
    */
   @Override
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
-    this.resourcePatternResolver = PatternResourceLoader.fromResourceLoader(resourceLoader);
-    this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
-    this.componentsIndex = CandidateComponentsIndexLoader.loadIndex(this.resourcePatternResolver.getClassLoader());
-  }
-
-  /**
-   * Return the ResourceLoader that this component provider uses.
-   */
-  public final ResourceLoader getResourceLoader() {
-    return getPatternResourceLoader();
-  }
-
-  private PatternResourceLoader getPatternResourceLoader() {
-    if (this.resourcePatternResolver == null) {
-      this.resourcePatternResolver = new PathMatchingPatternResourceLoader();
-    }
-    return this.resourcePatternResolver;
-  }
-
-  /**
-   * Set the {@link MetadataReaderFactory} to use.
-   * <p>Default is a {@link CachingMetadataReaderFactory} for the specified
-   * {@linkplain #setResourceLoader resource loader}.
-   * <p>Call this setter method <i>after</i> {@link #setResourceLoader} in order
-   * for the given MetadataReaderFactory to override the default factory.
-   */
-  public void setMetadataReaderFactory(MetadataReaderFactory metadataReaderFactory) {
-    this.metadataReaderFactory = metadataReaderFactory;
-  }
-
-  /**
-   * Return the MetadataReaderFactory used by this component provider.
-   */
-  public final MetadataReaderFactory getMetadataReaderFactory() {
-    if (this.metadataReaderFactory == null) {
-      this.metadataReaderFactory = new CachingMetadataReaderFactory();
-    }
-    return this.metadataReaderFactory;
+    super.setResourceLoader(resourceLoader);
+    this.componentsIndex = CandidateComponentsIndexLoader.loadIndex(getResourceLoader().getClassLoader());
   }
 
   /**
@@ -321,12 +258,13 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
    * @param basePackage the package to check for annotated classes
    */
   public void scanCandidateComponents(
-          String basePackage, Consumer<MetadataReader> metadataReaderConsumer) throws IOException {
+          String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     if (componentsIndex != null && indexSupportsIncludeFilters()) {
-      scanCandidateComponentsFromIndex(componentsIndex, basePackage, metadataReaderConsumer);
+      scanCandidateComponentsFromIndex(
+              componentsIndex, basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
     }
     else {
-      doScanCandidateComponents(basePackage, metadataReaderConsumer);
+      super.scan(basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
     }
   }
 
@@ -385,7 +323,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 
   private void scanCandidateComponentsFromIndex(
           CandidateComponentsIndex index, String basePackage,
-          Consumer<MetadataReader> metadataReaderConsumer) throws IOException {
+          MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     HashSet<String> types = new HashSet<>();
     for (TypeFilter filter : this.includeFilters) {
       String stereotype = extractStereotype(filter);
@@ -394,72 +332,11 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
       }
       types.addAll(index.getCandidateTypes(basePackage, stereotype));
     }
-    boolean traceEnabled = log.isTraceEnabled();
-    boolean debugEnabled = log.isDebugEnabled();
-    for (String type : types) {
-      MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(type);
-      if (isCandidateComponent(metadataReader)) {
-        if (isCandidateComponent(metadataReader.getAnnotationMetadata())) {
-          if (debugEnabled) {
-            log.debug("Using candidate component class from index: {}", type);
-          }
-          metadataReaderConsumer.accept(metadataReader);
-        }
-        else {
-          if (debugEnabled) {
-            log.debug("Ignored because not a concrete top-level class: {}", type);
-          }
-        }
-      }
-      else {
-        if (traceEnabled) {
-          log.trace("Ignored because matching an exclude filter: {}", type);
-        }
-      }
-    }
-  }
+    MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
 
-  private void doScanCandidateComponents(
-          String basePackage, Consumer<MetadataReader> metadataReaderConsumer) throws IOException {
-    String packageSearchPath = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX +
-            resolveBasePackage(basePackage) + '/' + this.resourcePattern;
-    Set<Resource> resources = getPatternResourceLoader().getResources(packageSearchPath);
-    boolean traceEnabled = log.isTraceEnabled();
-    boolean debugEnabled = log.isDebugEnabled();
-    for (Resource resource : resources) {
-      if (traceEnabled) {
-        log.trace("Scanning {}", resource);
-      }
-      try {
-        MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
-        if (isCandidateComponent(metadataReader)) {
-          if (isCandidateComponent(metadataReader.getAnnotationMetadata())) {
-            if (debugEnabled) {
-              log.debug("Identified candidate component class: {}", resource);
-            }
-            metadataReaderConsumer.accept(metadataReader);
-          }
-          else {
-            if (debugEnabled) {
-              log.debug("Ignored because not a concrete top-level class: {}", resource);
-            }
-          }
-        }
-        else {
-          if (traceEnabled) {
-            log.trace("Ignored because not matching any filter: {}", resource);
-          }
-        }
-      }
-      catch (FileNotFoundException ex) {
-        if (traceEnabled) {
-          log.trace("Ignored non-readable {}: {}", resource, ex.getMessage());
-        }
-      }
-      catch (Throwable ex) {
-        throw new BeanDefinitionStoreException(
-                "Failed to read candidate component class: " + resource, ex);
-      }
+    for (String type : types) {
+      MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(type);
+      metadataReaderConsumer.accept(metadataReader);
     }
   }
 
@@ -472,8 +349,10 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
    * @param basePackage the base package as specified by the user
    * @return the pattern specification to be used for package searching
    */
+  @Override
   protected String resolveBasePackage(String basePackage) {
-    return ClassUtils.convertClassNameToResourcePath(getEnvironment().resolveRequiredPlaceholders(basePackage));
+    return ClassUtils.convertClassNameToResourcePath(
+            getEnvironment().resolveRequiredPlaceholders(basePackage));
   }
 
   /**
@@ -484,13 +363,14 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
    * @return whether the class qualifies as a candidate component
    */
   protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
-    for (TypeFilter tf : this.excludeFilters) {
-      if (tf.match(metadataReader, getMetadataReaderFactory())) {
+    MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
+    for (TypeFilter tf : excludeFilters) {
+      if (tf.match(metadataReader, metadataReaderFactory)) {
         return false;
       }
     }
-    for (TypeFilter tf : this.includeFilters) {
-      if (tf.match(metadataReader, getMetadataReaderFactory())) {
+    for (TypeFilter tf : includeFilters) {
+      if (tf.match(metadataReader, metadataReaderFactory)) {
         return isConditionMatch(metadataReader);
       }
     }
@@ -505,11 +385,11 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
    * @return whether the class qualifies as a candidate component
    */
   private boolean isConditionMatch(MetadataReader metadataReader) {
-    if (this.conditionEvaluator == null) {
+    if (conditionEvaluator == null) {
       this.conditionEvaluator = new ConditionEvaluator(
-              this.environment, this.resourcePatternResolver, getRegistry());
+              environment, getResourceLoader(), getRegistry());
     }
-    return this.conditionEvaluator.passCondition(metadataReader.getAnnotationMetadata());
+    return conditionEvaluator.passCondition(metadataReader.getAnnotationMetadata());
   }
 
   /**
@@ -525,15 +405,19 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
     return metadata.isIndependent() && metadata.isConcrete();
   }
 
-  /**
-   * Clear the local metadata cache, if any, removing all cached class metadata.
-   */
-  public void clearCache() {
-    if (this.metadataReaderFactory instanceof CachingMetadataReaderFactory) {
-      // Clear cache in externally provided MetadataReaderFactory; this is a no-op
-      // for a shared cache since it'll be cleared by the ApplicationContext.
-      ((CachingMetadataReaderFactory) this.metadataReaderFactory).clearCache();
+  // includeFilters excludeFilters Consumer
+  class FilteredMetadataReaderConsumer implements MetadataReaderConsumer {
+    final MetadataReaderConsumer metadataReaderConsumer;
+
+    FilteredMetadataReaderConsumer(MetadataReaderConsumer metadataReaderConsumer) {
+      this.metadataReaderConsumer = metadataReaderConsumer;
+    }
+
+    @Override
+    public void accept(MetadataReader metadataReader) throws IOException {
+      if (isCandidateComponent(metadataReader) && isCandidateComponent(metadataReader.getAnnotationMetadata())) {
+        metadataReaderConsumer.accept(metadataReader);
+      }
     }
   }
-
 }
