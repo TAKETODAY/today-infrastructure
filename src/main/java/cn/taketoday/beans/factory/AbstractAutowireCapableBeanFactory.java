@@ -315,7 +315,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public Object initializeBean(Object existingBean) throws BeansException {
-    return initializeBean(existingBean, createBeanName(existingBean.getClass()));
+    return initializeBean(existingBean, BeanDefinitionBuilder.defaultBeanName(existingBean.getClass()));
   }
 
   @Override

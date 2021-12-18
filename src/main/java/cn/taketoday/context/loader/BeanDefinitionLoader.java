@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
-
 /**
  * load bean definitions
  *
@@ -30,9 +28,5 @@ import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 public interface BeanDefinitionLoader {
 
   void loadBeanDefinitions(DefinitionLoadingContext loadingContext);
-
-  default String createBeanName(Class<?> beanClass) {
-    return BeanDefinitionBuilder.defaultBeanName(beanClass);
-  }
 
 }

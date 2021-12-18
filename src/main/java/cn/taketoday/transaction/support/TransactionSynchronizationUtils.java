@@ -40,8 +40,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0
  */
 public abstract class TransactionSynchronizationUtils {
-
-  private static final Logger logger = LoggerFactory.getLogger(TransactionSynchronizationUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(TransactionSynchronizationUtils.class);
 
   private static final boolean aopAvailable = ClassUtils.isPresent(
           "cn.taketoday.aop.scope.ScopedObject", TransactionSynchronizationUtils.class.getClassLoader());
@@ -62,7 +61,6 @@ public abstract class TransactionSynchronizationUtils {
    * the given handle as-is.
    *
    * @see InfrastructureProxy#getWrappedObject()
-   * @since 4.0
    */
   public static Object unwrapResourceIfNecessary(Object resource) {
     Assert.notNull(resource, "Resource must not be null");
@@ -114,7 +112,7 @@ public abstract class TransactionSynchronizationUtils {
         synchronization.beforeCompletion();
       }
       catch (Throwable ex) {
-        logger.debug("TransactionSynchronization.beforeCompletion threw exception", ex);
+        log.debug("TransactionSynchronization.beforeCompletion threw exception", ex);
       }
     }
   }
@@ -173,8 +171,8 @@ public abstract class TransactionSynchronizationUtils {
    * @see TransactionSynchronization#STATUS_ROLLED_BACK
    * @see TransactionSynchronization#STATUS_UNKNOWN
    */
-  public static void invokeAfterCompletion(@Nullable List<TransactionSynchronization> synchronizations,
-                                           int completionStatus) {
+  public static void invokeAfterCompletion(
+          @Nullable List<TransactionSynchronization> synchronizations, int completionStatus) {
 
     if (synchronizations != null) {
       for (TransactionSynchronization synchronization : synchronizations) {
@@ -182,7 +180,7 @@ public abstract class TransactionSynchronizationUtils {
           synchronization.afterCompletion(completionStatus);
         }
         catch (Throwable ex) {
-          logger.debug("TransactionSynchronization.afterCompletion threw exception", ex);
+          log.debug("TransactionSynchronization.afterCompletion threw exception", ex);
         }
       }
     }

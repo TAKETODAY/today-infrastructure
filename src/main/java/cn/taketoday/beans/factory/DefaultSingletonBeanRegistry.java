@@ -36,7 +36,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -652,7 +651,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
   @Override
   public void registerSingleton(Object bean) {
-    registerSingleton(createBeanName(bean.getClass()), bean);
+    registerSingleton(BeanDefinitionBuilder.defaultBeanName(bean.getClass()), bean);
   }
 
   @Override
@@ -663,33 +662,14 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getSingleton(Class<T> requiredType) {
-    String maybe = createBeanName(requiredType);
-    Object singleton = getSingleton(maybe);
-    if (!requiredType.isInstance(singleton)) {
-      synchronized(singletons) {
-        for (Object value : singletons.values()) {
-          if (requiredType.isInstance(value)) {
-            return (T) value;
-          }
+    synchronized(singletons) {
+      for (Object value : singletons.values()) {
+        if (requiredType.isInstance(value)) {
+          return (T) value;
         }
       }
     }
-    return (T) singleton;
-  }
-
-  /**
-   * default is use {@link ClassUtils#getShortName(Class)}
-   *
-   * <p>
-   * sub-classes can overriding this method to provide a strategy to create bean name
-   * </p>
-   *
-   * @param type type
-   * @return bean name
-   * @see ClassUtils#getShortName(Class)
-   */
-  protected String createBeanName(Class<?> type) {
-    return BeanDefinitionBuilder.defaultBeanName(type);
+    return null;
   }
 
 }

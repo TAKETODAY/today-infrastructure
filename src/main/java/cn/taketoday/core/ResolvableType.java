@@ -588,11 +588,9 @@ public class ResolvableType implements Serializable {
    * without specific bounds (i.e., equal to {@code ? extends Object}).
    */
   private boolean isWildcardWithoutBounds() {
-    if (this.type instanceof WildcardType wt) {
-      if (wt.getLowerBounds().length == 0) {
-        Type[] upperBounds = wt.getUpperBounds();
-        return upperBounds.length == 0 || (upperBounds.length == 1 && Object.class == upperBounds[0]);
-      }
+    if (this.type instanceof WildcardType wt && wt.getLowerBounds().length == 0) {
+      Type[] upperBounds = wt.getUpperBounds();
+      return upperBounds.length == 0 || (upperBounds.length == 1 && Object.class == upperBounds[0]);
     }
     return false;
   }

@@ -1131,23 +1131,22 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private void emitNewInstanceCallback(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SINGLE_NEW_INSTANCE);
-    switch (callbackTypes.length) {
-      case 0:
-        // TODO: make sure Callback is null
-        break;
-      case 1:
-        // for now just make a new array; TODO: optimize
-        e.push(1);
-        e.newArray(CALLBACK);
-        e.dup();
-        e.push(0);
-        e.loadArg(0);
-        e.aastore();
-        e.invokeStatic(getThisType(e), SET_THREAD_CALLBACKS);
-        break;
-      default:
-        e.throwException(ILLEGAL_STATE_EXCEPTION, "More than one callback object required");
+    if (callbackTypes.length == 1) {
+      // for now just make a new array; TODO: optimize
+      e.push(1);
+      e.newArray(CALLBACK);
+      e.dup();
+      e.push(0);
+      e.loadArg(0);
+      e.aastore();
+      e.invokeStatic(getThisType(e), SET_THREAD_CALLBACKS);
     }
+    else if (callbackTypes.length != 0) {
+      e.throwException(ILLEGAL_STATE_EXCEPTION, "More than one callback object required");
+    }
+//    else {
+    // TODO: make sure Callback is null
+//    }
     emitCommonNewInstance(e);
   }
 

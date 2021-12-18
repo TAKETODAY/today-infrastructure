@@ -176,14 +176,6 @@ public interface BeanDefinitionRegistrar {
   }
 
   /**
-   * Register a bean with the bean instance
-   * <p>
-   *
-   * @param obj bean instance
-   */
-  void registerSingleton(Object obj);
-
-  /**
    * Register a bean with the given name and bean instance
    *
    * @param name bean name (must not be null)

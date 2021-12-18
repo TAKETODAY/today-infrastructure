@@ -53,8 +53,7 @@ public class JtaAfterCompletionSynchronization implements Synchronization {
   }
 
   @Override
-  public void beforeCompletion() {
-  }
+  public void beforeCompletion() { }
 
   @Override
   public void afterCompletion(int status) {
@@ -75,6 +74,7 @@ public class JtaAfterCompletionSynchronization implements Synchronization {
       default:
         TransactionSynchronizationUtils.invokeAfterCompletion(
                 this.synchronizations, TransactionSynchronization.STATUS_UNKNOWN);
+        break;
     }
   }
 }

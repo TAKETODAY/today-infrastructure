@@ -288,17 +288,6 @@ public class DefaultApplicationContext
   //---------------------------------------------------------------------
 
   /**
-   * Register a bean with the bean instance
-   * <p>
-   *
-   * @param obj bean instance
-   */
-  @Override
-  public void registerSingleton(Object obj) {
-    getBeanDefinitionReader().registerSingleton(obj);
-  }
-
-  /**
    * Register a bean with the given name and bean instance
    *
    * @param name bean name (must not be null)

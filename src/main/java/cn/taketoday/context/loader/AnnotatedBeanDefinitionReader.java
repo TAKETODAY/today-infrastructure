@@ -28,7 +28,6 @@ import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.dependency.DisableDependencyInjection;
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -51,7 +50,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -77,7 +75,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   private boolean enableConditionEvaluation = true;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
-  private BeanNamePopulator beanNamePopulator;
+  private BeanNamePopulator beanNamePopulator = AnnotationBeanNamePopulator.INSTANCE;
 
   public AnnotatedBeanDefinitionReader() { }
 
@@ -133,12 +131,13 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
     definition.setScope(scopeMetadata.getScopeName());
 
-    if (!StringUtils.hasText(beanName)) {
-      beanName = createBeanName(beanClass);
+    if (StringUtils.hasText(beanName)) {
+      definition.setName(beanName);
+    }
+    else {
+      beanNamePopulator.populateName(definition, registry);
     }
     definition.setInstanceSupplier(supplier);
-    definition.setName(beanName);
-
     doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, customizers);
   }
 
@@ -148,38 +147,9 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     obtainRegistry().registerBeanDefinition(def);
   }
 
-  //
-
-  /**
-   * default is use {@link ClassUtils#getShortName(Class)}
-   *
-   * <p>
-   * sub-classes can overriding this method to provide a strategy to create bean name
-   * </p>
-   *
-   * @param type type
-   * @return bean name
-   * @see ClassUtils#getShortName(Class)
-   */
-  protected String createBeanName(Class<?> type) {
-    return BeanDefinitionBuilder.defaultBeanName(type);
-  }
-
   //---------------------------------------------------------------------
   // register name -> Class
   //---------------------------------------------------------------------
-
-  /**
-   * Register a bean with the bean instance
-   * <p>
-   * just register to {@code SingletonBeanRegistry}
-   *
-   * @param obj bean instance
-   */
-  @Override
-  public void registerSingleton(Object obj) {
-    registerSingleton(createBeanName(obj.getClass()), obj);
-  }
 
   /**
    * Register a bean with the given name and bean instance
@@ -211,7 +181,15 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
    */
   @Override
   public void registerBean(Object obj) {
-    registerBean(createBeanName(obj.getClass()), obj);
+    Assert.notNull(obj, "bean-instance must not be null");
+    BeanDefinition definition = new BeanDefinition(obj.getClass());
+    String name = beanNamePopulator.populateName(definition, registry);
+
+    definition.setSynthetic(true);
+    definition.setInitialized(true);
+
+    register(definition);
+    getSingletonRegistry().registerSingleton(name, obj);
   }
 
   /**
@@ -291,11 +269,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
         definition.setScope(Scope.PROTOTYPE);
       }
 
-      String beanName = this.beanNamePopulator.populateName(definition, this.registry);
-
-      String defaultName = createBeanName(clazz);
+      beanNamePopulator.populateName(definition, this.registry);
       definition.setInstanceSupplier(supplier);
-      definition.setName(beanName);
 
       if (ignoreAnnotation) {
         register(definition);
@@ -368,26 +343,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       }
     }
 
-    MergedAnnotation<Component> annotation = annotations.get(Component.class);
-    if (annotation.isPresent()) {
-      // compute bean names, maybe register multiple beans
-      String[] candidateNames = annotation.getStringArray(MergedAnnotation.VALUE);
-      String[] realNames = BeanDefinitionBuilder.determineName(definition.getName(), candidateNames);
-      if (realNames.length == 1) {
-        definition.setName(realNames[0]);
-        register(definition);
-      }
-      else {
-        for (String name : realNames) {
-          BeanDefinition clone = definition.cloneDefinition();
-          clone.setName(name);
-          register(clone);
-        }
-      }
-    }
-    else {
-      register(definition);
-    }
+    register(definition);
   }
 
   public boolean isEnableConditionEvaluation() {
