@@ -238,18 +238,18 @@ public class ClassPathScanningCandidateComponentProvider
    * @return a corresponding Set of autodetected bean definitions
    */
   public Set<BeanDefinition> findCandidateComponents(String basePackage) {
-    LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>();
     try {
-      scanCandidateComponents(basePackage, metadataReader -> {
+      LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>();
+      scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
         ScannedBeanDefinition sbd = new ScannedBeanDefinition(metadataReader);
         sbd.setSource(metadataReader.getResource());
         candidates.add(sbd);
       });
+      return candidates;
     }
     catch (IOException ex) {
       throw new BeanDefinitionStoreException("I/O failure during classpath scanning", ex);
     }
-    return candidates;
   }
 
   /**
@@ -332,11 +332,11 @@ public class ClassPathScanningCandidateComponentProvider
       }
       types.addAll(index.getCandidateTypes(basePackage, stereotype));
     }
-    MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
 
+    MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
     for (String type : types) {
       MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(type);
-      metadataReaderConsumer.accept(metadataReader);
+      metadataReaderConsumer.accept(metadataReader, metadataReaderFactory);
     }
   }
 
@@ -360,17 +360,19 @@ public class ClassPathScanningCandidateComponentProvider
    * and does match at least one include filter.
    *
    * @param metadataReader the ASM ClassReader for the class
+   * @param factory a factory for obtaining metadata readers
+   * for other classes (such as superclasses and interfaces)
    * @return whether the class qualifies as a candidate component
    */
-  protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
-    MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
+  protected boolean isCandidateComponent(
+          MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
     for (TypeFilter tf : excludeFilters) {
-      if (tf.match(metadataReader, metadataReaderFactory)) {
+      if (tf.match(metadataReader, factory)) {
         return false;
       }
     }
     for (TypeFilter tf : includeFilters) {
-      if (tf.match(metadataReader, metadataReaderFactory)) {
+      if (tf.match(metadataReader, factory)) {
         return isConditionMatch(metadataReader);
       }
     }
@@ -414,9 +416,9 @@ public class ClassPathScanningCandidateComponentProvider
     }
 
     @Override
-    public void accept(MetadataReader metadataReader) throws IOException {
-      if (isCandidateComponent(metadataReader) && isCandidateComponent(metadataReader.getAnnotationMetadata())) {
-        metadataReaderConsumer.accept(metadataReader);
+    public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
+      if (isCandidateComponent(metadataReader, factory) && isCandidateComponent(metadataReader.getAnnotationMetadata())) {
+        metadataReaderConsumer.accept(metadataReader, factory);
       }
     }
   }

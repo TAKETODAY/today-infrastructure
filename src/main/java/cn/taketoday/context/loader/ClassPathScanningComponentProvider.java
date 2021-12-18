@@ -124,7 +124,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * <p>Call this setter method <i>after</i> {@link #setResourceLoader} in order
    * for the given MetadataReaderFactory to override the default factory.
    */
-  public void setMetadataReaderFactory(MetadataReaderFactory metadataReaderFactory) {
+  public void setMetadataReaderFactory(@Nullable MetadataReaderFactory metadataReaderFactory) {
     this.metadataReaderFactory = metadataReaderFactory;
   }
 
@@ -151,15 +151,15 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
   private void doScanCandidateComponents(
           String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     boolean traceEnabled = log.isTraceEnabled();
-    MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
+    MetadataReaderFactory factory = getMetadataReaderFactory();
     String packageSearchPath = resourcePrefix + resolveBasePackage(basePackage) + '/' + this.resourcePattern;
     for (Resource resource : getResourceLoader().getResources(packageSearchPath)) {
       if (traceEnabled) {
         log.trace("Scanning {}", resource);
       }
       try {
-        MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-        metadataReaderConsumer.accept(metadataReader);
+        MetadataReader metadataReader = factory.getMetadataReader(resource);
+        metadataReaderConsumer.accept(metadataReader, factory);
       }
       catch (FileNotFoundException ex) {
         if (traceEnabled) {

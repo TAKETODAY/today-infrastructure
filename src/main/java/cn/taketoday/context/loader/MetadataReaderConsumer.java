@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 
 /**
  * MetadataReader Consumer
@@ -39,9 +40,11 @@ public interface MetadataReaderConsumer {
   /**
    * Performs this operation on the given argument.
    *
-   * @param metadataReader the input argument
+   * @param metadataReader the metadata reader for the target class
+   * @param factory a factory for obtaining metadata readers
+   * for other classes (such as superclasses and interfaces)
    */
-  void accept(MetadataReader metadataReader) throws IOException;
+  void accept(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException;
 
   /**
    * Returns a composed {@code Consumer} that performs, in sequence, this
@@ -58,9 +61,9 @@ public interface MetadataReaderConsumer {
    */
   default MetadataReaderConsumer andThen(MetadataReaderConsumer after) {
     Objects.requireNonNull(after);
-    return t -> {
-      accept(t);
-      after.accept(t);
+    return (metadataReader, factory) -> {
+      accept(metadataReader, factory);
+      after.accept(metadataReader, factory);
     };
   }
 

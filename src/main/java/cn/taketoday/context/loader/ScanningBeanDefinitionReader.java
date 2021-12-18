@@ -50,13 +50,12 @@ public class ScanningBeanDefinitionReader {
   private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
   private final DefinitionLoadingContext loadingContext;
 
-  private final ClassPathScanningCandidateComponentProvider componentProvider;
+  private final ClassPathScanningComponentProvider componentProvider;
 
   public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
     this.registry = loadingContext.getRegistry();
     this.loadingContext = loadingContext;
-    this.componentProvider = new ClassPathScanningCandidateComponentProvider(
-            false, loadingContext.getEnvironment());
+    this.componentProvider = new ClassPathScanningComponentProvider();
     componentProvider.setMetadataReaderFactory(loadingContext.getMetadataReaderFactory());
   }
 
@@ -111,7 +110,7 @@ public class ScanningBeanDefinitionReader {
       log.debug("Scanning component candidates from pattern location: [{}]", patternLocation);
     }
     try {
-      componentProvider.scan(patternLocation, metadataReader -> {
+      componentProvider.scan(patternLocation, (metadataReader, metadataReaderFactory) -> {
         scanningStrategies.loadBeanDefinitions(metadataReader, loadingContext);
       });
     }
