@@ -49,7 +49,7 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.NoUniqueBeanException;
+import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -259,7 +259,7 @@ public class ScheduledAnnotationBeanPostProcessor
         // Search for TaskScheduler bean...
         this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, TaskScheduler.class, false));
       }
-      catch (NoUniqueBeanException ex) {
+      catch (NoUniqueBeanDefinitionException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Could not find unique TaskScheduler bean - attempting to resolve by name: {}",
                   ex.getMessage());
@@ -286,7 +286,7 @@ public class ScheduledAnnotationBeanPostProcessor
         try {
           this.registrar.setScheduler(resolveSchedulerBean(this.beanFactory, ScheduledExecutorService.class, false));
         }
-        catch (NoUniqueBeanException ex2) {
+        catch (NoUniqueBeanDefinitionException ex2) {
           if (log.isTraceEnabled()) {
             log.trace("Could not find unique ScheduledExecutorService bean - attempting to resolve by name: {}",
                     ex2.getMessage());

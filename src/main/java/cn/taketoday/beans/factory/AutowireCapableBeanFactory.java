@@ -209,7 +209,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param requiredType type the bean must match; can be an interface or superclass
    * @return the bean name plus bean instance
    * @throws NoSuchBeanDefinitionException if no matching bean was found
-   * @throws NoUniqueBeanException if more than one matching bean was found
+   * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
    * @throws BeansException if the bean could not be created
    * @see #getBean(Class)
    * @since 4.0

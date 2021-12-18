@@ -37,96 +37,96 @@ class AspectJTypeFilterTests {
 
   @Test
   void namePatternMatches() throws Exception {
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
-            "example.type.AspectJTypeFilterTestsTypes.SomeClass");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
+            "type.AspectJTypeFilterTestsTypes.SomeClass");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
             "*");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
             "*..SomeClass");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
-            "example..SomeClass");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
+            "type..SomeClass");
   }
 
   @Test
   void namePatternNoMatches() throws Exception {
-    assertNoMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
-            "example.type.AspectJTypeFilterTestsTypes.SomeClassX");
+    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
+            "type.AspectJTypeFilterTestsTypes.SomeClassX");
   }
 
   @Test
   void subclassPatternMatches() throws Exception {
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
-            "example.type.AspectJTypeFilterTestsTypes.SomeClass+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
+            "type.AspectJTypeFilterTestsTypes.SomeClass+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
             "*+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
             "java.lang.Object+");
 
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
-            "example.type.AspectJTypeFilterTestsTypes.SomeInterface+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
+            "type.AspectJTypeFilterTestsTypes.SomeInterface+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
             "*+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
             "java.lang.Object+");
 
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "example.type.AspectJTypeFilterTestsTypes.SomeInterface+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "example.type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "example.type.AspectJTypeFilterTestsTypes.SomeClass+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+            "type.AspectJTypeFilterTestsTypes.SomeInterface+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+            "type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+            "type.AspectJTypeFilterTestsTypes.SomeClass+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
             "*+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
             "java.lang.Object+");
   }
 
   @Test
   void subclassPatternNoMatches() throws Exception {
-    assertNoMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
+    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
             "java.lang.String+");
   }
 
   @Test
   void annotationPatternMatches() throws Exception {
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.core.testfixture.stereotype.Component *..*");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+            "@cn.taketoday.lang.Component *..*");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
             "@* *..*");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
             "@*..* *..*");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
             "@*..*Component *..*");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.core.testfixture.stereotype.Component *..*Component");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.core.testfixture.stereotype.Component *");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+            "@cn.taketoday.lang.Component *..*Component");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+            "@cn.taketoday.lang.Component *");
   }
 
   @Test
   void annotationPatternNoMatches() throws Exception {
-    assertNoMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.stereotype.Repository *..*");
+    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+            "@cn.taketoday.lang.Repository *..*");
   }
 
   @Test
   void compositionPatternMatches() throws Exception {
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
             "!*..SomeOtherClass");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "example.type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
-                    "&& example.type.AspectJTypeFilterTestsTypes.SomeClass+ " +
-                    "&& example.type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
-    assertMatch("example.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "example.type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
-                    "|| example.type.AspectJTypeFilterTestsTypes.SomeClass+ " +
-                    "|| example.type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+            "type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
+                    "&& type.AspectJTypeFilterTestsTypes.SomeClass+ " +
+                    "&& type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
+    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
+            "type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
+                    "|| type.AspectJTypeFilterTestsTypes.SomeClass+ " +
+                    "|| type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
   }
 
   @Test
   void compositionPatternNoMatches() throws Exception {
-    assertNoMatch("example.type.AspectJTypeFilterTestsTypes$SomeClass",
-            "*..Bogus && example.type.AspectJTypeFilterTestsTypes.SomeClass");
+    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
+            "*..Bogus && type.AspectJTypeFilterTestsTypes.SomeClass");
   }
 
   private void assertMatch(String type, String typePattern) throws Exception {

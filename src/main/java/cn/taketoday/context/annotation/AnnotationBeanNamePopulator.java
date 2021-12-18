@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -28,6 +27,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -36,7 +36,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -201,8 +200,7 @@ public class AnnotationBeanNamePopulator implements BeanNamePopulator {
   protected String buildDefaultBeanName(BeanDefinition definition) {
     String beanClassName = definition.getBeanClassName();
     Assert.state(beanClassName != null, "No bean class name set");
-    String shortClassName = ClassUtils.getShortName(beanClassName);
-    return Introspector.decapitalize(shortClassName);
+    return BeanDefinitionBuilder.defaultBeanName(beanClassName);
   }
 
 }

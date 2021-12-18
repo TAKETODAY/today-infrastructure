@@ -158,7 +158,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * Return the number of beans found when only one matching bean was expected.
    * For a regular NoSuchBeanDefinitionException, this will always be 0.
    *
-   * @see NoUniqueBeanException
+   * @see NoUniqueBeanDefinitionException
    */
   public int getNumberOfBeansFound() {
     return 0;

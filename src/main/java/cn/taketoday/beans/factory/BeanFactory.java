@@ -368,7 +368,7 @@ public interface BeanFactory extends ArgumentsResolverProvider {
    * @param requiredType type the bean must match; can be an interface or superclass
    * @return an instance of the single bean matching the required type, returns null
    * if it doesn't exist.
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @since 3.0
    */

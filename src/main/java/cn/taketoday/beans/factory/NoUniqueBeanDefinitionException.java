@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -35,83 +36,81 @@ import cn.taketoday.util.StringUtils;
  * @see BeanFactory#getBean(Class)
  * @since 4.0
  */
-public class NoUniqueBeanException extends BeansException {
+public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final int numberOfBeansFound;
 
   @Nullable
-  private final ResolvableType resolvableType;
-
-  @Nullable
   private final Collection<String> beanNamesFound;
 
   /**
-   * Create a new {@code NoUniqueBeanException}.
+   * Create a new {@code NoUniqueBeanDefinitionException}.
    *
    * @param type required type of the non-unique bean
    * @param numberOfBeansFound the number of matching beans
    * @param message detailed message describing the problem
    */
-  public NoUniqueBeanException(Class<?> type, int numberOfBeansFound, String message) {
-    super(message);
-    this.beanNamesFound = null;
+  public NoUniqueBeanDefinitionException(Class<?> type, int numberOfBeansFound, String message) {
+    super(type, message);
     this.numberOfBeansFound = numberOfBeansFound;
-    this.resolvableType = ResolvableType.fromClass(type);
+    this.beanNamesFound = null;
   }
 
   /**
-   * Create a new {@code NoUniqueBeanException}.
+   * Create a new {@code NoUniqueBeanDefinitionException}.
    *
    * @param type required type of the non-unique bean
    * @param beanNamesFound the names of all matching beans (as a Collection)
    */
-  public NoUniqueBeanException(Class<?> type, Collection<String> beanNamesFound) {
-    super("expected single matching bean but found " + beanNamesFound.size() + ": " +
-                  StringUtils.collectionToString(beanNamesFound));
+  public NoUniqueBeanDefinitionException(Class<?> type, Collection<String> beanNamesFound) {
+    super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
+            StringUtils.collectionToString(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
     this.beanNamesFound = beanNamesFound;
-    this.resolvableType = ResolvableType.fromClass(type);
   }
 
   /**
-   * Create a new {@code NoUniqueBeanException}.
+   * Create a new {@code NoUniqueBeanDefinitionException}.
    *
    * @param type required type of the non-unique bean
    * @param beanNamesFound the names of all matching beans (as an array)
    */
-  public NoUniqueBeanException(Class<?> type, String... beanNamesFound) {
+  public NoUniqueBeanDefinitionException(Class<?> type, String... beanNamesFound) {
     this(type, Arrays.asList(beanNamesFound));
   }
 
   /**
-   * Create a new {@code NoUniqueBeanException}.
+   * Create a new {@code NoUniqueBeanDefinitionException}.
    *
    * @param type required type of the non-unique bean
    * @param beanNamesFound the names of all matching beans (as a Collection)
    */
-  public NoUniqueBeanException(@Nullable ResolvableType type, Collection<String> beanNamesFound) {
-    super("expected single matching bean but found " + beanNamesFound.size() + ": " +
-                  StringUtils.collectionToString(beanNamesFound));
-    this.resolvableType = type;
-    this.beanNamesFound = beanNamesFound;
+  public NoUniqueBeanDefinitionException(ResolvableType type, Collection<String> beanNamesFound) {
+    super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
+            StringUtils.collectionToString(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
+    this.beanNamesFound = beanNamesFound;
   }
 
   /**
-   * Create a new {@code NoUniqueBeanException}.
+   * Create a new {@code NoUniqueBeanDefinitionException}.
    *
    * @param type required type of the non-unique bean
    * @param beanNamesFound the names of all matching beans (as an array)
    */
-  public NoUniqueBeanException(ResolvableType type, String... beanNamesFound) {
+  public NoUniqueBeanDefinitionException(ResolvableType type, String... beanNamesFound) {
     this(type, Arrays.asList(beanNamesFound));
   }
 
   /**
    * Return the number of beans found when only one matching bean was expected.
-   * For a NoUniqueBeanException, this will usually be higher than 1.
+   * For a NoUniqueBeanDefinitionException, this will usually be higher than 1.
+   *
+   * @see #getBeanType()
    */
+  @Override
   public int getNumberOfBeansFound() {
     return this.numberOfBeansFound;
   }
@@ -119,19 +118,12 @@ public class NoUniqueBeanException extends BeansException {
   /**
    * Return the names of all beans found when only one matching bean was expected.
    * Note that this may be {@code null} if not specified at construction time.
+   *
+   * @see #getBeanType()
    */
   @Nullable
   public Collection<String> getBeanNamesFound() {
     return this.beanNamesFound;
-  }
-
-  /**
-   * Return the required {@link ResolvableType} of the missing bean, if it was a lookup
-   * <em>by type</em> that failed.
-   */
-  @Nullable
-  public ResolvableType getResolvableType() {
-    return this.resolvableType;
   }
 
 }

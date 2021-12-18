@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.NoUniqueBeanException;
+import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
@@ -240,7 +240,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         }
         return executor;
       }
-      catch (NoUniqueBeanException ex) {
+      catch (NoUniqueBeanDefinitionException ex) {
         log.debug("Could not find unique TaskExecutor bean", ex);
         Executor executor = beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
         if (executor == null) {

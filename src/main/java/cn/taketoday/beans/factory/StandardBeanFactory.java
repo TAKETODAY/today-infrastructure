@@ -264,7 +264,7 @@ public class StandardBeanFactory
         return getBeanDefinition(primaryCandidate);
       }
       // fall
-      throw new NoUniqueBeanException(requiredType, candidateNames);
+      throw new NoUniqueBeanDefinitionException(requiredType, candidateNames);
     }
     return null;
   }
@@ -433,7 +433,7 @@ public class StandardBeanFactory
 
       // fall
       if (!nonUniqueAsNull) {
-        throw new NoUniqueBeanException(requiredType, candidateNames);
+        throw new NoUniqueBeanDefinitionException(requiredType, candidateNames);
       }
     }
 
@@ -486,7 +486,7 @@ public class StandardBeanFactory
           boolean candidateLocal = containsBeanDefinition(candidateBeanName);
           boolean primaryLocal = containsBeanDefinition(primaryBeanName);
           if (candidateLocal && primaryLocal) {
-            throw new NoUniqueBeanException(
+            throw new NoUniqueBeanDefinitionException(
                     requiredType, candidates.size(),
                     "more than one 'primary' bean found among candidates: " + candidates);
           }
@@ -525,7 +525,7 @@ public class StandardBeanFactory
         if (candidatePriority != null) {
           if (highestPriorityBeanName != null) {
             if (candidatePriority.equals(highestPriority)) {
-              throw new NoUniqueBeanException(
+              throw new NoUniqueBeanDefinitionException(
                       requiredType, candidates.size(),
                       "Multiple beans found with the same priority ('" + highestPriority +
                               "') among candidates: " + candidates.keySet());

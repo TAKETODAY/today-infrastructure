@@ -424,7 +424,7 @@ public abstract class BeanFactoryUtils {
    * @param type type of bean to match
    * @return the matching bean instance
    * @throws NoSuchBeanDefinitionException if no bean of the given type was found
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @see #beansOfTypeIncludingAncestors(BeanFactory, Class)
    */
@@ -460,7 +460,7 @@ public abstract class BeanFactoryUtils {
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the matching bean instance
    * @throws NoSuchBeanDefinitionException if no bean of the given type was found
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @see #beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    */
@@ -486,7 +486,7 @@ public abstract class BeanFactoryUtils {
    * @param type type of bean to match
    * @return the matching bean instance
    * @throws NoSuchBeanDefinitionException if no bean of the given type was found
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @see BeanFactory#getBeansOfType(Class)
    */
@@ -518,7 +518,7 @@ public abstract class BeanFactoryUtils {
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the matching bean instance
    * @throws NoSuchBeanDefinitionException if no bean of the given type was found
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @see BeanFactory#getBeansOfType(Class, boolean, boolean)
    */
@@ -555,7 +555,7 @@ public abstract class BeanFactoryUtils {
    * @param matchingBeans all matching beans found
    * @return the unique bean instance
    * @throws NoSuchBeanDefinitionException if no bean of the given type was found
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    */
   private static <T> T uniqueBean(Class<T> type, Map<String, T> matchingBeans) {
     int count = matchingBeans.size();
@@ -563,7 +563,7 @@ public abstract class BeanFactoryUtils {
       return matchingBeans.values().iterator().next();
     }
     else if (count > 1) {
-      throw new NoUniqueBeanException(type, matchingBeans.keySet());
+      throw new NoUniqueBeanDefinitionException(type, matchingBeans.keySet());
     }
     else {
       throw new NoSuchBeanDefinitionException(type);
@@ -623,7 +623,7 @@ public abstract class BeanFactoryUtils {
    *
    * @param type type the bean must match; can be an interface or superclass
    * @return an instance of the single bean matching the required type
-   * @throws NoUniqueBeanException if more than one bean of the given type was found
+   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
    * @throws NullPointerException factory is {@code null}
    * @see BeanFactory#getBean(Class)
@@ -722,7 +722,7 @@ public abstract class BeanFactoryUtils {
    * @param beanType the type of bean to retrieve
    * @param qualifier the qualifier for selecting between multiple bean matches
    * @return the matching bean of type {@code T} (never {@code null})
-   * @throws NoUniqueBeanException if multiple matching beans of type {@code T} found
+   * @throws NoUniqueBeanDefinitionException if multiple matching beans of type {@code T} found
    * @throws NoSuchBeanDefinitionException if no matching bean of type {@code T} found
    * @throws BeansException if the bean could not be created
    * @see BeanFactoryUtils#beanOfTypeIncludingAncestors(BeanFactory, Class)
@@ -736,7 +736,7 @@ public abstract class BeanFactoryUtils {
     for (String beanName : candidateBeans) {
       if (isQualifierMatch(qualifier::equals, beanName, beanFactory)) {
         if (matchingBean != null) {
-          throw new NoUniqueBeanException(beanType, matchingBean, beanName);
+          throw new NoUniqueBeanDefinitionException(beanType, matchingBean, beanName);
         }
         matchingBean = beanName;
       }
