@@ -82,6 +82,10 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
     // un-ordered
     resolvingStrategies.addAll(strategies); // @since 4.0
+    try {
+      resolvingStrategies.add(new ProviderDependencyResolvingStrategy());
+    }
+    catch (Exception ignored) { }
     AnnotationAwareOrderComparator.sort(resolvingStrategies);
 
     // last one

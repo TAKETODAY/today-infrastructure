@@ -334,7 +334,7 @@ public abstract class BeanFactoryUtils {
           BeanFactory factory, Class<T> type) throws BeansException {
 
     Assert.notNull(factory, "BeanFactory must not be null");
-    Map<String, T> result = new LinkedHashMap<>(4);
+    LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
     result.putAll(factory.getBeansOfType(type));
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {

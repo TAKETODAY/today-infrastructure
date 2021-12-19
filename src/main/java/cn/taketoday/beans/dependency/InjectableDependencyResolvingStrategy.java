@@ -61,7 +61,7 @@ import cn.taketoday.util.StringUtils;
 public class InjectableDependencyResolvingStrategy
         extends InjectableAnnotationsSupport implements DependencyResolvingStrategy {
 
-  private QualifierRetriever qualifierRetriever = QualifierRetrievers.shared;
+  protected QualifierRetriever qualifierRetriever = QualifierRetrievers.shared;
 
   protected boolean supportsDependency(
           InjectionPoint injectionPoint, DependencyResolvingContext context) {

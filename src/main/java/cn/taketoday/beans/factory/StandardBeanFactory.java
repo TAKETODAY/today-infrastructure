@@ -21,10 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -691,16 +688,13 @@ public class StandardBeanFactory
 
   private Comparator<Object> adaptOrderComparator(Map<String, ?> matchingBeans) {
     Comparator<Object> dependencyComparator = getDependencyComparator();
-    OrderComparator comparator = dependencyComparator instanceof OrderComparator ? (OrderComparator) dependencyComparator : OrderComparator.INSTANCE;
+    OrderComparator comparator = dependencyComparator instanceof OrderComparator
+                                 ? (OrderComparator) dependencyComparator : OrderComparator.INSTANCE;
     return comparator.withSourceProvider(createFactoryAwareOrderSourceProvider(matchingBeans));
   }
 
   private OrderSourceProvider createFactoryAwareOrderSourceProvider(Map<String, ?> beans) {
-    IdentityHashMap<Object, String> instancesToBeanNames = new IdentityHashMap<>();
-    for (Map.Entry<String, ?> entry : beans.entrySet()) {
-      instancesToBeanNames.put(entry.getValue(), entry.getKey());
-    }
-    return new FactoryAwareOrderSourceProvider(instancesToBeanNames);
+    return new FactoryAwareOrderSourceProvider(this, beans);
   }
 
   @Override
@@ -918,8 +912,10 @@ public class StandardBeanFactory
   @Override
   public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
     super.copyConfigurationFrom(otherFactory);
-    if (otherFactory instanceof StandardBeanFactory) {
-      this.allowBeanDefinitionOverriding = ((StandardBeanFactory) otherFactory).allowBeanDefinitionOverriding;
+    if (otherFactory instanceof StandardBeanFactory std) {
+      this.dependencyComparator = std.dependencyComparator;
+      this.allowEagerClassLoading = std.allowEagerClassLoading;
+      this.allowBeanDefinitionOverriding = std.allowBeanDefinitionOverriding;
     }
   }
 
@@ -993,40 +989,5 @@ public class StandardBeanFactory
   }
 
   private interface BeanObjectSupplier<T> extends ObjectSupplier<T>, Serializable { }
-
-  /**
-   * An {@link cn.taketoday.core.OrderSourceProvider} implementation
-   * that is aware of the bean metadata of the instances to sort.
-   * <p>Lookup for the method factory of an instance to sort, if any, and let the
-   * comparator retrieve the {@link cn.taketoday.core.Order}
-   * value defined on it. This essentially allows for the following construct:
-   */
-  private class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
-
-    private final Map<Object, String> instancesToBeanNames;
-
-    public FactoryAwareOrderSourceProvider(Map<Object, String> instancesToBeanNames) {
-      this.instancesToBeanNames = instancesToBeanNames;
-    }
-
-    @Override
-    @Nullable
-    public Object getOrderSource(Object obj) {
-      String beanName = this.instancesToBeanNames.get(obj);
-      if (beanName == null || !containsBeanDefinition(beanName)) {
-        return null;
-      }
-      BeanDefinition beanDefinition = obtainBeanDefinition(beanName);
-      ArrayList<Object> sources = new ArrayList<>(2);
-      if (beanDefinition.executable instanceof Method factoryMethod) {
-        sources.add(factoryMethod);
-      }
-      Class<?> targetType = beanDefinition.hasBeanClass() ? beanDefinition.getBeanClass() : null;
-      if (targetType != null && targetType != obj.getClass()) {
-        sources.add(targetType);
-      }
-      return sources.toArray();
-    }
-  }
 
 }

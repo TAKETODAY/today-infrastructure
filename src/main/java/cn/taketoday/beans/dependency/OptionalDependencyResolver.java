@@ -26,7 +26,12 @@ import java.util.Optional;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/18 21:57</a>
  * @since 4.0
  */
-public class OptionalDependencyResolver implements DependencyResolvingStrategy {
+public class OptionalDependencyResolver extends InjectableDependencyResolvingStrategy {
+
+  @Override
+  protected boolean supportsInternal(InjectionPoint injectionPoint, DependencyResolvingContext context) {
+    return injectionPoint.dependencyIs(Optional.class);
+  }
 
   @Override
   public void resolveDependency(
@@ -36,7 +41,6 @@ public class OptionalDependencyResolver implements DependencyResolvingStrategy {
         context.setDependency(Optional.ofNullable(context.getDependency()));
       }
       else {
-
 
       }
     }

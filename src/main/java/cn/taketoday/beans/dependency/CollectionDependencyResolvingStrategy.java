@@ -21,11 +21,15 @@
 package cn.taketoday.beans.dependency;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.FactoryAwareOrderSourceProvider;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.CollectionUtils;
@@ -53,17 +57,37 @@ public class CollectionDependencyResolvingStrategy
         throw new DependencyResolvingFailedException(
                 "cannot determine a exactly bean type from injection-point: " + injectionPoint);
       }
-      Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);
-      Collection<Object> objects = CollectionUtils.createCollection(
-              injectionPoint.getDependencyType(), beans.size());
-      if (!beans.isEmpty()) {
-        objects.addAll(beans.values());
+      Set<String> beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, type);
+
+      Map<String, Object> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
+      for (String beanName : beanNames) {
+        Object beanInstance = beanFactory.getBean(beanName);
+        if (beanInstance != null) {
+          matchingBeans.put(beanName, beanInstance);
+        }
       }
-      if (objects instanceof List list) {
-        AnnotationAwareOrderComparator.sort(list);
+
+      Collection<Object> objects = CollectionUtils.createCollection(
+              injectionPoint.getDependencyType(), matchingBeans.size());
+      if (!matchingBeans.isEmpty()) {
+        objects.addAll(matchingBeans.values());
+      }
+
+      if (objects instanceof List<Object> list) {
+        // ordering
+        sort(beanFactory, matchingBeans, list);
       }
       context.setDependency(objects);
     }
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  static void sort(BeanFactory beanFactory, Map matchingBeans, List<Object> list) {
+    FactoryAwareOrderSourceProvider sourceProvider =
+            new FactoryAwareOrderSourceProvider(beanFactory, matchingBeans);
+    Comparator<Object> objectComparator = AnnotationAwareOrderComparator.INSTANCE
+            .withSourceProvider(sourceProvider);
+    list.sort(objectComparator);
   }
 
 }

@@ -1,10 +1,10 @@
 package cn.taketoday.beans.dependency;
 
+import java.util.Map;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
-
-import java.util.Map;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

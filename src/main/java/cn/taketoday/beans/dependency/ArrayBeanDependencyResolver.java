@@ -20,10 +20,11 @@
 package cn.taketoday.beans.dependency;
 
 import java.lang.reflect.Array;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -44,13 +45,16 @@ public class ArrayBeanDependencyResolver
   protected void resolveInternal(
           InjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
     Class<?> componentType = injectionPoint.getDependencyType().getComponentType();
-    List<?> beans = beanFactory.getBeans(componentType);
-    if (CollectionUtils.isEmpty(beans)) {
+    Map<String, ?> matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(beanFactory, componentType);
+
+    if (CollectionUtils.isEmpty(matchingBeans)) {
       context.setDependency(Array.newInstance(componentType, 0));
     }
     else {
-      Object array = Array.newInstance(componentType, beans.size());
-      AnnotationAwareOrderComparator.sort(beans);
+
+      Object array = Array.newInstance(componentType, matchingBeans.size());
+      ArrayList<Object> beans = new ArrayList<>(matchingBeans.values());
+      CollectionDependencyResolvingStrategy.sort(beanFactory, matchingBeans, beans);
       context.setDependency(beans.toArray((Object[]) array));
     }
   }
