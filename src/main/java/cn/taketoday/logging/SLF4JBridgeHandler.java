@@ -336,7 +336,7 @@ public class SLF4JBridgeHandler extends Handler {
    */
   public static void removeHandlersForRootLogger() {
     java.util.logging.Logger rootLogger = getRootLogger();
-    java.util.logging.Handler[] handlers = rootLogger.getHandlers();
+    Handler[] handlers = rootLogger.getHandlers();
     for (Handler handler : handlers) {
       rootLogger.removeHandler(handler);
     }

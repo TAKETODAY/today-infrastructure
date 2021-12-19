@@ -32,7 +32,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.AnnotationHandlerMethod;
-import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParametersBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;

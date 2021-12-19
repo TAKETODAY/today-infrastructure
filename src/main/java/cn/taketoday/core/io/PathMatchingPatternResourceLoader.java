@@ -433,10 +433,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           JarEntryResource jarResource = new JarEntryResource(new URL(url), jarFile, BLANK);
           // Potentially overlapping with URLClassLoader.getURLs() result above!
           consumer.accept(jarResource);
-//          if (!result.contains(jarResource) && !hasDuplicate(filePath, result) && jarFile.exists()) {
-//            result.add(jarResource);
-//            consumer.accept(jarResource);
-//          }
         }
         catch (MalformedURLException ex) {
           log.debug("Cannot search for matching files underneath [{}] because it cannot be converted to a valid 'jar:' URL: {}",
@@ -446,36 +442,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
     catch (Exception ex) {
       log.debug("Failed to evaluate 'java.class.path' manifest entries: ", ex);
-    }
-  }
-
-  /**
-   * Check whether the given file path has a duplicate but differently structured
-   * entry in the existing result, i.e. with or without a leading slash.
-   *
-   * @param filePath the file path (with or without a leading slash)
-   * @param result the current result
-   * @return {@code true} if there is a duplicate (i.e. to ignore the given file
-   * path), {@code false} to proceed with adding a corresponding resource
-   * to the current result
-   */
-  private boolean hasDuplicate(String filePath, Set<Resource> result) {
-    if (result.isEmpty()) {
-      return false;
-    }
-    String duplicatePath = StringUtils.matchesFirst(filePath, '/')
-                           ? filePath.substring(1)
-                           : "/".concat(filePath);
-    try {
-      return result.contains(new JarEntryResource(
-              new StringBuilder(duplicatePath.length() + 11)
-                      .append(ResourceUtils.JAR_ENTRY_URL_PREFIX)
-                      .append(duplicatePath)
-                      .append(ResourceUtils.JAR_URL_SEPARATOR).toString())
-      );
-    }
-    catch (IOException ex) {
-      return false; // Ignore: just for testing against duplicate.
     }
   }
 

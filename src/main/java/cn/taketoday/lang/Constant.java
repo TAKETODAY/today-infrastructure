@@ -28,7 +28,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.EmptyObject;
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.util.ClassUtils;
 
 /**

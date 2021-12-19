@@ -19,10 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
@@ -34,11 +30,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Represents a MIME Type, as originally defined in RFC 2046 and subsequently
@@ -114,11 +113,11 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   private final String subtype;
   private final Map<String, String> parameters;
 
-	@Nullable
-	private transient Charset resolvedCharset;
+  @Nullable
+  private transient Charset resolvedCharset;
 
-	@Nullable
-	private volatile String toStringValue;
+  @Nullable
+  private volatile String toStringValue;
 
   /**
    * Create a new {@code MimeType} for the given primary type.
@@ -319,17 +318,18 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   /**
-	 * Return the subtype suffix as defined in RFC 6839.
-	 * @since 4.0
-	 */
-	@Nullable
-	public String getSubtypeSuffix() {
-		int suffixIndex = this.subtype.lastIndexOf('+');
-		if (suffixIndex != -1 && this.subtype.length() > suffixIndex) {
-			return this.subtype.substring(suffixIndex + 1);
-		}
-		return null;
-	}
+   * Return the subtype suffix as defined in RFC 6839.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getSubtypeSuffix() {
+    int suffixIndex = this.subtype.lastIndexOf('+');
+    if (suffixIndex != -1 && this.subtype.length() > suffixIndex) {
+      return this.subtype.substring(suffixIndex + 1);
+    }
+    return null;
+  }
 
   /**
    * Return the character set, as indicated by a {@code charset} parameter, if

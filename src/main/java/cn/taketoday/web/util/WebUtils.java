@@ -535,8 +535,8 @@ public abstract class WebUtils {
    * @param ex the exception encountered
    * @param servletName the name of the offending servlet
    */
-  public static void exposeErrorRequestAttributes(HttpServletRequest request, Throwable ex,
-                                                  @Nullable String servletName) {
+  public static void exposeErrorRequestAttributes(
+          HttpServletRequest request, Throwable ex, @Nullable String servletName) {
 
     exposeRequestAttributeIfNotPresent(request, ERROR_STATUS_CODE_ATTRIBUTE, HttpServletResponse.SC_OK);
     exposeRequestAttributeIfNotPresent(request, ERROR_EXCEPTION_TYPE_ATTRIBUTE, ex.getClass());
@@ -720,15 +720,15 @@ public abstract class WebUtils {
       if (prefix.isEmpty() || paramName.startsWith(prefix)) {
         String unprefixed = paramName.substring(prefix.length());
         String[] values = request.getParameterValues(paramName);
-        if (values == null || values.length == 0) {
-          // Do nothing, no values found at all.
+        if (ObjectUtils.isNotEmpty(values)) {
+          if (values.length > 1) {
+            params.put(unprefixed, values);
+          }
+          else {
+            params.put(unprefixed, values[0]);
+          }
         }
-        else if (values.length > 1) {
-          params.put(unprefixed, values);
-        }
-        else {
-          params.put(unprefixed, values[0]);
-        }
+        // else Do nothing, no values found at all.
       }
     }
     return params;

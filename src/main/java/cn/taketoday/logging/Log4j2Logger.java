@@ -30,7 +30,7 @@ import java.io.Serial;
  * @author TODAY <br>
  * 2019-11-03 16:09
  */
-final class Log4j2Logger extends cn.taketoday.logging.Logger {
+final class Log4j2Logger extends Logger {
 
   private static final LoggerContext loggerContext =
           LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
