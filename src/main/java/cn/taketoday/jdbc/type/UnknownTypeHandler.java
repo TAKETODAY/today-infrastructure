@@ -19,14 +19,13 @@
  */
 package cn.taketoday.jdbc.type;
 
-import cn.taketoday.util.ClassUtils;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
+
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author Clinton Begin
@@ -86,31 +85,6 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   }
 
   private TypeHandler<?> resolveTypeHandler(final ResultSet rs, final String column) {
-    try {
-      HashMap<String, Integer> columnIndexLookup = new HashMap<>();
-      ResultSetMetaData rsmd = rs.getMetaData();
-      int count = rsmd.getColumnCount();
-      boolean useColumnLabel = isUseColumnLabel();
-      for (int i = 1; i <= count; i++) {
-        String name = useColumnLabel ? rsmd.getColumnLabel(i) : rsmd.getColumnName(i);
-        columnIndexLookup.put(name, i);
-      }
-      Integer columnIndex = columnIndexLookup.get(column);
-      TypeHandler<?> handler = null;
-      if (columnIndex != null) {
-        handler = resolveTypeHandler(rsmd, columnIndex);
-      }
-      if (handler == null || handler instanceof UnknownTypeHandler) {
-        handler = ObjectTypeHandler.getSharedInstance();
-      }
-      return handler;
-    }
-    catch (SQLException e) {
-      throw new TypeException("Error determining JDBC type for column " + column + ".  Cause: " + e, e);
-    }
-  }
-
-  private TypeHandler<?> resolveTypeHandler0(final ResultSet rs, final String column) {
     try {
       ResultSetMetaData rsmd = rs.getMetaData();
       int count = rsmd.getColumnCount();
