@@ -19,14 +19,13 @@
  */
 package cn.taketoday.web.socket.client;
 
-import cn.taketoday.http.HttpHeaders;
+import java.net.URI;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
-
-import java.net.URI;
 
 /**
  * Contract for initiating a WebSocket request. As an alternative considering using the

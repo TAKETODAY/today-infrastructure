@@ -147,7 +147,7 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   @Nullable
-  private static okhttp3.MediaType getContentType(HttpHeaders headers) {
+  private static MediaType getContentType(HttpHeaders headers) {
     String rawContentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
     return StringUtils.hasText(rawContentType) ? MediaType.parse(rawContentType) : null;
   }

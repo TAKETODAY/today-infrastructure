@@ -379,7 +379,7 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
     @Override
     @Nullable
     public Object invoke(MethodInvocation invocation) throws Throwable {
-      Context ctx = (isEligible(invocation.getMethod()) ? this.jndiTemplate.getContext() : null);
+      Context ctx = isEligible(invocation.getMethod()) ? this.jndiTemplate.getContext() : null;
       try {
         return invocation.proceed();
       }
@@ -388,8 +388,8 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
       }
     }
 
-    protected boolean isEligible(Method method) {
-      return (Object.class != method.getDeclaringClass());
+    private boolean isEligible(Method method) {
+      return Object.class != method.getDeclaringClass();
     }
   }
 
