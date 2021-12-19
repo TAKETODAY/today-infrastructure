@@ -24,7 +24,6 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -38,8 +37,7 @@ public class ArrayBeanDependencyResolver
   protected boolean supportsInternal(
           InjectionPoint injectionPoint, DependencyResolvingContext context) {
     Class<?> type = injectionPoint.getDependencyType();
-    Class<?> componentType = type.getComponentType();
-    return componentType != null && !ClassUtils.isSimpleType(componentType);
+    return type.isArray();
   }
 
   @Override
