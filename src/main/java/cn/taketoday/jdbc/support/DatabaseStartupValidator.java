@@ -78,10 +78,7 @@ public class DatabaseStartupValidator implements InitializingBean {
 
   /**
    * Set the SQL query string to use for validation.
-   *
-   * @deprecated as of 5.3, in favor of the JDBC 4.0 connection validation
    */
-  @Deprecated
   public void setValidationQuery(String validationQuery) {
     this.validationQuery = validationQuery;
   }

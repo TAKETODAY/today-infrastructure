@@ -21,7 +21,6 @@ package cn.taketoday.jdbc.utils;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -633,48 +632,6 @@ public abstract class JdbcUtils {
     finally {
       DataSourceUtils.releaseConnection(con, dataSource);
     }
-  }
-
-  /**
-   * Call the specified method on DatabaseMetaData for the given DataSource,
-   * and extract the invocation result.
-   *
-   * @param dataSource the DataSource to extract meta-data for
-   * @param metaDataMethodName the name of the DatabaseMetaData method to call
-   * @return the object returned by the specified DatabaseMetaData method
-   * @throws MetaDataAccessException if we couldn't access the DatabaseMetaData
-   * or failed to invoke the specified method
-   * @see java.sql.DatabaseMetaData
-   * @deprecated as of 5.2.9, in favor of
-   * {@link #extractDatabaseMetaData(DataSource, DatabaseMetaDataCallback)}
-   * with a lambda expression or method reference and a generically typed result
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  public static <T> T extractDatabaseMetaData(DataSource dataSource, final String metaDataMethodName)
-          throws MetaDataAccessException {
-
-    return (T) extractDatabaseMetaData(dataSource,
-            dbmd -> {
-              try {
-                return DatabaseMetaData.class.getMethod(metaDataMethodName).invoke(dbmd);
-              }
-              catch (NoSuchMethodException ex) {
-                throw new MetaDataAccessException("No method named '" + metaDataMethodName +
-                        "' found on DatabaseMetaData instance [" + dbmd + "]", ex);
-              }
-              catch (IllegalAccessException ex) {
-                throw new MetaDataAccessException(
-                        "Could not access DatabaseMetaData method '" + metaDataMethodName + "'", ex);
-              }
-              catch (InvocationTargetException ex) {
-                if (ex.getTargetException() instanceof SQLException) {
-                  throw (SQLException) ex.getTargetException();
-                }
-                throw new MetaDataAccessException(
-                        "Invocation of DatabaseMetaData method '" + metaDataMethodName + "' failed", ex);
-              }
-            });
   }
 
   /**

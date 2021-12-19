@@ -211,28 +211,6 @@ public class UrlPathHelper {
   }
 
   /**
-   * Variant of {@link #getLookupPathForRequest(HttpServletRequest)} that
-   * automates checking for a previously computed lookupPath saved as a
-   * request attribute. The attribute is only used for lookup purposes.
-   *
-   * @param request current HTTP request
-   * @param name the request attribute that holds the lookupPath
-   * @return the lookup path
-   * @since 4.0
-   * @deprecated in favor of using
-   * {@link #resolveAndCacheLookupPath(HttpServletRequest)} and
-   * {@link #getResolvedLookupPath(ServletRequest)}.
-   */
-  @Deprecated
-  public String getLookupPathForRequest(HttpServletRequest request, @Nullable String name) {
-    String result = null;
-    if (name != null) {
-      result = (String) request.getAttribute(name);
-    }
-    return (result != null ? result : getLookupPathForRequest(request));
-  }
-
-  /**
    * Return the mapping lookup path for the given request, within the current
    * servlet mapping if applicable, else within the web application.
    * <p>Detects include request URL if called within a RequestDispatcher include.

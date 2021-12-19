@@ -688,7 +688,6 @@ public class MediaType extends MimeType implements Serializable {
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1:
    * Semantics and Content, section 5.3.2</a>
    */
-  @Deprecated
   public static void sortBySpecificity(List<MediaType> mediaTypes) {
     Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
     if (mediaTypes.size() > 1) {

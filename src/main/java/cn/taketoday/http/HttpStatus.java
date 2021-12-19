@@ -150,14 +150,6 @@ public enum HttpStatus {
    */
   FOUND(302, "Found"),
   /**
-   * {@code 302 Moved Temporarily}.
-   *
-   * @see <a href="https://tools.ietf.org/html/rfc1945#section-9.3">HTTP/1.0, section 9.3</a>
-   * @deprecated in favor of {@link #FOUND} which will be returned from {@code HttpStatus.valueOf(302)}
-   */
-  @Deprecated
-  MOVED_TEMPORARILY(302, "Moved Temporarily"),
-  /**
    * {@code 303 See Other}.
    *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.4.4">HTTP/1.1: Semantics and Content, section 6.4.4</a>
@@ -173,9 +165,8 @@ public enum HttpStatus {
    * {@code 305 Use Proxy}.
    *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.4.5">HTTP/1.1: Semantics and Content, section 6.4.5</a>
-   * @deprecated due to security concerns regarding in-band configuration of a proxy
+   * due to security concerns regarding in-band configuration of a proxy
    */
-  @Deprecated
   USE_PROXY(305, "Use Proxy"),
   /**
    * {@code 307 Temporary Redirect}.
@@ -284,10 +275,9 @@ public enum HttpStatus {
    * {@code 413 Request Entity Too Large}.
    *
    * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.4.14">HTTP/1.1, section 10.4.14</a>
-   * @deprecated in favor of {@link #PAYLOAD_TOO_LARGE} which will be
+   * in favor of {@link #PAYLOAD_TOO_LARGE} which will be
    * returned from {@code HttpStatus.valueOf(413)}
    */
-  @Deprecated
   REQUEST_ENTITY_TOO_LARGE(413, "Request Entity Too Large"),
   /**
    * {@code 414 URI Too Long}.
@@ -296,14 +286,6 @@ public enum HttpStatus {
    * HTTP/1.1: Semantics and Content, section 6.5.12</a>
    */
   URI_TOO_LONG(414, "URI Too Long"),
-  /**
-   * {@code 414 Request-URI Too Long}.
-   *
-   * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.4.15">HTTP/1.1, section 10.4.15</a>
-   * @deprecated in favor of {@link #URI_TOO_LONG} which will be returned from {@code HttpStatus.valueOf(414)}
-   */
-  @Deprecated
-  REQUEST_URI_TOO_LONG(414, "Request-URI Too Long"),
   /**
    * {@code 415 Unsupported Media Type}.
    *
@@ -331,24 +313,19 @@ public enum HttpStatus {
    */
   I_AM_A_TEAPOT(418, "I'm a teapot"),
   /**
-   * @deprecated See
-   * <a href="https://tools.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-ietf-webdav-protocol-06.txt">
+   * See <a href="https://tools.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-ietf-webdav-protocol-06.txt">
    * WebDAV Draft Changes</a>
    */
-  @Deprecated
   INSUFFICIENT_SPACE_ON_RESOURCE(419, "Insufficient Space On Resource"),
   /**
-   * @deprecated See
-   * <a href="https://tools.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-ietf-webdav-protocol-06.txt">
+   * See <a href="https://tools.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-ietf-webdav-protocol-06.txt">
    * WebDAV Draft Changes</a>
    */
-  @Deprecated
   METHOD_FAILURE(420, "Method Failure"),
   /**
-   * @deprecated See <a href="https://tools.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-ietf-webdav-protocol-06.txt">
+   * See <a href="https://tools.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-ietf-webdav-protocol-06.txt">
    * WebDAV Draft Changes</a>
    */
-  @Deprecated
   DESTINATION_LOCKED(421, "Destination Locked"),
   /**
    * {@code 422 Unprocessable Entity}.

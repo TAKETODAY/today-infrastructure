@@ -45,7 +45,7 @@ import cn.taketoday.lang.Nullable;
  * int rowCount = countCallback.getRowCount();</pre>
  *
  * @author Rod Johnson
- * @since May 3, 2001
+ * @since 4.0
  */
 public class RowCountCallbackHandler implements RowCallbackHandler {
 

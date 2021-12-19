@@ -106,7 +106,7 @@ import cn.taketoday.util.StringUtils;
  * @see RowCallbackHandler
  * @see RowMapper
  * @see cn.taketoday.jdbc.support.SQLExceptionTranslator
- * @since May 3, 2001
+ * @since 4.0
  */
 public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
@@ -162,8 +162,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    *
    * @see #setDataSource
    */
-  public JdbcTemplate() {
-  }
+  public JdbcTemplate() { }
 
   /**
    * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
@@ -217,7 +216,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * row data that will never be read by the application.
    * <p>Default is -1, indicating to use the JDBC driver's default configuration
    * (i.e. to not pass a specific fetch size setting on to the driver).
-   * <p>Note: As of 4.3, negative values other than -1 will get passed on to the
+   * <p>Note: negative values other than -1 will get passed on to the
    * driver, since e.g. MySQL supports special behavior for {@code Integer.MIN_VALUE}.
    *
    * @see Statement#setFetchSize
@@ -241,7 +240,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * that might return a large number of matches).
    * <p>Default is -1, indicating to use the JDBC driver's default configuration
    * (i.e. to not pass a specific max rows setting on to the driver).
-   * <p>Note: As of 4.3, negative values other than -1 will get passed on to the
+   * <p>Note: negative values other than -1 will get passed on to the
    * driver, in sync with {@link #setFetchSize}'s support for special MySQL values.
    *
    * @see Statement#setMaxRows
@@ -761,7 +760,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return query(sql, newArgTypePreparedStatementSetter(args, argTypes), rse);
   }
 
-  @Deprecated
   @Override
   @Nullable
   public <T> T query(String sql, @Nullable Object[] args, ResultSetExtractor<T> rse) throws DataAccessException {
@@ -789,7 +787,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     query(sql, newArgTypePreparedStatementSetter(args, argTypes), rch);
   }
 
-  @Deprecated
   @Override
   public void query(String sql, @Nullable Object[] args, RowCallbackHandler rch) throws DataAccessException {
     query(sql, newArgPreparedStatementSetter(args), rch);
@@ -815,7 +812,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return result(query(sql, args, argTypes, new RowMapperResultSetExtractor<>(rowMapper)));
   }
 
-  @Deprecated
   @Override
   public <T> List<T> query(String sql, @Nullable Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
     return result(query(sql, args, new RowMapperResultSetExtractor<>(rowMapper)));
@@ -884,7 +880,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return DataAccessUtils.nullableSingleResult(results);
   }
 
-  @Deprecated
   @Override
   @Nullable
   public <T> T queryForObject(String sql, @Nullable Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
@@ -907,7 +902,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return queryForObject(sql, args, argTypes, getSingleColumnRowMapper(requiredType));
   }
 
-  @Deprecated
   @Override
   public <T> T queryForObject(String sql, @Nullable Object[] args, Class<T> requiredType) throws DataAccessException {
     return queryForObject(sql, args, getSingleColumnRowMapper(requiredType));
@@ -933,7 +927,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return query(sql, args, argTypes, getSingleColumnRowMapper(elementType));
   }
 
-  @Deprecated
   @Override
   public <T> List<T> queryForList(String sql, @Nullable Object[] args, Class<T> elementType) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));

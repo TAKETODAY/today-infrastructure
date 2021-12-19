@@ -151,7 +151,7 @@ public abstract class PropertyResourceConfigurer
    *
    * @param beanFactory the BeanFactory used by the application context
    * @param props the Properties to apply
-   * @throws cn.taketoday.beans.BeansException in case of errors
+   * @throws cn.taketoday.beans.factory.BeansException in case of errors
    */
   protected abstract void processProperties(ConfigurableBeanFactory beanFactory, Properties props)
           throws BeansException;
