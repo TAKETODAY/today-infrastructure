@@ -21,11 +21,9 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ApplicationContextTests.RequiredTest.Bean1;
 import cn.taketoday.lang.Autowired;
@@ -101,17 +99,14 @@ class ApplicationContextTests {
   @Test
   public void testManualLoad() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
-
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.registerBean(User.class);
       applicationContext.registerBean("user", User.class);
       applicationContext.registerBean("user_", User.class);
       applicationContext.refresh();
 
-      Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitions();
-
       Object bean = applicationContext.getBean("user");
-      assert beanDefinitionsMap.size() == 2;
+      assertThat(applicationContext.containsBeanDefinition("user_")).isTrue();
       assert bean != null : "error";
     }
   }
