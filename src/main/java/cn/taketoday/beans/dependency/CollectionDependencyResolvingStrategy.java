@@ -56,7 +56,7 @@ public class CollectionDependencyResolvingStrategy
       Map<String, ?> beans = beanFactory.getBeansOfType(type, true, true);
       Collection<Object> objects = CollectionUtils.createCollection(
               injectionPoint.getDependencyType(), beans.size());
-      if (beans.isEmpty()) {
+      if (!beans.isEmpty()) {
         objects.addAll(beans.values());
       }
       if (objects instanceof List list) {
