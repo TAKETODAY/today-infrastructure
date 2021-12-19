@@ -94,7 +94,7 @@ public abstract class AbstractBeanFactory
   private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
   /** object factories */
-  protected Map<Class<?>, Object> objectFactories;
+  protected final ConcurrentHashMap<Class<?>, Object> objectFactories = new ConcurrentHashMap<>(16);
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   /** @since 4.0 */
@@ -638,30 +638,9 @@ public abstract class AbstractBeanFactory
 
   }
 
-  /**
-   * Get object {@link Supplier}s
-   *
-   * @return object {@link Supplier}s
-   * @since 2.3.7
-   */
-  public final Map<Class<?>, Object> getObjectFactories() {
-    if (objectFactories == null) {
-      objectFactories = createObjectFactories();
-    }
-    return objectFactories;
-  }
-
   @Override
   public void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
-    getObjectFactories().put(dependencyType, autowiredValue);
-  }
-
-  protected Map<Class<?>, Object> createObjectFactories() {
-    return new HashMap<>();
-  }
-
-  public void setObjectFactories(Map<Class<?>, Object> objectFactories) {
-    this.objectFactories = objectFactories;
+    objectFactories.put(dependencyType, autowiredValue);
   }
 
   // ---------------------------------------
@@ -1258,7 +1237,7 @@ public abstract class AbstractBeanFactory
     if (otherFactory instanceof AbstractBeanFactory beanFactory) {
       setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
-      this.objectFactories = beanFactory.objectFactories; // FIXME copy?
+      this.objectFactories.putAll(beanFactory.objectFactories);
       this.argumentsResolver = beanFactory.argumentsResolver;
       this.postProcessors.addAll(beanFactory.postProcessors);
 
