@@ -20,8 +20,8 @@
 
 package example.scannable;
 
-import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.aop.support.annotation.Pointcut;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 
 /**
  * @author Mark Fisher

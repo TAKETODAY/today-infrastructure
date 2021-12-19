@@ -23,7 +23,6 @@ package cn.taketoday.core.type.filter;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -104,8 +103,8 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
   @Override
   protected boolean matchSelf(MetadataReader metadataReader) {
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
-    return metadata.hasAnnotation(this.annotationType.getName())
-            || this.considerMetaAnnotations && metadata.hasMetaAnnotation(this.annotationType.getName());
+    return metadata.hasAnnotation(annotationType.getName())
+            || (considerMetaAnnotations && metadata.hasMetaAnnotation(annotationType.getName()));
   }
 
   @Override
@@ -133,9 +132,8 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
       }
       try {
         Class<?> clazz = ClassUtils.forName(typeName, getClass().getClassLoader());
-        return considerMetaAnnotations
-                ? AnnotatedElementUtils.isAnnotated(clazz, annotationType)
-                : clazz.isAnnotationPresent(annotationType);
+        return (this.considerMetaAnnotations ? AnnotationUtils.getAnnotation(clazz, this.annotationType) :
+                clazz.getAnnotation(this.annotationType)) != null;
       }
       catch (Throwable ex) {
         // Class not regularly loadable - can't determine a match that way.

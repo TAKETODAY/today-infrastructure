@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
-import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Autowired;
 
@@ -70,10 +70,10 @@ public class AggressiveFactoryBeanInstantiationTests {
       context.refresh();
       fail("Should have thrown BeanCreationException");
     }
-    catch (BeanCreationException ex) {
+    catch (ApplicationContextException ex) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       PrintWriter pw = new PrintWriter(baos);
-      ex.printStackTrace(pw);
+      ex.getCause().printStackTrace(pw);
       pw.flush();
       String stackTrace = baos.toString();
       assertThat(stackTrace.contains(".<clinit>")).isTrue();

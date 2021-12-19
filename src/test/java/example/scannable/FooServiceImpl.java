@@ -47,7 +47,7 @@ import jakarta.annotation.PostConstruct;
 @Service
 @Lazy
 @DependsOn("myNamedComponent")
-public abstract class FooServiceImpl implements FooService {
+public class FooServiceImpl implements FooService {
 
   // Just to test ASM5's bytecode parsing of INVOKESPECIAL/STATIC on interfaces
   @SuppressWarnings("unused")
@@ -115,6 +115,8 @@ public abstract class FooServiceImpl implements FooService {
   }
 
   //  @Lookup
-  protected abstract FooDao fooDao();
+  protected FooDao fooDao() {
+    return fooDao;
+  }
 
 }
