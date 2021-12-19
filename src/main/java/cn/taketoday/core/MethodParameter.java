@@ -76,7 +76,7 @@ public class MethodParameter {
 
   /** The containing class. Could also be supplied by overriding {@link #getContainingClass()} */
   @Nullable
-  private volatile Class<?> containingClass;
+  private Class<?> containingClass;
 
   @Nullable
   private volatile Class<?> parameterType;
@@ -272,30 +272,6 @@ public class MethodParameter {
   }
 
   /**
-   * Increase this parameter's nesting level.
-   *
-   * @see #getNestingLevel()
-   * @deprecated since 5.2 in favor of {@link #nested(Integer)}
-   */
-  @Deprecated
-  public void increaseNestingLevel() {
-    this.nestingLevel++;
-  }
-
-  /**
-   * Decrease this parameter's nesting level.
-   *
-   * @see #getNestingLevel()
-   * @deprecated since 5.2 in favor of retaining the original MethodParameter and
-   * using {@link #nested(Integer)} if nesting is required
-   */
-  @Deprecated
-  public void decreaseNestingLevel() {
-    getTypeIndexesPerLevel().remove(this.nestingLevel);
-    this.nestingLevel--;
-  }
-
-  /**
    * Return the nesting level of the target type
    * (typically 1; e.g. in case of a List of Lists, 1 would indicate the
    * nested List, whereas 2 would indicate the element of the nested List).
@@ -312,19 +288,6 @@ public class MethodParameter {
    */
   public MethodParameter withTypeIndex(int typeIndex) {
     return nested(this.nestingLevel, typeIndex);
-  }
-
-  /**
-   * Set the type index for the current nesting level.
-   *
-   * @param typeIndex the corresponding type index
-   * (or {@code null} for the default type index)
-   * @see #getNestingLevel()
-   * @deprecated since 5.2 in favor of {@link #withTypeIndex}
-   */
-  @Deprecated
-  public void setTypeIndexForCurrentLevel(int typeIndex) {
-    getTypeIndexesPerLevel().put(this.nestingLevel, typeIndex);
   }
 
   /**
@@ -454,15 +417,6 @@ public class MethodParameter {
   }
 
   /**
-   * Set a containing class to resolve the parameter type against.
-   */
-  @Deprecated
-  void setContainingClass(Class<?> containingClass) {
-    this.containingClass = containingClass;
-    this.parameterType = null;
-  }
-
-  /**
    * Return the containing class for this method parameter.
    *
    * @return a specific containing class (potentially a subclass of the
@@ -472,14 +426,6 @@ public class MethodParameter {
   public Class<?> getContainingClass() {
     Class<?> containingClass = this.containingClass;
     return containingClass != null ? containingClass : getDeclaringClass();
-  }
-
-  /**
-   * Set a resolved (generic) parameter type.
-   */
-  @Deprecated
-  void setParameterType(@Nullable Class<?> parameterType) {
-    this.parameterType = parameterType;
   }
 
   /**

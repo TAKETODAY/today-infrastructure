@@ -200,18 +200,6 @@ class MethodParameterTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
-  void mutatingNestingLevelShouldNotChangeNewInstance() throws Exception {
-    Method method = ArrayList.class.getMethod("get", int.class);
-    MethodParameter m1 = MethodParameter.forExecutable(method, -1);
-    MethodParameter m2 = m1.withTypeIndex(2);
-    assertThat(m2.getTypeIndexForCurrentLevel()).isEqualTo(2);
-    m1.setTypeIndexForCurrentLevel(1);
-    m2.decreaseNestingLevel();
-    assertThat(m2.getTypeIndexForCurrentLevel()).isNull();
-  }
-
-  @Test
   void nestedWithTypeIndexReturnsNewInstance() throws Exception {
     Method method = ArrayList.class.getMethod("get", int.class);
     MethodParameter m1 = MethodParameter.forExecutable(method, -1);
