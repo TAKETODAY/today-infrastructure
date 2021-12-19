@@ -17,7 +17,8 @@ public class IndexedTestBean {
 
   private Collection<?> collection;
 
-  private List list;
+  // 暂不支持自动推断 List list
+  private List<TestBean> list;
 
   private Set<? super Object> set;
 
