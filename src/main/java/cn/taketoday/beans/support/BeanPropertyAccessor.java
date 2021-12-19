@@ -321,6 +321,9 @@ public class BeanPropertyAccessor {
         int signIndex = propertyPath.indexOf('['); // array,list: [0]; map: [key]
         BeanProperty beanProperty = getBeanProperty(metadata, propertyPath, signIndex);
         if (beanProperty == null) { // @since 3.0.2
+          if (!ignoreUnknownProperty) {
+            throw new NoSuchPropertyException(metadata.getType(), propertyPath.substring(0, signIndex));
+          }
           return;
         }
         Class<?> componentType = beanProperty.getComponentClass();
