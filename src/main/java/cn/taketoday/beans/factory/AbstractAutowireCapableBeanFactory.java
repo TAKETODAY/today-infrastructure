@@ -493,9 +493,11 @@ public abstract class AbstractAutowireCapableBeanFactory
       // Make sure bean class is actually resolved at this point.
       if (!definition.isSynthetic()) {
         Class<?> targetType = determineTargetType(definition);
-        bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
-        if (bean != null) {
-          bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        if (targetType != null) {
+          bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
+          if (bean != null) {
+            bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+          }
         }
       }
       definition.beforeInstantiationResolved = (bean != null);
@@ -862,11 +864,19 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (factoryClass == null) {
         return null;
       }
+      factoryClass = ClassUtils.getUserClass(factoryClass);
+
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
-      factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());
-      def.executable = factoryMethod;
-      return factoryMethod.getReturnType();
+      try {
+        factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());
+        def.executable = factoryMethod;
+        return factoryMethod.getReturnType();
+      }
+      catch (IllegalStateException e) {
+        // not found
+        return null;
+      }
     }
 
     // Common return type found: all factory methods return same type. For a non-parameterized
@@ -896,8 +906,9 @@ public abstract class AbstractAutowireCapableBeanFactory
       return result;
     }
 
-    ResolvableType beanType =
-            (definition.hasBeanClass() ? ResolvableType.fromClass(definition.getBeanClass()) : ResolvableType.NONE);
+    ResolvableType beanType = definition.hasBeanClass()
+                              ? ResolvableType.fromClass(definition.getBeanClass())
+                              : ResolvableType.NONE;
 
     // For instance supplied beans try the target type and bean class
     if (definition.getInstanceSupplier() != null) {
