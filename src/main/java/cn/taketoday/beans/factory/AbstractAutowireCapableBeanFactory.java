@@ -45,6 +45,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -151,22 +152,32 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (log.isDebugEnabled()) {
       log.debug("Creating instance of bean '{}'", beanName);
     }
+
+    BeanDefinition mbdToUse = definition;
+    // Make sure bean class is actually resolved at this point, and
+    // clone the bean definition in case of a dynamically resolved Class
+    // which cannot be stored in the shared merged bean definition.
     Class<?> resolvedClass = resolveBeanClass(definition);
+    if (resolvedClass != null && !definition.hasBeanClass() && definition.getBeanClassName() != null) {
+      mbdToUse = definition.cloneDefinition();
+      mbdToUse.setBeanClass(resolvedClass);
+    }
+
     try {
       // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-      Object bean = resolveBeforeInstantiation(resolvedClass, definition);
+      Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
       if (bean != null) {
         return bean;
       }
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              definition.getResourceDescription(), beanName,
+              mbdToUse.getResourceDescription(), beanName,
               "BeanPostProcessor before instantiation of bean failed", ex);
     }
 
     try {
-      Object beanInstance = doCreateBean(beanName, definition, args);
+      Object beanInstance = doCreateBean(beanName, mbdToUse, args);
       if (log.isDebugEnabled()) {
         log.debug("Finished creating instance of bean '{}'", beanName);
       }
@@ -179,7 +190,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              definition.getResourceDescription(),
+              mbdToUse.getResourceDescription(),
               beanName, "Unexpected exception during bean creation", ex);
     }
   }
@@ -458,19 +469,20 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Apply before-instantiation post-processors, resolving whether there is a
    * before-instantiation shortcut for the specified bean.
    *
-   * @param beanClass bean class
+   * @param beanName the name of the bean
    * @param definition the bean definition for the bean
    * @return the shortcut-determined bean instance, or {@code null} if none
    */
   @Nullable
-  protected Object resolveBeforeInstantiation(Class<?> beanClass, BeanDefinition definition) {
+  protected Object resolveBeforeInstantiation(String beanName, BeanDefinition definition) {
     Object bean = null;
     if (!Boolean.FALSE.equals(definition.beforeInstantiationResolved)) {
       // Make sure bean class is actually resolved at this point.
       if (!definition.isSynthetic()) {
-        bean = applyBeanPostProcessorsBeforeInstantiation(beanClass, definition.getName());
+        Class<?> targetType = determineTargetType(definition);
+        bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
         if (bean != null) {
-          bean = applyBeanPostProcessorsAfterInitialization(bean, definition.getName());
+          bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
         }
       }
       definition.beforeInstantiationResolved = (bean != null);
@@ -851,8 +863,124 @@ public abstract class AbstractAutowireCapableBeanFactory
     return cachedReturnType.resolve();
   }
 
+  /**
+   * This implementation attempts to query the FactoryBean's generic parameter metadata
+   * if present to determine the object type. If not present, i.e. the FactoryBean is
+   * declared as a raw type, checks the FactoryBean's {@code getObjectType} method
+   * on a plain instance of the FactoryBean, without bean properties applied yet.
+   * If this doesn't return a type yet, and {@code allowInit} is {@code true} a
+   * full creation of the FactoryBean is used as fallback (through delegation to the
+   * superclass's implementation).
+   * <p>The shortcut check for a FactoryBean is only applied in case of a singleton
+   * FactoryBean. If the FactoryBean instance itself is not kept as singleton,
+   * it will be fully created to check the type of its exposed object.
+   */
   @Override
-  protected FactoryBean<?> getFactoryBeanForTypeCheck(Class<?> factoryBean, BeanDefinition def) {
+  protected ResolvableType getTypeForFactoryBean(BeanDefinition definition, boolean allowInit) {
+    // Check if the bean definition itself has defined the type with an attribute
+    ResolvableType result = getTypeForFactoryBeanFromAttributes(definition);
+    if (result != ResolvableType.NONE) {
+      return result;
+    }
+
+    ResolvableType beanType =
+            (definition.hasBeanClass() ? ResolvableType.fromClass(definition.getBeanClass()) : ResolvableType.NONE);
+
+    // For instance supplied beans try the target type and bean class
+    if (definition.getInstanceSupplier() != null) {
+      result = getFactoryBeanGeneric(definition.targetType);
+      if (result.resolve() != null) {
+        return result;
+      }
+      result = getFactoryBeanGeneric(beanType);
+      if (result.resolve() != null) {
+        return result;
+      }
+    }
+
+    // Consider factory methods
+    String factoryBeanName = definition.getFactoryBeanName();
+    String factoryMethodName = definition.getFactoryMethodName();
+
+    // Scan the factory bean methods
+    if (factoryBeanName != null) {
+      if (factoryMethodName != null) {
+        // Try to obtain the FactoryBean's object type from its factory method
+        // declaration without instantiating the containing bean at all.
+        BeanDefinition factoryBeanDefinition = obtainBeanDefinition(factoryBeanName);
+        Class<?> factoryBeanClass;
+        if (factoryBeanDefinition.hasBeanClass()) {
+          factoryBeanClass = factoryBeanDefinition.getBeanClass();
+        }
+        else {
+          factoryBeanClass = determineTargetType(factoryBeanDefinition);
+        }
+        if (factoryBeanClass != null) {
+          result = getTypeForFactoryBeanFromMethod(factoryBeanClass, factoryMethodName);
+          if (result.resolve() != null) {
+            return result;
+          }
+        }
+      }
+      // If not resolvable above and the referenced factory bean doesn't exist yet,
+      // exit here - we don't want to force the creation of another bean just to
+      // obtain a FactoryBean's object type...
+      if (!isBeanEligibleForMetadataCaching(factoryBeanName)) {
+        return ResolvableType.NONE;
+      }
+    }
+
+    // If we're allowed, we can create the factory bean and call getObjectType() early
+    if (allowInit) {
+      FactoryBean<?> factoryBean = getFactoryBeanForTypeCheck(definition);
+      if (factoryBean != null) {
+        // Try to obtain the FactoryBean's object type from this early stage of the instance.
+        Class<?> type = getTypeForFactoryBean(factoryBean);
+        if (type != null) {
+          return ResolvableType.fromClass(type);
+        }
+        // No type found for shortcut FactoryBean instance:
+        // fall back to full creation of the FactoryBean instance.
+        return super.getTypeForFactoryBean(definition, true);
+      }
+    }
+
+    if (factoryBeanName == null && definition.hasBeanClass() && factoryMethodName != null) {
+      // No early bean instantiation possible: determine FactoryBean's type from
+      // static factory method signature or from class inheritance hierarchy...
+      return getTypeForFactoryBeanFromMethod(definition.getBeanClass(), factoryMethodName);
+    }
+    result = getFactoryBeanGeneric(beanType);
+    if (result.resolve() != null) {
+      return result;
+    }
+    return ResolvableType.NONE;
+  }
+
+  private ResolvableType getFactoryBeanGeneric(@Nullable ResolvableType type) {
+    if (type == null) {
+      return ResolvableType.NONE;
+    }
+    return type.as(FactoryBean.class).getGeneric();
+  }
+
+  /**
+   * Introspect the factory method signatures on the given bean class,
+   * trying to find a common {@code FactoryBean} object type declared there.
+   *
+   * @param beanClass the bean class to find the factory method on
+   * @param factoryMethodName the name of the factory method
+   * @return the common {@code FactoryBean} object type, or {@code null} if none
+   */
+  private ResolvableType getTypeForFactoryBeanFromMethod(Class<?> beanClass, String factoryMethodName) {
+    // CGLIB subclass methods hide generic parameters; look at the original user class.
+    Class<?> factoryBeanClass = ClassUtils.getUserClass(beanClass);
+    FactoryBeanMethodTypeFinder finder = new FactoryBeanMethodTypeFinder(factoryMethodName);
+    ReflectionUtils.doWithMethods(factoryBeanClass, finder, ReflectionUtils.USER_DECLARED_METHODS);
+    return finder.getResult();
+  }
+
+  private FactoryBean<?> getFactoryBeanForTypeCheck(BeanDefinition def) {
     String beanName = def.getName();
     if (def.isSingleton()) {
       synchronized(getSingletonMutex()) {
@@ -873,7 +1001,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           // Mark this bean as currently in creation, even if just partially.
           beforeSingletonCreation(beanName);
           // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-          instance = resolveBeforeInstantiation(factoryBean, def);
+          instance = resolveBeforeInstantiation(beanName, def);
           if (instance == null) {
             instance = createBeanInstance(def, null);
           }
@@ -913,7 +1041,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         // Mark this bean as currently in creation, even if just partially.
         beforePrototypeCreation(beanName);
         // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-        instance = resolveBeforeInstantiation(factoryBean, def);
+        instance = resolveBeforeInstantiation(beanName, def);
         if (instance == null) {
           instance = createBeanInstance(def, null);
         }
@@ -1027,6 +1155,49 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   public boolean isAllowRawInjectionDespiteWrapping() {
     return this.allowRawInjectionDespiteWrapping;
+  }
+
+  /**
+   * {@link ReflectionUtils.MethodCallback} used to find {@link FactoryBean} type information.
+   */
+  private static class FactoryBeanMethodTypeFinder implements ReflectionUtils.MethodCallback {
+
+    private final String factoryMethodName;
+
+    private ResolvableType result = ResolvableType.NONE;
+
+    FactoryBeanMethodTypeFinder(String factoryMethodName) {
+      this.factoryMethodName = factoryMethodName;
+    }
+
+    @Override
+    public void doWith(Method method) throws IllegalArgumentException {
+      if (isFactoryBeanMethod(method)) {
+        ResolvableType returnType = ResolvableType.forReturnType(method);
+        ResolvableType candidate = returnType.as(FactoryBean.class).getGeneric();
+        if (this.result == ResolvableType.NONE) {
+          this.result = candidate;
+        }
+        else {
+          Class<?> resolvedResult = this.result.resolve();
+          Class<?> commonAncestor = ClassUtils.determineCommonAncestor(candidate.resolve(), resolvedResult);
+          if (!ObjectUtils.nullSafeEquals(resolvedResult, commonAncestor)) {
+            this.result = ResolvableType.fromClass(commonAncestor);
+          }
+        }
+      }
+    }
+
+    private boolean isFactoryBeanMethod(Method method) {
+      return (method.getName().equals(this.factoryMethodName) &&
+              FactoryBean.class.isAssignableFrom(method.getReturnType()));
+    }
+
+    ResolvableType getResult() {
+      Class<?> resolved = this.result.resolve();
+      boolean foundResult = resolved != null && resolved != Object.class;
+      return (foundResult ? this.result : ResolvableType.NONE);
+    }
   }
 
 }

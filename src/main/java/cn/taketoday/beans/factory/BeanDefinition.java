@@ -654,6 +654,8 @@ public class BeanDefinition
     this.instantiator = from.instantiator;
     this.initMethodArray = from.initMethodArray;
     this.factoryMethodReturnType = from.factoryMethodReturnType;
+    this.resolvedTargetType = from.resolvedTargetType;
+    this.targetType = from.targetType;
     this.beforeInstantiationResolved = from.beforeInstantiationResolved;
 
     if (from.getPropertyValues() != null) {
