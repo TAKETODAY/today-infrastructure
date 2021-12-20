@@ -209,6 +209,9 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected Object doCreateBean(
           String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
     Object bean = createIfNecessary(beanName, definition, args);
+    if (bean != null) {
+      definition.resolvedTargetType = bean.getClass();
+    }
 
     // Allow post-processors to modify the merged bean definition.
     synchronized(definition) {
