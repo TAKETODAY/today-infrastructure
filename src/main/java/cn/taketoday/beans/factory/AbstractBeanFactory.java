@@ -49,7 +49,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -796,7 +795,9 @@ public abstract class AbstractBeanFactory
       // we want to look at what it creates, not at the factory class.
       return getTypeForFactoryBean(definition, allowFactoryBeanInit).resolve();
     }
-    return beanType;
+    else {
+      return !BeanFactoryUtils.isFactoryDereference(name) ? beanType : null;
+    }
   }
 
   // FactoryBean
@@ -839,13 +840,13 @@ public abstract class AbstractBeanFactory
       }
       catch (BeanCreationException ex) {
         if (ex.contains(BeanCurrentlyInCreationException.class)) {
-          log.trace(LogMessage.format("Bean currently in creation on FactoryBean type check: %s", ex));
+          log.trace("Bean currently in creation on FactoryBean type check: {}", ex.toString());
         }
         else if (mbd.isLazyInit()) {
-          log.trace(LogMessage.format("Bean creation exception on lazy FactoryBean type check: %s", ex));
+          log.trace("Bean creation exception on lazy FactoryBean type check: {}", ex.toString());
         }
         else {
-          log.debug(LogMessage.format("Bean creation exception on eager FactoryBean type check: %s", ex));
+          log.debug("Bean creation exception on eager FactoryBean type check: {}", ex.toString());
         }
         onSuppressedException(ex);
       }
@@ -994,7 +995,7 @@ public abstract class AbstractBeanFactory
   protected boolean isFactoryBean(BeanDefinition def) {
     Boolean result = def.isFactoryBean();
     if (result == null) {
-      Class<?> beanType = predictBeanType(def);
+      Class<?> beanType = predictBeanType(def, FactoryBean.class);
       result = beanType != null && FactoryBean.class.isAssignableFrom(beanType);
       def.setFactoryBean(result);
     }
