@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -219,7 +220,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (log.isTraceEnabled()) {
         log.trace("Eagerly caching bean '{}' to allow for resolving potential circular references", beanName);
       }
-      addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, definition, bean));
+      addSingletonFactory(beanName, () -> getEarlyBeanReference(definition, bean));
     }
 
     Object fullyInitializedBean;
@@ -274,7 +275,6 @@ public abstract class AbstractAutowireCapableBeanFactory
       throw new BeanCreationException(
               definition.getResourceDescription(), beanName, "Invalid destruction signature", ex);
     }
-    definition.setInitialized(true);
     return fullyInitializedBean;
   }
 
@@ -298,15 +298,15 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Obtain a reference for early access to the specified bean,
    * typically for the purpose of resolving a circular reference.
    *
-   * @param beanName the name of the bean (for error handling purposes)
-   * @param mbd the merged bean definition for the bean
+   * @param definition the merged bean definition for the bean
    * @param bean the raw bean instance
    * @return the object to expose as bean reference
    */
-  protected Object getEarlyBeanReference(String beanName, BeanDefinition mbd, Object bean) {
+  protected Object getEarlyBeanReference(BeanDefinition definition, Object bean) {
     Object exposedObject = bean;
-    if (!mbd.isSynthetic()) {
-      for (InstantiationAwareBeanPostProcessor bp : postProcessors().instantiation) {
+    if (!definition.isSynthetic()) {
+      String beanName = definition.getName();
+      for (SmartInstantiationAwareBeanPostProcessor bp : postProcessors().smartInstantiation) {
         exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);
       }
     }
@@ -752,12 +752,47 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   @Nullable
-  protected Class<?> predictBeanType(BeanDefinition definition) {
-    String factoryMethodName = definition.getFactoryMethodName();
-    if (factoryMethodName != null) {
-      return getTypeForFactoryMethod(definition);
+  protected Class<?> predictBeanType(BeanDefinition definition, Class<?>... typesToMatch) {
+    Class<?> targetType = determineTargetType(definition, typesToMatch);
+    // Apply SmartInstantiationAwareBeanPostProcessors to predict the
+    // eventual type after a before-instantiation shortcut.
+    if (targetType != null && !definition.isSynthetic()) {
+      ArrayList<SmartInstantiationAwareBeanPostProcessor> instantiation = postProcessors().smartInstantiation;
+      if (!instantiation.isEmpty()) {
+        boolean matchingOnlyFactoryBean = typesToMatch.length == 1 && typesToMatch[0] == FactoryBean.class;
+        String beanName = definition.getName();
+        for (SmartInstantiationAwareBeanPostProcessor bp : instantiation) {
+          Class<?> predicted = bp.predictBeanType(targetType, beanName);
+          if (predicted != null &&
+                  (!matchingOnlyFactoryBean || FactoryBean.class.isAssignableFrom(predicted))) {
+            return predicted;
+          }
+        }
+      }
     }
-    return resolveBeanClass(definition, true);
+    return targetType;
+  }
+
+  /**
+   * Determine the target type for the given bean definition.
+   *
+   * @param mbd the merged bean definition for the bean
+   * @param typesToMatch the types to match in case of internal type matching purposes
+   * (also signals that the returned {@code Class} will never be exposed to application code)
+   * @return the type for the bean if determinable, or {@code null} otherwise
+   */
+  @Nullable
+  protected Class<?> determineTargetType(BeanDefinition mbd, Class<?>... typesToMatch) {
+    Class<?> targetType = mbd.getTargetType();
+    if (targetType == null) {
+      targetType = mbd.getFactoryMethodName() != null
+                   ? getTypeForFactoryMethod(mbd, typesToMatch)
+                   : resolveBeanClass(mbd, typesToMatch);
+      if (ObjectUtils.isEmpty(typesToMatch) || getTempClassLoader() == null) {
+        mbd.resolvedTargetType = targetType;
+      }
+    }
+    return targetType;
   }
 
   /**
@@ -773,7 +808,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #createBean
    */
   @Nullable
-  protected Class<?> getTypeForFactoryMethod(BeanDefinition def) {
+  protected Class<?> getTypeForFactoryMethod(BeanDefinition def, Class<?>... typesToMatch) {
     ResolvableType cachedReturnType = def.factoryMethodReturnType;
     if (cachedReturnType != null) {
       return cachedReturnType.resolve();
@@ -796,7 +831,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       else {
         // Check declared factory method return type on bean class.
-        factoryClass = resolveBeanClass(def, true);
+        factoryClass = resolveBeanClass(def, typesToMatch);
       }
 
       if (factoryClass == null) {
@@ -910,7 +945,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     for (String beanName : beanNames) {
       BeanDefinition def = obtainBeanDefinition(beanName);
       // Trigger initialization of all non-lazy singleton beans...
-      if (def.isSingleton() && !def.isInitialized() && !def.isLazyInit()) {
+      if (def.isSingleton() && !def.isLazyInit()) {
         if (isFactoryBean(def)) {
           Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
           if (bean instanceof SmartFactoryBean smartFactory && smartFactory.isEagerInit()) {

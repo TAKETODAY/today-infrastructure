@@ -187,7 +187,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     String name = beanNamePopulator.populateName(definition, registry);
 
     definition.setSynthetic(true);
-    definition.setInitialized(true);
 
     register(definition);
     getSingletonRegistry().registerSingleton(name, obj);
@@ -207,7 +206,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
     BeanDefinition definition = new BeanDefinition(name, obj.getClass());
     definition.setSynthetic(true);
-    definition.setInitialized(true);
     register(definition);
 
     getSingletonRegistry().registerSingleton(name, obj);

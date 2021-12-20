@@ -69,7 +69,6 @@ class BeanDefinitionBuilderTests {
     assertThat(definition.isSingleton()).isTrue();
     assertThat(definition.isPrototype()).isFalse();
     assertThat(definition.getBeanClassName()).isEqualTo(getClass().getName());
-    assertThat(definition.isInitialized()).isFalse();
     assertThat(definition.isSynthetic()).isTrue();
   }
 

@@ -43,7 +43,7 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -93,7 +93,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractAutoProxyCreator
         extends ProxyProcessorSupport
-        implements InstantiationAwareBeanPostProcessor,
+        implements SmartInstantiationAwareBeanPostProcessor,
                    BeanFactoryAware, AopInfrastructureBean,
                    ProxyCreator, InitializationBeanPostProcessor {
   @Serial

@@ -37,6 +37,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
@@ -245,7 +246,6 @@ public abstract class AbstractBeanFactory
               throw ex;
             }
           });
-          definition.setInitialized(true);
         }
         else if (definition.isPrototype()) {
           // It's a prototype -> just create a new instance.
@@ -441,25 +441,29 @@ public abstract class AbstractBeanFactory
    * resolving a bean class name into a Class reference (if necessary)
    * and storing the resolved Class in the bean definition for further use.
    *
-   * @param def the merged bean definition to determine the class for
+   * @param def the bean definition to determine the class for
+   * @param typesToMatch the types to match in case of internal type matching purposes
+   * (also signals that the returned {@code Class} will never be exposed to application code)
    * @return the resolved bean class (or {@code null} if none)
    * @throws BeanClassLoadFailedException if we failed to load the class
    */
   @Nullable
-  protected Class<?> resolveBeanClass(BeanDefinition def) throws BeanClassLoadFailedException {
-    return resolveBeanClass(def, false);
-  }
-
-  protected Class<?> resolveBeanClass(BeanDefinition def, boolean matchOnly) throws BeanClassLoadFailedException {
+  protected Class<?> resolveBeanClass(BeanDefinition def, Class<?>... typesToMatch) throws BeanClassLoadFailedException {
     if (def.hasBeanClass()) {
       return def.getBeanClass();
     }
-
     String beanClassName = def.getBeanClassName();
     try {
-      if (beanClassName != null && matchOnly) {
+      if (beanClassName != null && ObjectUtils.isNotEmpty(typesToMatch)) {
+        // When just doing type checks (i.e. not creating an actual instance yet),
+        // use the specified temporary class loader (e.g. in a weaving scenario).
         ClassLoader tempClassLoader = getTempClassLoader();
         if (tempClassLoader != null) {
+          if (tempClassLoader instanceof DecoratingClassLoader dcl) {
+            for (Class<?> typeToMatch : typesToMatch) {
+              dcl.excludeClass(typeToMatch.getName());
+            }
+          }
           // When resolving against a temporary class loader, exit early in order
           // to avoid storing the resolved Class in the bean definition.
           try {
@@ -470,8 +474,8 @@ public abstract class AbstractBeanFactory
               log.trace("Could not load class [{}] from {}: {}", beanClassName, tempClassLoader, ex, ex);
             }
           }
-          return ClassUtils.forName(beanClassName, tempClassLoader);
         }
+        return ClassUtils.forName(beanClassName, tempClassLoader);
       }
 
       ClassLoader beanClassLoader = getBeanClassLoader();
@@ -973,11 +977,20 @@ public abstract class AbstractBeanFactory
    * To be overridden in subclasses, applying more sophisticated type detection.
    *
    * @param definition the bean definition to determine the type for
+   * @param typesToMatch the types to match in case of internal type matching purposes
+   * (also signals that the returned {@code Class} will never be exposed to application code)
    * @return the type of the bean, or {@code null} if not predictable
    */
   @Nullable
-  protected Class<?> predictBeanType(BeanDefinition definition) {
-    return resolveBeanClass(definition, true);
+  protected Class<?> predictBeanType(BeanDefinition definition, Class<?>... typesToMatch) {
+    Class<?> targetType = definition.getTargetType();
+    if (targetType != null) {
+      return targetType;
+    }
+    if (definition.getFactoryMethodName() != null) {
+      return null;
+    }
+    return resolveBeanClass(definition, typesToMatch);
   }
 
   @Override
@@ -1766,6 +1779,7 @@ public abstract class AbstractBeanFactory
     public final ArrayList<DependenciesBeanPostProcessor> dependencies = new ArrayList<>();
     public final ArrayList<InitializationBeanPostProcessor> initialization = new ArrayList<>();
     public final ArrayList<InstantiationAwareBeanPostProcessor> instantiation = new ArrayList<>();
+    public final ArrayList<SmartInstantiationAwareBeanPostProcessor> smartInstantiation = new ArrayList<>();
 
     BeanPostProcessors(ArrayList<BeanPostProcessor> postProcessors) {
       for (BeanPostProcessor postProcessor : postProcessors) {
@@ -1784,6 +1798,9 @@ public abstract class AbstractBeanFactory
         if (postProcessor instanceof BeanDefinitionPostProcessor definition) {
           this.definitions.add(definition);
         }
+        if (postProcessor instanceof SmartInstantiationAwareBeanPostProcessor smartInstantiation) {
+          this.smartInstantiation.add(smartInstantiation);
+        }
       }
 
       this.definitions.trimToSize();
@@ -1791,6 +1808,7 @@ public abstract class AbstractBeanFactory
       this.dependencies.trimToSize();
       this.instantiation.trimToSize();
       this.initialization.trimToSize();
+      this.smartInstantiation.trimToSize();
     }
 
   }
