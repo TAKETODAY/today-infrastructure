@@ -114,17 +114,6 @@ public class BeanDefinition
   private String destroyMethod;
 
   /**
-   * <p>
-   * This is a very important property.
-   * <p>
-   * If registry contains it's singleton instance, we don't know the instance has
-   * initialized or not, so must be have a flag to prove it has initialized
-   *
-   * @since 2.0.0
-   */
-  private boolean initialized = false;
-
-  /**
    * Mark as a {@link FactoryBean}.
    *
    * @since 2.0.0
@@ -178,6 +167,7 @@ public class BeanDefinition
   BeanInstantiator instantiator;
 
   ResolvableType factoryMethodReturnType;
+
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
   Boolean beforeInstantiationResolved;
 
@@ -188,6 +178,10 @@ public class BeanDefinition
 
   @Nullable
   volatile ResolvableType targetType;
+
+  /** Package-visible field for caching the determined Class of a given bean definition. */
+  @Nullable
+  volatile Class<?> resolvedTargetType;
 
   public BeanDefinition() { }
 
@@ -291,7 +285,7 @@ public class BeanDefinition
    *
    * @since 4.0
    */
-  public void setTargetType(ResolvableType targetType) {
+  public void setTargetType(@Nullable ResolvableType targetType) {
     this.targetType = targetType;
   }
 
@@ -302,6 +296,21 @@ public class BeanDefinition
    */
   public void setTargetType(@Nullable Class<?> targetType) {
     this.targetType = (targetType != null ? ResolvableType.fromClass(targetType) : null);
+  }
+
+  /**
+   * Return the target type of this bean definition, if known
+   * (either specified in advance or resolved on first instantiation).
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public Class<?> getTargetType() {
+    if (this.resolvedTargetType != null) {
+      return this.resolvedTargetType;
+    }
+    ResolvableType targetType = this.targetType;
+    return targetType != null ? targetType.resolve() : null;
   }
 
   /**
@@ -449,28 +458,7 @@ public class BeanDefinition
     return factoryBean;
   }
 
-  /**
-   * If a {@link Singleton} has initialized
-   * <p>
-   * If this bean is created from {@link FactoryBean} This explains
-   * {@link FactoryBean} is initialized
-   *
-   * @return If Bean or {@link FactoryBean} is initialized
-   */
-  public boolean isInitialized() {
-    return initialized;
-  }
-
   // -----------------------
-
-  /**
-   * Apply bean If its initialized
-   *
-   * @param initialized The state of bean
-   */
-  public void setInitialized(boolean initialized) {
-    this.initialized = initialized;
-  }
 
   /**
    * Indicates that If the bean is a {@link FactoryBean}.
@@ -648,7 +636,6 @@ public class BeanDefinition
     // copy
 
     setLazyInit(from.isLazyInit());
-    setInitialized(from.isInitialized());
 
     setRole(from.getRole());
     setPrimary(from.isPrimary());
@@ -948,7 +935,6 @@ public class BeanDefinition
     sb.append("; scope=").append(this.scope);
     sb.append("; lazyInit=").append(this.lazyInit);
     sb.append("; primary=").append(this.primary);
-    sb.append("; initialized=").append(this.initialized);
     sb.append("; factoryBean=").append(this.factoryBean);
     sb.append("; initMethods=").append(Arrays.toString(initMethods));
     sb.append("; factoryBeanName=").append(this.factoryBeanName);
