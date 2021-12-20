@@ -136,6 +136,7 @@ public abstract class AbstractAutoProxyCreator
   private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
   private final ConcurrentHashMap<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
   private final ConcurrentHashMap<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 
   /**
    * Set custom {@code TargetSourceCreators} to be applied in this order.
@@ -238,7 +239,9 @@ public abstract class AbstractAutoProxyCreator
         this.targetSourcedBeans.add(beanName);
       }
       Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
-      return createProxy(beanClass, beanName, specificInterceptors, targetSource);
+      Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
+      this.proxyTypes.put(cacheKey, proxy.getClass());
+      return proxy;
     }
 
     return null;
@@ -261,6 +264,16 @@ public abstract class AbstractAutoProxyCreator
     }
     // No custom TargetSource found.
     return null;
+  }
+
+  @Override
+  @Nullable
+  public Class<?> predictBeanType(Class<?> beanClass, String beanName) {
+    if (this.proxyTypes.isEmpty()) {
+      return null;
+    }
+    Object cacheKey = getCacheKey(beanClass, beanName);
+    return this.proxyTypes.get(cacheKey);
   }
 
   @Override
@@ -334,8 +347,10 @@ public abstract class AbstractAutoProxyCreator
     Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
     if (specificInterceptors != DO_NOT_PROXY) {
       this.advisedBeans.put(cacheKey, Boolean.TRUE);
-      return createProxy(
+      Object proxy = createProxy(
               bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+      this.proxyTypes.put(cacheKey, proxy.getClass());
+      return proxy;
     }
 
     this.advisedBeans.put(cacheKey, Boolean.FALSE);

@@ -101,7 +101,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setThreadNamePrefix("testExecutor");
     executor.afterPropertiesSet();
-    processorDefinition.getPropertyValues().add("executor", executor);
+    processorDefinition.propertyValues().add("executor", executor);
     ConfigurableApplicationContext context = initContext(processorDefinition);
 
     ITestBean testBean = context.getBean("target", ITestBean.class);
@@ -120,7 +120,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
     context.registerBeanDefinition("postProcessor", processorDefinition);
 
     BeanDefinition executorDefinition = new BeanDefinition(ThreadPoolTaskExecutor.class);
-    executorDefinition.getPropertyValues().add("threadNamePrefix", "testExecutor");
+    executorDefinition.propertyValues().add("threadNamePrefix", "testExecutor");
     context.registerBeanDefinition("myExecutor", executorDefinition);
 
     BeanDefinition targetDefinition =
@@ -145,11 +145,11 @@ public class AsyncAnnotationBeanPostProcessorTests {
     context.registerBeanDefinition("postProcessor", processorDefinition);
 
     BeanDefinition executorDefinition = new BeanDefinition(ThreadPoolTaskExecutor.class);
-    executorDefinition.getPropertyValues().add("threadNamePrefix", "testExecutor");
+    executorDefinition.propertyValues().add("threadNamePrefix", "testExecutor");
     context.registerBeanDefinition("myExecutor", executorDefinition);
 
     BeanDefinition executorDefinition2 = new BeanDefinition(ThreadPoolTaskExecutor.class);
-    executorDefinition2.getPropertyValues().add("threadNamePrefix", "testExecutor2");
+    executorDefinition2.propertyValues().add("threadNamePrefix", "testExecutor2");
     context.registerBeanDefinition("taskExecutor", executorDefinition2);
 
     BeanDefinition targetDefinition =
@@ -231,7 +231,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
     TestableAsyncUncaughtExceptionHandler exceptionHandler =
             new TestableAsyncUncaughtExceptionHandler();
     BeanDefinition processorDefinition = new BeanDefinition(AsyncAnnotationBeanPostProcessor.class);
-    processorDefinition.getPropertyValues().add("exceptionHandler", exceptionHandler);
+    processorDefinition.propertyValues().add("exceptionHandler", exceptionHandler);
 
     ConfigurableApplicationContext context = initContext(processorDefinition);
     ITestBean testBean = context.getBean("target", ITestBean.class);

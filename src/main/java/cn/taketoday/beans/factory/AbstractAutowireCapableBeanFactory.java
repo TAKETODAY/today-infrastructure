@@ -147,6 +147,16 @@ public abstract class AbstractAutowireCapableBeanFactory
     populateBean(existingBean, prototypeDef);
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of relevant AbstractBeanFactory template methods
+  //---------------------------------------------------------------------
+
+  /**
+   * Central method of this class: creates a bean instance,
+   * populates the bean instance, applies post-processors, etc.
+   *
+   * @see #doCreateBean
+   */
   protected Object createBean(
           String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
     if (log.isDebugEnabled()) {
