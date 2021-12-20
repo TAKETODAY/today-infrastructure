@@ -170,14 +170,13 @@ class FactoryBeanTests {
     StandardBeanFactory factory = new StandardBeanFactory();
     AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(factory, false);
 
-    Gamma gamma1 = new Gamma();
     // gammaFactory betaFactory getGamma
     BeanDefinition gammaFactoryDef = new BeanDefinition();
     gammaFactoryDef.setName("gammaFactory");
     gammaFactoryDef.setFactoryMethodName("getGamma");
     gammaFactoryDef.setFactoryBeanName("betaFactory"); // is FactoryBean so its real bean is Beta
 
-    reader.registerBean("gamma", gamma1);
+    reader.registerBean("gamma", Gamma.class);
     reader.register(gammaFactoryDef);
     reader.registerBean("betaFactory", BetaFactoryBean.class, definition -> {
       definition.addPropertyValue("beta", BeanReference.required());

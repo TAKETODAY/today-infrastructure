@@ -23,11 +23,12 @@ package cn.taketoday.context.annotation;
 import java.lang.reflect.Field;
 
 import cn.taketoday.beans.DependencyResolvingFailedException;
-import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.context.expression.ExpressionEvaluatorSupport;
 import cn.taketoday.context.expression.ExpressionInfo;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
@@ -42,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class ExpressionDependencyResolver
-        extends ExpressionEvaluatorSupport implements DependencyResolvingStrategy {
+        extends ExpressionEvaluatorSupport implements DependencyResolvingStrategy, Ordered {
 
   @Override
   public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context) {
@@ -90,6 +91,11 @@ public class ExpressionDependencyResolver
                       "] with expression: [" + expr.getExpression() + "].");
     }
     return value;
+  }
+
+  @Override
+  public int getOrder() {
+    return HIGHEST_PRECEDENCE;
   }
 
 }

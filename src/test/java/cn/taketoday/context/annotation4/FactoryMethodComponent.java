@@ -25,6 +25,7 @@ import cn.taketoday.context.annotation.BeanAge;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Qualifier;
+import cn.taketoday.lang.Required;
 import cn.taketoday.lang.Value;
 
 /**
@@ -56,8 +57,9 @@ public class FactoryMethodComponent {
 
   @Bean
   @BeanAge(1)
+
   protected TestBean protectedInstance(
-          @Qualifier("public") TestBean spouse, @Value("#{privateInstance.age}") String country) {
+          @Qualifier("public") TestBean spouse, @Required @Value("#{privateInstance.age}") String country) {
     TestBean tb = new TestBean("protectedInstance", 1);
     tb.setSpouse(tb);
     tb.setCountry(country);

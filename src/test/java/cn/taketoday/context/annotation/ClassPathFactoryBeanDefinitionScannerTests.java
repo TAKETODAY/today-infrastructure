@@ -25,9 +25,11 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.aop.scope.ScopedObject;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
@@ -47,7 +49,7 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
 
   @Test
   public void testSingletonScopedFactoryMethod() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    StandardApplicationContext context = new StandardApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
 
     context.getBeanFactory().registerScope("request", new SimpleMapScope());
