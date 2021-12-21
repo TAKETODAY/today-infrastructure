@@ -47,8 +47,8 @@ public class ConfigBeanDefinition extends AnnotatedBeanDefinition {
 
   private boolean isFactoryMethodInternal(Method method) {
     MethodMetadata metadata = getFactoryMethodMetadata();
-    assert metadata != null;
-    return method.getReturnType().getName().equals(metadata.getReturnTypeName())
+    return metadata != null
+            && method.getReturnType().getName().equals(metadata.getReturnTypeName())
             && isArgumentsEquals(method, metadata);
   }
 

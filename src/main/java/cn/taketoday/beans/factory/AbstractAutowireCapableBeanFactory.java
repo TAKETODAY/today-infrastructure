@@ -603,13 +603,17 @@ public abstract class AbstractAutowireCapableBeanFactory
         String factoryBeanName = definition.getFactoryBeanName();
         Class<?> factoryClass = getFactoryClass(definition, factoryBeanName);
         Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
+        if (factoryMethod == null) {
+          throw new BeanCreationException(definition.getResourceDescription(), definition.getName(),
+                  "factory method: '" + factoryMethodName + "' not found in class: " + factoryClass.getName());
+        }
         MethodInvoker factoryMethodInvoker = determineMethodInvoker(definition, factoryMethod);
         if (Modifier.isStatic(factoryMethod.getModifiers())) {
           definition.instantiator = BeanInstantiator.fromStaticMethod(factoryMethodInvoker);
         }
         else {
           // this is not a FactoryBean just a factory
-          Object factoryBean = getBean(factoryBeanName);
+          Object factoryBean = getBean(factoryBeanName); // lazy get bean ?
           definition.instantiator = BeanInstantiator.fromMethod(factoryMethodInvoker, factoryBean);
         }
         definition.executable = factoryMethod;
@@ -868,15 +872,11 @@ public abstract class AbstractAutowireCapableBeanFactory
 
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
-      try {
-        factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());
+      factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());
+      if (factoryMethod != null) {
         def.executable = factoryMethod;
-        return factoryMethod.getReturnType();
       }
-      catch (IllegalStateException e) {
-        // not found
-        return null;
-      }
+      return null;
     }
 
     // Common return type found: all factory methods return same type. For a non-parameterized

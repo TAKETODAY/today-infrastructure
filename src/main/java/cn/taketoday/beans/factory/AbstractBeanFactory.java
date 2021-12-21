@@ -893,19 +893,14 @@ public abstract class AbstractBeanFactory
     return factoryClass;
   }
 
-  @NonNull
+  @Nullable
   protected Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
     ArrayList<Method> candidates = new ArrayList<>();
     ReflectionUtils.doWithMethods(factoryClass, method -> {
-      if (def.isFactoryMethod(method)) {
+      if (factoryMethodName.equals(method.getName()) && def.isFactoryMethod(method)) {
         candidates.add(method);
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
-
-    if (candidates.isEmpty()) {
-      throw new IllegalStateException(
-              "factory method: '" + factoryMethodName + "' not found in class: " + factoryClass.getName());
-    }
 
     if (candidates.size() > 1) {
       candidates.sort((o1, o2) -> {
