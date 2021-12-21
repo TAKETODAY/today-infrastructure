@@ -101,7 +101,7 @@ class AnnotationBeanNameGeneratorTests {
     BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
     AnnotatedBeanDefinition bd = new AnnotatedBeanDefinition(ComponentFromNonStringMeta.class);
     String beanName = this.beanNameGenerator.populateName(bd, registry);
-    assertThat(beanName).isEqualTo("annotationBeanNameGeneratorTests.ComponentFromNonStringMeta");
+    assertThat(beanName).isEqualTo("componentFromNonStringMeta");
   }
 
   @Test

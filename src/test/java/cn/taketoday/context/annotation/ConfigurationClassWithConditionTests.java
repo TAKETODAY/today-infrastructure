@@ -68,7 +68,7 @@ public class ConfigurationClassWithConditionTests {
     ctx.refresh();
     assertThat(ctx.containsBean("bean1")).isFalse();
     assertThat(ctx.containsBean("bean2")).isTrue();
-    assertThat(ctx.containsBean("configurationClassWithConditionTests.BeanTwoConfiguration")).isTrue();
+    assertThat(ctx.containsBean("beanTwoConfiguration")).isTrue();
   }
 
   @Test

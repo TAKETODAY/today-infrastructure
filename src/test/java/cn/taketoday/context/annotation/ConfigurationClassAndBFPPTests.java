@@ -23,6 +23,7 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
@@ -48,7 +49,7 @@ public class ConfigurationClassAndBFPPTests {
     ctx.refresh();
     // instance method BFPP interferes with lifecycle -> autowiring fails!
     // WARN-level logging should have been issued about returning BFPP from non-static @Bean method
-    assertThat(ctx.getBean(AutowiredConfigWithBFPPAsInstanceMethod.class).autowiredTestBean).isNull();
+    assertThat(BeanFactoryUtils.requiredBean(ctx, AutowiredConfigWithBFPPAsInstanceMethod.class).autowiredTestBean).isNull();
   }
 
   @Test
@@ -57,7 +58,7 @@ public class ConfigurationClassAndBFPPTests {
     ctx.register(TestBeanConfig.class, AutowiredConfigWithBFPPAsStaticMethod.class);
     ctx.refresh();
     // static method BFPP does not interfere with lifecycle -> autowiring succeeds
-    assertThat(ctx.getBean(AutowiredConfigWithBFPPAsStaticMethod.class).autowiredTestBean).isNotNull();
+    assertThat(BeanFactoryUtils.requiredBean(ctx, AutowiredConfigWithBFPPAsStaticMethod.class).autowiredTestBean).isNotNull();
   }
 
   @Configuration

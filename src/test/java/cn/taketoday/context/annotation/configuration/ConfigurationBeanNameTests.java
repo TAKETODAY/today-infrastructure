@@ -72,7 +72,9 @@ public class ConfigurationBeanNameTests {
       @Override
       public String populateName(
               BeanDefinition definition, BeanDefinitionRegistry registry) {
-        return "custom-" + super.populateName(definition, registry);
+        String name = "custom-" + super.populateName(definition, registry);
+        definition.setName(name);
+        return name;
       }
     });
     ctx.register(A.class);
