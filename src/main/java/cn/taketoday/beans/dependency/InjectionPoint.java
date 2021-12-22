@@ -31,6 +31,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Required;
 
@@ -98,7 +99,12 @@ public abstract class InjectionPoint implements Serializable {
   }
 
   protected boolean doGetRequiredStatus() {
-    return getAnnotations().isPresent(Required.class);
+    MergedAnnotations annotations = getAnnotations();
+    MergedAnnotation<Autowired> annotation = annotations.get(Autowired.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean("required");
+    }
+    return annotations.isPresent(Required.class);
   }
 
   /**

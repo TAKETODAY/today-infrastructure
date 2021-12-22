@@ -22,11 +22,14 @@ package cn.taketoday.beans.dependency;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 
 import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.core.StrategiesDetector;
@@ -71,30 +74,50 @@ public class StandardDependenciesBeanPostProcessor
   //---------------------------------------------------------------------
 
   @Override
-  public void postProcessDependencies(Object bean, BeanDefinition definition) {
+  public void processDependencies(Object bean, BeanDefinition definition) {
     Class<?> beanClass = bean.getClass();
 
+    HashSet<Method> processedMethods = new HashSet<>();
     ReflectionUtils.doWithFields(beanClass, field -> {
-      Object property = resolveProperty(field);
-      if (property != InjectionPoint.DO_NOT_SET) {
-        Method writeMethod = ReflectionUtils.getWriteMethod(field);
-        if (writeMethod != null) {
-          ReflectionUtils.makeAccessible(writeMethod);
-          ReflectionUtils.invokeMethod(writeMethod, bean, property);
+      try {
+        Object property = resolveProperty(field);
+        if (property != InjectionPoint.DO_NOT_SET) {
+          Method writeMethod = ReflectionUtils.getWriteMethod(field);
+          if (writeMethod != null) {
+            ReflectionUtils.makeAccessible(writeMethod);
+            ReflectionUtils.invokeMethod(writeMethod, bean, property);
+            processedMethods.add(writeMethod);
+          }
+          else {
+            ReflectionUtils.makeAccessible(field);
+            ReflectionUtils.setField(field, bean, property);
+          }
         }
-        else {
-          ReflectionUtils.makeAccessible(field);
-          ReflectionUtils.setField(field, bean, property);
-        }
+      }
+      catch (DependencyResolvingFailedException e) {
+        throw e;
+      }
+      catch (BeansException e) {
+        throw new DependencyResolvingFailedException(
+                "dependency resolving failed for property '" + field.getName() + "'", e);
       }
     }, ReflectionUtils.COPYABLE_FIELDS);
 
     // process methods
     ReflectionUtils.doWithMethods(beanClass, method -> {
-      if (isInjectable(method)) {
-        Object[] args = argumentsResolver().resolve(method, beanFactory);
-        ReflectionUtils.makeAccessible(method);
-        ReflectionUtils.invokeMethod(method, bean, args);
+      if (!processedMethods.contains(method) && isInjectable(method)) {
+        try {
+          Object[] args = argumentsResolver().resolve(method, beanFactory);
+          ReflectionUtils.makeAccessible(method);
+          ReflectionUtils.invokeMethod(method, bean, args);
+        }
+        catch (DependencyResolvingFailedException e) {
+          throw e;
+        }
+        catch (BeansException e) {
+          throw new DependencyResolvingFailedException(
+                  "dependency resolving failed for method '" + method.getName() + "'", e);
+        }
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
   }

@@ -27,6 +27,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Qualifier;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/21 17:45</a>
@@ -67,7 +68,7 @@ public class QualifierRetrievers implements QualifierRetriever {
   public String retrieve(InjectionPoint injectionPoint) {
     for (QualifierRetriever retriever : retrievers) {
       String qualifier = retriever.retrieve(injectionPoint);
-      if (qualifier != null) {
+      if (StringUtils.isNotEmpty(qualifier)) {
         return qualifier;
       }
     }

@@ -20,6 +20,11 @@
 
 package cn.taketoday.beans;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.dependency.ParameterInjectionPoint;
@@ -32,11 +37,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.lang.Value;
 import cn.taketoday.util.ObjectUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 /**
  * BeanFactory supported Executable Arguments-Resolver
@@ -164,7 +164,7 @@ public class ArgumentsResolver {
       ParameterInjectionPoint injectionPoint = new ParameterInjectionPoint(parameter);
       resolvingStrategies().resolveDependency(injectionPoint, context);
       provided = context.getDependency() == ParameterInjectionPoint.DO_NOT_SET
-              ? null : context.getDependency();
+                 ? null : context.getDependency();
     }
     return provided;
   }

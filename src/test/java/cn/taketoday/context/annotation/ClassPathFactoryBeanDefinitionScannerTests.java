@@ -22,13 +22,14 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import cn.taketoday.aop.scope.ScopedObject;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.AbstractApplicationContext;
-import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
@@ -58,10 +59,12 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
     context.registerBeanDefinition("clientBean", new BeanDefinition(QualifiedClientBean.class));
     context.refresh();
 
-    FactoryMethodComponent fmc = context.getBean("factoryMethodComponent", FactoryMethodComponent.class);
+    FactoryMethodComponent fmc = BeanFactoryUtils.requiredBean(
+            context, "factoryMethodComponent", FactoryMethodComponent.class);
+
     assertThat(fmc.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)).isFalse();
 
-    TestBean tb = (TestBean) context.getBean("publicInstance"); //2
+    TestBean tb = (TestBean) BeanFactoryUtils.requiredBean(context, "publicInstance"); //2
     assertThat(tb.getName()).isEqualTo("publicInstance");
     TestBean tb2 = (TestBean) context.getBean("publicInstance"); //2
     assertThat(tb2.getName()).isEqualTo("publicInstance");
@@ -98,6 +101,9 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
     @Autowired
     @Qualifier("public")
     public TestBean testBean;
+
+    @Autowired
+    public List<DependencyBean> dependencyBeans;
 
     @Autowired
     public DependencyBean dependencyBean;

@@ -47,6 +47,7 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
@@ -287,8 +288,15 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   }
 
   public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition) {
-    AnnotationMetadata metadata = definition.getMetadata();
-    MergedAnnotations annotations = metadata.getAnnotations();
+    MergedAnnotations annotations;
+    MethodMetadata factoryMethodMetadata = definition.getFactoryMethodMetadata();
+    if (factoryMethodMetadata != null) {
+      annotations = factoryMethodMetadata.getAnnotations();
+    }
+    else {
+      AnnotationMetadata metadata = definition.getMetadata();
+      annotations = metadata.getAnnotations();
+    }
     applyAnnotationMetadata(annotations, definition);
   }
 

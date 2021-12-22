@@ -20,9 +20,9 @@
 
 package cn.taketoday.beans.dependency;
 
-import cn.taketoday.beans.DependencyResolvingFailedException;
-
 import java.lang.reflect.Parameter;
+
+import cn.taketoday.beans.DependencyResolvingFailedException;
 
 /**
  * resolve dependency

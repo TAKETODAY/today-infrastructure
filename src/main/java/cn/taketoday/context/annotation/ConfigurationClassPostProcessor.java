@@ -54,7 +54,6 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Required;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -96,7 +95,7 @@ public class ConfigurationClassPostProcessor
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  public ConfigurationClassPostProcessor(@Required DefinitionLoadingContext loadingContext) {
+  public ConfigurationClassPostProcessor(DefinitionLoadingContext loadingContext) {
     this.loadingContext = loadingContext;
   }
 
@@ -357,7 +356,7 @@ public class ConfigurationClassPostProcessor
     }
 
     @Override
-    public void postProcessDependencies(Object bean, BeanDefinition definition) {
+    public void processDependencies(Object bean, BeanDefinition definition) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         enhancedConfiguration.setBeanFactory(this.beanFactory);

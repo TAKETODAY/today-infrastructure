@@ -48,7 +48,7 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
   }
 
   @Override
-  public void postProcessDependencies(Object bean, BeanDefinition definition) {
+  public void processDependencies(Object bean, BeanDefinition definition) {
     Class<?> beanClass = bean.getClass();
 
     MergedAnnotation<Props> annotation = MergedAnnotations.from(beanClass).get(Props.class);

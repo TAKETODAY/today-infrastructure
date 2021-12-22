@@ -584,6 +584,9 @@ public abstract class AbstractApplicationContext
             new PropsDependencyResolvingStrategy(this)
     );
 
+    ArgumentsResolver argumentsResolver = beanFactory.getArgumentsResolver();
+    argumentsResolver.setStrategies(resolvingStrategies);
+
     beanFactory.addBeanPostProcessor(postProcessor);
 
     beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);

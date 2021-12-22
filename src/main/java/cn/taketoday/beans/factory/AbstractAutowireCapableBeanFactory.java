@@ -711,8 +711,9 @@ public abstract class AbstractAutowireCapableBeanFactory
       // apply dependency injection (DI)
       // apply outside framework expanded
       // -----------------------------------------------
+
       for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
-        processor.postProcessDependencies(bean, definition);
+        processor.processDependencies(bean, definition);
       }
     }
   }

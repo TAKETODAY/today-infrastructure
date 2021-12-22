@@ -33,5 +33,5 @@ public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
    *
    * @see BeanDefinition#isEnableDependencyInjection()
    */
-  void postProcessDependencies(Object bean, BeanDefinition definition);
+  void processDependencies(Object bean, BeanDefinition definition);
 }
