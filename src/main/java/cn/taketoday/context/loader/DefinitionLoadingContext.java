@@ -203,6 +203,10 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
     registry.removeBeanDefinition(beanName);
   }
 
+  public BeanDefinition getBeanDefinition(String beanName) {
+    return registry.getBeanDefinition(beanName);
+  }
+
   public boolean passCondition(AnnotatedElement annotated) {
     if (annotated instanceof Class) {
       return getConditionEvaluator().passCondition((Class<?>) annotated);

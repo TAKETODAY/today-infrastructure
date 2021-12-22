@@ -152,8 +152,11 @@ public class BeanDefinition
   @Nullable
   private Object[] constructorArgs;
 
-  /** disable DI @since 4.0 */
+  /** enable DI @since 4.0 */
   private boolean enableDependencyInjection = true;
+
+  /** autowire candidate @since 4.0 */
+  private boolean autowireCandidate = true;
 
   // @since 4.0
   @Nullable
@@ -677,6 +680,21 @@ public class BeanDefinition
   }
 
   /**
+   * Apply the provided default values to this bean.
+   *
+   * @param defaults the default settings to apply
+   * @since 4.0
+   */
+  public void applyDefaults(BeanDefinitionDefaults defaults) {
+    Boolean lazyInit = defaults.getLazyInit();
+    if (lazyInit != null) {
+      setLazyInit(lazyInit);
+    }
+    setInitMethods(defaults.getInitMethodNames());
+    setDestroyMethod(defaults.getDestroyMethodName());
+  }
+
+  /**
    * Set a bean instance supplier
    *
    * @param instanceSupplier bean instance supplier (can be null)
@@ -865,6 +883,24 @@ public class BeanDefinition
   /** @since 4.0 */
   public boolean isEnableDependencyInjection() {
     return enableDependencyInjection;
+  }
+
+  /**
+   * Set whether this bean is a candidate for getting autowired into some other bean.
+   * <p>Note that this flag is designed to only affect type-based autowiring.
+   * It does not affect explicit references by name, which will get resolved even
+   * if the specified bean is not marked as an autowire candidate. As a consequence,
+   * autowiring by name will nevertheless inject a bean if the name matches.
+   */
+  public void setAutowireCandidate(boolean autowireCandidate) {
+    this.autowireCandidate = autowireCandidate;
+  }
+
+  /**
+   * Return whether this bean is a candidate for getting autowired into some other bean.
+   */
+  public boolean isAutowireCandidate() {
+    return this.autowireCandidate;
   }
 
   /**

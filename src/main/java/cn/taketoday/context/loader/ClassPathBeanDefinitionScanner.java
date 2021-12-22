@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;
@@ -38,6 +39,7 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * A bean definition scanner that detects bean candidates on the classpath,
@@ -68,6 +70,11 @@ import cn.taketoday.lang.Nullable;
 public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateComponentProvider {
 
   private final BeanDefinitionRegistry registry;
+
+  private BeanDefinitionDefaults beanDefinitionDefaults = new BeanDefinitionDefaults();
+
+  @Nullable
+  private String[] autowireCandidatePatterns;
 
   private BeanNamePopulator beanNamePopulator = AnnotationBeanNamePopulator.INSTANCE;
 
@@ -179,6 +186,32 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   }
 
   /**
+   * Set the defaults to use for detected beans.
+   *
+   * @see BeanDefinitionDefaults
+   */
+  public void setBeanDefinitionDefaults(@Nullable BeanDefinitionDefaults beanDefinitionDefaults) {
+    this.beanDefinitionDefaults =
+            beanDefinitionDefaults != null ? beanDefinitionDefaults : new BeanDefinitionDefaults();
+  }
+
+  /**
+   * Return the defaults to use for detected beans (never {@code null}).
+   */
+  public BeanDefinitionDefaults getBeanDefinitionDefaults() {
+    return this.beanDefinitionDefaults;
+  }
+
+  /**
+   * Set the name-matching patterns for determining autowire candidates.
+   *
+   * @param autowireCandidatePatterns the patterns to match against
+   */
+  public void setAutowireCandidatePatterns(@Nullable String... autowireCandidatePatterns) {
+    this.autowireCandidatePatterns = autowireCandidatePatterns;
+  }
+
+  /**
    * Set the BeanNameGenerator to use for detected bean classes.
    * <p>Default is a {@link AnnotationBeanNamePopulator}.
    */
@@ -270,7 +303,12 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param beanDefinition the scanned bean definition
    * @param beanName the generated bean name for the given bean
    */
-  protected void postProcessBeanDefinition(BeanDefinition beanDefinition, String beanName) { }
+  protected void postProcessBeanDefinition(BeanDefinition beanDefinition, String beanName) {
+    beanDefinition.applyDefaults(beanDefinitionDefaults);
+    if (autowireCandidatePatterns != null) {
+      beanDefinition.setAutowireCandidate(StringUtils.simpleMatch(autowireCandidatePatterns, beanName));
+    }
+  }
 
   /**
    * Register the specified bean with the given registry.

@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
@@ -200,6 +199,10 @@ class ConfigurationClassBeanDefinitionReader {
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef);
 
+    if (!component.getBoolean("autowireCandidate")) {
+      beanDef.setAutowireCandidate(false);
+    }
+
     String[] initMethodName = component.getStringArray("initMethods");
     if (ObjectUtils.isNotEmpty(initMethodName)) {
       beanDef.setInitMethods(initMethodName);
@@ -208,14 +211,7 @@ class ConfigurationClassBeanDefinitionReader {
     String destroyMethodName = component.getString("destroyMethod");
     beanDef.setDestroyMethod(destroyMethodName);
 
-    // Consider scoping
-    MergedAnnotation<Scope> annotation = metadata.getAnnotation(Scope.class);
-    if (annotation.isPresent()) {
-      beanDef.setScope(annotation.getStringValue());
-    }
-
     // Replace the original bean definition with the target one, if necessary
-
     if (logger.isTraceEnabled()) {
       logger.trace(String.format("Registering bean definition for @Component method %s.%s()",
               configClass.getMetadata().getClassName(), beanName));
@@ -229,11 +225,10 @@ class ConfigurationClassBeanDefinitionReader {
   }
 
   protected boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName) {
-    BeanDefinitionRegistry registry = loadingContext.getRegistry();
-    if (!registry.containsBeanDefinition(beanName)) {
+    BeanDefinition existingBeanDef = loadingContext.getBeanDefinition(beanName);
+    if (existingBeanDef == null) {
       return false;
     }
-    BeanDefinition existingBeanDef = BeanFactoryUtils.getBeanDefinition(registry, beanName);
 
     // Is the existing bean definition one that was created from a configuration class?
     // -> allow the current bean method to override, since both are at second-pass level.
@@ -258,14 +253,14 @@ class ConfigurationClassBeanDefinitionReader {
 
     // At this point, it's a top-level override (probably XML), just having been parsed
     // before configuration class processing kicks in...
-    if (!registry.isAllowBeanDefinitionOverriding()) {
+    if (!loadingContext.getRegistry().isAllowBeanDefinitionOverriding()) {
       throw new BeanDefinitionStoreException(componentMethod.getConfigurationClass().getResource().toString(),
               beanName, "@Component definition illegally overridden by existing bean definition: " + existingBeanDef);
     }
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("Skipping bean definition for %s: a definition for bean '%s' " +
+      logger.debug("Skipping bean definition for {}: a definition for bean '{}' " +
                       "already exists. This top-level bean definition is considered as an override.",
-              componentMethod, beanName));
+              componentMethod, beanName);
     }
     return true;
   }
@@ -301,7 +296,7 @@ class ConfigurationClassBeanDefinitionReader {
           }
         }
         if (skip == null) {
-          skip = !loadingContext.passCondition(configClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN);
+          skip = loadingContext.shouldSkip(configClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN);
         }
         this.skipped.put(configClass, skip);
       }

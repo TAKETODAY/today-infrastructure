@@ -89,4 +89,14 @@ public @interface Component {
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
   String destroyMethod() default Constant.BLANK;
+
+  /**
+   * Is this bean a candidate for getting autowired into some other bean?
+   * <p>Default is {@code true}; set this to {@code false} for internal delegates
+   * that are not meant to get in the way of beans of the same type in other places.
+   *
+   * @since 4.0
+   */
+  boolean autowireCandidate() default true;
+
 }

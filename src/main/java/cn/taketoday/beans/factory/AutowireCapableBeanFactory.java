@@ -21,6 +21,9 @@ package cn.taketoday.beans.factory;
 
 import java.util.Set;
 
+import cn.taketoday.beans.dependency.DependencyDescriptor;
+import cn.taketoday.lang.Nullable;
+
 /**
  * Extension of the {@link BeanFactory} interface to be implemented
  * by bean factories that are capable of autowiring, provided that
@@ -220,5 +223,53 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @since 4.0
    */
   String getPrimaryCandidate(Set<String> candidateNames, Class<?> requiredType);
+
+  /**
+   * Determine whether the specified bean qualifies as an autowire candidate,
+   * to be injected into other beans which declare a dependency of matching type.
+   * <p>This method checks ancestor factories as well.
+   *
+   * @param beanName the name of the bean to check
+   * @param descriptor the descriptor of the dependency to resolve
+   * @return whether the bean should be considered as autowire candidate
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @since 4.0
+   */
+  boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor)
+          throws NoSuchBeanDefinitionException;
+
+  /**
+   * Resolve the specified dependency against the beans defined in this factory.
+   *
+   * @param descriptor the descriptor for the dependency (field/method/constructor)
+   * @param requestingBeanName the name of the bean which declares the given dependency
+   * @return the resolved object, or {@code null} if none found
+   * @throws NoSuchBeanDefinitionException if no matching bean was found
+   * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
+   * @throws BeansException if dependency resolution failed for any other reason
+   * @see #resolveDependency(DependencyDescriptor, String, Set)
+   * @since 4.0
+   */
+  @Nullable
+  Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName) throws BeansException;
+
+  /**
+   * Resolve the specified dependency against the beans defined in this factory.
+   *
+   * @param descriptor the descriptor for the dependency (field/method/constructor)
+   * @param requestingBeanName the name of the bean which declares the given dependency
+   * @param autowiredBeanNames a Set that all names of autowired beans (used for
+   * resolving the given dependency) are supposed to be added to
+   * @return the resolved object, or {@code null} if none found
+   * @throws NoSuchBeanDefinitionException if no matching bean was found
+   * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
+   * @throws BeansException if dependency resolution failed for any other reason
+   * @see DependencyDescriptor
+   * @since 4.0
+   */
+  @Nullable
+  Object resolveDependency(
+          DependencyDescriptor descriptor, @Nullable String requestingBeanName,
+          @Nullable Set<String> autowiredBeanNames) throws BeansException;
 
 }
