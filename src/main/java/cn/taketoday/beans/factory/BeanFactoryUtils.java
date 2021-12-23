@@ -870,7 +870,7 @@ public abstract class BeanFactoryUtils {
    * @throws NoSuchBeanDefinitionException bean-definition not found
    * @see BeanDefinitionRegistry#getBeanDefinition(String)
    */
-  public static BeanDefinition getBeanDefinition(BeanDefinitionRegistry registry, String beanName) {
+  public static BeanDefinition requiredDefinition(BeanDefinitionRegistry registry, String beanName) {
     BeanDefinition def = registry.getBeanDefinition(beanName);
     if (def == null) {
       throw new NoSuchBeanDefinitionException(beanName);
@@ -882,12 +882,41 @@ public abstract class BeanFactoryUtils {
    * @throws NoSuchBeanDefinitionException bean-definition not found
    * @see BeanFactory#getBeanDefinition(String)
    */
-  public static BeanDefinition getBeanDefinition(BeanFactory factory, String beanName) {
+  public static BeanDefinition requiredDefinition(BeanFactory factory, String beanName) {
     BeanDefinition def = factory.getBeanDefinition(beanName);
     if (def == null) {
       throw new NoSuchBeanDefinitionException(beanName);
     }
     return def;
+  }
+
+  /**
+   * Return a BeanDefinition for the given bean name, Considers
+   * bean definitions in ancestor factories as well.
+   *
+   * @param beanName the name of the bean to retrieve the definition for
+   * @return a BeanDefinition for the given bean
+   */
+  @Nullable
+  public static BeanDefinition definitionIncludingAncestors(BeanFactory factory, String beanName) {
+    if (factory instanceof HierarchicalBeanFactory hierarchical) {
+      BeanFactory parentBeanFactory = hierarchical.getParentBeanFactory();
+      if (parentBeanFactory != null) {
+        BeanDefinition definition = definitionIncludingAncestors(parentBeanFactory, beanName);
+        if (definition != null) {
+          return definition;
+        }
+      }
+    }
+    return factory.getBeanDefinition(beanName);
+  }
+
+  public static BeanDefinition requiredDefinitionIncludingAncestors(BeanFactory factory, String beanName) {
+    BeanDefinition definition = definitionIncludingAncestors(factory, beanName);
+    if (definition == null) {
+      throw new NoSuchBeanDefinitionException(beanName);
+    }
+    return definition;
   }
 
   /**
