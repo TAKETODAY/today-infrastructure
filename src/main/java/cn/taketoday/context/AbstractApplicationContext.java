@@ -589,8 +589,8 @@ public abstract class AbstractApplicationContext
 
     beanFactory.addBeanPostProcessor(postProcessor);
 
-    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
-    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+    beanFactory.registerDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerDependency(ApplicationContext.class, this);
   }
 
   // post-processor

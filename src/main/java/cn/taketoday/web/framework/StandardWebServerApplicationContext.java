@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.framework;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
@@ -76,34 +77,8 @@ public class StandardWebServerApplicationContext
 
   @Override
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
-    beanFactory.registerSingleton(this);
-
-    // @since 3.0
-    final class WebSessionFactory implements Supplier<WebSession> {
-      WebSessionManager sessionManager;
-
-      private WebSessionManager obtainWebSessionManager() {
-        WebSessionManager sessionManager = this.sessionManager;
-        if (sessionManager == null) {
-          sessionManager = getBean(WebSessionManager.class);
-          Assert.state(sessionManager != null, "You must enable web session -> @EnableWebSession");
-          this.sessionManager = sessionManager;
-        }
-        return sessionManager;
-      }
-
-      @Override
-      public WebSession get() {
-        final RequestContext context = RequestContextHolder.currentContext();
-        return obtainWebSessionManager().getSession(context);
-      }
-    }
-    beanFactory.registerResolvableDependency(WebSession.class, new WebSessionFactory());
-    beanFactory.registerResolvableDependency(RequestContext.class, factory(RequestContextHolder::currentContext));
-  }
-
-  private static <T> Supplier<T> factory(Supplier<T> objectFactory) {
-    return objectFactory;
+    beanFactory.registerDependency(WebSession.class, new WebSessionObjectSupplier());
+    beanFactory.registerDependency(RequestContext.class, new RequestContextSupplier());
   }
 
   @Override
@@ -135,5 +110,41 @@ public class StandardWebServerApplicationContext
 
   public void setContextPath(String contextPath) {
     this.contextPath = contextPath;
+  }
+
+  // @since 3.0
+  final class WebSessionObjectSupplier implements Supplier<WebSession>, Serializable {
+    WebSessionManager sessionManager;
+
+    private WebSessionManager obtainWebSessionManager() {
+      WebSessionManager sessionManager = this.sessionManager;
+      if (sessionManager == null) {
+        sessionManager = getBean(WebSessionManager.class);
+        Assert.state(sessionManager != null, "You must enable web session -> @EnableWebSession");
+        this.sessionManager = sessionManager;
+      }
+      return sessionManager;
+    }
+
+    @Override
+    public WebSession get() {
+      final RequestContext context = RequestContextHolder.currentContext();
+      return obtainWebSessionManager().getSession(context);
+    }
+
+  }
+
+  final static class RequestContextSupplier implements Supplier<RequestContext>, Serializable {
+
+    @Override
+    public RequestContext get() {
+      return RequestContextHolder.currentContext();
+    }
+
+    @Override
+    public String toString() {
+      return "Current Request Context";
+    }
+
   }
 }
