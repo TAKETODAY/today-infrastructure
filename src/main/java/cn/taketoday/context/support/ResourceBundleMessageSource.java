@@ -78,7 +78,8 @@ import cn.taketoday.util.ClassUtils;
  * @see java.util.ResourceBundle
  * @see java.text.MessageFormat
  */
-public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSource implements BeanClassLoaderAware {
+public class ResourceBundleMessageSource
+        extends AbstractResourceBasedMessageSource implements BeanClassLoaderAware {
 
   @Nullable
   private ClassLoader bundleClassLoader;
@@ -399,11 +400,9 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
       if (format.equals("java.properties")) {
         String bundleName = toBundleName(baseName, locale);
         final String resourceName = toResourceName(bundleName, "properties");
-        final ClassLoader classLoader = loader;
-        final boolean reloadFlag = reload;
         InputStream inputStream = null;
-        if (reloadFlag) {
-          URL url = classLoader.getResource(resourceName);
+        if (reload) {
+          URL url = loader.getResource(resourceName);
           if (url != null) {
             URLConnection connection = url.openConnection();
             if (connection != null) {
@@ -413,7 +412,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
           }
         }
         else {
-          inputStream = classLoader.getResourceAsStream(resourceName);
+          inputStream = loader.getResourceAsStream(resourceName);
         }
         if (inputStream != null) {
           String encoding = getDefaultEncoding();
@@ -442,13 +441,13 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
     @Nullable
     public Locale getFallbackLocale(String baseName, Locale locale) {
       Locale defaultLocale = getDefaultLocale();
-      return (defaultLocale != null && !defaultLocale.equals(locale) ? defaultLocale : null);
+      return defaultLocale != null && !defaultLocale.equals(locale) ? defaultLocale : null;
     }
 
     @Override
     public long getTimeToLive(String baseName, Locale locale) {
       long cacheMillis = getCacheMillis();
-      return (cacheMillis >= 0 ? cacheMillis : super.getTimeToLive(baseName, locale));
+      return cacheMillis >= 0 ? cacheMillis : super.getTimeToLive(baseName, locale);
     }
 
     @Override

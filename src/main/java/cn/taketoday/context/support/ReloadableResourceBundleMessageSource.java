@@ -164,7 +164,7 @@ public class ReloadableResourceBundleMessageSource
    */
   @Override
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
-    this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
+    this.resourceLoader = resourceLoader != null ? resourceLoader : new DefaultResourceLoader();
   }
 
   /**
@@ -278,7 +278,7 @@ public class ReloadableResourceBundleMessageSource
     }
 
     // Filenames for given Locale
-    List<String> filenames = new ArrayList<>(7);
+    ArrayList<String> filenames = new ArrayList<>(7);
     filenames.addAll(calculateFilenamesForLocale(basename, locale));
 
     // Filenames for default Locale, if any
@@ -319,7 +319,7 @@ public class ReloadableResourceBundleMessageSource
    * @return the List of filenames to check
    */
   protected List<String> calculateFilenamesForLocale(String basename, Locale locale) {
-    List<String> result = new ArrayList<>(3);
+    ArrayList<String> result = new ArrayList<>(3);
     String language = locale.getLanguage();
     String country = locale.getCountry();
     String variant = locale.getVariant();
@@ -511,7 +511,6 @@ public class ReloadableResourceBundleMessageSource
    * with no further initialization or population to be performed at that point.
    *
    * @return a plain Properties instance
-   * @since 4.2
    */
   protected Properties newProperties() {
     return new Properties();

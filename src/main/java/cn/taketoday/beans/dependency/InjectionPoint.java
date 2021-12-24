@@ -128,7 +128,7 @@ public abstract class InjectionPoint implements Serializable {
   }
 
   public boolean isProperty() {
-    return false;
+    return field != null;
   }
 
   //
