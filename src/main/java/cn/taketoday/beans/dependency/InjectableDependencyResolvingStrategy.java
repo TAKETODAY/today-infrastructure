@@ -20,11 +20,16 @@
 
 package cn.taketoday.beans.dependency;
 
+import java.util.LinkedHashSet;
+
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * <p>Example usage:
@@ -61,23 +66,23 @@ import cn.taketoday.util.StringUtils;
 public class InjectableDependencyResolvingStrategy
         extends InjectableAnnotationsSupport implements DependencyResolvingStrategy {
 
-  protected QualifierRetriever qualifierRetriever = QualifierRetrievers.shared;
+  private static final Logger log = LoggerFactory.getLogger(InjectableDependencyResolvingStrategy.class);
 
   protected boolean supportsDependency(
-          InjectionPoint injectionPoint, DependencyResolvingContext context) {
+          DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
     BeanFactory beanFactory = context.getBeanFactory();
     return beanFactory != null && !context.hasDependency()
             && supportsInternal(injectionPoint, context);
   }
 
   protected boolean supportsInternal(
-          InjectionPoint injectionPoint, DependencyResolvingContext context) {
+          DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
     return true;
   }
 
   @Override
   public void resolveDependency(
-          InjectionPoint injectionPoint, DependencyResolvingContext context) {
+          DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
     if (supportsDependency(injectionPoint, context)) {
       BeanFactory beanFactory = context.getBeanFactory();
       if (injectionPoint.isProperty()) {
@@ -92,9 +97,9 @@ public class InjectableDependencyResolvingStrategy
   }
 
   protected void resolveInternal(
-          InjectionPoint injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
+          DependencyDescriptor injectionPoint, BeanFactory beanFactory, DependencyResolvingContext context) {
     try {
-      Object bean = getBean(beanFactory, injectionPoint);
+      Object bean = getBean(beanFactory, context, injectionPoint);
       context.setDependency(bean);
     }
     catch (NoSuchBeanDefinitionException e) {
@@ -108,24 +113,32 @@ public class InjectableDependencyResolvingStrategy
     }
   }
 
-  protected Object getBean(BeanFactory beanFactory, InjectionPoint injectionPoint) {
-    String beanName = qualifierRetriever.retrieve(injectionPoint);
-    if (StringUtils.hasText(beanName)) {
-      // use name and bean type to get bean
-      return BeanFactoryUtils.requiredBean(beanFactory, beanName, injectionPoint.getDependencyType());
-    }
-    else {
-      return BeanFactoryUtils.requiredBean(beanFactory, injectionPoint.getDependencyType());
-    }
-  }
+  protected Object getBean(
+          BeanFactory beanFactory, DependencyResolvingContext context, DependencyDescriptor injectionPoint) {
+    if (beanFactory instanceof AutowireCapableBeanFactory autowire) {
+      if (beanFactory instanceof ConfigurableBeanFactory configurable) {
+        LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
+        Object arg = autowire.resolveDependency(injectionPoint, null, autowiredBeanNames);
 
-  public void setQualifierRetriever(QualifierRetriever qualifierRetriever) {
-    Assert.notNull(qualifierRetriever, "'qualifierRetriever' is required");
-    this.qualifierRetriever = qualifierRetriever;
-  }
+        String beanName = context.getBeanName();
+        if (beanName != null && CollectionUtils.isNotEmpty(autowiredBeanNames)) {
+          for (String autowiredBeanName : autowiredBeanNames) {
+            configurable.registerDependentBean(autowiredBeanName, beanName);
+            if (log.isDebugEnabled()) {
+              log.debug("Autowiring by type from bean name '{}' via {} to bean named '{}'",
+                      beanName, injectionPoint, autowiredBeanName);
+            }
+          }
+        }
 
-  public QualifierRetriever getQualifierRetriever() {
-    return qualifierRetriever;
+        return arg;
+      }
+      else {
+        return autowire.resolveDependency(injectionPoint, null, null);
+      }
+    }
+
+    return BeanFactoryUtils.requiredBean(beanFactory, injectionPoint.getDependencyType());
   }
 
 }

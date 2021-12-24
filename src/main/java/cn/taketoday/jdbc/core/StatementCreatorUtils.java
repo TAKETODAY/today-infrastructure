@@ -65,7 +65,7 @@ import cn.taketoday.logging.LoggerFactory;
 public abstract class StatementCreatorUtils {
 
   /**
-   * System property that instructs Spring to ignore {@link java.sql.ParameterMetaData#getParameterType}
+   * System property that instructs Framework to ignore {@link java.sql.ParameterMetaData#getParameterType}
    * completely, i.e. to never even attempt to retrieve {@link PreparedStatement#getParameterMetaData()}
    * for {@link StatementCreatorUtils#setNull} calls.
    * <p>The default is "false", trying {@code getParameterType} calls first and falling back to

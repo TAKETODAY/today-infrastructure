@@ -55,7 +55,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Sebastien Deleuze
  * @author Phillip Webb
  * @see cn.taketoday.core.annotation.SynthesizingMethodParameter
- * @since 2.0
+ * @since 4.0
  */
 public class MethodParameter {
 
@@ -162,10 +162,10 @@ public class MethodParameter {
    */
   MethodParameter(Executable executable, int parameterIndex, @Nullable Class<?> containingClass) {
     Assert.notNull(executable, "Executable must not be null");
-    this.executable = executable;
-    this.parameterIndex = validateIndex(executable, parameterIndex);
     this.nestingLevel = 1;
+    this.executable = executable;
     this.containingClass = containingClass;
+    this.parameterIndex = validateIndex(executable, parameterIndex);
   }
 
   /**
@@ -197,7 +197,7 @@ public class MethodParameter {
    */
   @Nullable
   public Method getMethod() {
-    return (this.executable instanceof Method ? (Method) this.executable : null);
+    return this.executable instanceof Method ? (Method) this.executable : null;
   }
 
   /**
@@ -208,7 +208,7 @@ public class MethodParameter {
    */
   @Nullable
   public Constructor<?> getConstructor() {
-    return (this.executable instanceof Constructor ? (Constructor<?>) this.executable : null);
+    return this.executable instanceof Constructor ? (Constructor<?>) this.executable : null;
   }
 
   /**
@@ -398,7 +398,7 @@ public class MethodParameter {
    * @see #nested()
    */
   public MethodParameter nestedIfOptional() {
-    return (getParameterType() == Optional.class ? nested() : this);
+    return getParameterType() == Optional.class ? nested() : this;
   }
 
   /**
@@ -411,8 +411,8 @@ public class MethodParameter {
    */
   public MethodParameter withContainingClass(@Nullable Class<?> containingClass) {
     MethodParameter result = clone();
-    result.containingClass = containingClass;
     result.parameterType = null;
+    result.containingClass = containingClass;
     return result;
   }
 
@@ -562,7 +562,7 @@ public class MethodParameter {
   @Nullable
   public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
     A annotation = getAnnotatedElement().getAnnotation(annotationType);
-    return (annotation != null ? adaptAnnotation(annotation) : null);
+    return annotation != null ? adaptAnnotation(annotation) : null;
   }
 
   /**
@@ -604,7 +604,7 @@ public class MethodParameter {
    * @see #getParameterAnnotations()
    */
   public boolean hasParameterAnnotations() {
-    return (getParameterAnnotations().length != 0);
+    return getParameterAnnotations().length != 0;
   }
 
   /**
@@ -632,7 +632,7 @@ public class MethodParameter {
    * @see #getParameterAnnotation(Class)
    */
   public <A extends Annotation> boolean hasParameterAnnotation(Class<A> annotationType) {
-    return (getParameterAnnotation(annotationType) != null);
+    return getParameterAnnotation(annotationType) != null;
   }
 
   /**

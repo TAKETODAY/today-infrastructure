@@ -28,7 +28,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Spring's default implementation of the {@link MessageSourceResolvable} interface.
+ * Framework's default implementation of the {@link MessageSourceResolvable} interface.
  * Offers an easy way to store all the necessary values needed to resolve
  * a message via a {@link cn.taketoday.context.MessageSource}.
  *

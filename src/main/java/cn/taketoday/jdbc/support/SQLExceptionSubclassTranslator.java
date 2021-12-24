@@ -104,7 +104,7 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
       return new RecoverableDataAccessException(buildMessage(task, sql, ex), ex);
     }
 
-    // Fallback to Spring's own SQL state translation...
+    // Fallback to Framework's own SQL state translation...
     return null;
   }
 

@@ -40,7 +40,7 @@ import cn.taketoday.jdbc.support.KeyHolder;
  * for a specified table then we can rely on this auto-detection feature. If that
  * is not the case, then the column names must be specified explicitly.
  *
- * <p>The actual insert is handled using Spring's {@link JdbcTemplate}.
+ * <p>The actual insert is handled using Framework's {@link JdbcTemplate}.
  *
  * <p>Many of the configuration methods return the current instance of the
  * SimpleJdbcInsert to provide the ability to chain multiple ones together

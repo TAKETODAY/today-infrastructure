@@ -33,6 +33,8 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
@@ -51,15 +53,18 @@ import cn.taketoday.util.ObjectUtils;
  * @author Stephane Nicoll
  * @see AutowireCandidateQualifier
  * @see Qualifier
- * @since 2.5
+ * @since 4.0
  */
 public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwareAutowireCandidateResolver {
 
-  private final Set<Class<? extends Annotation>> qualifierTypes = new LinkedHashSet<>(2);
+  private final LinkedHashSet<Class<? extends Annotation>> qualifierTypes = new LinkedHashSet<>(2);
+
+  @Nullable
+  private ConversionService conversionService;
 
   /**
    * Create a new QualifierAnnotationAutowireCandidateResolver
-   * for Spring's standard {@link Qualifier} annotation.
+   * for Framework's standard {@link Qualifier} annotation.
    * <p>Also supports JSR-330's {@link jakarta.inject.Qualifier} annotation, if available.
    */
   public QualifierAnnotationAutowireCandidateResolver() {
@@ -101,13 +106,22 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * method parameters and constructor parameters) as well as meta
    * annotations that in turn identify actual qualifier annotations.
    * <p>This implementation only supports annotations as qualifier types.
-   * The default is Spring's {@link Qualifier} annotation which serves
+   * The default is Framework's {@link Qualifier} annotation which serves
    * as a qualifier for direct use and also as a meta annotation.
    *
    * @param qualifierType the annotation type to register
    */
   public void addQualifierType(Class<? extends Annotation> qualifierType) {
     this.qualifierTypes.add(qualifierType);
+  }
+
+  public void setConversionService(@Nullable ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
+
+  @Nullable
+  public ConversionService getConversionService() {
+    return conversionService;
   }
 
   /**
@@ -133,7 +147,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         if (methodParam != null) {
           Method method = methodParam.getMethod();
           if (method == null || void.class == method.getReturnType()) {
-            match = checkQualifiers(definition, methodParam.getMethodAnnotations());
+            match = checkQualifiers(definition, MergedAnnotations.from(methodParam.getMethodAnnotations()));
           }
         }
       }
@@ -145,16 +159,12 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * Match the given qualifier annotations against the candidate bean definition.
    */
   protected boolean checkQualifiers(BeanDefinition definition, MergedAnnotations annotationsToSearch) {
-    if (ObjectUtils.isEmpty(annotationsToSearch)) {
-      return true;
-    }
-    SimpleTypeConverter typeConverter = new SimpleTypeConverter();
     for (MergedAnnotation<Annotation> annotation : annotationsToSearch) {
       Class<? extends Annotation> type = annotation.getType();
       boolean checkMeta = true;
       boolean fallbackToMeta = false;
       if (isQualifier(type)) {
-        if (!checkQualifier(definition, annotation, typeConverter)) {
+        if (!checkQualifier(definition, annotation)) {
           fallbackToMeta = true;
         }
         else {
@@ -169,8 +179,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
             foundMeta = true;
             // Only accept fallback match if @Qualifier annotation has a value...
             // Otherwise it is just a marker for a custom qualifier annotation.
-            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn))) ||
-                    !checkQualifier(definition, metaAnn, typeConverter)) {
+            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn)))
+                    || !checkQualifier(definition, MergedAnnotation.from(metaAnn))) {
               return false;
             }
           }
@@ -199,7 +209,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * Match the given qualifier annotation against the candidate bean definition.
    */
   protected boolean checkQualifier(
-          BeanDefinition definition, MergedAnnotation<Annotation> annotation, TypeConverter typeConverter) {
+          BeanDefinition definition, MergedAnnotation<Annotation> annotation) {
 
     Class<? extends Annotation> type = annotation.getType();
 
@@ -263,7 +273,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         actualValue = AnnotationUtils.getDefaultValue(annotation.getType(), attributeName);
       }
       if (actualValue != null) {
-        actualValue = typeConverter.convertIfNecessary(actualValue, expectedValue.getClass());
+        actualValue = convertIfNecessary(actualValue, expectedValue.getClass());
       }
       if (!expectedValue.equals(actualValue)) {
         return false;
@@ -272,10 +282,18 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
     return true;
   }
 
+  private Object convertIfNecessary(Object actualValue, Class<?> targetClass) {
+    ConversionService conversionService = getConversionService();
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+    }
+    return conversionService.convert(actualValue, targetClass);
+  }
+
   @Nullable
   protected Annotation getQualifiedElementAnnotation(BeanDefinition bd, Class<? extends Annotation> type) {
     AnnotatedElement qualifiedElement = bd.getQualifiedElement();
-    return (qualifiedElement != null ? AnnotationUtils.getAnnotation(qualifiedElement, type) : null);
+    return qualifiedElement != null ? AnnotationUtils.getAnnotation(qualifiedElement, type) : null;
   }
 
   @Nullable

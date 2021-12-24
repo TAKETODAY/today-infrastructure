@@ -220,11 +220,6 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException;
 
   /**
-   * @since 4.0
-   */
-  String getPrimaryCandidate(Set<String> candidateNames, Class<?> requiredType);
-
-  /**
    * Determine whether the specified bean qualifies as an autowire candidate,
    * to be injected into other beans which declare a dependency of matching type.
    * <p>This method checks ancestor factories as well.

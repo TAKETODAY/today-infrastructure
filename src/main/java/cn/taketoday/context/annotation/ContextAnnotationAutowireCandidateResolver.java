@@ -57,7 +57,9 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
   @Override
   @Nullable
   public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
-    return (isLazy(descriptor) ? buildLazyResolutionProxy(descriptor, beanName) : null);
+    return isLazy(descriptor)
+           ? buildLazyResolutionProxy(descriptor, beanName)
+           : null;
   }
 
   protected boolean isLazy(DependencyDescriptor descriptor) {
@@ -81,7 +83,7 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
   protected Object buildLazyResolutionProxy(final DependencyDescriptor descriptor, final @Nullable String beanName) {
     BeanFactory beanFactory = getBeanFactory();
     Assert.state(beanFactory instanceof StandardBeanFactory,
-            "BeanFactory needs to be a DefaultListableBeanFactory");
+            "BeanFactory needs to be a StandardBeanFactory");
     final StandardBeanFactory dlbf = (StandardBeanFactory) beanFactory;
 
     TargetSource ts = new TargetSource() {
@@ -97,7 +99,7 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 
       @Override
       public Object getTarget() {
-        Set<String> autowiredBeanNames = (beanName != null ? new LinkedHashSet<>(1) : null);
+        Set<String> autowiredBeanNames = beanName != null ? new LinkedHashSet<>(1) : null;
         Object target = dlbf.doResolveDependency(descriptor, beanName, autowiredBeanNames);
         if (target == null) {
           Class<?> type = getTargetClass();

@@ -30,9 +30,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Helper class that allows for accessing a Spring
+ * Helper class that allows for accessing a Framework
  * {@link cn.taketoday.context.MessageSource} as a {@link java.util.ResourceBundle}.
- * Used for example to expose a Spring MessageSource to JSTL web views.
+ * Used for example to expose a Framework MessageSource to JSTL web views.
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.context.MessageSource

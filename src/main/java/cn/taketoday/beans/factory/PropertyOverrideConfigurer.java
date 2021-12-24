@@ -143,7 +143,7 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
   protected void applyPropertyValue(
           ConfigurableBeanFactory factory, String beanName, String property, String value) {
 
-    BeanDefinition bd = BeanFactoryUtils.getBeanDefinition(factory, beanName);
+    BeanDefinition bd = BeanFactoryUtils.requiredDefinition(factory, beanName);
     PropertyValue pv = new PropertyValue(property, value);
     bd.propertyValues().add(pv);
   }

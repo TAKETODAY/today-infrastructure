@@ -68,7 +68,7 @@ public class LazyInitTargetSourceCreator extends AbstractBeanFactoryTargetSource
   protected AbstractBeanFactoryTargetSource createBeanFactoryTargetSource(
           Class<?> beanClass, String beanName) {
     if (getBeanFactory() instanceof ConfigurableBeanFactory configurable) {
-      BeanDefinition definition = BeanFactoryUtils.getBeanDefinition(configurable, beanName);
+      BeanDefinition definition = BeanFactoryUtils.requiredDefinition(configurable, beanName);
       if (definition.isLazyInit()) {
         return new LazyInitTargetSource();
       }

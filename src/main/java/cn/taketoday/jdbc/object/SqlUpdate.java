@@ -42,7 +42,7 @@ import cn.taketoday.jdbc.support.KeyHolder;
  * to add a custom update method) it can easily be parameterized by setting
  * SQL and declaring parameters.
  *
- * <p>Like all {@code RdbmsOperation} classes that ship with the Spring
+ * <p>Like all {@code RdbmsOperation} classes that ship with the
  * Framework, {@code SqlQuery} instances are thread-safe after their
  * initialization is complete. That is, after they are constructed and configured
  * via their setter methods, they can be used safely from multiple threads.

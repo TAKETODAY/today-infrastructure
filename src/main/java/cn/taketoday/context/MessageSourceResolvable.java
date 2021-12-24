@@ -26,7 +26,7 @@ import cn.taketoday.lang.Nullable;
  * Interface for objects that are suitable for message resolution in a
  * {@link MessageSource}.
  *
- * <p>Spring's own validation error classes implement this interface.
+ * <p>Framework's own validation error classes implement this interface.
  *
  * @author Juergen Hoeller
  * @see MessageSource#getMessage(MessageSourceResolvable, java.util.Locale)

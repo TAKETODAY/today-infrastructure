@@ -44,7 +44,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Abstract base class that implements Spring's standard reactive transaction workflow,
+ * Abstract base class that implements Framework's standard reactive transaction workflow,
  * serving as basis for concrete platform transaction managers.
  *
  * <p>This base class provides the following workflow handling:
@@ -653,7 +653,7 @@ public abstract class AbstractReactiveTransactionManager implements ReactiveTran
       }
       else if (!synchronizations.isEmpty()) {
         // Existing transaction that we participate in, controlled outside
-        // of the scope of this Spring transaction manager -> try to register
+        // of the scope of this Framework transaction manager -> try to register
         // an afterCompletion callback with the existing (JTA) transaction.
         return registerAfterCompletionWithExistingTransaction(
                 synchronizationManager, status.getTransaction(), synchronizations);
@@ -896,7 +896,7 @@ public abstract class AbstractReactiveTransactionManager implements ReactiveTran
 
   /**
    * Register the given list of transaction synchronizations with the existing transaction.
-   * <p>Invoked when the control of the Spring transaction manager and thus all Spring
+   * <p>Invoked when the control of the Spring transaction manager and thus all Framework
    * transaction synchronizations end, without the transaction being completed yet. This
    * is for example the case when participating in an existing JTA or EJB CMT transaction.
    * <p>The default implementation simply invokes the {@code afterCompletion} methods
@@ -914,8 +914,8 @@ public abstract class AbstractReactiveTransactionManager implements ReactiveTran
   protected Mono<Void> registerAfterCompletionWithExistingTransaction(TransactionSynchronizationManager synchronizationManager,
                                                                       Object transaction, List<TransactionSynchronization> synchronizations) throws TransactionException {
 
-    logger.debug("Cannot register Spring after-completion synchronization with existing transaction - " +
-            "processing Spring after-completion callbacks immediately, with outcome status 'unknown'");
+    logger.debug("Cannot register Framework after-completion synchronization with existing transaction - " +
+            "processing Framework after-completion callbacks immediately, with outcome status 'unknown'");
     return invokeAfterCompletion(synchronizationManager, synchronizations, TransactionSynchronization.STATUS_UNKNOWN);
   }
 

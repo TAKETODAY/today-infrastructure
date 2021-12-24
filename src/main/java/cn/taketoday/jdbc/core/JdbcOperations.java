@@ -39,8 +39,8 @@ import cn.taketoday.lang.Nullable;
  * <p>Alternatively, the standard JDBC infrastructure can be mocked.
  * However, mocking this interface constitutes significantly less work.
  * As an alternative to a mock objects approach to testing data access code,
- * consider the powerful integration testing support provided via the <em>Spring
- * TestContext Framework</em>, in the {@code spring-test} artifact.
+ * consider the powerful integration testing support provided via the <em>
+ * TestContext Framework</em>, in the {@code today-test} artifact.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -55,9 +55,9 @@ public interface JdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC Connection. This allows for implementing arbitrary
-   * data access operations, within Spring's managed JDBC environment:
-   * that is, participating in Spring-managed transactions and converting
-   * JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations, within Framework's managed JDBC environment:
+   * that is, participating in Framework-managed transactions and converting
+   * JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a domain
    * object or a collection of domain objects.
    *
@@ -75,9 +75,9 @@ public interface JdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC Statement. This allows for implementing arbitrary data
-   * access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * access operations on a single Statement, within Framework's managed JDBC
+   * environment: that is, participating in Framework-managed transactions and
+   * converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a domain
    * object or a collection of domain objects.
    *
@@ -299,9 +299,9 @@ public interface JdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC PreparedStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed JDBC
+   * environment: that is, participating in Framework-managed transactions and
+   * converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a domain
    * object or a collection of domain objects.
    *
@@ -316,9 +316,9 @@ public interface JdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC PreparedStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed JDBC
+   * environment: that is, participating in Framework-managed transactions and
+   * converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a domain
    * object or a collection of domain objects.
    *
@@ -1065,9 +1065,9 @@ public interface JdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC CallableStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed JDBC
+   * environment: that is, participating in Framework-managed transactions and
+   * converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a domain
    * object or a collection of domain objects.
    *
@@ -1082,9 +1082,9 @@ public interface JdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC CallableStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed JDBC
-   * environment: that is, participating in Spring-managed transactions and
-   * converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed JDBC
+   * environment: that is, participating in Framework-managed transactions and
+   * converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a domain
    * object or a collection of domain objects.
    *

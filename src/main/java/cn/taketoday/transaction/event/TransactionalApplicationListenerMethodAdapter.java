@@ -40,7 +40,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * but is aware of the transactional context of the event publisher.
  *
  * <p>Processing of {@link TransactionalEventListener} is enabled automatically
- * when Spring's transaction management is enabled. For other cases, registering
+ * when Framework's transaction management is enabled. For other cases, registering
  * a bean of type {@link TransactionalEventListenerFactory} is required.
  *
  * @author Stephane Nicoll

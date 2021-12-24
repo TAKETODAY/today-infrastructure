@@ -32,10 +32,7 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
  *
  * <p>Note: {@link SchedulingTaskExecutor} implementations are encouraged to also
  * implement the {@link cn.taketoday.core.task.AsyncListenableTaskExecutor}
- * interface. This is not required due to the dependency on Spring 4.0's
- * {@link cn.taketoday.util.concurrent.ListenableFuture} interface,
- * which would make it impossible for third-party executor implementations
- * to remain compatible with both Spring 4.0 and Spring 3.x.
+ * interface.
  *
  * @author Juergen Hoeller
  * @see SchedulingAwareRunnable

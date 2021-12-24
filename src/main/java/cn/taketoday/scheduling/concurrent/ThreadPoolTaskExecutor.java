@@ -47,7 +47,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
 /**
  * JavaBean that allows for configuring a {@link ThreadPoolExecutor}
  * in bean style (through its "corePoolSize", "maxPoolSize", "keepAliveSeconds", "queueCapacity"
- * properties) and exposing it as a Spring {@link cn.taketoday.core.task.TaskExecutor}.
+ * properties) and exposing it as a Framework {@link cn.taketoday.core.task.TaskExecutor}.
  * This class is also well suited for management and monitoring (e.g. through JMX),
  * providing several useful attributes: "corePoolSize", "maxPoolSize", "keepAliveSeconds"
  * (all supporting updates at runtime); "poolSize", "activeCount" (for introspection only).
@@ -72,7 +72,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * <p>For an alternative, you may set up a ThreadPoolExecutor instance directly using
  * constructor injection, or use a factory method definition that points to the
  * {@link java.util.concurrent.Executors} class. To expose such a raw Executor as a
- * Spring {@link cn.taketoday.core.task.TaskExecutor}, simply wrap it with a
+ * Framework {@link cn.taketoday.core.task.TaskExecutor}, simply wrap it with a
  * {@link cn.taketoday.scheduling.concurrent.ConcurrentTaskExecutor} adapter.
  *
  * @author Juergen Hoeller

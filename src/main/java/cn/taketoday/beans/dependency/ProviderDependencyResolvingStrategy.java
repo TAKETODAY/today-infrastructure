@@ -31,17 +31,19 @@ import jakarta.inject.Provider;
 public class ProviderDependencyResolvingStrategy extends InjectableDependencyResolvingStrategy {
 
   @Override
-  protected boolean supportsInternal(InjectionPoint injectionPoint, DependencyResolvingContext context) {
+  protected boolean supportsInternal(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
     return injectionPoint.dependencyIs(Provider.class);
   }
 
   @Override
-  protected Object getBean(BeanFactory beanFactory, InjectionPoint injectionPoint) {
+  protected Object getBean(
+          BeanFactory beanFactory, DependencyResolvingContext context, DependencyDescriptor injectionPoint) {
+
     return new Provider<Object>() {
 
       @Override
       public Object get() {
-        return getBean(beanFactory, injectionPoint);
+        return ProviderDependencyResolvingStrategy.super.getBean(beanFactory, context, injectionPoint);
       }
     };
   }

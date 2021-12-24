@@ -43,7 +43,7 @@ import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 
 /**
  * Adapter that takes a {@code java.util.concurrent.ScheduledExecutorService} and
- * exposes a Spring {@link TaskScheduler} for it.
+ * exposes a Framework {@link TaskScheduler} for it.
  * Extends {@link ConcurrentTaskExecutor} in order to implement the
  * {@link cn.taketoday.scheduling.SchedulingTaskExecutor} interface as well.
  *
@@ -55,7 +55,7 @@ import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
  *
  * <p>Note that there is a pre-built {@link ThreadPoolTaskScheduler} that allows for
  * defining a {@link java.util.concurrent.ScheduledThreadPoolExecutor} in bean style,
- * exposing it as a Spring {@link TaskScheduler} directly.
+ * exposing it as a Framework {@link TaskScheduler} directly.
  * This is a convenient alternative to a raw ScheduledThreadPoolExecutor definition with
  * a separate definition of the present adapter class.
  *
@@ -267,7 +267,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   /**
-   * Delegate that adapts a Spring Trigger to a JSR-236 Trigger.
+   * Delegate that adapts a Framework Trigger to a JSR-236 Trigger.
    * Separated into an inner class in order to avoid a hard dependency on the JSR-236 API.
    */
   private class EnterpriseConcurrentTriggerScheduler {

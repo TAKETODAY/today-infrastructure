@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Nullable;
 
 /**
- * A Spring {@link FactoryBean} that builds and exposes a preconfigured {@link ForkJoinPool}.
+ * A Framework {@link FactoryBean} that builds and exposes a preconfigured {@link ForkJoinPool}.
  *
  * @author Juergen Hoeller
  * @since 4.0

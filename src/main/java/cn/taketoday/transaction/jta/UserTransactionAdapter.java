@@ -40,7 +40,7 @@ import jakarta.transaction.UserTransaction;
  * adapter such as this class to be used when intending to talk to
  * a TransactionManager handle through the UserTransaction interface.
  *
- * <p>Used internally by Spring's {@link JtaTransactionManager} for certain
+ * <p>Used internally by Framework's {@link JtaTransactionManager} for certain
  * scenarios. Not intended for direct use in application code.
  *
  * @author Juergen Hoeller

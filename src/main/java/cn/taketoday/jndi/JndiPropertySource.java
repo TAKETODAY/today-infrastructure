@@ -28,7 +28,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- * {@link PropertySource} implementation that reads properties from an underlying Spring
+ * {@link PropertySource} implementation that reads properties from an underlying Framework
  * {@link JndiLocatorDelegate}.
  *
  * <p>By default, the underlying {@code JndiLocatorDelegate} will be configured with its

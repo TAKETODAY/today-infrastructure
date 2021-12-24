@@ -29,9 +29,9 @@ import jakarta.transaction.Synchronization;
 
 /**
  * Adapter for a JTA Synchronization, invoking the {@code afterCommit} /
- * {@code afterCompletion} callbacks of Spring {@link TransactionSynchronization}
+ * {@code afterCompletion} callbacks of Framework {@link TransactionSynchronization}
  * objects callbacks after the outer JTA transaction has completed.
- * Applied when participating in an existing (non-Spring) JTA transaction.
+ * Applied when participating in an existing (non-Framework) JTA transaction.
  *
  * @author Juergen Hoeller
  * @see TransactionSynchronization#afterCommit

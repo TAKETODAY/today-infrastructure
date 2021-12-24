@@ -45,7 +45,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   @Override
   public void resolveDependency(
-          InjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
+          DependencyDescriptor injectionPoint, DependencyResolvingContext resolvingContext) {
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
       resolvingStrategy.resolveDependency(injectionPoint, resolvingContext);
       if (resolvingContext.isTerminate()) {
@@ -69,10 +69,6 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   public void initStrategies(
           @Nullable StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
     log.debug("Initialize dependency-resolving-strategies");
-    resolvingStrategies.add(new OptionalDependencyResolver());
-    resolvingStrategies.add(new ArrayBeanDependencyResolver());
-    resolvingStrategies.add(new ObjectSupplierDependencyResolvingStrategy());
-    resolvingStrategies.add(new CollectionDependencyResolvingStrategy());
 
     if (strategiesDetector == null) {
       strategiesDetector = TodayStrategies.getDetector();

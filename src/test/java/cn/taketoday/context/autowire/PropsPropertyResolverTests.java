@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.beans.dependency.InjectionPoint;
+import cn.taketoday.beans.dependency.DependencyDescriptor;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.dependency.FieldInjectionPoint;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -34,7 +34,6 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Today <br>
@@ -57,7 +56,7 @@ class PropsPropertyResolverTests {
 
       BeanProperty property1 = BeanProperty.valueOf(getClass(), "properties");
 
-      InjectionPoint injectionPoint = new FieldInjectionPoint(property1.getField());
+      DependencyDescriptor injectionPoint = new DependencyDescriptor(property1.getField(), false);
 
       ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
 

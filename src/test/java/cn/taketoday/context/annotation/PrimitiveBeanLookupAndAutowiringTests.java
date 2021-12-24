@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests changes introduced for SPR-8874, allowing beans of primitive types to be looked
  * up via getBean(Class), or to be injected using @Autowired or @Injected or @Resource.
  * Prior to these changes, an attempt to lookup or inject a bean of type boolean would
- * fail because all spring beans are Objects, regardless of initial type due to the way
+ * fail because all Framework beans are Objects, regardless of initial type due to the way
  * that ObjectFactory works.
  *
  * Now these attempts to lookup or inject primitive types work, thanks to simple changes

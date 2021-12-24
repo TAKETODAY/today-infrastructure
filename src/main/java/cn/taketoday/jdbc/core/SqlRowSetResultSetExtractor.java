@@ -31,7 +31,7 @@ import cn.taketoday.jdbc.support.rowset.ResultSetWrappingSqlRowSet;
 import cn.taketoday.jdbc.support.rowset.SqlRowSet;
 
 /**
- * {@link ResultSetExtractor} implementation that returns a Spring {@link SqlRowSet}
+ * {@link ResultSetExtractor} implementation that returns a Framework {@link SqlRowSet}
  * representation for each given {@link ResultSet}.
  *
  * <p>The default implementation uses a standard JDBC CachedRowSet underneath.
@@ -64,7 +64,7 @@ public class SqlRowSetResultSetExtractor implements ResultSetExtractor<SqlRowSet
   /**
    * Create a {@link SqlRowSet} that wraps the given {@link ResultSet},
    * representing its data in a disconnected fashion.
-   * <p>This implementation creates a Spring {@link ResultSetWrappingSqlRowSet}
+   * <p>This implementation creates a Framework {@link ResultSetWrappingSqlRowSet}
    * instance that wraps a standard JDBC {@link CachedRowSet} instance.
    * Can be overridden to use a different implementation.
    *

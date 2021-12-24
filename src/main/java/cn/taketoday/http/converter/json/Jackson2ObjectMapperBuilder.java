@@ -780,7 +780,6 @@ public class Jackson2ObjectMapperBuilder {
     }
   }
 
-  // Any change to this method should be also applied to spring-jms and spring-messaging
   // MappingJackson2MessageConverter default constructors
   private void customizeDefaultFeatures(ObjectMapper objectMapper) {
     if (!this.features.containsKey(MapperFeature.DEFAULT_VIEW_INCLUSION)) {

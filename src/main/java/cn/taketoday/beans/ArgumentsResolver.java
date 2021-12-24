@@ -25,10 +25,12 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.beans.dependency.DependencyDescriptor;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.dependency.ParameterInjectionPoint;
+import cn.taketoday.beans.dependency.InjectionPoint;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
@@ -161,9 +163,9 @@ public class ArgumentsResolver {
     if (provided == null) {
       DependencyResolvingContext context =
               new DependencyResolvingContext(parameter.getDeclaringExecutable(), beanFactory);
-      ParameterInjectionPoint injectionPoint = new ParameterInjectionPoint(parameter);
-      resolvingStrategies().resolveDependency(injectionPoint, context);
-      provided = context.getDependency() == ParameterInjectionPoint.DO_NOT_SET
+      DependencyDescriptor descriptor = new DependencyDescriptor(MethodParameter.forParameter(parameter), false);
+      resolvingStrategies().resolveDependency(descriptor, context);
+      provided = context.getDependency() == InjectionPoint.DO_NOT_SET
                  ? null : context.getDependency();
     }
     return provided;

@@ -21,7 +21,7 @@
 package cn.taketoday.transaction;
 
 /**
- * Marker interface for Spring transaction manager implementations,
+ * Marker interface for Framework transaction manager implementations,
  * either traditional or reactive.
  *
  * @author Juergen Hoeller

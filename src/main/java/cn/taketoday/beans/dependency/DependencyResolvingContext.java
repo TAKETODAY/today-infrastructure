@@ -43,6 +43,16 @@ public class DependencyResolvingContext {
 
   private boolean terminate;
 
+  private String beanName;
+
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
+  }
+
+  public String getBeanName() {
+    return beanName;
+  }
+
   public DependencyResolvingContext(
           @Nullable Executable executable, @Nullable BeanFactory beanFactory) {
     this.executable = executable;

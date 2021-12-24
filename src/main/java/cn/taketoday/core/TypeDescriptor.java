@@ -99,9 +99,10 @@ public class TypeDescriptor implements Serializable {
    * @param type the backing type (or {@code null} if it should get resolved)
    * @param annotations the type annotations
    */
-  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
+  public TypeDescriptor(
+          ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
-    this.type = (type != null ? type : resolvableType.toClass());
+    this.type = type != null ? type : resolvableType.toClass();
     this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(annotations);
   }
 
@@ -118,7 +119,7 @@ public class TypeDescriptor implements Serializable {
   public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, AnnotatedElement annotated) {
     this.annotatedElement = annotated;
     this.resolvableType = resolvableType;
-    this.type = (type != null ? type : resolvableType.toClass());
+    this.type = type != null ? type : resolvableType.toClass();
   }
 
   /**
@@ -291,6 +292,7 @@ public class TypeDescriptor implements Serializable {
    * @param annotationType the annotation type
    * @return the annotation, or {@code null} if no such annotation exists on this type descriptor
    */
+  @Nullable
   public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
     return AnnotationUtils.findAnnotation(this.annotatedElement, annotationType);
   }

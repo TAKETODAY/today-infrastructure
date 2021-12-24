@@ -44,7 +44,7 @@ import reactor.core.publisher.Mono;
  * <p><strong>Note:</strong> Transactional Publishers should avoid Subscription
  * cancellation. See the
  * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#tx-prog-operator-cancel">Cancel Signals</a>
- * section of the Spring Framework reference for more details.
+ * section of the Framework reference for more details.
  *
  * @author Mark Paluch
  * @author Juergen Hoeller

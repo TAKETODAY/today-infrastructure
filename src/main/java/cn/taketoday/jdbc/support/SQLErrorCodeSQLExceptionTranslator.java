@@ -56,13 +56,13 @@ import cn.taketoday.util.SingletonSupplier;
  * default fallback translator, analyzing the exception's SQL state only. On Java 6
  * which introduces its own {@code SQLException} subclass hierarchy, we will
  * use {@link SQLExceptionSubclassTranslator} by default, which in turns falls back
- * to Spring's own SQL state translation when not encountering specific subclasses.
+ * to Framework's own SQL state translation when not encountering specific subclasses.
  * </ul>
  *
  * <p>The configuration file named "sql-error-codes.xml" is by default read from
  * this package. It can be overridden through a file of the same name in the root
  * of the class path (e.g. in the "/WEB-INF/classes" directory), as long as the
- * Spring JDBC package is loaded from the same ClassLoader.
+ * Framework JDBC package is loaded from the same ClassLoader.
  *
  * @author Rod Johnson
  * @author Thomas Risberg

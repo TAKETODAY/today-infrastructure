@@ -118,6 +118,10 @@ public abstract class AnnotationConfigUtils {
       if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
         beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
       }
+
+      if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) {
+        beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
+      }
     }
 
     // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor

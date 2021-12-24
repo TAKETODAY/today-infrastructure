@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
  * Strategy interface for resolving messages, with support for the parameterization
  * and internationalization of such messages.
  *
- * <p>Spring provides two out-of-the-box implementations for production:
+ * <p>Framework provides two out-of-the-box implementations for production:
  * <ul>
  * <li>{@link cn.taketoday.context.support.ResourceBundleMessageSource}: built
  * on top of the standard {@link java.util.ResourceBundle}, sharing its limitations.

@@ -220,7 +220,7 @@ class AutoProxyCreatorTests {
     sac.registerSingleton("containerCallbackInterfacesOnly", ContainerCallbackInterfacesOnly.class);
     sac.registerSingleton("singletonNoInterceptor", CustomProxyFactoryBean.class);
     sac.registerSingleton("singletonToBeProxied", CustomProxyFactoryBean.class);
-    sac.registerPrototype("prototypeToBeProxied", SpringProxyFactoryBean.class);
+    sac.registerPrototype("prototypeToBeProxied", FrameworkProxyFactoryBean.class);
 
     sac.refresh();
 
@@ -492,7 +492,7 @@ class AutoProxyCreatorTests {
     }
   }
 
-  public static class SpringProxyFactoryBean implements FactoryBean<ITestBean> {
+  public static class FrameworkProxyFactoryBean implements FactoryBean<ITestBean> {
 
     private final TestBean tb = new TestBean();
 

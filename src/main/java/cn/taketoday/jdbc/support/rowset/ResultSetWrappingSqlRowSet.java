@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.support.rowset;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -36,9 +37,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
- * The default implementation of Spring's {@link SqlRowSet} interface, wrapping a
+ * The default implementation of Framework's {@link SqlRowSet} interface, wrapping a
  * {@link ResultSet}, catching any {@link SQLException SQLExceptions} and
- * translating them to a corresponding Spring {@link InvalidResultSetAccessException}.
+ * translating them to a corresponding Framework {@link InvalidResultSetAccessException}.
  *
  * <p>The passed-in ResultSet should already be disconnected if the SqlRowSet is supposed
  * to be usable in a disconnected fashion. This means that you will usually pass in a
@@ -49,7 +50,7 @@ import cn.taketoday.util.CollectionUtils;
  * keyword in the SQL query string. When the query doesn't use an ALIAS, the default label is
  * the column name. Most JDBC ResultSet implementations follow this new pattern but there are
  * exceptions such as the {@code com.sun.rowset.CachedRowSetImpl} class which only uses
- * the column name, ignoring any column labels. As of Spring 3.0.5, ResultSetWrappingSqlRowSet
+ * the column name, ignoring any column labels. ResultSetWrappingSqlRowSet
  * will translate column labels to the correct column index to provide better support for the
  * {@code com.sun.rowset.CachedRowSetImpl} which is the default implementation used by
  * {@link cn.taketoday.jdbc.core.JdbcTemplate} when working with RowSets.
@@ -68,7 +69,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class ResultSetWrappingSqlRowSet implements SqlRowSet {
 
-  /** use serialVersionUID from Spring 1.2 for interoperability. */
+  @Serial
   private static final long serialVersionUID = -4688694393146734764L;
 
   private final ResultSet resultSet;

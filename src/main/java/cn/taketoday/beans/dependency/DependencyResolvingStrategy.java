@@ -43,6 +43,6 @@ public interface DependencyResolvingStrategy {
    * @param context resolving context never {@code null}
    * @throws DependencyResolvingFailedException dependency cannot determine or resolve
    */
-  void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext context);
+  void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context);
 
 }

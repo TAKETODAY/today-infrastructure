@@ -218,7 +218,7 @@ public abstract class PlaceholderConfigurerSupport
       // Check that we're not parsing our own bean definition,
       // to avoid failing on unresolvable placeholders in properties file locations.
       if (!(curName.equals(this.beanName) && beanFactoryToProcess.equals(this.beanFactory))) {
-        BeanDefinition definition = BeanFactoryUtils.getBeanDefinition(beanFactoryToProcess, curName);
+        BeanDefinition definition = BeanFactoryUtils.requiredDefinition(beanFactoryToProcess, curName);
         try {
           visitor.visitBeanDefinition(definition);
         }

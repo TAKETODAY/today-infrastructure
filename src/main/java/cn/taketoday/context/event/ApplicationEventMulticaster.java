@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * {@link ApplicationListener} objects and publish events to them.
  *
  * <p>An {@link ApplicationEventPublisher}, typically
- * a Spring {@link ApplicationContext}, can use an
+ * a Framework {@link ApplicationContext}, can use an
  * {@code ApplicationEventMulticaster} as a delegate for actually publishing events.
  *
  * @author Rod Johnson

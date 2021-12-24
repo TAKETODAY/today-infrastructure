@@ -19,14 +19,15 @@
  */
 package cn.taketoday.context.annotation;
 
+import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.beans.dependency.InjectionPoint;
+import cn.taketoday.beans.dependency.DependencyDescriptor;
 import cn.taketoday.beans.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
-import cn.taketoday.beans.dependency.MapBeanDependencyResolver;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Handle {@link Props} annotated on dependency
@@ -47,7 +48,7 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
   }
 
   @Override
-  public void resolveDependency(InjectionPoint injectionPoint, DependencyResolvingContext resolvingContext) {
+  public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
     if (injectionPoint.isAnnotationPresent(Props.class)) {
       Object dependency = resolvingContext.getDependency();
@@ -60,7 +61,7 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
         // process map
         if (injectionPoint.isMap()) {
           Properties properties = propsReader.readMap(props);
-          dependency = MapBeanDependencyResolver.adaptMap(properties, injectionPoint.getDependencyType());
+          dependency = adaptMap(properties, injectionPoint.getDependencyType());
         }
         else {
           dependency = propsReader.read(props, injectionPoint.getDependencyType());
@@ -69,6 +70,16 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
       resolvingContext.setDependency(dependency);
     }
     // next
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Map adaptMap(Map map, Class<?> type) {
+    if (type != Map.class) {
+      Map newMap = CollectionUtils.createMap(type, map.size());
+      newMap.putAll(map);
+      map = newMap;
+    }
+    return map;
   }
 
 }

@@ -145,7 +145,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * which allows for lazy resolution of the actual target value.
    * @since 4.0
    */
-  void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
+  void registerDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
 
   /**
    * Destroy all singleton beans in this factory, including inner beans that have

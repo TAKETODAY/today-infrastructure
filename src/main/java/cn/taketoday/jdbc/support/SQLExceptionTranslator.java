@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy interface for translating between {@link SQLException SQLExceptions}
- * and Spring's data access strategy-agnostic {@link DataAccessException}
+ * and Framework's data access strategy-agnostic {@link DataAccessException}
  * hierarchy.
  *
  * <p>Implementations can be generic (for example, using

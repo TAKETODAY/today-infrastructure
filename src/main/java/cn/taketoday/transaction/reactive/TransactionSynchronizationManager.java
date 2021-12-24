@@ -52,7 +52,7 @@ import reactor.core.publisher.Mono;
  * <p>Transaction synchronization must be activated and deactivated by a transaction
  * manager via {@link #initSynchronization()} and {@link #clearSynchronization()}.
  * This is automatically supported by {@link AbstractReactiveTransactionManager},
- * and thus by all standard Spring transaction managers.
+ * and thus by all standard Framework transaction managers.
  *
  * <p>Resource management code should only register synchronizations when this
  * manager is active, which can be checked via {@link #isSynchronizationActive};
@@ -327,7 +327,7 @@ public class TransactionSynchronizationManager {
    * Called by the transaction manager on transaction begin and on cleanup.
    *
    * @param isolationLevel the isolation level to expose, according to the
-   * R2DBC Connection constants (equivalent to the corresponding Spring
+   * R2DBC Connection constants (equivalent to the corresponding Framework
    * TransactionDefinition constants), or {@code null} to reset it
    * @see cn.taketoday.transaction.TransactionDefinition#ISOLATION_READ_UNCOMMITTED
    * @see cn.taketoday.transaction.TransactionDefinition#ISOLATION_READ_COMMITTED
@@ -345,7 +345,7 @@ public class TransactionSynchronizationManager {
    * created resource (for example, a R2DBC Connection).
    *
    * @return the currently exposed isolation level, according to the
-   * R2DBC Connection constants (equivalent to the corresponding Spring
+   * R2DBC Connection constants (equivalent to the corresponding Framework
    * TransactionDefinition constants), or {@code null} if none
    * @see cn.taketoday.transaction.TransactionDefinition#ISOLATION_READ_UNCOMMITTED
    * @see cn.taketoday.transaction.TransactionDefinition#ISOLATION_READ_COMMITTED

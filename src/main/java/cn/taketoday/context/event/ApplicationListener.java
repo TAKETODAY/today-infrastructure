@@ -28,7 +28,7 @@ import java.util.EventListener;
  * for the Observer design pattern.
  *
  * <p>An {@code ApplicationListener} can generically declare
- * the event type that it is interested in. When registered with a Spring
+ * the event type that it is interested in. When registered with a Framework
  * {@code ApplicationContext}, events will be filtered accordingly, with the
  * listener getting invoked for matching event objects only.
  *

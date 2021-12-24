@@ -94,9 +94,9 @@ import jakarta.transaction.UserTransaction;
  * monitoring; with standard JTA, transaction names will simply be ignored.
  *
  * <p>JTA 1.1 adds the TransactionSynchronizationRegistry facility, as public Jakarta EE
- * API in addition to the standard JTA UserTransaction handle. As of Spring 2.5, this
+ * API in addition to the standard JTA UserTransaction handle. this
  * JtaTransactionManager autodetects the TransactionSynchronizationRegistry and uses
- * it for registering Spring-managed synchronizations when participating in an existing
+ * it for registering Framework-managed synchronizations when participating in an existing
  * JTA transaction (e.g. controlled by EJB CMT). If no TransactionSynchronizationRegistry
  * is available, then such synchronizations will be registered via the (non-EE) JTA
  * TransactionManager handle.
@@ -1140,15 +1140,15 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
       // Note: JBoss throws plain RuntimeException with RollbackException as cause.
       if (ex instanceof RollbackException || ex.getCause() instanceof RollbackException) {
         logger.debug("Participating in existing JTA transaction that has been marked for rollback: " +
-                "cannot register Spring after-completion callbacks with outer JTA transaction - " +
-                "immediately performing Spring after-completion callbacks with outcome status 'rollback'. " +
+                "cannot register Framework after-completion callbacks with outer JTA transaction - " +
+                "immediately performing Framework after-completion callbacks with outcome status 'rollback'. " +
                 "Original exception: " + ex);
         invokeAfterCompletion(synchronizations, TransactionSynchronization.STATUS_ROLLED_BACK);
       }
       else {
         logger.debug("Participating in existing JTA transaction, but unexpected internal transaction " +
-                "state encountered: cannot register Spring after-completion callbacks with outer JTA " +
-                "transaction - processing Spring after-completion callbacks with outcome status 'unknown'" +
+                "state encountered: cannot register Framework after-completion callbacks with outer JTA " +
+                "transaction - processing Framework after-completion callbacks with outcome status 'unknown'" +
                 "Original exception: " + ex);
         invokeAfterCompletion(synchronizations, TransactionSynchronization.STATUS_UNKNOWN);
       }
@@ -1157,7 +1157,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
 
   /**
    * Register a JTA synchronization on the JTA TransactionManager, for calling
-   * {@code afterCompletion} on the given Spring TransactionSynchronizations.
+   * {@code afterCompletion} on the given Framework TransactionSynchronizations.
    * <p>The default implementation registers the synchronizations on the
    * JTA 1.1 TransactionSynchronizationRegistry, if available, or on the
    * JTA TransactionManager's current Transaction - again, if available.
@@ -1202,8 +1202,8 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
     else {
       // No JTA TransactionManager available - log a warning.
       logger.warn("Participating in existing JTA transaction, but no JTA TransactionManager available: " +
-              "cannot register Spring after-completion callbacks with outer JTA transaction - " +
-              "processing Spring after-completion callbacks with outcome status 'unknown'");
+              "cannot register Framework after-completion callbacks with outer JTA transaction - " +
+              "processing Framework after-completion callbacks with outcome status 'unknown'");
       invokeAfterCompletion(synchronizations, TransactionSynchronization.STATUS_UNKNOWN);
     }
   }

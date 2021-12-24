@@ -19,12 +19,17 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.NoSuchPropertyException;
@@ -33,11 +38,13 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -165,6 +172,11 @@ public class BeanDefinition
   @Nullable
   private String[] dependsOn;
 
+  @Nullable
+  private AnnotatedElement qualifiedElement;
+
+  private Map<String, AutowireCandidateQualifier> qualifiers;
+
   // cache for fast access
   Executable executable;
   BeanInstantiator instantiator;
@@ -232,6 +244,16 @@ public class BeanDefinition
   }
 
   /**
+   * Determine whether the given candidate name matches the bean name
+   * or the aliases stored in this bean definition.
+   */
+  public boolean matchesName(@Nullable String candidateName) {
+    return (candidateName != null && (candidateName.equals(name)
+            || candidateName.equals(BeanFactoryUtils.transformedBeanName(name))
+            || ObjectUtils.containsElement(this.aliases, candidateName)));
+  }
+
+  /**
    * Indicates that If the bean is a {@link Singleton}.
    *
    * @return If the bean is a {@link Singleton}.
@@ -285,6 +307,29 @@ public class BeanDefinition
               "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
     }
     return (Class<?>) beanClassObject;
+  }
+
+  /**
+   * Specify the {@link AnnotatedElement} defining qualifiers,
+   * to be used instead of the target class or factory method.
+   *
+   * @see #setTargetType(ResolvableType)
+   * @see #getResolvedFactoryMethod()
+   * @since 4.0
+   */
+  public void setQualifiedElement(@Nullable AnnotatedElement qualifiedElement) {
+    this.qualifiedElement = qualifiedElement;
+  }
+
+  /**
+   * Return the {@link AnnotatedElement} defining qualifiers, if any.
+   * Otherwise, the factory method and target class will be checked.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public AnnotatedElement getQualifiedElement() {
+    return this.qualifiedElement;
   }
 
   /**
@@ -961,6 +1006,71 @@ public class BeanDefinition
   public void validate() throws BeanDefinitionValidationException {
     if (StringUtils.isEmpty(getName())) {
       throw new BeanDefinitionValidationException("Definition's bean name can't be null");
+    }
+  }
+
+  //---------------------------------------------------------------------
+  // Qualifier
+  //---------------------------------------------------------------------
+
+  /**
+   * Register a qualifier to be used for autowire candidate resolution,
+   * keyed by the qualifier's type name.
+   *
+   * @see AutowireCandidateQualifier#getTypeName()
+   */
+  public void addQualifier(AutowireCandidateQualifier qualifier) {
+    if (qualifiers == null) {
+      this.qualifiers = new LinkedHashMap<>();
+    }
+    qualifiers.put(qualifier.getTypeName(), qualifier);
+  }
+
+  /**
+   * Return whether this bean has the specified qualifier.
+   */
+  public boolean hasQualifier(String typeName) {
+    if (qualifiers == null) {
+      return false;
+    }
+    return this.qualifiers.containsKey(typeName);
+  }
+
+  /**
+   * Return the qualifier mapped to the provided type name.
+   */
+  @Nullable
+  public AutowireCandidateQualifier getQualifier(String typeName) {
+    if (qualifiers == null) {
+      return null;
+    }
+    return this.qualifiers.get(typeName);
+  }
+
+  /**
+   * Return all registered qualifiers.
+   *
+   * @return the Set of {@link AutowireCandidateQualifier} objects.
+   */
+  public Set<AutowireCandidateQualifier> getQualifiers() {
+    if (CollectionUtils.isNotEmpty(qualifiers)) {
+      return new LinkedHashSet<>(qualifiers.values());
+    }
+    return Collections.emptySet();
+  }
+
+  /**
+   * Copy the qualifiers from the supplied AbstractBeanDefinition to this bean definition.
+   *
+   * @param source the AbstractBeanDefinition to copy from
+   */
+  public void copyQualifiersFrom(BeanDefinition source) {
+    Assert.notNull(source, "Source must not be null");
+    if (source.qualifiers != null) {
+      if (qualifiers == null) {
+        this.qualifiers = new LinkedHashMap<>();
+      }
+      qualifiers.putAll(source.qualifiers);
     }
   }
 

@@ -53,7 +53,7 @@ import cn.taketoday.lang.Nullable;
 public interface NamedParameterJdbcOperations {
 
   /**
-   * Expose the classic Spring JdbcTemplate to allow invocation of
+   * Expose the classic Framework JdbcTemplate to allow invocation of
    * classic JDBC operations.
    */
   JdbcOperations getJdbcOperations();
@@ -61,9 +61,9 @@ public interface NamedParameterJdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC PreparedStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed
-   * JDBC environment: that is, participating in Spring-managed transactions
-   * and converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed
+   * JDBC environment: that is, participating in Framework-managed transactions
+   * and converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a
    * domain object or a collection of domain objects.
    *
@@ -80,9 +80,9 @@ public interface NamedParameterJdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC PreparedStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed
-   * JDBC environment: that is, participating in Spring-managed transactions
-   * and converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed
+   * JDBC environment: that is, participating in Framework-managed transactions
+   * and converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a
    * domain object or a collection of domain objects.
    *
@@ -100,9 +100,9 @@ public interface NamedParameterJdbcOperations {
   /**
    * Execute a JDBC data access operation, implemented as callback action
    * working on a JDBC PreparedStatement. This allows for implementing arbitrary
-   * data access operations on a single Statement, within Spring's managed
-   * JDBC environment: that is, participating in Spring-managed transactions
-   * and converting JDBC SQLExceptions into Spring's DataAccessException hierarchy.
+   * data access operations on a single Statement, within Framework's managed
+   * JDBC environment: that is, participating in Framework-managed transactions
+   * and converting JDBC SQLExceptions into Framework's DataAccessException hierarchy.
    * <p>The callback action can return a result object, for example a
    * domain object or a collection of domain objects.
    *

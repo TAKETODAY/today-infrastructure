@@ -53,10 +53,10 @@ public interface CallableStatementCallback<T> {
    * Gets called by {@code JdbcTemplate.execute} with an active JDBC
    * CallableStatement. Does not need to care about closing the Statement
    * or the Connection, or about handling transactions: this will all be
-   * handled by Spring's JdbcTemplate.
+   * handled by Framework's JdbcTemplate.
    *
    * <p><b>NOTE:</b> Any ResultSets opened should be closed in finally blocks
-   * within the callback implementation. Spring will close the Statement
+   * within the callback implementation. Framework will close the Statement
    * object after the callback returned, but this does not necessarily imply
    * that the ResultSet resources will be closed: the Statement objects might
    * get pooled by the connection pool, with {@code close} calls only

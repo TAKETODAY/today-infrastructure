@@ -103,7 +103,7 @@ public @interface TransactionalEventListener {
   Class<?>[] event() default {};
 
   /**
-   * Spring Expression Language (SpEL) attribute used for making the event
+   * Framework Expression Language (SpEL) attribute used for making the event
    * handling conditional.
    * <p>The default is {@code ""}, meaning the event is always handled.
    *

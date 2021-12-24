@@ -23,7 +23,7 @@ package cn.taketoday.transaction;
 import cn.taketoday.lang.Nullable;
 
 /**
- * This is the central interface in Spring's imperative transaction infrastructure.
+ * This is the central interface in Framework's imperative transaction infrastructure.
  * Applications can use this directly, but it is not primarily meant as an API:
  * Typically, applications will work with either TransactionTemplate or
  * declarative transaction demarcation through AOP.

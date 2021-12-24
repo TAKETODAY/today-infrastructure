@@ -27,9 +27,9 @@ import cn.taketoday.jdbc.InvalidResultSetAccessException;
 import cn.taketoday.lang.Nullable;
 
 /**
- * The default implementation of Spring's {@link SqlRowSetMetaData} interface, wrapping a
+ * The default implementation of Framework's {@link SqlRowSetMetaData} interface, wrapping a
  * {@link ResultSetMetaData} instance, catching any {@link SQLException SQLExceptions}
- * and translating them to a corresponding Spring {@link InvalidResultSetAccessException}.
+ * and translating them to a corresponding Framework {@link InvalidResultSetAccessException}.
  *
  * <p>Used by {@link ResultSetWrappingSqlRowSet}.
  *

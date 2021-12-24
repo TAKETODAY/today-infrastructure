@@ -234,7 +234,7 @@ public class ScheduledAnnotationBeanPostProcessor
     if (event.getSource() == this.applicationContext) {
       // Running in an ApplicationContext -> register tasks this late...
       // giving other ContextRefreshedEvent listeners a chance to perform
-      // their work at the same time (e.g. Spring Batch's job registration).
+      // their work at the same time (e.g. Framework Batch's job registration).
       finishRegistration();
     }
   }

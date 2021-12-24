@@ -43,21 +43,21 @@ import cn.taketoday.util.PropertiesPersister;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Spring-specific {@link cn.taketoday.context.MessageSource} implementation
+ * Framework-specific {@link cn.taketoday.context.MessageSource} implementation
  * that accesses resource bundles using specified basenames, participating in the
- * Spring {@link cn.taketoday.context.ApplicationContext}'s resource loading.
+ * Framework {@link cn.taketoday.context.ApplicationContext}'s resource loading.
  *
  * <p>In contrast to the JDK-based {@link ResourceBundleMessageSource}, this class uses
  * {@link java.util.Properties} instances as its custom data structure for messages,
  * loading them via a {@link cn.taketoday.util.PropertiesPersister} strategy
- * from Spring {@link Resource} handles. This strategy is not only capable of
+ * from Framework {@link Resource} handles. This strategy is not only capable of
  * reloading files based on timestamp changes, but also of loading properties files
  * with a specific character encoding. It will detect XML property files as well.
  *
  * <p>Note that the basenames set as {@link #setBasenames "basenames"} property
  * are treated in a slightly different fashion than the "basenames" property of
  * {@link ResourceBundleMessageSource}. It follows the basic ResourceBundle rule of not
- * specifying file extension or language codes, but can refer to any Spring resource
+ * specifying file extension or language codes, but can refer to any Framework resource
  * location (instead of being restricted to classpath resources). With a "classpath:"
  * prefix, resources can still be loaded from the classpath, but "cacheSeconds" values
  * other than "-1" (caching forever) might not work reliably in this case.
@@ -133,9 +133,7 @@ public class ReloadableResourceBundleMessageSource
    * locked in a refresh attempt for a specific cached properties file whereas
    * other threads keep returning the old properties for the time being, until
    * the refresh attempt has completed.
-   * <p>Default is "true": this behavior is new as of Spring Framework 4.1,
-   * minimizing contention between threads. If you prefer the old behavior,
-   * i.e. to fully block on refresh, switch this flag to "false".
+   * <p>Default is "true"
    *
    * @see #setCacheSeconds
    */

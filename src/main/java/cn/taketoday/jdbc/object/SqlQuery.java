@@ -47,7 +47,7 @@ import cn.taketoday.lang.Nullable;
  * (definitely a best practice). Each custom query method will invoke one of
  * this class's untyped query methods.
  *
- * <p>Like all {@code RdbmsOperation} classes that ship with the Spring
+ * <p>Like all {@code RdbmsOperation} classes that ship with the
  * Framework, {@code SqlQuery} instances are thread-safe after their
  * initialization is complete. That is, after they are constructed and configured
  * via their setter methods, they can be used safely from multiple threads.

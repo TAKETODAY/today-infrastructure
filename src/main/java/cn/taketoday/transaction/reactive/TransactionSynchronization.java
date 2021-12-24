@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
  * A synchronization that does not implement the {@link cn.taketoday.core.Ordered}
  * interface is appended to the end of the synchronization chain.
  *
- * <p>System synchronizations performed by Spring itself use specific order values,
+ * <p>System synchronizations performed by Framework itself use specific order values,
  * allowing for fine-grained interaction with their execution order (if necessary).
  *
  * @author Mark Paluch

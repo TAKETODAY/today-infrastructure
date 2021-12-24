@@ -31,7 +31,7 @@ import cn.taketoday.transaction.ReactiveTransaction;
  * <p>Typically used to assemble various calls to transaction-unaware data access
  * services into a higher-level service method with transaction demarcation. As an
  * alternative, consider the use of declarative transaction demarcation (e.g. through
- * Spring's {@link cn.taketoday.transaction.annotation.Transactional} annotation).
+ * Framework's {@link cn.taketoday.transaction.annotation.Transactional} annotation).
  *
  * @param <T> the result type
  * @author Mark Paluch

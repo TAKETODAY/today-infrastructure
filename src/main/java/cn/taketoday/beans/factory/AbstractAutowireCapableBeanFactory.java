@@ -933,7 +933,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (factoryMethodName != null) {
         // Try to obtain the FactoryBean's object type from its factory method
         // declaration without instantiating the containing bean at all.
-        BeanDefinition factoryBeanDefinition = obtainBeanDefinition(factoryBeanName);
+        BeanDefinition factoryBeanDefinition = obtainLocalBeanDefinition(factoryBeanName);
         Class<?> factoryBeanClass;
         if (factoryBeanDefinition.hasBeanClass()) {
           factoryBeanClass = factoryBeanDefinition.getBeanClass();
@@ -1097,7 +1097,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     String[] beanNames = getBeanDefinitionNames();
     // Trigger initialization of all non-lazy singleton beans...
     for (String beanName : beanNames) {
-      BeanDefinition def = obtainBeanDefinition(beanName);
+      BeanDefinition def = obtainLocalBeanDefinition(beanName);
       // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isLazyInit()) {
         if (isFactoryBean(def)) {

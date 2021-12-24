@@ -36,7 +36,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Helper methods for named parameter parsing.
  *
- * <p>Only intended for internal use within Spring's JDBC framework.
+ * <p>Only intended for internal use within Framework's JDBC framework.
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller

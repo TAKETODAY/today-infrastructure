@@ -38,12 +38,12 @@ import cn.taketoday.transaction.TransactionManager;
 
 /**
  * AOP Alliance MethodInterceptor for declarative transaction
- * management using the common Spring transaction infrastructure
+ * management using the common Framework transaction infrastructure
  * ({@link PlatformTransactionManager}/
  * {@link cn.taketoday.transaction.ReactiveTransactionManager}).
  *
  * <p>Derives from the {@link TransactionAspectSupport} class which
- * contains the integration with Spring's underlying transaction API.
+ * contains the integration with Framework's underlying transaction API.
  * TransactionInterceptor simply calls the relevant superclass methods
  * such as {@link #invokeWithinTransaction} in the correct order.
  *

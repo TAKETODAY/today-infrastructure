@@ -85,7 +85,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
   /**
    * Create a new NamedParameterJdbcTemplate for the given {@link DataSource}.
-   * <p>Creates a classic Spring {@link cn.taketoday.jdbc.core.JdbcTemplate} and wraps it.
+   * <p>Creates a classic Framework {@link cn.taketoday.jdbc.core.JdbcTemplate} and wraps it.
    *
    * @param dataSource the JDBC DataSource to access
    */
@@ -96,9 +96,9 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
   /**
    * Create a new NamedParameterJdbcTemplate for the given classic
-   * Spring {@link cn.taketoday.jdbc.core.JdbcTemplate}.
+   * Framework {@link cn.taketoday.jdbc.core.JdbcTemplate}.
    *
-   * @param classicJdbcTemplate the classic Spring JdbcTemplate to wrap
+   * @param classicJdbcTemplate the classic Framework JdbcTemplate to wrap
    */
   public NamedParameterJdbcTemplate(JdbcOperations classicJdbcTemplate) {
     Assert.notNull(classicJdbcTemplate, "JdbcTemplate must not be null");
@@ -106,7 +106,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   }
 
   /**
-   * Expose the classic Spring JdbcTemplate operations to allow invocation
+   * Expose the classic Framework JdbcTemplate operations to allow invocation
    * of less commonly used methods.
    */
   @Override
@@ -115,7 +115,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   }
 
   /**
-   * Expose the classic Spring {@link JdbcTemplate} itself, if available,
+   * Expose the classic Framework {@link JdbcTemplate} itself, if available,
    * in particular for passing it on to other {@code JdbcTemplate} consumers.
    * <p>If sufficient for the purposes at hand, {@link #getJdbcOperations()}
    * is recommended over this variant.

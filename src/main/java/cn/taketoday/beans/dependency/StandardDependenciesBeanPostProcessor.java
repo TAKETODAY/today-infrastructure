@@ -76,11 +76,11 @@ public class StandardDependenciesBeanPostProcessor
   @Override
   public void processDependencies(Object bean, BeanDefinition definition) {
     Class<?> beanClass = bean.getClass();
-
+    String beanName = definition.getName();
     HashSet<Method> processedMethods = new HashSet<>();
     ReflectionUtils.doWithFields(beanClass, field -> {
       try {
-        Object property = resolveProperty(field);
+        Object property = resolveProperty(beanName, field);
         if (property != InjectionPoint.DO_NOT_SET) {
           Method writeMethod = ReflectionUtils.getWriteMethod(field);
           if (writeMethod != null) {
@@ -125,14 +125,16 @@ public class StandardDependenciesBeanPostProcessor
   /**
    * Create property value
    *
+   * @param beanName current bean name
    * @param property Property
    * @return A resolved dependency
    */
   @Nullable
-  public Object resolveProperty(Field property) {
-    FieldInjectionPoint injectionPoint = new FieldInjectionPoint(property);
+  public Object resolveProperty(String beanName, Field property) {
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
-    getResolvingStrategies().resolveDependency(injectionPoint, context);
+    context.setBeanName(beanName);
+
+    getResolvingStrategies().resolveDependency(new DependencyDescriptor(property, false), context);
 
     return context.getDependency();
   }

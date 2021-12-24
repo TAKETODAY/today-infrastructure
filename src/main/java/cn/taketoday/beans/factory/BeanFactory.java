@@ -354,18 +354,6 @@ public interface BeanFactory extends ArgumentsResolverProvider {
   @Nullable
   BeanDefinition getBeanDefinition(String beanName);
 
-  /**
-   * Return a merged BeanDefinition for the given bean name,
-   * merging a child bean definition with its parent if necessary.
-   * Considers bean definitions in ancestor factories as well.
-   *
-   * @param beanName the name of the bean to retrieve the merged definition for
-   * @return a (potentially merged) BeanDefinition for the given bean
-   * @throws NoSuchBeanDefinitionException if there is no bean definition with the given name
-   * @since 4.0
-   */
-  BeanDefinition getMergedBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
-
   //---------------------------------------------------------------------
   // Listing Get operations for type-lookup
   //---------------------------------------------------------------------

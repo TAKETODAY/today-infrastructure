@@ -79,7 +79,7 @@ public class MethodMapTransactionAttributeSource
    * {@link TransactionAttribute} instances (or Strings to be converted
    * to {@code TransactionAttribute} instances).
    * <p>Intended for configuration via setter injection, typically within
-   * a Spring bean factory. Relies on {@link #afterPropertiesSet()}
+   * a Framework bean factory. Relies on {@link #afterPropertiesSet()}
    * being called afterwards.
    *
    * @param methodMap said {@link Map} from method name to attribute value

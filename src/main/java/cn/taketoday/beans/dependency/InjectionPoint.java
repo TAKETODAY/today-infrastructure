@@ -26,11 +26,10 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.beans.factory.PropertyValueRetriever;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
@@ -54,12 +53,6 @@ public abstract class InjectionPoint implements Serializable {
 
   protected Boolean required = null;
   protected MergedAnnotations annotations;
-
-  @Nullable
-  private transient ResolvableType resolvableType;
-
-  @Nullable
-  private transient TypeDescriptor typeDescriptor;
 
   public int nestingLevel;
 
@@ -122,30 +115,6 @@ public abstract class InjectionPoint implements Serializable {
     return annotations.isPresent(Required.class);
   }
 
-  /**
-   * Build a {@link ResolvableType} object for the wrapped parameter/field.
-   */
-  public ResolvableType getResolvableType() {
-    if (resolvableType == null) {
-      resolvableType = doGetResolvableType();
-    }
-    return resolvableType;
-  }
-
-  protected abstract ResolvableType doGetResolvableType();
-
-  /**
-   * Build a {@link TypeDescriptor} object for the wrapped parameter/field.
-   */
-  public TypeDescriptor getTypeDescriptor() {
-    if (typeDescriptor == null) {
-      typeDescriptor = doGetTypeDescriptor();
-    }
-    return typeDescriptor;
-  }
-
-  protected abstract TypeDescriptor doGetTypeDescriptor();
-
   public boolean isArray() {
     return getDependencyType().isArray();
   }
@@ -157,8 +126,6 @@ public abstract class InjectionPoint implements Serializable {
   public boolean dependencyIs(Class<?> type) {
     return type == getDependencyType();
   }
-
-  public abstract Object getTarget();
 
   public boolean isProperty() {
     return false;
@@ -242,20 +209,12 @@ public abstract class InjectionPoint implements Serializable {
   }
 
   /**
-   * Return the type declared by the underlying field or method/constructor parameter,
-   * indicating the injection type.
-   */
-  public Class<?> getDeclaredType() {
-    return (this.field != null ? this.field.getType() : obtainMethodParameter().getParameterType());
-  }
-
-  /**
    * Returns the wrapped member, containing the injection point.
    *
    * @return the Field / Method / Constructor as Member
    */
   public Member getMember() {
-    return (this.field != null ? this.field : obtainMethodParameter().getMember());
+    return this.field != null ? this.field : obtainMethodParameter().getMember();
   }
 
   /**
@@ -281,8 +240,8 @@ public abstract class InjectionPoint implements Serializable {
       return false;
     }
     InjectionPoint otherPoint = (InjectionPoint) other;
-    return (ObjectUtils.nullSafeEquals(this.field, otherPoint.field) &&
-            ObjectUtils.nullSafeEquals(this.methodParameter, otherPoint.methodParameter));
+    return Objects.equals(this.field, otherPoint.field)
+            && Objects.equals(this.methodParameter, otherPoint.methodParameter);
   }
 
   @Override

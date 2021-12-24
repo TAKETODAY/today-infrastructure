@@ -43,7 +43,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * appropriate DataSource based on the current transaction's isolation level.
  *
  * <p>The configuration can for example look like this, assuming that the target
- * DataSources are defined as individual Spring beans with names
+ * DataSources are defined as individual Framework beans with names
  * "myRepeatableReadDataSource", "mySerializableDataSource" and "myDefaultDataSource":
  *
  * <pre class="code">

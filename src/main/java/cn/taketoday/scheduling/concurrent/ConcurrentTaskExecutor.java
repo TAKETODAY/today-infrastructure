@@ -40,7 +40,7 @@ import jakarta.enterprise.concurrent.ManagedTask;
 
 /**
  * Adapter that takes a {@code java.util.concurrent.Executor} and exposes
- * a Spring {@link cn.taketoday.core.task.TaskExecutor} for it.
+ * a Framework {@link cn.taketoday.core.task.TaskExecutor} for it.
  * Also detects an extended {@code java.util.concurrent.ExecutorService}, adapting
  * the {@link cn.taketoday.core.task.AsyncTaskExecutor} interface accordingly.
  *
@@ -52,7 +52,7 @@ import jakarta.enterprise.concurrent.ManagedTask;
  *
  * <p>Note that there is a pre-built {@link ThreadPoolTaskExecutor} that allows
  * for defining a {@link java.util.concurrent.ThreadPoolExecutor} in bean style,
- * exposing it as a Spring {@link cn.taketoday.core.task.TaskExecutor} directly.
+ * exposing it as a Framework {@link cn.taketoday.core.task.TaskExecutor} directly.
  * This is a convenient alternative to a raw ThreadPoolExecutor definition with
  * a separate definition of the present adapter class.
  *

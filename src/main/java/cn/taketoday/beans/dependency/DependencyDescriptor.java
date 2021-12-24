@@ -26,6 +26,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,9 +37,9 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import kotlin.reflect.KProperty;
 
 /**
  * Descriptor for a specific dependency that is about to be injected.
@@ -173,10 +174,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     }
 
     if (this.field != null) {
-      return !(this.field.getType() == Optional.class || hasNullableAnnotation() ||
-              (KotlinDetector.isKotlinReflectPresent() &&
-                      KotlinDetector.isKotlinType(this.field.getDeclaringClass()) &&
-                      KotlinDelegate.isNullable(this.field)));
+      return !(this.field.getType() == Optional.class || hasNullableAnnotation());
     }
     else {
       return !obtainMethodParameter().isOptional();
@@ -189,8 +187,9 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    * {@code edu.umd.cs.findbugs.annotations.Nullable}.
    */
   private boolean hasNullableAnnotation() {
-    for (Annotation ann : getAnnotations()) {
-      if ("Nullable".equals(ann.annotationType().getSimpleName())) {
+    for (MergedAnnotation<Annotation> annotation : getAnnotations()) {
+      List<Class<? extends Annotation>> metaTypes = annotation.getMetaTypes();
+      if ("Nullable".equals(annotation.getType().getSimpleName())) {
         return true;
       }
     }
@@ -217,7 +216,6 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    * (qualifiers etc already applied)
    * @return a bean instance to proceed with, or {@code null} for none
    * @throws BeansException in case of the not-unique scenario being fatal
-   * @since 5.1
    */
   @Nullable
   public Object resolveNotUnique(ResolvableType type, Map<String, Object> matchingBeans) throws BeansException {
@@ -304,7 +302,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     TypeDescriptor typeDescriptor = this.typeDescriptor;
     if (typeDescriptor == null) {
       typeDescriptor = (this.field != null ?
-                        new TypeDescriptor(getResolvableType(), getDependencyType(), getAnnotations()) :
+                        new TypeDescriptor(getResolvableType(), getDependencyType(), field.getAnnotations()) :
                         new TypeDescriptor(obtainMethodParameter()));
       this.typeDescriptor = typeDescriptor;
     }
@@ -425,20 +423,6 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     }
     catch (Throwable ex) {
       throw new IllegalStateException("Could not find original class structure", ex);
-    }
-  }
-
-  /**
-   * Inner class to avoid a hard dependency on Kotlin at runtime.
-   */
-  private static class KotlinDelegate {
-
-    /**
-     * Check whether the specified {@link Field} represents a nullable Kotlin type or not.
-     */
-    public static boolean isNullable(Field field) {
-      KProperty<?> property = ReflectJvmMapping.getKotlinProperty(field);
-      return (property != null && property.getReturnType().isMarkedNullable());
     }
   }
 

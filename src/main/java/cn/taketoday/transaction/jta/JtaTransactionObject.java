@@ -29,7 +29,7 @@ import jakarta.transaction.UserTransaction;
 
 /**
  * JTA transaction object, representing a {@link UserTransaction}.
- * Used as transaction object by Spring's {@link JtaTransactionManager}.
+ * Used as transaction object by Framework's {@link JtaTransactionManager}.
  *
  * <p>Note: This is an SPI class, not intended to be used by applications.
  *

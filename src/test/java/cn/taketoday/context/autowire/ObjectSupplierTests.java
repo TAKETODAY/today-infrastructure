@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.ArgumentsResolvingContext;
-import cn.taketoday.beans.dependency.ObjectSupplierDependencyResolvingStrategy;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.StandardApplicationContext;
@@ -95,7 +94,6 @@ class ObjectSupplierTests {
     assertThat(constructor).isNotNull();
     Parameter[] parameters = constructor.getParameters();
 
-    ObjectSupplierDependencyResolvingStrategy parameterResolver = new ObjectSupplierDependencyResolvingStrategy();
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       ArgumentsResolvingContext resolvingContext =

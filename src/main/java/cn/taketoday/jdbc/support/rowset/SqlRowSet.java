@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>The main difference to the standard JDBC RowSet is that a {@link java.sql.SQLException}
  * is never thrown here. This allows an SqlRowSet to be used without having to deal with
- * checked exceptions. An SqlRowSet will throw Spring's {@link InvalidResultSetAccessException}
+ * checked exceptions. An SqlRowSet will throw Framework's {@link InvalidResultSetAccessException}
  * instead (when appropriate).
  *
  * <p>Note: This interface extends the {@code java.io.Serializable} marker interface.

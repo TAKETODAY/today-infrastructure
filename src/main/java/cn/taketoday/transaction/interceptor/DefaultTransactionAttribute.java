@@ -31,7 +31,7 @@ import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Spring's common transaction attribute implementation.
+ * Framework's common transaction attribute implementation.
  * Rolls back on runtime, but not checked, exceptions by default.
  *
  * @author Rod Johnson

@@ -203,7 +203,7 @@ public abstract class AbstractResourceBasedMessageSource extends AbstractMessage
    * Set the number of seconds to cache loaded properties files.
    * <ul>
    * <li>Default is "-1", indicating to cache forever (matching the default behavior
-   * of {@code java.util.ResourceBundle}). Note that this constant follows Spring
+   * of {@code java.util.ResourceBundle}). Note that this constant follows Framework
    * conventions, not {@link java.util.ResourceBundle.Control#getTimeToLive}.
    * <li>A positive number will cache loaded properties files for the given
    * number of seconds. This is essentially the interval between refresh checks.
@@ -228,7 +228,7 @@ public abstract class AbstractResourceBasedMessageSource extends AbstractMessage
    * Note that it is common to set seconds instead: {@link #setCacheSeconds}.
    * <ul>
    * <li>Default is "-1", indicating to cache forever (matching the default behavior
-   * of {@code java.util.ResourceBundle}). Note that this constant follows Spring
+   * of {@code java.util.ResourceBundle}). Note that this constant follows Framework
    * conventions, not {@link java.util.ResourceBundle.Control#getTimeToLive}.
    * <li>A positive number will cache loaded properties files for the given
    * number of milliseconds. This is essentially the interval between refresh checks.

@@ -100,7 +100,7 @@ public abstract class AbstractBeanFactoryTargetSourceCreator
     // We need to override just this bean definition, as it may reference other beans
     // and we're happy to take the parent's definition for those.
     // Always use prototype scope if demanded.
-    BeanDefinition bd = BeanFactoryUtils.getBeanDefinition(beanFactory, beanName);
+    BeanDefinition bd = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
     BeanDefinition bdCopy = bd.cloneDefinition();
     if (isPrototypeBased()) {
       bdCopy.setScope(BeanDefinition.SCOPE_PROTOTYPE);

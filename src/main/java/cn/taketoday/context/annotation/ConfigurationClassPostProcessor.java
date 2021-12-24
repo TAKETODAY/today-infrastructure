@@ -190,7 +190,7 @@ public class ConfigurationClassPostProcessor
     String[] candidateNames = registry.getBeanDefinitionNames();
 
     for (String beanName : candidateNames) {
-      BeanDefinition beanDef = BeanFactoryUtils.getBeanDefinition(registry, beanName);
+      BeanDefinition beanDef = BeanFactoryUtils.requiredDefinition(registry, beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
         if (log.isDebugEnabled()) {
           log.debug("Bean definition has already been processed as a configuration class: " + beanDef);
@@ -278,7 +278,7 @@ public class ConfigurationClassPostProcessor
   public void enhanceConfigurationClasses(ConfigurableBeanFactory beanFactory) {
     LinkedHashMap<String, BeanDefinition> configBeanDefs = new LinkedHashMap<>();
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
-      BeanDefinition beanDef = BeanFactoryUtils.getBeanDefinition(beanFactory, beanName);
+      BeanDefinition beanDef = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
       Object configClassAttr = beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);
 
       if (!beanDef.hasBeanClass()) {

@@ -28,13 +28,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.DecoratingClassLoader;
@@ -360,7 +357,7 @@ public abstract class AbstractBeanFactory
         }
         else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
           // Generics potentially only match on the target class, not on the proxy...
-          BeanDefinition mbd = obtainBeanDefinition(beanName);
+          BeanDefinition mbd = obtainLocalBeanDefinition(beanName);
           Class<?> targetType = mbd.getTargetType();
           if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance)) {
             // Check raw class match as well, making sure it's exposed on the proxy.
@@ -404,7 +401,7 @@ public abstract class AbstractBeanFactory
 
     // Attempt to predict the bean type (not init)
     Class<?> predictedType = null;
-    BeanDefinition definition = obtainBeanDefinition(beanName);
+    BeanDefinition definition = obtainLocalBeanDefinition(beanName);
 
     // We're looking for a regular reference but we're a factory bean that has
     // a decorated bean definition. The target bean should be the same type
@@ -587,86 +584,8 @@ public abstract class AbstractBeanFactory
    */
   protected abstract void registerBeanDefinition(String beanName, BeanDefinition def);
 
-  /**
-   * Handle dependency {@link BeanDefinition}
-   *
-   * @param requiredType by type
-   * @return Dependency {@link BeanDefinition}
-   */
-  protected Object resolveFromObjectFactories(Class<?> requiredType) {
-    // from objectFactories
-    if (CollectionUtils.isNotEmpty(objectFactories)) {
-      Object objectFactory = objectFactories.get(requiredType);
-      if (objectFactory != null) {
-        Object obj = createFromObjectFactory(requiredType, objectFactory);
-        if (obj != null) {
-          return obj;
-        }
-      }
-      // iterate objectFactories
-      for (Entry<Class<?>, Object> entry : objectFactories.entrySet()) {
-        if (entry.getKey().isAssignableFrom(requiredType)) {
-          objectFactory = entry.getValue();
-          Object obj = createFromObjectFactory(requiredType, objectFactory);
-          if (obj != null) {
-            return obj;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  private Object createFromObjectFactory(Class<?> requiredType, Object objectFactory) {
-    if (requiredType.isInstance(objectFactory)) {
-      return objectFactory;
-    }
-    if (objectFactory instanceof Supplier) { // TODO type check?
-      return createObjectFactoryDependencyProxy(requiredType, (Supplier<?>) objectFactory);
-    }
-    return null;
-  }
-
-  protected Object createObjectFactoryDependencyProxy(Class<?> type, Supplier<?> objectFactory) {
-    // fixed @since 3.0.1
-    ProxyFactory proxyFactory = createProxyFactory();
-    proxyFactory.setTargetSource(new ObjectFactoryTargetSource(objectFactory, type));
-    proxyFactory.setOpaque(true);
-    return proxyFactory.getProxy(type.getClassLoader());
-  }
-
-  protected ProxyFactory createProxyFactory() {
-    return new ProxyFactory();
-  }
-
-  static final class ObjectFactoryTargetSource implements TargetSource {
-    private final Class<?> targetType;
-    private final Supplier<?> objectFactory;
-
-    ObjectFactoryTargetSource(Supplier<?> objectFactory, Class<?> targetType) {
-      this.targetType = targetType;
-      this.objectFactory = objectFactory;
-    }
-
-    @Override
-    public Class<?> getTargetClass() {
-      return targetType;
-    }
-
-    @Override
-    public boolean isStatic() {
-      return false;
-    }
-
-    @Override
-    public Object getTarget() throws Exception {
-      return objectFactory.get();
-    }
-
-  }
-
   @Override
-  public void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
+  public void registerDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
     objectFactories.put(dependencyType, autowiredValue);
   }
 
@@ -692,7 +611,7 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.isSingleton(originalBeanName(name));
     }
 
-    BeanDefinition definition = obtainBeanDefinition(beanName);
+    BeanDefinition definition = obtainLocalBeanDefinition(beanName);
     // In case of FactoryBean, return singleton status of created object if not a dereference.
     if (definition.isSingleton()) {
       if (isFactoryBean(definition)) {
@@ -715,7 +634,7 @@ public abstract class AbstractBeanFactory
   /**
    * @throws NoSuchBeanDefinitionException bean-definition not found
    */
-  public BeanDefinition obtainBeanDefinition(String name) {
+  public BeanDefinition obtainLocalBeanDefinition(String name) {
     BeanDefinition def = getBeanDefinition(name);
     if (def == null) {
       throw new NoSuchBeanDefinitionException(name);
@@ -733,10 +652,10 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.isPrototype(originalBeanName(name));
     }
 
-    BeanDefinition mbd = obtainBeanDefinition(beanName);
+    BeanDefinition mbd = obtainLocalBeanDefinition(beanName);
     if (mbd.isPrototype()) {
       // In case of FactoryBean, return singleton status of created object if not a dereference.
-      return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(mbd));
+      return !BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(mbd);
     }
 
     // Singleton or scoped - not a prototype.
@@ -785,7 +704,7 @@ public abstract class AbstractBeanFactory
     }
 
     // not init
-    BeanDefinition definition = obtainBeanDefinition(beanName);
+    BeanDefinition definition = obtainLocalBeanDefinition(beanName);
     Class<?> beanType = predictBeanType(definition);
     if (beanType != null && FactoryBean.class.isAssignableFrom(beanType)) {
       if (BeanFactoryUtils.isFactoryDereference(name)) {
@@ -979,7 +898,7 @@ public abstract class AbstractBeanFactory
       // No bean definition found in this factory -> delegate to parent.
       return parent.isFactoryBean(name);
     }
-    return isFactoryBean(obtainBeanDefinition(beanName));
+    return isFactoryBean(obtainLocalBeanDefinition(beanName));
   }
 
   /**
@@ -1099,7 +1018,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyBean(String name, Object beanInstance) {
-    destroyBean(beanInstance, obtainBeanDefinition(name));
+    destroyBean(beanInstance, obtainLocalBeanDefinition(name));
   }
 
   /**
@@ -1145,7 +1064,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyScopedBean(String beanName) {
-    BeanDefinition def = obtainBeanDefinition(beanName);
+    BeanDefinition def = obtainLocalBeanDefinition(beanName);
     if (def.isSingleton() || def.isPrototype()) {
       throw new IllegalArgumentException(
               "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");

@@ -54,7 +54,7 @@ import reactor.core.publisher.Mono;
  * Base class for transactional aspects, such as the {@link TransactionInterceptor}
  * or an AspectJ aspect.
  *
- * <p>This enables the underlying Spring transaction infrastructure to be used easily
+ * <p>This enables the underlying Framework transaction infrastructure to be used easily
  * to implement an aspect for any aspect system.
  *
  * <p>Subclasses are responsible for calling methods in this class in the correct order.

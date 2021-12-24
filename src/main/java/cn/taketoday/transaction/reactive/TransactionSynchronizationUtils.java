@@ -70,7 +70,7 @@ abstract class TransactionSynchronizationUtils {
 
   /**
    * Actually invoke the {@code triggerBeforeCommit} methods of the
-   * given Spring TransactionSynchronization objects.
+   * given Framework TransactionSynchronization objects.
    *
    * @param synchronizations a List of TransactionSynchronization objects
    * @see TransactionSynchronization#beforeCommit(boolean)
@@ -81,7 +81,7 @@ abstract class TransactionSynchronizationUtils {
 
   /**
    * Actually invoke the {@code beforeCompletion} methods of the
-   * given Spring TransactionSynchronization objects.
+   * given Framework TransactionSynchronization objects.
    *
    * @param synchronizations a List of TransactionSynchronization objects
    * @see TransactionSynchronization#beforeCompletion()
@@ -94,7 +94,7 @@ abstract class TransactionSynchronizationUtils {
 
   /**
    * Actually invoke the {@code afterCommit} methods of the
-   * given Spring TransactionSynchronization objects.
+   * given Framework TransactionSynchronization objects.
    *
    * @param synchronizations a List of TransactionSynchronization objects
    * @see TransactionSynchronization#afterCommit()
@@ -107,7 +107,7 @@ abstract class TransactionSynchronizationUtils {
 
   /**
    * Actually invoke the {@code afterCompletion} methods of the
-   * given Spring TransactionSynchronization objects.
+   * given Framework TransactionSynchronization objects.
    *
    * @param synchronizations a List of TransactionSynchronization objects
    * @param completionStatus the completion status according to the
