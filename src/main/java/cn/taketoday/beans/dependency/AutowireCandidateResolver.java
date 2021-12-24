@@ -80,19 +80,6 @@ public interface AutowireCandidateResolver {
   }
 
   /**
-   * Determine whether a default value is suggested for the given dependency.
-   * <p>The default implementation simply returns {@code null}.
-   *
-   * @param descriptor the descriptor for the target method parameter or field
-   * @return the value suggested (typically an expression String),
-   * or {@code null} if none found
-   */
-  @Nullable
-  default Object getSuggestedValue(DependencyDescriptor descriptor) {
-    return null;
-  }
-
-  /**
    * Build a proxy for lazy resolution of the actual dependency target,
    * if demanded by the injection point.
    * <p>The default implementation simply returns {@code null}.

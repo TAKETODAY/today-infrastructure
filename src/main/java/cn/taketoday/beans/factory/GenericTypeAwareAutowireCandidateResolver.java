@@ -60,12 +60,12 @@ public class GenericTypeAwareAutowireCandidateResolver
   }
 
   @Override
-  public boolean isAutowireCandidate(BeanDefinition bdHolder, DependencyDescriptor descriptor) {
-    if (!super.isAutowireCandidate(bdHolder, descriptor)) {
+  public boolean isAutowireCandidate(BeanDefinition definition, DependencyDescriptor descriptor) {
+    if (!super.isAutowireCandidate(definition, descriptor)) {
       // If explicitly false, do not proceed with any other checks...
       return false;
     }
-    return checkGenericTypeMatch(bdHolder, descriptor);
+    return checkGenericTypeMatch(definition, descriptor);
   }
 
   /**
@@ -81,22 +81,11 @@ public class GenericTypeAwareAutowireCandidateResolver
 
     ResolvableType targetType = null;
     boolean cacheType = false;
-    if (definition != null) {
-      targetType = definition.targetType;
-      if (targetType == null) {
-        cacheType = true;
-        // First, check factory method return type, if applicable
-        targetType = getReturnTypeForFactoryMethod(definition, descriptor);
-        if (targetType == null) {
-          BeanDefinition dbd = getResolvedDecoratedDefinition(definition);
-          if (dbd != null) {
-            targetType = dbd.targetType;
-            if (targetType == null) {
-              targetType = getReturnTypeForFactoryMethod(dbd, descriptor);
-            }
-          }
-        }
-      }
+    targetType = definition.targetType;
+    if (targetType == null) {
+      cacheType = true;
+      // First, check factory method return type, if applicable
+      targetType = getReturnTypeForFactoryMethod(definition, descriptor);
     }
 
     if (targetType == null) {
@@ -109,7 +98,7 @@ public class GenericTypeAwareAutowireCandidateResolver
       }
       // Fallback: no BeanFactory set, or no type resolvable through it
       // -> best-effort match against the target class if applicable.
-      if (targetType == null && definition != null && definition.hasBeanClass() && definition.getFactoryMethodName() == null) {
+      if (targetType == null && definition.hasBeanClass() && definition.getFactoryMethodName() == null) {
         Class<?> beanClass = definition.getBeanClass();
         if (!FactoryBean.class.isAssignableFrom(beanClass)) {
           targetType = ResolvableType.fromClass(ClassUtils.getUserClass(beanClass));
@@ -132,18 +121,6 @@ public class GenericTypeAwareAutowireCandidateResolver
     }
     // Full check for complex generic type match...
     return dependencyType.isAssignableFrom(targetType);
-  }
-
-  @Nullable
-  protected BeanDefinition getResolvedDecoratedDefinition(BeanDefinition rbd) {
-    BeanDefinitionHolder decDef = rbd.getDecoratedDefinition();
-    if (decDef != null && this.beanFactory instanceof ConfigurableBeanFactory clbf) {
-      if (clbf.containsBeanDefinition(decDef.getBeanName())) {
-        BeanDefinition dbd = clbf.getBeanDefinition(decDef.getBeanName());
-        return dbd;
-      }
-    }
-    return null;
   }
 
   @Nullable

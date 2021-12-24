@@ -34,11 +34,6 @@ import cn.taketoday.lang.Nullable;
  */
 public class SimpleAutowireCandidateResolver implements AutowireCandidateResolver {
 
-  /**
-   * Shared instance of {@code SimpleAutowireCandidateResolver}.
-   */
-  public static final SimpleAutowireCandidateResolver INSTANCE = new SimpleAutowireCandidateResolver();
-
   @Override
   public boolean isAutowireCandidate(BeanDefinition definition, DependencyDescriptor descriptor) {
     return definition.isAutowireCandidate();
@@ -56,20 +51,12 @@ public class SimpleAutowireCandidateResolver implements AutowireCandidateResolve
 
   @Override
   @Nullable
-  public Object getSuggestedValue(DependencyDescriptor descriptor) {
-    return null;
-  }
-
-  @Override
-  @Nullable
   public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
     return null;
   }
 
   /**
    * This implementation returns {@code this} as-is.
-   *
-   * @see #INSTANCE
    */
   @Override
   public AutowireCandidateResolver cloneIfNecessary() {

@@ -616,6 +616,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           Object factoryBean = getBean(factoryBeanName); // lazy get bean ?
           definition.instantiator = BeanInstantiator.fromMethod(factoryMethodInvoker, factoryBean);
         }
+        definition.setResolvedFactoryMethod(factoryMethod);
         definition.executable = factoryMethod;
       }
       else {

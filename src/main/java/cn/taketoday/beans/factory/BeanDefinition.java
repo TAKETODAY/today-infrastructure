@@ -186,6 +186,10 @@ public class BeanDefinition
   @Nullable
   volatile Class<?> resolvedTargetType;
 
+  /** Package-visible field for caching a unique factory method candidate for introspection. */
+  @Nullable
+  volatile Method factoryMethodToIntrospect;
+
   public BeanDefinition() { }
 
   public BeanDefinition(Class<?> beanClass) {
@@ -330,6 +334,10 @@ public class BeanDefinition
     ResolvableType returnType = this.factoryMethodReturnType;
     if (returnType != null) {
       return returnType;
+    }
+    Method factoryMethod = this.factoryMethodToIntrospect;
+    if (factoryMethod != null) {
+      return ResolvableType.forReturnType(factoryMethod);
     }
     return hasBeanClass() ? ResolvableType.fromClass(getBeanClass()) : ResolvableType.NONE;
   }
@@ -652,6 +660,7 @@ public class BeanDefinition
     this.factoryMethodName = from.factoryMethodName;
     this.instanceSupplier = from.instanceSupplier;
     this.enableDependencyInjection = from.enableDependencyInjection;
+    this.factoryMethodToIntrospect = from.factoryMethodToIntrospect;
 
     this.executable = from.executable;
     this.instantiator = from.instantiator;
@@ -769,6 +778,27 @@ public class BeanDefinition
 
   public boolean isFactoryMethod(Method method) {
     return method.getName().equals(factoryMethodName);
+  }
+
+  /**
+   * Set a resolved Java Method for the factory method on this bean definition.
+   *
+   * @param method the resolved factory method, or {@code null} to reset it
+   * @since 4.0
+   */
+  public void setResolvedFactoryMethod(@Nullable Method method) {
+    this.factoryMethodToIntrospect = method;
+  }
+
+  /**
+   * Return the resolved factory method as a Java Method object, if available.
+   *
+   * @return the factory method, or {@code null} if not found or not resolved yet
+   * @since 4.0
+   */
+  @Nullable
+  public Method getResolvedFactoryMethod() {
+    return this.factoryMethodToIntrospect;
   }
 
   /**

@@ -90,7 +90,7 @@ public class StandardBeanFactory
   private Comparator<Object> dependencyComparator;
 
   /** Resolver to use for checking if a bean definition is an autowire candidate. */
-  private AutowireCandidateResolver autowireCandidateResolver = SimpleAutowireCandidateResolver.INSTANCE;
+  private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
 
   /** Resolver strategy for method parameter names. @since 4.0 */
   @Nullable
@@ -958,6 +958,7 @@ public class StandardBeanFactory
       this.dependencyComparator = std.dependencyComparator;
       this.allowEagerClassLoading = std.allowEagerClassLoading;
       this.allowBeanDefinitionOverriding = std.allowBeanDefinitionOverriding;
+      setAutowireCandidateResolver(std.getAutowireCandidateResolver().cloneIfNecessary());
     }
   }
 
@@ -1073,15 +1074,6 @@ public class StandardBeanFactory
     }
 
     Class<?> type = descriptor.getDependencyType();
-    Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
-    if (value != null) {
-      if (value instanceof String) {
-        String strVal = resolveEmbeddedValue((String) value);
-        BeanDefinition bd = (beanName != null && containsBean(beanName) ? getMergedBeanDefinition(beanName) : null);
-        value = evaluateBeanDefinitionString(strVal, bd);
-      }
-      return convertIfNecessary(value, type, descriptor.getTypeDescriptor());
-    }
 
     Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames);
     if (multipleBeans != null) {
