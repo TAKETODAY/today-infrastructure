@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -44,7 +45,7 @@ public interface FactoryBean<T> {
   /**
    * The name of an attribute that can be
    * {@link cn.taketoday.core.AttributeAccessor#setAttribute set} on a
-   * {@link cn.taketoday.beans.factory.BeanDefinition} so that
+   * {@link BeanDefinition} so that
    * factory beans can signal their object type when it can't be deduced from
    * the factory bean class.
    *

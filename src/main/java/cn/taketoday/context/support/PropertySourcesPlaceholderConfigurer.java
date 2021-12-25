@@ -26,7 +26,7 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.PlaceholderConfigurerSupport;
+import cn.taketoday.beans.factory.support.PlaceholderConfigurerSupport;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
@@ -56,7 +56,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.core.env.ConfigurableEnvironment
- * @see cn.taketoday.beans.factory.PlaceholderConfigurerSupport
+ * @see PlaceholderConfigurerSupport
  * @since 4.0 2021/12/12 14:39
  */
 public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerSupport implements EnvironmentAware {
@@ -181,7 +181,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 
   /**
    * Implemented for compatibility with
-   * {@link cn.taketoday.beans.factory.PlaceholderConfigurerSupport}.
+   * {@link PlaceholderConfigurerSupport}.
    *
    * @throws UnsupportedOperationException in this implementation
    * use {@link #processProperties(ConfigurableBeanFactory, ConfigurablePropertyResolver)}

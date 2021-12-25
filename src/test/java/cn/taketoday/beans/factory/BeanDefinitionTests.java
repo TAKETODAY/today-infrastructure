@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

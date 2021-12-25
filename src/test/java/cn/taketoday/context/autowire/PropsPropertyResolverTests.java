@@ -23,9 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.beans.dependency.DependencyDescriptor;
-import cn.taketoday.beans.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;

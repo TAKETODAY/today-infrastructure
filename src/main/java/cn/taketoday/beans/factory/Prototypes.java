@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.target.PrototypeTargetSource;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 
 /**
  * The helper class achieve the effect of the prototype

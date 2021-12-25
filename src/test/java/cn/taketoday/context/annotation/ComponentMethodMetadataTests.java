@@ -26,8 +26,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

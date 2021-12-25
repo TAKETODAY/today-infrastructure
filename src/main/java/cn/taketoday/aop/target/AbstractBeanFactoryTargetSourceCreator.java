@@ -24,13 +24,14 @@ import java.util.HashMap;
 
 import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -45,13 +46,13 @@ import cn.taketoday.logging.LoggerFactory;
  * contain the proxy instance created through auto-proxying.
  *
  * <p>Requires running in an
- * {@link cn.taketoday.beans.factory.AbstractBeanFactory}.
+ * {@link AbstractBeanFactory}.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractBeanFactoryTargetSource
- * @see cn.taketoday.beans.factory.AbstractBeanFactory
+ * @see AbstractBeanFactory
  * @since 4.0 2021/12/13 22:24
  */
 public abstract class AbstractBeanFactoryTargetSourceCreator
@@ -171,7 +172,7 @@ public abstract class AbstractBeanFactoryTargetSourceCreator
    * The scope of the target bean definition will be set accordingly.
    * <p>Default is "true".
    *
-   * @see cn.taketoday.beans.factory.BeanDefinition#isSingleton()
+   * @see BeanDefinition#isSingleton()
    */
   protected boolean isPrototypeBased() {
     return true;

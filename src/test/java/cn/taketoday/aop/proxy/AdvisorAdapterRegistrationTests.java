@@ -33,7 +33,7 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.BeforeAdvice;
 import cn.taketoday.aop.support.AdvisorAdapterRegistrationManager;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;

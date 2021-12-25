@@ -29,7 +29,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;

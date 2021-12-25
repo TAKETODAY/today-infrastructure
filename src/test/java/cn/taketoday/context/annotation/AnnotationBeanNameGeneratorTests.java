@@ -27,9 +27,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.DefaultBeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Service;
 import cn.taketoday.util.StringUtils;

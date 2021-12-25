@@ -45,7 +45,7 @@ import cn.taketoday.aop.support.annotation.Throwing;
 import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.AttributeAccessor;

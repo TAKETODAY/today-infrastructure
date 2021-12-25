@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.MockPropertySource;

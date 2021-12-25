@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.dependency.DisableAllDependencyInjection;
-import cn.taketoday.beans.dependency.DisableDependencyInjection;
-import cn.taketoday.beans.dependency.EnableDependencyInjection;
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.dependency.DisableDependencyInjection;
+import cn.taketoday.beans.factory.dependency.EnableDependencyInjection;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;

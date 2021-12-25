@@ -23,10 +23,10 @@ package cn.taketoday.context.annotation;
 import java.lang.reflect.Field;
 
 import cn.taketoday.beans.DependencyResolvingFailedException;
-import cn.taketoday.beans.dependency.DependencyDescriptor;
-import cn.taketoday.beans.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
-import cn.taketoday.beans.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.factory.dependency.InjectionPoint;
 import cn.taketoday.context.expression.ExpressionEvaluatorSupport;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.Ordered;

@@ -32,7 +32,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.jdbc.datasource.lookup.BeanFactoryDataSourceLookup;
 import cn.taketoday.jdbc.datasource.lookup.IsolationLevelDataSourceRouter;
 import cn.taketoday.transaction.TransactionDefinition;

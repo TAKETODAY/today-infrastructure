@@ -26,7 +26,7 @@ import java.util.List;
 
 import cn.taketoday.aop.scope.ScopedObject;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.AbstractApplicationContext;

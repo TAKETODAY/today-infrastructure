@@ -980,7 +980,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
 2019-07-25 23:14:37.928 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory  1002 - Initialization of singleton objects.
 2019-07-25 23:14:37.929 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory   651 - Initializing bean named: [lifecycleBean].
 2019-07-25 23:14:37.929  INFO - [            main] test.context.LifecycleBean                 59 - setBeanName: lifecycleBean
-2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.beans.factory.StandardBeanFactory@5ce81285
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.beans.factory.support.StandardBeanFactory@5ce81285
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.StandardApplicationContext@78c03f1f
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.StandardEnvironment@5ec0a365
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 79 - @PostConstruct

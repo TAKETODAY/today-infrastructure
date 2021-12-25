@@ -19,6 +19,8 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+
 /**
  * Exception thrown when the validation of a bean definition failed.
  *

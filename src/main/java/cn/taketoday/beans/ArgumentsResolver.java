@@ -25,11 +25,12 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.beans.dependency.DependencyDescriptor;
-import cn.taketoday.beans.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.dependency.InjectionPoint;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.lang.Assert;
@@ -51,7 +52,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see Value
  * @see Env
  * @see DependencyResolvingStrategies
- * @see cn.taketoday.beans.dependency.DependencyResolvingStrategy
+ * @see DependencyResolvingStrategy
  * @since 4.0
  */
 public class ArgumentsResolver {

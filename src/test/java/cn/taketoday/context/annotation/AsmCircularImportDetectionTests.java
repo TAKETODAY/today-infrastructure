@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 

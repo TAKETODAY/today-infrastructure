@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+
 /**
  * process dependency injection
  *

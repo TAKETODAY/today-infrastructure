@@ -23,8 +23,8 @@ package cn.taketoday.context.loader;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.lang.Component;

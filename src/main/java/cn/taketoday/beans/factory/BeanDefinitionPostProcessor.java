@@ -1,5 +1,9 @@
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+
 /**
  * Post-processor callback interface for <i>merged</i> bean definitions at runtime.
  * {@link BeanPostProcessor} implementations may implement this sub-interface in order

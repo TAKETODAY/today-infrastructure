@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.DefinitionLoadingContext;

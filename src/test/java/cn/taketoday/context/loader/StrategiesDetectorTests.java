@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.dependency.DependencyDescriptor;
-import cn.taketoday.beans.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.YamlStrategiesReader;

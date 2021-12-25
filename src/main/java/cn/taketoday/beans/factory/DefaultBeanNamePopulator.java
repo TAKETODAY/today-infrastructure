@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+
 /**
  * Default implementation of the {@link BeanNamePopulator} interface, delegating to
  * {@link BeanFactoryUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.

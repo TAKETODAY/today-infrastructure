@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.PreDestroy;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.StandardApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

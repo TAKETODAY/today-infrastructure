@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.core.annotation.MergedAnnotation;

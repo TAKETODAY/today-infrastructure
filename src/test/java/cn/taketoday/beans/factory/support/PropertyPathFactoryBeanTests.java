@@ -3,12 +3,8 @@ package cn.taketoday.beans.factory.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.factory.StandardBeanFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

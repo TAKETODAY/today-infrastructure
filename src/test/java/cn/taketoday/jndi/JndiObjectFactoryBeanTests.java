@@ -26,7 +26,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import cn.taketoday.aop.DerivedTestBean;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.testfixture.jndi.ExpectedLookupTemplate;

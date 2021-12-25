@@ -21,15 +21,27 @@ package cn.taketoday.beans.factory;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionOverrideException;
 import cn.taketoday.core.AliasRegistry;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Store bean definitions.
+ * Interface for registries that hold bean definitions, for example BeanDefinition.
+ * Typically implemented by BeanFactories that internally work with the BeanDefinition hierarchy.
  *
+ * <p>This is the only interface in Framework's bean factory packages that encapsulates
+ * <i>registration</i> of bean definitions. The standard BeanFactory interfaces
+ * only cover access to a <i>fully configured factory instance</i>.
+ *
+ * <p>Framework's bean definition readers expect to work on an implementation of this
+ * interface. Known implementors within the Framework core are StandardBeanFactory
+ * and DefaultApplicationContext.
+ *
+ * @author Juergen Hoeller
  * @author TODAY <br>
- *
- * 2018-07-08 19:56:53 2018-08-06 11:07
+ * @see BeanDefinition
+ * @since 2018-07-08 19:56:53 2018-08-06 11:07
  */
 public interface BeanDefinitionRegistry extends Iterable<BeanDefinition>, AliasRegistry {
 

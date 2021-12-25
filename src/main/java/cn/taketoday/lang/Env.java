@@ -24,6 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
+
 /**
  * Annotation used at the field or method/constructor parameter level
  * that indicates a default value expression for the annotated element.
@@ -39,7 +41,7 @@ import java.lang.annotation.Target;
  * by a {@link cn.taketoday.context.annotation.ExpressionDependencyResolver ExpressionDependencyResolver}
  * which in turn means that you <em>cannot</em> use {@code @Env} within
  * {@link cn.taketoday.context.annotation.ExpressionDependencyResolver ExpressionDependencyResolver} or
- * {@link cn.taketoday.beans.dependency.DependencyResolvingStrategy PropertyValueResolver}
+ * {@link DependencyResolvingStrategy PropertyValueResolver}
  * types.
  *
  * @author TODAY 2019-07-14 11:37
@@ -47,7 +49,7 @@ import java.lang.annotation.Target;
  * @see Value
  * @see cn.taketoday.context.expression.ExpressionEvaluator
  * @see cn.taketoday.context.annotation.ExpressionDependencyResolver
- * @see cn.taketoday.beans.dependency.DependencyResolvingStrategy
+ * @see DependencyResolvingStrategy
  */
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)

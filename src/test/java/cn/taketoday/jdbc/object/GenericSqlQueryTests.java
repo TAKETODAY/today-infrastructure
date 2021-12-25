@@ -34,10 +34,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionReference;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanReference;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.jdbc.core.SqlParameter;
 import cn.taketoday.jdbc.core.namedparam.Customer;
 import cn.taketoday.jdbc.datasource.TestDataSourceWrapper;

@@ -20,10 +20,10 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.event.DefaultEventListenerFactory;

@@ -21,7 +21,7 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;

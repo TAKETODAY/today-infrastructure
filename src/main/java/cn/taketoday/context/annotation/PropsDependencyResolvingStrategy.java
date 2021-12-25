@@ -22,9 +22,9 @@ package cn.taketoday.context.annotation;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.beans.dependency.DependencyDescriptor;
-import cn.taketoday.beans.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.util.CollectionUtils;

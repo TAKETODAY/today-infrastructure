@@ -25,11 +25,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import cn.taketoday.beans.factory.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation6.ComponentForScanning;
@@ -128,7 +128,7 @@ class StandardApplicationContextTests {
     ApplicationContext context = new StandardApplicationContext(Config.class);
 
     // attempt to retrieve the instance by its generated bean name
-    Config configObject = (Config) context.getBean("StandardApplicationContextTests.Config");
+    Config configObject = (Config) context.getBean("config");
     assertThat(configObject).isNotNull();
   }
 
@@ -204,21 +204,20 @@ class StandardApplicationContextTests {
   @Test
   void individualBeanWithSupplier() {
     StandardApplicationContext context = new StandardApplicationContext();
-    context.registerBean(BeanA.class,
-            () -> new BeanA(context.getBean(BeanB.class), context.getBean(BeanC.class)));
+    context.registerBean(BeanA.class, () -> new BeanA(context.getBean(BeanB.class), context.getBean(BeanC.class)));
     context.registerBean(BeanB.class, BeanB::new);
     context.registerBean(BeanC.class, BeanC::new);
     context.refresh();
 
-    assertThat(context.getBeanFactory().containsSingleton("StandardApplicationContextTests.BeanA")).isTrue();
+    assertThat(context.getBeanFactory().containsSingleton("beanA")).isTrue();
     assertThat(context.getBean(BeanA.class).b).isSameAs(context.getBean(BeanB.class));
     assertThat(context.getBean(BeanA.class).c).isSameAs(context.getBean(BeanC.class));
     assertThat(context.getBean(BeanB.class).applicationContext).isSameAs(context);
 
-    assertThat(context.getBeanFactory().getDependentBeans("StandardApplicationContextTests.BeanB"))
-            .containsExactly("StandardApplicationContextTests.BeanA");
-    assertThat(context.getBeanFactory().getDependentBeans("StandardApplicationContextTests.BeanC"))
-            .containsExactly("StandardApplicationContextTests.BeanA");
+    assertThat(context.getBeanFactory().getDependentBeans("beanB"))
+            .containsExactly("beanA");
+    assertThat(context.getBeanFactory().getDependentBeans("beanC"))
+            .containsExactly("beanA");
   }
 
   @Test
@@ -231,7 +230,7 @@ class StandardApplicationContextTests {
     context.registerBean(BeanC.class, BeanC::new);
     context.refresh();
 
-    assertThat(context.getBeanFactory().containsSingleton("StandardApplicationContextTests.BeanA")).isFalse();
+    assertThat(context.getBeanFactory().containsSingleton("beanA")).isFalse();
     assertThat(context.getBean(BeanA.class).b).isSameAs(context.getBean(BeanB.class));
     assertThat(context.getBean(BeanA.class).c).isSameAs(context.getBean(BeanC.class));
     assertThat(context.getBean(BeanB.class).applicationContext).isSameAs(context);

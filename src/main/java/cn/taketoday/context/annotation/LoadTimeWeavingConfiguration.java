@@ -21,7 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
 import cn.taketoday.context.aware.ImportAware;

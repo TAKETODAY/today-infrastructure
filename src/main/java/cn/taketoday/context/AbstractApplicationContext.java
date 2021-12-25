@@ -32,11 +32,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.dependency.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.AbstractBeanFactory;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;

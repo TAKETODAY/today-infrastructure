@@ -33,7 +33,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;

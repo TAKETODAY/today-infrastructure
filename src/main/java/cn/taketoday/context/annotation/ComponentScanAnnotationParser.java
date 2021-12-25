@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;

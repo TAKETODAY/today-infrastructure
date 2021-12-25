@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.loader.ConditionEvaluationContext;

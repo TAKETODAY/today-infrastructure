@@ -1,6 +1,6 @@
 package cn.taketoday.context;
 
-import cn.taketoday.beans.factory.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.type.EnabledForTestGroups;

@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**

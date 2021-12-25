@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
@@ -79,8 +80,8 @@ public @interface Scope {
    * <p>Defaults to an empty string ({@code ""}) which implies
    * {@link cn.taketoday.beans.factory.Scope#SINGLETON SCOPE_SINGLETON}.
    *
-   * @see cn.taketoday.beans.factory.BeanDefinition#SCOPE_PROTOTYPE
-   * @see cn.taketoday.beans.factory.BeanDefinition#SCOPE_SINGLETON
+   * @see BeanDefinition#SCOPE_PROTOTYPE
+   * @see BeanDefinition#SCOPE_SINGLETON
    * @see cn.taketoday.web.WebApplicationContext#SCOPE_REQUEST
    * @see cn.taketoday.web.WebApplicationContext#SCOPE_SESSION
    * @see #value

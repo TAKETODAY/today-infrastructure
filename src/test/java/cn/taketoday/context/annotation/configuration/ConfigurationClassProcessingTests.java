@@ -28,15 +28,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.dependency.InjectionPoint;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.ListFactoryBean;
 import cn.taketoday.beans.factory.support.NestedTestBean;

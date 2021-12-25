@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.target;
 
-import cn.taketoday.beans.factory.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
@@ -53,7 +53,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.beans.factory.BeanDefinition#isLazyInit
+ * @see BeanDefinition#isLazyInit
  * @since 4.0 2021/12/13 22:22
  */
 public class LazyInitTargetSourceCreator extends AbstractBeanFactoryTargetSourceCreator {
