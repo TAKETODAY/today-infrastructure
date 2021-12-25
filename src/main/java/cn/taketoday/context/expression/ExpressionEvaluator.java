@@ -24,18 +24,20 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.expression.BeanNameExpressionResolver;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -329,8 +331,9 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     if (!beanFactory.containsLocalBean(EXPRESSION_PROCESSOR_NAME)) {
       // create shared elProcessor to singletons
       ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
-      ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
-      elContext.defineBean(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
+      StandardExpressionContext elContext = new StandardExpressionContext(exprFactory);
+      elContext.setVariable(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
+      elContext.addResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
 
       ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
       ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);

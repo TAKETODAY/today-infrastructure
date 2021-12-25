@@ -27,7 +27,7 @@ import cn.taketoday.expression.BeanNameResolver;
  * @author TODAY <br>
  * 2019-02-23 10:36
  */
-public class BeanFactoryResolver extends BeanNameResolver {
+public class BeanFactoryResolver implements BeanNameResolver {
   private final BeanFactory beanFactory;
 
   public BeanFactoryResolver(BeanFactory beanFactory) {
@@ -45,7 +45,7 @@ public class BeanFactoryResolver extends BeanNameResolver {
 
   @Override
   public boolean isNameResolved(String beanName) {
-    return beanFactory.containsBeanDefinition(beanName);
+    return beanFactory.containsBean(beanName);
   }
 
   @Override

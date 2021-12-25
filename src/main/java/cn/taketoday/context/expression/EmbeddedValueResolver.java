@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.expression;
 
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;
