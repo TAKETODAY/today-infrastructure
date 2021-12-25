@@ -33,9 +33,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Required;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -51,18 +49,7 @@ public abstract class InjectionPoint implements Serializable {
    */
   public static final Object DO_NOT_SET = PropertyValueRetriever.DO_NOT_SET;
 
-  protected Boolean required = null;
   protected MergedAnnotations annotations;
-
-  public int nestingLevel;
-
-  public void increaseNestingLevel() {
-    nestingLevel++;
-  }
-
-  public void decreaseNestingLevel() {
-    nestingLevel--;
-  }
 
   public abstract Class<?> getDependencyType();
 
@@ -97,22 +84,6 @@ public abstract class InjectionPoint implements Serializable {
    */
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {
     return getAnnotations().get(annotationType);
-  }
-
-  public boolean isRequired() {
-    if (required == null) {
-      required = doGetRequiredStatus();
-    }
-    return required;
-  }
-
-  protected boolean doGetRequiredStatus() {
-    MergedAnnotations annotations = getAnnotations();
-    MergedAnnotation<Autowired> annotation = annotations.get(Autowired.class);
-    if (annotation.isPresent()) {
-      return annotation.getBoolean("required");
-    }
-    return annotations.isPresent(Required.class);
   }
 
   public boolean isArray() {
