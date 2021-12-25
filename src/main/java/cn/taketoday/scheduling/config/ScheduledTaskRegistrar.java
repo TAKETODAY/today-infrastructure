@@ -135,7 +135,9 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public void setTriggerTasks(Map<Runnable, Trigger> triggerTasks) {
     this.triggerTasks = new ArrayList<>();
-    triggerTasks.forEach((task, trigger) -> addTriggerTask(new TriggerTask(task, trigger)));
+    for (Map.Entry<Runnable, Trigger> entry : triggerTasks.entrySet()) {
+      addTriggerTask(new TriggerTask(entry.getKey(), entry.getValue()));
+    }
   }
 
   /**
@@ -152,8 +154,8 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    * @return the list of tasks (never {@code null})
    */
   public List<TriggerTask> getTriggerTaskList() {
-    return (this.triggerTasks != null ? Collections.unmodifiableList(this.triggerTasks) :
-            Collections.emptyList());
+    return this.triggerTasks != null
+           ? Collections.unmodifiableList(this.triggerTasks) : Collections.emptyList();
   }
 
   /**
@@ -163,7 +165,9 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public void setCronTasks(Map<Runnable, String> cronTasks) {
     this.cronTasks = new ArrayList<>();
-    cronTasks.forEach(this::addCronTask);
+    for (Map.Entry<Runnable, String> entry : cronTasks.entrySet()) {
+      addCronTask(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -180,8 +184,8 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    * @return the list of tasks (never {@code null})
    */
   public List<CronTask> getCronTaskList() {
-    return (this.cronTasks != null ? Collections.unmodifiableList(this.cronTasks) :
-            Collections.emptyList());
+    return this.cronTasks != null
+           ? Collections.unmodifiableList(this.cronTasks) : Collections.emptyList();
   }
 
   /**
@@ -191,7 +195,9 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public void setFixedRateTasks(Map<Runnable, Long> fixedRateTasks) {
     this.fixedRateTasks = new ArrayList<>();
-    fixedRateTasks.forEach(this::addFixedRateTask);
+    for (Map.Entry<Runnable, Long> entry : fixedRateTasks.entrySet()) {
+      addFixedRateTask(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -208,8 +214,8 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    * @return the list of tasks (never {@code null})
    */
   public List<IntervalTask> getFixedRateTaskList() {
-    return (this.fixedRateTasks != null ? Collections.unmodifiableList(this.fixedRateTasks) :
-            Collections.emptyList());
+    return this.fixedRateTasks != null
+           ? Collections.unmodifiableList(this.fixedRateTasks) : Collections.emptyList();
   }
 
   /**
@@ -219,7 +225,9 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public void setFixedDelayTasks(Map<Runnable, Long> fixedDelayTasks) {
     this.fixedDelayTasks = new ArrayList<>();
-    fixedDelayTasks.forEach(this::addFixedDelayTask);
+    for (Map.Entry<Runnable, Long> entry : fixedDelayTasks.entrySet()) {
+      addFixedDelayTask(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -236,8 +244,8 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    * @return the list of tasks (never {@code null})
    */
   public List<IntervalTask> getFixedDelayTaskList() {
-    return (this.fixedDelayTasks != null ? Collections.unmodifiableList(this.fixedDelayTasks) :
-            Collections.emptyList());
+    return this.fixedDelayTasks != null
+           ? Collections.unmodifiableList(this.fixedDelayTasks) : Collections.emptyList();
   }
 
   /**
@@ -519,7 +527,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
       addFixedDelayTask(task);
       this.unresolvedTasks.put(task, scheduledTask);
     }
-    return (newTask ? scheduledTask : null);
+    return newTask ? scheduledTask : null;
   }
 
   /**

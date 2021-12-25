@@ -46,7 +46,7 @@ class TestGroupsCondition implements ExecutionCondition {
   @Override
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
     Optional<EnabledForTestGroups> optional = findAnnotation(context.getElement(), EnabledForTestGroups.class);
-    if (!optional.isPresent()) {
+    if (optional.isEmpty()) {
       return ENABLED_BY_DEFAULT;
     }
     TestGroup[] testGroups = optional.get().value();

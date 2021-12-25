@@ -42,6 +42,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
@@ -320,7 +321,8 @@ public class ScheduledAnnotationBeanPostProcessor
 
   private <T> T resolveSchedulerBean(BeanFactory beanFactory, Class<T> schedulerType, boolean byName) {
     if (byName) {
-      T scheduler = beanFactory.getBean(DEFAULT_TASK_SCHEDULER_BEAN_NAME, schedulerType);
+      T scheduler = BeanFactoryUtils.requiredBean(
+              beanFactory, DEFAULT_TASK_SCHEDULER_BEAN_NAME, schedulerType);
       if (this.beanName != null && this.beanFactory instanceof ConfigurableBeanFactory) {
         ((ConfigurableBeanFactory) this.beanFactory).registerDependentBean(
                 DEFAULT_TASK_SCHEDULER_BEAN_NAME, this.beanName);
@@ -335,7 +337,7 @@ public class ScheduledAnnotationBeanPostProcessor
       return holder.getBeanInstance();
     }
     else {
-      return beanFactory.getBean(schedulerType);
+      return BeanFactoryUtils.requiredBean(beanFactory, schedulerType);
     }
   }
 
@@ -357,7 +359,7 @@ public class ScheduledAnnotationBeanPostProcessor
     if (!this.nonAnnotatedClasses.contains(targetClass)
             && AnnotationUtils.isCandidateClass(targetClass, Arrays.asList(Scheduled.class, Schedules.class))) {
       Map<Method, Set<Scheduled>> annotatedMethods = MethodIntrospector.selectMethods(
-              targetClass, (MethodIntrospector.MetadataLookup<Set<Scheduled>>) method -> {
+              targetClass, method -> {
                 Set<Scheduled> scheduledAnnotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(
                         method, Scheduled.class, Schedules.class);
                 return (!scheduledAnnotations.isEmpty() ? scheduledAnnotations : null);
@@ -370,8 +372,12 @@ public class ScheduledAnnotationBeanPostProcessor
       }
       else {
         // Non-empty set of methods
-        annotatedMethods.forEach((method, scheduledAnnotations) ->
-                scheduledAnnotations.forEach(scheduled -> processScheduled(scheduled, method, bean)));
+        for (Map.Entry<Method, Set<Scheduled>> entry : annotatedMethods.entrySet()) {
+          Method method = entry.getKey();
+          for (Scheduled scheduled : entry.getValue()) {
+            processScheduled(scheduled, method, bean);
+          }
+        }
         if (log.isTraceEnabled()) {
           log.trace("{} @Scheduled methods processed on bean '{}': {}",
                   annotatedMethods.size(), beanName, annotatedMethods);
@@ -393,10 +399,8 @@ public class ScheduledAnnotationBeanPostProcessor
     try {
       Runnable runnable = createRunnable(bean, method);
       boolean processedSchedule = false;
-      String errorMessage =
-              "Exactly one of the 'cron', 'fixedDelay(String)', or 'fixedRate(String)' attributes is required";
 
-      Set<ScheduledTask> tasks = new LinkedHashSet<>(4);
+      LinkedHashSet<ScheduledTask> tasks = new LinkedHashSet<>(4);
 
       // Determine initial delay
       long initialDelay = convertToMillis(scheduled.initialDelay(), scheduled.timeUnit());
@@ -445,6 +449,9 @@ public class ScheduledAnnotationBeanPostProcessor
       if (initialDelay < 0) {
         initialDelay = 0;
       }
+
+      String errorMessage =
+              "Exactly one of the 'cron', 'fixedDelay(String)', or 'fixedRate(String)' attributes is required";
 
       // Check fixed delay
       long fixedDelay = convertToMillis(scheduled.fixedDelay(), scheduled.timeUnit());
@@ -502,7 +509,7 @@ public class ScheduledAnnotationBeanPostProcessor
       // Check whether we had any attribute set
       Assert.isTrue(processedSchedule, errorMessage);
 
-// Finally register the scheduled tasks
+      // Finally register the scheduled tasks
       synchronized(this.scheduledTasks) {
         Set<ScheduledTask> regTasks = this.scheduledTasks.computeIfAbsent(bean, key -> new LinkedHashSet<>(4));
         regTasks.addAll(tasks);
