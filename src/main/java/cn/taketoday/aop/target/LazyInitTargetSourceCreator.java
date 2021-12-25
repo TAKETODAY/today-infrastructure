@@ -22,7 +22,7 @@ package cn.taketoday.aop.target;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
 
 /**

@@ -25,13 +25,12 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
-import cn.taketoday.beans.factory.support.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
@@ -169,18 +168,6 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   public void registerAlias(String beanName, String alias) {
     registry.registerAlias(beanName, alias);
-  }
-
-  public void registerBeanDefinition(BeanDefinitionHolder holder) {
-    registerBeanDefinition(holder.getBeanDefinition());
-    // Register aliases for bean name, if any.
-    String[] aliases = holder.getAliases();
-    if (aliases != null) {
-      String beanName = holder.getBeanName();
-      for (String alias : aliases) {
-        registry.registerAlias(beanName, alias);
-      }
-    }
   }
 
   public void registerBeanDefinition(BeanDefinition definition) {

@@ -35,7 +35,6 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCreationNotAllowedException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.core.DefaultAliasRegistry;

@@ -24,23 +24,18 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.DefaultCacheKey;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
-import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.context.expression.CachedExpressionEvaluator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.expression.ExpressionContext;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
@@ -50,16 +45,13 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 13:39</a>
  * @since 4.0
  */
-public class CacheExpressionOperations {
+public class CacheExpressionOperations extends CachedExpressionEvaluator {
 
-  // @since 4.0
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
-
-  private ExpressionContext expressionContext;
-  private ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
-
-  static final ConcurrentReferenceHashMap<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentReferenceHashMap<>(128);
   static final ConcurrentReferenceHashMap<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentReferenceHashMap<>(128);
+
+  private final Map<ExpressionKey, ValueExpression> keyCache = new ConcurrentHashMap<>(64);
+  private final Map<ExpressionKey, ValueExpression> unlessCache = new ConcurrentHashMap<>(64);
+  private final Map<ExpressionKey, ValueExpression> conditionCache = new ConcurrentHashMap<>(64);
 
   static final Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 
@@ -86,14 +78,6 @@ public class CacheExpressionOperations {
     return configuration;
   };
 
-  public CacheExpressionOperations() {
-    this(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
-  }
-
-  public CacheExpressionOperations(ExpressionContext expressionContext) {
-    this.expressionContext = expressionContext;
-  }
-
   /**
    * Resolve {@link Annotation} from given {@link Annotation} {@link Class}
    *
@@ -111,10 +95,13 @@ public class CacheExpressionOperations {
    * @param invocation Target Method Invocation
    * @return Cache key
    */
-  public Object createKey(@Nullable String key, CacheExpressionContext ctx, MethodInvocation invocation) {
-    return StringUtils.isEmpty(key)
-           ? new DefaultCacheKey(invocation.getArguments())
-           : expressionFactory.createValueExpression(ctx, key, Object.class).getValue(ctx);
+  public Object createKey(
+          @Nullable String key, CacheEvaluationContext ctx, MethodInvocation invocation) {
+    if (StringUtils.isEmpty(key)) {
+      return new DefaultCacheKey(invocation.getArguments());
+    }
+    return getExpression(keyCache, ctx.getMethodKey(), key)
+            .getValue(ctx);
   }
 
   /**
@@ -124,10 +111,10 @@ public class CacheExpressionOperations {
    * @param context Cache EL Context
    * @return returns If pass the condition
    */
-  public boolean passCondition(@Nullable String condition, CacheExpressionContext context) {
+  public boolean passCondition(@Nullable String condition, CacheEvaluationContext context) {
     return StringUtils.isEmpty(condition) || //if its empty returns true
-            (Boolean) expressionFactory.createValueExpression(context, condition, Boolean.class)
-                    .getValue(context);
+            getExpression(conditionCache, context.getMethodKey(), condition)
+                    .getValue(context, boolean.class);
   }
 
   /**
@@ -137,66 +124,22 @@ public class CacheExpressionOperations {
    * @param result method return value
    * @param context Cache el context
    */
-  public boolean allowPutCache(@Nullable String unless, Object result, CacheExpressionContext context) {
+  public boolean allowPutCache(
+          @Nullable String unless, Object result, CacheEvaluationContext context) {
     if (StringUtils.isNotEmpty(unless)) {
-      context.putBean(Constant.KEY_RESULT, result);
-      return !(Boolean) expressionFactory.createValueExpression(context, unless, Boolean.class).getValue(context);
+      context.setVariable(Constant.KEY_RESULT, result);
+      return !getExpression(unlessCache, context.getMethodKey(), unless).getValue(context, Boolean.class);
     }
     return true;
   }
 
-  /**
-   * Prepare parameter names
-   *
-   * @param beans The mapping
-   * @param arguments Target {@link Method} parameters
-   */
-  public void prepareParameterNames(
-          MethodKey methodKey, Object[] arguments, Map<String, Object> beans) {
-    String[] names = ARGS_NAMES_CACHE.computeIfAbsent(methodKey, this::getParameterNames);
-    for (int i = 0; i < names.length; i++) {
-      beans.put(names[i], arguments[i]);
-    }
+  public CacheEvaluationContext prepareContext(MethodKey methodKey, MethodInvocation invocation) {
+    CacheEvaluationContext context = new CacheEvaluationContext(
+            invocation, invocation.getMethod(), invocation.getArguments(), parameterNameDiscoverer, methodKey);
+
+    // ${root.target} for target instance ${root.method}
+    context.setVariable(Constant.KEY_ROOT, invocation);
+    return context;
   }
 
-  private String[] getParameterNames(MethodKey target) {
-    return parameterNameDiscoverer.getParameterNames(target.targetMethod);
-  }
-
-  public CacheExpressionContext prepareContext(
-          MethodKey methodKey, MethodInvocation invocation) {
-    HashMap<String, Object> beans = new HashMap<>();
-    prepareParameterNames(methodKey, invocation.getArguments(), beans);
-    beans.put(Constant.KEY_ROOT, invocation);// ${root.target} for target instance ${root.method}
-    return new CacheExpressionContext(expressionContext, beans);
-  }
-
-  //
-
-  public void setExpressionFactory(ExpressionFactory expressionFactory) {
-    Assert.notNull(expressionFactory, "'expressionFactory' is required");
-    this.expressionFactory = expressionFactory;
-  }
-
-  public ExpressionFactory getExpressionFactory() {
-    return expressionFactory;
-  }
-
-  public void setExpressionContext(ExpressionContext expressionContext) {
-    Assert.notNull(expressionContext, "shared ExpressionContext is required");
-    this.expressionContext = expressionContext;
-  }
-
-  public ExpressionContext getExpressionContext() {
-    return expressionContext;
-  }
-
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    Assert.notNull(parameterNameDiscoverer, "ParameterNameDiscoverer is required");
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  public ParameterNameDiscoverer getParameterNameDiscoverer() {
-    return parameterNameDiscoverer;
-  }
 }

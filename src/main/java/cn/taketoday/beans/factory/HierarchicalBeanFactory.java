@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -33,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author TODAY 2021/9/28 21:21
- * @see cn.taketoday.beans.factory.ConfigurableBeanFactory#setParentBeanFactory
+ * @see ConfigurableBeanFactory#setParentBeanFactory
  * @since 4.0
  */
 public interface HierarchicalBeanFactory extends BeanFactory {

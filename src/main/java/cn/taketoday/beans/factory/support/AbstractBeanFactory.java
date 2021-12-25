@@ -44,7 +44,6 @@ import cn.taketoday.beans.factory.BeanIsNotAFactoryException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
@@ -128,6 +127,7 @@ public abstract class AbstractBeanFactory
   private BeanFactory parentBeanFactory;
 
   /** ClassLoader to resolve bean class names with, if necessary. @since 4.0 */
+  @Nullable
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /** ClassLoader to temporarily resolve bean class names with, if necessary. */
@@ -135,7 +135,12 @@ public abstract class AbstractBeanFactory
   private ClassLoader tempClassLoader;
 
   // @since 4.0 for bean-property conversion
+  @Nullable
   private ConversionService conversionService;
+
+  /** Resolution strategy for expressions in bean definition values. */
+  @Nullable
+  private BeanExpressionResolver beanExpressionResolver;
 
   // @since 4.0
   private boolean autoInferDestroyMethod = true;
@@ -1139,6 +1144,17 @@ public abstract class AbstractBeanFactory
     return conversionService;
   }
 
+  @Override
+  public void setBeanExpressionResolver(@Nullable BeanExpressionResolver resolver) {
+    this.beanExpressionResolver = resolver;
+  }
+
+  @Override
+  @Nullable
+  public BeanExpressionResolver getBeanExpressionResolver() {
+    return this.beanExpressionResolver;
+  }
+
   public boolean isAutoInferDestroyMethod() {
     return autoInferDestroyMethod;
   }
@@ -1174,8 +1190,11 @@ public abstract class AbstractBeanFactory
   @Override
   public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
     Assert.notNull(otherFactory, "BeanFactory must not be null");
+
     setBeanClassLoader(otherFactory.getBeanClassLoader());
     setConversionService(otherFactory.getConversionService());
+    setBeanExpressionResolver(otherFactory.getBeanExpressionResolver());
+
     if (otherFactory instanceof AbstractBeanFactory beanFactory) {
       setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
@@ -1657,6 +1676,32 @@ public abstract class AbstractBeanFactory
       }
     }
     return result;
+  }
+
+  /**
+   * Evaluate the given String as contained in a bean definition,
+   * potentially resolving it as an expression.
+   *
+   * @param value the value to check
+   * @param beanDefinition the bean definition that the value comes from
+   * @return the resolved value
+   * @see #setBeanExpressionResolver
+   */
+  @Nullable
+  protected Object evaluateBeanDefinitionString(
+          @Nullable String value, @Nullable BeanDefinition beanDefinition) {
+    if (this.beanExpressionResolver == null) {
+      return value;
+    }
+
+    Scope scope = null;
+    if (beanDefinition != null) {
+      String scopeName = beanDefinition.getScope();
+      if (scopeName != null) {
+        scope = getRegisteredScope(scopeName);
+      }
+    }
+    return this.beanExpressionResolver.evaluate(value, new BeanExpressionContext(this, scope));
   }
 
   protected final static class BeanPostProcessors {

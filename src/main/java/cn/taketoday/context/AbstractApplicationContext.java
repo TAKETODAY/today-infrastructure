@@ -32,18 +32,18 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
@@ -59,6 +59,7 @@ import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.ContextStoppedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.context.support.DelegatingMessageSource;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -561,6 +562,8 @@ public abstract class AbstractApplicationContext
     log.info("Preparing internal bean-factory");
     // Tell the internal bean factory to use the context's class loader etc.
     beanFactory.setBeanClassLoader(getClassLoader());
+    beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
+
     // Configure the bean factory with context callbacks.
     beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     // Register early post-processor for detecting inner beans as ApplicationListeners.

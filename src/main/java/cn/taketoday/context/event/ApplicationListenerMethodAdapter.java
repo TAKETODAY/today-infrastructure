@@ -28,14 +28,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventObject;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -45,9 +44,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -60,8 +57,8 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @author TODAY 2021/11/5 11:51
  * @since 4.0
  */
-public class MethodApplicationListener implements GenericApplicationListener<Object>, Ordered {
-  private static final Logger log = LoggerFactory.getLogger(MethodApplicationListener.class);
+public class ApplicationListenerMethodAdapter implements GenericApplicationListener<Object>, Ordered {
+  private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
   private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
           "org.reactivestreams.Publisher", MethodEventDrivenPostProcessor.class.getClassLoader());
@@ -70,7 +67,7 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
   private MethodInvoker methodInvoker;
 
   private ApplicationContext context;
-  private ExpressionEvaluator evaluator;
+  private EventExpressionEvaluator evaluator;
   private ArgumentsResolver argumentsResolver;
 
   @Nullable
@@ -84,6 +81,8 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
 
   private final List<ResolvableType> declaredEventTypes;
 
+  private final AnnotatedElementKey methodKey;
+
   /**
    * Construct a new MethodApplicationListener.
    *
@@ -91,10 +90,11 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
    * @param targetClass the target class that the method is declared on
    * @param method the listener method to invoke
    */
-  public MethodApplicationListener(String beanName, Class<?> targetClass, Method method) {
+  public ApplicationListenerMethodAdapter(String beanName, Class<?> targetClass, Method method) {
     this.beanName = beanName;
     this.targetMethod = !Proxy.isProxyClass(targetClass)
                         ? AopUtils.getMostSpecificMethod(method, targetClass) : method;
+    this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
 
     MergedAnnotations annotations = MergedAnnotations.from(targetMethod);
 
@@ -109,11 +109,12 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
             .filter(StringUtils::hasText)
             .orElse(null);
     this.listenerId = annotation.isPresent() ? annotation.getString("id") : null;
+
   }
 
-  protected void init(ApplicationContext context) {
+  protected void init(ApplicationContext context, EventExpressionEvaluator evaluator) {
     this.context = context;
-    this.evaluator = context.getExpressionEvaluator();
+    this.evaluator = evaluator;
     this.argumentsResolver = targetMethod.getParameterCount() == 0
                              ? null
                              : context.getArgumentsResolver();
@@ -222,25 +223,10 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
 
   private boolean shouldInvoke(Object event, @Nullable Object[] args) {
     if (condition != null) {
-      ExpressionContext parentExpressionContext = evaluator.getParentExpressionContext();
-      HashMap<String, Object> beans = new HashMap<>();
-      // TODO condition args name mapping
-      beans.put(Constant.KEY_ROOT, new EventRootObject(event, args));
-      EventExpressionContext context = new EventExpressionContext(parentExpressionContext, beans);
-      return evaluator.evaluate(condition, context, boolean.class);
+      return evaluator.condition(
+              condition, event, targetMethod, methodKey, args, context);
     }
     return true;
-  }
-
-  record EventRootObject(Object event, Object[] args) {
-
-    public Object getEvent() {
-      return event;
-    }
-
-    public Object[] getArgs() {
-      return args;
-    }
   }
 
   @Nullable
@@ -310,7 +296,7 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
 
   private static class ReactiveDelegate {
 
-    public static boolean subscribeToPublisher(MethodApplicationListener listener, Object result) {
+    public static boolean subscribeToPublisher(ApplicationListenerMethodAdapter listener, Object result) {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(result.getClass());
       if (adapter != null) {
         adapter.toPublisher(result).subscribe(new EventPublicationSubscriber(listener));
@@ -320,7 +306,7 @@ public class MethodApplicationListener implements GenericApplicationListener<Obj
     }
   }
 
-  private static record EventPublicationSubscriber(MethodApplicationListener listener)
+  private static record EventPublicationSubscriber(ApplicationListenerMethodAdapter listener)
           implements Subscriber<Object> {
 
     @Override

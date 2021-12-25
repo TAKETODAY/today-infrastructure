@@ -25,7 +25,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;
 

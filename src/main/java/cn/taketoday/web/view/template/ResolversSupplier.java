@@ -24,7 +24,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import cn.taketoday.expression.CompositeExpressionResolver;
+import cn.taketoday.expression.ExpressionResolverComposite;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.lang.Constant;
@@ -41,7 +41,7 @@ import cn.taketoday.web.servlet.ServletRequestModelAdapter;
 public class ResolversSupplier {
 
   public ExpressionResolver getResolvers(ExpressionContext sharedContext, RequestContext context) {
-    return new CompositeExpressionResolver(
+    return new ExpressionResolverComposite(
             new ModelAttributeResolver(context),
             sharedContext.getResolver()
     );
@@ -83,7 +83,7 @@ final class ServletResolversSupplier extends ResolversSupplier {
 
       if (session != null) {
         final HttpSessionModelAdapter httpSessionModelAdapter = new HttpSessionModelAdapter(session);
-        return new CompositeExpressionResolver(
+        return new ExpressionResolverComposite(
                 new ModelAttributeResolver(context),
                 new ModelAttributeResolver(servletRequestModelAdapter), // 1
                 new ModelAttributeResolver(httpSessionModelAdapter), // 2
@@ -92,7 +92,7 @@ final class ServletResolversSupplier extends ResolversSupplier {
         );
       }
 
-      return new CompositeExpressionResolver(
+      return new ExpressionResolverComposite(
               new ModelAttributeResolver(context),
               new ModelAttributeResolver(servletRequestModelAdapter), // 1
               new ModelAttributeResolver(servletContextModelAdapter), // 2

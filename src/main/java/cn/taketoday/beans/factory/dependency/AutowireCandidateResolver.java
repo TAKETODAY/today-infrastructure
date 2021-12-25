@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.dependency;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.support.BeanUtils;
@@ -106,7 +107,7 @@ public interface AutowireCandidateResolver {
    * return {@code this} (as in {@link SimpleAutowireCandidateResolver}).
    *
    * @see GenericTypeAwareAutowireCandidateResolver#cloneIfNecessary()
-   * @see cn.taketoday.beans.factory.ConfigurableBeanFactory#copyConfigurationFrom
+   * @see ConfigurableBeanFactory#copyConfigurationFrom
    */
   default AutowireCandidateResolver cloneIfNecessary() {
     return BeanUtils.newInstance(getClass());

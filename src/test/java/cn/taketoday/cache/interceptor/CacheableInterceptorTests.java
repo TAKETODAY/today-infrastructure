@@ -35,10 +35,8 @@ import cn.taketoday.cache.NoSuchCacheException;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.lang.Singleton;
 import test.demo.config.User;
 
@@ -54,7 +52,6 @@ class CacheableInterceptorTests {
   @Test
   void cacheableAttributes() throws Exception {
     CacheExpressionOperations operations = new CacheExpressionOperations();
-    operations.setExpressionContext(new StandardExpressionContext(ExpressionFactory.getSharedInstance()));
 
     CaffeineCacheManager cacheManager = new CaffeineCacheManager();
     CacheableInterceptor interceptor = new CacheableInterceptor(cacheManager);

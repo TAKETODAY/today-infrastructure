@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author Juergen Hoeller
  */
@@ -67,6 +69,12 @@ public class SimpleMapScope implements cn.taketoday.beans.factory.Scope, Seriali
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
     this.callbacks.add(callback);
+  }
+
+  @Nullable
+  @Override
+  public Object resolveContextualObject(String key) {
+    return null;
   }
 
   public void close() {

@@ -27,8 +27,6 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.PropertyOverrideConfigurer;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.io.PropertiesLoaderSupport;

@@ -27,10 +27,10 @@ import cn.taketoday.lang.Nullable;
  * that of a parent object.
  *
  * @author Rob Harrop
- * @see org.springframework.beans.factory.support.ManagedSet
- * @see org.springframework.beans.factory.support.ManagedList
- * @see org.springframework.beans.factory.support.ManagedMap
- * @see org.springframework.beans.factory.support.ManagedProperties
+ * @see cn.taketoday.beans.factory.support.ManagedSet
+ * @see cn.taketoday.beans.factory.support.ManagedList
+ * @see cn.taketoday.beans.factory.support.ManagedMap
+ * @see cn.taketoday.beans.factory.support.ManagedProperties
  * @since 4.0
  */
 public interface Mergeable {

@@ -42,6 +42,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -352,6 +353,12 @@ public class ScopingTests {
     @Override
     public void registerDestructionCallback(String name, Runnable callback) {
       throw new IllegalStateException("Not supposed to be called");
+    }
+
+    @Nullable
+    @Override
+    public Object resolveContextualObject(String key) {
+      return null;
     }
 
     @Override

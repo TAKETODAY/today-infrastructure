@@ -20,7 +20,7 @@
 package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;

@@ -32,8 +32,8 @@ import cn.taketoday.aop.proxy.ProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanInitializationException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
@@ -69,6 +69,8 @@ public class MethodEventDrivenPostProcessor
   private List<EventListenerFactory> eventListenerFactories;
 
   private ConfigurableBeanFactory beanFactory;
+
+  private final EventExpressionEvaluator evaluator = new EventExpressionEvaluator();
 
   private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
@@ -146,8 +148,8 @@ public class MethodEventDrivenPostProcessor
               Method methodToUse = AopUtils.selectInvocableMethod(method, beanFactory.getType(beanName));
               ApplicationListener<?> listener =
                       factory.createApplicationListener(beanName, targetType, methodToUse);
-              if (listener instanceof MethodApplicationListener) {
-                ((MethodApplicationListener) listener).init(context);
+              if (listener instanceof ApplicationListenerMethodAdapter) {
+                ((ApplicationListenerMethodAdapter) listener).init(context, evaluator);
               }
               context.addApplicationListener(listener);
               break;

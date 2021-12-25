@@ -199,6 +199,7 @@ public final class TodayStrategies extends StrategiesDetector {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
+  @Nullable
   public static Integer getInteger(String key) {
     return getInteger(key, null);
   }
@@ -245,7 +246,7 @@ public final class TodayStrategies extends StrategiesDetector {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
-  public static Integer getInteger(String key, int val) {
+  public static int getInt(String key, int val) {
     Integer result = getInteger(key, null);
     return (result == null) ? Integer.valueOf(val) : result;
   }
@@ -287,7 +288,8 @@ public final class TodayStrategies extends StrategiesDetector {
    * @see System#getProperty(java.lang.String, java.lang.String)
    * @see Integer#decode(String)
    */
-  public static Integer getInteger(String key, Integer val) {
+  @Nullable
+  public static Integer getInteger(String key, @Nullable Integer val) {
     String v = null;
     try {
       v = getProperty(key);

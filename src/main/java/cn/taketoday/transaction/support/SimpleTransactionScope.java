@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -35,12 +36,12 @@ import cn.taketoday.lang.Nullable;
  * <p><b>NOTE:</b> Like {@link cn.taketoday.beans.factory.SimpleThreadScope},
  * this transaction scope is not registered by default in common contexts. Instead,
  * you need to explicitly assign it to a scope key in your setup, either through
- * {@link cn.taketoday.beans.factory.ConfigurableBeanFactory#registerScope}
+ * {@link ConfigurableBeanFactory#registerScope}
  * or through a {@link cn.taketoday.beans.factory.CustomScopeConfigurer} bean.
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.beans.factory.SimpleThreadScope
- * @see cn.taketoday.beans.factory.ConfigurableBeanFactory#registerScope
+ * @see ConfigurableBeanFactory#registerScope
  * @see cn.taketoday.beans.factory.CustomScopeConfigurer
  * @since 4.0
  */
@@ -83,6 +84,12 @@ public class SimpleTransactionScope implements Scope {
     if (scopedObjects != null) {
       scopedObjects.destructionCallbacks.put(name, callback);
     }
+  }
+
+  @Nullable
+  @Override
+  public Object resolveContextualObject(String key) {
+    return null;
   }
 
   @Override

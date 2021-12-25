@@ -37,12 +37,11 @@ import cn.taketoday.cache.interceptor.CacheExpressionOperations;
 import cn.taketoday.cache.interceptor.CachePutInterceptor;
 import cn.taketoday.cache.interceptor.CacheableInterceptor;
 import cn.taketoday.cache.interceptor.DefaultCacheExceptionResolver;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.lang.Component;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
 
@@ -57,7 +56,7 @@ public @interface EnableCaching {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @DisableAllDependencyInjection
 class ProxyCachingConfiguration {
 
@@ -98,7 +97,8 @@ class ProxyCachingConfiguration {
   @ConditionalOnMissingBean
   @Advice(CacheEvict.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager, CacheExpressionOperations operations) {
+  CacheEvictInterceptor cacheEvictInterceptor(
+          CacheManager cacheManager, CacheExpressionOperations operations) {
     CacheEvictInterceptor cacheEvictInterceptor = new CacheEvictInterceptor(cacheManager);
     cacheEvictInterceptor.setExpressionOperations(operations);
     return cacheEvictInterceptor;
@@ -113,8 +113,8 @@ class ProxyCachingConfiguration {
 
   @Singleton
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  CacheExpressionOperations cacheExpressionOperations(ExpressionContext context) {
-    return new CacheExpressionOperations(context);
+  CacheExpressionOperations cacheExpressionOperations() {
+    return new CacheExpressionOperations();
   }
 
 }

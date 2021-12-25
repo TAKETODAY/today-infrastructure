@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.lang.Nullable;
+
 /**
  * A simple thread-backed {@link Scope} implementation.
  *
@@ -62,6 +65,17 @@ public class SimpleThreadScope implements Scope {
       scope.put(beanName, scopedObject);
     }
     return scopedObject;
+  }
+
+  @Override
+  @Nullable
+  public Object resolveContextualObject(String key) {
+    return null;
+  }
+
+  @Override
+  public String getConversationId() {
+    return Thread.currentThread().getName();
   }
 
 }

@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;

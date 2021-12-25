@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 

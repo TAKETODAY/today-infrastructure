@@ -24,9 +24,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.GenericApplicationListener;
-import cn.taketoday.context.event.MethodApplicationListener;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
@@ -51,7 +51,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @since 4.0
  */
 public class TransactionalApplicationListenerMethodAdapter
-        extends MethodApplicationListener
+        extends ApplicationListenerMethodAdapter
         implements TransactionalApplicationListener<Object> {
   private static final Logger log = LoggerFactory.getLogger(TransactionalApplicationListenerMethodAdapter.class);
 

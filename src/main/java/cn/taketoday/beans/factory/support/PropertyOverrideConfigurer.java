@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.PropertyValue;
 
 /**

@@ -28,7 +28,7 @@ import java.security.ProtectionDomain;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.classloading.InstrumentationLoadTimeWeaver;
 import cn.taketoday.context.classloading.LoadTimeWeaver;
 import cn.taketoday.core.Ordered;

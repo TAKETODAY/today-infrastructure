@@ -18,40 +18,36 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.proxy;
+package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Auto-proxy creator that considers infrastructure Advisor beans only,
- * ignoring any application-defined Advisors.
+ * Strategy interface for resolving a value through evaluating it
+ * as an expression, if applicable.
+ *
+ * <p>A raw {@link BeanFactory} does not
+ * contain a default implementation of this strategy. However,
+ * {@link cn.taketoday.context.ApplicationContext} implementations
+ * will provide expression support out of the box.
  *
  * @author Juergen Hoeller
  * @since 4.0
  */
-@SuppressWarnings("serial")
-public class InfrastructureAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
+public interface BeanExpressionResolver {
 
+  /**
+   * Evaluate the given value as an expression, if applicable;
+   * return the value as-is otherwise.
+   *
+   * @param value the value to check
+   * @param evalContext the evaluation context
+   * @return the resolved value (potentially the given value as-is)
+   * @throws BeansException if evaluation failed
+   */
   @Nullable
-  private ConfigurableBeanFactory beanFactory;
-
-  @Override
-  protected void initBeanFactory(ConfigurableBeanFactory beanFactory) {
-    super.initBeanFactory(beanFactory);
-    this.beanFactory = beanFactory;
-  }
-
-  @Override
-  protected boolean isEligibleAdvisorBean(String beanName) {
-    if (beanFactory != null) {
-      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
-      if (definition != null) {
-        return definition.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE;
-      }
-    }
-    return false;
-  }
+  Object evaluate(@Nullable String value, BeanExpressionContext evalContext) throws BeansException;
 
 }

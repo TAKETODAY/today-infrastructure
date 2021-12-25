@@ -24,7 +24,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.CacheValueRetrievalException;
 import cn.taketoday.cache.annotation.CacheConfiguration;
@@ -54,9 +53,10 @@ public class CacheableInterceptor extends AbstractCacheInterceptor {
     Method method = invocation.getMethod();
     MethodKey methodKey = new MethodKey(method, Cacheable.class);
     CacheConfiguration cacheable = expressionOperations.getConfig(methodKey);
-    CacheExpressionContext context = expressionOperations.prepareContext(methodKey, invocation);
 
-    if (expressionOperations.passCondition(cacheable.condition(), context)) {// pass the condition
+    CacheEvaluationContext context = expressionOperations.prepareContext(methodKey, invocation);
+    if (expressionOperations.passCondition(cacheable.condition(), context)) {
+      // pass the condition
       Cache cache = obtainCache(method, cacheable);
       Object key = expressionOperations.createKey(cacheable.key(), context, invocation);
       if (cacheable.sync()) { // for sync

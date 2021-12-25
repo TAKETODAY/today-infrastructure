@@ -29,7 +29,7 @@ import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 import cn.taketoday.aop.target.SimpleBeanTargetSource;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.FactoryBeanNotInitializedException;
 import cn.taketoday.lang.Assert;

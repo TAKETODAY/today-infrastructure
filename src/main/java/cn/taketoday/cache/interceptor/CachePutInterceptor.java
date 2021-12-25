@@ -23,7 +23,6 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
@@ -60,9 +59,9 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
     Method method = invocation.getMethod();
     MethodKey methodKey = new MethodKey(method, CachePut.class);
     CacheConfiguration cachePut = expressionOperations.getConfig(methodKey);
-    CacheExpressionContext context = expressionOperations.prepareContext(methodKey, invocation);
+    CacheEvaluationContext context = expressionOperations.prepareContext(methodKey, invocation);
     // use ${result.xxx}
-    context.putBean(Constant.KEY_RESULT, result);
+    context.setVariable(Constant.KEY_RESULT, result);
     if (expressionOperations.passCondition(cachePut.condition(), context)) {
       Object key = expressionOperations.createKey(cachePut.key(), context, invocation);
       put(obtainCache(method, cachePut), key, result);

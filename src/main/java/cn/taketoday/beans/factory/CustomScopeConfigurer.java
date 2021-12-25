@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;

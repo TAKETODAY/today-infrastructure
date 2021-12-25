@@ -18,44 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.event;
+package cn.taketoday.cache.interceptor;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.Ordered;
+import cn.taketoday.context.expression.MethodBasedEvaluationContext;
+import cn.taketoday.core.ParameterNameDiscoverer;
 
 /**
- * Default {@link EventListenerFactory} implementation that supports the
- * regular {@link EventListener} annotation.
- *
- * <p>Used as "catch-all" implementation by default.
- *
- * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ApplicationListenerMethodAdapter
- * @since 4.0 2021/12/8 21:50
+ * @since 4.0 2021/12/26 00:00
  */
-public class DefaultEventListenerFactory implements EventListenerFactory, Ordered {
+final class CacheEvaluationContext extends MethodBasedEvaluationContext {
+  private final MethodKey methodKey;
 
-  private int order = LOWEST_PRECEDENCE;
-
-  public void setOrder(int order) {
-    this.order = order;
+  public CacheEvaluationContext(
+          Object rootObject, Method method, Object[] arguments,
+          ParameterNameDiscoverer parameterNameDiscoverer, MethodKey methodKey) {
+    super(rootObject, method, arguments, parameterNameDiscoverer);
+    this.methodKey = methodKey;
   }
 
-  @Override
-  public int getOrder() {
-    return this.order;
-  }
-
-  @Override
-  public boolean supportsMethod(Method method) {
-    return true;
-  }
-
-  @Override
-  public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
-    return new ApplicationListenerMethodAdapter(beanName, type, method);
+  public MethodKey getMethodKey() {
+    return methodKey;
   }
 
 }

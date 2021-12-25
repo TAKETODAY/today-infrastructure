@@ -28,6 +28,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.ArgumentsResolverProvider;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;

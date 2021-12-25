@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.event.MethodApplicationListener;
+import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.transaction.support.TransactionSynchronization;
@@ -134,7 +134,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   private static void supportsEventType(boolean match, Method method, ResolvableType eventType) {
-    MethodApplicationListener adapter = createTestInstance(method);
+    ApplicationListenerMethodAdapter adapter = createTestInstance(method);
     assertThat(adapter.supportsEventType(eventType)).as("Wrong match for event '" + eventType + "' on " + method).isEqualTo(match);
   }
 

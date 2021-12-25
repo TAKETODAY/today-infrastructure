@@ -17,22 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.expression;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.expression.BeanNameExpressionResolver;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
+package cn.taketoday.beans.factory;
 
 /**
- * @author TODAY <br>
- * 2019-02-21 19:41
+ * Exception that indicates an expression evaluation attempt having failed.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/12/25 15:05
  */
-public class ValueExpressionContext extends StandardExpressionContext {
+@SuppressWarnings("serial")
+public class BeanExpressionException extends BeansException {
 
-  public ValueExpressionContext(ExpressionFactory exprFactory, BeanFactory beanFactory) {
-    super(exprFactory);
-    addResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
+  /**
+   * Create a new BeanExpressionException with the specified message.
+   *
+   * @param msg the detail message
+   */
+  public BeanExpressionException(String msg) {
+    super(msg);
+  }
+
+  /**
+   * Create a new BeanExpressionException with the specified message
+   * and root cause.
+   *
+   * @param msg the detail message
+   * @param cause the root cause
+   */
+  public BeanExpressionException(String msg, Throwable cause) {
+    super(msg, cause);
   }
 
 }

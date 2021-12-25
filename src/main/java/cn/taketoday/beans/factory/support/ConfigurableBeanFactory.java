@@ -15,10 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.HierarchicalBeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
@@ -178,6 +187,24 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    */
   @Nullable
   ConversionService getConversionService();
+
+  /**
+   * Specify the resolution strategy for expressions in bean definition values.
+   * <p>There is no expression support active in a BeanFactory by default.
+   * An ApplicationContext will typically set a standard expression strategy
+   * here, supporting "#{...}" expressions in a Unified EL compatible style.
+   *
+   * @since 4.0
+   */
+  void setBeanExpressionResolver(@Nullable BeanExpressionResolver resolver);
+
+  /**
+   * Return the resolution strategy for expressions in bean definition values.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  BeanExpressionResolver getBeanExpressionResolver();
 
   /**
    * Set the class loader to use for loading bean classes.

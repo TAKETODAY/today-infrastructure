@@ -23,7 +23,7 @@ package cn.taketoday.aop.scope;
 import java.io.Serializable;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -36,7 +36,7 @@ import cn.taketoday.lang.Assert;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.beans.factory.BeanFactory#getBean
- * @see cn.taketoday.beans.factory.ConfigurableBeanFactory#destroyScopedBean
+ * @see ConfigurableBeanFactory#destroyScopedBean
  * @since 4.0
  */
 @SuppressWarnings("serial")

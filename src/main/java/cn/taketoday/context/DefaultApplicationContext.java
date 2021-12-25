@@ -32,6 +32,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
@@ -111,7 +112,7 @@ public class DefaultApplicationContext
    * Set the parent of this application context, also setting
    * the parent of the internal BeanFactory accordingly.
    *
-   * @see cn.taketoday.beans.factory.ConfigurableBeanFactory#setParentBeanFactory
+   * @see ConfigurableBeanFactory#setParentBeanFactory
    */
   @Override
   public void setParent(@Nullable ApplicationContext parent) {

@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+
 /**
  * Extension of the {@link FactoryBean} interface. Implementations may
  * indicate whether they always return independent instances, for the

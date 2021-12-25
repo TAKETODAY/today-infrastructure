@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -135,6 +136,18 @@ public interface Scope {
    * @see DestructionBeanPostProcessor
    */
   void registerDestructionCallback(String name, Runnable callback);
+
+  /**
+   * Resolve the contextual object for the given key, if any.
+   * E.g. the HttpServletRequest object for key "request".
+   *
+   * @param key the contextual key
+   * @return the corresponding object, or {@code null} if none found
+   * @throws IllegalStateException if the underlying scope is not currently active
+   * @since 4.0
+   */
+  @Nullable
+  Object resolveContextualObject(String key);
 
   /**
    * Return the <em>conversation ID</em> for the current underlying scope, if any.

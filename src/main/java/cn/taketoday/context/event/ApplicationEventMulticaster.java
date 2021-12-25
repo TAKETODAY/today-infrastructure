@@ -82,7 +82,7 @@ public interface ApplicationEventMulticaster {
   /**
    * Remove all matching listeners from the set of registered
    * {@code ApplicationListener} instances (which includes adapter classes
-   * such as {@link MethodApplicationListener}, e.g. for annotated
+   * such as {@link ApplicationListenerMethodAdapter}, e.g. for annotated
    * {@link EventListener} methods).
    * <p>Note: This just applies to instance registrations, not to listeners
    * registered by bean name.
