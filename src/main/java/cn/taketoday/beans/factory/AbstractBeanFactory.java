@@ -821,6 +821,9 @@ public abstract class AbstractBeanFactory
       }
     }, ReflectionUtils.USER_DECLARED_METHODS);
 
+    if (candidates.isEmpty()) {
+      return null;
+    }
     if (candidates.size() > 1) {
       candidates.sort((o1, o2) -> {
         // static first, parameter
