@@ -40,11 +40,11 @@ import java.util.List;
  *
  * <p>
  * <code>ELResolver</code>s are combined together using
- * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating an
+ * {@link ExpressionResolverComposite}s, to define rich semantics for evaluating an
  * expression. See the javadocs for {@link ExpressionResolver} for details.
  * </p>
  *
- * @see CompositeExpressionResolver
+ * @see ExpressionResolverComposite
  * @see ExpressionResolver
  * @see java.util.List
  * @since JSP 2.1

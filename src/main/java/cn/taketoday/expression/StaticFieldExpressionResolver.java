@@ -133,12 +133,13 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * @param property The name of the field
    * @param value The value to set the field of the class to.
    * @throws NullPointerException if context is <code>null</code>
-   * @throws PropertyNotWritableException
+   * @throws PropertyNotWritableException Cannot write to
    */
   @Override
   public void setValue(ExpressionContext context, Object base, Object property, Object value) {
     if (base instanceof Class<?> klass && property instanceof String fieldName) {
-      throw new PropertyNotWritableException("Cannot write to the field '" + klass.getName() + "' of the class '" + fieldName + "'");
+      throw new PropertyNotWritableException(
+              "Cannot write to the field '" + klass.getName() + "' of the class '" + fieldName + "'");
     }
   }
 
@@ -242,7 +243,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
       }
       catch (NoSuchFieldException ex) {
         throw new PropertyNotFoundException("Either '" + ((Class<?>) base).getName() + //
-                                                    "' is not a public static field of the class '" + property + "' or field is inaccessible");
+                "' is not a public static field of the class '" + property + "' or field is inaccessible");
       }
     }
     return null;

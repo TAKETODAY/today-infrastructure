@@ -40,7 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.ValueReference;
@@ -101,7 +100,7 @@ public interface Node {
 
   boolean isReadOnly(EvaluationContext ctx) throws ExpressionException;
 
-  void accept(NodeVisitor visitor, ExpressionContext context) throws ExpressionException;
+  void accept(NodeVisitor visitor) throws ExpressionException;
 
   MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException;
 

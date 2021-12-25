@@ -56,19 +56,19 @@ import cn.taketoday.util.CollectionUtils;
  * @see ExpressionResolver
  * @since JSP 2.1
  */
-public class CompositeExpressionResolver extends ExpressionResolver implements ArraySizeTrimmer {
+public class ExpressionResolverComposite extends ExpressionResolver implements ArraySizeTrimmer {
 
   private final ArrayList<ExpressionResolver> elResolvers;
 
-  public CompositeExpressionResolver() {
-    this(6);
+  public ExpressionResolverComposite() {
+    this.elResolvers = new ArrayList<>();
   }
 
-  public CompositeExpressionResolver(int size) {
+  public ExpressionResolverComposite(int size) {
     this.elResolvers = new ArrayList<>(size);
   }
 
-  public CompositeExpressionResolver(ExpressionResolver... resolvers) {
+  public ExpressionResolverComposite(ExpressionResolver... resolvers) {
     this.elResolvers = new ArrayList<>(resolvers.length);
     CollectionUtils.addAll(elResolvers, resolvers);
   }

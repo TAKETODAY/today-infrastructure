@@ -40,10 +40,12 @@
 
 package cn.taketoday.expression;
 
+import java.io.Serial;
+
+import cn.taketoday.expression.lang.CachedExpressionBuilder;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.parser.Node;
-
-import java.io.Serial;
+import cn.taketoday.lang.Nullable;
 
 /**
  * An <code>Expression</code> that refers to a method on an object.
@@ -88,18 +90,28 @@ public final class MethodExpressionImpl extends MethodExpression {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private Node node;
+  private transient Node node;
   private final String expr;
   private final Class<?>[] paramTypes;
   private final Class<?> expectedType;
 
+  @Nullable
+  private final FunctionMapper fnMapper;
+
+  @Nullable
+  private final VariableMapper varMapper;
+
   public MethodExpressionImpl() {
-    this(null, null, null, null);
+    this(null, null, null, null, null, null);
   }
 
-  public MethodExpressionImpl(String expr, Node node, Class<?>[] paramTypes, Class<?> expectedType) {
+  public MethodExpressionImpl(
+          String expr, Node node, FunctionMapper fnMapper,
+          VariableMapper varMapper, Class<?>[] paramTypes, Class<?> expectedType) {
     this.expr = expr;
     this.node = node;
+    this.fnMapper = fnMapper;
+    this.varMapper = varMapper;
     this.paramTypes = paramTypes;
     this.expectedType = expectedType;
   }
@@ -145,15 +157,14 @@ public final class MethodExpressionImpl extends MethodExpression {
    * @see cn.taketoday.expression.MethodExpression#getMethodInfo(cn.taketoday.expression.ExpressionContext)
    */
   public MethodInfo getMethodInfo(ExpressionContext context) {
-    return getNode().getMethodInfo(new EvaluationContext(context), this.paramTypes);
+    return getNode().getMethodInfo(new EvaluationContext(context, fnMapper, varMapper), this.paramTypes);
   }
 
   private Node getNode() throws ExpressionException {
-    final Node node = this.node;
-    if (node == null) {
-      return this.node = ExpressionFactory.createNode(this.expr);
+    if (this.node == null) {
+      this.node = CachedExpressionBuilder.getNode(this.expr);
     }
-    return node;
+    return this.node;
   }
 
   /**
@@ -201,7 +212,7 @@ public final class MethodExpressionImpl extends MethodExpression {
    * @see MethodExpression#invoke(ExpressionContext, Object[])
    */
   public Object invoke(final ExpressionContext context, Object[] params) {
-    Object value = getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
+    Object value = getNode().invoke(new EvaluationContext(context, fnMapper, varMapper), this.paramTypes, params);
     if (value != null && expectedType != null && !expectedType.isInstance(value)) {
       try {
         value = context.convertToType(value, expectedType);

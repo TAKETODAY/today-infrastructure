@@ -40,7 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 
 /**
@@ -49,5 +48,5 @@ import cn.taketoday.expression.ExpressionException;
  */
 public interface NodeVisitor {
 
-  void visit(Node node, ExpressionContext context) throws ExpressionException;
+  void visit(Node node) throws ExpressionException;
 }

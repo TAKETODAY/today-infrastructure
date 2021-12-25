@@ -40,6 +40,8 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author TODAY <br>
  * 2019-02-18 20:36
@@ -59,16 +61,23 @@ public final class ValueExpressionLiteral extends ValueExpression {
     this.expectedType = expectedType;
   }
 
+  @Override
   public Object getValue(ExpressionContext context) {
-    if (this.expectedType != null) {
+    return getValue(context, expectedType);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getValue(ExpressionContext context, @Nullable Class<T> requiredType) {
+    if (requiredType != null) {
       try {
-        return context.convertToType(this.value, this.expectedType);
+        return (T) context.convertToType(this.value, requiredType);
       }
       catch (IllegalArgumentException ex) {
         throw new ExpressionException(ex);
       }
     }
-    return this.value;
+    return (T) this.value;
   }
 
   public void setValue(ExpressionContext context, Object value) {

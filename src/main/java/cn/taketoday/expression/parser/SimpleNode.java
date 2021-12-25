@@ -42,7 +42,6 @@ package cn.taketoday.expression.parser;
 
 import java.util.Objects;
 
-import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
@@ -166,12 +165,11 @@ public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
   }
 
   @Override
-  public void accept(NodeVisitor visitor, ExpressionContext context) {
-    visitor.visit(this, context);
-    final Node[] children = this.children;
+  public void accept(NodeVisitor visitor) {
+    visitor.visit(this);
     if (ObjectUtils.isNotEmpty(children)) {
       for (final Node node : children) {
-        node.accept(visitor, context);
+        node.accept(visitor);
       }
     }
   }

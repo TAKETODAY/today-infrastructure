@@ -23,23 +23,11 @@ package cn.taketoday.expression;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
+import cn.taketoday.expression.lang.CachedExpressionBuilder;
 import cn.taketoday.expression.lang.ExpressionUtils;
-import cn.taketoday.expression.parser.AstDeferredExpression;
-import cn.taketoday.expression.parser.AstDynamicExpression;
-import cn.taketoday.expression.parser.AstFunction;
-import cn.taketoday.expression.parser.AstIdentifier;
-import cn.taketoday.expression.parser.AstLiteralExpression;
-import cn.taketoday.expression.parser.AstMethodArguments;
-import cn.taketoday.expression.parser.AstValue;
-import cn.taketoday.expression.parser.ExpressionParser;
-import cn.taketoday.expression.parser.Node;
-import cn.taketoday.expression.parser.NodeVisitor;
 import cn.taketoday.expression.stream.StreamExpressionResolver;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.ConcurrentCache;
 
 /**
  * Provides an implementation for creating and evaluating EL expressions.
@@ -120,28 +108,13 @@ import cn.taketoday.util.ConcurrentCache;
  *
  * @since JSP 2.1
  */
-public class ExpressionFactory implements NodeVisitor {
-  public static final String CACHE_SIZE_PROP = "expression.cache.size";
-  private static final ExpressionFactory sharedExpressionFactory;
-  private static final ConcurrentCache<String, Node> EXPRESSION_CACHE;
-
-  @Nullable
-  private final Properties properties;
+public class ExpressionFactory {
+  private static final ExpressionFactory sharedExpressionFactory = new ExpressionFactory();
 
   private final HashMap<String, Method> functionMap = new HashMap<>();
 
-  static {
-    EXPRESSION_CACHE = new ConcurrentCache<>(TodayStrategies.getInteger(CACHE_SIZE_PROP, 2048));
-    sharedExpressionFactory = new ExpressionFactory();
-  }
-
-  public ExpressionFactory() {
-    this(null);
-  }
-
-  public ExpressionFactory(@Nullable Properties properties) {
-    this.properties = properties;
-  }
+  // @since 4.0
+  private StreamExpressionResolver streamExpressionResolver;
 
   /**
    * Coerces an object to a specific type according to the EL type conversion
@@ -164,12 +137,6 @@ public class ExpressionFactory implements NodeVisitor {
     catch (IllegalArgumentException ex) {
       throw new ExpressionException(ex);
     }
-  }
-
-  protected Node build(final String expression, ExpressionContext context) {
-    final Node n = createNode(expression);
-    this.prepare(n, context);
-    return n;
   }
 
   /**
@@ -224,21 +191,12 @@ public class ExpressionFactory implements NodeVisitor {
    * @throws NullPointerException if paramTypes is <code>null</code>.
    */
   public MethodExpression createMethodExpression(
-          ExpressionContext context, String expression, Class<?> expectedReturnType, Class<?>[] expectedParamTypes)//
+          ExpressionContext context, String expression,
+          Class<?> expectedReturnType, Class<?>[] expectedParamTypes)//
   {
-    MethodExpression methodExpression;
-
-    final Node node = this.build(expression, context);
-
-    if (node instanceof AstValue || node instanceof AstIdentifier) {
-      methodExpression = new MethodExpressionImpl(expression, node, expectedParamTypes, expectedReturnType);
-    }
-    else if (node instanceof AstLiteralExpression) {
-      methodExpression = new MethodExpressionLiteral(expression, expectedReturnType, expectedParamTypes);
-    }
-    else {
-      throw new ExpressionException("Not a Valid Method Expression: " + expression);
-    }
+    CachedExpressionBuilder builder = new CachedExpressionBuilder(expression, context);
+    MethodExpression methodExpression = builder.build(expectedReturnType,
+            expectedParamTypes);
 
     if (expectedParamTypes == null && !methodExpression.isParametersProvided()) {
       throw new NullPointerException("Parameter types cannot be null");
@@ -281,9 +239,18 @@ public class ExpressionFactory implements NodeVisitor {
    * @throws ExpressionException Thrown if there are syntactical errors in the provided
    * expression.
    */
-  public ValueExpression createValueExpression(ExpressionContext context, String expression, Class<?> expectedType) {
+  public ValueExpression createValueExpression(
+          ExpressionContext context, String expression, @Nullable Class<?> expectedType) {
     // if expectedType == null will not convert object
-    return new ValueExpressionImpl(expression, build(expression, context), expectedType);
+    CachedExpressionBuilder builder = new CachedExpressionBuilder(expression, context);
+    return builder.build(expectedType);
+  }
+
+  public ValueExpression createValueExpression(
+          String expression, @Nullable Class<?> expectedType,
+          @Nullable FunctionMapper ctxFn, @Nullable VariableMapper ctxVar) {
+    CachedExpressionBuilder builder = new CachedExpressionBuilder(expression, ctxFn, ctxVar);
+    return builder.build(expectedType);
   }
 
   /**
@@ -302,13 +269,6 @@ public class ExpressionFactory implements NodeVisitor {
     return new ValueExpressionLiteral(instance, expectedType);
   }
 
-  public String getProperty(String key) {
-    if (properties == null) {
-      return null;
-    }
-    return properties.getProperty(key);
-  }
-
   /**
    * Retrieves an ELResolver that implements the operations in collections.
    *
@@ -325,8 +285,19 @@ public class ExpressionFactory implements NodeVisitor {
    * @return The <code>ELResolver</code> that implements the Query Operators.
    * @since EL 3.0
    */
-  public ExpressionResolver getStreamELResolver() {
-    return StreamExpressionResolver.getInstance();
+  public ExpressionResolver getStreamResolver() {
+    if (streamExpressionResolver == null) {
+      streamExpressionResolver = StreamExpressionResolver.getInstance();
+    }
+    return streamExpressionResolver;
+  }
+
+  public void setStreamExpressionResolver(StreamExpressionResolver streamExpressionResolver) {
+    this.streamExpressionResolver = streamExpressionResolver;
+  }
+
+  public StreamExpressionResolver getStreamExpressionResolver() {
+    return streamExpressionResolver;
   }
 
   /**
@@ -337,106 +308,6 @@ public class ExpressionFactory implements NodeVisitor {
    */
   public Map<String, Method> getInitFunctionMap() {
     return this.functionMap;
-  }
-
-  // -----------------------build
-
-  public static Node createNode(final String expr) throws ExpressionException {
-    if (expr == null) {
-      throw new ExpressionException("Expression cannot be null");
-    }
-
-    Node node = EXPRESSION_CACHE.get(expr);
-    if (node == null) {
-      node = ExpressionParser.parse(expr);
-      // validate composite expression
-      int numChildren = node.jjtGetNumChildren();
-      if (numChildren == 1) {
-        node = node.jjtGetChild(0);
-      }
-      else {
-        Class<?> type = null;
-        for (int i = 0; i < numChildren; i++) {
-          final Node child = node.jjtGetChild(i);
-          if (child instanceof AstLiteralExpression) {
-            continue;
-          }
-          if (type == null) {
-            type = child.getClass();
-          }
-          else {
-            if (!type.equals(child.getClass())) {
-              throw new ExpressionException("Expression cannot contain both '#{..}' and '${..}' : " + expr);
-            }
-          }
-        }
-      }
-
-      if (node instanceof AstDynamicExpression || node instanceof AstDeferredExpression) {
-        node = node.jjtGetChild(0);
-      }
-      EXPRESSION_CACHE.put(expr, node);
-    }
-    return node;
-  }
-
-  /**
-   * Scan the expression nodes and captures the functions and variables used in
-   * this expression. This ensures that any changes to the functions or variables
-   * mappings during the expression will not affect the evaluation of this
-   * expression, as the functions and variables are bound and resolved at parse
-   * time, as specified in the spec.
-   */
-  protected void prepare(Node node, ExpressionContext context) {
-    node.accept(this, context);
-  }
-
-  // ------------------------NodeVisitor
-
-  @Override
-  public void visit(Node node, ExpressionContext context) {
-    if (node instanceof AstFunction funcNode) {
-
-      FunctionMapper fnMapper = context.getFunctionMapper();
-      VariableMapper varMapper = context.getVariableMapper();
-
-      final String prefix = funcNode.getPrefix();
-      if ((prefix.isEmpty()) && //
-              (fnMapper == null || fnMapper.resolveFunction(prefix, funcNode.getLocalName()) == null)) //
-      {
-        // This can be a call to a LambdaExpression. The target
-        // of the call is a bean or an EL variable. Capture
-        // the variable name in the variable mapper if it is an
-        // variable. The decision to invoke the static method or
-        // the LambdaExpression will be made at runtime.
-        if (varMapper != null) {
-          varMapper.resolveVariable(funcNode.getLocalName());
-        }
-        return;
-      }
-
-      if (fnMapper == null) {
-        throw new ExpressionException("Expression uses functions, but no FunctionMapper was provided");
-      }
-      Method m = fnMapper.resolveFunction(prefix, funcNode.getLocalName());
-      if (m == null) {
-        throw new ExpressionException("Function ''" + funcNode.getOutputName() + "'' not found");
-      }
-      int pcnt = m.getParameterTypes().length;
-      int acnt = ((AstMethodArguments) node.jjtGetChild(0)).getParameterCount();
-      if (acnt != pcnt) {
-        throw new ExpressionException(
-                "Function ''" + funcNode.getOutputName() + "'' specifies " + pcnt + " params, but " + acnt + " were supplied");
-      }
-    }
-    else if (node instanceof AstIdentifier) {
-
-      final VariableMapper varMapper = context.getVariableMapper();
-      if (varMapper != null) {
-        // simply capture it
-        varMapper.resolveVariable(node.getImage());
-      }
-    }
   }
 
   public static ExpressionFactory getSharedInstance() {

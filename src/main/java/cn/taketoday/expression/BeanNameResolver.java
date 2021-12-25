@@ -48,7 +48,7 @@ package cn.taketoday.expression;
  * @see BeanNameExpressionResolver
  * @since EL 3.0
  */
-public abstract class BeanNameResolver {
+public interface BeanNameResolver {
 
   /**
    * Returns whether the given name is resolved by the BeanNameResolver
@@ -57,7 +57,7 @@ public abstract class BeanNameResolver {
    * @return true if the name is resolved by this BeanNameResolver; false
    * otherwise.
    */
-  public boolean isNameResolved(String beanName) {
+  default boolean isNameResolved(String beanName) {
     return false;
   }
 
@@ -67,7 +67,7 @@ public abstract class BeanNameResolver {
    * @param beanName The name of the bean.
    * @return The bean with the given name. Can be <code>null</code>.
    */
-  public Object getBean(String beanName) {
+  default Object getBean(String beanName) {
     return null;
   }
 
@@ -80,7 +80,7 @@ public abstract class BeanNameResolver {
    * @param value The value to set the bean to. Can be <code>null</code>.
    * @throws PropertyNotWritableException if the bean cannot be modified or created.
    */
-  public void setBeanValue(String beanName, Object value) throws PropertyNotWritableException {
+  default void setBeanValue(String beanName, Object value) throws PropertyNotWritableException {
     throw new PropertyNotWritableException();
   }
 
@@ -91,7 +91,7 @@ public abstract class BeanNameResolver {
    * @return <code>true</code> if the bean can be set to a new value.
    * <code>false</code> otherwise.
    */
-  public boolean isReadOnly(String beanName) {
+  default boolean isReadOnly(String beanName) {
     return true;
   }
 
@@ -102,7 +102,7 @@ public abstract class BeanNameResolver {
    * @return <code>true</code> if bean creation is supported <code>false</code>
    * otherwise.
    */
-  public boolean canCreateBean(String beanName) {
+  default boolean canCreateBean(String beanName) {
     return false;
   }
 }

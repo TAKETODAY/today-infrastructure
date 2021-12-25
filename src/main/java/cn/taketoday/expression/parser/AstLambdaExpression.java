@@ -57,12 +57,11 @@ public class AstLambdaExpression extends SimpleNode {
 
   @Override
   public Object getValue(EvaluationContext ctx) throws ExpressionException {
-    final Node[] children = this.children;
     // Create a lambda expression
-    final ValueExpression expr = new ValueExpressionImpl("#{Lambda Expression}", children[1], null);
-
-    LambdaExpression lambda = new LambdaExpression(((AstLambdaParameters) children[0]).getParameters(), expr, ctx);
-
+    ValueExpression expr = new ValueExpressionImpl(
+            "#{Lambda Expression}", children[1], ctx.getFunctionMapper(), ctx.getVariableMapper(), null);
+    LambdaExpression lambda = new LambdaExpression(
+            ((AstLambdaParameters) children[0]).getParameters(), expr, ctx);
     if (children.length <= 2) {
       return lambda;
     }
@@ -72,7 +71,8 @@ public class AstLambdaExpression extends SimpleNode {
     for (int i = 2; i < children.length; i++) {
       if (ret != null) {
         if (!(ret instanceof LambdaExpression)) {
-          throw new ExpressionException("A Lambda expression must return another Lambda expression in this syntax");
+          throw new ExpressionException(
+                  "A Lambda expression must return another Lambda expression in this syntax");
         }
         lambda = (LambdaExpression) ret;
       }

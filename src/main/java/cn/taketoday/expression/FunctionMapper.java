@@ -63,7 +63,5 @@ public abstract class FunctionMapper {
    * the map.
    * @since EL 3.0
    */
-  public void mapFunction(String prefix, String localName, Method meth) {
-
-  }
+  public void mapFunction(String prefix, String localName, Method meth) { }
 }

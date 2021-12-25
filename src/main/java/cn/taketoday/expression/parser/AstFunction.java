@@ -148,7 +148,7 @@ public final class AstFunction extends SimpleNode {
       }
     }
 
-    final FunctionMapper fnMapper = ctx.getFunctionMapper();
+    FunctionMapper fnMapper = ctx.getFunctionMapper();
 
     Method m = fnMapper.resolveFunction(prefix, localName);
     if (m == null) {

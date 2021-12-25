@@ -17,6 +17,8 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Enables customization of variable, property, method call, and type conversion
  * resolution behavior for EL expression evaluation.
@@ -75,7 +77,7 @@ package cn.taketoday.expression;
  * Though only a single <code>ELResolver</code> is associated with an
  * <code>ELContext</code>, there are usually multiple resolvers considered for
  * any given variable or property resolution. <code>ELResolver</code>s are
- * combined together using {@link CompositeExpressionResolver}s, to define rich
+ * combined together using {@link ExpressionResolverComposite}s, to define rich
  * semantics for evaluating an expression.
  * </p>
  *
@@ -97,7 +99,7 @@ package cn.taketoday.expression;
  * that it handles the conversion of the object to the target type.
  * </p>
  *
- * @see CompositeExpressionResolver
+ * @see ExpressionResolverComposite
  * @see ExpressionContext#getResolver
  * @since JSP 2.1
  */
@@ -132,7 +134,8 @@ public abstract class ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
-  public abstract Object getValue(ExpressionContext context, Object base, Object property);
+  public abstract Object getValue(
+          ExpressionContext context, @Nullable Object base, Object property);
 
   /**
    * Attempts to resolve and invoke the given <code>method</code> on the given

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.expression.lang;
 
-import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.expression.ExpressionContext;
@@ -29,33 +28,37 @@ import cn.taketoday.expression.ImportHandler;
 import cn.taketoday.expression.VariableMapper;
 
 /**
- * @author TODAY <br>
- * 2019-11-10 20:26
+ * @author TODAY 2019-11-10 20:26
  */
 public final class EvaluationContext extends ExpressionContext {
+  private final FunctionMapper fnMapper;
+  private final VariableMapper varMapper;
   private final ExpressionContext elContext;
 
-  public EvaluationContext(ExpressionContext elContext) {
+  public EvaluationContext(
+          ExpressionContext elContext, FunctionMapper fnMapper, VariableMapper varMapper) {
     this.elContext = elContext;
+    this.fnMapper = fnMapper;
+    this.varMapper = varMapper;
   }
 
-  public ExpressionContext getELContext() {
-    return elContext;
+  public ExpressionContext getContext() {
+    return this.elContext;
   }
 
   @Override
   public FunctionMapper getFunctionMapper() {
-    return elContext.getFunctionMapper();
+    return this.fnMapper;
   }
 
   @Override
   public VariableMapper getVariableMapper() {
-    return elContext.getVariableMapper();
+    return this.varMapper;
   }
 
   @Override
   public Object getContext(Class<?> key) {
-    return elContext.getContext(key);
+    return this.elContext.getContext(key);
   }
 
   @Override
@@ -65,66 +68,52 @@ public final class EvaluationContext extends ExpressionContext {
 
   @Override
   public boolean isPropertyResolved() {
-    return elContext.isPropertyResolved();
+    return this.elContext.isPropertyResolved();
   }
 
   @Override
   public void putContext(Class<?> key, Object contextObject) {
-    elContext.putContext(key, contextObject);
+    this.elContext.putContext(key, contextObject);
   }
 
   @Override
   public void setPropertyResolved(boolean resolved) {
-    elContext.setPropertyResolved(resolved);
-  }
-
-  @Override
-  public Locale getLocale() {
-    return elContext.getLocale();
-  }
-
-  @Override
-  public void setLocale(Locale locale) {
-    elContext.setLocale(locale);
+    this.elContext.setPropertyResolved(resolved);
   }
 
   @Override
   public void setPropertyResolved(Object base, Object property) {
-    elContext.setPropertyResolved(base, property);
+    this.elContext.setPropertyResolved(base, property);
   }
 
   @Override
-  public ImportHandler getImportHandler() {
-    return elContext.getImportHandler();
+  public boolean isLambdaArgument(String arg) {
+    return this.elContext.isLambdaArgument(arg);
   }
 
   @Override
-  public boolean isLambdaArgument(String name) {
-    return elContext.isLambdaArgument(name);
+  public Object getLambdaArgument(String arg) {
+    return this.elContext.getLambdaArgument(arg);
   }
 
   @Override
-  public Object getLambdaArgument(String name) {
-    return elContext.getLambdaArgument(name);
-  }
-
-  @Override
-  public void enterLambdaScope(Map<String, Object> arguments) {
-    elContext.enterLambdaScope(arguments);
+  public void enterLambdaScope(Map<String, Object> args) {
+    this.elContext.enterLambdaScope(args);
   }
 
   @Override
   public void exitLambdaScope() {
-    elContext.exitLambdaScope();
+    this.elContext.exitLambdaScope();
   }
 
   @Override
-  public Object convertToType(Object obj, Class<?> type) {
-    return elContext.convertToType(obj, type);
+  public Object convertToType(Object obj, Class<?> targetType) {
+    return this.elContext.convertToType(obj, targetType);
   }
 
   @Override
-  public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) {
-    return elContext.handlePropertyNotResolved(base, property, ctx);
+  public ImportHandler getImportHandler() {
+    return this.elContext.getImportHandler();
   }
+
 }

@@ -17,6 +17,8 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * An <code>Expression</code> that can get or set a value.
  *
@@ -94,6 +96,29 @@ public abstract class ValueExpression extends Expression {
   public abstract Object getValue(ExpressionContext context);
 
   /**
+   * Evaluates the expression relative to the provided context, and returns the
+   * resulting value.
+   *
+   * <p>
+   * The resulting value is automatically coerced to the type returned by
+   * <code>getExpectedType()</code>, which was provided to the
+   * <code>ExpressionFactory</code> when this expression was created.
+   * </p>
+   *
+   * @param context The context of this evaluation.
+   * @param requiredType required return type.
+   * @return The result of the expression evaluation.
+   * @throws NullPointerException if context is <code>null</code>.
+   * @throws PropertyNotFoundException if one of the property resolutions failed because a specified
+   * variable or property does not exist or is not readable.
+   * @throws ExpressionException if an exception was thrown while performing property or variable
+   * resolution. The thrown exception must be included as the cause
+   * property of this exception, if available.
+   * @since 4.0
+   */
+  public abstract <T> T getValue(ExpressionContext context, @Nullable Class<T> requiredType);
+
+  /**
    * Evaluates the expression relative to the provided context, and sets the
    * result to the provided value.
    *
@@ -160,6 +185,7 @@ public abstract class ValueExpression extends Expression {
    * <code>ExpressionFactory.createValueExpression</code> method that
    * created this <code>ValueExpression</code>.
    */
+  @Nullable
   public abstract Class<?> getExpectedType();
 
   /**

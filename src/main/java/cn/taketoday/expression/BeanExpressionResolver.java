@@ -17,10 +17,10 @@
 
 package cn.taketoday.expression;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
-
-import java.lang.reflect.Method;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
@@ -56,7 +56,7 @@ import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
  *
  * <p>
  * <code>ELResolver</code>s are combined together using
- * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating
+ * {@link ExpressionResolverComposite}s, to define rich semantics for evaluating
  * an expression. See the javadocs for {@link ExpressionResolver} for details.
  * </p>
  *
@@ -67,7 +67,7 @@ import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
  * test if they can do so as well.
  * </p>
  *
- * @see CompositeExpressionResolver
+ * @see ExpressionResolverComposite
  * @see ExpressionResolver
  * @since JSP 2.1
  */
@@ -231,7 +231,8 @@ public class BeanExpressionResolver extends ExpressionResolver {
       return;
     }
     if (isReadOnly) {
-      throw new PropertyNotWritableException("The ELResolver for the class '" + base.getClass().getName() + "' is not writable.");
+      throw new PropertyNotWritableException(
+              "The ExpressionResolver for the class '" + base.getClass().getName() + "' is not writable.");
     }
 
     BeanProperty beanProperty = getProperty(base, property);
@@ -366,8 +367,8 @@ public class BeanExpressionResolver extends ExpressionResolver {
     return isReadOnly;
   }
 
-  private BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
-    BeanProperty beanProperty = BeanMetadata.from(base).getBeanProperty(prop.toString());
+  public static BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
+    BeanProperty beanProperty = BeanMetadata.from(base, true).getBeanProperty(prop.toString());
     if (beanProperty == null) {
       throw new PropertyNotFoundException(
               "The class '" + base.getClass().getName() + "' does not have the property '" + prop + "'.");

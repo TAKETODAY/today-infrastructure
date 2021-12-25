@@ -186,6 +186,6 @@ public class ExpressionManager {
    * bean is removed.
    */
   public Object defineBean(String name, Object bean) {
-    return getContext().getBeans().put(name, bean);
+    return getContext().getVariables().put(name, bean);
   }
 }

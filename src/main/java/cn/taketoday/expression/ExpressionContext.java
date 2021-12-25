@@ -93,6 +93,8 @@ public abstract class ExpressionContext {
   private HashMap<Class<?>, Object> map;
   private Stack<Map<String, Object>> lambdaArgs;
 
+  private ImportHandler importHandler;
+
   /**
    * Holds value of property locale.
    */
@@ -107,12 +109,12 @@ public abstract class ExpressionContext {
    * if resolved is true.
    *
    * <p>
-   * The {@link CompositeExpressionResolver} checks this property to determine whether it
+   * The {@link ExpressionResolverComposite} checks this property to determine whether it
    * should consider or skip other component resolvers.
    * </p>
    *
    * @param resolved true if the property has been resolved, or false if not.
-   * @see CompositeExpressionResolver
+   * @see ExpressionResolverComposite
    */
   public void setPropertyResolved(boolean resolved) {
     this.resolved = resolved;
@@ -123,13 +125,13 @@ public abstract class ExpressionContext {
    * given (base, property) pair.
    *
    * <p>
-   * The {@link CompositeExpressionResolver} checks this property to determine whether it
+   * The {@link ExpressionResolverComposite} checks this property to determine whether it
    * should consider or skip other component resolvers.
    * </p>
    *
    * @param base The base object
    * @param property The property object
-   * @see CompositeExpressionResolver
+   * @see ExpressionResolverComposite
    * @since EL 3.0
    */
   public void setPropertyResolved(Object base, Object property) {
@@ -142,12 +144,12 @@ public abstract class ExpressionContext {
    * (base, property) pair.
    *
    * <p>
-   * The {@link CompositeExpressionResolver} checks this property to determine whether it
+   * The {@link ExpressionResolverComposite} checks this property to determine whether it
    * should consider or skip other component resolvers.
    * </p>
    *
    * @return true if the property has been resolved, or false if not.
-   * @see CompositeExpressionResolver
+   * @see ExpressionResolverComposite
    */
   public boolean isPropertyResolved() {
     return resolved;
@@ -175,7 +177,6 @@ public abstract class ExpressionContext {
    * @throws NullPointerException if key is null or contextObject is null.
    */
   public void putContext(Class<?> key, Object contextObject) {
-
     if (key == null || contextObject == null) {
       throw new NullPointerException();
     }
@@ -242,7 +243,18 @@ public abstract class ExpressionContext {
    * @since EL 3.0
    */
   public ImportHandler getImportHandler() {
-    return ImportHandler.getInstance();
+    if (importHandler == null) {
+      importHandler = ImportHandler.getInstance();
+    }
+    return importHandler;
+  }
+
+  /**
+   * @param importHandler The import handler to manage imports of classes and packages
+   * @since 4.0
+   */
+  public void setImportHandler(ImportHandler importHandler) {
+    this.importHandler = importHandler;
   }
 
   /**

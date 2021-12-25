@@ -42,12 +42,11 @@
 
 package cn.taketoday.expression.stream;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Iterator;
 
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
+import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -69,58 +68,17 @@ public class StreamExpressionResolver extends ExpressionResolver {
   public Object invoke(final ExpressionContext context, final Object base, final Object method, //
                        final Class<?>[] paramTypes, final Object[] params) //
   {
-//        if (base instanceof Collection
-//            && "stream".equals(method)
-//            && ObjectUtils.isEmpty(params)) {
-//            requireNonNull(context).setPropertyResolved(true);
-//            return new Stream(((Collection<Object>) base).iterator());
-//        }
-//        if (base.getClass().isArray()
-//            && "stream".equals(method)
-//            && ObjectUtils.isEmpty(params)) {
-//            requireNonNull(context).setPropertyResolved(true);
-//            return new Stream(arrayIterator(base));
-//        }
     if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
       context.setPropertyResolved(true);
       if (base.getClass().isArray()) {
-        return new Stream(arrayIterator(base));
+        ArrayIterator<Object> iterator = new ArrayIterator<>((Object[]) base);
+        return new Stream(iterator);
       }
       if (base instanceof Collection) {
         return new Stream(((Collection<Object>) base).iterator());
       }
     }
     return null;
-  }
-
-  private static Iterator<Object> arrayIterator(final Object base) {
-    final int size = Array.getLength(base);
-    return new Iterator<Object>() {
-
-      private int index = 0;
-      private boolean yielded;
-      private Object current;
-
-      @Override
-      public boolean hasNext() {
-        if ((!yielded) && index < size) {
-          current = Array.get(base, index++);
-          yielded = true;
-        }
-        return yielded;
-      }
-
-      @Override
-      public Object next() {
-        yielded = false;
-        return current;
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-    };
   }
 
   /*

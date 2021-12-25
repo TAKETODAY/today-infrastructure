@@ -40,11 +40,14 @@
 
 package cn.taketoday.expression;
 
+import java.io.Serial;
 import java.util.Objects;
 
+import cn.taketoday.expression.lang.CachedExpressionBuilder;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.parser.AstLiteralExpression;
 import cn.taketoday.expression.parser.Node;
+import cn.taketoday.lang.Nullable;
 
 /**
  * An <code>Expression</code> that can get or set a value.
@@ -97,15 +100,24 @@ import cn.taketoday.expression.parser.Node;
  */
 @SuppressWarnings("serial")
 public final class ValueExpressionImpl extends ValueExpression {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final String expr;
   private transient Node node;
+  @Nullable
   private final Class<?> expectedType;
 
-  public ValueExpressionImpl(String expr, Node node, Class<?> expectedType) {
+  private final FunctionMapper fnMapper;
+  private final VariableMapper varMapper;
+
+  public ValueExpressionImpl(
+          String expr, Node node, FunctionMapper fnMapper,
+          VariableMapper varMapper, @Nullable Class<?> expectedType) {
     this.expr = expr;
     this.node = node;
+    this.fnMapper = fnMapper;
+    this.varMapper = varMapper;
     this.expectedType = expectedType;
   }
 
@@ -117,6 +129,7 @@ public final class ValueExpressionImpl extends ValueExpression {
     return false;
   }
 
+  @Nullable
   @Override
   public Class<?> getExpectedType() {
     return this.expectedType;
@@ -141,36 +154,44 @@ public final class ValueExpressionImpl extends ValueExpression {
    */
   private Node getNode() throws ExpressionException {
     if (this.node == null) {
-      this.node = ExpressionFactory.createNode(this.expr);
+      this.node = CachedExpressionBuilder.getNode(this.expr);
     }
     return this.node;
   }
 
   @Override
   public Class<?> getType(ExpressionContext context) throws ExpressionException {
-    return getNode().getType(new EvaluationContext(context));
+    return getNode().getType(new EvaluationContext(context, this.fnMapper, this.varMapper));
   }
 
   @Override
   public ValueReference getValueReference(ExpressionContext context) throws ExpressionException {
-    return getNode().getValueReference(new EvaluationContext(context));
+    return getNode().getValueReference(new EvaluationContext(context, this.fnMapper, this.varMapper));
+  }
+
+  @Nullable
+  @Override
+  public Object getValue(final ExpressionContext context) throws ExpressionException {
+    return getValue(context, expectedType);
   }
 
   @Override
-  public Object getValue(final ExpressionContext context) throws ExpressionException {
-    Object value = getNode().getValue(new EvaluationContext(context));
+  @SuppressWarnings("unchecked")
+  public <T> T getValue(ExpressionContext context, @Nullable Class<T> requiredType) {
+    Object value = getNode().getValue(new EvaluationContext(context, this.fnMapper, this.varMapper));
 
-    if (value != null && expectedType != null) {
+    if (value != null && requiredType != null) {
       try {
-        if (!expectedType.isInstance(value)) {
-          value = context.convertToType(value, expectedType);
+        if (!requiredType.isInstance(value)) {
+          value = context.convertToType(value, requiredType);
         }
       }
       catch (IllegalArgumentException ex) {
-        throw new ExpressionException(ex);
+        throw new ExpressionException(
+                "Cannot convert: '" + value + "' to type: '" + requiredType.getName() + "'", ex);
       }
     }
-    return value;
+    return (T) value;
   }
 
   @Override
@@ -190,12 +211,12 @@ public final class ValueExpressionImpl extends ValueExpression {
 
   @Override
   public boolean isReadOnly(ExpressionContext context) throws ExpressionException {
-    return getNode().isReadOnly(new EvaluationContext(context));
+    return getNode().isReadOnly(new EvaluationContext(context, this.fnMapper, this.varMapper));
   }
 
   @Override
   public void setValue(ExpressionContext context, Object value) throws ExpressionException {
-    getNode().setValue(new EvaluationContext(context), value);
+    getNode().setValue(new EvaluationContext(context, this.fnMapper, this.varMapper), value);
   }
 
   public String toString() {
