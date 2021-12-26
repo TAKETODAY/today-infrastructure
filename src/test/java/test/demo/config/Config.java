@@ -25,8 +25,8 @@ import java.io.Serializable;
 import jakarta.annotation.PostConstruct;
 
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.lang.Value;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import lombok.Getter;

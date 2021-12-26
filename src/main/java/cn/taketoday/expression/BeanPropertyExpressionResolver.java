@@ -71,14 +71,14 @@ import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
  * @see ExpressionResolver
  * @since JSP 2.1
  */
-public class BeanExpressionResolver extends ExpressionResolver {
+public class BeanPropertyExpressionResolver extends ExpressionResolver {
 
   private final boolean isReadOnly;
 
   /**
    * Creates a new read/write <code>BeanELResolver</code>.
    */
-  public BeanExpressionResolver() {
+  public BeanPropertyExpressionResolver() {
     this(false);
   }
 
@@ -89,7 +89,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
    * @param isReadOnly <code>true</code> if this resolver cannot modify beans;
    * <code>false</code> otherwise.
    */
-  public BeanExpressionResolver(boolean isReadOnly) {
+  public BeanPropertyExpressionResolver(boolean isReadOnly) {
     this.isReadOnly = isReadOnly;
   }
 

@@ -18,32 +18,48 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.lang;
+package cn.taketoday.beans.factory.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
+
 /**
- * This annotation may be used on a field or parameter as a qualifier for
- * candidate beans when autowiring. It may also be used to annotate other
- * custom annotations that can then in turn be used as qualifiers.
- * <P>
- * Spring style Qualifier
- * </P>
+ * Disable dependency-injection for all the factory method bean
+ * <pre>
+ * &#064;Configuration
+ * &#064;DisableDependencyInjection
+ * &#064;DisableAllDependencyInjection
+ * class Config {
  *
- * @see Autowired
+ *   &#064;Singleton
+ *   Bean bean() {
+ *     return new Bean();
+ *   }
+ *
+ *   &#064;Singleton
+ *   &#064;DisableDependencyInjection
+ *   Bean bean() {
+ *     return new Bean();
+ *   }
+ *
+ *   &#064;Autowired
+ *   void bean(Bean bean) { // Autowired ignored
+ *    // all DependencyResolvingStrategy disabled
+ *   }
+ * }
+ * </pre>
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 22:06</a>
+ * @see cn.taketoday.context.annotation.ConfigBeanDefinition
+ * @see DependencyResolvingStrategy
  * @since 4.0
  */
-@Inherited
-@Documented
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Qualifier {
-
-  String value() default "";
+@Target({ ElementType.TYPE, ElementType.METHOD })
+public @interface DisableAllDependencyInjection {
 
 }

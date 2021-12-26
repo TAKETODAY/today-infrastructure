@@ -36,7 +36,7 @@ import cn.taketoday.context.annotation6.ComponentForScanning;
 import cn.taketoday.context.annotation6.ConfigForScanning;
 import cn.taketoday.context.annotation6.Jsr330NamedForScanning;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.util.ObjectUtils;
 
 import static cn.taketoday.util.StringUtils.uncapitalize;

@@ -23,8 +23,8 @@ package example.scannable;
 import java.util.concurrent.Future;
 
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.scheduling.annotation.AsyncResult;
 import jakarta.annotation.PostConstruct;
 

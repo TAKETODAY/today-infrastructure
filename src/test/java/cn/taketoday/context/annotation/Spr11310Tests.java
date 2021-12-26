@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.Order;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

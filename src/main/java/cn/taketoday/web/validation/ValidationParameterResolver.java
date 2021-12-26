@@ -23,7 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;

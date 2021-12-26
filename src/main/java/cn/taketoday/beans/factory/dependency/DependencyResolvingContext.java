@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.dependency;
 import java.lang.reflect.Executable;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -44,6 +45,31 @@ public class DependencyResolvingContext {
   private boolean terminate;
 
   private String beanName;
+
+  private BeanDefinition definition;
+
+  private boolean dependencyResolved;
+
+  public void setDependencyResolved(Object dependency) {
+    this.dependency = dependency;
+    setDependencyResolved(true);
+  }
+
+  public void setDependencyResolved(boolean resolved) {
+    this.dependencyResolved = resolved;
+  }
+
+  public boolean isDependencyResolved() {
+    return dependencyResolved;
+  }
+
+  public void setDefinition(BeanDefinition definition) {
+    this.definition = definition;
+  }
+
+  public BeanDefinition getDefinition() {
+    return definition;
+  }
 
   public void setBeanName(String beanName) {
     this.beanName = beanName;
@@ -84,18 +110,6 @@ public class DependencyResolvingContext {
 
   public boolean hasDependency() {
     return dependency != null;
-  }
-
-  public void terminate() {
-    setTerminate(true);
-  }
-
-  public void setTerminate(boolean terminate) {
-    this.terminate = terminate;
-  }
-
-  public boolean isTerminate() {
-    return terminate;
   }
 
   @Override

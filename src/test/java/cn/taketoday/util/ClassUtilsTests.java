@@ -32,7 +32,7 @@ import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.bytecode.proxy.Enhancer;
 import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.core.bytecode.proxy.MethodProxy;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.logging.Logger;

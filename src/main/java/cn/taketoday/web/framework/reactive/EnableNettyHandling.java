@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContextHolder;

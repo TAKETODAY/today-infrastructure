@@ -20,7 +20,7 @@
 
 package example.scannable;
 
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.lang.Repository;
 
 /**

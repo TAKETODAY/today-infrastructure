@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.transaction.SynchronizationManager;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import cn.taketoday.util.ClassUtils;

@@ -54,9 +54,9 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Qualifier;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.beans.factory.annotation.Value;
 import jakarta.annotation.Resource;
 import jakarta.inject.Provider;
 

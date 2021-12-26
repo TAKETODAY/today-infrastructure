@@ -34,9 +34,9 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

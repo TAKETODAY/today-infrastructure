@@ -37,7 +37,7 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 

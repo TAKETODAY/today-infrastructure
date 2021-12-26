@@ -21,7 +21,7 @@
 package cn.taketoday.context.expression;
 
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.expression.BeanExpressionResolver;
+import cn.taketoday.expression.BeanPropertyExpressionResolver;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionResolver;
@@ -76,7 +76,7 @@ public class RootObjectExpressionResolver extends ExpressionResolver {
   }
 
   private BeanProperty getProperty(Object property) {
-    return BeanExpressionResolver.getProperty(rootObject, property);
+    return BeanPropertyExpressionResolver.getProperty(rootObject, property);
   }
 
   @Override

@@ -21,19 +21,25 @@
 package cn.taketoday.beans.support;
 
 import java.beans.ConstructorProperties;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -240,4 +246,51 @@ public abstract class BeanUtils {
     return paramNames;
   }
 
+  /**
+   * Find a JavaBeans {@code PropertyDescriptor} for the given method,
+   * with the method either being the read method or the write method for
+   * that bean property.
+   *
+   * @param method the method to find a corresponding PropertyDescriptor for,
+   * introspecting its declaring class
+   * @return the corresponding PropertyDescriptor, or {@code null} if none
+   * @throws BeansException if PropertyDescriptor lookup fails
+   * @since 4.0
+   */
+  @Nullable
+  public static PropertyDescriptor findPropertyForMethod(Method method) throws BeansException {
+    return findPropertyForMethod(method, method.getDeclaringClass());
+  }
+
+  /**
+   * Find a JavaBeans {@code PropertyDescriptor} for the given method,
+   * with the method either being the read method or the write method for
+   * that bean property.
+   *
+   * @param method the method to find a corresponding PropertyDescriptor for
+   * @param clazz the (most specific) class to introspect for descriptors
+   * @return the corresponding PropertyDescriptor, or {@code null} if none
+   * @throws BeansException if PropertyDescriptor lookup fails
+   * @since 4.0
+   */
+  @Nullable
+  public static PropertyDescriptor findPropertyForMethod(Method method, Class<?> clazz) throws BeansException {
+    Assert.notNull(method, "Method must not be null");
+    PropertyDescriptor[] pds = getPropertyDescriptors(clazz);
+    for (PropertyDescriptor pd : pds) {
+      if (method.equals(pd.getReadMethod()) || method.equals(pd.getWriteMethod())) {
+        return pd;
+      }
+    }
+    return null;
+  }
+
+  public static PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz) throws BeansException {
+    try {
+      return Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+    }
+    catch (IntrospectionException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
 }

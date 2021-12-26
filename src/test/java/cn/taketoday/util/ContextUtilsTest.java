@@ -45,7 +45,7 @@ import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.lang.Env;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

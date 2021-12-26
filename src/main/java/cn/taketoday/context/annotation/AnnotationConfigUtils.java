@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.InitDestroyAnnotationBeanPostProcessor;
+import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.event.DefaultEventListenerFactory;
 import cn.taketoday.context.event.MethodEventDrivenPostProcessor;

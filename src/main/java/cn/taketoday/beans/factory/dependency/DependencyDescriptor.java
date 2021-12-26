@@ -191,6 +191,8 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    * Check whether the underlying field is annotated with any variant of a
    * {@code Nullable} annotation, e.g. {@code jakarta.annotation.Nullable} or
    * {@code edu.umd.cs.findbugs.annotations.Nullable}.
+   *
+   * @see Nullable
    */
   private boolean hasNullableAnnotation() {
     for (Annotation annotation : getAnnotations()) {

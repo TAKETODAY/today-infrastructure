@@ -39,7 +39,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Service;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;

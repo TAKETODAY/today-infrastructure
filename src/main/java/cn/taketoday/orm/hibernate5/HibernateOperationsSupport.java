@@ -40,7 +40,7 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 

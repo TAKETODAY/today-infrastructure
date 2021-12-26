@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.factory.support;
+package cn.taketoday.beans.factory.annotation;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,6 +44,7 @@ import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.PriorityOrdered;

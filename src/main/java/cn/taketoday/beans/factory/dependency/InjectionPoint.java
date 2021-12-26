@@ -46,7 +46,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see DependencyDescriptor
  * @since 4.0
  */
-public abstract class InjectionPoint implements Serializable {
+public class InjectionPoint implements Serializable {
 
   /**
    * It shows that the value is not set

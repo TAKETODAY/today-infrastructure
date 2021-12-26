@@ -18,34 +18,22 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.dependency;
+package cn.taketoday.beans.factory.annotation;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import jakarta.inject.Provider;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * enable DI default is enabled
+ *
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see jakarta.inject.Provider
- * @since 4.0 2021/12/19 16:48
+ * @since 4.0 2021/11/24 16:44
  */
-public class ProviderDependencyResolvingStrategy extends InjectableDependencyResolvingStrategy {
-
-  @Override
-  protected boolean supportsInternal(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
-    return injectionPoint.dependencyIs(Provider.class);
-  }
-
-  @Override
-  protected Object getBean(
-          BeanFactory beanFactory, DependencyResolvingContext context, DependencyDescriptor injectionPoint) {
-
-    return new Provider<Object>() {
-
-      @Override
-      public Object get() {
-        return ProviderDependencyResolvingStrategy.super.getBean(beanFactory, context, injectionPoint);
-      }
-    };
-  }
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+public @interface EnableDependencyInjection {
 
 }

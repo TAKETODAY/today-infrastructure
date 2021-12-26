@@ -35,7 +35,7 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Service;
 import cn.taketoday.scheduling.annotation.AsyncResult;
 import jakarta.annotation.PostConstruct;

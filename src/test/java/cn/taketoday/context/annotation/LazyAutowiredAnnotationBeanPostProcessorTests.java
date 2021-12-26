@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class LazyAutowiredAnnotationBeanPostProcessorTests {
+public class LazyStandardDependenciesBeanPostProcessorTests {
 
   private void doTestLazyResourceInjection(Class<? extends TestBeanHolder> annotatedBeanClass) {
     StandardApplicationContext ac = new StandardApplicationContext();
@@ -128,7 +128,7 @@ public class LazyAutowiredAnnotationBeanPostProcessorTests {
 //  public void testLazyResourceInjectionWithNonExistingTarget() {
 //    StandardBeanFactory bf = new StandardBeanFactory();
 //    bf.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
-//    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+//    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
 //    bpp.setBeanFactory(bf);
 //    bf.addBeanPostProcessor(bpp);
 //    BeanDefinition bd = new BeanDefinition(FieldResourceInjectionBean.class);
@@ -145,7 +145,7 @@ public class LazyAutowiredAnnotationBeanPostProcessorTests {
 //  public void testLazyOptionalResourceInjectionWithNonExistingTarget() {
 //    StandardBeanFactory bf = new StandardBeanFactory();
 //    bf.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
-//    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+//    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor();
 //    bpp.setBeanFactory(bf);
 //    bf.addBeanPostProcessor(bpp);
 //    BeanDefinition bd = new BeanDefinition(OptionalFieldResourceInjectionBean.class);

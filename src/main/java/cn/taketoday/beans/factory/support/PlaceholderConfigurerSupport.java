@@ -25,6 +25,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;
 
@@ -54,7 +55,7 @@ import cn.taketoday.lang.Nullable;
  * dbname=mysql:mydb</pre>
  *
  * Annotated bean definitions may take advantage of property replacement using
- * the {@link cn.taketoday.lang.Value @Value} annotation:
+ * the {@link Value @Value} annotation:
  *
  * <pre class="code">@Value("${person.age}")</pre>
  *

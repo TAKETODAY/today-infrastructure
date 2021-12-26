@@ -24,8 +24,8 @@ import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Qualifier;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * Class used to test the functionality of factory method bean definitions

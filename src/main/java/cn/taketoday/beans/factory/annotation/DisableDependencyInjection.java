@@ -18,13 +18,21 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.dependency;
+package cn.taketoday.beans.factory.annotation;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author TODAY 2021/11/15 23:05
+ * Disable dependency-injection
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 22:06</a>
+ * @since 4.0
  */
-class DependencyResolvingStrategyTests {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+public @interface DisableDependencyInjection {
 
 }

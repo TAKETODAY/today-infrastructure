@@ -39,8 +39,8 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.annotation.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
@@ -580,8 +580,7 @@ public abstract class AbstractApplicationContext
     StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
 
     DependencyResolvingStrategies resolvingStrategies = postProcessor.getResolvingStrategies();
-    ExpressionDependencyResolver expressionDependencyResolver = new ExpressionDependencyResolver();
-    expressionDependencyResolver.setExpressionEvaluator(getExpressionEvaluator());
+    ExpressionDependencyResolver expressionDependencyResolver = new ExpressionDependencyResolver(beanFactory);
     resolvingStrategies.addStrategies(
             expressionDependencyResolver,
             new PropsDependencyResolvingStrategy(this)

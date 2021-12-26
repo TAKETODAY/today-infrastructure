@@ -28,7 +28,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

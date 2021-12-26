@@ -145,7 +145,7 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
       resolver.add(new ResourceBundleExpressionResolver());
       resolver.add(new ListExpressionResolver());
       resolver.add(new ArrayExpressionResolver());
-      resolver.add(new BeanExpressionResolver());
+      resolver.add(new BeanPropertyExpressionResolver());
       this.expressionResolver = resolver;
     }
     return expressionResolver;

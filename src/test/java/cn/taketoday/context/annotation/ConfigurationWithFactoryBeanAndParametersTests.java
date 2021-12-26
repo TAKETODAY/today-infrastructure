@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

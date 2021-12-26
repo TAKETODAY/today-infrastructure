@@ -159,7 +159,7 @@ public class StaticFieldExpressionResolver extends ExpressionResolver {
    * </p>
    * <p>
    * The process involved in the method selection is the same as that used in
-   * {@link BeanExpressionResolver}.
+   * {@link BeanPropertyExpressionResolver}.
    * </p>
    *
    * <p>

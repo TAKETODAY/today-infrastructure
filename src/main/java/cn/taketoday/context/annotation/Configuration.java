@@ -25,9 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * Indicates that a class declares one or more {@link Component @Component} methods and

@@ -21,7 +21,7 @@ package cn.taketoday.context.el;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

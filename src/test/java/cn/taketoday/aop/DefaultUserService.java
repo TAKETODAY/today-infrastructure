@@ -19,7 +19,7 @@
  */
 package cn.taketoday.aop;
 
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 
 /**

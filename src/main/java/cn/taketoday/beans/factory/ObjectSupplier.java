@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
@@ -42,7 +43,7 @@ import java.util.stream.Stream;
  * @author Juergen Hoeller
  * @author TODAY 2021/3/6 11:18
  * @see BeanFactory#getObjectSupplier
- * @see cn.taketoday.lang.Autowired
+ * @see Autowired
  * @since 3.0
  */
 public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {

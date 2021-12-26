@@ -25,7 +25,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
 
 import cn.taketoday.cache.annotation.CacheConfig;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 
 /**
  * A {@link CacheManager} implementation backed by Redisson instance.

@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.SimpleAutowireCandidateResolver;

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.support;
+package cn.taketoday.beans.factory.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -31,14 +31,14 @@ import cn.taketoday.beans.factory.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Autowired;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Qualifier;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 

@@ -40,7 +40,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Repository;

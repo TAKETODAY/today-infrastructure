@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.annotation3;
 
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.lang.Repository;
 import example.scannable.FooDao;
 

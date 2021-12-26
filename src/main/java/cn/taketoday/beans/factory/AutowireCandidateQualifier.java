@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 
 /**
  * Qualifier for resolving autowire candidates. A bean definition that

@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.beans.factory.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;

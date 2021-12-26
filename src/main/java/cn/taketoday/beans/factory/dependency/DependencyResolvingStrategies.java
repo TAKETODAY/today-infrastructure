@@ -23,7 +23,6 @@ package cn.taketoday.beans.factory.dependency;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -48,20 +47,8 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
           DependencyDescriptor injectionPoint, DependencyResolvingContext resolvingContext) {
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
       resolvingStrategy.resolveDependency(injectionPoint, resolvingContext);
-      if (resolvingContext.isTerminate()) {
+      if (resolvingContext.isDependencyResolved()) {
         return;
-      }
-    }
-
-    if (!resolvingContext.hasDependency()) {
-      if (injectionPoint.isProperty()) {
-        resolvingContext.setDependency(InjectionPoint.DO_NOT_SET);
-      }
-      else if (injectionPoint.isRequired()) {
-        throw new DependencyResolvingFailedException("Dependency " + injectionPoint + "is required");
-      }
-      else {
-        resolvingContext.setDependency(InjectionPoint.DO_NOT_SET);
       }
     }
   }
@@ -78,15 +65,8 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
     // un-ordered
     resolvingStrategies.addAll(strategies); // @since 4.0
-    try {
-      resolvingStrategies.add(new ProviderDependencyResolvingStrategy());
-    }
-    catch (Exception ignored) { }
-    AnnotationAwareOrderComparator.sort(resolvingStrategies);
-
-    // last one
-    resolvingStrategies.add(new InjectableDependencyResolvingStrategy());
     resolvingStrategies.trimToSize();
+    AnnotationAwareOrderComparator.sort(resolvingStrategies);
   }
 
   public ArrayList<DependencyResolvingStrategy> getStrategies() {
@@ -121,6 +101,10 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   public void clear() {
     resolvingStrategies.clear();
+  }
+
+  public boolean isNotEmpty() {
+    return !resolvingStrategies.isEmpty();
   }
 
 }

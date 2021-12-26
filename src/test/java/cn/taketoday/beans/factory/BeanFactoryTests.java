@@ -36,7 +36,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.DataSize;

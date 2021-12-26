@@ -22,16 +22,21 @@ package cn.taketoday.context.annotation;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.beans.DependencyResolvingFailedException;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
-import cn.taketoday.context.expression.ExpressionEvaluatorSupport;
+import cn.taketoday.beans.factory.support.BeanExpressionContext;
+import cn.taketoday.beans.factory.support.BeanExpressionResolver;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.context.expression.ExpressionEvaluationException;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
-import cn.taketoday.lang.Value;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.util.StringUtils;
 
@@ -41,8 +46,28 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/18 21:11</a>
  * @since 4.0
  */
-public class ExpressionDependencyResolver
-        extends ExpressionEvaluatorSupport implements DependencyResolvingStrategy, Ordered {
+public class ExpressionDependencyResolver implements DependencyResolvingStrategy, Ordered {
+
+  private final BeanExpressionContext exprContext;
+
+  @Nullable
+  private final BeanExpressionResolver exprResolver;
+  private final ConfigurableBeanFactory beanFactory;
+
+  public ExpressionDependencyResolver(ConfigurableBeanFactory beanFactory) {
+    this.exprContext = new BeanExpressionContext(beanFactory, null);
+    this.exprResolver = beanFactory.getBeanExpressionResolver();
+    this.beanFactory = beanFactory;
+  }
+
+  @Nullable
+  public Object evaluate(ExpressionInfo expr) {
+    String value = exprContext.getBeanFactory().resolveEmbeddedValue(expr.getExpression());
+    if (!expr.isPlaceholderOnly() && exprResolver != null && value != null) {
+      return this.exprResolver.evaluate(value, this.exprContext);
+    }
+    return value;
+  }
 
   @Override
   public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
@@ -52,8 +77,7 @@ public class ExpressionDependencyResolver
         ExpressionInfo expressionInfo = new ExpressionInfo(env);
         expressionInfo.setPlaceholderOnly(true);
         Object evaluate = resolve(injectionPoint, expressionInfo);
-        context.setDependency(evaluate);
-        context.terminate();
+        context.setDependencyResolved(evaluate);
       }
       else {
         Value annotation = injectionPoint.getAnnotation(Value.class);
@@ -61,14 +85,14 @@ public class ExpressionDependencyResolver
           ExpressionInfo expressionInfo = new ExpressionInfo(annotation);
           expressionInfo.setPlaceholderOnly(false);
           Object evaluate = resolve(injectionPoint, expressionInfo);
-          context.setDependency(evaluate);
-          context.terminate();
+          context.setDependencyResolved(evaluate);
         }
       }
     }
   }
 
-  private Object resolve(DependencyDescriptor injectionPoint, ExpressionInfo expr) {
+  private Object resolve(
+          DependencyDescriptor injectionPoint, ExpressionInfo expr) {
     String expression = expr.getExpression();
     if (StringUtils.isEmpty(expression)) {
       if (injectionPoint.isProperty()
@@ -84,14 +108,19 @@ public class ExpressionDependencyResolver
       }
     }
 
-    Object value = evaluator().evaluate(expr, injectionPoint.getDependencyType());
+    Object value = evaluate(expr);
     if (value == null && injectionPoint.isRequired()) {
       // perform @Required Annotation
-      throw new DependencyResolvingFailedException(
+      throw new ExpressionEvaluationException(
               "Can't resolve expression on injection-point: [" + injectionPoint +
                       "] with expression: [" + expr.getExpression() + "].");
     }
-    return value;
+
+    ConversionService conversionService = beanFactory.getConversionService();
+    if (conversionService == null) {
+      conversionService = DefaultConversionService.getSharedInstance();
+    }
+    return conversionService.convert(value, injectionPoint.getDependencyType());
   }
 
   @Override

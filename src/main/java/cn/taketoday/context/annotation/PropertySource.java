@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.io.PropertySourceFactory;
 
 /**
@@ -59,7 +60,7 @@ import cn.taketoday.core.io.PropertySourceFactory;
  * }</pre>
  *
  * Notice that the {@code Environment} object is
- * {@link cn.taketoday.lang.Autowired @Autowired} into the
+ * {@link Autowired @Autowired} into the
  * configuration class and then used when populating the {@code TestBean} object. Given
  * the configuration above, a call to {@code testBean.getName()} will return "myTestBean".
  *

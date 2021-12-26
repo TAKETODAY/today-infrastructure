@@ -39,8 +39,8 @@ import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
 import jakarta.inject.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;

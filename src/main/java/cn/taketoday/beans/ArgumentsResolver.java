@@ -38,7 +38,7 @@ import cn.taketoday.lang.Env;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.util.ObjectUtils;
 
 /**

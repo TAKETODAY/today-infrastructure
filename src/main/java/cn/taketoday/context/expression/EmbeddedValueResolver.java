@@ -20,35 +20,49 @@
 
 package cn.taketoday.context.expression;
 
+import cn.taketoday.beans.factory.support.BeanExpressionContext;
+import cn.taketoday.beans.factory.support.BeanExpressionResolver;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;
 
 /**
  * {@link StringValueResolver} adapter for resolving placeholders and
- * expressions
+ * expressions against a {@link ConfigurableBeanFactory}.
  *
+ * <p>Note that this adapter resolves expressions as well, in contrast
+ * to the {@link ConfigurableBeanFactory#resolveEmbeddedValue} method.
+ * The {@link BeanExpressionContext} used is for the plain bean factory,
+ * with no scope specified for any contextual objects to access.
+ *
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ConfigurableBeanFactory#resolveEmbeddedValue(String)
+ * @see ConfigurableBeanFactory#getBeanExpressionResolver()
+ * @see BeanExpressionContext
  * @since 4.0 2021/12/7 11:24
  */
 public class EmbeddedValueResolver implements StringValueResolver {
-  private final ConfigurableBeanFactory beanFactory;
-  private final ExpressionEvaluator expressionEvaluator;
 
-  public EmbeddedValueResolver(ConfigurableApplicationContext context) {
-    this.expressionEvaluator = context.getExpressionEvaluator();
-    this.beanFactory = context.getBeanFactory();
-  }
+  private final BeanExpressionContext exprContext;
 
   @Nullable
+  private final BeanExpressionResolver exprResolver;
+
+  public EmbeddedValueResolver(ConfigurableBeanFactory beanFactory) {
+    this.exprContext = new BeanExpressionContext(beanFactory, null);
+    this.exprResolver = beanFactory.getBeanExpressionResolver();
+  }
+
   @Override
+  @Nullable
   public String resolveStringValue(String strVal) {
-    String value = beanFactory.resolveEmbeddedValue(strVal);
-    if (value != null) {
-      Object evaluated = expressionEvaluator.evaluate(value, String.class);
+    String value = exprContext.getBeanFactory().resolveEmbeddedValue(strVal);
+    if (exprResolver != null && value != null) {
+      Object evaluated = this.exprResolver.evaluate(value, this.exprContext);
       value = evaluated != null ? evaluated.toString() : null;
     }
     return value;
   }
+
 }

@@ -21,7 +21,7 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.beans.factory.dependency.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Props;

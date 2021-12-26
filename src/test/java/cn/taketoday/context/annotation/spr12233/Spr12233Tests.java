@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * Tests cornering the regression reported in SPR-12233.

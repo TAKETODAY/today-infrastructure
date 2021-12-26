@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.http.InternalServerException;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;

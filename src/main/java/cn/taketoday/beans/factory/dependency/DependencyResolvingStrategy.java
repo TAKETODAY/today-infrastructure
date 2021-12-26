@@ -22,8 +22,6 @@ package cn.taketoday.beans.factory.dependency;
 
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.beans.DependencyResolvingFailedException;
-
 /**
  * resolve dependency
  *
@@ -41,7 +39,6 @@ public interface DependencyResolvingStrategy {
    *
    * @param injectionPoint Target method {@link Parameter} or a {@link java.lang.reflect.Field}
    * @param context resolving context never {@code null}
-   * @throws DependencyResolvingFailedException dependency cannot determine or resolve
    */
   void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context);
 

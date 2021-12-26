@@ -22,7 +22,7 @@ package test.demo.service.impl;
 import jakarta.annotation.Resource;
 
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

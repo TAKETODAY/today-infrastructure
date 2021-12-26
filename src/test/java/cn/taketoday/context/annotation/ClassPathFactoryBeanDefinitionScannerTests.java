@@ -34,8 +34,8 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

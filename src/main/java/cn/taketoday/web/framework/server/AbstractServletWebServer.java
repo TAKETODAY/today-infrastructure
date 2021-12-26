@@ -40,7 +40,7 @@ import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.framework.WebServerApplicationContext;

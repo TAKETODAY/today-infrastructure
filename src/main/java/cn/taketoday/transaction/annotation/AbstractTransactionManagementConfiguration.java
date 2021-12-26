@@ -30,7 +30,7 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.AnnotationProvider;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionManagementConfigUtils;

@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.dependency.DisableDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;

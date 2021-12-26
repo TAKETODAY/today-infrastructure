@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.lang;
+package cn.taketoday.beans.factory.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,6 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Env;
+import cn.taketoday.lang.Required;
 
 /**
  * Annotation used at the field or method/constructor parameter level

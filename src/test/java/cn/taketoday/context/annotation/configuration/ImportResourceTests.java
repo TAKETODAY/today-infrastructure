@@ -20,22 +20,6 @@
 
 package cn.taketoday.context.annotation.configuration;
 
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-
-import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.core.env.MapPropertySource;
-import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.lang.Autowired;
-import cn.taketoday.lang.Value;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

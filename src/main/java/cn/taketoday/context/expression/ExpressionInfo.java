@@ -23,7 +23,7 @@ package cn.taketoday.context.expression;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Env;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * @author TODAY 2021/10/14 21:58

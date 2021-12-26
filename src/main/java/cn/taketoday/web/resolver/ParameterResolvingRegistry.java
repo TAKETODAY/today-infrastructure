@@ -32,7 +32,7 @@ import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;

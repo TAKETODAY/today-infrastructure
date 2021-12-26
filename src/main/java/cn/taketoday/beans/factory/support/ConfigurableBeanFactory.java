@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanPostProcessor;
@@ -45,7 +46,8 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2018-11-14 19:40
  * @see BeanFactory
  */
-public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, SingletonBeanRegistry {
+public interface ConfigurableBeanFactory
+        extends HierarchicalBeanFactory, SingletonBeanRegistry, AutowireCapableBeanFactory {
 
   /**
    * Destroy the given bean instance (usually a prototype instance

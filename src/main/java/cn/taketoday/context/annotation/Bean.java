@@ -33,9 +33,9 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Value;
+import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * Indicates that a method produces a bean to be managed by the  container.

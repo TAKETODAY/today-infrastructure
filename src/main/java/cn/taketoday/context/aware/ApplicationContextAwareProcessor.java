@@ -63,7 +63,7 @@ public class ApplicationContextAwareProcessor implements InitializationBeanPostP
    */
   public ApplicationContextAwareProcessor(ConfigurableApplicationContext applicationContext) {
     this.context = applicationContext;
-    this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext);
+    this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext.getBeanFactory());
   }
 
   @Nullable

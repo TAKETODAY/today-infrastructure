@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.configuration.spr9031.scanpackage.Spr9031Component;
-import cn.taketoday.lang.Autowired;
+import cn.taketoday.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

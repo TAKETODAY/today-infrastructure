@@ -51,7 +51,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Component;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Qualifier;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.scheduling.concurrent.CustomizableThreadFactory;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;

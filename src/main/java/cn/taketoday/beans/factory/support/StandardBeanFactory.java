@@ -82,6 +82,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import jakarta.inject.Provider;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -90,8 +91,20 @@ import cn.taketoday.util.StringUtils;
  */
 public class StandardBeanFactory
         extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
-
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
+  @Nullable
+  private static Class<?> javaxInjectProviderClass;
+
+  static {
+    try {
+      javaxInjectProviderClass =
+              ClassUtils.forName("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
+    }
+    catch (ClassNotFoundException ex) {
+      // JSR-330 API not available - Provider interface simply not supported then.
+      javaxInjectProviderClass = null;
+    }
+  }
 
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;
@@ -1054,6 +1067,9 @@ public class StandardBeanFactory
             || ObjectSupplier.class == descriptor.getDependencyType()) {
       return new DependencyObjectProvider(descriptor, requestingBeanName);
     }
+    else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+      return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
+    }
     else {
       Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
               descriptor, requestingBeanName);
@@ -1824,6 +1840,31 @@ public class StandardBeanFactory
       return result instanceof Stream ? (Stream<Object>) result : Stream.of(result);
     }
 
+  }
+
+  /**
+   * Separate inner class for avoiding a hard dependency on the {@code jakarta.inject} API.
+   * Actual {@code jakarta.inject.Provider} implementation is nested here in order to make it
+   * invisible for Graal's introspection of StandardBeanFactory's nested classes.
+   */
+  private class Jsr330Factory implements Serializable {
+
+    public Object createDependencyProvider(DependencyDescriptor descriptor, @Nullable String beanName) {
+      return new Jsr330Provider(descriptor, beanName);
+    }
+
+    private class Jsr330Provider extends DependencyObjectProvider implements Provider<Object> {
+
+      public Jsr330Provider(DependencyDescriptor descriptor, @Nullable String beanName) {
+        super(descriptor, beanName);
+      }
+
+      @Override
+      @Nullable
+      public Object get() throws BeansException {
+        return getValue();
+      }
+    }
   }
 
 }

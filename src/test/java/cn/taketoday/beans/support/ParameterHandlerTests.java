@@ -25,12 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.ArgumentsResolver;
-import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.context.StandardApplicationContext;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author TODAY 2021/8/22 22:03
@@ -45,17 +43,6 @@ class ParameterHandlerTests {
 
   public void test(ParameterHandlerBean bean) {
     System.out.println(bean);
-  }
-
-  @Test
-  void argumentsNotSupportedException() throws NoSuchMethodException {
-    ArgumentsResolver argumentsResolver = new ArgumentsResolver();
-    Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);
-    try {
-      Object[] resolve = argumentsResolver.resolve(test);
-      fail("ArgumentsResolvingStrategy");
-    }
-    catch (DependencyResolvingFailedException ignored) { }
   }
 
   @Test

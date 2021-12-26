@@ -18,21 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.dependency;
+package cn.taketoday.beans.factory.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Disable dependency-injection
+ * This annotation may be used on a field or parameter as a qualifier for
+ * candidate beans when autowiring. It may also be used to annotate other
+ * custom annotations that can then in turn be used as qualifiers.
+ * <P>
+ * Spring style Qualifier
+ * </P>
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 22:06</a>
+ * @see Autowired
  * @since 4.0
  */
+@Inherited
+@Documented
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface DisableDependencyInjection {
+public @interface Qualifier {
+
+  String value() default "";
 
 }
