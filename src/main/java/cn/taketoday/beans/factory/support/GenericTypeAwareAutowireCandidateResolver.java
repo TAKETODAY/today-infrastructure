@@ -82,7 +82,7 @@ public class GenericTypeAwareAutowireCandidateResolver
       return true;
     }
 
-    ResolvableType targetType = null;
+    ResolvableType targetType;
     boolean cacheType = false;
     targetType = definition.targetType;
     if (targetType == null) {

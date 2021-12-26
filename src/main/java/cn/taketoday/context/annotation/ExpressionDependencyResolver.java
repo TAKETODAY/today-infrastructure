@@ -26,11 +26,9 @@ import cn.taketoday.beans.DependencyResolvingFailedException;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
-import cn.taketoday.beans.factory.dependency.InjectionPoint;
 import cn.taketoday.context.expression.ExpressionEvaluatorSupport;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Value;
@@ -49,17 +47,19 @@ public class ExpressionDependencyResolver
   @Override
   public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
     if (!context.hasDependency()) {
-      MergedAnnotation<Env> env = injectionPoint.getAnnotation(Env.class);
-      if (env.isPresent()) {
-        ExpressionInfo expressionInfo = new ExpressionInfo(env, true);
+      Env env = injectionPoint.getAnnotation(Env.class);
+      if (env != null) {
+        ExpressionInfo expressionInfo = new ExpressionInfo(env);
+        expressionInfo.setPlaceholderOnly(true);
         Object evaluate = resolve(injectionPoint, expressionInfo);
         context.setDependency(evaluate);
         context.terminate();
       }
       else {
-        MergedAnnotation<Value> annotation = injectionPoint.getAnnotation(Value.class);
-        if (annotation.isPresent()) {
-          ExpressionInfo expressionInfo = new ExpressionInfo(annotation, false);
+        Value annotation = injectionPoint.getAnnotation(Value.class);
+        if (annotation != null) {
+          ExpressionInfo expressionInfo = new ExpressionInfo(annotation);
+          expressionInfo.setPlaceholderOnly(false);
           Object evaluate = resolve(injectionPoint, expressionInfo);
           context.setDependency(evaluate);
           context.terminate();
@@ -68,7 +68,7 @@ public class ExpressionDependencyResolver
     }
   }
 
-  private Object resolve(InjectionPoint injectionPoint, ExpressionInfo expr) {
+  private Object resolve(DependencyDescriptor injectionPoint, ExpressionInfo expr) {
     String expression = expr.getExpression();
     if (StringUtils.isEmpty(expression)) {
       if (injectionPoint.isProperty()

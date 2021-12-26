@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,15 +32,14 @@ import java.util.Set;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.Lazy;
-import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -63,24 +63,25 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
   }
 
   protected boolean isLazy(DependencyDescriptor descriptor) {
-    MergedAnnotation<Lazy> lazy = descriptor.getAnnotation(Lazy.class);
-
-    if (lazy.isPresent() && lazy.getBoolean(MergedAnnotation.VALUE)) {
-      return true;
+    for (Annotation ann : descriptor.getAnnotations()) {
+      Lazy lazy = AnnotationUtils.getAnnotation(ann, Lazy.class);
+      if (lazy != null && lazy.value()) {
+        return true;
+      }
     }
-
     MethodParameter methodParam = descriptor.getMethodParameter();
     if (methodParam != null) {
       Method method = methodParam.getMethod();
       if (method == null || void.class == method.getReturnType()) {
-        Lazy lazy_ = AnnotationUtils.getAnnotation(methodParam.getAnnotatedElement(), Lazy.class);
-        return lazy_ != null && lazy_.value();
+        Lazy lazy = AnnotationUtils.getAnnotation(methodParam.getAnnotatedElement(), Lazy.class);
+        return lazy != null && lazy.value();
       }
     }
     return false;
   }
 
-  protected Object buildLazyResolutionProxy(final DependencyDescriptor descriptor, final @Nullable String beanName) {
+  protected Object buildLazyResolutionProxy(
+          final DependencyDescriptor descriptor, final @Nullable String beanName) {
     BeanFactory beanFactory = getBeanFactory();
     Assert.state(beanFactory instanceof StandardBeanFactory,
             "BeanFactory needs to be a StandardBeanFactory");

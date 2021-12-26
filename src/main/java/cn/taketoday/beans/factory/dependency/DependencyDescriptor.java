@@ -26,7 +26,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,7 +36,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
@@ -181,15 +179,22 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     }
   }
 
+  public boolean isMap() {
+    return Map.class.isAssignableFrom(getDependencyType());
+  }
+
+  public boolean dependencyIs(Class<?> type) {
+    return type == getDependencyType();
+  }
+
   /**
    * Check whether the underlying field is annotated with any variant of a
    * {@code Nullable} annotation, e.g. {@code jakarta.annotation.Nullable} or
    * {@code edu.umd.cs.findbugs.annotations.Nullable}.
    */
   private boolean hasNullableAnnotation() {
-    for (MergedAnnotation<Annotation> annotation : getAnnotations()) {
-      List<Class<? extends Annotation>> metaTypes = annotation.getMetaTypes();
-      if ("Nullable".equals(annotation.getType().getSimpleName())) {
+    for (Annotation annotation : getAnnotations()) {
+      if ("Nullable".equals(annotation.annotationType().getSimpleName())) {
         return true;
       }
     }

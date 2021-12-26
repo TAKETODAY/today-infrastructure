@@ -164,7 +164,7 @@ public class ArgumentsResolver {
     if (provided == null) {
       DependencyResolvingContext context =
               new DependencyResolvingContext(parameter.getDeclaringExecutable(), beanFactory);
-      DependencyDescriptor descriptor = new DependencyDescriptor(MethodParameter.forParameter(parameter), false);
+      DependencyDescriptor descriptor = new DependencyDescriptor(MethodParameter.forParameter(parameter), true);
       resolvingStrategies().resolveDependency(descriptor, context);
       provided = context.getDependency() == InjectionPoint.DO_NOT_SET
                  ? null : context.getDependency();

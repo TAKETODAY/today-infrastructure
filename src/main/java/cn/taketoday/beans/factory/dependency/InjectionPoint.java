@@ -25,21 +25,25 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
-import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.PropertyValueRetriever;
+import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * Dependency InjectionPoint
+ * A simple descriptor for an injection point, pointing to a method/constructor
+ * parameter or a field. Exposed by {@link UnsatisfiedDependencyException}.
+ * Also available as an argument for factory methods, reacting to the
+ * requesting injection point for building a customized bean instance.
  *
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 21:29</a>
+ * @see UnsatisfiedDependencyException#getInjectionPoint()
+ * @see DependencyDescriptor
  * @since 4.0
  */
 public abstract class InjectionPoint implements Serializable {
@@ -49,60 +53,8 @@ public abstract class InjectionPoint implements Serializable {
    */
   public static final Object DO_NOT_SET = PropertyValueRetriever.DO_NOT_SET;
 
-  protected MergedAnnotations annotations;
-
-  public abstract Class<?> getDependencyType();
-
-  /**
-   * Obtain the annotations associated with the wrapped field or method/constructor parameter.
-   */
-  public MergedAnnotations getAnnotations() {
-    if (annotations == null) {
-      annotations = doGetAnnotations();
-    }
-    return annotations;
-  }
-
-  protected MergedAnnotations doGetAnnotations() {
-    if (this.field != null) {
-      return MergedAnnotations.from(field);
-    }
-    else {
-      return MergedAnnotations.from(obtainMethodParameter().getParameterAnnotations());
-    }
-  }
-
-  public <A extends Annotation> boolean isAnnotationPresent(Class<A> annotationType) {
-    return getAnnotations().isPresent(annotationType);
-  }
-
-  /**
-   * Retrieve a field/parameter annotation of the given type, if any.
-   *
-   * @param annotationType the annotation type to retrieve
-   * @return the MergedAnnotation
-   */
-  public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annotationType) {
-    return getAnnotations().get(annotationType);
-  }
-
-  public boolean isArray() {
-    return getDependencyType().isArray();
-  }
-
-  public boolean isMap() {
-    return Map.class.isAssignableFrom(getDependencyType());
-  }
-
-  public boolean dependencyIs(Class<?> type) {
-    return type == getDependencyType();
-  }
-
-  public boolean isProperty() {
-    return field != null;
-  }
-
-  //
+  @Nullable
+  private volatile Annotation[] fieldAnnotations;
 
   @Nullable
   protected MethodParameter methodParameter;
@@ -145,6 +97,10 @@ public abstract class InjectionPoint implements Serializable {
    * Just available for serialization purposes in subclasses.
    */
   protected InjectionPoint() { }
+
+  public boolean isProperty() {
+    return field != null;
+  }
 
   /**
    * Return the wrapped MethodParameter, if any.
@@ -189,6 +145,14 @@ public abstract class InjectionPoint implements Serializable {
   }
 
   /**
+   * Return the type declared by the underlying field or method/constructor parameter,
+   * indicating the injection type.
+   */
+  public Class<?> getDeclaredType() {
+    return this.field != null ? this.field.getType() : obtainMethodParameter().getParameterType();
+  }
+
+  /**
    * Return the wrapped annotated element.
    * <p>Note: In case of a method/constructor parameter, this exposes
    * the annotations declared on the method or constructor itself
@@ -200,6 +164,35 @@ public abstract class InjectionPoint implements Serializable {
    */
   public AnnotatedElement getAnnotatedElement() {
     return this.field != null ? this.field : obtainMethodParameter().getAnnotatedElement();
+  }
+
+  /**
+   * Obtain the annotations associated with the wrapped field or method/constructor parameter.
+   */
+  public Annotation[] getAnnotations() {
+    if (this.field != null) {
+      Annotation[] fieldAnnotations = this.fieldAnnotations;
+      if (fieldAnnotations == null) {
+        fieldAnnotations = this.field.getAnnotations();
+        this.fieldAnnotations = fieldAnnotations;
+      }
+      return fieldAnnotations;
+    }
+    else {
+      return obtainMethodParameter().getParameterAnnotations();
+    }
+  }
+
+  /**
+   * Retrieve a field/parameter annotation of the given type, if any.
+   *
+   * @param annotationType the annotation type to retrieve
+   * @return the annotation instance, or {@code null} if none found
+   */
+  @Nullable
+  public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+    return this.field != null ? this.field.getAnnotation(annotationType) :
+           obtainMethodParameter().getParameterAnnotation(annotationType);
   }
 
   @Override

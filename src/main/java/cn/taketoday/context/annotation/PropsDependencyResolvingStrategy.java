@@ -50,9 +50,10 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
   @Override
   public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
-    if (injectionPoint.isAnnotationPresent(Props.class)) {
+    Props annotation = injectionPoint.getAnnotation(Props.class);
+    if (annotation != null) {
       Object dependency = resolvingContext.getDependency();
-      DefaultProps props = new DefaultProps(injectionPoint.getAnnotation(Props.class));
+      DefaultProps props = new DefaultProps(annotation);
       if (dependency != null) {
         // fill props even though already a dependency
         dependency = propsReader.read(props, dependency);

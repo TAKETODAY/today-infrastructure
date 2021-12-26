@@ -319,7 +319,7 @@ class StandardApplicationContextTests {
   void individualBeanWithMixedConstructorArguments() {
     StandardApplicationContext context = new StandardApplicationContext();
     BeanC c = new BeanC();
-    context.registerBean(BeanA.class, c);
+    context.registerBean(BeanA.class);
     context.registerBean(BeanB.class);
     context.refresh();
 
@@ -332,7 +332,7 @@ class StandardApplicationContextTests {
   void individualNamedBeanWithMixedConstructorArguments() {
     StandardApplicationContext context = new StandardApplicationContext();
     BeanC c = new BeanC();
-    context.registerBean("a", BeanA.class, c);
+    context.registerBean("a", BeanA.class);
     context.registerBean("b", BeanB.class);
     context.refresh();
 

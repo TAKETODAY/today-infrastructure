@@ -134,7 +134,7 @@ public class StandardDependenciesBeanPostProcessor
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
     context.setBeanName(beanName);
 
-    getResolvingStrategies().resolveDependency(new DependencyDescriptor(property, false), context);
+    getResolvingStrategies().resolveDependency(new DependencyDescriptor(property, true), context);
 
     return context.getDependency();
   }

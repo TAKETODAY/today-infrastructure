@@ -27,14 +27,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
@@ -149,7 +147,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         if (methodParam != null) {
           Method method = methodParam.getMethod();
           if (method == null || void.class == method.getReturnType()) {
-            match = checkQualifiers(definition, MergedAnnotations.from(methodParam.getMethodAnnotations()));
+            match = checkQualifiers(definition, methodParam.getMethodAnnotations());
           }
         }
       }
@@ -160,9 +158,9 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   /**
    * Match the given qualifier annotations against the candidate bean definition.
    */
-  protected boolean checkQualifiers(BeanDefinition definition, MergedAnnotations annotationsToSearch) {
-    for (MergedAnnotation<Annotation> annotation : annotationsToSearch) {
-      Class<? extends Annotation> type = annotation.getType();
+  protected boolean checkQualifiers(BeanDefinition definition, Annotation[] annotationsToSearch) {
+    for (Annotation annotation : annotationsToSearch) {
+      Class<? extends Annotation> type = annotation.annotationType();
       boolean checkMeta = true;
       boolean fallbackToMeta = false;
       if (isQualifier(type)) {
@@ -182,7 +180,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
             // Only accept fallback match if @Qualifier annotation has a value...
             // Otherwise it is just a marker for a custom qualifier annotation.
             if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn)))
-                    || !checkQualifier(definition, MergedAnnotation.from(metaAnn))) {
+                    || !checkQualifier(definition, metaAnn)) {
               return false;
             }
           }
@@ -210,10 +208,9 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   /**
    * Match the given qualifier annotation against the candidate bean definition.
    */
-  protected boolean checkQualifier(
-          BeanDefinition definition, MergedAnnotation<Annotation> annotation) {
+  protected boolean checkQualifier(BeanDefinition definition, Annotation annotation) {
 
-    Class<? extends Annotation> type = annotation.getType();
+    Class<? extends Annotation> type = annotation.annotationType();
 
     AutowireCandidateQualifier qualifier = definition.getQualifier(type.getName());
     if (qualifier == null) {
@@ -248,7 +245,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       }
     }
 
-    Map<String, Object> attributes = annotation.asMap();
+    Map<String, Object> attributes = AnnotationUtils.getAnnotationAttributes(annotation);
     if (attributes.isEmpty() && qualifier == null) {
       // If no attributes, the qualifier must be present
       return false;
@@ -272,7 +269,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       }
       if (actualValue == null && qualifier != null) {
         // Fall back on default, but only if the qualifier is present
-        actualValue = AnnotationUtils.getDefaultValue(annotation.getType(), attributeName);
+        actualValue = AnnotationUtils.getDefaultValue(annotation.annotationType(), attributeName);
       }
       if (actualValue != null) {
         actualValue = convertIfNecessary(actualValue, expectedValue.getClass());
@@ -315,8 +312,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
     if (!super.isRequired(descriptor)) {
       return false;
     }
-    MergedAnnotation<Autowired> autowired = descriptor.getAnnotation(Autowired.class);
-    return !autowired.isPresent() || autowired.getBoolean("required");
+    Autowired autowired = descriptor.getAnnotation(Autowired.class);
+    return autowired == null || autowired.required();
   }
 
   /**
@@ -327,8 +324,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    */
   @Override
   public boolean hasQualifier(DependencyDescriptor descriptor) {
-    for (MergedAnnotation<Annotation> ann : descriptor.getAnnotations()) {
-      if (isQualifier(ann.getType())) {
+    for (Annotation ann : descriptor.getAnnotations()) {
+      if (isQualifier(ann.annotationType())) {
         return true;
       }
     }
