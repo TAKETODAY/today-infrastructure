@@ -83,12 +83,12 @@ public class AnnotationBeanNamePopulator implements BeanNamePopulator {
     if (definition instanceof AnnotatedBeanDefinition) {
       determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
     }
-    if (!StringUtils.hasText(definition.getName())) {
+    if (!StringUtils.hasText(definition.getBeanName())) {
       // Fallback: generate a unique default bean name.
       String beanName = buildDefaultBeanName(definition, registry);
-      definition.setName(beanName);
+      definition.setBeanName(beanName);
     }
-    return definition.getName();
+    return definition.getBeanName();
   }
 
   /**
@@ -130,12 +130,12 @@ public class AnnotationBeanNamePopulator implements BeanNamePopulator {
     if (value.isPresent()) {
       Object attribute = value.get();
       if (attribute instanceof String beanName) {
-        annotatedDef.setName(beanName);
+        annotatedDef.setBeanName(beanName);
         return beanName;
       }
       else if (attribute instanceof String[] nameArray && ObjectUtils.isNotEmpty(nameArray)) {
         String beanName = nameArray[0];
-        annotatedDef.setName(beanName);
+        annotatedDef.setBeanName(beanName);
         if (nameArray.length > 1) {
           ArrayList<String> aliases = new ArrayList<>();
           for (int i = 1; i < nameArray.length; i++) {

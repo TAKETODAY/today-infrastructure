@@ -91,7 +91,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
           BeanDefinition beanDefinition, @Nullable List<DestructionBeanPostProcessor> postProcessors) {
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
-    this.beanName = beanDefinition.getName();
+    this.beanName = beanDefinition.getBeanName();
     this.invokeDisposableBean = bean instanceof DisposableBean;
 
     String destroyName = inferDestroyMethodIfNecessary(autoInferDestroyMethod, bean, beanDefinition);

@@ -52,7 +52,7 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
     StandardAnnotationWebSocketDispatcher socketDispatcher
             = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
 
-    ServerEndpoint serverEndpoint = context.getAnnotationOnBean(definition.getName(), ServerEndpoint.class);
+    ServerEndpoint serverEndpoint = context.getAnnotationOnBean(definition.getBeanName(), ServerEndpoint.class);
     if (serverEndpoint != null) {
       ServerEndpointConfig.Configurator configuratorObject = null;
       Class<? extends ServerEndpointConfig.Configurator> configurator = serverEndpoint.configurator();

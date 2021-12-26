@@ -296,7 +296,7 @@ public class BeanDefinitionBuilder {
   }
 
   public BeanDefinition build(BeanDefinition definition) {
-    definition.setName(name);
+    definition.setBeanName(name);
     definition.setRole(role);
     definition.setScope(scope);
     definition.setPrimary(primary);
@@ -472,7 +472,7 @@ public class BeanDefinitionBuilder {
     Assert.notNull(name, "bean-name must not be null");
     Assert.notNull(beanClass, "bean-class must not be null");
     AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
-    definition.setName(name);
+    definition.setBeanName(name);
     if (attributes != null) {
       definition.setDestroyMethod(attributes.getString(BeanDefinition.DESTROY_METHOD));
       definition.setInitMethods(attributes.getStringArray(BeanDefinition.INIT_METHODS));

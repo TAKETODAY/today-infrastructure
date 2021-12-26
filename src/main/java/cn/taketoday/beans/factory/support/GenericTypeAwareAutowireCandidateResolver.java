@@ -94,7 +94,7 @@ public class GenericTypeAwareAutowireCandidateResolver
     if (targetType == null) {
       // Regular case: straight bean instance, with BeanFactory available.
       if (this.beanFactory != null) {
-        Class<?> beanType = this.beanFactory.getType(definition.getName());
+        Class<?> beanType = this.beanFactory.getType(definition.getBeanName());
         if (beanType != null) {
           targetType = ResolvableType.fromClass(ClassUtils.getUserClass(beanType));
         }

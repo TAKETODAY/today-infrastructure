@@ -87,7 +87,7 @@ class AutoProxyConfiguration implements ImportBeanDefinitionRegistrar {
     else {
       // check is a ProxyConfig? don't use BeanDefinition#getBeanClass()
       if (context.getBeanFactory().isTypeMatch(
-              proxyCreator.getName(), ProxyConfig.class)) {
+              proxyCreator.getBeanName(), ProxyConfig.class)) {
 
         if (aspectAutoProxy.isPresent()) {
           proxyCreator.addPropertyValue("exposeProxy", aspectAutoProxy.getBoolean("exposeProxy"));

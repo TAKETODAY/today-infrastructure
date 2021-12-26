@@ -175,7 +175,7 @@ class ConfigurationClassBeanDefinitionReader {
     boolean enableDependencyInjection = isEnableDependencyInjection(
             annotations, disableDependencyInjectionAll);
 
-    beanDef.setName(beanName);
+    beanDef.setBeanName(beanName);
     if (!names.isEmpty()) {
       beanDef.setAliases(names.toArray(Constant.EMPTY_STRING_ARRAY));
     }

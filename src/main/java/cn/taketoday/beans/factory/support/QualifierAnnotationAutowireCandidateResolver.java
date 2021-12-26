@@ -227,7 +227,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         // Look for matching annotation on the target class
         if (getBeanFactory() != null) {
           try {
-            Class<?> beanType = getBeanFactory().getType(definition.getName());
+            Class<?> beanType = getBeanFactory().getType(definition.getBeanName());
             if (beanType != null) {
               targetAnnotation = AnnotationUtils.getAnnotation(ClassUtils.getUserClass(beanType), type);
             }

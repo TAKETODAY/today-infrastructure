@@ -77,7 +77,7 @@ class BeanDefinitionValueResolver {
           PropertyValuesBinder binder, BeanDefinition beanDefinition) {
     this.binder = binder;
     this.beanFactory = beanFactory;
-    this.beanName = beanDefinition.getName();
+    this.beanName = beanDefinition.getBeanName();
     this.beanDefinition = beanDefinition;
   }
 
@@ -107,12 +107,12 @@ class BeanDefinitionValueResolver {
       return retriever.retrieve((String) argName, binder, beanFactory);
     }
     else if (value instanceof BeanDefinition bd) {
-      String name = bd.getName();
+      String name = bd.getBeanName();
       if (!StringUtils.hasText(name)) {
         // Resolve plain BeanDefinition, without contained name: use dummy name.
         String innerBeanName = "(inner bean)" + BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR +
                 ObjectUtils.getIdentityHexString(bd);
-        bd.setName(innerBeanName);
+        bd.setBeanName(innerBeanName);
       }
       return resolveInnerBean(argName, bd);
     }
@@ -327,7 +327,7 @@ class BeanDefinitionValueResolver {
    */
   @Nullable
   private Object resolveInnerBean(Object argName, BeanDefinition innerDefinition) {
-    String innerBeanName = innerDefinition.getName();
+    String innerBeanName = innerDefinition.getBeanName();
     try {
       // Check given bean name whether it is unique. If not already unique,
       // add counter - increasing the counter until the name is unique.

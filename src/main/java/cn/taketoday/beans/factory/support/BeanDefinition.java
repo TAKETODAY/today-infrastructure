@@ -103,7 +103,7 @@ public class BeanDefinition
   public static final int ROLE_INFRASTRUCTURE = 2;
 
   /** bean name. */
-  private String name;
+  private String beanName;
 
   // @since 4.0
   private String[] aliases;
@@ -219,13 +219,13 @@ public class BeanDefinition
     this.beanClass = beanClassName;
   }
 
-  public BeanDefinition(String name, String beanClassName) {
-    this.name = name;
+  public BeanDefinition(String beanName, String beanClassName) {
+    this.beanName = beanName;
     this.beanClass = beanClassName;
   }
 
-  public BeanDefinition(String name, Class<?> beanClass) {
-    setName(name);
+  public BeanDefinition(String beanName, Class<?> beanClass) {
+    setBeanName(beanName);
     setBeanClass(beanClass);
   }
 
@@ -255,8 +255,8 @@ public class BeanDefinition
    * or the aliases stored in this bean definition.
    */
   public boolean matchesName(@Nullable String candidateName) {
-    return (candidateName != null && (candidateName.equals(name)
-            || candidateName.equals(BeanFactoryUtils.transformedBeanName(name))
+    return (candidateName != null && (candidateName.equals(beanName)
+            || candidateName.equals(BeanFactoryUtils.transformedBeanName(beanName))
             || ObjectUtils.containsElement(this.aliases, candidateName)));
   }
 
@@ -507,8 +507,8 @@ public class BeanDefinition
    *
    * @return Bean name
    */
-  public String getName() {
-    return name;
+  public String getBeanName() {
+    return beanName;
   }
 
   /**
@@ -535,10 +535,10 @@ public class BeanDefinition
   /**
    * Apply bean' name
    *
-   * @param name The bean's name
+   * @param beanName The bean's name
    */
-  public void setName(String name) {
-    this.name = name;
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
   }
 
   /**
@@ -690,7 +690,7 @@ public class BeanDefinition
    * @since 3.0
    */
   public void copyFrom(BeanDefinition from) {
-    setName(from.getName());
+    setBeanName(from.getBeanName());
     setScope(from.getScope());
 
     setBeanClass(from.getBeanClass());
@@ -1011,7 +1011,7 @@ public class BeanDefinition
    * @since 4.0
    */
   public void validate() throws BeanDefinitionValidationException {
-    if (StringUtils.isEmpty(getName())) {
+    if (StringUtils.isEmpty(getBeanName())) {
       throw new BeanDefinitionValidationException("Definition's bean name can't be null");
     }
   }
@@ -1089,7 +1089,7 @@ public class BeanDefinition
       return true;
     }
     if (obj instanceof BeanDefinition other) {
-      return Objects.equals(name, other.name)
+      return Objects.equals(beanName, other.beanName)
               && role == other.role
               && lazyInit == other.lazyInit
               && beanClass == other.beanClass
@@ -1109,7 +1109,7 @@ public class BeanDefinition
   @Override
   public int hashCode() {
     return Objects.hash(
-            name, beanClass, lazyInit, scope, synthetic, role, primary,
+            beanName, beanClass, lazyInit, scope, synthetic, role, primary,
             enableDependencyInjection, factoryMethodName, factoryBeanName);
   }
 

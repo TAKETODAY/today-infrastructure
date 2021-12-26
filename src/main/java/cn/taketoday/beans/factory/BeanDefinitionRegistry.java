@@ -61,13 +61,13 @@ public interface BeanDefinitionRegistry extends Iterable<BeanDefinition>, AliasR
   void registerBeanDefinition(String name, BeanDefinition def);
 
   /**
-   * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
+   * Register {@link BeanDefinition} with {@link BeanDefinition#getBeanName()}
    *
    * @param def Target {@link BeanDefinition}
    * @since 2.1.6
    */
   default void registerBeanDefinition(BeanDefinition def) {
-    registerBeanDefinition(def.getName(), def);
+    registerBeanDefinition(def.getBeanName(), def);
   }
 
   /**

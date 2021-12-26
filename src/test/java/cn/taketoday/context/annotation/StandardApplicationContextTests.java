@@ -316,32 +316,6 @@ class StandardApplicationContextTests {
   }
 
   @Test
-  void individualBeanWithMixedConstructorArguments() {
-    StandardApplicationContext context = new StandardApplicationContext();
-    BeanC c = new BeanC();
-    context.registerBean(BeanA.class);
-    context.registerBean(BeanB.class);
-    context.refresh();
-
-    assertThat(context.getBean(BeanA.class).b).isSameAs(context.getBean(BeanB.class));
-    assertThat(context.getBean(BeanA.class).c).isSameAs(c);
-    assertThat(context.getBean(BeanB.class).applicationContext).isSameAs(context);
-  }
-
-  @Test
-  void individualNamedBeanWithMixedConstructorArguments() {
-    StandardApplicationContext context = new StandardApplicationContext();
-    BeanC c = new BeanC();
-    context.registerBean("a", BeanA.class);
-    context.registerBean("b", BeanB.class);
-    context.refresh();
-
-    assertThat(context.getBean("a", BeanA.class).b).isSameAs(context.getBean("b", BeanB.class));
-    assertThat(context.getBean("a", BeanA.class).c).isSameAs(c);
-    assertThat(context.getBean("b", BeanB.class).applicationContext).isSameAs(context);
-  }
-
-  @Test
   void individualBeanWithFactoryBeanSupplier() {
     StandardApplicationContext context = new StandardApplicationContext();
     context.registerBean("fb", NonInstantiatedFactoryBean.class, NonInstantiatedFactoryBean::new, bd -> bd.setLazyInit(true));

@@ -190,7 +190,7 @@ public abstract class AbstractBeanFactory
     String beanName = transformedBeanName(name);
     // 1. check singleton cache
     Object beanInstance = getSingleton(beanName);
-    if (beanInstance == null) {
+    if (beanInstance == null || args != null) {
       // Fail if we're already creating this bean instance:
       // We're assumably within a circular reference.
       if (isPrototypeCurrentlyInCreation(beanName)) {
@@ -259,7 +259,11 @@ public abstract class AbstractBeanFactory
         if (definition.isSingleton()) {
           beanInstance = getSingleton(beanName, () -> {
             try {
-              return createBean(beanName, definition, args);
+              Object bean = createBean(beanName, definition, args);
+              if (bean == null) {
+                return NullValue.INSTANCE;
+              }
+              return bean;
             }
             catch (BeansException ex) {
               // Explicitly remove instance from singleton cache: It might have been put there
@@ -269,6 +273,9 @@ public abstract class AbstractBeanFactory
               throw ex;
             }
           });
+          if (beanInstance == NullValue.INSTANCE) {
+            return null;
+          }
         }
         else if (definition.isPrototype()) {
           // It's a prototype -> just create a new instance.
@@ -306,7 +313,19 @@ public abstract class AbstractBeanFactory
         throw e;
       }
     }
+    else if (beanInstance == NullValue.INSTANCE) {
+      return null;
+    }
     else {
+      if (log.isTraceEnabled()) {
+        if (isSingletonCurrentlyInCreation(beanName)) {
+          log.trace("Returning eagerly cached instance of singleton bean '{}' " +
+                  "that is not fully initialized yet - a consequence of a circular reference", beanName);
+        }
+        else {
+          log.trace("Returning cached instance of singleton bean '{}'", beanName);
+        }
+      }
       beanInstance = handleFactoryBean(name, beanName, null, beanInstance);
     }
     return adaptBeanInstance(beanName, beanInstance, requiredType);
@@ -321,6 +340,7 @@ public abstract class AbstractBeanFactory
    * @return a new instance of the bean
    * @throws BeanCreationException if the bean could not be created
    */
+  @Nullable
   protected abstract Object createBean(
           String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException;
 
@@ -368,7 +388,7 @@ public abstract class AbstractBeanFactory
     Object beanInstance = getSingleton(beanName, false);
     boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
 
-    if (beanInstance != null) {
+    if (beanInstance != null && beanInstance != NullValue.INSTANCE) {
       if (beanInstance instanceof FactoryBean) {
         if (!isFactoryDereference) {
           Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
@@ -456,7 +476,7 @@ public abstract class AbstractBeanFactory
     ResolvableType beanType = null;
     // If it's a FactoryBean, we want to look at what it creates, not the factory class.
     if (FactoryBean.class.isAssignableFrom(predictedType)) {
-      if (!isFactoryDereference) {
+      if (beanInstance == null && !isFactoryDereference) {
         beanType = getTypeForFactoryBean(definition, allowFactoryBeanInit);
         predictedType = beanType.resolve();
         if (predictedType == null) {
@@ -725,7 +745,7 @@ public abstract class AbstractBeanFactory
     String beanName = transformedBeanName(name);
     // Check manually registered singletons.
     Object beanInstance = getSingleton(beanName, false);
-    if (beanInstance != null) {
+    if (beanInstance != null && beanInstance != NullValue.INSTANCE) {
       if (beanInstance instanceof FactoryBean && !BeanFactoryUtils.isFactoryDereference(name)) {
         // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
         return getTypeForFactoryBean((FactoryBean<?>) beanInstance);
@@ -792,7 +812,7 @@ public abstract class AbstractBeanFactory
 
     if (allowInit && mbd.isSingleton()) {
       try {
-        FactoryBean<?> factoryBean = doGetBean(FACTORY_BEAN_PREFIX + mbd.getName(), FactoryBean.class, null, true);
+        FactoryBean<?> factoryBean = doGetBean(FACTORY_BEAN_PREFIX + mbd.getBeanName(), FactoryBean.class, null, true);
         Class<?> objectType = getTypeForFactoryBean(factoryBean);
         return objectType != null ? ResolvableType.fromClass(objectType) : ResolvableType.NONE;
       }
@@ -822,7 +842,7 @@ public abstract class AbstractBeanFactory
   protected Class<?> getFactoryClass(BeanDefinition definition, @Nullable String factoryBeanName) {
     Class<?> factoryClass;
     if (factoryBeanName != null) {
-      String beanName = definition.getName();
+      String beanName = definition.getBeanName();
       if (factoryBeanName.equals(beanName)) {
         throw new BeanDefinitionStoreException(definition.getResourceDescription(), beanName,
                 "factory-bean reference points back to the same bean definition");
@@ -1500,7 +1520,7 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Object handleFactoryBean(
-          String name, String beanName, BeanDefinition definition, Object beanInstance) throws BeansException {
+          String name, String beanName, BeanDefinition definition, @Nullable Object beanInstance) throws BeansException {
     // Don't let calling code try to dereference the factory if the bean isn't a factory.
     if (BeanFactoryUtils.isFactoryDereference(name)) {
       if (!(beanInstance instanceof FactoryBean)) {

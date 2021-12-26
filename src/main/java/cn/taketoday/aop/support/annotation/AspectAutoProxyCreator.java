@@ -138,7 +138,7 @@ public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
           BeanDefinition aspectDef, @Nullable Method aspectMethod, MergedAnnotation<Advice> advice) {
     BeanFactory beanFactory = getFactory();
     if (aspectMethod == null) { // method interceptor
-      if (!beanFactory.isTypeMatch(aspectDef.getName(), MethodInterceptor.class)) {
+      if (!beanFactory.isTypeMatch(aspectDef.getBeanName(), MethodInterceptor.class)) {
         throw new ConfigurationException(
                 '[' + aspectDef.getBeanClassName() +
                         "] must be implement: [" + MethodInterceptor.class.getName() + ']');
@@ -177,7 +177,7 @@ public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
 
     // dynamic parameters -> aspectMethod, beanName, beanFactory
     MethodInterceptor ret = BeanUtils.newInstance(
-            interceptor, beanFactory, new Object[] { aspectMethod, aspectDef.getName(), beanFactory });
+            interceptor, beanFactory, new Object[] { aspectMethod, aspectDef.getBeanName(), beanFactory });
 
     if (beanFactory instanceof AutowireCapableBeanFactory) {
       ((AutowireCapableBeanFactory) beanFactory).autowireBean(ret);
@@ -187,7 +187,7 @@ public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
 
   private MethodInterceptor getMethodInterceptor(BeanFactory beanFactory, BeanDefinition interceptorDef) {
     if (interceptorDef.isSingleton() && !interceptorDef.isLazyInit()) {
-      return beanFactory.getBean(interceptorDef.getName(), MethodInterceptor.class);
+      return beanFactory.getBean(interceptorDef.getBeanName(), MethodInterceptor.class);
     }
     else {
       return new SuppliedMethodInterceptor(beanFactory, interceptorDef); // lazy load or prototype
@@ -207,7 +207,7 @@ public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
 
     BeanFactory beanFactory = getFactory();
     //stream
-    return Stream.of(beanFactory.getMergedAnnotation(definition.getName(), Advice.class));
+    return Stream.of(beanFactory.getMergedAnnotation(definition.getBeanName(), Advice.class));
   }
 
 }

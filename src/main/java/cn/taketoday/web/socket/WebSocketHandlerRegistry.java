@@ -84,13 +84,13 @@ public class WebSocketHandlerRegistry
    */
   protected Object createHandler(BeanDefinition def, BeanFactory beanFactory) {
     return def.isSingleton()
-           ? beanFactory.getBean(def.getName())
-           : Prototypes.newProxyInstance(def.getBeanClass(), def.getName(), beanFactory);
+           ? beanFactory.getBean(def.getBeanName())
+           : Prototypes.newProxyInstance(def.getBeanClass(), def.getBeanName(), beanFactory);
   }
 
   protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
     return context.getAnnotationOnBean(
-            definition.getName(), EndpointMapping.class) != null;
+            definition.getBeanName(), EndpointMapping.class) != null;
   }
 
   protected void registerEndpoint(BeanDefinition definition, WebApplicationContext context) {
@@ -139,7 +139,7 @@ public class WebSocketHandlerRegistry
 
   protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
     EndpointMapping endpointMapping = context.getAnnotationOnBean(
-            definition.getName(), EndpointMapping.class);
+            definition.getBeanName(), EndpointMapping.class);
 
     return endpointMapping.value();
   }

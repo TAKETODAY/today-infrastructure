@@ -37,7 +37,7 @@ public final class SuppliedMethodInterceptor implements MethodInterceptor {
 
   public SuppliedMethodInterceptor(BeanFactory beanFactory, BeanDefinition interceptorDef) {
     this.beanSupplier = BeanSupplier.from(
-            beanFactory, MethodInterceptor.class, interceptorDef.getName(), interceptorDef.isSingleton());
+            beanFactory, MethodInterceptor.class, interceptorDef.getBeanName(), interceptorDef.isSingleton());
   }
 
   @Override

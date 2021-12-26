@@ -76,7 +76,7 @@ public class StandardDependenciesBeanPostProcessor
   @Override
   public void processDependencies(Object bean, BeanDefinition definition) {
     Class<?> beanClass = bean.getClass();
-    String beanName = definition.getName();
+    String beanName = definition.getBeanName();
     HashSet<Method> processedMethods = new HashSet<>();
     ReflectionUtils.doWithFields(beanClass, field -> {
       try {

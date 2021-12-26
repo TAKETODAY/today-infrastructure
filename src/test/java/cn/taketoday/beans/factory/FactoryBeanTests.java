@@ -174,7 +174,7 @@ class FactoryBeanTests {
 
     // gammaFactory betaFactory getGamma
     BeanDefinition gammaFactoryDef = new BeanDefinition();
-    gammaFactoryDef.setName("gammaFactory");
+    gammaFactoryDef.setBeanName("gammaFactory");
     gammaFactoryDef.setFactoryMethodName("getGamma");
     gammaFactoryDef.setFactoryBeanName("betaFactory"); // is FactoryBean so its real bean is Beta
 

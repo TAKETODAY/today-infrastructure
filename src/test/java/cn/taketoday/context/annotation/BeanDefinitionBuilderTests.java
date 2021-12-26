@@ -64,7 +64,7 @@ class BeanDefinitionBuilderTests {
     assertThat(definition.getScope()).isNotNull().isEqualTo("singleton");
     assertThat(definition.getPropertyValues()).isNull();
 
-    assertThat(definition.getName()).isEqualTo("testBean");
+    assertThat(definition.getBeanName()).isEqualTo("testBean");
 
     assertThat(definition.isSingleton()).isTrue();
     assertThat(definition.isPrototype()).isFalse();

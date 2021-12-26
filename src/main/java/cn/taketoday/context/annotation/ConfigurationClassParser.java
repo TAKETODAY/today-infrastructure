@@ -141,13 +141,13 @@ class ConfigurationClassParser {
     for (BeanDefinition definition : configCandidates) {
       try {
         if (definition instanceof AnnotatedBeanDefinition) {
-          parse(((AnnotatedBeanDefinition) definition).getMetadata(), definition.getName());
+          parse(((AnnotatedBeanDefinition) definition).getMetadata(), definition.getBeanName());
         }
         else if (definition != null && definition.hasBeanClass()) {
-          parse(definition.getBeanClass(), definition.getName());
+          parse(definition.getBeanClass(), definition.getBeanName());
         }
         else {
-          parse(definition.getBeanClassName(), definition.getName());
+          parse(definition.getBeanClassName(), definition.getBeanName());
         }
       }
       catch (BeanDefinitionStoreException ex) {
@@ -268,7 +268,7 @@ class ConfigurationClassParser {
         // Check the set of scanned definitions for any further config classes and parse recursively if needed
         for (BeanDefinition definition : scannedBeanDefinitions) {
           if (ConfigurationClassUtils.checkConfigurationClassCandidate(definition, loadingContext)) {
-            parse(definition.getBeanClassName(), definition.getName());
+            parse(definition.getBeanClassName(), definition.getBeanName());
           }
         }
       }

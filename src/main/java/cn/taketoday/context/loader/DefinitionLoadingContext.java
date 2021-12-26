@@ -171,7 +171,7 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   }
 
   public void registerBeanDefinition(BeanDefinition definition) {
-    registerBeanDefinition(definition.getName(), definition);
+    registerBeanDefinition(definition.getBeanName(), definition);
   }
 
   public boolean containsBeanDefinition(Class<?> beanClass) {

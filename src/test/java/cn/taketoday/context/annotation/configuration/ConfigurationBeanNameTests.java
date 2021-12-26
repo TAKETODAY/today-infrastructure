@@ -73,7 +73,7 @@ public class ConfigurationBeanNameTests {
       public String populateName(
               BeanDefinition definition, BeanDefinitionRegistry registry) {
         String name = "custom-" + super.populateName(definition, registry);
-        definition.setName(name);
+        definition.setBeanName(name);
         return name;
       }
     });

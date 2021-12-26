@@ -255,7 +255,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     }
 
     if (StringUtils.hasText(name)) {
-      definition.setName(name);
+      definition.setBeanName(name);
     }
     else {
       beanNamePopulator.populateName(definition, registry);
@@ -391,7 +391,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       }
 
       if (ignoreAnnotation && beanNamePopulator instanceof AnnotationBeanNamePopulator) {
-        definition.setName(BeanDefinitionBuilder.defaultBeanName(clazz));
+        definition.setBeanName(BeanDefinitionBuilder.defaultBeanName(clazz));
       }
       else {
         beanNamePopulator.populateName(definition, this.registry);

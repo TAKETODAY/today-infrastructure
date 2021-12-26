@@ -515,7 +515,7 @@ public class ClassPathBeanDefinitionScannerTests {
     public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
       String beanName = super.populateName(definition, registry);
       String impl = beanName.replace("Impl", "");
-      definition.setName(impl);
+      definition.setBeanName(impl);
       return impl;
     }
   }

@@ -40,9 +40,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
-import cn.taketoday.beans.factory.dependency.SimpleAutowireCandidateResolver;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -60,6 +57,9 @@ import cn.taketoday.beans.factory.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.SimpleAutowireCandidateResolver;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.OrderComparator;
@@ -73,6 +73,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
@@ -310,13 +311,13 @@ public class StandardBeanFactory
 
   @Override
   public void registerBeanDefinition(BeanDefinition def) {
-    registerBeanDefinition(def.getName(), def);
+    registerBeanDefinition(def.getBeanName(), def);
   }
 
   @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (def.getName() == null) {
-      def.setName(beanName);
+    if (def.getBeanName() == null) {
+      def.setBeanName(beanName);
     }
     def = transformBeanDefinition(beanName, def);
     if (def == null) {
@@ -386,7 +387,7 @@ public class StandardBeanFactory
       // Have a corresponding missed bean
       // copy all state
       def.copyFrom(missedDef);
-      def.setName(name); // fix bean name update error
+      def.setBeanName(name); // fix bean name update error
     }
     // nothing
     return def;
@@ -1554,13 +1555,15 @@ public class StandardBeanFactory
   private void checkBeanNotOfRequiredType(Class<?> type, DependencyDescriptor descriptor) {
     for (String beanName : this.beanDefinitionNames) {
       try {
-        BeanDefinition mbd = getBeanDefinition(beanName);
+        BeanDefinition mbd = beanDefinitionMap.get(beanName);
         Class<?> targetType = mbd.getTargetType();
         if (targetType != null && type.isAssignableFrom(targetType) &&
                 isAutowireCandidate(beanName, mbd, descriptor, getAutowireCandidateResolver())) {
           // Probably a proxy interfering with target type match -> throw meaningful exception.
           Object beanInstance = getSingleton(beanName, false);
-          Class<?> beanType = beanInstance != null ? beanInstance.getClass() : predictBeanType(mbd);
+          Class<?> beanType = (beanInstance == null || beanInstance == NullValue.INSTANCE)
+                              ? predictBeanType(mbd)
+                              : beanInstance.getClass();
           if (beanType != null && !type.isAssignableFrom(beanType)) {
             throw new BeanNotOfRequiredTypeException(beanName, type, beanType);
           }
