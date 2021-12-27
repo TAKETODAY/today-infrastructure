@@ -20,19 +20,14 @@
 
 package cn.taketoday.context.autowire;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.ArgumentsResolvingContext;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.support.BeanUtils;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.StandardApplicationContext;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,36 +78,6 @@ class ObjectSupplierTests {
 
       assertThat(test.beanObjectSupplier.get())
               .isEqualTo(bean);
-
-    }
-  }
-
-  @Test
-  @Disabled
-  public void parameter() {
-    Constructor<TEST> constructor = BeanUtils.getConstructor(TEST.class);
-    assertThat(constructor).isNotNull();
-    Parameter[] parameters = constructor.getParameters();
-
-
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
-      ArgumentsResolvingContext resolvingContext =
-              new ArgumentsResolvingContext(constructor, context, null);
-
-      context.register(Bean.class);
-      context.refresh();
-//      ObjectSupplier<?> supplier = parameterResolver.resolveArgument(parameters[0], resolvingContext);
-//      ObjectSupplier<?> supplier1 = parameterResolver.resolveArgument(parameters[1], resolvingContext);
-//      Bean bean = context.getBean(Bean.class);
-
-//      assertThat(supplier).isNotNull();
-//      assertThat(supplier1).isNotNull();
-//
-//      assertThat(bean).isEqualTo(supplier.get()).isNotNull();
-//      assertThat(bean).isEqualTo(supplier1.get()).isNotNull();
-//
-//      assertThat(supplier1).isNotEqualTo(supplier);
-//      assertThat(supplier1).isEqualTo(parameterResolver.resolveArgument(parameters[1], resolvingContext));
 
     }
   }

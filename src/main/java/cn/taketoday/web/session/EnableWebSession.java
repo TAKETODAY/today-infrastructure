@@ -22,7 +22,7 @@ package cn.taketoday.web.session;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Props;

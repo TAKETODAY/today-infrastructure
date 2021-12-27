@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;

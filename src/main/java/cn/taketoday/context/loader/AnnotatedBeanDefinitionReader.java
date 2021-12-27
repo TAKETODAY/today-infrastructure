@@ -24,7 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;

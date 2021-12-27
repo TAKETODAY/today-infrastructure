@@ -31,7 +31,6 @@ import java.util.Set;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
-import cn.taketoday.beans.Lazy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;

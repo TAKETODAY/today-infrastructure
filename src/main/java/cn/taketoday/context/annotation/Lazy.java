@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,6 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.context.annotation.Configuration;

@@ -20,7 +20,7 @@
 
 package example.scannable;
 
-import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.lang.Component;
 
 /**

@@ -325,7 +325,7 @@ import cn.taketoday.beans.factory.annotation.Value;
  *
  * <p>By default, {@code @Component} methods will be <em>eagerly instantiated</em> at container
  * bootstrap time.  To avoid this, {@code @Configuration} may be used in conjunction with
- * the {@link cn.taketoday.beans.Lazy @Lazy} annotation to indicate that all {@code @Component} methods declared
+ * the {@link Lazy @Lazy} annotation to indicate that all {@code @Component} methods declared
  * within the class are by default lazily initialized. Note that {@code @Lazy} may be used
  * on individual {@code @Component} methods as well.
  *
@@ -390,7 +390,7 @@ import cn.taketoday.beans.factory.annotation.Value;
  * @see Profile
  * @see cn.taketoday.context.annotation.Import
  * @see ComponentScan
- * @see cn.taketoday.beans.Lazy
+ * @see Lazy
  * @see cn.taketoday.context.annotation.PropertySource
  * @see cn.taketoday.context.StandardApplicationContext
  * @see ConfigurationClassPostProcessor

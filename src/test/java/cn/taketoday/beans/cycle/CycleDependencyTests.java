@@ -29,7 +29,7 @@ import cn.taketoday.aop.Logger;
 import cn.taketoday.aop.support.annotation.Around;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.JoinPoint;
-import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.Order;
 import cn.taketoday.beans.factory.annotation.Autowired;

@@ -39,7 +39,7 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
-import cn.taketoday.beans.Lazy;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.BeansException;

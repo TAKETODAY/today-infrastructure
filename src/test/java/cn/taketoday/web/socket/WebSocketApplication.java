@@ -21,13 +21,10 @@ package cn.taketoday.web.socket;
 
 import java.io.IOException;
 
-import jakarta.websocket.Session;
-
-import cn.taketoday.beans.IgnoreDuplicates;
-import cn.taketoday.context.annotation.Import;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.lang.Component;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.lang.Component;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -42,6 +39,7 @@ import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
+import jakarta.websocket.Session;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,7 +51,6 @@ import lombok.NoArgsConstructor;
 @Import(WebSocketApplication.AppConfig.class)
 @EnableWebSocket
 @EnableTomcatHandling
-@IgnoreDuplicates
 @RequestMapping
 //@EnableJettyHandling
 //@EnableUndertowHandling
