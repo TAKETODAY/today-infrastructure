@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -195,8 +196,14 @@ public class BeanDefinition
 
   Method[] initMethodArray;
 
-  /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
+  /** Package-visible field that indicates BeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
+
+  /** Common lock for the two post-processing fields below. */
+  final Object postProcessingLock = new Object();
+
+  @Nullable
+  private Set<Member> externallyManagedConfigMembers;
 
   @Nullable
   volatile ResolvableType targetType;
@@ -1078,6 +1085,47 @@ public class BeanDefinition
         this.qualifiers = new LinkedHashMap<>();
       }
       qualifiers.putAll(source.qualifiers);
+    }
+  }
+
+  // postProcessingLock
+
+  /**
+   * Register an externally managed configuration method or field.
+   *
+   * @since 4.0
+   */
+  public void registerExternallyManagedConfigMember(Member configMember) {
+    synchronized(this.postProcessingLock) {
+      if (this.externallyManagedConfigMembers == null) {
+        this.externallyManagedConfigMembers = new LinkedHashSet<>(1);
+      }
+      this.externallyManagedConfigMembers.add(configMember);
+    }
+  }
+
+  /**
+   * Check whether the given method or field is an externally managed configuration member.
+   *
+   * @since 4.0
+   */
+  public boolean isExternallyManagedConfigMember(Member configMember) {
+    synchronized(this.postProcessingLock) {
+      return (this.externallyManagedConfigMembers != null &&
+              this.externallyManagedConfigMembers.contains(configMember));
+    }
+  }
+
+  /**
+   * Return all externally managed configuration methods and fields (as an immutable Set).
+   *
+   * @since 4.0
+   */
+  public Set<Member> getExternallyManagedConfigMembers() {
+    synchronized(this.postProcessingLock) {
+      return (this.externallyManagedConfigMembers != null ?
+              Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedConfigMembers)) :
+              Collections.emptySet());
     }
   }
 

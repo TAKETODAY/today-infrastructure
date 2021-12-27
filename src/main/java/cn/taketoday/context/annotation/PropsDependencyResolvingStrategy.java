@@ -68,7 +68,7 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
           dependency = propsReader.read(props, injectionPoint.getDependencyType());
         }
       }
-      resolvingContext.setDependency(dependency);
+      resolvingContext.setDependencyResolved(dependency);
     }
     // next
   }

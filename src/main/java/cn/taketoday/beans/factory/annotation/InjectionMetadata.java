@@ -273,15 +273,13 @@ public class InjectionMetadata {
 
     /**
      * Clear property skipping for this element.
-     *
-     * @since 3.2.13
      */
     protected void clearPropertySkipping(@Nullable PropertyValues pvs) {
-      synchronized(pvs) {
-        if (Boolean.FALSE.equals(this.skip) && this.pd != null) {
-          ((PropertyValues) pvs).clearProcessedProperty(this.pd.getName());
-        }
-      }
+//      synchronized(pvs) {
+//        if (Boolean.FALSE.equals(this.skip) && this.pd != null) {
+//          ((PropertyValues) pvs).clearProcessedProperty(this.pd.getName());
+//        }
+//      }
     }
 
     /**

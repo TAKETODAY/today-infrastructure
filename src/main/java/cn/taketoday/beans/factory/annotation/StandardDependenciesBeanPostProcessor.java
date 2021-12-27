@@ -193,7 +193,7 @@ public class StandardDependenciesBeanPostProcessor
   public void setBeanFactory(BeanFactory beanFactory) {
     if (!(beanFactory instanceof ConfigurableBeanFactory)) {
       throw new IllegalArgumentException(
-              "StandardDependenciesBeanPostProcessor requires a ConfigurableListableBeanFactory: " + beanFactory);
+              "StandardDependenciesBeanPostProcessor requires a ConfigurableBeanFactory: " + beanFactory);
     }
     this.beanFactory = (ConfigurableBeanFactory) beanFactory;
   }
@@ -445,7 +445,7 @@ public class StandardDependenciesBeanPostProcessor
     private Object resolveFieldValue(Field field, Object bean, @Nullable String beanName) {
       DependencyDescriptor desc = new DependencyDescriptor(field, required);
       desc.setContainingClass(bean.getClass());
-      Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
+      LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(1);
       Assert.state(beanFactory != null, "No BeanFactory available");
       Object value = null;
 
@@ -454,7 +454,7 @@ public class StandardDependenciesBeanPostProcessor
       if (strategies.isNotEmpty()) {
         DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
         strategies.resolveDependency(desc, context);
-        dependencyResolved = context.isDependencyResolved(); ;
+        dependencyResolved = context.isDependencyResolved();
         if (dependencyResolved) {
           value = context.getDependency();
         }
@@ -476,8 +476,8 @@ public class StandardDependenciesBeanPostProcessor
             registerDependentBeans(beanName, autowiredBeanNames);
             if (autowiredBeanNames.size() == 1) {
               String autowiredBeanName = autowiredBeanNames.iterator().next();
-              if (beanFactory.containsBean(autowiredBeanName) &&
-                      beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
+              if (beanFactory.containsBean(autowiredBeanName)
+                      && beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
                 cachedFieldValue = new ShortcutDependencyDescriptor(
                         desc, autowiredBeanName, field.getType());
               }

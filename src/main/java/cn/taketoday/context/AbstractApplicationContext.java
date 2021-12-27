@@ -580,9 +580,8 @@ public abstract class AbstractApplicationContext
     StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
 
     DependencyResolvingStrategies resolvingStrategies = postProcessor.getResolvingStrategies();
-    ExpressionDependencyResolver expressionDependencyResolver = new ExpressionDependencyResolver(beanFactory);
     resolvingStrategies.addStrategies(
-            expressionDependencyResolver,
+            new ExpressionDependencyResolver(beanFactory),
             new PropsDependencyResolvingStrategy(this)
     );
 
