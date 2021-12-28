@@ -64,12 +64,11 @@ public final class AstIdentifier extends SimpleNode {
 
   @Override
   public Class<?> getType(EvaluationContext ctx) {
-    final String image = this.image;
     // First check if this is a lambda argument
     if (ctx.isLambdaArgument(image)) {
       return Object.class;
     }
-    final VariableMapper varMapper = ctx.getVariableMapper();
+    VariableMapper varMapper = ctx.getVariableMapper();
     if (varMapper != null) {
       ValueExpression expr = varMapper.resolveVariable(image);
       if (expr != null) {
@@ -77,7 +76,7 @@ public final class AstIdentifier extends SimpleNode {
       }
     }
     ctx.setPropertyResolved(false);
-    final Class<?> ret = ctx.getResolver().getType(ctx, null, image);
+    Class<?> ret = ctx.getResolver().getType(ctx, null, image);
     if (!ctx.isPropertyResolved()) {
       ctx.handlePropertyNotResolved(null, image, ctx);
     }
@@ -85,11 +84,10 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   @Override
-  public ValueReference getValueReference(final EvaluationContext ctx) {
-    final String image = this.image;
-    final VariableMapper varMapper = ctx.getVariableMapper();
+  public ValueReference getValueReference(EvaluationContext ctx) {
+    VariableMapper varMapper = ctx.getVariableMapper();
     if (varMapper != null) {
-      final ValueExpression expr = varMapper.resolveVariable(image);
+      ValueExpression expr = varMapper.resolveVariable(image);
       if (expr != null) {
         return expr.getValueReference(ctx);
       }
@@ -98,24 +96,27 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   @Override
-  public Object getValue(final EvaluationContext ctx) {
-    final String image = this.image;
+  public Object getValue(EvaluationContext ctx) {
     // First check if this is a lambda argument
     if (ctx.isLambdaArgument(image)) {
       return ctx.getLambdaArgument(image);
     }
 
-    final ValueExpression expr = ctx.getVariableMapper().resolveVariable(image);
-    if (expr != null) {
-      return expr.getValue(ctx);
+    VariableMapper varMapper = ctx.getVariableMapper();
+    if (varMapper != null) {
+      ValueExpression expr = varMapper.resolveVariable(image);
+      if (expr != null) {
+        return expr.getValue(ctx);
+      }
     }
+
     ctx.setPropertyResolved(false);
-    final Object ret = ctx.getResolver().getValue(ctx, null, image);
+    Object ret = ctx.getResolver().getValue(ctx, null, image);
     if (!ctx.isPropertyResolved()) {
       // Check if this is an imported static field
-      final ImportHandler importHandler = ctx.getImportHandler();
+      ImportHandler importHandler = ctx.getImportHandler();
       if (importHandler != null) {
-        final Class<?> c = importHandler.resolveStatic(image);
+        Class<?> c = importHandler.resolveStatic(image);
         if (c != null) {
           return ctx.getResolver().getValue(ctx, c, image);
         }
@@ -126,15 +127,14 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   @Override
-  public boolean isReadOnly(final EvaluationContext ctx) {
-    final String image = this.image;
+  public boolean isReadOnly(EvaluationContext ctx) {
     // Lambda arguments are read only.
     if (ctx.isLambdaArgument(image)) {
       return true;
     }
-    final VariableMapper varMapper = ctx.getVariableMapper();
+    VariableMapper varMapper = ctx.getVariableMapper();
     if (varMapper != null) {
-      final ValueExpression expr = varMapper.resolveVariable(image);
+      ValueExpression expr = varMapper.resolveVariable(image);
       if (expr != null) {
         return expr.isReadOnly(ctx);
       }
@@ -148,13 +148,12 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   @Override
-  public void setValue(final EvaluationContext ctx, final Object value) {
-    final String image = this.image;
+  public void setValue(EvaluationContext ctx, Object value) {
     // First check if this is a lambda argument
     if (ctx.isLambdaArgument(image)) {
       throw new PropertyNotWritableException("The Lambda parameter ''" + image + "'' is not writable");
     }
-    final VariableMapper varMapper = ctx.getVariableMapper();
+    VariableMapper varMapper = ctx.getVariableMapper();
     if (varMapper != null) {
       ValueExpression expr = varMapper.resolveVariable(image);
       if (expr != null) {
@@ -171,20 +170,19 @@ public final class AstIdentifier extends SimpleNode {
 
   @Override
   public Object invoke(
-          final EvaluationContext ctx, final Class<?>[] paramTypes, final Object[] paramValues) {
+          EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) {
     return getMethodExpression(ctx).invoke(ctx, paramValues);
   }
 
   @Override
-  public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) {
+  public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) {
     return getMethodExpression(ctx).getMethodInfo(ctx);
   }
 
-  protected MethodExpression getMethodExpression(final EvaluationContext ctx) {
+  protected MethodExpression getMethodExpression(EvaluationContext ctx) {
     // case A: ValueExpression exists, getValue which must  be a MethodExpression
     Object obj = null;
-    final String image = this.image;
-    final VariableMapper varMapper = ctx.getVariableMapper();
+    VariableMapper varMapper = ctx.getVariableMapper();
     ValueExpression ve = null;
     if (varMapper != null) {
       ve = varMapper.resolveVariable(image);

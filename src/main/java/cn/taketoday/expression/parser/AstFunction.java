@@ -149,8 +149,10 @@ public final class AstFunction extends SimpleNode {
     }
 
     FunctionMapper fnMapper = ctx.getFunctionMapper();
-
-    Method m = fnMapper.resolveFunction(prefix, localName);
+    Method m = null;
+    if (fnMapper != null) {
+      m = fnMapper.resolveFunction(prefix, localName);
+    }
     if (m == null) {
       if (prefix.isEmpty() && ctx.getImportHandler() != null) {
         // Check if this is a constructor call for an imported class

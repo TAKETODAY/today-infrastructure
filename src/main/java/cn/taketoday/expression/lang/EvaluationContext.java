@@ -26,13 +26,19 @@ import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.ImportHandler;
 import cn.taketoday.expression.VariableMapper;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2019-11-10 20:26
  */
 public final class EvaluationContext extends ExpressionContext {
+
+  @Nullable
   private final FunctionMapper fnMapper;
+
+  @Nullable
   private final VariableMapper varMapper;
+
   private final ExpressionContext elContext;
 
   public EvaluationContext(
@@ -46,11 +52,13 @@ public final class EvaluationContext extends ExpressionContext {
     return this.elContext;
   }
 
+  @Nullable
   @Override
   public FunctionMapper getFunctionMapper() {
     return this.fnMapper;
   }
 
+  @Nullable
   @Override
   public VariableMapper getVariableMapper() {
     return this.varMapper;
