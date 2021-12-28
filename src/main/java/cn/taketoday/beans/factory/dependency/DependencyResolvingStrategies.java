@@ -44,9 +44,11 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   @Override
   public void resolveDependency(
-          DependencyDescriptor injectionPoint, DependencyResolvingContext resolvingContext) {
+          DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
+
+    resolvingContext.setDependencyResolved(false);
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      resolvingStrategy.resolveDependency(injectionPoint, resolvingContext);
+      resolvingStrategy.resolveDependency(descriptor, resolvingContext);
       if (resolvingContext.isDependencyResolved()) {
         return;
       }
@@ -65,8 +67,10 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
     // un-ordered
     resolvingStrategies.addAll(strategies); // @since 4.0
-    resolvingStrategies.trimToSize();
     AnnotationAwareOrderComparator.sort(resolvingStrategies);
+
+    resolvingStrategies.add(new BeanFactoryDependencyResolvingStrategy());
+    resolvingStrategies.trimToSize();
   }
 
   public ArrayList<DependencyResolvingStrategy> getStrategies() {

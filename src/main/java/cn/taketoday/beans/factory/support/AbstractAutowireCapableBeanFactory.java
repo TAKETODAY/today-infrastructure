@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.Aware;
@@ -57,6 +56,7 @@ import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanUtils;
@@ -459,10 +459,10 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     Method[] methods = initMethodArray(bean, def);
     if (ObjectUtils.isNotEmpty(methods)) {
-      ArgumentsResolver resolver = getArgumentsResolver();
+      DependencyResolver resolver = getDependencyResolver();
       // invoke or initMethods defined in @Component
       for (Method method : methods) {
-        Object[] args = resolver.resolve(method, this);
+        Object[] args = resolver.resolveArguments(method);
         method.invoke(bean, args);
       }
     }
@@ -599,7 +599,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (constructorArgs == null) {
       constructorArgs = def.getConstructorArgs();
       if (constructorArgs == null) {
-        constructorArgs = getArgumentsResolver().resolve(def.executable, this);
+        constructorArgs = getDependencyResolver().resolveArguments(def.executable);
       }
     }
 

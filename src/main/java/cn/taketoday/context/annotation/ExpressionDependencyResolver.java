@@ -70,21 +70,21 @@ public class ExpressionDependencyResolver implements DependencyResolvingStrategy
   }
 
   @Override
-  public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
+  public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
     if (!context.hasDependency()) {
-      Env env = injectionPoint.getAnnotation(Env.class);
+      Env env = descriptor.getAnnotation(Env.class);
       if (env != null) {
         ExpressionInfo expressionInfo = new ExpressionInfo(env);
         expressionInfo.setPlaceholderOnly(true);
-        Object evaluate = resolve(injectionPoint, expressionInfo);
+        Object evaluate = resolve(descriptor, expressionInfo);
         context.setDependencyResolved(evaluate);
       }
       else {
-        Value annotation = injectionPoint.getAnnotation(Value.class);
+        Value annotation = descriptor.getAnnotation(Value.class);
         if (annotation != null) {
           ExpressionInfo expressionInfo = new ExpressionInfo(annotation);
           expressionInfo.setPlaceholderOnly(false);
-          Object evaluate = resolve(injectionPoint, expressionInfo);
+          Object evaluate = resolve(descriptor, expressionInfo);
           context.setDependencyResolved(evaluate);
         }
       }

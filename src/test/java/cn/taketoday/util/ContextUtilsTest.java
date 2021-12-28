@@ -36,8 +36,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -45,7 +46,6 @@ import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.lang.Env;
-import cn.taketoday.beans.factory.annotation.Value;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -110,7 +110,7 @@ public class ContextUtilsTest {
 //      properties.list(System.err);
 //      System.err.println(properties.get("placeHolder"));
 
-      Object[] parameters = new ArgumentsResolver().resolve(constructor, beanFactory);
+      Object[] parameters = new DependencyResolver(beanFactory).resolveArguments(constructor);
 
       Config newInstance = constructor.newInstance(parameters);
 
@@ -192,7 +192,8 @@ public class ContextUtilsTest {
 
     public Config() { }
 
-    @Props UserModel admin;
+    @Props
+    UserModel admin;
 
     private String cdn;
     private String icp;

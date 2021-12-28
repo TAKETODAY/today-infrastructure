@@ -21,6 +21,8 @@
 package cn.taketoday.beans.factory.dependency;
 
 import java.lang.reflect.Executable;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -42,13 +44,13 @@ public class DependencyResolvingContext {
   @Nullable
   private Object dependency;
 
-  private boolean terminate;
-
   private String beanName;
 
   private BeanDefinition definition;
 
   private boolean dependencyResolved;
+
+  private LinkedHashSet<String> dependentBeans;
 
   public void setDependencyResolved(Object dependency) {
     this.dependency = dependency;
@@ -85,6 +87,15 @@ public class DependencyResolvingContext {
     this.beanFactory = beanFactory;
   }
 
+  public DependencyResolvingContext(
+          @Nullable Executable executable,
+          @Nullable BeanFactory beanFactory,
+          @Nullable String beanName) {
+    this.beanName = beanName;
+    this.executable = executable;
+    this.beanFactory = beanFactory;
+  }
+
   @Nullable
   public Executable getExecutable() {
     return executable;
@@ -110,6 +121,24 @@ public class DependencyResolvingContext {
 
   public boolean hasDependency() {
     return dependency != null;
+  }
+
+  // dependentBeans
+
+  @Nullable
+  public Set<String> getDependentBeans() {
+    return dependentBeans;
+  }
+
+  public Set<String> dependentBeans() {
+    if (dependentBeans == null) {
+      dependentBeans = new LinkedHashSet<>();
+    }
+    return dependentBeans;
+  }
+
+  public void addDependentBean(String beanName) {
+    dependentBeans().add(beanName);
   }
 
   @Override

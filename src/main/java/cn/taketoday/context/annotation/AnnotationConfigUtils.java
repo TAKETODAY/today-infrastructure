@@ -20,14 +20,13 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.event.DefaultEventListenerFactory;
-import cn.taketoday.context.event.MethodEventDrivenPostProcessor;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
@@ -167,10 +166,10 @@ public abstract class AnnotationConfigUtils {
       registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME);
     }
 
-    if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition(MethodEventDrivenPostProcessor.class);
-      registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME);
-    }
+//    if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
+//      BeanDefinition def = new BeanDefinition(MethodEventDrivenPostProcessor.class);
+//      registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME);
+//    }
 
     if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(DefaultEventListenerFactory.class);

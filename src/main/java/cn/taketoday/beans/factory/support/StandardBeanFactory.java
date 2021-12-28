@@ -92,19 +92,11 @@ import jakarta.inject.Provider;
 public class StandardBeanFactory
         extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
-  @Nullable
-  private static Class<?> javaxInjectProviderClass;
 
-  static {
-    try {
-      javaxInjectProviderClass =
-              ClassUtils.forName("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
-    }
-    catch (ClassNotFoundException ex) {
-      // JSR-330 API not available - Provider interface simply not supported then.
-      javaxInjectProviderClass = null;
-    }
-  }
+  @Nullable
+  private static final Class<?> injectProviderClass =
+          // JSR-330 API not available - Provider interface simply not supported then.
+          ClassUtils.load("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
 
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;
@@ -1067,7 +1059,7 @@ public class StandardBeanFactory
             || ObjectSupplier.class == descriptor.getDependencyType()) {
       return new DependencyObjectProvider(descriptor, requestingBeanName);
     }
-    else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+    else if (injectProviderClass == descriptor.getDependencyType()) {
       return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
     }
     else {
@@ -1173,7 +1165,9 @@ public class StandardBeanFactory
 
   @Nullable
   private Object resolveMultipleBeans(
-          DependencyDescriptor descriptor, @Nullable String beanName, @Nullable Set<String> autowiredBeanNames) {
+          DependencyDescriptor descriptor,
+          @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames) {
 
     Class<?> type = descriptor.getDependencyType();
 

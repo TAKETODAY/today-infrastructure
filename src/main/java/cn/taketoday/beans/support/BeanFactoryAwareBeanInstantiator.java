@@ -22,10 +22,9 @@ package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -37,17 +36,13 @@ import cn.taketoday.lang.Nullable;
 public class BeanFactoryAwareBeanInstantiator {
 
   @Nullable
-  private BeanFactory beanFactory;
-  private ArgumentsResolver argumentsResolver;
+  private final BeanFactory beanFactory;
+  private final DependencyResolver dependencyResolver;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
-  public BeanFactoryAwareBeanInstantiator() { }
-
-  public BeanFactoryAwareBeanInstantiator(@Nullable BeanFactory beanFactory) {
+  public BeanFactoryAwareBeanInstantiator(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    if (beanFactory != null) {
-      this.argumentsResolver = beanFactory.getArgumentsResolver();
-    }
+    this.dependencyResolver = beanFactory.getDependencyResolver();
   }
 
   public <T> T instantiate(Class<T> beanClass) {
@@ -70,10 +65,7 @@ public class BeanFactoryAwareBeanInstantiator {
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
     }
-    if (argumentsResolver == null) {
-      argumentsResolver = ArgumentsResolver.getSharedInstance();
-    }
-    Object[] args = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
+    Object[] args = dependencyResolver.resolveArguments(constructor, providedArgs);
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
     return (T) beanInstantiator.instantiate(args);
   }
@@ -81,10 +73,10 @@ public class BeanFactoryAwareBeanInstantiator {
   @SuppressWarnings("unchecked")
   public <T> T instantiate(
           Class<T> beanClass,
-          ArgumentsResolver argumentsResolver,
+          DependencyResolver argumentsResolver,
           BeanInstantiatorFactory instantiatorFactory, @Nullable Object[] providedArgs) {
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
-    Object[] args = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
+    Object[] args = argumentsResolver.resolveArguments(constructor, providedArgs);
 
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
     return (T) beanInstantiator.instantiate(args);
@@ -102,22 +94,9 @@ public class BeanFactoryAwareBeanInstantiator {
     return instantiatorFactory;
   }
 
-  public void setBeanFactory(@Nullable BeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
-  }
-
   @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
-  }
-
-  public void setArgumentsResolver(ArgumentsResolver argumentsResolver) {
-    Assert.notNull(argumentsResolver, "ArgumentsResolver must not be null");
-    this.argumentsResolver = argumentsResolver;
-  }
-
-  public ArgumentsResolver getArgumentsResolver() {
-    return argumentsResolver;
   }
 
 }

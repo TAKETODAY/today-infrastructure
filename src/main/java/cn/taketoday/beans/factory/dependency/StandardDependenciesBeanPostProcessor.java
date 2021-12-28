@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.annotation;
+package cn.taketoday.beans.factory.dependency;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,10 +45,10 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.factory.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.InjectableAnnotationsSupport;
+import cn.taketoday.beans.factory.annotation.InjectionMetadata;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
@@ -57,13 +56,13 @@ import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -140,11 +139,7 @@ public class StandardDependenciesBeanPostProcessor
 
   private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
 
-  @Nullable
-  private DependencyResolvingStrategies resolvingStrategies;
-
-  @Nullable
-  private StrategiesDetector strategiesDetector;
+  private DependencyResolver dependencyResolver;
 
   /**
    * Create a new {@code StandardDependenciesBeanPostProcessor} for Framework's
@@ -157,7 +152,8 @@ public class StandardDependenciesBeanPostProcessor
   }
 
   public StandardDependenciesBeanPostProcessor(ConfigurableBeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
+    this();
+    setBeanFactory(beanFactory);
   }
 
   /**
@@ -196,31 +192,15 @@ public class StandardDependenciesBeanPostProcessor
               "StandardDependenciesBeanPostProcessor requires a ConfigurableBeanFactory: " + beanFactory);
     }
     this.beanFactory = (ConfigurableBeanFactory) beanFactory;
+    this.dependencyResolver = new DependencyResolver(this.beanFactory);
+  }
+
+  public DependencyResolver getDependencyResolver() {
+    return dependencyResolver;
   }
 
   public DependencyResolvingStrategies getResolvingStrategies() {
-    if (resolvingStrategies == null) {
-      resolvingStrategies = new DependencyResolvingStrategies();
-      initStrategies(resolvingStrategies);
-    }
-    return resolvingStrategies;
-  }
-
-  private void initStrategies(DependencyResolvingStrategies resolvingStrategies) {
-    resolvingStrategies.initStrategies(strategiesDetector, beanFactory);
-  }
-
-  public void setResolvingStrategies(@Nullable DependencyResolvingStrategies resolvingStrategies) {
-    this.resolvingStrategies = resolvingStrategies;
-  }
-
-  @Nullable
-  public StrategiesDetector getStrategiesDetector() {
-    return strategiesDetector;
-  }
-
-  public void setStrategiesDetector(@Nullable StrategiesDetector strategiesDetector) {
-    this.strategiesDetector = strategiesDetector;
+    return dependencyResolver.getResolvingStrategies();
   }
 
   @Override
@@ -318,10 +298,6 @@ public class StandardDependenciesBeanPostProcessor
               log.info("Autowired annotation is not supported on static fields: {}", field);
             }
             return;
-          }
-          Method writeMethod = ReflectionUtils.getWriteMethod(field);
-          if (writeMethod != null) {
-
           }
           boolean required = determineRequiredStatus(ann);
           currElements.add(new AutowiredFieldElement(field, required));
@@ -445,41 +421,25 @@ public class StandardDependenciesBeanPostProcessor
     private Object resolveFieldValue(Field field, Object bean, @Nullable String beanName) {
       DependencyDescriptor desc = new DependencyDescriptor(field, required);
       desc.setContainingClass(bean.getClass());
-      LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(1);
       Assert.state(beanFactory != null, "No BeanFactory available");
-      Object value = null;
+      DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
+      Object value = dependencyResolver.resolveValue(desc, context);
 
-      boolean dependencyResolved = false;
-      DependencyResolvingStrategies strategies = getResolvingStrategies();
-      if (strategies.isNotEmpty()) {
-        DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
-        strategies.resolveDependency(desc, context);
-        dependencyResolved = context.isDependencyResolved();
-        if (dependencyResolved) {
-          value = context.getDependency();
-        }
-      }
-
-      if (!dependencyResolved) {
-        try {
-          value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames);
-        }
-        catch (BeansException ex) {
-          throw new UnsatisfiedDependencyException(null, beanName, new InjectionPoint(field), ex);
-        }
-      }
       synchronized(this) {
         if (!cached) {
           Object cachedFieldValue = null;
           if (value != null || required) {
             cachedFieldValue = desc;
-            registerDependentBeans(beanName, autowiredBeanNames);
-            if (autowiredBeanNames.size() == 1) {
-              String autowiredBeanName = autowiredBeanNames.iterator().next();
-              if (beanFactory.containsBean(autowiredBeanName)
-                      && beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
-                cachedFieldValue = new ShortcutDependencyDescriptor(
-                        desc, autowiredBeanName, field.getType());
+            Set<String> autowiredBeanNames = context.getDependentBeans();
+            if (CollectionUtils.isNotEmpty(autowiredBeanNames)) {
+              registerDependentBeans(beanName, autowiredBeanNames);
+              if (autowiredBeanNames.size() == 1) {
+                String autowiredBeanName = autowiredBeanNames.iterator().next();
+                if (beanFactory.containsBean(autowiredBeanName)
+                        && beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
+                  cachedFieldValue = new ShortcutDependencyDescriptor(
+                          desc, autowiredBeanName, field.getType());
+                }
               }
             }
           }
@@ -556,32 +516,17 @@ public class StandardDependenciesBeanPostProcessor
       int argumentCount = method.getParameterCount();
       Object[] arguments = new Object[argumentCount];
       DependencyDescriptor[] descriptors = new DependencyDescriptor[argumentCount];
-      Set<String> autowiredBeans = new LinkedHashSet<>(argumentCount);
       Assert.state(beanFactory != null, "No BeanFactory available");
+
+      DependencyResolvingContext context = new DependencyResolvingContext(method, beanFactory, beanName);
       for (int i = 0; i < arguments.length; i++) {
         MethodParameter methodParam = new MethodParameter(method, i);
         DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, this.required);
         currDesc.setContainingClass(bean.getClass());
         descriptors[i] = currDesc;
 
-        DependencyResolvingStrategies strategies = getResolvingStrategies();
-        if (strategies.isNotEmpty()) {
-          DependencyResolvingContext context = new DependencyResolvingContext(method, beanFactory);
-          strategies.resolveDependency(currDesc, context);
-          if (context.isDependencyResolved()) {
-            Object resolvedDependency = context.getDependency();
-            if (resolvedDependency == InjectionPoint.DO_NOT_SET) {
-              arguments[i] = null;
-            }
-            else {
-              arguments[i] = resolvedDependency;
-            }
-            continue;
-          }
-        }
-
         try {
-          Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans);
+          Object arg = dependencyResolver.resolveValue(currDesc, context);
           if (arg == null && !this.required) {
             arguments = null;
             break;
@@ -596,16 +541,19 @@ public class StandardDependenciesBeanPostProcessor
         if (!this.cached) {
           if (arguments != null) {
             DependencyDescriptor[] cachedMethodArguments = Arrays.copyOf(descriptors, arguments.length);
-            registerDependentBeans(beanName, autowiredBeans);
-            if (autowiredBeans.size() == argumentCount) {
-              Iterator<String> it = autowiredBeans.iterator();
-              Class<?>[] paramTypes = method.getParameterTypes();
-              for (int i = 0; i < paramTypes.length; i++) {
-                String autowiredBeanName = it.next();
-                if (beanFactory.containsBean(autowiredBeanName)
-                        && beanFactory.isTypeMatch(autowiredBeanName, paramTypes[i])) {
-                  cachedMethodArguments[i] = new ShortcutDependencyDescriptor(
-                          descriptors[i], autowiredBeanName, paramTypes[i]);
+            Set<String> autowiredBeans = context.getDependentBeans();
+            if (CollectionUtils.isNotEmpty(autowiredBeans)) {
+              registerDependentBeans(beanName, autowiredBeans);
+              if (autowiredBeans.size() == argumentCount) {
+                Iterator<String> it = autowiredBeans.iterator();
+                Class<?>[] paramTypes = method.getParameterTypes();
+                for (int i = 0; i < paramTypes.length; i++) {
+                  String autowiredBeanName = it.next();
+                  if (beanFactory.containsBean(autowiredBeanName)
+                          && beanFactory.isTypeMatch(autowiredBeanName, paramTypes[i])) {
+                    cachedMethodArguments[i] = new ShortcutDependencyDescriptor(
+                            descriptors[i], autowiredBeanName, paramTypes[i]);
+                  }
                 }
               }
             }

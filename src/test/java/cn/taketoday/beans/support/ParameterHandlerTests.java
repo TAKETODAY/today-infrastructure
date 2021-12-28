@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.ArgumentsResolver;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.context.StandardApplicationContext;
 import lombok.Data;
 
@@ -52,10 +52,10 @@ class ParameterHandlerTests {
       context.register(ParameterHandlerBean.class);
       context.refresh();
 
-      ArgumentsResolver argumentsResolver = new ArgumentsResolver(context);
+      DependencyResolver argumentsResolver = new DependencyResolver(context);
       Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);
 
-      Object[] args = argumentsResolver.resolve(test);
+      Object[] args = argumentsResolver.resolveArguments(test);
       assertThat(args).hasSize(1);
       assertThat(args[0]).isInstanceOf(ParameterHandlerBean.class);
     }

@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
@@ -55,6 +54,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;
@@ -120,7 +120,7 @@ public abstract class AbstractBeanFactory
   private ConcurrentHashMap<String, Supplier<?>> beanSupplier;
 
   /** @since 4.0 */
-  private ArgumentsResolver argumentsResolver;
+  private DependencyResolver dependencyResolver;
 
   /** Parent bean factory, for bean inheritance support. @since 4.0 */
   @Nullable
@@ -1050,11 +1050,11 @@ public abstract class AbstractBeanFactory
   /** @since 4.0 */
   @NonNull
   @Override
-  public ArgumentsResolver getArgumentsResolver() {
-    if (argumentsResolver == null) {
-      this.argumentsResolver = new ArgumentsResolver(this);
+  public DependencyResolver getDependencyResolver() {
+    if (dependencyResolver == null) {
+      this.dependencyResolver = new DependencyResolver(this);
     }
-    return argumentsResolver;
+    return dependencyResolver;
   }
 
   //---------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ public abstract class AbstractBeanFactory
       setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
       this.objectFactories.putAll(beanFactory.objectFactories);
-      this.argumentsResolver = beanFactory.argumentsResolver;
+      this.dependencyResolver = beanFactory.dependencyResolver;
       this.postProcessors.addAll(beanFactory.postProcessors);
 
       if (beanFactory.beanSupplier != null) {

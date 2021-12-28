@@ -86,7 +86,7 @@ class StrategiesDetectorTests {
   public static class MyPropertyValueResolver implements DependencyResolvingStrategy {
 
     @Override
-    public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
+    public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
 
     }
   }
@@ -94,7 +94,7 @@ class StrategiesDetectorTests {
   public static class MyPropertyValueResolver1 implements DependencyResolvingStrategy {
 
     @Override
-    public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context) {
+    public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
 
     }
   }

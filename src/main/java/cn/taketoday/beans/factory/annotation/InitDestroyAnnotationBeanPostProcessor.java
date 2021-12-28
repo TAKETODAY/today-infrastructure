@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -44,6 +43,7 @@ import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;
@@ -111,23 +111,23 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           lifecycleMetadataCache = new ConcurrentHashMap<>(256);
 
   @Nullable
-  private ArgumentsResolver argumentsResolver;
+  private DependencyResolver dependencyResolver;
 
   @Nullable
-  public ArgumentsResolver getArgumentsResolver() {
-    return argumentsResolver;
+  public DependencyResolver getDependencyResolver() {
+    return dependencyResolver;
   }
 
   /**
-   * @param argumentsResolver Can be {@code null} but cannot support parameter injection
+   * @param dependencyResolver Can be {@code null} but cannot support parameter injection
    */
-  public void setArgumentsResolver(@Nullable ArgumentsResolver argumentsResolver) {
-    this.argumentsResolver = argumentsResolver;
+  public void setDependencyResolver(@Nullable DependencyResolver dependencyResolver) {
+    this.dependencyResolver = dependencyResolver;
   }
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    this.argumentsResolver = beanFactory.getArgumentsResolver();
+    this.dependencyResolver = beanFactory.getDependencyResolver();
   }
 
   /**
@@ -292,7 +292,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           if (log.isTraceEnabled()) {
             log.trace("Invoking init method on bean '{}': {}", beanName, element.getMethod());
           }
-          element.invoke(target, argumentsResolver);
+          element.invoke(target, dependencyResolver);
         }
       }
     }
@@ -303,7 +303,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           if (log.isTraceEnabled()) {
             log.trace("Invoking destroy method on bean '{}': {}", beanName, element.getMethod());
           }
-          element.invoke(target, argumentsResolver);
+          element.invoke(target, dependencyResolver);
         }
       }
     }
@@ -336,10 +336,10 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       return this.identifier;
     }
 
-    public void invoke(Object target, @Nullable ArgumentsResolver resolver) throws Throwable {
+    public void invoke(Object target, @Nullable DependencyResolver resolver) throws Throwable {
       ReflectionUtils.makeAccessible(method);
       if (resolver != null) {
-        Object[] args = resolver.resolve(method);
+        Object[] args = resolver.resolveArguments(method);
         method.invoke(target, args);
       }
       else {

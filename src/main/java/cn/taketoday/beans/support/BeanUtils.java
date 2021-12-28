@@ -28,11 +28,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -106,9 +106,9 @@ public abstract class BeanUtils {
     if (constructor.getParameterCount() == 0) {
       return newInstance(constructor, null);
     }
-    ArgumentsResolver argumentsResolver = ArgumentsResolver.from(beanFactory);
-    Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
-    return newInstance(constructor, parameter);
+    Assert.notNull(beanFactory, "beanFactory is required");
+    Object[] arguments = beanFactory.getDependencyResolver().resolveArguments(constructor, providedArgs);
+    return newInstance(constructor, arguments);
   }
 
   /**
@@ -122,11 +122,10 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static <T> T newInstance(
-          Class<T> beanClass, ArgumentsResolver argumentsResolver,
-          @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
+          Class<T> beanClass, DependencyResolver argumentsResolver, @Nullable Object[] providedArgs) {
     Assert.notNull(argumentsResolver, "ArgumentsResolver must not be null");
     Constructor<T> constructor = obtainConstructor(beanClass);
-    Object[] parameter = argumentsResolver.resolve(constructor, beanFactory, providedArgs);
+    Object[] parameter = argumentsResolver.resolveArguments(constructor, providedArgs);
     return newInstance(constructor, parameter);
   }
 

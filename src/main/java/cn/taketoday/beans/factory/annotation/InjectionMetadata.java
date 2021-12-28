@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
@@ -111,7 +112,7 @@ public class InjectionMetadata {
   public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
     Collection<InjectedElement> checkedElements = this.checkedElements;
     Collection<InjectedElement> elementsToIterate =
-            (checkedElements != null ? checkedElements : this.injectedElements);
+            checkedElements != null ? checkedElements : this.injectedElements;
     if (!elementsToIterate.isEmpty()) {
       for (InjectedElement element : elementsToIterate) {
         element.inject(target, beanName, pvs);
@@ -143,8 +144,9 @@ public class InjectionMetadata {
    * @return a new {@link #InjectionMetadata(Class, Collection)} instance
    */
   public static InjectionMetadata forElements(Collection<InjectedElement> elements, Class<?> clazz) {
-    return (elements.isEmpty() ? new InjectionMetadata(clazz, Collections.emptyList()) :
-            new InjectionMetadata(clazz, elements));
+    return elements.isEmpty()
+           ? new InjectionMetadata(clazz, Collections.emptyList())
+           : new InjectionMetadata(clazz, elements);
   }
 
   /**
@@ -156,17 +158,14 @@ public class InjectionMetadata {
    * @see #needsRefresh(Class)
    */
   public static boolean needsRefresh(@Nullable InjectionMetadata metadata, Class<?> clazz) {
-    return (metadata == null || metadata.needsRefresh(clazz));
+    return metadata == null || metadata.needsRefresh(clazz);
   }
 
   /**
    * A single injected element.
    */
   public abstract static class InjectedElement {
-
     protected final Member member;
-
-    protected final boolean isField;
 
     @Nullable
     protected final PropertyDescriptor pd;
@@ -176,7 +175,6 @@ public class InjectionMetadata {
 
     protected InjectedElement(Member member, @Nullable PropertyDescriptor pd) {
       this.member = member;
-      this.isField = (member instanceof Field);
       this.pd = pd;
     }
 
@@ -185,8 +183,8 @@ public class InjectionMetadata {
     }
 
     protected final Class<?> getResourceType() {
-      if (this.isField) {
-        return ((Field) this.member).getType();
+      if (member instanceof Field field) {
+        return field.getType();
       }
       else if (this.pd != null) {
         return this.pd.getPropertyType();
@@ -197,8 +195,8 @@ public class InjectionMetadata {
     }
 
     protected final void checkResourceType(Class<?> resourceType) {
-      if (this.isField) {
-        Class<?> fieldType = ((Field) this.member).getType();
+      if (member instanceof Field field) {
+        Class<?> fieldType = field.getType();
         if (!(resourceType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(resourceType))) {
           throw new IllegalStateException("Specified field type [" + fieldType +
                   "] is incompatible with resource type [" + resourceType.getName() + "]");
@@ -217,11 +215,9 @@ public class InjectionMetadata {
     /**
      * Either this or {@link #getResourceToInject} needs to be overridden.
      */
-    protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)
-            throws Throwable {
-
-      if (this.isField) {
-        Field field = (Field) this.member;
+    protected void inject(
+            Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs) throws Throwable {
+      if (member instanceof Field field) {
         ReflectionUtils.makeAccessible(field);
         field.set(target, getResourceToInject(target, requestingBeanName));
       }

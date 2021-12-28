@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import cn.taketoday.beans.ArgumentsResolver;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
@@ -39,8 +38,9 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.annotation.StandardDependenciesBeanPostProcessor;
+import cn.taketoday.beans.factory.dependency.DependencyResolver;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
@@ -527,7 +527,7 @@ public abstract class AbstractApplicationContext
     // register Environment
     beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
     // @since 4.0 ArgumentsResolver
-    beanFactory.registerSingleton(getArgumentsResolver());
+    beanFactory.registerSingleton(getDependencyResolver());
 
     ExpressionEvaluator.register(beanFactory, getEnvironment());
   }
@@ -577,18 +577,15 @@ public abstract class AbstractApplicationContext
 
     // register DI bean post processors
     beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-    StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
+    StandardDependenciesBeanPostProcessor autowiredPostProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
 
-    DependencyResolvingStrategies resolvingStrategies = postProcessor.getResolvingStrategies();
+    DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
     resolvingStrategies.addStrategies(
             new ExpressionDependencyResolver(beanFactory),
             new PropsDependencyResolvingStrategy(this)
     );
-
-    ArgumentsResolver argumentsResolver = beanFactory.getArgumentsResolver();
-    argumentsResolver.setStrategies(resolvingStrategies);
-
-    beanFactory.addBeanPostProcessor(postProcessor);
+    DependencyResolver dependencyResolver = autowiredPostProcessor.getDependencyResolver();
+    beanFactory.addBeanPostProcessor(autowiredPostProcessor);
 
     beanFactory.registerDependency(BeanFactory.class, beanFactory);
     beanFactory.registerDependency(ApplicationContext.class, this);
@@ -1094,8 +1091,8 @@ public abstract class AbstractApplicationContext
 
   @NonNull
   @Override
-  public ArgumentsResolver getArgumentsResolver() {
-    return getBeanFactory().getArgumentsResolver();
+  public DependencyResolver getDependencyResolver() {
+    return getBeanFactory().getDependencyResolver();
   }
 
   // @since 2.1.7

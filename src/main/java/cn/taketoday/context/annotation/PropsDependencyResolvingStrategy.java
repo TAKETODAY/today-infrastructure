@@ -48,9 +48,9 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
   }
 
   @Override
-  public void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext resolvingContext) {
+  public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
-    Props annotation = injectionPoint.getAnnotation(Props.class);
+    Props annotation = descriptor.getAnnotation(Props.class);
     if (annotation != null) {
       Object dependency = resolvingContext.getDependency();
       DefaultProps props = new DefaultProps(annotation);
@@ -60,20 +60,20 @@ public class PropsDependencyResolvingStrategy implements DependencyResolvingStra
       }
       else {
         // process map
-        if (injectionPoint.isMap()) {
+        if (descriptor.isMap()) {
           Properties properties = propsReader.readMap(props);
-          dependency = adaptMap(properties, injectionPoint.getDependencyType());
+          dependency = adaptMap(properties, descriptor.getDependencyType());
         }
         else {
-          dependency = propsReader.read(props, injectionPoint.getDependencyType());
+          dependency = propsReader.read(props, descriptor.getDependencyType());
         }
       }
       resolvingContext.setDependencyResolved(dependency);
     }
-    // next
+
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static Map adaptMap(Map map, Class<?> type) {
     if (type != Map.class) {
       Map newMap = CollectionUtils.createMap(type, map.size());

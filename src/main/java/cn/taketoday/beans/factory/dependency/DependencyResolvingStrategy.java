@@ -37,9 +37,9 @@ public interface DependencyResolvingStrategy {
    * <b>NOTE<b/>: user must consider {@code resolvingContext}'s bean-factory is null or not
    * </p>
    *
-   * @param injectionPoint Target method {@link Parameter} or a {@link java.lang.reflect.Field}
+   * @param descriptor Target method {@link Parameter} or a {@link java.lang.reflect.Field}
    * @param context resolving context never {@code null}
    */
-  void resolveDependency(DependencyDescriptor injectionPoint, DependencyResolvingContext context);
+  void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context);
 
 }
