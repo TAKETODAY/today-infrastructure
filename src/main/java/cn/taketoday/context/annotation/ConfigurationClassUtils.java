@@ -120,7 +120,7 @@ abstract class ConfigurationClassUtils {
       }
     }
 
-    MergedAnnotation<Configuration> config = metadata.getAnnotations().get(Configuration.class);
+    MergedAnnotation<Configuration> config = metadata.getAnnotation(Configuration.class);
     if (config.isPresent() && !Boolean.FALSE.equals(config.getBoolean("proxyBeanMethods"))) {
       beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 
@@ -185,7 +185,7 @@ abstract class ConfigurationClassUtils {
    */
   @Nullable
   public static Integer getOrder(AnnotationMetadata metadata) {
-    MergedAnnotation<Order> orderAnnotation = metadata.getAnnotations().get(Order.class);
+    MergedAnnotation<Order> orderAnnotation = metadata.getAnnotation(Order.class);
     return orderAnnotation.isPresent() ? orderAnnotation.getIntValue() : null;
   }
 

@@ -27,7 +27,7 @@ package cn.taketoday.context.annotation;
  * @author Chris Beams
  * @see cn.taketoday.scheduling.annotation.EnableAsync#mode()
  * @see cn.taketoday.scheduling.annotation.AsyncConfigurationSelector#selectImports
- * @see cn.taketoday.transaction.EnableTransactionManagement#mode()
+ * @see cn.taketoday.transaction.annotation.EnableTransactionManagement#mode()
  * @since 4.0
  */
 public enum AdviceMode {

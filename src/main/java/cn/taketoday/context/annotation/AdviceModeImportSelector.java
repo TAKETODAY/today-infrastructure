@@ -24,7 +24,7 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.GenericTypeResolver;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -72,14 +72,14 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
     Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
     Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
 
-    AnnotationAttributes attributes = AnnotationAttributes.fromMetadata(importingClassMetadata, annType);
-    if (attributes == null) {
+    MergedAnnotation<Annotation> attributes = importingClassMetadata.getAnnotation(annType.getName());
+    if (!attributes.isPresent()) {
       throw new IllegalArgumentException(String.format(
               "@%s is not present on importing class '%s' as expected",
               annType.getSimpleName(), importingClassMetadata.getClassName()));
     }
 
-    AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName());
+    AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName(), AdviceMode.class);
     String[] imports = selectImports(adviceMode);
     if (imports == null) {
       throw new IllegalArgumentException("Unknown AdviceMode: " + adviceMode);
