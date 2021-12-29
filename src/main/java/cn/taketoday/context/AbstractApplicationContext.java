@@ -61,7 +61,10 @@ import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.context.support.DelegatingMessageSource;
+import cn.taketoday.context.weaving.LoadTimeWeaverAware;
+import cn.taketoday.context.weaving.LoadTimeWeaverAwareProcessor;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.conversion.ConversionService;
@@ -197,6 +200,9 @@ public abstract class AbstractApplicationContext
   @Nullable
   private MessageSource messageSource;
 
+  // @since 4.0
+  protected StrategiesDetector strategiesDetector = TodayStrategies.getDetector();
+
   /**
    * Create a new AbstractApplicationContext with no parent.
    */
@@ -210,6 +216,25 @@ public abstract class AbstractApplicationContext
   public AbstractApplicationContext(@Nullable ApplicationContext parent) {
     this();
     setParent(parent);
+  }
+
+  /**
+   * set StrategiesDetector for this context
+   *
+   * @param strategiesDetector StrategiesDetector
+   * @see StrategiesDetector
+   * @since 4.0
+   */
+  public void setStrategiesDetector(@Nullable StrategiesDetector strategiesDetector) {
+    this.strategiesDetector =
+            strategiesDetector == null ? TodayStrategies.getDetector() : strategiesDetector;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public StrategiesDetector getStrategiesDetector() {
+    return strategiesDetector;
   }
 
   //---------------------------------------------------------------------
@@ -523,7 +548,7 @@ public abstract class AbstractApplicationContext
    * Register Framework Beans
    */
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
-    log.info("Registering framework beans");
+    log.debug("Registering framework beans");
     // register Environment
     beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
     // @since 4.0 ArgumentsResolver
@@ -559,7 +584,7 @@ public abstract class AbstractApplicationContext
    * @param beanFactory the BeanFactory to configure
    */
   public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
-    log.info("Preparing internal bean-factory");
+    log.debug("Preparing internal bean-factory");
     // Tell the internal bean factory to use the context's class loader etc.
     beanFactory.setBeanClassLoader(getClassLoader());
     beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
@@ -571,6 +596,7 @@ public abstract class AbstractApplicationContext
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found.
     if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
       // Set a temporary ClassLoader for type matching.
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
@@ -584,7 +610,6 @@ public abstract class AbstractApplicationContext
             new ExpressionDependencyResolver(beanFactory),
             new PropsDependencyResolvingStrategy(this)
     );
-    DependencyResolver dependencyResolver = autowiredPostProcessor.getDependencyResolver();
     beanFactory.addBeanPostProcessor(autowiredPostProcessor);
 
     beanFactory.registerDependency(BeanFactory.class, beanFactory);
@@ -609,7 +634,7 @@ public abstract class AbstractApplicationContext
    * <p>Must be called before singleton instantiation.
    */
   protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.info("Invoking BeanFactoryPostProcessors");
+    log.debug("Invoking BeanFactoryPostProcessors");
     PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
@@ -626,7 +651,7 @@ public abstract class AbstractApplicationContext
    * <p>Must be called before any instantiation of application beans.
    */
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.info("Loading BeanPostProcessor.");
+    log.debug("Loading BeanPostProcessor.");
     PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
   }
 
@@ -1270,7 +1295,7 @@ public abstract class AbstractApplicationContext
   }
 
   protected void registerApplicationListeners() {
-    log.info("Loading Application Listeners.");
+    log.debug("Loading Application Listeners.");
 
     // Register statically specified listeners first.
     for (ApplicationListener<?> listener : getApplicationListeners()) {
@@ -1284,17 +1309,8 @@ public abstract class AbstractApplicationContext
       getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
     }
 
-    // Publish early application events now that we finally have a multicaster...
-    Set<Object> earlyEventsToProcess = this.earlyApplicationEvents;
-    this.earlyApplicationEvents = null;
-    if (!CollectionUtils.isEmpty(earlyEventsToProcess)) {
-      for (Object earlyEvent : earlyEventsToProcess) {
-        getApplicationEventMulticaster().multicastEvent(earlyEvent);
-      }
-    }
-
     // fixed #9 Some listener in a jar can't be load
-    log.info("Loading META-INF/listeners");
+    log.debug("Loading META-INF/listeners");
 
     // Load the META-INF/listeners
     // ---------------------------------------------------
@@ -1306,12 +1322,21 @@ public abstract class AbstractApplicationContext
     }
 
     // load from strategy files
-    TodayStrategies detector = TodayStrategies.getDetector();
-    log.info("Loading listeners from strategies files: {}", detector.getStrategiesLocation());
-    for (ApplicationListener listener : detector.getStrategies(ApplicationListener.class, this)) {
+
+    log.debug("Loading listeners from strategies files: {}", strategiesDetector.getStrategiesLocation());
+    for (ApplicationListener listener : strategiesDetector.getStrategies(ApplicationListener.class, this)) {
       addApplicationListener(listener);
     }
 
+    log.debug("Publish early application events");
+    // Publish early application events now that we finally have a multicaster...
+    Set<Object> earlyEventsToProcess = this.earlyApplicationEvents;
+    this.earlyApplicationEvents = null;
+    if (!CollectionUtils.isEmpty(earlyEventsToProcess)) {
+      for (Object earlyEvent : earlyEventsToProcess) {
+        getApplicationEventMulticaster().multicastEvent(earlyEvent);
+      }
+    }
   }
 
   /**
@@ -1354,6 +1379,10 @@ public abstract class AbstractApplicationContext
     }
 
     // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
+    Set<String> weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
+    for (String weaverAwareName : weaverAwareNames) {
+      getBean(weaverAwareName);
+    }
 
     // Stop using the temporary ClassLoader for type matching.
     beanFactory.setTempClassLoader(null);
@@ -1366,6 +1395,7 @@ public abstract class AbstractApplicationContext
    * Context start success
    */
   protected void finishRefresh() {
+    // Clear context-level resource caches (such as ASM metadata from scanning).
     clearResourceCaches();
 
     // Initialize lifecycle processor for this context.

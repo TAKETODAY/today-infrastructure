@@ -22,9 +22,9 @@ package cn.taketoday.context;
 import java.io.IOException;
 import java.util.List;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
@@ -39,7 +39,6 @@ import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -153,19 +152,19 @@ public class StandardApplicationContext
   }
 
   @Override
-  public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
-    super.prepareBeanFactory(beanFactory);
-    List<BeanDefinitionLoader> strategies = TodayStrategies.getDetector().getStrategies(
-            BeanDefinitionLoader.class, beanFactory);
-
-    DefinitionLoadingContext loadingContext = loadingContext();
-    for (BeanDefinitionLoader loader : strategies) {
-      loader.loadBeanDefinitions(loadingContext);
-    }
-  }
-
-  @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    super.postProcessBeanFactory(beanFactory);
+
+    List<BeanDefinitionLoader> strategies =
+            strategiesDetector.getStrategies(BeanDefinitionLoader.class, beanFactory);
+
+    if (strategies.isEmpty()) {
+      DefinitionLoadingContext loadingContext = loadingContext();
+      for (BeanDefinitionLoader loader : strategies) {
+        loader.loadBeanDefinitions(loadingContext);
+      }
+    }
+
     if (!containsBeanDefinition(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(
               AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME,
@@ -180,6 +179,7 @@ public class StandardApplicationContext
   @Override
   protected void initPropertySources(ConfigurableEnvironment environment) {
     super.initPropertySources(environment);
+
     try {
       ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
       if (StringUtils.hasText(propertiesLocation)) {
@@ -188,8 +188,7 @@ public class StandardApplicationContext
       processor.postProcessEnvironment();
 
       // prepare properties
-      TodayStrategies detector = TodayStrategies.getDetector();
-      List<EnvironmentPostProcessor> postProcessors = detector.getStrategies(
+      List<EnvironmentPostProcessor> postProcessors = strategiesDetector.getStrategies(
               EnvironmentPostProcessor.class, getBeanFactory());
       for (EnvironmentPostProcessor postProcessor : postProcessors) {
         postProcessor.postProcessEnvironment(environment, this);
@@ -241,6 +240,7 @@ public class StandardApplicationContext
   private DefinitionLoadingContext loadingContext() {
     if (loadingContext == null) {
       loadingContext = new DefinitionLoadingContext(beanFactory, this);
+      loadingContext.setStrategiesDetector(strategiesDetector);
     }
     return loadingContext;
   }
