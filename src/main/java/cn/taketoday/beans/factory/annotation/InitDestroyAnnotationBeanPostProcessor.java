@@ -43,7 +43,7 @@ import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;
@@ -111,23 +111,18 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           lifecycleMetadataCache = new ConcurrentHashMap<>(256);
 
   @Nullable
-  private DependencyResolver dependencyResolver;
-
-  @Nullable
-  public DependencyResolver getDependencyResolver() {
-    return dependencyResolver;
-  }
+  private DependencyInjector dependencyInjector;
 
   /**
-   * @param dependencyResolver Can be {@code null} but cannot support parameter injection
+   * @param dependencyInjector Can be {@code null} but cannot support parameter injection
    */
-  public void setDependencyResolver(@Nullable DependencyResolver dependencyResolver) {
-    this.dependencyResolver = dependencyResolver;
+  public void setDependencyInjector(@Nullable DependencyInjector dependencyInjector) {
+    this.dependencyInjector = dependencyInjector;
   }
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    this.dependencyResolver = beanFactory.getDependencyResolver();
+    this.dependencyInjector = beanFactory.getInjector();
   }
 
   /**
@@ -292,7 +287,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           if (log.isTraceEnabled()) {
             log.trace("Invoking init method on bean '{}': {}", beanName, element.getMethod());
           }
-          element.invoke(target, dependencyResolver);
+          element.invoke(target, dependencyInjector);
         }
       }
     }
@@ -303,7 +298,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           if (log.isTraceEnabled()) {
             log.trace("Invoking destroy method on bean '{}': {}", beanName, element.getMethod());
           }
-          element.invoke(target, dependencyResolver);
+          element.invoke(target, dependencyInjector);
         }
       }
     }
@@ -336,7 +331,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       return this.identifier;
     }
 
-    public void invoke(Object target, @Nullable DependencyResolver resolver) throws Throwable {
+    public void invoke(Object target, @Nullable DependencyInjector resolver) throws Throwable {
       ReflectionUtils.makeAccessible(method);
       if (resolver != null) {
         Object[] args = resolver.resolveArguments(method);

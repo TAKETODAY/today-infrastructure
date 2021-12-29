@@ -56,7 +56,7 @@ import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanUtils;
@@ -459,12 +459,11 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     Method[] methods = initMethodArray(bean, def);
     if (ObjectUtils.isNotEmpty(methods)) {
-      DependencyResolver resolver = getDependencyResolver();
+      DependencyInjector injector = getInjector();
       // invoke or initMethods defined in @Component
       for (Method method : methods) {
         ReflectionUtils.makeAccessible(method);
-        Object[] args = resolver.resolveArguments(method);
-        method.invoke(bean, args);
+        injector.inject(method);
       }
     }
   }
@@ -600,7 +599,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (constructorArgs == null) {
       constructorArgs = def.getConstructorArgs();
       if (constructorArgs == null) {
-        constructorArgs = getDependencyResolver().resolveArguments(def.executable);
+        constructorArgs = getInjector().resolveArguments(def.executable);
       }
     }
 

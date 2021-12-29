@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInstantiationException;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -37,12 +37,12 @@ public class BeanFactoryAwareBeanInstantiator {
 
   @Nullable
   private final BeanFactory beanFactory;
-  private final DependencyResolver dependencyResolver;
+  private final DependencyInjector dependencyInjector;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
   public BeanFactoryAwareBeanInstantiator(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.dependencyResolver = beanFactory.getDependencyResolver();
+    this.dependencyInjector = beanFactory.getInjector();
   }
 
   public <T> T instantiate(Class<T> beanClass) {
@@ -65,7 +65,7 @@ public class BeanFactoryAwareBeanInstantiator {
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
     }
-    Object[] args = dependencyResolver.resolveArguments(constructor, providedArgs);
+    Object[] args = dependencyInjector.resolveArguments(constructor, providedArgs);
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
     return (T) beanInstantiator.instantiate(args);
   }
@@ -73,10 +73,10 @@ public class BeanFactoryAwareBeanInstantiator {
   @SuppressWarnings("unchecked")
   public <T> T instantiate(
           Class<T> beanClass,
-          DependencyResolver argumentsResolver,
+          DependencyInjector injector,
           BeanInstantiatorFactory instantiatorFactory, @Nullable Object[] providedArgs) {
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
-    Object[] args = argumentsResolver.resolveArguments(constructor, providedArgs);
+    Object[] args = injector.resolveArguments(constructor, providedArgs);
 
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
     return (T) beanInstantiator.instantiate(args);

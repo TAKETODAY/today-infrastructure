@@ -38,7 +38,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -110,7 +110,7 @@ public class ContextUtilsTest {
 //      properties.list(System.err);
 //      System.err.println(properties.get("placeHolder"));
 
-      Object[] parameters = new DependencyResolver(beanFactory).resolveArguments(constructor);
+      Object[] parameters = new DependencyInjector(beanFactory).resolveArguments(constructor);
 
       Config newInstance = constructor.newInstance(parameters);
 

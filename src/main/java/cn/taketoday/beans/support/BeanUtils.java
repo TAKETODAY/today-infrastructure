@@ -28,11 +28,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -73,9 +73,8 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    * @since 2.1.2
    */
-  @SuppressWarnings("unchecked")
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return (T) newInstance(ClassUtils.forName(beanClassName));
+    return newInstance(ClassUtils.forName(beanClassName));
   }
 
   /**
@@ -87,7 +86,7 @@ public abstract class BeanUtils {
    * @throws BeanInstantiationException if any reflective operation exception occurred
    * @see #obtainConstructor(Class)
    */
-  public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) {
+  public static <T> T newInstance(final Class<T> beanClass, final DependencyInjectorProvider beanFactory) {
     return newInstance(beanClass, beanFactory, null);
   }
 
@@ -101,14 +100,13 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    */
   public static <T> T newInstance(
-          Class<T> beanClass, @Nullable BeanFactory beanFactory, @Nullable Object[] providedArgs) {
+          Class<T> beanClass, @Nullable DependencyInjectorProvider injectorProvider, @Nullable Object[] providedArgs) {
     Constructor<T> constructor = obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
       return newInstance(constructor, null);
     }
-    Assert.notNull(beanFactory, "beanFactory is required");
-    Object[] arguments = beanFactory.getDependencyResolver().resolveArguments(constructor, providedArgs);
-    return newInstance(constructor, arguments);
+    Assert.notNull(injectorProvider, "resolverProvider is required");
+    return injectorProvider.getInjector().inject(constructor, providedArgs);
   }
 
   /**
@@ -122,11 +120,10 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static <T> T newInstance(
-          Class<T> beanClass, DependencyResolver argumentsResolver, @Nullable Object[] providedArgs) {
-    Assert.notNull(argumentsResolver, "ArgumentsResolver must not be null");
+          Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
+    Assert.notNull(injector, "ArgumentsResolver must not be null");
     Constructor<T> constructor = obtainConstructor(beanClass);
-    Object[] parameter = argumentsResolver.resolveArguments(constructor, providedArgs);
-    return newInstance(constructor, parameter);
+    return injector.inject(constructor, providedArgs);
   }
 
   /**

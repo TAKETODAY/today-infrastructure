@@ -20,17 +20,17 @@
 
 package cn.taketoday.beans;
 
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.lang.NonNull;
 
 /**
  * @author TODAY 2021/9/7 23:08
  * @since 4.0
  */
-public interface DependencyResolverProvider {
+public interface DependencyInjectorProvider {
 
   @NonNull
-  DependencyResolver getDependencyResolver();
+  DependencyInjector getInjector();
 
 }
 

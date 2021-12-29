@@ -54,7 +54,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;
@@ -120,7 +120,7 @@ public abstract class AbstractBeanFactory
   private ConcurrentHashMap<String, Supplier<?>> beanSupplier;
 
   /** @since 4.0 */
-  private DependencyResolver dependencyResolver;
+  private DependencyInjector dependencyInjector;
 
   /** Parent bean factory, for bean inheritance support. @since 4.0 */
   @Nullable
@@ -1050,11 +1050,11 @@ public abstract class AbstractBeanFactory
   /** @since 4.0 */
   @NonNull
   @Override
-  public DependencyResolver getDependencyResolver() {
-    if (dependencyResolver == null) {
-      this.dependencyResolver = new DependencyResolver(this);
+  public DependencyInjector getInjector() {
+    if (dependencyInjector == null) {
+      this.dependencyInjector = new DependencyInjector(this);
     }
-    return dependencyResolver;
+    return dependencyInjector;
   }
 
   //---------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ public abstract class AbstractBeanFactory
       setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
       this.objectFactories.putAll(beanFactory.objectFactories);
-      this.dependencyResolver = beanFactory.dependencyResolver;
+      this.dependencyInjector = beanFactory.dependencyInjector;
       this.postProcessors.addAll(beanFactory.postProcessors);
 
       if (beanFactory.beanSupplier != null) {

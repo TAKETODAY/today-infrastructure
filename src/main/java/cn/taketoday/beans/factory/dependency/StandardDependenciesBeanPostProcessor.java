@@ -139,7 +139,7 @@ public class StandardDependenciesBeanPostProcessor
 
   private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
 
-  private DependencyResolver dependencyResolver;
+  private DependencyInjector dependencyInjector;
 
   /**
    * Create a new {@code StandardDependenciesBeanPostProcessor} for Framework's
@@ -192,15 +192,22 @@ public class StandardDependenciesBeanPostProcessor
               "StandardDependenciesBeanPostProcessor requires a ConfigurableBeanFactory: " + beanFactory);
     }
     this.beanFactory = (ConfigurableBeanFactory) beanFactory;
-    this.dependencyResolver = new DependencyResolver(this.beanFactory);
+    this.dependencyInjector = beanFactory.getInjector();
   }
 
-  public DependencyResolver getDependencyResolver() {
-    return dependencyResolver;
+  /**
+   * @param dependencyInjector Can be {@code null} but cannot support parameter injection
+   */
+  public void setDependencyInjector(@Nullable DependencyInjector dependencyInjector) {
+    this.dependencyInjector = dependencyInjector;
+  }
+
+  public DependencyInjector getDependencyResolver() {
+    return dependencyInjector;
   }
 
   public DependencyResolvingStrategies getResolvingStrategies() {
-    return dependencyResolver.getResolvingStrategies();
+    return dependencyInjector.getResolvingStrategies();
   }
 
   @Override
@@ -423,7 +430,7 @@ public class StandardDependenciesBeanPostProcessor
       desc.setContainingClass(bean.getClass());
       Assert.state(beanFactory != null, "No BeanFactory available");
       DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
-      Object value = dependencyResolver.resolveValue(desc, context);
+      Object value = dependencyInjector.resolveValue(desc, context);
 
       synchronized(this) {
         if (!cached) {
@@ -526,7 +533,7 @@ public class StandardDependenciesBeanPostProcessor
         descriptors[i] = currDesc;
 
         try {
-          Object arg = dependencyResolver.resolveValue(currDesc, context);
+          Object arg = dependencyInjector.resolveValue(currDesc, context);
           if (arg == null && !this.required) {
             arguments = null;
             break;

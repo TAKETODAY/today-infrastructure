@@ -39,11 +39,12 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0
  */
 public class InjectableAnnotationsSupport {
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+  protected static final Logger log = LoggerFactory.getLogger(InjectableAnnotationsSupport.class);
   protected final LinkedHashSet<Class<? extends Annotation>> injectableAnnotations = new LinkedHashSet<>();
 
   public void initInjectableAnnotations() {
     addInjectableAnnotation(Autowired.class);
+    addInjectableAnnotation(Value.class);
     ClassLoader classLoader = getClass().getClassLoader();
     // @formatter:off
     try {
@@ -54,7 +55,7 @@ public class InjectableAnnotationsSupport {
     try {
       addInjectableAnnotation(
               ClassUtils.forName("jakarta.inject.Inject", classLoader));
-      log.trace("'jakarta.inject.Inject' annotation found and supported for autowiring");
+      log.debug("'jakarta.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
       // jakarta.inject API not available - simply skip.
@@ -62,12 +63,14 @@ public class InjectableAnnotationsSupport {
     try {
       addInjectableAnnotation(
               ClassUtils.forName("javax.inject.Inject", classLoader));
-      log.trace("'javax.inject.Inject' annotation found and supported for autowiring");
+      log.debug("'javax.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
       // javax.inject API not available - simply skip.
     }
     // @formatter:on
+
+
   }
 
   public void addInjectableAnnotation(Class<? extends Annotation> injectableAnnotation) {

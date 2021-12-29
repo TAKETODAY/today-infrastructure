@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
@@ -552,7 +552,7 @@ public abstract class AbstractApplicationContext
     // register Environment
     beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
     // @since 4.0 ArgumentsResolver
-    beanFactory.registerSingleton(getDependencyResolver());
+    beanFactory.registerSingleton(getInjector());
 
     ExpressionEvaluator.register(beanFactory, getEnvironment());
   }
@@ -1116,8 +1116,8 @@ public abstract class AbstractApplicationContext
 
   @NonNull
   @Override
-  public DependencyResolver getDependencyResolver() {
-    return getBeanFactory().getDependencyResolver();
+  public DependencyInjector getInjector() {
+    return getBeanFactory().getInjector();
   }
 
   // @since 2.1.7

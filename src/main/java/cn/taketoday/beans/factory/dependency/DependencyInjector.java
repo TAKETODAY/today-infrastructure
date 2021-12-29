@@ -20,23 +20,28 @@
 
 package cn.taketoday.beans.factory.dependency;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/27 21:06
  */
-public class DependencyResolver {
+public class DependencyInjector {
 
   @Nullable
   private StrategiesDetector strategiesDetector;
@@ -46,9 +51,24 @@ public class DependencyResolver {
 
   private final BeanFactory beanFactory;
 
-  public DependencyResolver(BeanFactory beanFactory) {
+  public DependencyInjector(BeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "beanFactory is required");
     this.beanFactory = beanFactory;
   }
+
+  // inject
+
+  public <T> T inject(Constructor<T> constructor, @Nullable Object... providedArgs) {
+    Object[] parameter = resolveArguments(constructor, providedArgs);
+    return BeanUtils.newInstance(constructor, parameter);
+  }
+
+  public Object inject(Method method, @Nullable Object... providedArgs) {
+    Object[] parameter = resolveArguments(method, providedArgs);
+    return ReflectionUtils.invokeMethod(method, parameter);
+  }
+
+  // resolve
 
   @Nullable
   public Object resolveValue(

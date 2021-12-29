@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.DependencyResolverProvider;
+import cn.taketoday.beans.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.ResolvableType;
@@ -127,7 +127,7 @@ import cn.taketoday.lang.Nullable;
  * @see BeanDefinition#getDestroyMethod()
  * @since 2018-06-23 11:22:26
  */
-public interface BeanFactory extends DependencyResolverProvider {
+public interface BeanFactory extends DependencyInjectorProvider {
 
   /**
    * Used to dereference a {@link FactoryBean} instance and distinguish it from

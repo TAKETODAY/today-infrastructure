@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.dependency.DependencyResolver;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.core.ConfigurationException;
@@ -69,7 +69,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   private ApplicationContext context;
   private EventExpressionEvaluator evaluator;
 
-  private DependencyResolver dependencyResolver;
+  private DependencyInjector dependencyInjector;
 
   @Nullable
   private final String condition;
@@ -116,9 +116,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   protected void init(ApplicationContext context, EventExpressionEvaluator evaluator) {
     this.context = context;
     this.evaluator = evaluator;
-    this.dependencyResolver = targetMethod.getParameterCount() == 0
+    this.dependencyInjector = targetMethod.getParameterCount() == 0
                               ? null
-                              : context.getDependencyResolver();
+                              : context.getInjector();
 
   }
 
@@ -207,7 +207,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    */
   @Override
   public void onApplicationEvent(Object event) { // any event type
-    Object[] parameter = resolveArguments(dependencyResolver, event);
+    Object[] parameter = resolveArguments(dependencyInjector, event);
     if (shouldInvoke(event, parameter)) {
       if (methodInvoker == null) {
         methodInvoker = MethodInvoker.fromMethod(targetMethod);
@@ -231,7 +231,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   @Nullable
-  private Object[] resolveArguments(DependencyResolver resolver, Object event) {
+  private Object[] resolveArguments(DependencyInjector resolver, Object event) {
     if (resolver != null) {
       return resolver.resolveArguments(targetMethod, event);
     }
