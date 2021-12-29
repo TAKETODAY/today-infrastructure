@@ -22,15 +22,14 @@ package cn.taketoday.transaction.annotation;
 
 import java.util.Collection;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ImportAware;
-import cn.taketoday.core.annotation.AnnotationProvider;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionManagementConfigUtils;
@@ -47,14 +46,13 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0
  */
 @Configuration
-public abstract class AbstractTransactionManagementConfiguration
-        implements ImportAware, AnnotationProvider<EnableTransactionManagement> {
+public abstract class AbstractTransactionManagementConfiguration implements ImportAware {
 
   @Nullable
   protected MergedAnnotation<EnableTransactionManagement> enableTx;
 
   /**
-   * Default transaction manager, as configured through a {@link TransactionManagementConfigurer}.
+   * Default transaction manager, as configured through a {@link cn.taketoday.transaction.annotation.TransactionManagementConfigurer}.
    */
   @Nullable
   protected PlatformTransactionManager txManager;

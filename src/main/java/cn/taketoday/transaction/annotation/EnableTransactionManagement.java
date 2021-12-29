@@ -161,9 +161,9 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @see cn.taketoday.transaction.aspectj.AspectJTransactionManagementConfiguration
  * @since 4.0
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 @Import(TransactionManagementConfigurationSelector.class)
 public @interface EnableTransactionManagement {
 
