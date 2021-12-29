@@ -23,10 +23,13 @@ package cn.taketoday.context.loader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -41,7 +44,7 @@ public class ScanningBeanDefinitionReader {
 
   private final BeanDefinitionRegistry registry;
 
-  private final BeanDefinitionLoadingStrategies scanningStrategies = new BeanDefinitionLoadingStrategies();
+  private final BeanDefinitionLoadingStrategies scanningStrategies;
   private final DefinitionLoadingContext loadingContext;
 
   private final ClassPathScanningComponentProvider componentProvider;
@@ -51,6 +54,14 @@ public class ScanningBeanDefinitionReader {
     this.loadingContext = loadingContext;
     this.componentProvider = new ClassPathScanningComponentProvider();
     componentProvider.setMetadataReaderFactory(loadingContext.getMetadataReaderFactory());
+
+    StrategiesDetector detector = loadingContext.getStrategiesDetector();
+    if (detector == null) {
+      detector = TodayStrategies.getDetector();
+    }
+    List<BeanDefinitionLoadingStrategy> strategies = detector.getStrategies(
+            BeanDefinitionLoadingStrategy.class);
+    this.scanningStrategies = new BeanDefinitionLoadingStrategies(strategies);
   }
 
   /**

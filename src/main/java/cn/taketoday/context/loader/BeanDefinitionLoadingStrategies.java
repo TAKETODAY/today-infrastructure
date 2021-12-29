@@ -23,23 +23,20 @@ package cn.taketoday.context.loader;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/10/10 22:06
  * @since 4.0
  */
-public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStrategy {
+public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStrategy, ArraySizeTrimmer {
   private final ArrayList<BeanDefinitionLoadingStrategy> loadingStrategies = new ArrayList<>();
 
-  public BeanDefinitionLoadingStrategies() {
-    TodayStrategies detector = TodayStrategies.getDetector();
-    List<BeanDefinitionLoadingStrategy> strategies = detector.getStrategies(
-            BeanDefinitionLoadingStrategy.class);
-    addStrategies(strategies);
+  public BeanDefinitionLoadingStrategies(@Nullable List<BeanDefinitionLoadingStrategy> loadingStrategies) {
+    addStrategies(loadingStrategies);
   }
 
   @Override
@@ -68,6 +65,11 @@ public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStr
   public void setStrategies(@Nullable List<BeanDefinitionLoadingStrategy> strategies) {
     loadingStrategies.clear();
     addStrategies(strategies);
+  }
+
+  @Override
+  public void trimToSize() {
+    loadingStrategies.trimToSize();
   }
 
 }
