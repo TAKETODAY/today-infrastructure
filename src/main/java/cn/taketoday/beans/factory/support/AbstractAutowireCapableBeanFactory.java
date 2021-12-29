@@ -462,6 +462,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       DependencyResolver resolver = getDependencyResolver();
       // invoke or initMethods defined in @Component
       for (Method method : methods) {
+        ReflectionUtils.makeAccessible(method);
         Object[] args = resolver.resolveArguments(method);
         method.invoke(bean, args);
       }
