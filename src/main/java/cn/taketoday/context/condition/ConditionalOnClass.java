@@ -56,7 +56,7 @@ final class OnClassCondition implements Condition {
 
   @Override
   public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    MergedAnnotation<ConditionalOnClass> conditionalOnClass = metadata.getAnnotations().get(ConditionalOnClass.class);
+    MergedAnnotation<ConditionalOnClass> conditionalOnClass = metadata.getAnnotation(ConditionalOnClass.class);
     if (conditionalOnClass.isPresent()) {
       String[] classArray = conditionalOnClass.getStringArray(MergedAnnotation.VALUE);
       for (String name : classArray) {
@@ -66,7 +66,7 @@ final class OnClassCondition implements Condition {
       }
     }
 
-    MergedAnnotation<ConditionalOnMissingClass> onMissingClass = metadata.getAnnotations().get(ConditionalOnMissingClass.class);
+    MergedAnnotation<ConditionalOnMissingClass> onMissingClass = metadata.getAnnotation(ConditionalOnMissingClass.class);
     if (onMissingClass.isPresent()) {
       String[] classArray = onMissingClass.getStringArray(MergedAnnotation.VALUE);
       for (String name : classArray) {

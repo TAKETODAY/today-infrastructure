@@ -56,7 +56,7 @@ final class OnResourceCondition implements Condition {
   @Override
   public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     MergedAnnotation<ConditionalOnResource> conditionalOnResource
-            = metadata.getAnnotations().get(ConditionalOnResource.class);
+            = metadata.getAnnotation(ConditionalOnResource.class);
 
     String[] stringArray = conditionalOnResource.getStringArray(MergedAnnotation.VALUE);
     ResourceLoader resourceLoader = context.getResourceLoader();

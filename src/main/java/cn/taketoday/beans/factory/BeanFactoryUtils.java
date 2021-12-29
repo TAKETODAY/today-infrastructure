@@ -648,14 +648,14 @@ public abstract class BeanFactoryUtils {
       // find on factory method
       MethodMetadata methodMetadata = ((AnnotatedBeanDefinition) definition).getFactoryMethodMetadata();
       if (methodMetadata != null) {
-        MergedAnnotation<A> annotation = methodMetadata.getAnnotations().get(annotationType);
+        MergedAnnotation<A> annotation = methodMetadata.getAnnotation(annotationType);
         if (annotation.isPresent()) {
           return annotation;
         }
       }
 
       AnnotationMetadata annotationMetadata = ((AnnotatedBeanDefinition) definition).getMetadata();
-      MergedAnnotation<A> annotation = annotationMetadata.getAnnotations().get(annotationType);
+      MergedAnnotation<A> annotation = annotationMetadata.getAnnotation(annotationType);
       if (annotation.isPresent()) {
         return annotation;
       }

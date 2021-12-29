@@ -270,7 +270,7 @@ public class BeanDefinitionBuilder {
 
     if (annotationMetadata != null) {
       AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
-      MergedAnnotation<Component> annotation = annotationMetadata.getAnnotations().get(Component.class);
+      MergedAnnotation<Component> annotation = annotationMetadata.getAnnotation(Component.class);
       annotation(annotation);
       if (beanClass != null) {
         definition.setBeanClass(beanClass);
@@ -279,7 +279,7 @@ public class BeanDefinitionBuilder {
     }
     if (beanClass != null) {
       AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
-      MergedAnnotation<Component> annotation = definition.getMetadata().getAnnotations().get(Component.class);
+      MergedAnnotation<Component> annotation = definition.getMetadata().getAnnotation(Component.class);
       annotation(annotation);
       return definition;
     }

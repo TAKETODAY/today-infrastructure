@@ -26,11 +26,11 @@ import java.util.function.Supplier;
 
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.SingletonSupplier;
@@ -59,7 +59,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {
-    this.enableAsync = importMetadata.getAnnotations().get(EnableAsync.class);
+    this.enableAsync = importMetadata.getAnnotation(EnableAsync.class);
     if (!enableAsync.isPresent()) {
       throw new IllegalArgumentException(
               "@EnableAsync is not present on importing class " + importMetadata.getClassName());
