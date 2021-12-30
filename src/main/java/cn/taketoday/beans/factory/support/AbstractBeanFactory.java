@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -260,10 +261,8 @@ public abstract class AbstractBeanFactory
           beanInstance = getSingleton(beanName, () -> {
             try {
               Object bean = createBean(beanName, definition, args);
-              if (bean == null) {
-                return NullValue.INSTANCE;
-              }
-              return bean;
+              // cache value
+              return Objects.requireNonNullElse(bean, NullValue.INSTANCE);
             }
             catch (BeansException ex) {
               // Explicitly remove instance from singleton cache: It might have been put there
@@ -273,6 +272,7 @@ public abstract class AbstractBeanFactory
               throw ex;
             }
           });
+          // unwrap cache value
           if (beanInstance == NullValue.INSTANCE) {
             return null;
           }
@@ -314,6 +314,7 @@ public abstract class AbstractBeanFactory
       }
     }
     else if (beanInstance == NullValue.INSTANCE) {
+      // unwrap cache value
       return null;
     }
     else {
@@ -1542,7 +1543,8 @@ public abstract class AbstractBeanFactory
         boolean synthetic = (definition != null && definition.isSynthetic());
         beanInstance = getObjectFromFactoryBean(factory, beanName, !synthetic);
       }
-      else if (beanInstance == NullValue.INSTANCE) {
+      // unwrap cache value
+      if (beanInstance == NullValue.INSTANCE) {
         return null;
       }
     }
