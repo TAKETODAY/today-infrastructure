@@ -45,7 +45,7 @@ public class MethodBasedEvaluationContext extends StandardExpressionContext {
     this.method = method;
     this.arguments = arguments;
     this.parameterNameDiscoverer = parameterNameDiscoverer;
-    addResolver(new RootObjectExpressionResolver(rootObject));
+    addResolver(new RootObjectExpressionResolver(rootObject, true));
   }
 
   @Override

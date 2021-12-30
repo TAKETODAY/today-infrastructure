@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.lang.Nullable;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
@@ -76,21 +77,33 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
   private final boolean isReadOnly;
 
   /**
-   * Creates a new read/write <code>BeanELResolver</code>.
+   * @since 4.0
+   */
+  private final boolean ignoreUnknownProperty;
+
+  /**
+   * Creates a new read/write <code>BeanPropertyExpressionResolver</code>.
    */
   public BeanPropertyExpressionResolver() {
-    this(false);
+    this.isReadOnly = false;
+    this.ignoreUnknownProperty = false;
+  }
+
+  public BeanPropertyExpressionResolver(boolean ignoreUnknownProperty) {
+    this.isReadOnly = false;
+    this.ignoreUnknownProperty = ignoreUnknownProperty;
   }
 
   /**
-   * Creates a new <code>BeanELResolver</code> whose read-only status is
+   * Creates a new <code>BeanPropertyExpressionResolver</code> whose read-only status is
    * determined by the given parameter.
    *
    * @param isReadOnly <code>true</code> if this resolver cannot modify beans;
    * <code>false</code> otherwise.
    */
-  public BeanPropertyExpressionResolver(boolean isReadOnly) {
+  public BeanPropertyExpressionResolver(boolean isReadOnly, boolean ignoreUnknownProperty) {
     this.isReadOnly = isReadOnly;
+    this.ignoreUnknownProperty = ignoreUnknownProperty;
   }
 
   /**
@@ -127,14 +140,18 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
     if (base == null || property == null) {
       return null;
     }
 
     BeanProperty beanProperty = getProperty(base, property);
-    context.setPropertyResolved(true);
-    return beanProperty.getType();
+    if (beanProperty != null) {
+      context.setPropertyResolved(true);
+      return beanProperty.getType();
+    }
+    return null;
   }
 
   /**
@@ -171,19 +188,24 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
     if (base == null || property == null) {
       return null;
     }
     BeanProperty beanProperty = getProperty(base, property);
-    try {
-      Object value = beanProperty.getValue(base);
-      context.setPropertyResolved(base, property);
-      return value;
+    if (beanProperty != null) {
+      try {
+        Object value = beanProperty.getValue(base);
+        context.setPropertyResolved(base, property);
+        return value;
+      }
+      catch (Exception ex) {
+        throw new ExpressionException(
+                "Can't get property: '" + property + "' from '" + base.getClass() + "'", ex);
+      }
     }
-    catch (Exception ex) {
-      throw new ExpressionException(ex);
-    }
+    return null;
   }
 
   /**
@@ -226,6 +248,7 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
     if (base == null || property == null) {
       return;
@@ -236,19 +259,21 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
     }
 
     BeanProperty beanProperty = getProperty(base, property);
-    try {
-      beanProperty.setValue(base, val);
-      context.setPropertyResolved(base, property);
-    }
-    catch (Exception ex) {
-      StringBuilder message = new StringBuilder("Can't set property '")//
-              .append(property)//
-              .append("' on class '")//
-              .append(base.getClass().getName())//
-              .append("' to value '")//
-              .append(val)//
-              .append("'.");
-      throw new ExpressionException(message.toString(), ex);
+    if (beanProperty != null) {
+      try {
+        beanProperty.setValue(base, val);
+        context.setPropertyResolved(base, property);
+      }
+      catch (Exception ex) {
+        StringBuilder message = new StringBuilder("Can't set property '")//
+                .append(property)//
+                .append("' on class '")//
+                .append(base.getClass().getName())//
+                .append("' to value '")//
+                .append(val)//
+                .append("'.");
+        throw new ExpressionException(message.toString(), ex);
+      }
     }
   }
 
@@ -308,6 +333,7 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
    * constructor.
    * @since EL 2.2
    */
+  @Override
   public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
     if (base == null || method == null) {
       return null;
@@ -359,6 +385,7 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
     if (base == null || property == null) {
       return false;
@@ -367,13 +394,27 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
     return isReadOnly;
   }
 
-  public static BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
+  @Nullable
+  private BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
     BeanProperty beanProperty = BeanMetadata.from(base, true).getBeanProperty(prop.toString());
-    if (beanProperty == null) {
+    if (beanProperty == null && !ignoreUnknownProperty) {
       throw new PropertyNotFoundException(
               "The class '" + base.getClass().getName() + "' does not have the property '" + prop + "'.");
     }
     return beanProperty;
   }
 
+  /**
+   * @since 4.0
+   */
+  public boolean isIgnoreUnknownProperty() {
+    return ignoreUnknownProperty;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean isReadOnly() {
+    return isReadOnly;
+  }
 }

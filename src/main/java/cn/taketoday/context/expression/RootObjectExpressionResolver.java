@@ -20,12 +20,8 @@
 
 package cn.taketoday.context.expression;
 
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.expression.BeanPropertyExpressionResolver;
 import cn.taketoday.expression.ExpressionContext;
-import cn.taketoday.expression.ExpressionException;
-import cn.taketoday.expression.ExpressionResolver;
-import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -33,34 +29,28 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/25 22:10
  */
-public class RootObjectExpressionResolver extends ExpressionResolver {
+public class RootObjectExpressionResolver extends BeanPropertyExpressionResolver {
   private final Object rootObject;
-  private final boolean isReadOnly;
 
   public RootObjectExpressionResolver(Object rootObject) {
-    this(rootObject, false);
+    this(rootObject, false, false);
   }
 
-  public RootObjectExpressionResolver(Object rootObject, boolean isReadOnly) {
+  public RootObjectExpressionResolver(Object rootObject, boolean ignoreUnknownProperty) {
+    this(rootObject, false, ignoreUnknownProperty);
+  }
+
+  public RootObjectExpressionResolver(Object rootObject, boolean isReadOnly, boolean ignoreUnknownProperty) {
+    super(isReadOnly, ignoreUnknownProperty);
     Assert.notNull(rootObject, "'rootObject' is required");
     this.rootObject = rootObject;
-    this.isReadOnly = isReadOnly;
   }
 
   @Override
   public Object getValue(
           ExpressionContext context, @Nullable Object base, Object propertyName) {
     if (base == null && propertyName != null) {
-      BeanProperty property = getProperty(propertyName);
-      try {
-        Object value = property.getValue(rootObject);
-        context.setPropertyResolved(rootObject, property);
-        return value;
-      }
-      catch (Exception ex) {
-        throw new ExpressionException(
-                "Can't get property: '" + propertyName + "' from '" + rootObject.getClass() + "'", ex);
-      }
+      return super.getValue(context, rootObject, propertyName);
     }
     return null;
   }
@@ -68,41 +58,16 @@ public class RootObjectExpressionResolver extends ExpressionResolver {
   @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
     if (base == null && property != null) {
-      BeanProperty beanProperty = getProperty(property);
-      context.setPropertyResolved(true);
-      return beanProperty.getType();
+      return super.getType(context, rootObject, property);
     }
     return null;
-  }
-
-  private BeanProperty getProperty(Object property) {
-    return BeanPropertyExpressionResolver.getProperty(rootObject, property);
   }
 
   @Override
   public void setValue(
           ExpressionContext context, Object base, Object property, Object value) {
     if (base == null && property != null) {
-      if (isReadOnly) {
-        throw new PropertyNotWritableException(
-                "The ExpressionResolver for the class '" + rootObject.getClass().getName() + "' is not writable.");
-      }
-
-      BeanProperty beanProperty = getProperty(property);
-      try {
-        beanProperty.setValue(rootObject, value);
-        context.setPropertyResolved(rootObject, property);
-      }
-      catch (Exception ex) {
-        StringBuilder message = new StringBuilder("Can't set property '")//
-                .append(property)//
-                .append("' on class '")//
-                .append(rootObject.getClass().getName())//
-                .append("' to value '")//
-                .append(value)//
-                .append("'.");
-        throw new ExpressionException(message.toString(), ex);
-      }
+      super.setValue(context, rootObject, property, value);
     }
   }
 
@@ -112,7 +77,7 @@ public class RootObjectExpressionResolver extends ExpressionResolver {
       return false;
     }
     context.setPropertyResolved(true);
-    return isReadOnly;
+    return super.isReadOnly(context, rootObject, property);
   }
 
 }

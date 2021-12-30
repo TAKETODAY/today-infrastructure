@@ -218,11 +218,6 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
   }
 
   @Override
-  public boolean isNameResolved(String beanName) {
-    return variables.containsKey(beanName);
-  }
-
-  @Override
   public Object getBean(String beanName) {
     return variables.get(beanName);
   }

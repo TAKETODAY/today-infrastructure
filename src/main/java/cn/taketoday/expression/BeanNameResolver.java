@@ -58,7 +58,7 @@ public interface BeanNameResolver {
    * otherwise.
    */
   default boolean isNameResolved(String beanName) {
-    return false;
+    return getBean(beanName) != null;
   }
 
   /**
