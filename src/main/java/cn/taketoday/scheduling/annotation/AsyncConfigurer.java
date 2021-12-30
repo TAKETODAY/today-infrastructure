@@ -33,18 +33,12 @@ import cn.taketoday.lang.Nullable;
  * {@link AsyncUncaughtExceptionHandler} instance used to process exception thrown from
  * async method with {@code void} return type.
  *
- * <p>Consider using {@link AsyncConfigurerSupport} providing default implementations for
- * both methods if only one element needs to be customized. Furthermore, backward compatibility
- * of this interface will be insured in case new customization options are introduced
- * in the future.
- *
  * <p>See @{@link EnableAsync} for usage examples.
  *
  * @author Chris Beams
  * @author Stephane Nicoll
  * @see AbstractAsyncConfiguration
  * @see EnableAsync
- * @see AsyncConfigurerSupport
  * @since 4.0
  */
 public interface AsyncConfigurer {

@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Specialization of {@link PathContainer} that sub-divides the path into a
  * {@link #contextPath()} and the remaining {@link #pathWithinApplication()}.
- * The lattery is typically used for request mapping within the application
+ * The latter is typically used for request mapping within the application
  * while the former is useful when preparing external links that point back to
  * the application.
  *

@@ -341,7 +341,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
 
   @Configuration
   @EnableAsync
-  static class ConfigWithExceptionHandler extends AsyncConfigurerSupport {
+  static class ConfigWithExceptionHandler implements AsyncConfigurer {
 
     @Bean
     public ITestBean target() {
