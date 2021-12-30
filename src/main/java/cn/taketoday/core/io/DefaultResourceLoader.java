@@ -20,6 +20,10 @@
 
 package cn.taketoday.core.io;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -155,7 +159,24 @@ public class DefaultResourceLoader implements ResourceLoader {
     if (location.startsWith("/")) {
       return getResourceByPath(location);
     }
-    return ResourceUtils.getResource(location);
+    else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
+      String path = URLDecoder.decode(
+              location.substring(CLASSPATH_URL_PREFIX.length()), StandardCharsets.UTF_8);
+      return new ClassPathResource(path, getClassLoader());
+    }
+    else {
+      try {
+        // Try to parse the location as a URL...
+        URL url = new URL(location);
+        return ResourceUtils.isFileURL(url)
+               ? new FileUrlResource(url)
+               : new UrlBasedResource(url);
+      }
+      catch (MalformedURLException ex) {
+        // No URL -> resolve as resource path.
+        return getResourceByPath(location);
+      }
+    }
   }
 
   /**
@@ -169,7 +190,25 @@ public class DefaultResourceLoader implements ResourceLoader {
    * @see ClassPathResource
    */
   protected Resource getResourceByPath(String path) {
-    return new ClassPathResource(path, getClassLoader());
+    return new ClassPathContextResource(path, getClassLoader());
+  }
+
+  /**
+   * ClassPathResource that explicitly expresses a context-relative path
+   * through implementing the ContextResource interface.
+   */
+  protected static class ClassPathContextResource extends ClassPathResource {
+
+    public ClassPathContextResource(String path, @Nullable ClassLoader classLoader) {
+      super(path, classLoader);
+    }
+
+    @Override
+    public Resource createRelative(String relativePath) {
+      String pathToUse = ResourceUtils.getRelativePath(getPath(), relativePath);
+      return new ClassPathContextResource(pathToUse, getClassLoader());
+    }
+
   }
 
 }

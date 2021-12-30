@@ -20,6 +20,7 @@
 package cn.taketoday.core.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -97,7 +98,7 @@ public class ClassPathResource implements Resource, WritableResource {
     this.resourceClass = clazz;
   }
 
-  Resource getResource() {
+  private Resource getResource() {
     if (resource == null) {
       URL url;
       if (resourceClass != null) {
@@ -121,7 +122,20 @@ public class ClassPathResource implements Resource, WritableResource {
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return getResource().getInputStream();
+    InputStream is;
+    if (resourceClass != null) {
+      is = resourceClass.getResourceAsStream(location);
+    }
+    else if (this.classLoader != null) {
+      is = this.classLoader.getResourceAsStream(location);
+    }
+    else {
+      is = ClassLoader.getSystemResourceAsStream(location);
+    }
+    if (is == null) {
+      throw new FileNotFoundException(this + " cannot be opened because it does not exist");
+    }
+    return is;
   }
 
   @Override
@@ -236,6 +250,15 @@ public class ClassPathResource implements Resource, WritableResource {
   @Nullable
   public final ClassLoader getClassLoader() {
     return resourceClass != null ? resourceClass.getClassLoader() : classLoader;
+  }
+
+  /**
+   * Return the path for this resource (as resource path within the class path).
+   *
+   * @since 4.0
+   */
+  public final String getPath() {
+    return this.location;
   }
 
   @Override

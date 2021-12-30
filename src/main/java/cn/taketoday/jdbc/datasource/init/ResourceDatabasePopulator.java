@@ -23,7 +23,6 @@ package cn.taketoday.jdbc.datasource.init;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -59,7 +58,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class ResourceDatabasePopulator implements DatabasePopulator {
 
-  List<Resource> scripts = new ArrayList<>();
+  ArrayList<Resource> scripts = new ArrayList<>();
 
   @Nullable
   private String sqlScriptEncoding;
