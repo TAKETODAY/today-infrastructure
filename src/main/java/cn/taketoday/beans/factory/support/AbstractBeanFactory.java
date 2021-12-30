@@ -1631,6 +1631,13 @@ public abstract class AbstractBeanFactory
 
     // Do not accept a null value for a FactoryBean that's not fully
     // initialized yet: Many FactoryBeans just return null then.
+    if (object == null) {
+      if (isSingletonCurrentlyInCreation(beanName)) {
+        throw new BeanCurrentlyInCreationException(
+                beanName, "FactoryBean which is currently in creation returned null from getObject");
+      }
+      object = NullValue.INSTANCE;
+    }
     return object;
   }
 

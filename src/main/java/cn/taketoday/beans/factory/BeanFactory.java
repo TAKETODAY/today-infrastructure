@@ -192,22 +192,38 @@ public interface BeanFactory extends DependencyInjectorProvider {
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
   /**
-   * Determine if it is Singleton
-   * <p>
-   * Find it in the singleton pool when it is not found in the bean definition map
+   * Is this bean a shared singleton? That is, will {@link #getBean} always
+   * return the same instance?
+   * <p>Note: This method returning {@code false} does not clearly indicate
+   * independent instances. It indicates non-singleton instances, which may correspond
+   * to a scoped bean as well. Use the {@link #isPrototype} operation to explicitly
+   * check for independent instances.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name Bean name
-   * @return If this bean is a singleton
-   * @throws NoSuchBeanDefinitionException If a bean does not exist
+   * @param name the name of the bean to query
+   * @return whether this bean corresponds to a singleton instance
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @see #getBean
+   * @see #isPrototype
    */
   boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
   /**
-   * Is Prototype ?
+   * Is this bean a prototype? That is, will {@link #getBean} always return
+   * independent instances?
+   * <p>Note: This method returning {@code false} does not clearly indicate
+   * a singleton object. It indicates non-independent instances, which may correspond
+   * to a scoped bean as well. Use the {@link #isSingleton} operation to explicitly
+   * check for a shared singleton instance.
+   * <p>Translates aliases back to the corresponding canonical bean name.
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
-   * @param name Bean name
-   * @return If this bean is a prototype
-   * @throws NoSuchBeanDefinitionException If a bean does not exist
+   * @param name the name of the bean to query
+   * @return whether this bean will always deliver independent instances
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @see #getBean
+   * @see #isSingleton
    */
   boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 

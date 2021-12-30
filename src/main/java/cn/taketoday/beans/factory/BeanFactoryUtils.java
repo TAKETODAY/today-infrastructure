@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.ResolvableType;
@@ -37,7 +38,6 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -660,21 +660,14 @@ public abstract class BeanFactoryUtils {
         return annotation;
       }
     }
-
+    Class<?> beanType;
     // Check raw bean class, e.g. in case of a proxy.
     if (definition != null && definition.hasBeanClass()) {
-      Class<?> beanClass = definition.getBeanClass();
-      Class<?> beanType = beanFactory.getType(beanName);
-      if (beanClass != beanType) {
-        MergedAnnotation<A> annotation =
-                MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-        if (annotation.isPresent()) {
-          return annotation;
-        }
-      }
+      beanType = definition.getBeanClass();
     }
-
-    Class<?> beanType = beanFactory.getType(beanName);
+    else {
+      beanType = beanFactory.getType(beanName);
+    }
     if (beanType != null) {
       MergedAnnotation<A> annotation =
               MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
