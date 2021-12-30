@@ -463,7 +463,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       // invoke or initMethods defined in @Component
       for (Method method : methods) {
         ReflectionUtils.makeAccessible(method);
-        injector.inject(method);
+        injector.inject(method, bean);
       }
     }
   }

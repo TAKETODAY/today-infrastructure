@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.role.ComponentWithRole;
 import cn.taketoday.context.annotation.role.ComponentWithoutRole;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -63,8 +64,10 @@ public class RoleAndDescriptionAnnotationTests {
   @Test
   public void viaComponentScanning() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.scan("cn.taketoday.context.annotation.role");
+    ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(ctx);
+    scanner.scan("cn.taketoday.context.annotation.role");
     ctx.refresh();
+
     assertThat(ctx.getBeanDefinition("componentWithoutRole").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
     assertThat(ctx.getBeanDefinition("componentWithoutRole").getDescription()).isNull();
     assertThat(ctx.getBeanDefinition("componentWithRole").getRole()).isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);

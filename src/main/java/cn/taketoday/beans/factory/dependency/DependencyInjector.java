@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.dependency;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Set;
@@ -34,8 +35,8 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -63,9 +64,17 @@ public class DependencyInjector {
     return BeanUtils.newInstance(constructor, parameter);
   }
 
-  public Object inject(Method method, @Nullable Object... providedArgs) {
-    Object[] parameter = resolveArguments(method, providedArgs);
-    return ReflectionUtils.invokeMethod(method, parameter);
+  public Object inject(Method method, Object bean, @Nullable Object... providedArgs) {
+    Object[] args = resolveArguments(method, providedArgs);
+    try {
+      return method.invoke(bean, args);
+    }
+    catch (IllegalAccessException e) {
+      throw new IllegalStateException("Could not access method: " + method);
+    }
+    catch (InvocationTargetException e) {
+      throw ExceptionUtils.sneakyThrow(e.getTargetException());
+    }
   }
 
   // resolve
