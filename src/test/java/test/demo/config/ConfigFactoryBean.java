@@ -78,4 +78,8 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
     return Config.class;
   }
 
+  @Override
+  public boolean isSingleton() {
+    return false;
+  }
 }

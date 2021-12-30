@@ -34,7 +34,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -296,7 +295,7 @@ class FactoryBeanTests {
 
   public static class Gamma { }
 
-  @Component
+  //  @Component
   public static class BetaFactoryBean implements FactoryBean<Object> {
 
     public BetaFactoryBean(Alpha alpha) {

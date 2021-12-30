@@ -23,6 +23,8 @@ package cn.taketoday.beans.factory;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.TestBean;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
@@ -32,9 +34,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.beans.factory.annotation.Value;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -90,7 +90,7 @@ class AutowireCapableBeanFactoryTests {
     @Value("#{1+1}")
     int property;
 
-    @Autowired
+    @Autowired(required = false)
     CreateTestBean bean;
 
     boolean initMethod;

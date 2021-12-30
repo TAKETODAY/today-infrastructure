@@ -30,7 +30,7 @@ import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
+import cn.taketoday.context.annotation.PropsDependencyResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,7 +51,7 @@ class PropsPropertyResolverTests {
   public void propsPropertyResolver() throws Throwable {
 
     try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
-      PropsDependencyResolvingStrategy strategy = new PropsDependencyResolvingStrategy(applicationContext);
+      PropsDependencyResolver strategy = new PropsDependencyResolver(applicationContext);
 
       BeanProperty property1 = BeanProperty.valueOf(getClass(), "properties");
 

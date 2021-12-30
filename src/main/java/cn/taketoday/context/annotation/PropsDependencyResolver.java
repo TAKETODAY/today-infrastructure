@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -35,15 +36,16 @@ import cn.taketoday.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/17 15:38
  */
-public class PropsDependencyResolvingStrategy implements DependencyResolvingStrategy {
+public class PropsDependencyResolver
+        extends OrderedSupport implements DependencyResolvingStrategy {
 
   private final PropsReader propsReader;
 
-  public PropsDependencyResolvingStrategy(ApplicationContext context) {
+  public PropsDependencyResolver(ApplicationContext context) {
     this.propsReader = new PropsReader(context);
   }
 
-  public PropsDependencyResolvingStrategy(PropsReader propsReader) {
+  public PropsDependencyResolver(PropsReader propsReader) {
     this.propsReader = propsReader;
   }
 

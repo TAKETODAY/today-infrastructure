@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.support.BeanExpressionResolver;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.expression.ExpressionEvaluationException;
 import cn.taketoday.context.expression.ExpressionInfo;
-import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Constant;
@@ -46,7 +46,8 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/18 21:11</a>
  * @since 4.0
  */
-public class ExpressionDependencyResolver implements DependencyResolvingStrategy, Ordered {
+public class ExpressionDependencyResolver
+        extends OrderedSupport implements DependencyResolvingStrategy {
 
   private final BeanExpressionContext exprContext;
 
@@ -121,11 +122,6 @@ public class ExpressionDependencyResolver implements DependencyResolvingStrategy
       conversionService = DefaultConversionService.getSharedInstance();
     }
     return conversionService.convert(value, injectionPoint.getDependencyType());
-  }
-
-  @Override
-  public int getOrder() {
-    return HIGHEST_PRECEDENCE;
   }
 
 }

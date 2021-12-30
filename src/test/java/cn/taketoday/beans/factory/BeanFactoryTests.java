@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
@@ -36,7 +37,6 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.DataSize;
@@ -211,7 +211,7 @@ class BeanFactoryTests {
   // @Singleton("test.beans.factory.BeanFactoryTest.FactoryBeanTestBean")
   public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
-    @Value("#{env.getProperty('upload.maxFileSize')}")
+    @Value("${upload.maxFileSize}")
 //    private int testInt;
     private DataSize testInt;
 

@@ -47,7 +47,7 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
-import cn.taketoday.context.annotation.PropsDependencyResolvingStrategy;
+import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
@@ -603,17 +603,23 @@ public abstract class AbstractApplicationContext
 
     // register DI bean post processors
     beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-    StandardDependenciesBeanPostProcessor autowiredPostProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
-
-    DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
-    resolvingStrategies.addStrategies(
-            new ExpressionDependencyResolver(beanFactory),
-            new PropsDependencyResolvingStrategy(this)
-    );
-    beanFactory.addBeanPostProcessor(autowiredPostProcessor);
+    addAutowiredPostProcessors(beanFactory);
 
     beanFactory.registerDependency(BeanFactory.class, beanFactory);
     beanFactory.registerDependency(ApplicationContext.class, this);
+  }
+
+  private void addAutowiredPostProcessors(ConfigurableBeanFactory beanFactory) {
+    StandardDependenciesBeanPostProcessor autowiredPostProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
+
+    DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
+    ExpressionDependencyResolver resolver = new ExpressionDependencyResolver(beanFactory);
+    resolver.setOrder(1);
+    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
+    strategy.setOrder(2);
+    resolvingStrategies.addStrategies(resolver, strategy);
+
+    beanFactory.addBeanPostProcessor(autowiredPostProcessor);
   }
 
   // post-processor
