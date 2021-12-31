@@ -11,6 +11,15 @@
 
 **You ask me what the elegant code looks like? Then I have to show it!**
 
+## 背景
+
+today-web 框架2.0刚出来时没有 ioc
+容器感觉不是很方便，所以想自己实现一个。之前有看过Spring源码但是发现我对Spring源码无从下手,完全懵逼。
+之前学过怎么用Spring但是对他的底层完全不了解的我带着试一试的心态开始到处查资料，就这样我又开始造起了轮子。
+如何扫描类文件、学习Java注解、Java字节码、动态代理、重新认识接口、一些设计模式、学习使用Git、渐渐明白了单元测试的重要性
+等。随着学习的深入框架经历了数次重构，自己也对依赖注入有了自己的看法。慢慢的我发现我居然能看得明白Spring源码了。
+感觉Spring真心强大。自己在造轮子的过程中学习到了很多知识，越学感觉自己越空，觉得越学越多，永远都学不完。
+
 ## 🛠️ 安装
 
 > 老版本 IOC
@@ -31,6 +40,7 @@
 只需要
 
 ```java
+
 @RestController
 public class DemoApplication {
 
@@ -48,6 +58,7 @@ public class DemoApplication {
 # 在 Netty 里运行
 
 ```java
+
 @Slf4j
 @RestController // rest 控制器
 @RestControllerAdvice
@@ -126,6 +137,7 @@ public class NettyApplication {
 # 在 Servlet 容器里运行
 
 ```java
+
 @Slf4j
 @Configuration
 @RequestMapping
@@ -197,6 +209,7 @@ public class TestApplication implements WebMvcConfiguration, ApplicationListener
 - 任意注解只要注解上有`@Component`注解就会标识为一个Bean不论多少层
 
 ```java
+
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
   /** @return bean name */
@@ -215,6 +228,7 @@ public @interface Component {
 `@Singleton`
 
 ```java
+
 @Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Singleton {
@@ -232,6 +246,7 @@ public @interface Singleton {
 `@Prototype`
 
 ```java
+
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.PROTOTYPE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -249,6 +264,7 @@ public @interface Prototype {
 `@Configuration`
 
 ```java
+
 @Target(ElementType.TYPE)
 @Component(scope = Scope.SINGLETON)
 public @interface Configuration {
@@ -259,6 +275,7 @@ public @interface Configuration {
 `@Service`
 
 ```java
+
 @Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Service {
@@ -275,6 +292,7 @@ public @interface Service {
 - 可自定义注解和实现`PropertyValueResolver`：
 
 ```java
+
 @FunctionalInterface
 public interface PropertyValueResolver {
 
@@ -289,6 +307,7 @@ public interface PropertyValueResolver {
 - 注入示例：
 
 ```java
+
 @Controller
 @SuppressWarnings("serial")
 public class LoginController implements Constant, ServletContextAware {
@@ -444,7 +463,7 @@ public class DispatcherServlet implements Servlet, Serializable {
 
   public static RequestContext prepareContext(final ServletRequest request, final ServletResponse response) {
     return RequestContextHolder.prepareContext(//
-                                               new ServletRequestContext((HttpServletRequest) request, (HttpServletResponse) response)//
+            new ServletRequestContext((HttpServletRequest) request, (HttpServletResponse) response)//
     );
   }
 
@@ -599,7 +618,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
                                 TaglibFactory taglibFactory, TemplateLoader templateLoader, Properties settings) //
   {
     this(new DefaultObjectWrapper(Configuration.VERSION_2_3_28), //
-         configuration, taglibFactory, templateLoader, settings);
+            configuration, taglibFactory, templateLoader, settings);
   }
 
   @Autowired
@@ -664,7 +683,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
   public void configureParameterResolver(List<ParameterResolver> resolvers) {
 
     resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(Configuration.class), //
-                                                  (ctx, m) -> configuration//
+            (ctx, m) -> configuration//
     ));
 
     resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
@@ -701,7 +720,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
     // Create hash model wrapper for session
     allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_SESSION,
-                                            new HttpSessionHashModel(requestContext.nativeSession(), wrapper));
+            new HttpSessionHashModel(requestContext.nativeSession(), wrapper));
 
     return allHttpScopesHashModel;
   }
@@ -724,34 +743,43 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 - 构造器
 
 ```java
-    @Autowired
-public PropsBean(@Props(prefix = "site.") Bean bean){
-        //---------
-        }
-@Autowired
-public PropsBean(@Props(prefix = "site.") Properties properties){
-        //-------
-        }
-@Autowired
-public PropsBean(@Props(prefix = "site.") Map properties){
-        //-------
-        }
+class PropsBean {
+  @Autowired
+  public PropsBean(@Props(prefix = "site.") Bean bean) {
+    //---------
+  }
+
+  @Autowired
+  public PropsBean(@Props(prefix = "site.") Properties properties) {
+    //-------
+  }
+
+  @Autowired
+  public PropsBean(@Props(prefix = "site.") Map properties) {
+    //-------
+  }
+}
 ```
 
 - Field
 
 ```java
-    @Props(prefix = "site.")
-    Bean bean;
-@Props(prefix = "site.")
-    Map properties;
-@Props(prefix = "site.") 
-    Properties properties
+class DemoBean {
+  @Props(prefix = "site.")
+  Bean bean;
+
+  @Props(prefix = "site.")
+  Map properties;
+
+  @Props(prefix = "site.")
+  Properties properties;
+}
 ```
 
 - 实现原理
 
 ```java
+
 @Order(Ordered.HIGHEST_PRECEDENCE - 2)
 public class PropsPropertyResolver implements PropertyValueResolver {
 
@@ -769,45 +797,47 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 - `#{key}` 和Environment#getProperty(String key, Class<T> targetType)效果一样
 - `${1+1}` 支持EL表达式
 
-```java 
+```java
+
 @Configuration
 public class WebMvc implements WebMvcConfiguration {
 
-    private final String serverPath;
+  private final String serverPath;
 
-    @Autowired
-    public WebMvc(@Value("#{site.serverPath}") String serverPath) {
-        this.serverPath = serverPath;
-    }
-    @Override
-    public void configureResourceMappings(ResourceMappingRegistry registry) {
+  @Autowired
+  public WebMvc(@Value("#{site.serverPath}") String serverPath) {
+    this.serverPath = serverPath;
+  }
 
-        registry.addResourceMapping("/assets/**")//
+  @Override
+  public void configureResourceMappings(ResourceMappingRegistry registry) {
+
+    registry.addResourceMapping("/assets/**")//
 //                .enableGzip()//
 //                .gzipMinLength(10240)//
-                // G:\Projects\Git\today-technology\blog
-                .addLocations("file:///G:/Projects/Git/today-technology/blog/blog-web/src/main/webapp/assets/");
+            // G:\Projects\Git\today-technology\blog
+            .addLocations("file:///G:/Projects/Git/today-technology/blog/blog-web/src/main/webapp/assets/");
 
-        registry.addResourceMapping("/webjars/**")//
-                .addLocations("classpath:/META-INF/resources/webjars/");
+    registry.addResourceMapping("/webjars/**")//
+            .addLocations("classpath:/META-INF/resources/webjars/");
 
-        registry.addResourceMapping("/swagger/**")//
-                .cacheControl(CacheControl.newInstance().publicCache())//
-                .addLocations("classpath:/META-INF/resources/");
+    registry.addResourceMapping("/swagger/**")//
+            .cacheControl(CacheControl.newInstance().publicCache())//
+            .addLocations("classpath:/META-INF/resources/");
 
-        registry.addResourceMapping("/upload/**")//
-                .addLocations("file:///" + serverPath + "/upload/");
+    registry.addResourceMapping("/upload/**")//
+            .addLocations("file:///" + serverPath + "/upload/");
 
-        registry.addResourceMapping("/favicon.ico")//
-                .addLocations("classpath:/favicon.ico")//
-                .cacheControl(CacheControl.newInstance().publicCache());
+    registry.addResourceMapping("/favicon.ico")//
+            .addLocations("classpath:/favicon.ico")//
+            .cacheControl(CacheControl.newInstance().publicCache());
 
-        registry.addResourceMapping(AdminInterceptor.class)//
-                .setPathPatterns("/assets/admin/**")//
-                .setOrder(Ordered.HIGHEST_PRECEDENCE)//
-                .addLocations("file:///G:/Projects/Git/today-technology/blog/blog-web/src/main/webapp/assets/admin/");
-    
-    }
+    registry.addResourceMapping(AdminInterceptor.class)//
+            .setPathPatterns("/assets/admin/**")//
+            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+            .addLocations("file:///G:/Projects/Git/today-technology/blog/blog-web/src/main/webapp/assets/admin/");
+
+  }
 }
 ```
 
@@ -816,6 +846,7 @@ public class WebMvc implements WebMvcConfiguration {
 该注解标识一个配置Bean,示例：
 
 ```java
+
 @Configuration
 @Props(prefix = { "redis.pool.", "redis." })
 public class RedisConfiguration {
@@ -1015,6 +1046,7 @@ context is closing
 > 使用@Aspect标注一个切面
 
 ```java
+
 @Aspect
 @Component
 @EnableAspectAutoProxy
@@ -1110,6 +1142,7 @@ public class UserDaoImpl implements UserDao {
   }
 }
 
+class Test {
   @Test
   public void test_Login() throws NoSuchBeanDefinitionException {
 
@@ -1126,6 +1159,7 @@ public class UserDaoImpl implements UserDao {
       log.debug("{}ms", System.currentTimeMillis() - start);
     }
   }
+}
 ```
 
 ### 3.0版本
@@ -1227,83 +1261,85 @@ public class ProxyFactoryBeanTests {
 #### 类似Spring Aop的使用方法
 
 ```java
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
-public @interface Aware { }
+class Demo {
 
-static class PrinterBean {
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.METHOD, ElementType.TYPE })
+  public @interface Aware { }
 
-  @Aware
-  void print() {
-    System.out.println("print");
+  static class PrinterBean {
+
+    @Aware
+    void print() {
+      System.out.println("print");
+    }
+
+    void none() {
+      System.out.println("none");
+    }
+
+    void none(String arg) {
+      System.out.println("none" + arg);
+    }
+
+    @Aware
+    int none(Integer input) {
+      System.out.println("none" + input);
+      return input;
+    }
+
   }
 
-  void none() {
-    System.out.println("none");
+  static class LoggingInterceptor implements MethodInterceptor {
+
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+      log.debug("LoggingInterceptor @Around Before method");
+      final Object proceed = invocation.proceed();
+      log.debug("LoggingInterceptor @Around After method");
+      return proceed;
+    }
+
   }
 
-  void none(String arg) {
-    System.out.println("none" + arg);
+  static class MyInterceptor implements MethodInterceptor {
+
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+      final Object proceed = invocation.proceed();
+      final Object aThis = invocation.getThis();
+      System.out.println(aThis);
+      return proceed;
+    }
+
   }
 
-  @Aware
-  int none(Integer input) {
-    System.out.println("none" + input);
-    return input;
+  @Import({ LoggingInterceptor.class, MyInterceptor.class })
+  static class LoggingConfig {
+
+    @Singleton
+    public DefaultPointcutAdvisor loggingAdvisor(LoggingInterceptor loggingAspect) {
+      AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
+
+      DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+      advisor.setPointcut(pointcut);
+      advisor.setAdvice(loggingAspect);
+
+      return advisor;
+    }
+
+    @Singleton
+    public DefaultPointcutAdvisor advisor(MyInterceptor interceptor) {
+      AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
+
+      DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+      advisor.setPointcut(pointcut);
+      advisor.setAdvice(interceptor);
+
+      return advisor;
+    }
+
   }
-
-}
-
-static class LoggingInterceptor implements MethodInterceptor {
-
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
-    log.debug("LoggingInterceptor @Around Before method");
-    final Object proceed = invocation.proceed();
-    log.debug("LoggingInterceptor @Around After method");
-    return proceed;
-  }
-
-}
-
-static class MyInterceptor implements MethodInterceptor {
-
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
-    final Object proceed = invocation.proceed();
-    final Object aThis = invocation.getThis();
-    System.out.println(aThis);
-    return proceed;
-  }
-
-}
-
-@Import({ LoggingInterceptor.class, MyInterceptor.class })
-static class LoggingConfig {
-
-  @Singleton
-  public DefaultPointcutAdvisor loggingAdvisor(LoggingInterceptor loggingAspect) {
-    AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
-
-    DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
-    advisor.setPointcut(pointcut);
-    advisor.setAdvice(loggingAspect);
-
-    return advisor;
-  }
-
-  @Singleton
-  public DefaultPointcutAdvisor advisor(MyInterceptor interceptor) {
-    AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(null, Aware.class);
-
-    DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
-    advisor.setPointcut(pointcut);
-    advisor.setAdvice(interceptor);
-
-    return advisor;
-  }
-
-}
 
   @Test
   public void testNewVersionAop() throws Throwable {
@@ -1357,19 +1393,16 @@ static class LoggingConfig {
 
     }
   }
-
+}
 ```
 
 ## 🙏 鸣谢
 
 本项目的诞生离不开以下项目：
 
-* [Slf4j](https://github.com/qos-ch/slf4j): Simple Logging Facade for Java
 * [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
-* [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
-* [Redisson](https://github.com/redisson/redisson): Redisson - Redis Java client with features of In-Memory Data Grid
 
 ## 📄 开源协议
 
-Today Context 使用 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-context/blob/master/LICENSE) 开源协议
+TODAY Framework 使用 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-framework/blob/master/LICENSE) 开源协议
 
