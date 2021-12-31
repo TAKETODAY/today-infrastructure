@@ -21,12 +21,12 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.ApplicationContextTests.RequiredTest.Bean1;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.ApplicationContextTests.RequiredTest.Bean1;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -77,7 +77,7 @@ class ApplicationContextTests {
   @Test
   void loadFactoryBean() throws NoSuchBeanDefinitionException {
 
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext("info.properties")) {
       applicationContext.scan("test.demo.config");
       applicationContext.refresh();
       Config config = applicationContext.getBean("FactoryBean-Config", Config.class);

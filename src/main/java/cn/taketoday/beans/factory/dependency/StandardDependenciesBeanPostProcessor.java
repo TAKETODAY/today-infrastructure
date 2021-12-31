@@ -231,7 +231,8 @@ public class StandardDependenciesBeanPostProcessor
       throw ex;
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(beanName, "Injection of autowired dependencies failed", ex);
+      throw new BeanCreationException(
+              definition.getResourceDescription(), beanName, "Injection of autowired dependencies failed", ex);
     }
   }
 

@@ -49,9 +49,9 @@ public class InjectableAnnotationsSupport {
     // @formatter:off
     try {
       // Resource ?
-      addInjectableAnnotation(ClassUtils.forName("jakarta.annotation.Resource",classLoader));
+      addInjectableAnnotation(ClassUtils.forName("jakarta.annotation.Resource", classLoader));
     }
-    catch (Exception ignored) {}
+    catch (Exception ignored) { }
     try {
       addInjectableAnnotation(
               ClassUtils.forName("jakarta.inject.Inject", classLoader));
@@ -69,7 +69,6 @@ public class InjectableAnnotationsSupport {
       // javax.inject API not available - simply skip.
     }
     // @formatter:on
-
 
   }
 
