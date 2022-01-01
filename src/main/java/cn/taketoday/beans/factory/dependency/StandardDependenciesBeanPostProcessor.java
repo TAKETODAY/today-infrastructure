@@ -274,7 +274,7 @@ public class StandardDependenciesBeanPostProcessor
   }
 
   private InjectionMetadata buildAutowiringMetadata(Class<?> clazz) {
-    if (!isCandidateClass(clazz)) {
+    if (shouldSkipBuildAutowiringMetadata(clazz)) {
       return InjectionMetadata.EMPTY;
     }
     ArrayList<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
@@ -325,7 +325,7 @@ public class StandardDependenciesBeanPostProcessor
     return InjectionMetadata.forElements(elements, clazz);
   }
 
-  private boolean isCandidateClass(Class<?> clazz) {
+  private boolean shouldSkipBuildAutowiringMetadata(Class<?> clazz) {
     return clazz.getName().startsWith("java.");
   }
 

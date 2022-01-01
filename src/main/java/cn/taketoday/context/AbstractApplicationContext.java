@@ -38,7 +38,6 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.dependency.AnnotationDependencyResolvingDecorator;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
@@ -47,7 +46,6 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.annotation.ExpressionDependencyResolver;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
 import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
@@ -618,14 +616,9 @@ public abstract class AbstractApplicationContext
     ExpressionDependencyResolver resolver = new ExpressionDependencyResolver(beanFactory);
     resolver.setOrder(1);
 
-    AnnotationDependencyResolvingDecorator decorator = new AnnotationDependencyResolvingDecorator(
-            new PropsDependencyResolver(this), Props.class
-    );
-
-//    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
-//    strategy.setOrder(2);
-//    resolvingStrategies.addStrategies(resolver, strategy);
-    resolvingStrategies.addStrategies(resolver, decorator);
+    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
+    strategy.setOrder(2);
+    resolvingStrategies.addStrategies(resolver, strategy);
 
     beanFactory.addBeanPostProcessor(autowiredPostProcessor);
   }

@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
@@ -27,9 +28,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.gh24375.AnnotatedComponent;
 import cn.taketoday.context.loader.CandidateComponentsTestClassLoader;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -59,7 +60,6 @@ import example.scannable.ScopedProxyTestBean;
 import example.scannable.ServiceInvocationCounter;
 import example.scannable.StubFooDao;
 import example.scannable.sub.BarComponent;
-import type.AnnotatedComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +77,7 @@ public class ClassPathScanningCandidateComponentProviderTests {
 
   private static final ClassLoader TEST_BASE_CLASSLOADER = CandidateComponentsTestClassLoader.index(
           ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-          new ClassPathResource("spring.components", NamedComponent.class));
+          new ClassPathResource("today.components", NamedComponent.class));
 
   @Test
   public void defaultsWithScan() {
