@@ -25,10 +25,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -48,7 +48,6 @@ public class BeanFactoryDependencyResolvingStrategy
     LinkedHashSet<Class<? extends Annotation>> injectableAnnotations = new LinkedHashSet<>();
     injectableAnnotations.add(Autowired.class);
     ClassLoader classLoader = BeanFactoryDependencyResolvingStrategy.class.getClassLoader();
-    // @formatter:off
     try {
       // Resource ?
       injectableAnnotations.add(ClassUtils.forName("jakarta.annotation.Resource", classLoader));
@@ -81,19 +80,25 @@ public class BeanFactoryDependencyResolvingStrategy
 
   @Override
   public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
-    BeanFactory beanFactory = context.getBeanFactory();
-    if (beanFactory instanceof AutowireCapableBeanFactory autowireCapable) {
+    if (context.getBeanFactory() instanceof AutowireCapableBeanFactory factory) {
       String beanName = context.getBeanName();
       Set<String> dependentBeans = null;
       if (beanName != null) {
         dependentBeans = context.dependentBeans();
       }
       try {
-        Object dependency = autowireCapable.resolveDependency(descriptor, beanName, dependentBeans);
+        Object dependency = factory.resolveDependency(descriptor, beanName, dependentBeans);
         context.setDependencyResolved(dependency);
       }
       catch (BeansException ex) {
-        throw new UnsatisfiedDependencyException(null, beanName, descriptor, ex);
+        String resourceDescription = null;
+        if (beanName != null) {
+          BeanDefinition beanDefinition = factory.getBeanDefinition(beanName);
+          if (beanDefinition != null) {
+            resourceDescription = beanDefinition.getResourceDescription();
+          }
+        }
+        throw new UnsatisfiedDependencyException(resourceDescription, beanName, descriptor, ex);
       }
     }
   }

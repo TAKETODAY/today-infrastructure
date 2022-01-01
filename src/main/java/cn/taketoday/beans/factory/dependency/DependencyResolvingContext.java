@@ -25,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -44,42 +43,12 @@ public class DependencyResolvingContext {
   @Nullable
   private Object dependency;
 
+  @Nullable
   private String beanName;
-
-  private BeanDefinition definition;
 
   private boolean dependencyResolved;
 
   private LinkedHashSet<String> dependentBeans;
-
-  public void setDependencyResolved(Object dependency) {
-    this.dependency = dependency;
-    setDependencyResolved(true);
-  }
-
-  public void setDependencyResolved(boolean resolved) {
-    this.dependencyResolved = resolved;
-  }
-
-  public boolean isDependencyResolved() {
-    return dependencyResolved;
-  }
-
-  public void setDefinition(BeanDefinition definition) {
-    this.definition = definition;
-  }
-
-  public BeanDefinition getDefinition() {
-    return definition;
-  }
-
-  public void setBeanName(String beanName) {
-    this.beanName = beanName;
-  }
-
-  public String getBeanName() {
-    return beanName;
-  }
 
   public DependencyResolvingContext(
           @Nullable Executable executable, @Nullable BeanFactory beanFactory) {
@@ -94,6 +63,28 @@ public class DependencyResolvingContext {
     this.beanName = beanName;
     this.executable = executable;
     this.beanFactory = beanFactory;
+  }
+
+  public void setDependencyResolved(Object dependency) {
+    this.dependency = dependency;
+    setDependencyResolved(true);
+  }
+
+  public void setDependencyResolved(boolean resolved) {
+    this.dependencyResolved = resolved;
+  }
+
+  public boolean isDependencyResolved() {
+    return dependencyResolved;
+  }
+
+  public void setBeanName(@Nullable String beanName) {
+    this.beanName = beanName;
+  }
+
+  @Nullable
+  public String getBeanName() {
+    return beanName;
   }
 
   @Nullable

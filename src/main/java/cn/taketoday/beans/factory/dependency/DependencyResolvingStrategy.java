@@ -30,6 +30,7 @@ import java.lang.reflect.Parameter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:36</a>
  * @since 4.0
  */
+@FunctionalInterface
 public interface DependencyResolvingStrategy {
 
   /**
@@ -37,14 +38,18 @@ public interface DependencyResolvingStrategy {
    *
    * @param field input field
    */
-  boolean supports(Field field);
+  default boolean supports(Field field) {
+    return true;
+  }
 
   /**
    * is that input method is supports to resolving
    *
    * @param executable input executable, generally not a {@link java.lang.reflect.Constructor}
    */
-  boolean supports(Executable executable);
+  default boolean supports(Executable executable) {
+    return true;
+  }
 
   /**
    * Resolve method/constructor parameter object
