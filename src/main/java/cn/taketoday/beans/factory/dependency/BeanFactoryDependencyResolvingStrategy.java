@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -45,6 +46,7 @@ public class BeanFactoryDependencyResolvingStrategy
 
   static {
     LinkedHashSet<Class<? extends Annotation>> injectableAnnotations = new LinkedHashSet<>();
+    injectableAnnotations.add(Autowired.class);
     ClassLoader classLoader = BeanFactoryDependencyResolvingStrategy.class.getClassLoader();
     // @formatter:off
     try {
