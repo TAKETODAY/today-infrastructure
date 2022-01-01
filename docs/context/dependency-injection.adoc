@@ -1,6 +1,10 @@
 [[dependency-injection]]
 = 依赖注入
 
+== 介绍
+
+本程序通过手动添加或者自动扫描（）
+
 == 通过 `PropertyValueResolver` 接口注入属性
 
 > @Autowired 注入
@@ -65,6 +69,8 @@ public class Car {
 详见: `cn.taketoday.context.autowire.JSR330ResourcePropertyValueResolver`
 
 == 使用 `ArgumentsResolvingStrategy` 注入参数
+
+`StandardDependenciesBeanPostProcessor`
 
 `ArgumentsResolvingStrategy` 这个接口用于处理构造器或方法的参数， 内置 的 解析器放在包 `cn.taketoday.context.autowire` 下.
 分别支持:

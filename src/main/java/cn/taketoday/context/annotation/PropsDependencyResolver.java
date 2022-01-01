@@ -19,15 +19,16 @@
  */
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.dependency.AnnotationDependencyResolvingStrategy;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -37,7 +38,7 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0 2021/11/17 15:38
  */
 public class PropsDependencyResolver
-        extends OrderedSupport implements DependencyResolvingStrategy {
+        extends AnnotationDependencyResolvingStrategy implements DependencyResolvingStrategy {
 
   private final PropsReader propsReader;
 
@@ -83,6 +84,11 @@ public class PropsDependencyResolver
       map = newMap;
     }
     return map;
+  }
+
+  @Override
+  protected Class<? extends Annotation>[] getSupportedAnnotations() {
+    return new Class[] { Props.class };
   }
 
 }

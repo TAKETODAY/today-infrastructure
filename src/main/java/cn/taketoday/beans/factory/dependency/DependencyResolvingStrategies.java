@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory.dependency;
 
+import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +43,26 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   private static final Logger log = LoggerFactory.getLogger(DependencyResolvingStrategies.class);
 
   private final ArrayList<DependencyResolvingStrategy> resolvingStrategies = new ArrayList<>();
+
+  @Override
+  public boolean supports(Field field) {
+    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
+      if (resolvingStrategy.supports(field)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean supports(Executable executable) {
+    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
+      if (resolvingStrategy.supports(executable)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @Override
   public void resolveDependency(

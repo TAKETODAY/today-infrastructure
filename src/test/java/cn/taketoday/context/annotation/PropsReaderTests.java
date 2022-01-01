@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.env.MapPropertyResolver;
@@ -90,6 +91,8 @@ class PropsReaderTests {
     MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
 
     PropsReader propsReader = new PropsReader(propertyResolver);
+    propsReader.setBeanFactory(new StandardBeanFactory());
+
     Field declaredField = getClass().getDeclaredField("test");
     Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
 
@@ -119,6 +122,8 @@ class PropsReaderTests {
     MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
 
     PropsReader propsReader = new PropsReader(propertyResolver);
+    propsReader.setBeanFactory(new StandardBeanFactory());
+
     Field declaredField = getClass().getDeclaredField("test");
     Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
 
@@ -151,6 +156,8 @@ class PropsReaderTests {
 
     PropsReader propsReader = new PropsReader(); // use default systemProperties
     DefaultProps defaultProps = new DefaultProps();
+    propsReader.setBeanFactory(new StandardBeanFactory());
+
     PropsReaderBean read = propsReader.read(defaultProps, PropsReaderBean.class);
     assertThat(read.java).isEqualTo(value);
   }
@@ -173,6 +180,7 @@ class PropsReaderTests {
     MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
 
     PropsReader propsReader = new PropsReader(propertyResolver);
+    propsReader.setBeanFactory(new StandardBeanFactory());
     DefaultProps defaultProps = new DefaultProps();
     PropsReaderBean read = propsReader.read(defaultProps, PropsReaderBean.class);
 
@@ -213,6 +221,7 @@ class PropsReaderTests {
 
     MapPropertyResolver propertyResolver = new MapPropertyResolver(keyValues);
     PropsReader propsReader = new PropsReader(propertyResolver);
+    propsReader.setBeanFactory(new StandardBeanFactory());
 
     TypeConversionBean prefixBean = propsReader.read(new DefaultProps(), TypeConversionBean.class);
     assertThat(prefixBean.java).isEqualTo(value);

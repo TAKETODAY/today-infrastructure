@@ -234,6 +234,7 @@ public class PropsReader {
 
   public <T> T read(Props props, Class<T> beanClass, PropertyResolver propertyResolver) {
     if (beanInstantiator == null) {
+      Assert.state(beanFactory != null, "No BeanFactory set");
       beanInstantiator = new BeanFactoryAwareBeanInstantiator(beanFactory);
     }
     return read(props, beanInstantiator.instantiate(beanClass), propertyResolver);

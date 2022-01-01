@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.dependency;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,9 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,7 +45,6 @@ import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.InjectableAnnotationsSupport;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -56,8 +54,6 @@ import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -121,14 +117,9 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/12/26 14:51
  */
 public class StandardDependenciesBeanPostProcessor
-        extends InjectableAnnotationsSupport
         implements DependenciesBeanPostProcessor, BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
-
-  private String requiredParameterName = "required";
-
-  private boolean requiredParameterValue = true;
 
   private int order = Ordered.LOWEST_PRECEDENCE - 2;
 
@@ -141,15 +132,9 @@ public class StandardDependenciesBeanPostProcessor
 
   private DependencyInjector dependencyInjector;
 
-  /**
-   * Create a new {@code StandardDependenciesBeanPostProcessor} for Framework's
-   * standard {@link Autowired @Autowired} annotations.
-   * <p>Also supports the common {@link jakarta.inject.Inject @Inject} annotation,
-   * if available, as well as the original {@code javax.inject.Inject} variant.
-   */
-  public StandardDependenciesBeanPostProcessor() {
-    initInjectableAnnotations();
-  }
+  private RequiredStatusRetriever requiredStatusRetriever = new RequiredStatusRetriever();
+
+  public StandardDependenciesBeanPostProcessor() { }
 
   public StandardDependenciesBeanPostProcessor(ConfigurableBeanFactory beanFactory) {
     this();
@@ -157,23 +142,20 @@ public class StandardDependenciesBeanPostProcessor
   }
 
   /**
-   * Set the name of an attribute of the annotation that specifies whether it is required.
+   * set a new required-status-retriever
+   * <p>
+   * if input is {@code null} use a default {@link RequiredStatusRetriever}
+   * </p>
    *
-   * @see #setRequiredParameterValue(boolean)
+   * @param requiredStatusRetriever required status retriever
    */
-  public void setRequiredParameterName(String requiredParameterName) {
-    this.requiredParameterName = requiredParameterName;
+  public void setRequiredStatusRetriever(@Nullable RequiredStatusRetriever requiredStatusRetriever) {
+    this.requiredStatusRetriever =
+            requiredStatusRetriever != null ? requiredStatusRetriever : new RequiredStatusRetriever();
   }
 
-  /**
-   * Set the boolean value that marks a dependency as required.
-   * <p>For example if using 'required=true' (the default), this value should be
-   * {@code true}; but if using 'optional=false', this value should be {@code false}.
-   *
-   * @see #setRequiredParameterName(String)
-   */
-  public void setRequiredParameterValue(boolean requiredParameterValue) {
-    this.requiredParameterValue = requiredParameterValue;
+  public RequiredStatusRetriever getRequiredStatusRetriever() {
+    return requiredStatusRetriever;
   }
 
   public void setOrder(int order) {
@@ -192,18 +174,27 @@ public class StandardDependenciesBeanPostProcessor
   }
 
   /**
+   * set a DependencyInjector to handle dependency
+   *
    * @param dependencyInjector Can be {@code null} but cannot support parameter injection
    */
   public void setDependencyInjector(@Nullable DependencyInjector dependencyInjector) {
     this.dependencyInjector = dependencyInjector;
   }
 
-  public DependencyInjector getDependencyResolver() {
+  public DependencyInjector getDependencyInjector() {
     return dependencyInjector;
   }
 
   public DependencyResolvingStrategies getResolvingStrategies() {
     return dependencyInjector.getResolvingStrategies();
+  }
+
+  public DependencyInjector obtainDependencyInjector() {
+    if (dependencyInjector == null) {
+      setDependencyInjector(new DependencyInjector(beanFactory));
+    }
+    return dependencyInjector;
   }
 
   @Override
@@ -245,7 +236,6 @@ public class StandardDependenciesBeanPostProcessor
    *
    * @param bean the target instance to process
    * @throws BeanCreationException if autowiring failed
-   * @see #addInjectableAnnotation(Class)
    */
   public void processInjection(Object bean) throws BeanCreationException {
     Class<?> clazz = bean.getClass();
@@ -284,26 +274,25 @@ public class StandardDependenciesBeanPostProcessor
   }
 
   private InjectionMetadata buildAutowiringMetadata(Class<?> clazz) {
-    if (!AnnotationUtils.isCandidateClass(clazz, injectableAnnotations)) {
+    if (!isCandidateClass(clazz)) {
       return InjectionMetadata.EMPTY;
     }
-
     ArrayList<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
     Class<?> targetClass = clazz;
 
     do {
-      final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
+      DependencyInjector dependencyInjector = getDependencyInjector();
+      ArrayList<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
       ReflectionUtils.doWithLocalFields(targetClass, field -> {
-        MergedAnnotation<?> ann = findAutowiredAnnotation(field);
-        if (ann != null) {
+        if (dependencyInjector.canInject(field)) {
           if (Modifier.isStatic(field.getModifiers())) {
             if (log.isInfoEnabled()) {
               log.info("Autowired annotation is not supported on static fields: {}", field);
             }
             return;
           }
-          boolean required = determineRequiredStatus(ann);
+          boolean required = determineRequiredStatus(field);
           currElements.add(new AutowiredFieldElement(field, required));
         }
       });
@@ -313,8 +302,8 @@ public class StandardDependenciesBeanPostProcessor
         if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
           return;
         }
-        MergedAnnotation<?> ann = findAutowiredAnnotation(bridgedMethod);
-        if (ann != null && method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
+        if (dependencyInjector.canInject(method)
+                && method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
           if (Modifier.isStatic(method.getModifiers())) {
             log.info("Autowired annotation is not supported on static methods: {}", method);
             return;
@@ -322,7 +311,7 @@ public class StandardDependenciesBeanPostProcessor
           if (method.getParameterCount() == 0) {
             log.info("Autowired annotation should only be used on methods with parameters: {}", method);
           }
-          boolean required = determineRequiredStatus(ann);
+          boolean required = determineRequiredStatus(method);
           PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
           currElements.add(new AutowiredMethodElement(method, required, pd));
         }
@@ -336,18 +325,21 @@ public class StandardDependenciesBeanPostProcessor
     return InjectionMetadata.forElements(elements, clazz);
   }
 
+  private boolean isCandidateClass(Class<?> clazz) {
+    return clazz.getName().startsWith("java.");
+  }
+
   /**
    * Determine if the annotated field or method requires its dependency.
    * <p>A 'required' dependency means that autowiring should fail when no beans
    * are found. Otherwise, the autowiring process will simply bypass the field
    * or method when no beans are found.
    *
-   * @param ann the Autowired annotation
+   * @param source the AccessibleObject
    * @return whether the annotation indicates that a dependency is required
    */
-  protected boolean determineRequiredStatus(MergedAnnotation<?> ann) {
-    Optional<Boolean> optional = ann.getValue(requiredParameterName, Boolean.class);
-    return optional.map(required -> requiredParameterValue == required).orElse(true);
+  protected boolean determineRequiredStatus(AccessibleObject source) {
+    return requiredStatusRetriever.retrieve(source);
   }
 
   /**
@@ -427,7 +419,7 @@ public class StandardDependenciesBeanPostProcessor
       desc.setContainingClass(bean.getClass());
       Assert.state(beanFactory != null, "No BeanFactory available");
       DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
-      Object value = dependencyInjector.resolveValue(desc, context);
+      Object value = obtainDependencyInjector().resolveValue(desc, context);
 
       synchronized(this) {
         if (!cached) {
@@ -530,7 +522,7 @@ public class StandardDependenciesBeanPostProcessor
         descriptors[i] = currDesc;
 
         try {
-          Object arg = dependencyInjector.resolveValue(currDesc, context);
+          Object arg = obtainDependencyInjector().resolveValue(currDesc, context);
           if (arg == null && !this.required) {
             arguments = null;
             break;

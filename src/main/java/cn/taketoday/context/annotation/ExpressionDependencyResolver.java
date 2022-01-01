@@ -20,18 +20,18 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.dependency.AnnotationDependencyResolvingStrategy;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.beans.factory.support.BeanExpressionContext;
 import cn.taketoday.beans.factory.support.BeanExpressionResolver;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.expression.ExpressionEvaluationException;
 import cn.taketoday.context.expression.ExpressionInfo;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Constant;
@@ -46,8 +46,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/18 21:11</a>
  * @since 4.0
  */
-public class ExpressionDependencyResolver
-        extends OrderedSupport implements DependencyResolvingStrategy {
+public class ExpressionDependencyResolver extends AnnotationDependencyResolvingStrategy {
 
   private final BeanExpressionContext exprContext;
 
@@ -124,4 +123,8 @@ public class ExpressionDependencyResolver
     return conversionService.convert(value, injectionPoint.getDependencyType());
   }
 
+  @Override
+  protected Class<? extends Annotation>[] getSupportedAnnotations() {
+    return new Class[] { Env.class, Value.class };
+  }
 }

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import lombok.Data;
 
@@ -52,7 +53,9 @@ class ParameterHandlerTests {
       context.register(ParameterHandlerBean.class);
       context.refresh();
 
-      DependencyInjector argumentsResolver = new DependencyInjector(context);
+      StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      DependencyInjector argumentsResolver = new DependencyInjector(beanFactory);
       Method test = ParameterHandlerTests.class.getDeclaredMethod("test", ParameterHandlerBean.class);
 
       Object[] args = argumentsResolver.resolveArguments(test);

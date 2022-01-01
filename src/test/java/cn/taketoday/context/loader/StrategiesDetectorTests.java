@@ -22,6 +22,8 @@ package cn.taketoday.context.loader;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
@@ -86,12 +88,32 @@ class StrategiesDetectorTests {
   public static class MyPropertyValueResolver implements DependencyResolvingStrategy {
 
     @Override
+    public boolean supports(Field field) {
+      return false;
+    }
+
+    @Override
+    public boolean supports(Executable method) {
+      return false;
+    }
+
+    @Override
     public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
 
     }
   }
 
   public static class MyPropertyValueResolver1 implements DependencyResolvingStrategy {
+
+    @Override
+    public boolean supports(Field field) {
+      return false;
+    }
+
+    @Override
+    public boolean supports(Executable method) {
+      return false;
+    }
 
     @Override
     public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {

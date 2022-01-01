@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.dependency;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -57,7 +58,21 @@ public class DependencyInjector {
     this.beanFactory = beanFactory;
   }
 
-  // inject
+  //---------------------------------------------------------------------
+  // DependencyResolvingStrategies supports
+  //---------------------------------------------------------------------
+
+  public boolean canInject(Field field) {
+    return getResolvingStrategies().supports(field);
+  }
+
+  public boolean canInject(Executable method) {
+    return getResolvingStrategies().supports(method);
+  }
+
+  //---------------------------------------------------------------------
+  // Inject to target injection-point
+  //---------------------------------------------------------------------
 
   public <T> T inject(Constructor<T> constructor, @Nullable Object... providedArgs) {
     Object[] parameter = resolveArguments(constructor, providedArgs);
@@ -77,7 +92,9 @@ public class DependencyInjector {
     }
   }
 
-  // resolve
+  //---------------------------------------------------------------------
+  // Resolving dependency
+  //---------------------------------------------------------------------
 
   @Nullable
   public Object resolveValue(
@@ -148,7 +165,7 @@ public class DependencyInjector {
     }
     else {
       throw new UnsatisfiedDependencyException(null, context.getBeanName(), descriptor,
-              "No strategy supports this dependency: " + descriptor);
+              "Because: 'No strategy supports this dependency: " + descriptor + "'");
     }
   }
 

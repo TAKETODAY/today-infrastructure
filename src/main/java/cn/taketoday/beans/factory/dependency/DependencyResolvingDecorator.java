@@ -22,39 +22,39 @@ package cn.taketoday.beans.factory.dependency;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
+
+import cn.taketoday.lang.Assert;
 
 /**
- * resolve dependency
+ * DependencyResolvingStrategy Decorator
+ * <p>
+ * Decorator Pattern
+ * </p>
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:36</a>
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/1 11:35
  */
-public interface DependencyResolvingStrategy {
+public class DependencyResolvingDecorator implements DependencyResolvingStrategy {
+  private final DependencyResolvingStrategy delegate;
 
-  /**
-   * is that input field is supports to resolving
-   *
-   * @param field input field
-   */
-  boolean supports(Field field);
+  public DependencyResolvingDecorator(DependencyResolvingStrategy delegate) {
+    Assert.notNull(delegate, "DependencyResolvingStrategy delegate is required");
+    this.delegate = delegate;
+  }
 
-  /**
-   * is that input method is supports to resolving
-   *
-   * @param executable input executable, generally not a {@link java.lang.reflect.Constructor}
-   */
-  boolean supports(Executable executable);
+  @Override
+  public boolean supports(Field field) {
+    return delegate.supports(field);
+  }
 
-  /**
-   * Resolve method/constructor parameter object
-   * <p>
-   * <b>NOTE<b/>: user must consider {@code resolvingContext}'s bean-factory is null or not
-   * </p>
-   *
-   * @param descriptor Target method {@link Parameter} or a {@link java.lang.reflect.Field}
-   * @param context resolving context never {@code null}
-   */
-  void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context);
+  @Override
+  public boolean supports(Executable method) {
+    return delegate.supports(method);
+  }
+
+  @Override
+  public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
+    delegate.resolveDependency(descriptor, context);
+  }
 
 }
