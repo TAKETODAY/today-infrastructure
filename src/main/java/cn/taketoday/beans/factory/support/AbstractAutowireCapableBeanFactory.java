@@ -599,7 +599,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (constructorArgs == null) {
       constructorArgs = def.getConstructorArgs();
       if (constructorArgs == null) {
-        constructorArgs = getInjector().resolveArguments(def.executable);
+        constructorArgs = getInjector().resolveArguments(def.executable, def.getBeanName());
       }
     }
 

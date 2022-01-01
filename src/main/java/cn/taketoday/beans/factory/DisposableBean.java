@@ -20,10 +20,22 @@
 package cn.taketoday.beans.factory;
 
 /**
- * Release resources
+ * Interface to be implemented by beans that want to release resources on destruction.
+ * A {@link BeanFactory} will invoke the destroy method on individual destruction of a
+ * scoped bean. An {@link cn.taketoday.context.ApplicationContext} is supposed
+ * to dispose all of its singletons on shutdown, driven by the application lifecycle.
  *
- * @author TODAY <br>
- * 2018-7-18 1:07:15
+ * <p>A Framework-managed bean may also implement Java's {@link AutoCloseable} interface
+ * for the same purpose. An alternative to implementing an interface is specifying a
+ * custom destroy method, for example in an XML bean definition. For a list of all
+ * bean lifecycle methods, see the {@link BeanFactory BeanFactory javadocs}.
+ *
+ * @author Juergen Hoeller
+ * @author TODAY 2018-7-18 1:07:15
+ * @see InitializingBean
+ * @see cn.taketoday.beans.factory.support.BeanDefinition#getDestroyMethod()
+ * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#destroySingletons()
+ * @see cn.taketoday.context.ConfigurableApplicationContext#close()
  */
 public interface DisposableBean {
 

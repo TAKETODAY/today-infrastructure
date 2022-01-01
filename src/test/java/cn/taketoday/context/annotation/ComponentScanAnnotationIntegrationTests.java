@@ -48,6 +48,7 @@ import cn.taketoday.context.annotation.componentscan.simple.ClassWithNestedCompo
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
@@ -140,9 +141,10 @@ public class ComponentScanAnnotationIntegrationTests {
     ctx.getBean(SimpleComponent.class);
     ctx.getBean(ClassWithNestedComponents.NestedComponent.class);
     ctx.getBean(ClassWithNestedComponents.OtherNestedComponent.class);
-    assertThat(ctx.containsBeanDefinition("componentScanAnnotationIntegrationTests.ComposedAnnotationConfig")).as("config class bean not found")
+    assertThat(ctx.containsBeanDefinition("composedAnnotationConfig")).as("config class bean not found")
             .isTrue();
-    assertThat(ctx.containsBean("simpleComponent")).as("@ComponentScan annotated @Configuration class registered directly against " +
+    assertThat(ctx.containsBean("simpleComponent"))
+            .as("@ComponentScan annotated @Configuration class registered directly against " +
                     "StandardApplicationContext did not trigger component scanning as expected")
             .isTrue();
   }
@@ -152,15 +154,26 @@ public class ComponentScanAnnotationIntegrationTests {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("componentScanAnnotatedConfig",
             new BeanDefinition(ComponentScanAnnotatedConfig.class));
-    bf.registerBeanDefinition("configurationClassPostProcessor",
-            new BeanDefinition(ConfigurationClassPostProcessor.class));
+
     DefaultApplicationContext ctx = new DefaultApplicationContext(bf);
+    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(bf, ctx);
+
+    BeanDefinition def = new BeanDefinition(
+            "configurationClassPostProcessor",
+            ConfigurationClassPostProcessor.class);
+    def.setConstructorArgs(loadingContext);
+    bf.registerBeanDefinition(def);
+
     ctx.refresh();
     ctx.getBean(ComponentScanAnnotatedConfig.class);
     ctx.getBean(TestBean.class);
-    assertThat(ctx.containsBeanDefinition("componentScanAnnotatedConfig")).as("config class bean not found")
+
+    assertThat(ctx.containsBeanDefinition("componentScanAnnotatedConfig"))
+            .as("config class bean not found")
             .isTrue();
-    assertThat(ctx.containsBean("fooServiceImpl")).as("@ComponentScan annotated @Configuration class registered as bean " +
+
+    assertThat(ctx.containsBean("fooServiceImpl"))
+            .as("@ComponentScan annotated @Configuration class registered as bean " +
                     "definition did not trigger component scanning as expected")
             .isTrue();
   }

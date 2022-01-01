@@ -67,6 +67,18 @@ public class BeanDefinition
   public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
   /**
+   * Constant that indicates the container should attempt to infer the
+   * {@link #setDestroyMethod destroy method name} for a bean as opposed to
+   * explicit specification of a method name. The value {@value} is specifically
+   * designed to include characters otherwise illegal in a method name, ensuring
+   * no possibility of collisions with legitimately named methods having the same
+   * name.
+   * <p>Currently, the method names detected during destroy method inference
+   * are "close" and "shutdown", if present on the specific bean class.
+   */
+  public static final String INFER_METHOD = "(inferred)";
+
+  /**
    * Scope identifier for the standard singleton scope: {@value}.
    * <p>Note that extended bean factories might support further scopes.
    *
@@ -215,6 +227,10 @@ public class BeanDefinition
   /** Package-visible field for caching a unique factory method candidate for introspection. */
   @Nullable
   volatile Method factoryMethodToIntrospect;
+
+  /** Package-visible field for caching a resolved destroy method name (also for inferred). */
+  @Nullable
+  volatile String resolvedDestroyMethodName;
 
   public BeanDefinition() { }
 

@@ -144,9 +144,6 @@ public abstract class AbstractBeanFactory
   private BeanExpressionResolver beanExpressionResolver;
 
   // @since 4.0
-  private boolean autoInferDestroyMethod = true;
-
-  // @since 4.0
   private volatile BeanPostProcessors postProcessorCache;
 
   /** Bean Post Processors */
@@ -591,14 +588,8 @@ public abstract class AbstractBeanFactory
    * @see DestructionBeanPostProcessor
    */
   protected boolean requiresDestruction(Object bean, BeanDefinition mbd) {
-    if (DisposableBeanAdapter.hasDestroyMethod(bean, mbd)) {
-      for (DestructionBeanPostProcessor processor : postProcessors().destruction) {
-        if (processor.requiresDestruction(bean)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return DisposableBeanAdapter.hasDestroyMethod(bean, mbd)
+            || DisposableBeanAdapter.hasApplicableProcessors(bean, postProcessors().destruction);
   }
 
   /**
@@ -619,8 +610,7 @@ public abstract class AbstractBeanFactory
         // work for the given bean: DestructionAwareBeanPostProcessors,
         // DisposableBean interface, custom destroy method.
         registerDisposableBean(beanName, new DisposableBeanAdapter(
-                autoInferDestroyMethod, bean, mbd,
-                DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors().destruction)));
+                bean, mbd, DisposableBeanAdapter.filter(bean, postProcessors().destruction)));
       }
       else {
         // A bean with a custom scope...
@@ -629,9 +619,8 @@ public abstract class AbstractBeanFactory
           throw new IllegalStateException("No Scope registered for scope name '" + mbd.getScope() + "'");
         }
         scope.registerDestructionCallback(
-                beanName, new DisposableBeanAdapter(
-                        autoInferDestroyMethod, bean, mbd,
-                        DisposableBeanAdapter.getFilteredPostProcessors(bean, postProcessors().destruction)));
+                beanName, new DisposableBeanAdapter(bean, mbd,
+                        DisposableBeanAdapter.filter(bean, postProcessors().destruction)));
       }
     }
   }
@@ -857,7 +846,7 @@ public abstract class AbstractBeanFactory
         throw new ImplicitlyAppearedSingletonException();
       }
       registerDependentBean(factoryBeanName, beanName);
-      factoryClass = factoryBean.getClass();
+      factoryClass = ClassUtils.getUserClass(factoryBean.getClass());
     }
     else {
       // bean class is its factory-class
@@ -1091,7 +1080,7 @@ public abstract class AbstractBeanFactory
    * @param def Bean definition
    */
   public void destroyBean(Object beanInstance, BeanDefinition def) {
-    new DisposableBeanAdapter(isAutoInferDestroyMethod(), beanInstance, def, postProcessors().destruction)
+    new DisposableBeanAdapter(beanInstance, def, postProcessors().destruction)
             .destroy();
   }
 
@@ -1176,15 +1165,6 @@ public abstract class AbstractBeanFactory
     return this.beanExpressionResolver;
   }
 
-  public boolean isAutoInferDestroyMethod() {
-    return autoInferDestroyMethod;
-  }
-
-  @Override
-  public void setAutoInferDestroyMethod(boolean autoInferDestroyMethod) {
-    this.autoInferDestroyMethod = autoInferDestroyMethod;
-  }
-
   //
 
   @Override
@@ -1217,7 +1197,6 @@ public abstract class AbstractBeanFactory
     setBeanExpressionResolver(otherFactory.getBeanExpressionResolver());
 
     if (otherFactory instanceof AbstractBeanFactory beanFactory) {
-      setAutoInferDestroyMethod(beanFactory.autoInferDestroyMethod);
       this.scopes.putAll(beanFactory.scopes);
       this.objectFactories.putAll(beanFactory.objectFactories);
       this.dependencyInjector = beanFactory.dependencyInjector;

@@ -49,12 +49,23 @@ public class MethodBasedEvaluationContext extends StandardExpressionContext {
   }
 
   @Override
+  public boolean isNameResolved(String beanName) {
+    boolean nameResolved = super.isNameResolved(beanName);
+    if (!nameResolved && !argumentsLoaded) {
+      lazyLoadArguments();
+      this.argumentsLoaded = true;
+      nameResolved = super.isNameResolved(beanName);
+    }
+    return nameResolved;
+  }
+
+  @Override
   @Nullable
   public Object getBean(String name) {
-    Object variable = super.getBean(name);
-    if (variable != null) {
-      return variable;
+    if (isNameResolved(name)) {
+      return super.getBean(name);
     }
+    Object variable = null;
     if (!this.argumentsLoaded) {
       lazyLoadArguments();
       this.argumentsLoaded = true;

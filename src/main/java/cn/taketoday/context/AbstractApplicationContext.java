@@ -610,7 +610,8 @@ public abstract class AbstractApplicationContext
   }
 
   private void addAutowiredPostProcessors(ConfigurableBeanFactory beanFactory) {
-    StandardDependenciesBeanPostProcessor autowiredPostProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
+    StandardDependenciesBeanPostProcessor autowiredPostProcessor
+            = new StandardDependenciesBeanPostProcessor(beanFactory);
 
     DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
     ExpressionDependencyResolver resolver = new ExpressionDependencyResolver(beanFactory);

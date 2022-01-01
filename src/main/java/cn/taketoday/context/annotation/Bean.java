@@ -30,11 +30,12 @@ import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * Indicates that a method produces a bean to be managed by the  container.
@@ -292,7 +293,7 @@ public @interface Bean {
    * @see ConfigurableApplicationContext#close()
    */
   @AliasFor(annotation = Component.class)
-  String destroyMethod() default "";
+  String destroyMethod() default BeanDefinition.INFER_METHOD;
 
   /**
    * Is this bean a candidate for getting autowired into some other bean?

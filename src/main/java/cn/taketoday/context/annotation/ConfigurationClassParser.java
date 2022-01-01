@@ -41,9 +41,9 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
@@ -487,8 +487,11 @@ class ConfigurationClassParser {
     MergedAnnotation<C> annotation = annotations.get(container);
 
     if (annotation.isPresent()) {
-      MergedAnnotation<A> mergedAnnotation = annotation.getAnnotation(attributeName, annotationType);
-      addAttributesIfNotNull(result, mergedAnnotation);
+      // repeatable exist
+      MergedAnnotation<A>[] repeatable = annotation.getAnnotationArray(attributeName, annotationType);
+      for (MergedAnnotation<A> mergedAnnotation : repeatable) {
+        addAttributesIfNotNull(result, mergedAnnotation);
+      }
     }
     // Return merged result
     return result;

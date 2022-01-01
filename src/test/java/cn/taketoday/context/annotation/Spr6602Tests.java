@@ -81,8 +81,7 @@ public class Spr6602Tests {
     }
   }
 
-  public static class Bar {
-  }
+  public static class Bar { }
 
   public static class BarFactory implements FactoryBean<Bar> {
 

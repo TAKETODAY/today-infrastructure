@@ -169,12 +169,6 @@ public interface ConfigurableBeanFactory
   void destroySingletons();
 
   /**
-   * @param autoInferDestroyMethod autodetect destroy-method of bean
-   * @since 4.0
-   */
-  void setAutoInferDestroyMethod(boolean autoInferDestroyMethod);
-
-  /**
    * Specify a 4.0 ConversionService to use for converting property values
    *
    * @param conversionService conversionService

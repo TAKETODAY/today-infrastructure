@@ -28,6 +28,7 @@ import java.util.Date;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CaffeineCache;
 import cn.taketoday.cache.CaffeineCacheManager;
@@ -119,7 +120,7 @@ class CacheableInterceptorTests {
       Method getUser = CacheUserService.class.getDeclaredMethod("getUser", String.class);
       MethodKey methodKey = new MethodKey(getUser, Cacheable.class);
       CacheConfiguration cacheable = operations.getConfig(methodKey);
-      CacheableInterceptor interceptor = context.getBean(CacheableInterceptor.class);
+      CacheableInterceptor interceptor = BeanFactoryUtils.requiredBean(context, CacheableInterceptor.class);
       interceptor.setExpressionOperations(operations);
       Cache users = interceptor.getCache("users", cacheable);
 

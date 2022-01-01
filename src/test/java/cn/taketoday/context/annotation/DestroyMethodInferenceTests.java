@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -112,13 +112,26 @@ public class DestroyMethodInferenceTests {
     DefaultApplicationContext ctx = new DefaultApplicationContext();
 
     ctx.registerBeanDefinition(new BeanDefinition("x1", WithLocalCloseMethod.class));
-    ctx.registerBeanDefinition(new BeanDefinition("x2", WithLocalCloseMethod.class));
-    ctx.registerBeanDefinition(new BeanDefinition("x8", WithInheritedCloseMethod.class));
+
+    BeanDefinition x21 = new BeanDefinition("x2", WithLocalCloseMethod.class);
+    x21.setDestroyMethod(BeanDefinition.INFER_METHOD);
+    ctx.registerBeanDefinition(x21);
+
+    BeanDefinition x81 = new BeanDefinition("x8", WithInheritedCloseMethod.class);
+    x81.setDestroyMethod("");
+    ctx.registerBeanDefinition(x81);
 
     ctx.registerBeanDefinition(new BeanDefinition("x9", WithDisposableBean.class));
     ctx.registerBeanDefinition(new BeanDefinition("x10", WithAutoCloseable.class));
-    ctx.registerBeanDefinition(new BeanDefinition("x3", WithLocalCloseMethod.class));
-    ctx.registerBeanDefinition(new BeanDefinition("x4", WithNoCloseMethod.class));
+
+    BeanDefinition x31 = new BeanDefinition("x3", WithLocalCloseMethod.class);
+    x31.setDestroyMethod(BeanDefinition.INFER_METHOD);
+    ctx.registerBeanDefinition(x31);
+
+    BeanDefinition x41 = new BeanDefinition("x4", WithNoCloseMethod.class);
+    x41.setDestroyMethod(BeanDefinition.INFER_METHOD);
+
+    ctx.registerBeanDefinition(x41);
     ctx.refresh();
 
     WithLocalCloseMethod x1 = ctx.getBean("x1", WithLocalCloseMethod.class);
