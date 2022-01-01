@@ -22,8 +22,8 @@ package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.Bean;
@@ -36,10 +36,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 /**
  * Unit tests ensuring that configuration class bean names as expressed via @Configuration
  * or @Component 'value' attributes are indeed respected, and that customization of bean
- * naming through a BeanNameGenerator strategy works as expected.
+ * naming through a BeanNamePopulator strategy works as expected.
  *
  * @author Chris Beams
- * @since 3.1.1
  */
 public class ConfigurationBeanNameTests {
 
@@ -66,9 +65,9 @@ public class ConfigurationBeanNameTests {
   }
 
   @Test
-  public void registerOuterConfig_withBeanNameGenerator() {
+  public void registerOuterConfig_withBeanNamePopulator() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.setBeanNameGenerator(new AnnotationBeanNamePopulator() {
+    ctx.setBeanNamePopulator(new AnnotationBeanNamePopulator() {
       @Override
       public String populateName(
               BeanDefinition definition, BeanDefinitionRegistry registry) {

@@ -27,15 +27,18 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.HashSet;
 
 import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.CustomAutowireConfigurer;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.DefaultApplicationContext;
@@ -52,7 +55,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.TypeFilter;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import example.scannable.CustomComponent;
 import example.scannable.CustomStereotype;
 import example.scannable.DefaultNamedComponent;
@@ -164,9 +166,9 @@ public class ComponentScanAnnotationIntegrationTests {
   }
 
   @Test
-  public void withCustomBeanNameGenerator() {
+  public void withCustomBeanNamePopulator() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.register(ComponentScanWithBeanNameGenerator.class);
+    ctx.register(ComponentScanWithBeanNamePopulator.class);
     ctx.refresh();
     assertThat(ctx.containsBean("custom_fooServiceImpl")).isTrue();
     assertThat(ctx.containsBean("fooServiceImpl")).isFalse();
@@ -177,7 +179,10 @@ public class ComponentScanAnnotationIntegrationTests {
     StandardApplicationContext ctx = new StandardApplicationContext(ComponentScanWithScopeResolver.class);
     // custom scope annotation makes the bean prototype scoped. subsequent calls
     // to getBean should return distinct instances.
-    assertThat(ctx.getBean(CustomScopeAnnotationBean.class)).isNotSameAs(ctx.getBean(CustomScopeAnnotationBean.class));
+    BeanDefinition beanDefinition = ctx.getBeanDefinition(CustomScopeAnnotationBean.class);
+    assertThat(beanDefinition).isNotNull();
+    assertThat(ctx.getBean(CustomScopeAnnotationBean.class))
+            .isNotSameAs(ctx.getBean(CustomScopeAnnotationBean.class));
     assertThat(ctx.containsBean("scannedComponent")).isFalse();
   }
 
@@ -191,8 +196,8 @@ public class ComponentScanAnnotationIntegrationTests {
   @Test
   public void withCustomTypeFilter() {
     StandardApplicationContext ctx = new StandardApplicationContext(ComponentScanWithCustomTypeFilter.class);
-    assertThat(ctx.getBeanFactory().containsSingleton("componentScanParserTests.KustomAnnotationAutowiredBean")).isFalse();
-    KustomAnnotationAutowiredBean testBean = ctx.getBean("componentScanParserTests.KustomAnnotationAutowiredBean", KustomAnnotationAutowiredBean.class);
+    assertThat(ctx.getBeanFactory().containsSingleton("kustomAnnotationAutowiredBean")).isFalse();
+    KustomAnnotationAutowiredBean testBean = ctx.getBean("kustomAnnotationAutowiredBean", KustomAnnotationAutowiredBean.class);
     assertThat(testBean.getDependency()).isNotNull();
   }
 
@@ -378,8 +383,8 @@ class ComponentScanWithNoPackagesConfig {
 }
 
 @Configuration
-@ComponentScan(basePackages = "example.scannable", nameGenerator = MyBeanNamePopulator.class)
-class ComponentScanWithBeanNameGenerator {
+@ComponentScan(basePackages = "example.scannable", namePopulator = MyBeanNamePopulator.class)
+class ComponentScanWithBeanNamePopulator {
 }
 
 class MyBeanNamePopulator extends AnnotationBeanNamePopulator {
@@ -431,19 +436,19 @@ class CustomTypeFilter implements TypeFilter {
         lazyInit = true)
 class ComponentScanWithCustomTypeFilter {
 
-//  @Bean
-//  @SuppressWarnings({ "rawtypes", "serial", "unchecked" })
-//  public static CustomAutowireConfigurer customAutowireConfigurer() {
-//    CustomAutowireConfigurer cac = new CustomAutowireConfigurer();
-//    cac.setCustomQualifierTypes(new HashSet() {{
-//      add(ComponentScanParserTests.CustomAnnotation.class);
-//    }});
-//    return cac;
-//  }
-//
-//  public ComponentScanParserTests.KustomAnnotationAutowiredBean testBean() {
-//    return new ComponentScanParserTests.KustomAnnotationAutowiredBean();
-//  }
+  @Bean
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public static CustomAutowireConfigurer customAutowireConfigurer() {
+    CustomAutowireConfigurer cac = new CustomAutowireConfigurer();
+    cac.setCustomQualifierTypes(new HashSet() {{
+      add(ComponentScanAnnotationIntegrationTests.CustomAnnotation.class);
+    }});
+    return cac;
+  }
+
+  public ComponentScanAnnotationIntegrationTests.KustomAnnotationAutowiredBean testBean() {
+    return new ComponentScanAnnotationIntegrationTests.KustomAnnotationAutowiredBean();
+  }
 }
 
 @Configuration

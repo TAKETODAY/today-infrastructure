@@ -25,14 +25,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
-import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
@@ -62,11 +62,17 @@ class ComponentScanAnnotationParser {
             loadingContext.getEnvironment()
     );
 
-    Class<? extends BeanNamePopulator> generatorClass = componentScan.getClass("nameGenerator");
-    boolean useInheritedGenerator = BeanNamePopulator.class == generatorClass;
-    scanner.setBeanNameGenerator(
-            useInheritedGenerator ? loadingContext.getBeanNameGenerator()
+    Class<? extends BeanNamePopulator> generatorClass = componentScan.getClass("namePopulator");
+
+    boolean useInheritedPopulator = BeanNamePopulator.class == generatorClass;
+    scanner.setBeanNamePopulator(
+            useInheritedPopulator ? loadingContext.getBeanNamePopulator()
                                   : BeanUtils.newInstance(generatorClass));
+
+    Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");
+    if (resolverClass != ScopeMetadataResolver.class) {
+      scanner.setScopeMetadataResolver(BeanUtils.newInstance(resolverClass));
+    }
 
     scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
@@ -85,10 +91,15 @@ class ComponentScanAnnotationParser {
       }
     }
 
-    Class<BeanDefinitionLoadingStrategy>[] strategies = componentScan.getClassArray("loadingStrategies");
+//    Class<BeanDefinitionLoadingStrategy>[] strategies = componentScan.getClassArray("loadingStrategies");
     //scanner.addLoadingStrategies(strategies); // FIXME
 
-    Set<String> basePackages = new LinkedHashSet<>();
+    boolean lazyInit = componentScan.getBoolean("lazyInit");
+    if (lazyInit) {
+      scanner.getBeanDefinitionDefaults().setLazyInit(true);
+    }
+
+    LinkedHashSet<String> basePackages = new LinkedHashSet<>();
     String[] basePackagesArray = componentScan.getStringArray("basePackages");
     for (String pkg : basePackagesArray) {
       String[] tokenized = StringUtils.tokenizeToStringArray(

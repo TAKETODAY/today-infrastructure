@@ -49,7 +49,7 @@ public class ComponentScanAnnotationTests {
 @Configuration
 @ComponentScan(
         basePackageClasses = TestBean.class,
-        nameGenerator = DefaultBeanNamePopulator.class,
+        namePopulator = DefaultBeanNamePopulator.class,
 //        scopedProxy = ScopedProxyMode.NO,
         scopeResolver = AnnotationScopeMetadataResolver.class,
         resourcePattern = "**/*custom.class",
