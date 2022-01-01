@@ -104,12 +104,12 @@ public @interface ComponentScan {
    * @see AnnotationBeanNamePopulator
    * @see FullyQualifiedAnnotationBeanNamePopulator
    */
-  Class<? extends BeanNamePopulator> nameGenerator() default BeanNamePopulator.class;
+  Class<? extends BeanNamePopulator> namePopulator() default BeanNamePopulator.class;
 
   /**
    * The {@link ScopeMetadataResolver} to be used for resolving the scope of detected components.
    */
-  Class<? extends ScopeMetadataResolver> scopeResolver() default AnnotationScopeMetadataResolver.class;
+  Class<? extends ScopeMetadataResolver> scopeResolver() default ScopeMetadataResolver.class;
 
   /**
    * Controls the class files eligible for component detection.
