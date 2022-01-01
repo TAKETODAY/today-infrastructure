@@ -55,14 +55,14 @@ public abstract class AnnotationConfigUtils {
           "cn.taketoday.context.annotation.internalConfigurationAnnotationProcessor";
 
   /**
-   * The bean name of the internally managed BeanNameGenerator for use when processing
+   * The bean name of the internally managed BeanNamePopulator for use when processing
    * {@link Configuration} classes. Set by {@link cn.taketoday.context.StandardApplicationContext}
    * and {@code AnnotationConfigWebApplicationContext} during bootstrap in order to make
    * any custom name generation strategy available to the underlying
    * {@link ConfigurationClassPostProcessor}.
    */
   public static final String CONFIGURATION_BEAN_NAME_GENERATOR =
-          "cn.taketoday.context.annotation.internalConfigurationBeanNameGenerator";
+          "cn.taketoday.context.annotation.internalConfigurationBeanNamePopulator";
 
   /**
    * The bean name of the internally managed common annotation processor.

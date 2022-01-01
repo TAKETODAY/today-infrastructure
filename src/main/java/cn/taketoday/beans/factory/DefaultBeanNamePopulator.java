@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 public class DefaultBeanNamePopulator implements BeanNamePopulator {
 
   /**
-   * A convenient constant for a default {@code DefaultBeanNameGenerator} instance
+   * A convenient constant for a default {@code DefaultBeanNamePopulator} instance
    */
   public static final DefaultBeanNamePopulator INSTANCE = new DefaultBeanNamePopulator();
 

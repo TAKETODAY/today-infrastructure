@@ -216,15 +216,15 @@ public class StandardApplicationContext
    * <p>Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
-   * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator
-   * @see DefinitionLoadingContext#setBeanNameGenerator
+   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
+   * @see DefinitionLoadingContext#setBeanNamePopulator
    * @see AnnotationBeanNamePopulator
    * @see FullyQualifiedAnnotationBeanNamePopulator
    */
-  public void setBeanNameGenerator(BeanNamePopulator beanNamePopulator) {
-    Assert.notNull(beanNamePopulator, "BeanNameGenerator is required");
-    loadingContext().setBeanNameGenerator(beanNamePopulator);
-    getBeanDefinitionReader().setBeanNameGenerator(beanNamePopulator);
+  public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
+    Assert.notNull(beanNamePopulator, "BeanNamePopulator is required");
+    loadingContext().setBeanNamePopulator(beanNamePopulator);
+    getBeanDefinitionReader().setBeanNamePopulator(beanNamePopulator);
 
     getBeanFactory().registerSingleton(
             AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);

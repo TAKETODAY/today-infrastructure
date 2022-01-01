@@ -560,10 +560,10 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   }
 
   /**
-   * Set the {@code BeanNameGenerator} to use for detected bean classes.
+   * Set the {@code BeanNamePopulator} to use for detected bean classes.
    * <p>The default is a {@link AnnotationBeanNamePopulator}.
    */
-  public void setBeanNameGenerator(@Nullable BeanNamePopulator beanNamePopulator) {
+  public void setBeanNamePopulator(@Nullable BeanNamePopulator beanNamePopulator) {
     this.beanNamePopulator =
             (beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE);
   }

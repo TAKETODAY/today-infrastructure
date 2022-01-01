@@ -212,10 +212,10 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   }
 
   /**
-   * Set the BeanNameGenerator to use for detected bean classes.
+   * Set the BeanNamePopulator to use for detected bean classes.
    * <p>Default is a {@link AnnotationBeanNamePopulator}.
    */
-  public void setBeanNameGenerator(@Nullable BeanNamePopulator beanNamePopulator) {
+  public void setBeanNamePopulator(@Nullable BeanNamePopulator beanNamePopulator) {
     this.beanNamePopulator =
             beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE;
   }

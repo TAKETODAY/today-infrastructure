@@ -71,7 +71,7 @@ import cn.taketoday.util.StringUtils;
 public class AnnotationBeanNamePopulator implements BeanNamePopulator {
 
   /**
-   * A convenient constant for a default {@code AnnotationBeanNameGenerator} instance,
+   * A convenient constant for a default {@code AnnotationBeanNamePopulator} instance,
    * as used for component scanning purposes.
    */
   public static final AnnotationBeanNamePopulator INSTANCE = new AnnotationBeanNamePopulator();

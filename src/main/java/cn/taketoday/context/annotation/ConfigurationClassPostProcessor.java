@@ -127,12 +127,12 @@ public class ConfigurationClassPostProcessor
    * application contexts or the {@code <context:annotation-config>} element. Any bean name
    * generator specified against the application context will take precedence over any set here.
    *
-   * @see cn.taketoday.context.StandardApplicationContext#setBeanNameGenerator(BeanNamePopulator)
+   * @see cn.taketoday.context.StandardApplicationContext#setBeanNamePopulator(BeanNamePopulator)
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
-  public void setBeanNameGenerator(BeanNamePopulator beanNamePopulator) {
-    Assert.notNull(beanNamePopulator, "BeanNameGenerator must not be null");
-    loadingContext.setBeanNameGenerator(beanNamePopulator);
+  public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
+    Assert.notNull(beanNamePopulator, "BeanNamePopulator must not be null");
+    loadingContext.setBeanNamePopulator(beanNamePopulator);
   }
 
   @Override

@@ -24,7 +24,7 @@ package cn.taketoday.core;
  */
 public class OrderedSupport implements Ordered {
 
-  protected Integer order;
+  protected Integer order;  // default: same as non-Ordered
 
   public OrderedSupport() { }
 
