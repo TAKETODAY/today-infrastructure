@@ -36,8 +36,10 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,11 +64,19 @@ public class ParserStrategyUtilsTests {
   private ClassLoader beanClassLoader;
 
   @Mock
-  private ResourceLoader resourceLoader;
+  private PatternResourceLoader resourceLoader;
+
+  @Mock
+  DefinitionLoadingContext loadingContext;
 
   @BeforeEach
   void setup() {
     MockitoAnnotations.openMocks(this);
+    given(this.loadingContext.getRegistry()).willReturn(this.registry);
+    given(this.loadingContext.getEnvironment()).willReturn(this.environment);
+    given(this.loadingContext.getResourceLoader()).willReturn(resourceLoader);
+    given(this.loadingContext.getBeanFactory()).willReturn((BeanFactory) this.registry);
+    given(this.loadingContext.getClassLoader()).willReturn(beanClassLoader);
     given(this.resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
   }
 
@@ -110,7 +120,7 @@ public class ParserStrategyUtilsTests {
 
   @Test
   public void instantiateClassWhenHasMutlipleConstructorsAndNotDefaultThrowsException() {
-    assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
+    assertThatExceptionOfType(ConstructorNotFoundException.class).isThrownBy(() ->
             instantiateClass(MultipleConstructorsWithNoDefault.class));
   }
 
@@ -132,13 +142,6 @@ public class ParserStrategyUtilsTests {
   }
 
   @Test
-  public void instantiateClassWhenHasNoBeanClassLoaderInjectsNull() {
-    reset(this.resourceLoader);
-    ArgsConstructor instance = instantiateClass(ArgsConstructor.class);
-    assertThat(instance.beanClassLoader).isNull();
-  }
-
-  @Test
   public void instantiateClassWhenHasNoBeanClassLoaderDoesNotCallAware() {
     reset(this.resourceLoader);
     NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
@@ -148,12 +151,11 @@ public class ParserStrategyUtilsTests {
 
   private <T> T instantiateClass(Class<T> clazz) {
 
-    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(registry, null);
     return ParserStrategyUtils.instantiateClass(clazz, clazz, loadingContext);
   }
 
-  static class NoArgsConstructor implements BeanClassLoaderAware,
-                                            BeanFactoryAware, EnvironmentAware, ResourceLoaderAware {
+  static class NoArgsConstructor
+          implements BeanClassLoaderAware, BeanFactoryAware, EnvironmentAware, ResourceLoaderAware {
 
     Environment setEnvironment;
 
@@ -191,11 +193,8 @@ public class ParserStrategyUtilsTests {
   static class ArgsConstructor {
 
     final Environment environment;
-
     final BeanFactory beanFactory;
-
     final ClassLoader beanClassLoader;
-
     final ResourceLoader resourceLoader;
 
     ArgsConstructor(Environment environment, BeanFactory beanFactory,

@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
+import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 

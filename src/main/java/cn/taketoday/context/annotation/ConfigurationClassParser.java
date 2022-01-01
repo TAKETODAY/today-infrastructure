@@ -47,7 +47,6 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NestedIOException;

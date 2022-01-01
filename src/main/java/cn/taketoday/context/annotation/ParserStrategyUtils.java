@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
@@ -28,6 +29,7 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.context.aware.EnvironmentAware;
@@ -38,6 +40,7 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Common delegate code for the handling of parser strategies, e.g.
@@ -86,8 +89,12 @@ abstract class ParserStrategyUtils {
       try {
         Constructor<?> constructor = constructors[0];
         Object[] args = resolveArgs(
-                constructor.getParameterTypes(), environment, resourceLoader, registry, classLoader);
+                constructor, environment, resourceLoader, registry, classLoader);
+        ReflectionUtils.makeAccessible(constructor);
         return BeanUtils.newInstance(constructor, args);
+      }
+      catch (BeanInstantiationException e) {
+        throw e;
       }
       catch (Exception ex) {
         throw new BeanInstantiationException(clazz, "No suitable constructor found", ex);
@@ -97,37 +104,24 @@ abstract class ParserStrategyUtils {
   }
 
   private static Object[] resolveArgs(
-          Class<?>[] parameterTypes,
+          Constructor<?> constructor,
           Environment environment, ResourceLoader resourceLoader,
           BeanDefinitionRegistry registry, @Nullable ClassLoader classLoader) {
-
-    Object[] parameters = new Object[parameterTypes.length];
-    for (int i = 0; i < parameterTypes.length; i++) {
-      parameters[i] = resolveParameter(
-              parameterTypes[i], environment, resourceLoader, registry, classLoader);
+    int i = 0;
+    Parameter[] parameters = constructor.getParameters();
+    Object[] args = new Object[parameters.length];
+    Object[] providedArgs = new Object[] {
+            classLoader, environment, resourceLoader, registry
+    };
+    for (Parameter parameter : parameters) {
+      Object arg = DependencyInjector.findProvided(parameter, providedArgs);
+      if (arg == null) {
+        throw new IllegalStateException(
+                "Illegal method parameter type: " + parameter.getType().getName());
+      }
+      args[i++] = arg;
     }
-    return parameters;
-  }
-
-  @Nullable
-  private static Object resolveParameter(
-          Class<?> parameterType,
-          Environment environment, ResourceLoader resourceLoader,
-          BeanDefinitionRegistry registry, @Nullable ClassLoader classLoader) {
-
-    if (parameterType == Environment.class) {
-      return environment;
-    }
-    if (parameterType == ResourceLoader.class) {
-      return resourceLoader;
-    }
-    if (parameterType == BeanFactory.class) {
-      return (registry instanceof BeanFactory ? registry : null);
-    }
-    if (parameterType == ClassLoader.class) {
-      return classLoader;
-    }
-    throw new IllegalStateException("Illegal method parameter type: " + parameterType.getName());
+    return args;
   }
 
   private static void invokeAwareMethods(

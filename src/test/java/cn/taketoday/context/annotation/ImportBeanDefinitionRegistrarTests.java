@@ -36,7 +36,6 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;

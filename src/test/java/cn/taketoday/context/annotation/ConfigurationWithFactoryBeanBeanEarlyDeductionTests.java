@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.context.loader.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
