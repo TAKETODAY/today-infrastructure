@@ -820,7 +820,7 @@ public abstract class AbstractApplicationContext
     if (requiredType.isInstance(this)) {
       return (T) this;
     }
-    throw new IllegalArgumentException("bean factory must be a " + requiredType);
+    throw new IllegalArgumentException("This BeanFactory '" + this + "' is not a " + requiredType);
   }
 
   @Override

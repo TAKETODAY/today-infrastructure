@@ -1707,6 +1707,16 @@ public abstract class AbstractBeanFactory
     return result;
   }
 
+  @NonNull
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T unwrap(Class<T> requiredType) {
+    if (requiredType.isInstance(this)) {
+      return (T) this;
+    }
+    throw new IllegalArgumentException("This BeanFactory '" + this + "' is not a " + requiredType);
+  }
+
   /**
    * Evaluate the given String as contained in a bean definition,
    * potentially resolving it as an expression.

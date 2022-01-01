@@ -187,12 +187,8 @@ public class StandardDependenciesBeanPostProcessor
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
-    if (!(beanFactory instanceof ConfigurableBeanFactory)) {
-      throw new IllegalArgumentException(
-              "StandardDependenciesBeanPostProcessor requires a ConfigurableBeanFactory: " + beanFactory);
-    }
-    this.beanFactory = (ConfigurableBeanFactory) beanFactory;
-    this.dependencyInjector = beanFactory.getInjector();
+    this.beanFactory = beanFactory.unwrap(ConfigurableBeanFactory.class);
+    setDependencyInjector(beanFactory.getInjector());
   }
 
   /**

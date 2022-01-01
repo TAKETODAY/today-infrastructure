@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -859,5 +860,14 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 4.0
    */
   String[] getAliases(String name);
+
+  /**
+   * unwrap this BeanFactory to {@code requiredType}
+   *
+   * @throws IllegalArgumentException not a requiredType
+   * @since 4.0
+   */
+  @NonNull
+  <T> T unwrap(Class<T> requiredType);
 
 }
