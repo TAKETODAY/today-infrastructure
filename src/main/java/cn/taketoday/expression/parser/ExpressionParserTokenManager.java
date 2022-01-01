@@ -68,7 +68,7 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   };
 
   /** Lexer state names. */
-  public static final String[] lexStateNames = { "DEFAULT", "IN_EXPRESSION", "IN_MAP", };
+//  public static final String[] lexStateNames = { "DEFAULT", "IN_EXPRESSION", "IN_MAP", };
 
   /** Lex State array. */
   public static final int[] jjnewLexState = { //
@@ -266,7 +266,7 @@ public class ExpressionParserTokenManager implements ELParserConstants {
         while (i != startsAt);
       }
       else {
-        int hiByte = (int) (curChar >> 8);
+        int hiByte = curChar >> 8;
         int i1 = hiByte >> 6;
         long l1 = 1L << (hiByte & 077);
         int i2 = (curChar & 0xff) >> 6;
@@ -1820,7 +1820,7 @@ public class ExpressionParserTokenManager implements ELParserConstants {
   public void SwitchTo(int lexState) {
     if (lexState >= 3 || lexState < 0) {
       throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState
-                                      + ". State unchanged.", TokenMgrError.INVALID_LEXICAL_STATE);
+              + ". State unchanged.", TokenMgrError.INVALID_LEXICAL_STATE);
     }
     else
       curLexState = lexState;

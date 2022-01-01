@@ -52,11 +52,13 @@ public class AstSemiColon extends SimpleNode {
     super(id);
   }
 
+  @Override
   public Object getValue(EvaluationContext ctx) throws ExpressionException {
     this.children[0].getValue(ctx);
     return this.children[1].getValue(ctx);
   }
 
+  @Override
   public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
     this.children[0].getValue(ctx);
     this.children[1].setValue(ctx, value);

@@ -179,7 +179,7 @@ public final class AstIdentifier extends SimpleNode {
     return getMethodExpression(ctx).getMethodInfo(ctx);
   }
 
-  protected MethodExpression getMethodExpression(EvaluationContext ctx) {
+  private MethodExpression getMethodExpression(EvaluationContext ctx) {
     // case A: ValueExpression exists, getValue which must  be a MethodExpression
     Object obj = null;
     VariableMapper varMapper = ctx.getVariableMapper();
@@ -204,7 +204,8 @@ public final class AstIdentifier extends SimpleNode {
     else if (obj == null) {
       throw new MethodNotFoundException("Identity '" + image + "' was null and was unable to invoke");
     }
-    throw new ExpressionException("Identity '" + image + "' does not reference a MethodExpression instance, returned type: " + obj
-            .getClass().getName());
+    throw new ExpressionException(
+            "Identity '" + image + "' does not reference a MethodExpression instance, returned type: "
+                    + obj.getClass().getName());
   }
 }

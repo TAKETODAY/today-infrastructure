@@ -106,10 +106,10 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
 
-    if (base == null && property instanceof String) {
-      if (beanNameResolver.isNameResolved((String) property)) {
+    if (base == null && property instanceof String propertyName) {
+      if (beanNameResolver.isNameResolved(propertyName)) {
         context.setPropertyResolved(base, property);
-        return beanNameResolver.getBean((String) property);
+        return beanNameResolver.getBean(propertyName);
       }
     }
     return null;
@@ -141,7 +141,8 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   public void setValue(
           ExpressionContext context, @Nullable Object base, Object property, Object value) {
     if (base == null && property instanceof String beanName) {
-      if (beanNameResolver.isNameResolved(beanName) || beanNameResolver.canCreateBean(beanName)) {
+      if (beanNameResolver.canCreateBean(beanName)
+              || beanNameResolver.isNameResolved(beanName)) {
         beanNameResolver.setBeanValue(beanName, value);
         context.setPropertyResolved(base, property);
       }
@@ -174,9 +175,13 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
   @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
-    if (base == null && property instanceof String && beanNameResolver.isNameResolved((String) property)) {
+    if (base == null && property instanceof String propertyName
+            && beanNameResolver.isNameResolved(propertyName)) {
       context.setPropertyResolved(true);
-      return beanNameResolver.getBean((String) property).getClass();
+      Object bean = beanNameResolver.getBean(propertyName);
+      if (bean != null) {
+        return bean.getClass();
+      }
     }
     return null;
   }
@@ -207,11 +212,10 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    */
   @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-    if (base == null && property instanceof String) {
-      if (beanNameResolver.isNameResolved((String) property)) {
-        context.setPropertyResolved(true);
-        return beanNameResolver.isReadOnly((String) property);
-      }
+    if (base == null && property instanceof String propertyName
+            && beanNameResolver.isNameResolved(propertyName)) {
+      context.setPropertyResolved(true);
+      return beanNameResolver.isReadOnly(propertyName);
     }
     return false;
   }

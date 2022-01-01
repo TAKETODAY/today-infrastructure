@@ -55,36 +55,32 @@ public final class AstChoice extends SimpleNode {
 
   @Override
   public Class<?> getType(EvaluationContext ctx) {
-    Object obj0 = this.children[0].getValue(ctx);
-    Boolean b0 = ExpressionUtils.coerceToBoolean(obj0);
-    return this.children[((b0 ? 1 : 2))].getType(ctx);
+    return getNode(ctx).getType(ctx);
   }
 
   @Override
   public Object getValue(EvaluationContext ctx) {
-    Boolean b0 = ExpressionUtils.coerceToBoolean(this.children[0].getValue(ctx));
-    return this.children[((b0 ? 1 : 2))].getValue(ctx);
+    return getNode(ctx).getValue(ctx);
   }
 
   @Override
-
   public boolean isReadOnly(EvaluationContext ctx) {
-    Object obj0 = this.children[0].getValue(ctx);
-    Boolean b0 = ExpressionUtils.coerceToBoolean(obj0);
-    return this.children[((b0 ? 1 : 2))].isReadOnly(ctx);
+    return getNode(ctx).isReadOnly(ctx);
   }
 
   @Override
   public void setValue(EvaluationContext ctx, Object value) {
-    Object obj0 = this.children[0].getValue(ctx);
-    Boolean b0 = ExpressionUtils.coerceToBoolean(obj0);
-    this.children[((b0 ? 1 : 2))].setValue(ctx, value);
+    getNode(ctx).setValue(ctx, value);
   }
 
   @Override
   public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) {
-    Boolean b0 = ExpressionUtils.coerceToBoolean(this.children[0].getValue(ctx));
-    return this.children[((b0 ? 1 : 2))].invoke(ctx, paramTypes, paramValues);
+    return getNode(ctx).invoke(ctx, paramTypes, paramValues);
+  }
+
+  private Node getNode(EvaluationContext ctx) {
+    Boolean b0 = ExpressionUtils.coerceToBoolean(children[0].getValue(ctx));
+    return children[((b0 ? 1 : 2))];
   }
 
 }
