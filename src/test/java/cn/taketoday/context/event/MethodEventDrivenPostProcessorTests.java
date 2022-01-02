@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EventObject;
 
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.beans.factory.annotation.Value;
 import lombok.ToString;
 
 /**
@@ -42,6 +42,7 @@ class MethodEventDrivenPostProcessorTests {
       context.addBeanFactoryPostProcessor(new MethodEventDrivenPostProcessor(context));
 
       context.register(EventBean.class);
+      context.refresh();
 
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));
@@ -67,6 +68,7 @@ class MethodEventDrivenPostProcessorTests {
       context.register(Config.class);
 
       context.scan("cn.taketoday.context.event");
+      context.refresh();
 
       context.publishEvent(new Event("test event"));
       context.publishEvent(new SubEvent("test SubEvent"));

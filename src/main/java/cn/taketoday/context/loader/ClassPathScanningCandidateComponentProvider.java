@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ScannedBeanDefinition;
@@ -417,7 +417,8 @@ public class ClassPathScanningCandidateComponentProvider
 
     @Override
     public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
-      if (isCandidateComponent(metadataReader, factory) && isCandidateComponent(metadataReader.getAnnotationMetadata())) {
+      if (isCandidateComponent(metadataReader, factory)
+              && isCandidateComponent(metadataReader.getAnnotationMetadata())) {
         metadataReaderConsumer.accept(metadataReader, factory);
       }
     }

@@ -42,7 +42,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Tests proving that @Qualifier annotations work when used
- * with @Configuration classes on @Bean methods.
+ * with @Configuration classes on @Component methods.
  *
  * @author Chris Beams
  * @author Juergen Hoeller

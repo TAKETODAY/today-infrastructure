@@ -36,7 +36,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@ComponentScan(loadingStrategies = MybatisConfiguration.class)
+@ComponentScan
 public @interface MapperScan {
 
   /**

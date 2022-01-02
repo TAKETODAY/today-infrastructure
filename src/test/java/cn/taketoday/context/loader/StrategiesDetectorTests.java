@@ -54,7 +54,7 @@ class StrategiesDetectorTests {
 
     assertThat(loader.getStrategies())
             .containsKey("cn.taketoday.beans.dependency.DependencyResolvingStrategy")
-            .hasSize(2);
+            .hasSize(0);
 
     final Collection<String> strategies = loader.getStrategies("cn.taketoday.beans.dependency.DependencyResolvingStrategy");
 
@@ -72,7 +72,7 @@ class StrategiesDetectorTests {
     final List<DependencyResolvingStrategy> strategy = loader.getStrategies(DependencyResolvingStrategy.class);
 
     assertThat(strategy)
-            .hasSize(1);
+            .hasSize(0);
 
     assertThat(strategies)
             .hasSize(1)

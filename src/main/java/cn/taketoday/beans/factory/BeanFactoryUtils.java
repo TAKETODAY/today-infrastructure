@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +31,9 @@ import java.util.function.Predicate;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
@@ -757,12 +760,11 @@ public abstract class BeanFactoryUtils {
    * @param beanName the name of the candidate bean
    * @param beanFactory the factory from which to retrieve the named bean
    * @return {@code true} if either the bean definition (in the XML case)
-   * or the bean's factory method (in the {@code @Component} case) defines a matching
+   * or the bean's factory method (in the {@code @Bean} case) defines a matching
    * qualifier value (through {@code <qualifier>} or {@code @Qualifier})
    */
   public static boolean isQualifierMatch(
           Predicate<String> qualifier, String beanName, @Nullable BeanFactory beanFactory) {
-
     // Try quick bean name or alias match first...
     if (qualifier.test(beanName)) {
       return true;
@@ -774,10 +776,35 @@ public abstract class BeanFactoryUtils {
         }
       }
       try {
-        MergedAnnotation<Qualifier> annotation = getMergedAnnotation(beanFactory, beanName, Qualifier.class);
+        Class<?> beanType = beanFactory.getType(beanName);
+        if (beanFactory instanceof ConfigurableBeanFactory) {
+          BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+          // Explicit qualifier metadata on bean definition? (typically in XML definition)
+          if (definition != null) {
+            AutowireCandidateQualifier candidate = definition.getQualifier(Qualifier.class.getName());
+            if (candidate != null) {
+              Object value = candidate.getAttribute(AutowireCandidateQualifier.VALUE_KEY);
+              if (value != null && qualifier.test(value.toString())) {
+                return true;
+              }
+            }
+
+            // Corresponding qualifier on factory method? (typically in configuration class)
+            Method factoryMethod = definition.getResolvedFactoryMethod();
+            if (factoryMethod != null) {
+              Qualifier targetAnnotation = AnnotationUtils.getAnnotation(factoryMethod, Qualifier.class);
+              if (targetAnnotation != null) {
+                return qualifier.test(targetAnnotation.value());
+              }
+            }
+          }
+        }
         // Corresponding qualifier on bean implementation class? (for custom user types)
-        if (annotation.isPresent()) {
-          return qualifier.test(annotation.getStringValue());
+        if (beanType != null) {
+          Qualifier targetAnnotation = AnnotationUtils.getAnnotation(beanType, Qualifier.class);
+          if (targetAnnotation != null) {
+            return qualifier.test(targetAnnotation.value());
+          }
         }
       }
       catch (NoSuchBeanDefinitionException ex) {

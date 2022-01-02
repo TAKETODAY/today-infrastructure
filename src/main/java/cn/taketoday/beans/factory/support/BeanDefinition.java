@@ -213,6 +213,8 @@ public class BeanDefinition
   /** Package-visible field that indicates BeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
 
+  boolean isFactoryMethodUnique;
+
   /** Common lock for the two post-processing fields below. */
   final Object postProcessingLock = new Object();
 
@@ -736,26 +738,28 @@ public class BeanDefinition
     this.factoryBeanName = from.factoryBeanName;
     this.factoryMethodName = from.factoryMethodName;
     this.instanceSupplier = from.instanceSupplier;
+    this.qualifiedElement = from.qualifiedElement;
     this.enableDependencyInjection = from.enableDependencyInjection;
     this.factoryMethodToIntrospect = from.factoryMethodToIntrospect;
 
     this.executable = from.executable;
+    this.targetType = from.targetType;
     this.instantiator = from.instantiator;
     this.initMethodArray = from.initMethodArray;
-    this.factoryMethodReturnType = from.factoryMethodReturnType;
     this.resolvedTargetType = from.resolvedTargetType;
-    this.targetType = from.targetType;
+    this.factoryMethodReturnType = from.factoryMethodReturnType;
+    this.isFactoryMethodUnique = from.isFactoryMethodUnique;
     this.beforeInstantiationResolved = from.beforeInstantiationResolved;
 
     if (from.getPropertyValues() != null) {
       propertyValues().add(from.getPropertyValues());
     }
 
-    setBeanClassName(from.getBeanClassName());
-    setInitMethods(from.getInitMethods());
-
+    copyQualifiersFrom(from);
     copyAttributesFrom(from);
 
+    setInitMethods(from.getInitMethods());
+    setBeanClassName(from.getBeanClassName());
   }
 
   /** @since 4.0 */
@@ -840,6 +844,28 @@ public class BeanDefinition
   @Nullable
   public String getFactoryMethodName() {
     return this.factoryMethodName;
+  }
+
+  /**
+   * Specify a factory method name that refers to a non-overloaded method.
+   *
+   * @since 4.0
+   */
+  public void setUniqueFactoryMethodName(String name) {
+    Assert.hasText(name, "Factory method name must not be empty");
+    setFactoryMethodName(name);
+    this.isFactoryMethodUnique = true;
+  }
+
+  /**
+   * Specify a factory method name that refers to an overloaded method.
+   *
+   * @since 4.0
+   */
+  public void setNonUniqueFactoryMethodName(String name) {
+    Assert.hasText(name, "Factory method name must not be empty");
+    setFactoryMethodName(name);
+    this.isFactoryMethodUnique = false;
   }
 
   /** @since 4.0 */

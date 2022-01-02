@@ -29,13 +29,15 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
+import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -55,7 +57,7 @@ public class StandardApplicationContext
   private String propertiesLocation;
 
   private DefinitionLoadingContext loadingContext;
-  private ScanningBeanDefinitionReader scanningReader;
+  private ClassPathBeanDefinitionScanner scanningReader;
 
   /**
    * Default Constructor
@@ -199,13 +201,38 @@ public class StandardApplicationContext
     }
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of AnnotationConfigRegistry
+  //---------------------------------------------------------------------
+
+  /**
+   * Register one or more component classes to be processed.
+   * <p>Note that {@link #refresh()} must be called in order for the context
+   * to fully process the new classes.
+   *
+   * @param components one or more component classes &mdash; for example,
+   * {@link Configuration @Configuration} classes
+   * @see #scan(String...)
+   * @see #refresh()
+   */
   @Override
   public void register(Class<?>... components) {
+    Assert.notEmpty(components, "At least one component class must be specified");
     getBeanDefinitionReader().registerBean(components);
   }
 
+  /**
+   * Perform a scan within the specified base packages.
+   * <p>Note that {@link #refresh()} must be called in order for the context
+   * to fully process the new classes.
+   *
+   * @param basePackages the packages to scan for component classes
+   * @see #register(Class...)
+   * @see #refresh()
+   */
   @Override
   public void scan(String... basePackages) {
+    Assert.notEmpty(basePackages, "At least one base package must be specified");
     scanningReader().scan(basePackages);
   }
 
@@ -223,16 +250,40 @@ public class StandardApplicationContext
    */
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator is required");
+
     loadingContext().setBeanNamePopulator(beanNamePopulator);
+    scanningReader().setBeanNamePopulator(beanNamePopulator);
     getBeanDefinitionReader().setBeanNamePopulator(beanNamePopulator);
 
     getBeanFactory().registerSingleton(
             AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);
   }
 
-  private ScanningBeanDefinitionReader scanningReader() {
+  /**
+   * Set the {@link ScopeMetadataResolver} to use for registered component classes.
+   * <p>The default is an {@link AnnotationScopeMetadataResolver}.
+   * <p>Any call to this method must occur prior to calls to {@link #register(Class...)}
+   * and/or {@link #scan(String...)}.
+   */
+  public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
+    loadingContext().setScopeMetadataResolver(scopeMetadataResolver);
+    scanningReader().setScopeMetadataResolver(scopeMetadataResolver);
+    getBeanDefinitionReader().setScopeMetadataResolver(scopeMetadataResolver);
+  }
+
+  /**
+   * Propagate the given custom {@code Environment} to the underlying
+   * {@link AnnotatedBeanDefinitionReader} and {@link ClassPathBeanDefinitionScanner}.
+   */
+  @Override
+  public void setEnvironment(ConfigurableEnvironment environment) {
+    super.setEnvironment(environment);
+    scanningReader().setEnvironment(environment);
+  }
+
+  private ClassPathBeanDefinitionScanner scanningReader() {
     if (scanningReader == null) {
-      scanningReader = new ScanningBeanDefinitionReader(loadingContext());
+      scanningReader = new ClassPathBeanDefinitionScanner(this);
     }
     return scanningReader;
   }

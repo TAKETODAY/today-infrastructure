@@ -27,8 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
-import cn.taketoday.context.loader.ScanningBeanDefinitionReader;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.type.filter.TypeFilter;
@@ -57,7 +56,7 @@ import cn.taketoday.core.type.filter.TypeFilter;
  * @author Sam Brannen
  * @author TODAY 2019-11-13 23:52
  * @see Configuration
- * @see cn.taketoday.context.loader.ScanningBeanDefinitionReader
+ * @see cn.taketoday.context.loader.ClassPathBeanDefinitionScanner
  */
 @Documented
 @Target(ElementType.TYPE)
@@ -116,7 +115,7 @@ public @interface ComponentScan {
    * <p>Consider use of {@link #includeFilters} and {@link #excludeFilters}
    * for a more flexible approach.
    */
-  String resourcePattern() default ScanningBeanDefinitionReader.DEFAULT_RESOURCE_PATTERN;
+  String resourcePattern() default ClassPathBeanDefinitionScanner.DEFAULT_RESOURCE_PATTERN;
 
   /**
    * Indicates whether automatic detection of classes annotated with {@code @Component}
@@ -149,8 +148,6 @@ public @interface ComponentScan {
    * <p>Default is {@code false}; switch this to {@code true} when desired.
    */
   boolean lazyInit() default false;
-
-  Class<? extends BeanDefinitionLoadingStrategy>[] loadingStrategies() default {};
 
   /**
    * Declares the type filter to be used as an {@linkplain ComponentScan#includeFilters

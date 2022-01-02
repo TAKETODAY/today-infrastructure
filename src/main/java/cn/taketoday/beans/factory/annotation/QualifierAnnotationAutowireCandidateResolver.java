@@ -260,8 +260,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         // Fall back on bean definition attribute
         actualValue = definition.getAttribute(attributeName);
       }
-      if (actualValue == null && attributeName.equals(AutowireCandidateQualifier.VALUE_KEY) &&
-              expectedValue instanceof String && definition.matchesName((String) expectedValue)) {
+      if (actualValue == null && attributeName.equals(AutowireCandidateQualifier.VALUE_KEY)
+              && expectedValue instanceof String && definition.matchesName((String) expectedValue)) {
         // Fall back on bean name (or alias) match
         continue;
       }

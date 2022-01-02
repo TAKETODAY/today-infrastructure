@@ -69,7 +69,28 @@ import cn.taketoday.lang.Constant;
  */
 public interface Environment extends PropertyResolver {
 
+  /**
+   * Name of the {@link Environment} bean in the factory.
+   *
+   * @since 4.0
+   */
   String ENVIRONMENT_BEAN_NAME = "environment";
+
+  /**
+   * Name of the System properties bean in the factory.
+   *
+   * @see java.lang.System#getProperties()
+   * @since 4.0
+   */
+  String SYSTEM_PROPERTIES_BEAN_NAME = "systemProperties";
+
+  /**
+   * Name of the System environment bean in the factory.
+   *
+   * @see java.lang.System#getenv()
+   * @since 4.0
+   */
+  String SYSTEM_ENVIRONMENT_BEAN_NAME = "systemEnvironment";
 
   String PROPERTIES_SUFFIX = Constant.PROPERTIES_SUFFIX;
   String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2

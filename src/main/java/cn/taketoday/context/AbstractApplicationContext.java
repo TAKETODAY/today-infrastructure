@@ -601,6 +601,17 @@ public abstract class AbstractApplicationContext
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
 
+    // Register default environment beans.
+    if (!beanFactory.containsLocalBean(Environment.ENVIRONMENT_BEAN_NAME)) {
+      beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
+    }
+    if (!beanFactory.containsLocalBean(Environment.SYSTEM_PROPERTIES_BEAN_NAME)) {
+      beanFactory.registerSingleton(Environment.SYSTEM_PROPERTIES_BEAN_NAME, getEnvironment().getSystemProperties());
+    }
+    if (!beanFactory.containsLocalBean(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME)) {
+      beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
+    }
+
     beanFactory.registerDependency(BeanFactory.class, beanFactory);
     beanFactory.registerDependency(ApplicationContext.class, this);
   }

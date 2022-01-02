@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collection;
@@ -81,6 +82,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.inject.Provider;
 
@@ -1032,7 +1034,55 @@ public class StandardBeanFactory
           String beanName, BeanDefinition definition,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
     resolveBeanClass(definition);
+
+    if (definition.isFactoryMethodUnique && definition.factoryMethodToIntrospect == null) {
+      resolveFactoryMethodIfPossible(definition);
+    }
+
     return resolver.isAutowireCandidate(definition, descriptor);
+  }
+
+  /**
+   * Resolve the factory method in the specified bean definition, if possible.
+   * {@link BeanDefinition#getResolvedFactoryMethod()} can be checked for the result.
+   *
+   * @param mbd the bean definition to check
+   */
+  public void resolveFactoryMethodIfPossible(BeanDefinition mbd) {
+    Class<?> factoryClass;
+    boolean isStatic;
+    if (mbd.getFactoryBeanName() != null) {
+      factoryClass = getType(mbd.getFactoryBeanName());
+      isStatic = false;
+    }
+    else {
+      factoryClass = mbd.getBeanClass();
+      isStatic = true;
+    }
+    Assert.state(factoryClass != null, "Unresolvable factory class");
+    factoryClass = ClassUtils.getUserClass(factoryClass);
+
+    Method[] candidates = ReflectionUtils.getAllDeclaredMethods(factoryClass);
+    Method uniqueCandidate = null;
+    for (Method candidate : candidates) {
+      if (Modifier.isStatic(candidate.getModifiers()) == isStatic && mbd.isFactoryMethod(candidate)) {
+        if (uniqueCandidate == null) {
+          uniqueCandidate = candidate;
+        }
+        else if (isParamMismatch(uniqueCandidate, candidate)) {
+          uniqueCandidate = null;
+          break;
+        }
+      }
+    }
+    mbd.factoryMethodToIntrospect = uniqueCandidate;
+  }
+
+  private boolean isParamMismatch(Method uniqueCandidate, Method candidate) {
+    int uniqueCandidateParameterCount = uniqueCandidate.getParameterCount();
+    int candidateParameterCount = candidate.getParameterCount();
+    return (uniqueCandidateParameterCount != candidateParameterCount ||
+            !Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes()));
   }
 
   @Nullable

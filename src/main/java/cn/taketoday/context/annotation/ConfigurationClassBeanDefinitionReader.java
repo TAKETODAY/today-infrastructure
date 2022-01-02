@@ -192,12 +192,12 @@ class ConfigurationClassBeanDefinitionReader {
       else {
         beanDef.setBeanClassName(configClass.getMetadata().getClassName());
       }
-      beanDef.setFactoryMethodName(methodName);
+      beanDef.setUniqueFactoryMethodName(methodName);
     }
     else {
       // instance @Component method
       beanDef.setFactoryBeanName(configClass.getBeanName());
-      beanDef.setFactoryMethodName(methodName);
+      beanDef.setUniqueFactoryMethodName(methodName);
     }
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef);
@@ -238,12 +238,20 @@ class ConfigurationClassBeanDefinitionReader {
     // However, if the bean method is an overloaded case on the same configuration class,
     // preserve the existing bean definition.
     if (existingBeanDef instanceof ConfigBeanDefinition ccbd) {
-      return ccbd.getMetadata().getClassName().equals(
-              componentMethod.getConfigurationClass().getMetadata().getClassName());
+      if (ccbd.getMetadata().getClassName().equals(
+              componentMethod.getConfigurationClass().getMetadata().getClassName())) {
+        if (ccbd.getFactoryMethodMetadata().getMethodName().equals(ccbd.getFactoryMethodName())) {
+          ccbd.setNonUniqueFactoryMethodName(ccbd.getFactoryMethodMetadata().getMethodName());
+        }
+        return true;
+      }
+      else {
+        return false;
+      }
     }
 
     // A bean definition resulting from a component scan can be silently overridden
-    // by an @Bean method
+    // by an @Component method
     if (existingBeanDef instanceof ScannedBeanDefinition) {
       return false;
     }

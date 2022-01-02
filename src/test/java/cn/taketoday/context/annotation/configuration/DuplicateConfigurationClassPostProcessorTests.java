@@ -23,10 +23,12 @@ package cn.taketoday.context.annotation.configuration;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 
 /**
  * Corners the bug originally reported by SPR-8824, where the presence of two
@@ -42,6 +44,9 @@ public class DuplicateConfigurationClassPostProcessorTests {
   @Test
   public void repro() {
     DefaultApplicationContext ctx = new DefaultApplicationContext();
+    StandardBeanFactory beanFactory = ctx.getBeanFactory();
+    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, ctx);
+    beanFactory.registerSingleton(loadingContext);
     ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class));
     ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class));
     ctx.registerBeanDefinition("myConfig", new BeanDefinition(Config.class));

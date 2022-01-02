@@ -33,16 +33,16 @@ import cn.taketoday.beans.factory.annotation.Value;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
- * A configuration class that registers a non-static placeholder configurer {@code @Bean}
+ * A configuration class that registers a non-static placeholder configurer {@code @Component}
  * method cannot also have {@code @Value} fields. Logically, the config class must be
  * instantiated in order to invoke the placeholder configurer bean method, and it is a
  * chicken-and-egg problem to process the {@code @Value} field.
  *
  * <p>Therefore, placeholder configurer bean methods should either be {@code static} or
  * put in separate configuration classes as has been done in the tests below. Simply said,
- * placeholder configurer {@code @Bean} methods and {@code @Value} fields in the same
+ * placeholder configurer {@code @Component} methods and {@code @Value} fields in the same
  * configuration class are mutually exclusive unless the placeholder configurer
- * {@code @Bean} method is {@code static}.
+ * {@code @Component} method is {@code static}.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
@@ -58,7 +58,7 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
    * <p>One solution is to do as {@link #valueFieldsAreProcessedWhenPlaceholderConfigurerIsSegregated()}
    * does and segregate the two bean definitions across configuration classes.
    *
-   * <p>Another solution is to simply make the {@code @Bean} method for the property
+   * <p>Another solution is to simply make the {@code @Component} method for the property
    * placeholder {@code static} as in
    * {@link #valueFieldsAreProcessedWhenStaticPlaceholderConfigurerIsIntegrated()}.
    */

@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.lang.NonNull;
 
 /**
  * @author TODAY 2021/11/1 12:55
@@ -42,6 +43,12 @@ public class ConfigBeanDefinition extends AnnotatedBeanDefinition {
     return super.isFactoryMethod(candidate)
             && BeanAnnotationHelper.isBeanAnnotated(candidate)
             && BeanAnnotationHelper.determineBeanNameFor(candidate).equals(getBeanName());
+  }
+
+  @NonNull
+  @Override
+  public MethodMetadata getFactoryMethodMetadata() {
+    return super.getFactoryMethodMetadata();
   }
 
   @Override

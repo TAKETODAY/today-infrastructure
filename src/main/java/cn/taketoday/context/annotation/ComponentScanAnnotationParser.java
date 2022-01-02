@@ -91,9 +91,6 @@ class ComponentScanAnnotationParser {
       }
     }
 
-//    Class<BeanDefinitionLoadingStrategy>[] strategies = componentScan.getClassArray("loadingStrategies");
-    //scanner.addLoadingStrategies(strategies); // FIXME
-
     boolean lazyInit = componentScan.getBoolean("lazyInit");
     if (lazyInit) {
       scanner.getBeanDefinitionDefaults().setLazyInit(true);

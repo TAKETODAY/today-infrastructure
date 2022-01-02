@@ -67,7 +67,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   @Override
   public void resolveDependency(
           DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
-
+    resolvingContext.setDependency(null);
     resolvingContext.setDependencyResolved(false);
     for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
       resolvingStrategy.resolveDependency(descriptor, resolvingContext);

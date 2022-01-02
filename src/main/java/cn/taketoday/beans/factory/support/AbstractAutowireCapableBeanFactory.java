@@ -62,6 +62,7 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Component;
@@ -655,6 +656,9 @@ public abstract class AbstractAutowireCapableBeanFactory
         // use a suitable constructor
         Class<?> beanClass = resolveBeanClass(definition);
         Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
+        if (constructor == null) {
+          throw new ConstructorNotFoundException(beanClass);
+        }
         if (definition.isSingleton()) {
           // use java-reflect invoking
           definition.instantiator = BeanInstantiator.fromReflective(constructor);
@@ -1131,7 +1135,9 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public void preInstantiateSingletons() {
-    log.debug("Initialization of singleton objects.");
+    if (log.isTraceEnabled()) {
+      log.trace("Pre-instantiating singletons in {}", this);
+    }
     // Iterate over a copy to allow for init methods which in turn register new bean definitions.
     // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 
