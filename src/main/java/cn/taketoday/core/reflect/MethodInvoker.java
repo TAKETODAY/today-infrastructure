@@ -136,9 +136,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   }
 
   public static MethodInvoker formReflective(Method method) {
-    Assert.notNull(method, "method must not be null");
+    return formReflective(method, true);
+  }
+
+  public static MethodInvoker formReflective(Method method, boolean handleReflectionException) {
+    Assert.notNull(method, "Method is required");
     ReflectionUtils.makeAccessible(method);
-    return new ReflectiveMethodAccessor(method);
+    return new ReflectiveMethodAccessor(method, handleReflectionException);
   }
 
   // MethodInvoker object generator

@@ -21,6 +21,7 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -30,13 +31,25 @@ import cn.taketoday.util.ReflectionUtils;
  */
 final class ReflectiveMethodAccessor extends MethodInvoker implements MethodAccessor {
 
-  ReflectiveMethodAccessor(final Method method) {
+  // @since 4.0
+  private final boolean handleReflectionException;
+
+  ReflectiveMethodAccessor(final Method method, boolean handleReflectionException) {
     super(method);
+    this.handleReflectionException = handleReflectionException;
   }
 
   @Override
   public Object invoke(final Object obj, final Object[] args) {
-    return ReflectionUtils.invokeMethod(getMethod(), obj, args);
+    try {
+      return getMethod().invoke(obj, args);
+    }
+    catch (Exception e) {
+      if (handleReflectionException) {
+        ReflectionUtils.handleReflectionException(e);
+      }
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
 }
