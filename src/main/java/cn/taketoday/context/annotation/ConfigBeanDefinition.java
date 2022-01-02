@@ -24,10 +24,8 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
-import cn.taketoday.core.type.StandardMethodMetadata;
 
 /**
  * @author TODAY 2021/11/1 12:55
@@ -40,42 +38,10 @@ public class ConfigBeanDefinition extends AnnotatedBeanDefinition {
   }
 
   @Override
-  public boolean isFactoryMethod(Method method) {
-    return super.isFactoryMethod(method)
-            && isFactoryMethodInternal(method);
-  }
-
-  private boolean isFactoryMethodInternal(Method method) {
-    MethodMetadata metadata = getFactoryMethodMetadata();
-    return metadata != null
-            && method.getReturnType().getName().equals(metadata.getReturnTypeName())
-            && isArgumentsEquals(method, metadata);
-  }
-
-  private boolean isArgumentsEquals(Method method, MethodMetadata metadata) {
-    int parameterCount = method.getParameterCount();
-    if (parameterCount != metadata.getParameterCount()) {
-      return false;
-    }
-
-    Class<?>[] parameterTypes = method.getParameterTypes();
-    if (metadata instanceof StandardMethodMetadata) {
-      Class<?>[] metadataArgTypes = metadata.getParameterTypes();
-      for (int i = 0; i < parameterTypes.length; i++) {
-        if (parameterTypes[i] != metadataArgTypes[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    Type[] argumentTypes = metadata.getArgumentTypes();
-    for (int i = 0; i < parameterTypes.length; i++) {
-      if (!Type.fromClass(parameterTypes[i]).equals(argumentTypes[i])) {
-        return false;
-      }
-    }
-    return true;
+  public boolean isFactoryMethod(Method candidate) {
+    return super.isFactoryMethod(candidate)
+            && BeanAnnotationHelper.isBeanAnnotated(candidate)
+            && BeanAnnotationHelper.determineBeanNameFor(candidate).equals(getBeanName());
   }
 
   @Override
