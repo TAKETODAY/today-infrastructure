@@ -24,8 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -57,7 +57,9 @@ public class ImportTests {
   }
 
   private StandardBeanFactory processConfigurationClasses(Class<?>... classes) {
-    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    StandardApplicationContext context = new StandardApplicationContext();
+    StandardBeanFactory beanFactory = context.getBeanFactory();
+    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, context);
     for (Class<?> clazz : classes) {
       beanFactory.registerBeanDefinition(clazz.getSimpleName(), new BeanDefinition(clazz));
     }
@@ -80,7 +82,6 @@ public class ImportTests {
   public void testProcessImportsWithAsm() {
     int configClasses = 2;
     int beansInClasses = 2;
-    StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("config", new BeanDefinition(ConfigurationWithImportAnnotation.class.getName()));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
     pp.postProcessBeanFactory(beanFactory);

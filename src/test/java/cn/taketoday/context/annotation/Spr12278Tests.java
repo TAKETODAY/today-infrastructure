@@ -24,6 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -59,9 +60,9 @@ public class Spr12278Tests {
 
   @Test
   public void componentTwoSpecificConstructorsNoHint() {
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    new StandardApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
-            .withMessageContaining(NoSuchMethodException.class.getName());
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(() -> new StandardApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
+            .havingCause().isInstanceOf(BeanCreationException.class);
   }
 
   @Configuration

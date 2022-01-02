@@ -28,15 +28,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 import jakarta.annotation.PreDestroy;
@@ -113,23 +114,25 @@ class ImportTests {
 
   }
 
-  static class AopSelector implements AnnotationImportSelector<EnableAop> {
+  static class AopSelector implements AnnotationImportSelector<EnableAop>, BeanFactoryAware {
 
     private EnableAop enableAop;
     private AnnotationMetadata annotatedMetadata;
-
-    @Autowired
-    private ApplicationContext context;
+    SingletonBeanRegistry registry;
 
     @Nullable
     @Override
     public String[] selectImports(EnableAop target, AnnotationMetadata annotatedMetadata) {
       this.enableAop = target;
       this.annotatedMetadata = annotatedMetadata;
-      this.context.unwrapFactory(SingletonBeanRegistry.class).registerSingleton(this);
+      registry.registerSingleton(this);
       return NO_IMPORTS;
     }
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+      registry = beanFactory.unwrap(SingletonBeanRegistry.class);
+    }
   }
 
   @EnableAop(proxyTargetClass = true)
