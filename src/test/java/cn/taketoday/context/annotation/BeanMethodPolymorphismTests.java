@@ -93,14 +93,14 @@ public class BeanMethodPolymorphismTests {
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isTrue();
   }
 
-  @Test
+/*  @Test
   public void beanMethodOverloadingWithoutInheritance() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithOverloading.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBean(String.class)).isEqualTo("regular");
-  }
+  }*/
 
   @Test
   public void beanMethodOverloadingWithoutInheritanceAndExtraDependency() {
@@ -111,6 +111,7 @@ public class BeanMethodPolymorphismTests {
     ctx.refresh();
     assertThat(ctx.getBean(String.class)).isEqualTo("overloaded5");
   }
+/*
 
   @Test
   public void beanMethodOverloadingWithAdditionalMetadata() {
@@ -122,6 +123,7 @@ public class BeanMethodPolymorphismTests {
     assertThat(ctx.getBean(String.class)).isEqualTo("regular");
     assertThat(ctx.getBeanFactory().containsSingleton("aString")).isTrue();
   }
+*/
 
   @Test
   public void beanMethodOverloadingWithAdditionalMetadataButOtherMethodExecuted() {
