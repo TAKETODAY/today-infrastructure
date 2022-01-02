@@ -874,7 +874,7 @@ public abstract class AbstractBeanFactory
       return null;
     }
     if (candidates.size() > 1) {
-      candidates.sort((o1, o2) -> {
+      candidates.sort((o2, o1) -> {
         // static first, parameter
         int result = Boolean.compare(Modifier.isPublic(o1.getModifiers()), Modifier.isPublic(o2.getModifiers()));
         if (result == 0) {
