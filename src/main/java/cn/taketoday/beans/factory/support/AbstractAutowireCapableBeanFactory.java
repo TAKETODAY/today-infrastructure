@@ -690,10 +690,25 @@ public abstract class AbstractAutowireCapableBeanFactory
           // provide fast access the method
           definition.instantiator = BeanInstantiator.fromConstructor(constructor);
         }
-        definition.executable = constructor;
+        definition.executable = getUserDeclaredConstructor(constructor);
       }
     }
     return definition.instantiator;
+  }
+
+  protected Constructor<?> getUserDeclaredConstructor(Constructor<?> constructor) {
+    Class<?> declaringClass = constructor.getDeclaringClass();
+    Class<?> userClass = ClassUtils.getUserClass(declaringClass);
+    if (userClass != declaringClass) {
+      try {
+        return userClass.getDeclaredConstructor(constructor.getParameterTypes());
+      }
+      catch (NoSuchMethodException ex) {
+        // No equivalent constructor on user class (superclass)...
+        // Let's proceed with the given constructor as we usually would.
+      }
+    }
+    return constructor;
   }
 
   private MethodInvoker determineMethodInvoker(BeanDefinition definition, Method factoryMethod) {
@@ -941,7 +956,9 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (factoryMethod != null) {
         def.executable = factoryMethod;
       }
-      return null;
+      else {
+        return null;
+      }
     }
 
     // Common return type found: all factory methods return same type. For a non-parameterized
@@ -1170,7 +1187,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       BeanDefinition def = obtainLocalBeanDefinition(beanName);
       // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isLazyInit()) {
-        if (isFactoryBean(def)) {
+        if (isFactoryBean(beanName)) {
           Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
           if (bean instanceof SmartFactoryBean smartFactory && smartFactory.isEagerInit()) {
             getBean(beanName);
