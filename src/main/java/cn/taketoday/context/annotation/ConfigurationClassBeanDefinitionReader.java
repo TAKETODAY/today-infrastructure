@@ -27,13 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -65,6 +66,7 @@ class ConfigurationClassBeanDefinitionReader {
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
 
   private final ImportRegistry importRegistry;
+  private final BeanNamePopulator beanNamePopulator;
   private final DefinitionLoadingContext loadingContext;
 
   /**
@@ -72,10 +74,11 @@ class ConfigurationClassBeanDefinitionReader {
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
   ConfigurationClassBeanDefinitionReader(
-          DefinitionLoadingContext loadingContext, ImportRegistry importRegistry) {
+          DefinitionLoadingContext loadingContext, BeanNamePopulator beanNamePopulator, ImportRegistry importRegistry) {
 
     this.loadingContext = loadingContext;
     this.importRegistry = importRegistry;
+    this.beanNamePopulator = beanNamePopulator;
   }
 
   /**
@@ -122,7 +125,8 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
 
-    String configBeanName = loadingContext.populateName(configBeanDef);
+    String configBeanName = beanNamePopulator.populateName(configBeanDef, loadingContext.getRegistry());
+
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
     loadingContext.registerBeanDefinition(configBeanName, configBeanDef);

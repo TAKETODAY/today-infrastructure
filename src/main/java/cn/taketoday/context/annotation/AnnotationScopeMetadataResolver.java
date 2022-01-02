@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -51,7 +52,14 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
   public ScopeMetadata resolveScopeMetadata(BeanDefinition definition) {
     ScopeMetadata metadata = new ScopeMetadata();
     if (definition instanceof AnnotatedBeanDefinition annDef) {
-      MergedAnnotation<? extends Annotation> annotation = annDef.getMetadata().getAnnotation(scopeAnnotationType);
+      MethodMetadata factoryMethodMetadata = annDef.getFactoryMethodMetadata();
+      MergedAnnotation<? extends Annotation> annotation;
+      if (factoryMethodMetadata != null) {
+        annotation = factoryMethodMetadata.getAnnotation(scopeAnnotationType);
+      }
+      else {
+        annotation = annDef.getMetadata().getAnnotation(scopeAnnotationType);
+      }
       if (annotation.isPresent()) {
         metadata.setScopeName(annotation.getStringValue());
       }

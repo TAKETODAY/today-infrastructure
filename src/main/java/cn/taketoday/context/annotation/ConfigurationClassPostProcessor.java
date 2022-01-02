@@ -30,19 +30,19 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.aop.proxy.ProxyUtils;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
@@ -93,6 +93,9 @@ public class ConfigurationClassPostProcessor
   @Nullable
   private ConfigurationClassBeanDefinitionReader reader;
 
+  /* Using fully qualified class names as default bean names by default. */
+  private BeanNamePopulator importBeanNamePopulator = IMPORT_BEAN_NAME_GENERATOR;
+
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   public ConfigurationClassPostProcessor(DefinitionLoadingContext loadingContext) {
@@ -133,6 +136,7 @@ public class ConfigurationClassPostProcessor
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator must not be null");
     loadingContext.setBeanNamePopulator(beanNamePopulator);
+    this.importBeanNamePopulator = beanNamePopulator;
   }
 
   @Override
@@ -233,7 +237,8 @@ public class ConfigurationClassPostProcessor
 
       // Read the model and create bean definitions based on its content
       if (this.reader == null) {
-        this.reader = new ConfigurationClassBeanDefinitionReader(loadingContext, parser.getImportRegistry());
+        this.reader = new ConfigurationClassBeanDefinitionReader(
+                loadingContext, importBeanNamePopulator, parser.getImportRegistry());
       }
       this.reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);

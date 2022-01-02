@@ -156,7 +156,9 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   }
 
   public void registerBeanDefinition(String beanName, BeanDefinition definition) {
-    definition.setScope(resolveScopeName(definition));
+    if (definition.getScope() == null) {
+      definition.setScope(resolveScopeName(definition));
+    }
 
     if (CollectionUtils.isNotEmpty(customizers)) {
       for (BeanDefinitionCustomizer definitionCustomizer : customizers) {

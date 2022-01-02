@@ -45,6 +45,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanNameAware;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -642,8 +643,9 @@ public abstract class AbstractAutowireCapableBeanFactory
         }
         else {
           // this is not a FactoryBean just a factory
-          Object factoryBean = getBean(factoryBeanName); // lazy get bean ?
-          definition.instantiator = BeanInstantiator.fromMethod(factoryMethodInvoker, factoryBean);
+          definition.instantiator = BeanInstantiator.fromMethod(
+                  factoryMethodInvoker, BeanSupplier.from(this, factoryBeanName)
+          );
         }
         definition.setResolvedFactoryMethod(factoryMethod);
         definition.executable = factoryMethod;

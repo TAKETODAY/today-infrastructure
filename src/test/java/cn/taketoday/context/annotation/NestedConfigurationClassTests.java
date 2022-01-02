@@ -22,6 +22,8 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.lang.Component;
@@ -67,8 +69,8 @@ public class NestedConfigurationClassTests {
     ctx.getBean("l0Bean");
 
     assertThat(ctx.getBeanFactory().containsSingleton(L0Config.L1Config.class.getName())).isTrue();
-    ctx.getBean(L0Config.L1Config.class);
-    ctx.getBean("l1Bean");
+    L0Config.L1Config bean = ctx.getBean(L0Config.L1Config.class);
+    Object l1Bean = ctx.getBean("l1Bean");
 
     assertThat(ctx.getBeanFactory().containsSingleton(L0Config.L1Config.L2Config.class.getName())).isFalse();
     ctx.getBean(L0Config.L1Config.L2Config.class);
@@ -137,7 +139,8 @@ public class NestedConfigurationClassTests {
     S1Config config = ctx.getBean(S1Config.class);
     assertThat(config != ctx.getBean(S1Config.class)).isTrue();
     TestBean tb = ctx.getBean("l0Bean", TestBean.class);
-    assertThat(tb == ctx.getBean("l0Bean", TestBean.class)).isTrue();
+    TestBean l0Bean = ctx.getBean("l0Bean", TestBean.class);
+    assertThat(tb == l0Bean).isTrue();
 
     ctx.getBean(L0Config.L1Config.class);
     ctx.getBean("l1Bean");
@@ -153,7 +156,9 @@ public class NestedConfigurationClassTests {
     TestBean pb1 = ctx.getBean("prototypeBean", TestBean.class);
     TestBean pb2 = ctx.getBean("prototypeBean", TestBean.class);
     assertThat(pb1 != pb2).isTrue();
-    assertThat(pb1.getFriends().iterator().next() != pb2.getFriends().iterator().next()).isTrue();
+    Collection<? super Object> friends = pb1.getFriends();
+    Collection<? super Object> friends1 = pb2.getFriends();
+    assertThat(friends.iterator().next() != friends1.iterator().next()).isTrue();
   }
 
   @Test
@@ -163,7 +168,7 @@ public class NestedConfigurationClassTests {
     ctx.refresh();
 
     S1ConfigWithProxy config = ctx.getBean(S1ConfigWithProxy.class);
-    assertThat(config == ctx.getBean(S1ConfigWithProxy.class)).isTrue();
+    assertThat(config != ctx.getBean(S1ConfigWithProxy.class)).isTrue();
     TestBean tb = ctx.getBean("l0Bean", TestBean.class);
     assertThat(tb == ctx.getBean("l0Bean", TestBean.class)).isTrue();
 
@@ -201,7 +206,7 @@ public class NestedConfigurationClassTests {
 
     Object l2i1 = ctx.getBean(L0ConfigEmpty.L1ConfigEmpty.L2ConfigEmpty.class);
     Object l2i2 = ctx.getBean(L0ConfigEmpty.L1ConfigEmpty.L2ConfigEmpty.class);
-    assertThat(l2i1 == l2i2).isTrue();
+    assertThat(l2i1 != l2i2).isTrue();
     assertThat(l2i2.toString()).isNotEqualTo(l2i1.toString());
   }
 
@@ -222,7 +227,7 @@ public class NestedConfigurationClassTests {
 
     Object l2i1 = ctx.getBean(L0ConfigConcrete.L1ConfigEmpty.L2ConfigEmpty.class);
     Object l2i2 = ctx.getBean(L0ConfigConcrete.L1ConfigEmpty.L2ConfigEmpty.class);
-    assertThat(l2i1 == l2i2).isTrue();
+    assertThat(l2i1 != l2i2).isTrue();
     assertThat(l2i2.toString()).isNotEqualTo(l2i1.toString());
   }
 

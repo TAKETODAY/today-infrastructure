@@ -124,7 +124,9 @@ public class BeanDefinition
   /** bean class. */
   private Object beanClass;
   /** bean scope. */
-  private String scope = SCOPE_SINGLETON;
+
+  @Nullable
+  private String scope;
 
   /**
    * Invoke before {@link InitializingBean#afterPropertiesSet}
@@ -571,7 +573,7 @@ public class BeanDefinition
    * @see Scope#PROTOTYPE
    * @see Scope#SINGLETON
    */
-  public void setScope(String scope) {
+  public void setScope(@Nullable String scope) {
     this.scope = scope;
   }
 
