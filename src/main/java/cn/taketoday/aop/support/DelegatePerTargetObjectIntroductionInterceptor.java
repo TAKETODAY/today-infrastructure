@@ -22,11 +22,12 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.util.Map;
+import java.io.Serial;
 import java.util.WeakHashMap;
 
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
+import cn.taketoday.aop.proxy.AbstractMethodInvocation;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -56,15 +57,16 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class DelegatePerTargetObjectIntroductionInterceptor
         extends IntroductionInfoSupport implements IntroductionInterceptor {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**
    * Hold weak references to keys as we don't want to interfere with garbage collection..
    */
-  private final Map<Object, Object> delegateMap = new WeakHashMap<>();
+  private final WeakHashMap<Object, Object> delegateMap = new WeakHashMap<>();
 
-  private Class<?> interfaceType;
-  private Class<?> defaultImplType;
+  private final Class<?> interfaceType;
+  private final Class<?> defaultImplType;
 
   public DelegatePerTargetObjectIntroductionInterceptor(Class<?> defaultImplType, Class<?> interfaceType) {
     this.interfaceType = interfaceType;
@@ -92,17 +94,15 @@ public class DelegatePerTargetObjectIntroductionInterceptor
       // Using the following method rather than direct reflection,
       // we get correct handling of InvocationTargetException
       // if the introduced method throws an exception.
+
+      Object retVal = AopUtils.invokeJoinpointUsingReflection(delegate, mi.getMethod(), mi.getArguments());
+
       // Massage return value if possible: if the delegate returned itself,
       // we really want to return the proxy.
-
-//      if (retVal == this.delegate && mi instanceof ProxyMethodInvocation) {
-//        Object proxy = ((ProxyMethodInvocation) mi).getProxy();
-//        if (mi.getMethod().getReturnType().isInstance(proxy)) {
-//          retVal = proxy;
-//        }
-//      }
-
-      return AopUtils.invokeJoinpointUsingReflection(delegate, mi.getMethod(), mi.getArguments());
+      if (retVal == delegate && mi instanceof AbstractMethodInvocation) {
+        retVal = ((AbstractMethodInvocation) mi).getProxy();
+      }
+      return retVal;
     }
 
     return doProceed(mi);

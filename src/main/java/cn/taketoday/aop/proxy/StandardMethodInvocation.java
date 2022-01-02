@@ -33,6 +33,7 @@ import java.util.Objects;
 public class StandardMethodInvocation
         extends AbstractMethodInvocation implements MethodInvocation {
 
+  private final Object proxy;
   protected Object[] args;
   protected final Object bean;
   protected final TargetInvocation target;
@@ -42,7 +43,8 @@ public class StandardMethodInvocation
    */
   protected int currentAdviceIndex = 0;
 
-  public StandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments) {
+  public StandardMethodInvocation(Object proxy, Object bean, TargetInvocation target, Object[] arguments) {
+    this.proxy = proxy;
     this.bean = bean;
     this.target = target;
     this.args = arguments;
@@ -66,6 +68,11 @@ public class StandardMethodInvocation
   @Override
   public Class<?> getTargetClass() {
     return target.getTargetClass();
+  }
+
+  @Override
+  public Object getProxy() {
+    return proxy;
   }
 
   @Override

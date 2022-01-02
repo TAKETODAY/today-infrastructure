@@ -34,6 +34,7 @@ import cn.taketoday.aop.support.AopUtils;
  * 2018-11-10 13:14
  */
 public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
+  private final Object proxy;
 
   protected Object[] args;
   protected final Object target;
@@ -48,15 +49,16 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
 
   private final int adviceLength;
 
-  public DefaultMethodInvocation(Method method, Class<?> targetClass, Object[] arguments) {
-    this(null, method, targetClass, arguments, null);
+  public DefaultMethodInvocation(Object proxy, Method method, Class<?> targetClass, Object[] arguments) {
+    this(proxy, null, method, targetClass, arguments, null);
   }
 
-  public DefaultMethodInvocation(Object target,
+  public DefaultMethodInvocation(Object proxy, Object target,
                                  Method method,
                                  Class<?> targetClass,
                                  Object[] arguments,
                                  MethodInterceptor[] advices) {
+    this.proxy = proxy;
     this.target = target;
     this.method = method;
     this.targetClass = targetClass;
@@ -82,6 +84,11 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   @Override
   protected void setArguments(Object[] arguments) {
     args = arguments;
+  }
+
+  @Override
+  public Object getProxy() {
+    return proxy;
   }
 
   @Override
@@ -118,11 +125,10 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof DefaultMethodInvocation))
+    if (!(o instanceof final DefaultMethodInvocation that))
       return false;
     if (!super.equals(o))
       return false;
-    final DefaultMethodInvocation that = (DefaultMethodInvocation) o;
     return currentAdviceIndex == that.currentAdviceIndex
             && adviceLength == that.adviceLength
             && Arrays.equals(args, that.args)
@@ -141,14 +147,16 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
 
   @Override
   public String toString() {
-    return new StringBuilder()//
-            .append("{\n\t\"target\":\"").append(target)//
-            .append("\",\n\t\"method\":\"").append(method)//
-            .append("\",\n\t\"arguments\":\"").append(Arrays.toString(args))//
-            .append("\",\n\t\"advices\":\"").append(Arrays.toString(advices))//
-            .append("\",\n\t\"currentAdviceIndex\":\"").append(currentAdviceIndex)//
-            .append("\"\n}")//
-            .toString();
+    // Don't do toString on target, it may be proxied.
+    StringBuilder sb = new StringBuilder("DefaultMethodInvocation: ");
+    sb.append(this.method).append("; ");
+    if (this.target == null) {
+      sb.append("target is null");
+    }
+    else {
+      sb.append("target is of class [").append(this.target.getClass().getName()).append(']');
+    }
+    return sb.toString();
   }
 
 }

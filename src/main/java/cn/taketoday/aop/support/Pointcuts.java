@@ -22,6 +22,7 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
@@ -118,7 +119,7 @@ public abstract class Pointcuts {
       MethodMatcher mm = pointcut.getMethodMatcher();
       if (mm.matches(method, targetClass)) {
         // We may need additional runtime (argument) check.
-        return (!mm.isRuntime() || mm.matches(new DefaultMethodInvocation(method, targetClass, args)));
+        return (!mm.isRuntime() || mm.matches(new DefaultMethodInvocation(null, method, targetClass, args)));
       }
     }
     return false;
@@ -129,6 +130,7 @@ public abstract class Pointcuts {
    */
   static class SetterPointcut
           extends StaticMethodMatcherPointcut implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public static final SetterPointcut INSTANCE = new SetterPointcut();
@@ -140,6 +142,7 @@ public abstract class Pointcuts {
               && method.getReturnType() == Void.TYPE;
     }
 
+    @Serial
     private Object readResolve() {
       return INSTANCE;
     }
@@ -155,6 +158,7 @@ public abstract class Pointcuts {
    */
   static class GetterPointcut
           extends StaticMethodMatcherPointcut implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public static final GetterPointcut INSTANCE = new GetterPointcut();
@@ -164,6 +168,7 @@ public abstract class Pointcuts {
       return (method.getName().startsWith("get") && method.getParameterCount() == 0);
     }
 
+    @Serial
     private Object readResolve() {
       return INSTANCE;
     }

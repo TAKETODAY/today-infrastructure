@@ -56,31 +56,38 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
   static {
     try {
-      final Class<StandardProxyInvoker> aClass = StandardProxyInvoker.class;
+      Class<StandardProxyInvoker> aClass = StandardProxyInvoker.class;
       proceed = MethodSignature.from(aClass.getMethod("proceed",
-                                                      Object.class,
-                                                      TargetInvocation.class,
-                                                      Object[].class));
+              Object.class,
+              Object.class,
+              TargetInvocation.class,
+              Object[].class)
+      );
       dynamicProceed = MethodSignature.from(aClass.getMethod("dynamicProceed",
-                                                             TargetSource.class,
-                                                             TargetInvocation.class,
-                                                             Object[].class));
+              Object.class,
+              TargetSource.class,
+              TargetInvocation.class,
+              Object[].class)
+      );
       dynamicExposeProceed = MethodSignature.from(aClass.getMethod("dynamicExposeProceed",
-                                                                   Object.class,
-                                                                   TargetSource.class,
-                                                                   TargetInvocation.class,
-                                                                   Object[].class));
+              Object.class,
+              TargetSource.class,
+              TargetInvocation.class,
+              Object[].class)
+      );
       staticExposeProceed = MethodSignature.from(aClass.getMethod("staticExposeProceed",
-                                                                  Object.class,
-                                                                  Object.class,
-                                                                  TargetInvocation.class,
-                                                                  Object[].class));
+              Object.class,
+              Object.class,
+              TargetInvocation.class,
+              Object[].class)
+      );
 
       dynamicAdvisedProceed = MethodSignature.from(aClass.getMethod("dynamicAdvisedProceed",
-                                                                    Object.class,
-                                                                    AdvisedSupport.class,
-                                                                    TargetInvocation.class,
-                                                                    Object[].class));
+              Object.class,
+              AdvisedSupport.class,
+              TargetInvocation.class,
+              Object[].class)
+      );
     }
     catch (NoSuchMethodException e) {
       throw new CodeGenerationException(e);
@@ -122,7 +129,7 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
     return true;
   }
 
-  void generateProxyMethod(Method method, String targetInvField, GeneratorContext context, CodeEmitter codeEmitter) {
+  protected void generateProxyMethod(Method method, String targetInvField, GeneratorContext context, CodeEmitter codeEmitter) {
     final AdvisedSupport config = context.getConfig();
     final boolean exposeProxy = config.isExposeProxy();
     final boolean isStatic = config.getTargetSource().isStatic();
@@ -130,10 +137,8 @@ public class DefaultProxyMethodGenerator implements ProxyMethodGenerator {
 
     if (opaque) {
       // cannot change interceptor chain
-      if (exposeProxy) {
-        // load proxy object: this
-        codeEmitter.loadThis();
-      }
+      // load proxy object: this
+      codeEmitter.loadThis();
       codeEmitter.loadThis();
       if (isStatic) {
         // Object target, Target targetInv, Object[] args

@@ -22,8 +22,11 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
+
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
+import cn.taketoday.aop.proxy.AbstractMethodInvocation;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -53,6 +56,7 @@ import cn.taketoday.lang.Assert;
  */
 public class DelegatingIntroductionInterceptor
         extends IntroductionInfoSupport implements IntroductionInterceptor {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**
@@ -110,15 +114,15 @@ public class DelegatingIntroductionInterceptor
 
       // Massage return value if possible: if the delegate returned itself,
       // we really want to return the proxy.
-      // TODO chain call
-//      if (retVal == this.delegate && mi instanceof ProxyMethodInvocation) {
-//        Object proxy = ((ProxyMethodInvocation) mi).getProxy();
-//        if (mi.getMethod().getReturnType().isInstance(proxy)) {
-//          retVal = proxy;
-//        }
-//      }
+      Object retVal = AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());
+      if (retVal == this.delegate && mi instanceof AbstractMethodInvocation invocation) {
+        Object proxy = invocation.getProxy();
+        if (mi.getMethod().getReturnType().isInstance(proxy)) {
+          retVal = proxy;
+        }
+      }
 
-      return AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());
+      return retVal;
     }
 
     return doProceed(mi);

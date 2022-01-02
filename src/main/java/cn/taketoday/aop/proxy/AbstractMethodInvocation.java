@@ -46,6 +46,13 @@ public abstract class AbstractMethodInvocation
         extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware, Cloneable {
 
   /**
+   * Return the proxy that this method invocation was made through.
+   *
+   * @return the original proxy object
+   */
+  public abstract Object getProxy();
+
+  /**
    * Basic logic. Proceeds to the next interceptor in the chain.
    * <p>
    * Subclasses can override this method to handle {@link Exception}

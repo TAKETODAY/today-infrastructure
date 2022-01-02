@@ -33,8 +33,9 @@ public final class DynamicStandardMethodInvocation
   private final int adviceLength;
   private final MethodInterceptor[] advices;
 
-  public DynamicStandardMethodInvocation(Object bean, TargetInvocation target, Object[] arguments, MethodInterceptor[] advices) {
-    super(bean, target, arguments);
+  public DynamicStandardMethodInvocation(
+          Object proxy, Object bean, TargetInvocation target, Object[] arguments, MethodInterceptor[] advices) {
+    super(proxy, bean, target, arguments);
     this.advices = advices;
     this.adviceLength = advices.length;
   }

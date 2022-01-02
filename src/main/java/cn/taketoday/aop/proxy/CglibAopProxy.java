@@ -439,7 +439,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      return new CglibMethodInvocation(target, method, targetClass, methodProxy, args, adviceChain).proceed();
+      return new CglibMethodInvocation(
+              proxy, target, method, targetClass, methodProxy, args, adviceChain).proceed();
     }
   }
 
@@ -482,7 +483,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         }
         else {
           // We need to create a CglibMethodInvocation...
-          retVal = new CglibMethodInvocation(target, method, targetClass, methodProxy, args, chain).proceed();
+          retVal = new CglibMethodInvocation(
+                  proxy, target, method, targetClass, methodProxy, args, chain).proceed();
         }
         return processReturnValue(proxy, target, method, retVal);
       }
@@ -538,10 +540,10 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   static class CglibMethodInvocation extends DefaultMethodInvocation {
     final MethodProxy proxy;
 
-    public CglibMethodInvocation(Object target, Method method, Class<?> targetClass,
+    public CglibMethodInvocation(Object proxyObject, Object target, Method method, Class<?> targetClass,
                                  MethodProxy proxy, Object[] arguments,
                                  org.aopalliance.intercept.MethodInterceptor[] advices) {
-      super(target, method, targetClass, arguments, advices);
+      super(proxyObject, target, method, targetClass, arguments, advices);
       this.proxy = proxy;
     }
 

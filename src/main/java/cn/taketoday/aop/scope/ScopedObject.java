@@ -32,7 +32,7 @@ import cn.taketoday.aop.RawTargetAccess;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see ScopedProxyFactoryBean
- * @since 2.0
+ * @since 4.0
  */
 public interface ScopedObject extends RawTargetAccess {
 

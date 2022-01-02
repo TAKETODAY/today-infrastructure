@@ -34,8 +34,8 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class StandardProxyInvoker {
 
-  public static Object proceed(Object target, TargetInvocation targetInv, Object[] args) throws Throwable {
-    return new StandardMethodInvocation(target, targetInv, args).proceed();
+  public static Object proceed(Object proxy, Object target, TargetInvocation targetInv, Object[] args) throws Throwable {
+    return new StandardMethodInvocation(proxy, target, targetInv, args).proceed();
   }
 
   public static Object staticExposeProceed(
@@ -43,7 +43,7 @@ public abstract class StandardProxyInvoker {
     Object oldProxy = null;
     try {
       oldProxy = AopContext.setCurrentProxy(proxy);
-      return proceed(target, targetInv, args);
+      return proceed(proxy, target, targetInv, args);
     }
     finally {
       AopContext.setCurrentProxy(oldProxy);
@@ -57,7 +57,7 @@ public abstract class StandardProxyInvoker {
     final Object target = targetSource.getTarget();
     try {
       oldProxy = AopContext.setCurrentProxy(proxy);
-      return proceed(target, targetInv, args);
+      return proceed(proxy, target, targetInv, args);
     }
     finally {
       AopContext.setCurrentProxy(oldProxy);
@@ -68,11 +68,11 @@ public abstract class StandardProxyInvoker {
   }
 
   public static Object dynamicProceed(
-          TargetSource targetSource, TargetInvocation targetInv, Object[] args) throws Throwable {
+          Object proxy, TargetSource targetSource, TargetInvocation targetInv, Object[] args) throws Throwable {
 
     final Object target = targetSource.getTarget();
     try {
-      return proceed(target, targetInv, args);
+      return proceed(proxy, target, targetInv, args);
     }
     finally {
       if (target != null && !targetSource.isStatic()) {
@@ -105,7 +105,8 @@ public abstract class StandardProxyInvoker {
       }
 
       // We need to create a DynamicStandardMethodInvocation...
-      final Object retVal = new DynamicStandardMethodInvocation(target, targetInv, args, interceptors).proceed();
+      final Object retVal = new DynamicStandardMethodInvocation(
+              proxy, target, targetInv, args, interceptors).proceed();
       assertReturnValue(retVal, targetInv.getMethod());
       return retVal;
     }
