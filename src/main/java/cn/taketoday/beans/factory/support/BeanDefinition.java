@@ -720,7 +720,6 @@ public class BeanDefinition
     setBeanName(from.getBeanName());
     setScope(from.getScope());
 
-    setBeanClass(from.getBeanClass());
     setFactoryBean(from.isFactoryBean());
     setDestroyMethod(from.getDestroyMethod());
     // copy
