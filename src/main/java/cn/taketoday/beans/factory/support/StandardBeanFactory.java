@@ -1033,12 +1033,18 @@ public class StandardBeanFactory
   protected boolean isAutowireCandidate(
           String beanName, BeanDefinition definition,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
-    resolveBeanClass(definition);
 
+    resolveBeanClass(definition);
     if (definition.isFactoryMethodUnique && definition.factoryMethodToIntrospect == null) {
       resolveFactoryMethodIfPossible(definition);
     }
 
+    String bdName = BeanFactoryUtils.transformedBeanName(beanName);
+    if (!beanName.equals(bdName)) {
+      definition = definition.cloneDefinition();
+      definition.setBeanName(beanName);
+      definition.setAliases(getAliases(bdName));
+    }
     return resolver.isAutowireCandidate(definition, descriptor);
   }
 
