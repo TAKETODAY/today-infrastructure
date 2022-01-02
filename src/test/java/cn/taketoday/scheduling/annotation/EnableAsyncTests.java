@@ -39,19 +39,19 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Component;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.scheduling.concurrent.CustomizableThreadFactory;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -189,7 +189,7 @@ public class EnableAsyncTests {
     @SuppressWarnings("resource")
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(AspectJAsyncAnnotationConfig.class);
-    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
+    assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(
             ctx::refresh);
   }
 

@@ -22,7 +22,6 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,6 +34,7 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
@@ -133,9 +133,9 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withUnresolvablePlaceholder() {
-    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
             .isThrownBy(() -> new StandardApplicationContext(ConfigWithUnresolvablePlaceholder.class))
-            .withCauseInstanceOf(IllegalArgumentException.class);
+            .withCauseInstanceOf(BeanDefinitionStoreException.class);
   }
 
   @Test
@@ -162,9 +162,9 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withEmptyResourceLocations() {
-    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
             .isThrownBy(() -> new StandardApplicationContext(ConfigWithEmptyResourceLocations.class))
-            .withCauseInstanceOf(IllegalArgumentException.class);
+            .withCauseInstanceOf(BeanDefinitionStoreException.class);
   }
 
   @Test
@@ -241,9 +241,9 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withMissingPropertySource() {
-    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
             .isThrownBy(() -> new StandardApplicationContext(ConfigWithMissingPropertySource.class))
-            .withCauseInstanceOf(FileNotFoundException.class);
+            .withCauseInstanceOf(BeanDefinitionStoreException.class);
   }
 
   @Test

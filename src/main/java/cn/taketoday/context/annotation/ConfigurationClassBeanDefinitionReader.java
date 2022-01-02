@@ -66,7 +66,7 @@ class ConfigurationClassBeanDefinitionReader {
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
 
   private final ImportRegistry importRegistry;
-  private final BeanNamePopulator beanNamePopulator;
+  private final BeanNamePopulator importBeanNameGenerator;
   private final DefinitionLoadingContext loadingContext;
 
   /**
@@ -74,11 +74,12 @@ class ConfigurationClassBeanDefinitionReader {
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
   ConfigurationClassBeanDefinitionReader(
-          DefinitionLoadingContext loadingContext, BeanNamePopulator beanNamePopulator, ImportRegistry importRegistry) {
+          DefinitionLoadingContext loadingContext,
+          BeanNamePopulator beanNamePopulator, ImportRegistry importRegistry) {
 
     this.loadingContext = loadingContext;
     this.importRegistry = importRegistry;
-    this.beanNamePopulator = beanNamePopulator;
+    this.importBeanNameGenerator = beanNamePopulator;
   }
 
   /**
@@ -125,7 +126,7 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
 
-    String configBeanName = beanNamePopulator.populateName(configBeanDef, loadingContext.getRegistry());
+    String configBeanName = importBeanNameGenerator.populateName(configBeanDef, loadingContext.getRegistry());
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
@@ -175,8 +176,7 @@ class ConfigurationClassBeanDefinitionReader {
     ConfigBeanDefinition beanDef = new ConfigBeanDefinition(metadata, configClass.getMetadata());
     boolean disableDependencyInjectionAll = configClass.getMetadata().isAnnotated(
             DisableAllDependencyInjection.class.getName());
-    boolean enableDependencyInjection = isEnableDependencyInjection(
-            annotations, disableDependencyInjectionAll);
+    boolean enableDependencyInjection = isEnableDependencyInjection(annotations, disableDependencyInjectionAll);
 
     beanDef.setBeanName(beanName);
     if (!names.isEmpty()) {

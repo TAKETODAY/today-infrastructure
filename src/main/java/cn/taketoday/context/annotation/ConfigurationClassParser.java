@@ -142,7 +142,7 @@ class ConfigurationClassParser {
         if (definition instanceof AnnotatedBeanDefinition) {
           parse(((AnnotatedBeanDefinition) definition).getMetadata(), definition.getBeanName());
         }
-        else if (definition != null && definition.hasBeanClass()) {
+        else if (definition.hasBeanClass()) {
           parse(definition.getBeanClass(), definition.getBeanName());
         }
         else {
@@ -394,11 +394,11 @@ class ConfigurationClassParser {
    */
   private void processPropertySource(MergedAnnotation<PropertySource> propertySource) {
     String name = propertySource.getString("name");
-    if (StringUtils.isNotEmpty(name)) {
+    if (!StringUtils.hasText(name)) {
       name = null;
     }
     String encoding = propertySource.getString("encoding");
-    if (StringUtils.isNotEmpty(encoding)) {
+    if (!StringUtils.hasText(encoding)) {
       encoding = null;
     }
     String[] locations = propertySource.getStringArray("value");

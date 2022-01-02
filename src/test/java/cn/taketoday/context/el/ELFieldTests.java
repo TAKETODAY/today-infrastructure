@@ -100,25 +100,4 @@ class ELFieldTests {
     }
   }
 
-  @Test
-  void defineBean() {
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-
-      User user = new User();
-      user.setAge(20)//
-              .setBrithday(new Date())//
-              .setId(1);
-
-      ExpressionEvaluator expressionEvaluator = applicationContext.getExpressionEvaluator();
-      expressionEvaluator.obtainProcessor().defineBean("user", user);
-
-      applicationContext.register(ELFieldTests.class);
-      applicationContext.refresh();
-
-      ELFieldTests bean = applicationContext.getBean(getClass());
-      System.err.println(bean);
-      assert bean.user == user;
-    }
-  }
-
 }

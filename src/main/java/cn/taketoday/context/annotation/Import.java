@@ -27,10 +27,29 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.loader.ImportSelector;
 
 /**
- * Import a Configuration,ImportSelector, BeanDefinitionImporter,ApplicationListener or a bean
+ * Indicates one or more <em>component classes</em> to import &mdash; typically
+ * {@link Configuration @Configuration} classes.
  *
+ * <p>Provides functionality equivalent to the Spring' {@code <import/>} element in beans XML.
+ * Allows for importing {@code @Configuration} classes, {@link ImportSelector} and
+ * {@link ImportBeanDefinitionRegistrar} implementations, as well as regular component
+ * classes (analogous to {@link cn.taketoday.context.StandardApplicationContext#register}).
+ *
+ * <p>{@code @Bean} definitions declared in imported {@code @Configuration} classes should be
+ * accessed by using {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}
+ * injection. Either the bean itself can be autowired, or the configuration class instance
+ * declaring the bean can be autowired. The latter approach allows for explicit, IDE-friendly
+ * navigation between {@code @Configuration} class methods.
+ *
+ * <p>May be declared at the class level or as a meta-annotation.
+ *
+ * @author Chris Beams
+ * @author Juergen Hoeller
  * @author TODAY <br>
  * 2019-10-01 17:27
+ * @see Configuration
+ * @see ImportSelector
+ * @see ImportBeanDefinitionRegistrar
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

@@ -34,6 +34,7 @@ import cn.taketoday.context.expression.ExpressionEvaluationException;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
@@ -64,7 +65,19 @@ public class ExpressionDependencyResolver extends AnnotationDependencyResolvingS
   public Object evaluate(ExpressionInfo expr) {
     String value = exprContext.getBeanFactory().resolveEmbeddedValue(expr.getExpression());
     if (!expr.isPlaceholderOnly() && exprResolver != null && value != null) {
-      return this.exprResolver.evaluate(value, this.exprContext);
+      try {
+        return exprResolver.evaluate(value, exprContext);
+      }
+      catch (ExpressionException e) {
+        if (expr.isRequired()) {
+          throw e;
+        }
+        String defaultValue = expr.getDefaultValue();
+        if (StringUtils.hasText(defaultValue)) {
+          return exprResolver.evaluate(defaultValue, exprContext);
+        }
+        return null;
+      }
     }
     return value;
   }
