@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -606,12 +607,34 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
 
-    // fix
+    // expose factory-method
     if (def.executable instanceof Method factoryMethod) {
       Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
       try {
         currentlyInvokedFactoryMethod.set(factoryMethod);
         return instantiator.instantiate(constructorArgs);
+      }
+      catch (BeanInstantiationException ex) {
+        // try to un-warp Instantiation Exception
+        Throwable cause = ex.getCause();
+        if (cause instanceof IllegalArgumentException argument) {
+          throw new BeanInstantiationException(factoryMethod,
+                  "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
+                          "args: " + StringUtils.arrayToString(constructorArgs), argument);
+        }
+        else if (cause instanceof IllegalAccessException illegalAccess) {
+          throw new BeanInstantiationException(factoryMethod,
+                  "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", illegalAccess);
+        }
+        else if (cause instanceof InvocationTargetException inv) {
+          String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
+          if (def.getFactoryBeanName() != null && isCurrentlyInCreation(def.getFactoryBeanName())) {
+            msg = "Circular reference involving containing bean '" + def.getFactoryBeanName() + "' - consider " +
+                    "declaring the factory method as static for independence from its containing instance. " + msg;
+          }
+          throw new BeanInstantiationException(factoryMethod, msg, inv.getTargetException());
+        }
+        throw ex;
       }
       finally {
         if (priorInvokedFactoryMethod != null) {
@@ -676,7 +699,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   private MethodInvoker determineMethodInvoker(BeanDefinition definition, Method factoryMethod) {
     if (definition.isSingleton()) {
       // use java-reflect invoking
-      return MethodInvoker.formReflective(factoryMethod);
+      return MethodInvoker.formReflective(factoryMethod, false);
     }
     else {
       // provide fast access the method

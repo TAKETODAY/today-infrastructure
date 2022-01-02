@@ -23,13 +23,13 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.SimpleAutowireCandidateResolver;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -116,8 +116,8 @@ public class GenericTypeAwareAutowireCandidateResolver
     if (cacheType) {
       definition.targetType = targetType;
     }
-    if (descriptor.fallbackMatchAllowed() &&
-            (targetType.hasUnresolvableGenerics() || targetType.resolve() == Properties.class)) {
+    if (descriptor.fallbackMatchAllowed()
+            && (targetType.hasUnresolvableGenerics() || targetType.resolve() == Properties.class)) {
       // Fallback matches allow unresolvable generics, e.g. plain HashMap to Map<String,String>;
       // and pragmatically also java.util.Properties to any Map (since despite formally being a
       // Map<Object,Object>, java.util.Properties is usually perceived as a Map<String,String>).

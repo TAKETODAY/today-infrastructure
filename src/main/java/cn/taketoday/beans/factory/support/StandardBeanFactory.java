@@ -1371,7 +1371,8 @@ public class StandardBeanFactory
       // Consider fallback matches if the first pass failed to find anything...
       DependencyDescriptor fallbackDescriptor = descriptor.forFallbackMatch();
       for (String candidate : candidateNames) {
-        if (!isSelfReference(beanName, candidate) && isAutowireCandidate(candidate, fallbackDescriptor)
+        if (!isSelfReference(beanName, candidate)
+                && isAutowireCandidate(candidate, fallbackDescriptor)
                 && (!multiple || getAutowireCandidateResolver().hasQualifier(descriptor))) {
           addCandidateEntry(result, candidate, descriptor, requiredType);
         }
@@ -1454,14 +1455,15 @@ public class StandardBeanFactory
    * (or candidate classes if not created yet) that match the required type
    * @param requiredType the target dependency type to match against
    * @return the name of the primary candidate, or {@code null} if none found
-   * @see #isPrimary(String)
+   * @see #isPrimary(String, Object)
    */
   @Nullable
   protected String determinePrimaryCandidate(Map<String, Object> candidates, Class<?> requiredType) {
     String primaryBeanName = null;
     for (Map.Entry<String, Object> entry : candidates.entrySet()) {
       String candidateBeanName = entry.getKey();
-      if (isPrimary(candidateBeanName)) {
+      Object beanInstance = entry.getValue();
+      if (isPrimary(candidateBeanName, beanInstance)) {
         if (primaryBeanName != null) {
           boolean candidateLocal = containsBeanDefinition(candidateBeanName);
           boolean primaryLocal = containsBeanDefinition(primaryBeanName);
@@ -1530,16 +1532,17 @@ public class StandardBeanFactory
    * marked as a primary bean.
    *
    * @param beanName the name of the bean
+   * @param beanInstance the corresponding bean instance (can be null)
    * @return whether the given bean qualifies as primary
    */
-  protected boolean isPrimary(String beanName) {
+  protected boolean isPrimary(String beanName, Object beanInstance) {
     String transformedBeanName = transformedBeanName(beanName);
     BeanDefinition definition = getBeanDefinition(transformedBeanName);
     if (definition != null) {
       return definition.isPrimary();
     }
-    BeanFactory parent = getParentBeanFactory();
-    return parent instanceof StandardBeanFactory std && std.isPrimary(transformedBeanName);
+    return getParentBeanFactory() instanceof StandardBeanFactory std
+            && std.isPrimary(transformedBeanName, beanInstance);
   }
 
   /**
