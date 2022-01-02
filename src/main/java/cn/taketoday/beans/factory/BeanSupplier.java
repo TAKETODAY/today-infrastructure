@@ -33,14 +33,14 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/29 21:13
  */
-public abstract class BeanSupplier<T> implements Supplier<T> {
+public class BeanSupplier<T> implements Supplier<T> {
 
-  protected final String beanName;
+  private final String beanName;
 
   @Nullable
-  protected final Class<T> targetClass;
+  private final Class<T> targetClass;
 
-  protected final BeanFactory beanFactory;
+  private final BeanFactory beanFactory;
 
   protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
     this.beanFactory = beanFactory;
@@ -61,24 +61,13 @@ public abstract class BeanSupplier<T> implements Supplier<T> {
     return targetClass;
   }
 
-  public abstract boolean isSingleton();
+  public boolean isSingleton() {
+    return false;
+  }
 
-  private final static class PrototypeBeanSupplier<T>
-          extends BeanSupplier<T> implements Supplier<T> {
-
-    private PrototypeBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
-      super(beanFactory, beanName, targetClass);
-    }
-
-    @Override
-    public boolean isSingleton() {
-      return false;
-    }
-
-    @Override
-    public T get() {
-      return beanFactory.getBean(beanName, targetClass);
-    }
+  @Override
+  public T get() {
+    return beanFactory.getBean(beanName, targetClass);
   }
 
   private final static class SingletonBeanSupplier<T>
@@ -92,7 +81,7 @@ public abstract class BeanSupplier<T> implements Supplier<T> {
     @Override
     public T get() {
       if (instance == null) { // TODO DCL ?
-        instance = beanFactory.getBean(beanName, targetClass);
+        instance = super.get();
       }
       return instance;
     }
@@ -120,7 +109,7 @@ public abstract class BeanSupplier<T> implements Supplier<T> {
     if (singleton) {
       return new SingletonBeanSupplier<>(beanFactory, beanName, targetClass);
     }
-    return new PrototypeBeanSupplier<>(beanFactory, beanName, targetClass);
+    return new BeanSupplier<>(beanFactory, beanName, targetClass);
   }
 
 }
