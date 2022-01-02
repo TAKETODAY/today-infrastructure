@@ -97,8 +97,7 @@ public class DependencyInjector {
   //---------------------------------------------------------------------
 
   @Nullable
-  public Object resolveValue(
-          DependencyDescriptor descriptor, BeanFactory beanFactory) {
+  public Object resolveValue(DependencyDescriptor descriptor) {
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
     Object resolved = resolve(descriptor, context);
     return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
@@ -112,8 +111,7 @@ public class DependencyInjector {
   }
 
   @Nullable
-  public Object resolveValue(DependencyDescriptor descriptor, Object bean, @Nullable String beanName) {
-    descriptor.setContainingClass(bean.getClass());
+  public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName) {
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
     Object resolved = resolve(descriptor, context);
     return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
@@ -121,19 +119,12 @@ public class DependencyInjector {
 
   @Nullable
   public Object[] resolveArguments(Executable executable, @Nullable Object... providedArgs) {
-    return resolveArguments(executable, null, null, providedArgs);
+    return resolveArguments(executable, null, providedArgs);
   }
 
   @Nullable
   public Object[] resolveArguments(
           Executable executable, @Nullable String beanName, @Nullable Object... providedArgs) {
-    return resolveArguments(executable, null, beanName, providedArgs);
-  }
-
-  @Nullable
-  public Object[] resolveArguments(
-          Executable executable, @Nullable Object bean,
-          @Nullable String beanName, @Nullable Object... providedArgs) {
     int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
       Object[] arguments = new Object[parameterLength];
@@ -144,9 +135,6 @@ public class DependencyInjector {
         if (provided == null) {
           MethodParameter methodParam = MethodParameter.forExecutable(executable, i);
           DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, true);
-          if (bean != null) {
-            currDesc.setContainingClass(bean.getClass());
-          }
           if (context == null) {
             context = new DependencyResolvingContext(executable, beanFactory, beanName);
           }
