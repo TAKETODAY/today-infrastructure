@@ -91,14 +91,25 @@ public class BeanFactoryDependencyResolvingStrategy
         context.setDependencyResolved(dependency);
       }
       catch (BeansException ex) {
-        String resourceDescription = null;
         if (beanName != null) {
+          String resourceDescription = null;
           BeanDefinition beanDefinition = factory.getBeanDefinition(beanName);
           if (beanDefinition != null) {
             resourceDescription = beanDefinition.getResourceDescription();
           }
+          if (descriptor.isProperty()) {
+            throw new UnsatisfiedDependencyException(
+                    resourceDescription, beanName, descriptor.getDependencyName(), ex);
+          }
+          else {
+            throw new UnsatisfiedDependencyException(
+                    resourceDescription, beanName, descriptor, ex);
+          }
         }
-        throw new UnsatisfiedDependencyException(resourceDescription, beanName, descriptor, ex);
+        else {
+          throw new UnsatisfiedDependencyException(
+                  null, null, descriptor.getDependencyName(), ex);
+        }
       }
     }
   }

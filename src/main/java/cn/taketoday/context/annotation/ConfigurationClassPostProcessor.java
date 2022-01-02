@@ -346,7 +346,7 @@ public class ConfigurationClassPostProcessor
   }
 
   private record ImportAwareBeanPostProcessor(BeanFactory beanFactory)
-          implements DependenciesBeanPostProcessor, InitializationBeanPostProcessor {
+          implements DependenciesBeanPostProcessor, InitializationBeanPostProcessor, Ordered {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
@@ -366,6 +366,11 @@ public class ConfigurationClassPostProcessor
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         enhancedConfiguration.setBeanFactory(this.beanFactory);
       }
+    }
+
+    @Override
+    public int getOrder() {
+      return HIGHEST_PRECEDENCE;
     }
   }
 

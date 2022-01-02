@@ -25,7 +25,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Role;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.lang.Component;
 
 /**
  * Usage:
@@ -61,7 +68,26 @@ import cn.taketoday.context.annotation.Import;
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Import(MethodEventDrivenPostProcessor.class)
+@Import(MethodEventDrivenConfig.class)
 public @interface EnableMethodEventDriven {
+
+}
+
+@Configuration(proxyBeanMethods = false)
+class MethodEventDrivenConfig {
+
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @Component(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)
+  static MethodEventDrivenPostProcessor eventDrivenPostProcessor(ConfigurableApplicationContext context) {
+    return new MethodEventDrivenPostProcessor(context);
+  }
+
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @Component(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)
+  static DefaultEventListenerFactory eventListenerFactory() {
+    return new DefaultEventListenerFactory();
+  }
 
 }

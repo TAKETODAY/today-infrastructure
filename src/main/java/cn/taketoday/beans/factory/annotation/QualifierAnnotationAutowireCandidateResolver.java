@@ -209,9 +209,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * Match the given qualifier annotation against the candidate bean definition.
    */
   protected boolean checkQualifier(BeanDefinition definition, Annotation annotation) {
-
     Class<? extends Annotation> type = annotation.annotationType();
-
     AutowireCandidateQualifier qualifier = definition.getQualifier(type.getName());
     if (qualifier == null) {
       qualifier = definition.getQualifier(ClassUtils.getShortName(type));

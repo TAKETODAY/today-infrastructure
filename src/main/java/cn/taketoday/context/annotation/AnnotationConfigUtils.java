@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.DefaultApplicationContext;
-import cn.taketoday.context.event.DefaultEventListenerFactory;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
@@ -75,6 +74,12 @@ public abstract class AnnotationConfigUtils {
    */
   private static final String JSR250_ANNOTATION_PROCESSOR_BEAN_NAME =
           "cn.taketoday.context.annotation.internalJsr250AnnotationProcessor";
+
+  /**
+   * The bean name of the internally managed Autowired annotation processor.
+   */
+  public static final String AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME =
+          "cn.taketoday.context.annotation.internalAutowiredAnnotationProcessor";
 
   /**
    * The bean name of the internally managed JPA annotation processor.
@@ -164,16 +169,6 @@ public abstract class AnnotationConfigUtils {
                 "Cannot load optional framework class: " + PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, ex);
       }
       registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME);
-    }
-
-//    if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
-//      BeanDefinition def = new BeanDefinition(MethodEventDrivenPostProcessor.class);
-//      registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME);
-//    }
-
-    if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition(DefaultEventListenerFactory.class);
-      registerPostProcessor(registry, def, EVENT_LISTENER_FACTORY_BEAN_NAME);
     }
 
   }

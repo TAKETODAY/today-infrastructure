@@ -22,10 +22,10 @@ package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -41,6 +41,8 @@ public class Spr10668Tests {
   public void testSelfInjectHierarchy() throws Exception {
     StandardApplicationContext context = new StandardApplicationContext(ChildConfig.class);
     assertThat(context.getBean(MyComponent.class)).isNotNull();
+    assertThat(context.getBean(ParentConfig.class)).isNotNull();
+    assertThat(context.getBean(ParentConfig.class).component).isNotNull();
     context.close();
   }
 
@@ -52,6 +54,7 @@ public class Spr10668Tests {
   }
 
   @Configuration
+//  @Lazy
   public static class ChildConfig extends ParentConfig {
 
     @Bean

@@ -98,6 +98,14 @@ public class DependencyInjector {
 
   @Nullable
   public Object resolveValue(
+          DependencyDescriptor descriptor, BeanFactory beanFactory) {
+    DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
+    Object resolved = resolve(descriptor, context);
+    return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
+  }
+
+  @Nullable
+  public Object resolveValue(
           DependencyDescriptor descriptor, DependencyResolvingContext context) {
     Object resolved = resolve(descriptor, context);
     return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;

@@ -252,6 +252,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       return null;
     }
     definition.resolvedTargetType = bean.getClass();
+
     // Allow post-processors to modify the merged bean definition.
     synchronized(definition.postProcessingLock) {
       if (!definition.postProcessed) {

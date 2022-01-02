@@ -25,6 +25,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContextTests.RequiredTest.Bean1;
 import cn.taketoday.logging.Logger;
@@ -129,10 +130,12 @@ class ApplicationContextTests {
   // -------------------------------------
   public static class RequiredTest {
 
-    @Autowired(required = false, value = "requiredTestBean")
+    @Autowired(required = false)
+    @Qualifier("requiredTestBean")
     private Bean bean;
 
-    @Autowired(required = true, value = "requiredTestBean1")
+    @Autowired(required = true)
+    @Qualifier("requiredTestBean1")
     private Bean1 bean1;
 
     public static class Bean {

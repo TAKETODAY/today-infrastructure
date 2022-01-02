@@ -418,7 +418,7 @@ public class StandardDependenciesBeanPostProcessor
       DependencyDescriptor desc = new DependencyDescriptor(field, required);
       desc.setContainingClass(bean.getClass());
       Assert.state(beanFactory != null, "No BeanFactory available");
-      DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
+      DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
       Object value = obtainDependencyInjector().resolveValue(desc, context);
 
       synchronized(this) {

@@ -24,9 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Constant;
-
 /**
  * Marks a constructor, parameter, field, setter method, or config method as to be
  * autowired by dependency injection facilities. This is an alternative to the JSR-330
@@ -84,23 +81,6 @@ import cn.taketoday.lang.Constant;
 @Target({ ElementType.CONSTRUCTOR, ElementType.METHOD,
         ElementType.PARAMETER, ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 public @interface Autowired {
-
-  /**
-   * user specify bean name
-   *
-   * @return user specify bean name
-   */
-  @AliasFor("name")
-  String value() default Constant.BLANK;
-
-  /**
-   * user specify bean name
-   *
-   * @return user specify bean name
-   * @since 4.0
-   */
-  @AliasFor("value")
-  String name() default Constant.BLANK;
 
   /**
    * Declares whether the annotated dependency is required.

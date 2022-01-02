@@ -601,27 +601,8 @@ public abstract class AbstractApplicationContext
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
 
-    // register DI bean post processors
-    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-    addAutowiredPostProcessors(beanFactory);
-
     beanFactory.registerDependency(BeanFactory.class, beanFactory);
     beanFactory.registerDependency(ApplicationContext.class, this);
-  }
-
-  private void addAutowiredPostProcessors(ConfigurableBeanFactory beanFactory) {
-    StandardDependenciesBeanPostProcessor autowiredPostProcessor
-            = new StandardDependenciesBeanPostProcessor(beanFactory);
-
-    DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
-    ExpressionDependencyResolver resolver = new ExpressionDependencyResolver(beanFactory);
-    resolver.setOrder(1);
-
-    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
-    strategy.setOrder(2);
-    resolvingStrategies.addStrategies(resolver, strategy);
-
-    beanFactory.addBeanPostProcessor(autowiredPostProcessor);
   }
 
   // post-processor
@@ -648,7 +629,7 @@ public abstract class AbstractApplicationContext
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
     // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
     if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
-//      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
+      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
   }
@@ -661,6 +642,25 @@ public abstract class AbstractApplicationContext
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
     log.debug("Loading BeanPostProcessor.");
     PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
+
+    // register DI bean post processors
+    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
+    addAutowiredPostProcessors(beanFactory);
+  }
+
+  private void addAutowiredPostProcessors(ConfigurableBeanFactory beanFactory) {
+    StandardDependenciesBeanPostProcessor autowiredPostProcessor
+            = new StandardDependenciesBeanPostProcessor(beanFactory);
+
+    DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
+    ExpressionDependencyResolver resolver = new ExpressionDependencyResolver(beanFactory);
+    resolver.setOrder(1);
+
+    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
+    strategy.setOrder(2);
+    resolvingStrategies.addStrategies(resolver, strategy);
+
+    beanFactory.addBeanPostProcessor(autowiredPostProcessor);
   }
 
   /**

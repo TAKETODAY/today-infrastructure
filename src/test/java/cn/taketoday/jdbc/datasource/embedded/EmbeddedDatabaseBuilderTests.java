@@ -22,6 +22,7 @@ package cn.taketoday.jdbc.datasource.embedded;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.core.io.ClassRelativeResourceLoader;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.init.CannotReadScriptException;
@@ -41,7 +42,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class EmbeddedDatabaseBuilderTests {
 
   private final EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(
-          new DefaultResourceLoader(getClass().getClassLoader()));
+          new ClassRelativeResourceLoader(getClass()));
 
   @Test
   public void addDefaultScripts() throws Exception {

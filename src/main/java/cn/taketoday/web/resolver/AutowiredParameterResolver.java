@@ -20,9 +20,10 @@
 
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -33,10 +34,10 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public class AutowiredParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
-  private final WebApplicationContext context;
+  private final AutowireCapableBeanFactory beanFactory;
 
   public AutowiredParameterResolver(WebApplicationContext context) {
-    this.context = context;
+    this.beanFactory = context.getAutowireCapableBeanFactory();
   }
 
   @Override
@@ -51,13 +52,8 @@ public class AutowiredParameterResolver
 
   @Override
   protected Object resolveInternal(RequestContext ctx, MethodParameter parameter) throws Throwable {
-    final Autowired autowired = parameter.getAnnotation(Autowired.class);
-    final String name = autowired.value();
-    if (StringUtils.isEmpty(name)) {
-      return context.getBean(parameter.getParameterClass());
-    }
-    else {
-      return context.getBean(name, parameter.getParameterClass());
-    }
+    cn.taketoday.core.MethodParameter forParameter =
+            cn.taketoday.core.MethodParameter.forParameter(parameter.getParameter());
+    return beanFactory.resolveDependency(new DependencyDescriptor(forParameter, true), parameter.getName());
   }
 }
