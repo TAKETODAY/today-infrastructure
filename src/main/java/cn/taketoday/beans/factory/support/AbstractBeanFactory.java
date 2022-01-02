@@ -456,7 +456,7 @@ public abstract class AbstractBeanFactory
       // We should only attempt if the user explicitly set lazy-init to true
       // and we know the merged bean definition is for a factory bean.
       if (!definition.isLazyInit() || allowFactoryBeanInit) {
-        Class<?> targetType = predictBeanType(definition);
+        Class<?> targetType = predictBeanType(definition, typesToMatch);
         if (targetType != null && !FactoryBean.class.isAssignableFrom(targetType)) {
           predictedType = targetType;
         }
@@ -470,8 +470,10 @@ public abstract class AbstractBeanFactory
         return false;
       }
     }
+
     // Attempt to get the actual ResolvableType for the bean.
     ResolvableType beanType = null;
+
     // If it's a FactoryBean, we want to look at what it creates, not the factory class.
     if (FactoryBean.class.isAssignableFrom(predictedType)) {
       if (beanInstance == null && !isFactoryDereference) {
@@ -531,6 +533,7 @@ public abstract class AbstractBeanFactory
     }
     String beanClassName = def.getBeanClassName();
     try {
+      // TODO evaluateBeanDefinitionString
       if (beanClassName != null && ObjectUtils.isNotEmpty(typesToMatch)) {
         // When just doing type checks (i.e. not creating an actual instance yet),
         // use the specified temporary class loader (e.g. in a weaving scenario).
