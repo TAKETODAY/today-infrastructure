@@ -566,18 +566,21 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see PathMatcher
    */
   protected void doFindPathMatchingFileResources(
-          Resource rootDirResource, String subPattern, ResourceConsumer consumer) {
+          Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
+    File rootDir;
     try {
-      File rootDir = rootDirResource.getFile().getAbsoluteFile();
-      doFindMatchingFileSystemResources(rootDir, subPattern, consumer);
+      rootDir = rootDirResource.getFile().getAbsoluteFile();
     }
     catch (FileNotFoundException ex) {
       log.error("Cannot search for matching files underneath {} in the file system: {}",
               rootDirResource, ex.toString(), ex);
+      return;
     }
     catch (Exception ex) {
       log.error("Failed to resolve {} in the file system: {}", rootDirResource, ex.toString(), ex);
+      return;
     }
+    doFindMatchingFileSystemResources(rootDir, subPattern, consumer);
   }
 
   /**
