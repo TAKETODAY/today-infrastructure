@@ -24,20 +24,19 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCandidateQualifier;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -45,6 +44,7 @@ import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Description;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -433,12 +433,20 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
     MergedAnnotation<Lazy> lazyMergedAnnotation = annotations.get(Lazy.class);
     if (lazyMergedAnnotation.isPresent()) {
-      definition.setLazyInit(lazyMergedAnnotation.getBoolean(MergedAnnotation.VALUE));
+      definition.setLazyInit(lazyMergedAnnotation.getBooleanValue());
+    }
+    else if (definition instanceof AnnotatedBeanDefinition annotated) {
+      AnnotationMetadata metadata = annotated.getMetadata();
+      lazyMergedAnnotation = metadata.getAnnotation(Lazy.class);
+
+      if (lazyMergedAnnotation.isPresent()) {
+        definition.setLazyInit(lazyMergedAnnotation.getBooleanValue());
+      }
     }
 
     MergedAnnotation<Role> roleMergedAnnotation = annotations.get(Role.class);
     if (roleMergedAnnotation.isPresent()) {
-      definition.setRole(roleMergedAnnotation.getInt(MergedAnnotation.VALUE));
+      definition.setRole(roleMergedAnnotation.getIntValue());
     }
 
     MergedAnnotation<DependsOn> dependsOn = annotations.get(DependsOn.class);

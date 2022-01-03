@@ -23,7 +23,6 @@ package cn.taketoday.context.annotation.configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -32,6 +31,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.DependsOn;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -148,10 +148,13 @@ public class BeanAnnotationAttributePropagationTests {
     @Configuration
     class Config {
       @Bean
+//      @Lazy(value = true)
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit()).as("@Bean methods declared in a @Lazy @Configuration should be lazily instantiated").isTrue();
+    assertThat(beanDef(Config.class).isLazyInit())
+            .as("@Bean methods declared in a @Lazy @Configuration should be lazily instantiated")
+            .isTrue();
   }
 
   @Test
@@ -164,7 +167,9 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit()).as("@Lazy(false) @Bean methods declared in a @Lazy @Configuration should be eagerly instantiated").isFalse();
+    assertThat(beanDef(Config.class).isLazyInit())
+            .as("@Lazy(false) @Bean methods declared in a @Lazy @Configuration should be eagerly instantiated")
+            .isFalse();
   }
 
   @Test
@@ -180,11 +185,10 @@ public class BeanAnnotationAttributePropagationTests {
   }
 
   private BeanDefinition beanDef(Class<?> configClass) {
-    StandardBeanFactory factory = new StandardBeanFactory();
-    factory.registerBeanDefinition("config", new BeanDefinition(configClass));
+    beanFactory.registerBeanDefinition("config", new BeanDefinition(configClass));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
-    pp.postProcessBeanFactory(factory);
-    return factory.getBeanDefinition("foo");
+    pp.postProcessBeanFactory(beanFactory);
+    return beanFactory.getBeanDefinition("foo");
   }
 
   private StandardBeanFactory beanFactory;

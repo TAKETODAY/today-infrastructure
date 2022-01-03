@@ -77,6 +77,8 @@ class PathMatchingPatternResourceLoaderTests {
           "ResourceConsumer.class",
           "FileUrlResource.class",
           "ClassRelativeResourceLoader.class",
+          "DefaultResourceLoader$ClassPathContextResource.class",
+          "ClassRelativeResourceLoader$ClassRelativeContextResource.class",
           "DefaultPropertySourceFactory.class",
           "JarEntryResource$JarEntryInputStream.class", //
   };

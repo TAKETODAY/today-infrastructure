@@ -20,9 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.AnnotatedElement;
@@ -33,6 +30,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A single merged annotation returned from a {@link MergedAnnotations}
@@ -224,6 +224,16 @@ public interface MergedAnnotation<A extends Annotation> {
    * @throws NoSuchElementException if there is no matching attribute
    */
   boolean getBoolean(String attributeName) throws NoSuchElementException;
+
+  /**
+   * Get a required boolean attribute value from the annotation.
+   *
+   * @return the value as a boolean
+   * @throws NoSuchElementException if there is no matching attribute
+   */
+  default boolean getBooleanValue() throws NoSuchElementException {
+    return getBoolean(VALUE);
+  }
 
   /**
    * Get a required boolean array attribute value from the annotation.
@@ -808,7 +818,7 @@ public interface MergedAnnotation<A extends Annotation> {
       return adapts;
     }
 
-    static final Adapt[] EMPTY = { };
+    static final Adapt[] EMPTY = {};
   }
 
 }
