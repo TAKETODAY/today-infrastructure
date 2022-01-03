@@ -39,14 +39,10 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
-import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
@@ -657,23 +653,6 @@ public abstract class AbstractApplicationContext
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
     log.debug("Loading BeanPostProcessor.");
     PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
-
-    // register DI bean post processors
-    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-    addAutowiredPostProcessors(beanFactory);
-  }
-
-  private void addAutowiredPostProcessors(ConfigurableBeanFactory beanFactory) {
-    StandardDependenciesBeanPostProcessor autowiredPostProcessor
-            = new StandardDependenciesBeanPostProcessor(beanFactory);
-
-    DependencyResolvingStrategies strategies = autowiredPostProcessor.getResolvingStrategies();
-
-    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
-    strategy.setOrder(2);
-    strategies.addStrategies(strategy);
-
-    beanFactory.addBeanPostProcessor(autowiredPostProcessor);
   }
 
   /**

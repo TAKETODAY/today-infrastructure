@@ -226,21 +226,21 @@ public class ConfigurationClassProcessingTests {
 //    ctx.close();
 //  }
 
-  @Test
-  public void configurationWithAdaptiveResourcePrototypes() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.register(ConfigWithPrototypeBean.class, AdaptiveResourceInjectionPoints.class);
-    ctx.refresh();
-
-    AdaptiveResourceInjectionPoints adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
-    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-
-    adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
-    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-    ctx.close();
-  }
+//  @Test
+//  public void configurationWithAdaptiveResourcePrototypes() {
+//    StandardApplicationContext ctx = new StandardApplicationContext();
+//    ctx.register(ConfigWithPrototypeBean.class, AdaptiveResourceInjectionPoints.class);
+//    ctx.refresh();
+//
+//    AdaptiveResourceInjectionPoints adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
+//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+//
+//    adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
+//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+//    ctx.close();
+//  }
 
   @Test
   public void configurationWithPostProcessor() {

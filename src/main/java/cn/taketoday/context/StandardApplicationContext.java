@@ -24,6 +24,8 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -33,6 +35,8 @@ import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator;
+import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
+import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
@@ -176,6 +180,28 @@ public class StandardApplicationContext
     }
 
     AnnotationConfigUtils.registerAnnotationConfigProcessors(loadingContext.getRegistry());
+  }
+
+  @Override
+  protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
+    super.registerBeanPostProcessors(beanFactory);
+
+    // register DI bean post processors
+    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
+
+    Object bean = beanFactory.getBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
+
+    if (bean instanceof StandardDependenciesBeanPostProcessor autowiredPostProcessor) {
+      addDependencyStrategies(autowiredPostProcessor);
+    }
+  }
+
+  private void addDependencyStrategies(StandardDependenciesBeanPostProcessor autowiredPostProcessor) {
+    DependencyResolvingStrategies strategies = autowiredPostProcessor.getResolvingStrategies();
+
+    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
+    strategy.setOrder(2);
+    strategies.addStrategies(strategy);
   }
 
   @Override

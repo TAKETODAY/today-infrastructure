@@ -22,6 +22,7 @@ package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
+import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -126,6 +127,11 @@ public abstract class AnnotationConfigUtils {
       if (!(beanFactory.getAutowireCandidateResolver() instanceof ContextAnnotationAutowireCandidateResolver)) {
         beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver());
       }
+    }
+
+    if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+      BeanDefinition def = new BeanDefinition(StandardDependenciesBeanPostProcessor.class);
+      registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
     }
 
     // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor
