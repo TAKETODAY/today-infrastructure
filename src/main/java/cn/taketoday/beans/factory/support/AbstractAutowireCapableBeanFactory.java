@@ -655,8 +655,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       String factoryMethodName = definition.getFactoryMethodName();
       // instantiate using factory-method
       if (factoryMethodName != null) {
-        String factoryBeanName = definition.getFactoryBeanName();
-        Class<?> factoryClass = getFactoryClass(definition, factoryBeanName);
+        Class<?> factoryClass = getFactoryClass(definition);
         Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
         if (factoryMethod == null) {
           throw new BeanCreationException(definition.getResourceDescription(), definition.getBeanName(),
@@ -669,7 +668,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         else {
           // this is not a FactoryBean just a factory
           definition.instantiator = BeanInstantiator.fromMethod(
-                  factoryMethodInvoker, BeanSupplier.from(this, factoryBeanName)
+                  factoryMethodInvoker, BeanSupplier.from(this, definition.getFactoryBeanName())
           );
         }
         definition.setResolvedFactoryMethod(factoryMethod);

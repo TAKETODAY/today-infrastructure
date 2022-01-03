@@ -67,7 +67,7 @@ public class EnableTransactionManagementTests {
             EnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isAopProxy(bean)).as("testBean is not a proxy").isTrue();
-    Map<?, ?> services = ctx.getBeansOfAnnotation(Service.class);
+    Map<?, ?> services = ctx.getBeansWithAnnotation(Service.class);
     assertThat(services.containsKey("testBean")).as("Stereotype annotation not visible").isTrue();
     ctx.close();
   }
@@ -78,7 +78,7 @@ public class EnableTransactionManagementTests {
             InheritedEnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isAopProxy(bean)).as("testBean is not a proxy").isTrue();
-    Map<?, ?> services = ctx.getBeansOfAnnotation(Service.class);
+    Map<?, ?> services = ctx.getBeansWithAnnotation(Service.class);
     assertThat(services.containsKey("testBean")).as("Stereotype annotation not visible").isTrue();
     ctx.close();
   }
@@ -89,7 +89,7 @@ public class EnableTransactionManagementTests {
             ParentEnableTxConfig.class, ChildEnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isAopProxy(bean)).as("testBean is not a proxy").isTrue();
-    Map<?, ?> services = ctx.getBeansOfAnnotation(Service.class);
+    Map<?, ?> services = ctx.getBeansWithAnnotation(Service.class);
     assertThat(services.containsKey("testBean")).as("Stereotype annotation not visible").isTrue();
     ctx.close();
   }

@@ -89,7 +89,7 @@ public class WebSocketHandlerRegistry
   }
 
   protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
-    return context.getAnnotationOnBean(
+    return context.findSynthesizedAnnotation(
             definition.getBeanName(), EndpointMapping.class) != null;
   }
 
@@ -138,7 +138,7 @@ public class WebSocketHandlerRegistry
   }
 
   protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
-    EndpointMapping endpointMapping = context.getAnnotationOnBean(
+    EndpointMapping endpointMapping = context.findSynthesizedAnnotation(
             definition.getBeanName(), EndpointMapping.class);
 
     return endpointMapping.value();

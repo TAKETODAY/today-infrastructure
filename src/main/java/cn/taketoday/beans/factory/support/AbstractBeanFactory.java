@@ -829,11 +829,12 @@ public abstract class AbstractBeanFactory
    * get instance-method or it's static factory method declaring-class
    *
    * @param definition BeanDefinition
-   * @param factoryBeanName a factory as a bean name
    * @return Factory class
    */
-  protected Class<?> getFactoryClass(BeanDefinition definition, @Nullable String factoryBeanName) {
+  protected Class<?> getFactoryClass(BeanDefinition definition) {
     Class<?> factoryClass;
+    String factoryBeanName = definition.getFactoryBeanName();
+
     if (factoryBeanName != null) {
       String beanName = definition.getBeanName();
       if (factoryBeanName.equals(beanName)) {
@@ -854,18 +855,22 @@ public abstract class AbstractBeanFactory
     else {
       // bean class is its factory-class
       factoryClass = resolveBeanClass(definition);
-    }
-
-    if (factoryClass == null) {
-      throw new IllegalStateException(
-              "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
-                      factoryBeanName + "' not found in this factory: " + this);
+      if (factoryClass == null) {
+        throw new IllegalStateException(
+                "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
+                        definition.getBeanName() + "' not found in this factory: " + this);
+      }
     }
     return factoryClass;
   }
 
   @Nullable
   protected Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
+    Method resolvedFactoryMethod = def.getResolvedFactoryMethod();
+    if (resolvedFactoryMethod != null) {
+      return resolvedFactoryMethod;
+    }
+
     ArrayList<Method> candidates = new ArrayList<>();
     ReflectionUtils.doWithMethods(factoryClass, method -> {
       if (factoryMethodName.equals(method.getName()) && def.isFactoryMethod(method)) {
@@ -887,10 +892,12 @@ public abstract class AbstractBeanFactory
         return result;
       });
     }
+    Method method = candidates.get(0);
     if (log.isDebugEnabled()) {
-      log.debug("bean-definition {} using factory-method {} to create bean instance", def, candidates.get(0));
+      log.debug("bean-definition {} using factory-method {} to create bean instance", def, method);
     }
-    return candidates.get(0);
+    def.setResolvedFactoryMethod(method);
+    return method;
   }
 
   /**

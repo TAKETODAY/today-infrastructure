@@ -116,8 +116,8 @@ public class HandlerMethodRegistry
     String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
     for (String beanName : beanDefinitionNames) {
       // ActionMapping on the class is ok
-      MergedAnnotation<Controller> rootController = beanFactory.getMergedAnnotation(beanName, Controller.class);
-      MergedAnnotation<ActionMapping> actionMapping = beanFactory.getMergedAnnotation(beanName, ActionMapping.class);
+      MergedAnnotation<Controller> rootController = beanFactory.findAnnotationOnBean(beanName, Controller.class);
+      MergedAnnotation<ActionMapping> actionMapping = beanFactory.findAnnotationOnBean(beanName, ActionMapping.class);
       MergedAnnotation<ActionMapping> controllerMapping = null;
       if (actionMapping.isPresent()) {
         controllerMapping = actionMapping;

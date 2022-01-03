@@ -971,15 +971,25 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
+  public <A extends Annotation> A findSynthesizedAnnotation(String beanName, Class<A> annotationType) {
     assertBeanFactoryActive();
-    return getBeanFactory().getAnnotationOnBean(beanName, annotationType);
+    return getBeanFactory().findSynthesizedAnnotation(beanName, annotationType);
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotation(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
+  public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
+          String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
     assertBeanFactoryActive();
-    return getBeanFactory().getMergedAnnotation(beanName, annotationType);
+    return getBeanFactory().findAnnotationOnBean(beanName, annotationType);
+  }
+
+  @Nullable
+  @Override
+  public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
+          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
+          throws NoSuchBeanDefinitionException {
+    assertBeanFactoryActive();
+    return getBeanFactory().findAnnotationOnBean(beanName, annotationType, allowFactoryBeanInit);
   }
 
   @Override
@@ -989,15 +999,15 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType) {
+  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
     assertBeanFactoryActive();
-    return getBeanFactory().getBeansOfAnnotation(annotationType);
+    return getBeanFactory().getBeansWithAnnotation(annotationType);
   }
 
   @Override
-  public Map<String, Object> getBeansOfAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     assertBeanFactoryActive();
-    return getBeanFactory().getBeansOfAnnotation(annotationType, includeNonSingletons);
+    return getBeanFactory().getBeansWithAnnotation(annotationType, includeNonSingletons);
   }
 
   @Override

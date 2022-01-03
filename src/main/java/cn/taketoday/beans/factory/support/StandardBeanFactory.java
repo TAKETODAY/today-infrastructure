@@ -71,8 +71,11 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
@@ -895,7 +898,7 @@ public class StandardBeanFactory
   }
 
   @Override
-  public Map<String, Object> getBeansOfAnnotation(
+  public Map<String, Object> getBeansWithAnnotation(
           Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType must not be null");
 
@@ -915,13 +918,13 @@ public class StandardBeanFactory
 
     for (String beanName : beanDefinitionNames) {
       BeanDefinition bd = beanDefinitionMap.get(beanName);
-      if (bd != null && getMergedAnnotation(beanName, annotationType).isPresent()) {
+      if (bd != null && findAnnotationOnBean(beanName, annotationType).isPresent()) {
         names.add(beanName);
       }
     }
 
     for (String beanName : manualSingletonNames) {
-      if (!names.contains(beanName) && getMergedAnnotation(beanName, annotationType).isPresent()) {
+      if (!names.contains(beanName) && findAnnotationOnBean(beanName, annotationType).isPresent()) {
         names.add(beanName);
       }
     }
@@ -930,15 +933,77 @@ public class StandardBeanFactory
   }
 
   @Override
-  public <A extends Annotation> A getAnnotationOnBean(String beanName, Class<A> annotationType) {
-    return getMergedAnnotation(beanName, annotationType)
+  public <A extends Annotation> A findSynthesizedAnnotation(String beanName, Class<A> annotationType) {
+    return findAnnotationOnBean(beanName, annotationType)
             .synthesize(MergedAnnotation::isPresent).orElse(null);
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> getMergedAnnotation(
+  public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
           String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
-    return BeanFactoryUtils.getMergedAnnotation(this, beanName, annotationType);
+    return findAnnotationOnBean(beanName, annotationType, true);
+  }
+
+  @Override
+  public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
+          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+
+    // find oon factory-method then find on class
+
+    BeanDefinition definition = getBeanDefinition(beanName);
+    if (definition instanceof AnnotatedBeanDefinition annotated) {
+      // find on factory method
+      MethodMetadata methodMetadata = annotated.getFactoryMethodMetadata();
+      MergedAnnotation<A> annotation;
+      if (methodMetadata != null) {
+        annotation = methodMetadata.getAnnotation(annotationType);
+      }
+      else {
+        annotation = annotated.getMetadata().getAnnotation(annotationType);
+      }
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+    else if (definition != null) {
+      String factoryMethodName = definition.getFactoryMethodName();
+      if (factoryMethodName != null) {
+        Class<?> factoryClass = getFactoryClass(definition);
+        Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
+        if (factoryMethod != null) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+      }
+      else {
+        // find it on class
+        Class<?> beanType = getType(beanName, allowFactoryBeanInit);
+        if (beanType != null) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
+        }
+
+        // Check raw bean class, e.g. in case of a proxy.
+        if (definition.hasBeanClass()) {
+          Class<?> beanClass = definition.getBeanClass();
+          if (beanClass != beanType) {
+            MergedAnnotation<A> annotation =
+                    MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+            if (annotation.isPresent()) {
+              return annotation;
+            }
+          }
+        }
+      }
+    }
+    // missing
+    return MergedAnnotation.missing();
   }
 
   //---------------------------------------------------------------------

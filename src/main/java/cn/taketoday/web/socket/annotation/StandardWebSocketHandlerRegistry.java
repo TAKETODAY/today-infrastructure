@@ -68,13 +68,13 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
 
   @Override
   protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
-    return super.isEndpoint(context, definition) || context.getAnnotationOnBean(
+    return super.isEndpoint(context, definition) || context.findSynthesizedAnnotation(
             definition.getBeanName(), ServerEndpoint.class) != null;
   }
 
   @Override
   protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
-    ServerEndpoint annotationOnBean = context.getAnnotationOnBean(
+    ServerEndpoint annotationOnBean = context.findSynthesizedAnnotation(
             definition.getBeanName(), ServerEndpoint.class);
     if (annotationOnBean != null) {
       return new String[] { annotationOnBean.value() };
