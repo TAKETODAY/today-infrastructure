@@ -250,14 +250,21 @@ public class UrlBasedResource extends AbstractResource {
     return StringUtils.getFilename(getCleanedUrl().getPath());
   }
 
+  /**
+   * This implementation compares the underlying URL references.
+   */
   @Override
-  public boolean equals(Object other) {
-    return (this == other || (other instanceof UrlBasedResource && this.url.equals(((UrlBasedResource) other).url)));
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof UrlBasedResource
+            && getCleanedUrl().equals(((UrlBasedResource) other).getCleanedUrl())));
   }
 
+  /**
+   * This implementation returns the hash code of the underlying URL reference.
+   */
   @Override
   public int hashCode() {
-    return this.url.hashCode();
+    return getCleanedUrl().hashCode();
   }
 
   /**

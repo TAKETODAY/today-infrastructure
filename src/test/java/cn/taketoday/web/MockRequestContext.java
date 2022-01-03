@@ -20,11 +20,6 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,11 +28,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.web.multipart.MultipartFile;
+
 /**
  * @author TODAY 2021/3/10 16:35
  */
 public class MockRequestContext extends RequestContext {
-
 
   @Override
   public String getScheme() {
@@ -58,7 +58,6 @@ public class MockRequestContext extends RequestContext {
   protected String doGetQueryString() {
     return null;
   }
-
 
   @Override
   protected HttpCookie[] doGetCookies() {
@@ -101,10 +100,13 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
-
   @Override
   public String getContentType() {
-    return responseHeaders().getContentType().toString();
+    MediaType contentType = responseHeaders().getContentType();
+    if (contentType == null) {
+      return null;
+    }
+    return contentType.toString();
   }
 
   @Override

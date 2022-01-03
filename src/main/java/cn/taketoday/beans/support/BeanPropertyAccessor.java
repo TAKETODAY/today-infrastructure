@@ -35,7 +35,6 @@ import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -532,7 +531,12 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException conversion failed
    */
   public Object convertIfNecessary(@Nullable Object value, Class<?> requiredType) {
-    return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
+    try {
+      return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
+    }
+    catch (ConversionException e) {
+      throw new TypeMismatchException(null, value, requiredType, e);
+    }
   }
 
   /**
@@ -550,18 +554,8 @@ public class BeanPropertyAccessor {
     if (conversionService == null) {
       conversionService = DefaultConversionService.getSharedInstance();
     }
-    TypeConverter typeConverter = conversionService.getConverter(value, requiredType);
-    if (typeConverter == null) {
-      return converterNotFound(value, requiredType);
-    }
-    Object convertedValue = typeConverter.convert(requiredType, value);
+    Object convertedValue = conversionService.convert(value, requiredType);
     return BeanProperty.handleOptional(convertedValue, type);
-  }
-
-  protected Object converterNotFound(Object value, TypeDescriptor requiredType) {
-    throw new InvalidPropertyValueException(
-            "Invalid property value [" + value + "] cannot convert '"
-                    + value.getClass() + "' to target class: [" + requiredType + "]");
   }
 
   /**
