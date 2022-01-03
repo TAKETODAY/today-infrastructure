@@ -621,7 +621,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 3.0
    */
   <T> Map<String, T> getBeansOfType(
-          @Nullable ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
+          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
 
   //
 

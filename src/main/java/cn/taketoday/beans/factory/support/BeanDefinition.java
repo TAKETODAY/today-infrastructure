@@ -35,7 +35,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;

@@ -59,34 +59,34 @@ public interface Node {
    * This method is called after the node has been made the current node. It
    * indicates that child nodes can now be added to it.
    */
-  void jjtOpen();
+  void open();
 
   /**
    * This method is called after all the child nodes have been added.
    */
-  void jjtClose();
+  void close();
 
   /**
    * This pair of methods are used to inform the node of its parent.
    */
-  void jjtSetParent(Node n);
+  void setParent(Node n);
 
-  Node jjtGetParent();
+  Node getParent();
 
   /**
    * This method tells the node to add its argument to the node's list of
    * children.
    */
-  void jjtAddChild(Node n, int i);
+  void addChild(Node n, int i);
 
   /**
    * This method returns a child node. The children are numbered from zero, left
    * to right.
    */
-  Node jjtGetChild(int i);
+  Node getChild(int i);
 
   /** Return the number of children the node has. */
-  int jjtGetNumChildren();
+  int getNumberOfChildren();
 
   String getImage();
 

@@ -38,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -128,6 +129,19 @@ public class StandardBeanFactory
   /** Resolver strategy for method parameter names. @since 4.0 */
   @Nullable
   private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+
+  /** Whether bean definition metadata may be cached for all beans. */
+  private volatile boolean configurationFrozen;
+
+  /** Cached array of bean definition names in case of frozen configuration. */
+  @Nullable
+  private volatile String[] frozenBeanDefinitionNames;
+
+  /** Map of singleton and non-singleton bean names, keyed by dependency type. */
+  private final ConcurrentHashMap<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>(64);
+
+  /** Map of singleton-only bean names, keyed by dependency type. */
+  private final ConcurrentHashMap<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
   /**
    * Create a new StandardBeanFactory.
@@ -267,9 +281,17 @@ public class StandardBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public void registerSingleton(String name, Object singleton) {
-    super.registerSingleton(name, singleton);
-    manualSingletonNames.add(name);
+  public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
+    super.registerSingleton(beanName, singletonObject);
+    updateManualSingletonNames(set -> set.add(beanName), set -> !this.beanDefinitionMap.containsKey(beanName));
+    clearByTypeCache();
+  }
+
+  @Override
+  public void destroySingletons() {
+    super.destroySingletons();
+    updateManualSingletonNames(Set::clear, set -> !set.isEmpty());
+    clearByTypeCache();
   }
 
   @Override
@@ -279,15 +301,10 @@ public class StandardBeanFactory
   }
 
   @Override
-  public void destroySingletons() {
-    super.destroySingletons();
-    manualSingletonNames.clear();
-  }
-
-  @Override
   public void destroySingleton(String beanName) {
     super.destroySingleton(beanName);
-    manualSingletonNames.remove(beanName);
+    removeManualSingletonName(beanName);
+    clearByTypeCache();
   }
 
   /**
@@ -308,6 +325,59 @@ public class StandardBeanFactory
       throw new IllegalStateException("Cannot register alias '" + alias +
               "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
     }
+  }
+
+  @Override
+  public void freezeConfiguration() {
+    this.configurationFrozen = true;
+    this.frozenBeanDefinitionNames = StringUtils.toStringArray(this.beanDefinitionNames);
+  }
+
+  @Override
+  public void clearMetadataCache() {
+    clearByTypeCache();
+  }
+
+  private void removeManualSingletonName(String beanName) {
+    updateManualSingletonNames(set -> set.remove(beanName), set -> set.contains(beanName));
+  }
+
+  /**
+   * Update the factory's internal set of manual singleton names.
+   *
+   * @param action the modification action
+   * @param condition a precondition for the modification action
+   * (if this condition does not apply, the action can be skipped)
+   */
+  private void updateManualSingletonNames(Consumer<Set<String>> action, Predicate<Set<String>> condition) {
+    // Still in startup registration phase
+    if (condition.test(this.manualSingletonNames)) {
+      action.accept(this.manualSingletonNames);
+    }
+  }
+
+  /**
+   * Remove any assumptions about by-type mappings.
+   */
+  private void clearByTypeCache() {
+    this.allBeanNamesByType.clear();
+    this.singletonBeanNamesByType.clear();
+  }
+
+  @Override
+  public boolean isConfigurationFrozen() {
+    return this.configurationFrozen;
+  }
+
+  /**
+   * Considers all beans as eligible for metadata caching
+   * if the factory's configuration has been marked as frozen.
+   *
+   * @see #freezeConfiguration()
+   */
+  @Override
+  protected boolean isBeanEligibleForMetadataCaching(String beanName) {
+    return this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName);
   }
 
   //---------------------------------------------------------------------
@@ -372,6 +442,7 @@ public class StandardBeanFactory
     else {
       beanDefinitionMap.put(beanName, def);
       beanDefinitionNames.add(beanName);
+      this.frozenBeanDefinitionNames = null;
     }
 
     if (def.hasAliases()) {
@@ -379,8 +450,12 @@ public class StandardBeanFactory
         registerAlias(beanName, alias);
       }
     }
+
     if (existBeanDef != null || containsSingleton(beanName)) {
       resetBeanDefinition(beanName);
+    }
+    else if (isConfigurationFrozen()) {
+      clearByTypeCache();
     }
   }
 
@@ -412,6 +487,7 @@ public class StandardBeanFactory
     }
     beanDefinitionNames.remove(beanName);
     resetBeanDefinition(beanName);
+    this.frozenBeanDefinitionNames = null;
   }
 
   @Override
@@ -484,7 +560,13 @@ public class StandardBeanFactory
 
   @Override
   public String[] getBeanDefinitionNames() {
-    return StringUtils.toStringArray(beanDefinitionNames);
+    String[] frozenNames = this.frozenBeanDefinitionNames;
+    if (frozenNames != null) {
+      return frozenNames.clone();
+    }
+    else {
+      return StringUtils.toStringArray(this.beanDefinitionNames);
+    }
   }
 
   @Override
@@ -495,11 +577,6 @@ public class StandardBeanFactory
   @Override
   public int getBeanDefinitionCount() {
     return beanDefinitionMap.size();
-  }
-
-  @Override
-  public Iterator<BeanDefinition> iterator() {
-    return beanDefinitionMap.values().iterator();
   }
 
   //---------------------------------------------------------------------
@@ -745,7 +822,7 @@ public class StandardBeanFactory
   @Override
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(
-          @Nullable ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     Set<String> beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
     Map<String, T> beans = CollectionUtils.newLinkedHashMap(beanNames.size());
     for (String beanName : beanNames) {
@@ -786,7 +863,25 @@ public class StandardBeanFactory
   @Override
   public Set<String> getBeanNamesForType(
           Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeanNamesForType(ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+
+    if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
+      return doGetBeanNamesForType(
+              ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+    }
+
+    Map<Class<?>, String[]> cache =
+            includeNonSingletons ? this.allBeanNamesByType : this.singletonBeanNamesByType;
+    String[] resolvedBeanNames = cache.get(requiredType);
+    if (resolvedBeanNames != null) {
+      return Set.of(resolvedBeanNames);
+    }
+
+    Set<String> resolvedBeanNamesSet = doGetBeanNamesForType(
+            ResolvableType.fromRawClass(requiredType), includeNonSingletons, true);
+    if (ClassUtils.isCacheSafe(requiredType, getBeanClassLoader())) {
+      cache.put(requiredType, StringUtils.toStringArray(resolvedBeanNamesSet));
+    }
+    return resolvedBeanNamesSet;
   }
 
   @Override
@@ -796,6 +891,17 @@ public class StandardBeanFactory
 
   @Override
   public Set<String> getBeanNamesForType(
+          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+    Class<?> resolved = requiredType.resolve();
+    if (resolved != null && !requiredType.hasGenerics()) {
+      return getBeanNamesForType(resolved, includeNonSingletons, allowEagerInit);
+    }
+    else {
+      return doGetBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
+    }
+  }
+
+  private Set<String> doGetBeanNamesForType(
           ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     LinkedHashSet<String> beanNames = new LinkedHashSet<>();
 
@@ -1204,6 +1310,16 @@ public class StandardBeanFactory
     }
 
     Class<?> type = descriptor.getDependencyType();
+    Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
+    if (value != null) {
+      if (value instanceof String) {
+        String strVal = resolveEmbeddedValue((String) value);
+        BeanDefinition bd = beanName != null && containsBean(beanName)
+                            ? obtainLocalBeanDefinition(beanName) : null;
+        value = evaluateBeanDefinitionString(strVal, bd);
+      }
+      return convertIfNecessary(value, type, descriptor.getTypeDescriptor());
+    }
 
     Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames);
     if (multipleBeans != null) {

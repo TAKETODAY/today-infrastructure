@@ -45,7 +45,6 @@ import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.context.annotation.ExpressionDependencyResolver;
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
 import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
@@ -551,10 +550,20 @@ public abstract class AbstractApplicationContext
    */
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.debug("Registering framework beans");
-    // register Environment
-    beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
+
     // @since 4.0 ArgumentsResolver
     beanFactory.registerSingleton(getInjector());
+
+    // Register default environment beans.
+    if (!beanFactory.containsLocalBean(Environment.ENVIRONMENT_BEAN_NAME)) {
+      beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
+    }
+    if (!beanFactory.containsLocalBean(Environment.SYSTEM_PROPERTIES_BEAN_NAME)) {
+      beanFactory.registerSingleton(Environment.SYSTEM_PROPERTIES_BEAN_NAME, getEnvironment().getSystemProperties());
+    }
+    if (!beanFactory.containsLocalBean(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME)) {
+      beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
+    }
 
     ExpressionEvaluator.register(beanFactory, getEnvironment());
   }
@@ -601,17 +610,6 @@ public abstract class AbstractApplicationContext
       beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
       // Set a temporary ClassLoader for type matching.
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
-    }
-
-    // Register default environment beans.
-    if (!beanFactory.containsLocalBean(Environment.ENVIRONMENT_BEAN_NAME)) {
-      beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
-    }
-    if (!beanFactory.containsLocalBean(Environment.SYSTEM_PROPERTIES_BEAN_NAME)) {
-      beanFactory.registerSingleton(Environment.SYSTEM_PROPERTIES_BEAN_NAME, getEnvironment().getSystemProperties());
-    }
-    if (!beanFactory.containsLocalBean(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME)) {
-      beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
     }
 
     // BeanFactory interface not registered as resolvable type in a plain factory.
@@ -669,13 +667,11 @@ public abstract class AbstractApplicationContext
     StandardDependenciesBeanPostProcessor autowiredPostProcessor
             = new StandardDependenciesBeanPostProcessor(beanFactory);
 
-    DependencyResolvingStrategies resolvingStrategies = autowiredPostProcessor.getResolvingStrategies();
-    ExpressionDependencyResolver resolver = new ExpressionDependencyResolver(beanFactory);
-    resolver.setOrder(1);
+    DependencyResolvingStrategies strategies = autowiredPostProcessor.getResolvingStrategies();
 
     PropsDependencyResolver strategy = new PropsDependencyResolver(this);
     strategy.setOrder(2);
-    resolvingStrategies.addStrategies(resolver, strategy);
+    strategies.addStrategies(strategy);
 
     beanFactory.addBeanPostProcessor(autowiredPostProcessor);
   }
@@ -953,12 +949,14 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  @Nullable
   public <T> T getBean(Class<T> requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType);
   }
 
   @Override
+  @Nullable
   public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType, args);
@@ -1421,6 +1419,9 @@ public abstract class AbstractApplicationContext
 
     // Stop using the temporary ClassLoader for type matching.
     beanFactory.setTempClassLoader(null);
+
+    // Allow for caching all bean definition metadata, not expecting further changes.
+    beanFactory.freezeConfiguration();
 
     // Instantiate all remaining (non-lazy-init) singletons.
     beanFactory.preInstantiateSingletons();

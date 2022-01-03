@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @see BeanDefinition
  * @since 2018-07-08 19:56:53 2018-08-06 11:07
  */
-public interface BeanDefinitionRegistry extends Iterable<BeanDefinition>, AliasRegistry {
+public interface BeanDefinitionRegistry extends AliasRegistry {
 
   /**
    * Get {@link BeanDefinition}s map

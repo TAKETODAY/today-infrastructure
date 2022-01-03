@@ -41,8 +41,6 @@ import cn.taketoday.util.ObjectUtils;
  * <ul>
  * <li>{@link PropertyOverrideConfigurer} for "beanName.property=value" style overriding
  * (<i>pushing</i> values from a properties file into bean definitions)
- * <li>{@link PropertyPlaceholderConfigurer} for replacing "${...}" placeholders
- * (<i>pulling</i> values from a properties file into bean definitions)
  * </ul>
  *
  * <p>Property values can be converted after reading them in, through overriding

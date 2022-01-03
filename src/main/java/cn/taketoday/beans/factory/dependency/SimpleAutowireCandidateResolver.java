@@ -45,6 +45,12 @@ public class SimpleAutowireCandidateResolver implements AutowireCandidateResolve
   }
 
   @Override
+  @Nullable
+  public Object getSuggestedValue(DependencyDescriptor descriptor) {
+    return null;
+  }
+
+  @Override
   public boolean hasQualifier(DependencyDescriptor descriptor) {
     return false;
   }

@@ -67,6 +67,20 @@ public interface AutowireCandidateResolver {
   }
 
   /**
+   * Determine whether a default value is suggested for the given dependency.
+   * <p>The default implementation simply returns {@code null}.
+   *
+   * @param descriptor the descriptor for the target method parameter or field
+   * @return the value suggested (typically an expression String),
+   * or {@code null} if none found
+   * @since 4.0
+   */
+  @Nullable
+  default Object getSuggestedValue(DependencyDescriptor descriptor) {
+    return null;
+  }
+
+  /**
    * Determine whether the given descriptor declares a qualifier beyond the type
    * (typically - but not necessarily - a specific kind of annotation).
    * <p>The default implementation returns {@code false}.

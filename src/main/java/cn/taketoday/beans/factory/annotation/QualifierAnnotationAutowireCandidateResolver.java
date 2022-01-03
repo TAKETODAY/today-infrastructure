@@ -27,13 +27,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -58,6 +60,8 @@ import cn.taketoday.util.ObjectUtils;
 public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwareAutowireCandidateResolver {
 
   private final LinkedHashSet<Class<? extends Annotation>> qualifierTypes = new LinkedHashSet<>(2);
+
+  private Class<? extends Annotation> valueAnnotationType = Value.class;
 
   @Nullable
   private ConversionService conversionService;
@@ -98,6 +102,19 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   public QualifierAnnotationAutowireCandidateResolver(Set<Class<? extends Annotation>> qualifierTypes) {
     Assert.notNull(qualifierTypes, "'qualifierTypes' must not be null");
     this.qualifierTypes.addAll(qualifierTypes);
+  }
+
+  /**
+   * Set the 'value' annotation type, to be used on fields, method parameters
+   * and constructor parameters.
+   * <p>The default value annotation type is the Framework-provided
+   * {@link Value} annotation.
+   * <p>This setter property exists so that developers can provide their own
+   * (non-Framework-specific) annotation type to indicate a default value
+   * expression for a specific argument.
+   */
+  public void setValueAnnotationType(Class<? extends Annotation> valueAnnotationType) {
+    this.valueAnnotationType = valueAnnotationType;
   }
 
   /**
@@ -331,6 +348,50 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       }
     }
     return false;
+  }
+
+  /**
+   * Determine whether the given dependency declares a value annotation.
+   *
+   * @see Value
+   */
+  @Override
+  @Nullable
+  public Object getSuggestedValue(DependencyDescriptor descriptor) {
+    Object value = findValue(descriptor.getAnnotations());
+    if (value == null) {
+      MethodParameter methodParam = descriptor.getMethodParameter();
+      if (methodParam != null) {
+        value = findValue(methodParam.getMethodAnnotations());
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Determine a suggested value from any of the given candidate annotations.
+   */
+  @Nullable
+  protected Object findValue(Annotation[] annotationsToSearch) {
+    if (annotationsToSearch.length > 0) {   // qualifier annotations have to be local
+      AnnotationAttributes attr = AnnotatedElementUtils.getMergedAnnotationAttributes(
+              AnnotatedElementUtils.forAnnotations(annotationsToSearch), this.valueAnnotationType);
+      if (attr != null) {
+        return extractValue(attr);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Extract the value attribute from the given annotation.
+   */
+  protected Object extractValue(AnnotationAttributes attr) {
+    Object value = attr.get(AnnotationUtils.VALUE);
+    if (value == null) {
+      throw new IllegalStateException("Value annotation must have a value attribute");
+    }
+    return value;
   }
 
 }

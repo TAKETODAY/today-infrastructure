@@ -117,7 +117,7 @@ public class ExpressionParserState {
   public void openNodeScope(Node n) {
     marks.add(mk);
     mk = sp;
-    n.jjtOpen();
+    n.open();
   }
 
   /**
@@ -129,10 +129,10 @@ public class ExpressionParserState {
     mk = marks.remove(marks.size() - 1);
     while (num-- > 0) {
       Node c = popNode();
-      c.jjtSetParent(n);
-      n.jjtAddChild(c, num);
+      c.setParent(n);
+      n.addChild(c, num);
     }
-    n.jjtClose();
+    n.close();
     pushNode(n);
     nodeCreated = true;
   }

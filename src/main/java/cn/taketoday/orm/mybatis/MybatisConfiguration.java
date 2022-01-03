@@ -31,6 +31,8 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.BeanDefinitionLoadingStrategy;
@@ -40,9 +42,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -93,8 +93,8 @@ public class MybatisConfiguration implements BeanDefinitionLoadingStrategy {
   @Component
   public SqlSession sqlSession(
           @Autowired DataSource dataSource,
-          @Env("mybatis.env") String envId,
-          @Env("mybatis.config") String configLocation,
+          @Value("${mybatis.env:}") String envId,
+          @Value("${mybatis.config:}") String configLocation,
           @Autowired(required = false) TransactionFactory transactionFactory,
           @Props(prefix = "mybatis.", replace = true) Properties properties) throws IOException //
   {

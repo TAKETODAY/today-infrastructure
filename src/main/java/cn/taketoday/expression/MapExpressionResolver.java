@@ -195,13 +195,11 @@ public class MapExpressionResolver extends ExpressionResolver {
    * @throws PropertyNotWritableException if this resolver was constructed in read-only mode, or if the put
    * operation is not supported by the underlying map.
    */
+  @SuppressWarnings({ "unchecked" })
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
-
-    if (base instanceof Map) {
+    if (base instanceof Map map) {
       context.setPropertyResolved(base, property);
       // The cast is safe
-      @SuppressWarnings({ "unchecked", "rawtypes" }) //
-      Map<Object, Object> map = (Map) base;
       if (isReadOnly || map.getClass() == theUnmodifiableMapClass) {
         throw new PropertyNotWritableException();
       }

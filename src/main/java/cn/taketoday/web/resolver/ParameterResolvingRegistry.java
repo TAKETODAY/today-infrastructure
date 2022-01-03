@@ -20,6 +20,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.context.annotation.Props;
@@ -30,9 +31,7 @@ import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Env;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -187,7 +186,6 @@ public class ParameterResolvingRegistry
     }
 
     strategies.add(new RequestAttributeParameterResolver(),
-            new EnvParameterResolver(expressionEvaluator),
             new ValueParameterResolver(expressionEvaluator),
             new PropsParameterResolver(context),
             new AutowiredParameterResolver(context),
@@ -436,21 +434,6 @@ public class ParameterResolvingRegistry
 
     @Override
     protected Object resolveInternal(Value target, RequestContext context, MethodParameter parameter) {
-      ExpressionInfo expressionInfo = new ExpressionInfo(target);
-      return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterClass());
-    }
-  }
-
-  static final class EnvParameterResolver extends AnnotationParameterResolver<Env> {
-    final ExpressionEvaluator expressionEvaluator;
-
-    EnvParameterResolver(ExpressionEvaluator expressionEvaluator) {
-      super(Env.class);
-      this.expressionEvaluator = expressionEvaluator;
-    }
-
-    @Override
-    protected Object resolveInternal(Env target, RequestContext context, MethodParameter parameter) {
       ExpressionInfo expressionInfo = new ExpressionInfo(target);
       return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterClass());
     }

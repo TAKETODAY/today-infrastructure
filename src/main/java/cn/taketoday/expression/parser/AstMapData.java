@@ -61,10 +61,10 @@ public class AstMapData extends SimpleNode {
     final HashMap<Object, Object> map = new HashMap<>();
 
     for (final Node entry : this.children) {
-      final Object v1 = entry.jjtGetChild(0).getValue(ctx);
-      if (entry.jjtGetNumChildren() > 1) {
+      final Object v1 = entry.getChild(0).getValue(ctx);
+      if (entry.getNumberOfChildren() > 1) {
         // expr: expr
-        map.put(v1, entry.jjtGetChild(1).getValue(ctx));
+        map.put(v1, entry.getChild(1).getValue(ctx));
       }
       else {
         set.add(v1);

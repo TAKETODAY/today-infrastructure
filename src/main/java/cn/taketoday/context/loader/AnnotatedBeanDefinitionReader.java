@@ -25,7 +25,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.AutowireCandidateQualifier;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;

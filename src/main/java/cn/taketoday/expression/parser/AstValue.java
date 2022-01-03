@@ -90,11 +90,11 @@ public final class AstValue extends SimpleNode {
 
   private static AstMethodArguments getArguments(Node n) {
 
-    if (n instanceof AstDotSuffix && n.jjtGetNumChildren() > 0) {
-      return (AstMethodArguments) n.jjtGetChild(0);
+    if (n instanceof AstDotSuffix && n.getNumberOfChildren() > 0) {
+      return (AstMethodArguments) n.getChild(0);
     }
-    if (n instanceof AstBracketSuffix && n.jjtGetNumChildren() > 1) {
-      return (AstMethodArguments) n.jjtGetChild(1);
+    if (n instanceof AstBracketSuffix && n.getNumberOfChildren() > 1) {
+      return (AstMethodArguments) n.getChild(1);
     }
     return null;
   }
@@ -157,7 +157,7 @@ public final class AstValue extends SimpleNode {
     }
 
     // set up our start/end
-    int propCount = this.jjtGetNumChildren() - 1;
+    int propCount = this.getNumberOfChildren() - 1;
     int i = 1;
 
     // evaluate any properties before our target
@@ -179,7 +179,7 @@ public final class AstValue extends SimpleNode {
   @Override
   public Object getValue(EvaluationContext ctx) throws ExpressionException {
     Object base = getBase(ctx);
-    int propCount = this.jjtGetNumChildren();
+    int propCount = this.getNumberOfChildren();
     int i = 1;
     final Node[] children = this.children;
     while (base != null && i < propCount) {
@@ -284,7 +284,7 @@ public final class AstValue extends SimpleNode {
 
   @Override
   public boolean isParametersProvided() {
-    return getArguments(this.children[this.jjtGetNumChildren() - 1]) != null;
+    return getArguments(this.children[this.getNumberOfChildren() - 1]) != null;
   }
 
   record Target(Object base, Node suffixNode) {

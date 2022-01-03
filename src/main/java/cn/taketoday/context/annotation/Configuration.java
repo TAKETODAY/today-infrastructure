@@ -24,10 +24,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.lang.Component;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.lang.Component;
 
 /**
  * Indicates that a class declares one or more {@link Component @Component} methods and
@@ -397,7 +397,6 @@ import cn.taketoday.beans.factory.annotation.Value;
  * @see cn.taketoday.core.env.Environment
  * @since 4.0
  */
-@Scope
 @Component
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

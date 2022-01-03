@@ -376,7 +376,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
-    return isTypeMatch(name, ResolvableType.fromClass(typeToMatch));
+    return isTypeMatch(name, ResolvableType.fromRawClass(typeToMatch));
   }
 
   @Override
@@ -451,29 +451,12 @@ public abstract class AbstractBeanFactory
                               : new Class<?>[] { FactoryBean.class, classToMatch };
 
     // Attempt to predict the bean type (not init)
-    Class<?> predictedType = null;
     BeanDefinition definition = obtainLocalBeanDefinition(beanName);
 
-    // We're looking for a regular reference but we're a factory bean that has
-    // a decorated bean definition. The target bean should be the same type
-    // as FactoryBean would ultimately return.
-    if (!isFactoryDereference && isFactoryBean(definition)) {
-      // We should only attempt if the user explicitly set lazy-init to true
-      // and we know the merged bean definition is for a factory bean.
-      if (!definition.isLazyInit() || allowFactoryBeanInit) {
-        Class<?> targetType = predictBeanType(definition, typesToMatch);
-        if (targetType != null && !FactoryBean.class.isAssignableFrom(targetType)) {
-          predictedType = targetType;
-        }
-      }
-    }
-
     // If we couldn't use the target type, try regular prediction.
+    Class<?> predictedType = predictBeanType(definition, typesToMatch);
     if (predictedType == null) {
-      predictedType = predictBeanType(definition, typesToMatch);
-      if (predictedType == null) {
-        return false;
-      }
+      return false;
     }
 
     // Attempt to get the actual ResolvableType for the bean.
@@ -1397,6 +1380,9 @@ public abstract class AbstractBeanFactory
   protected boolean hasBeanCreationStarted() {
     return !this.alreadyCreated.isEmpty();
   }
+
+  @Override
+  public void clearMetadataCache() { }
 
   @Override
   public boolean isActuallyInCreation(String beanName) {

@@ -198,7 +198,8 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     }
     if (value.getClass().isArray()) {
       StringBuilder builder = new StringBuilder("[");
-      for (int i = 0; i < Array.getLength(value); i++) {
+      int length = Array.getLength(value);
+      for (int i = 0; i < length; i++) {
         if (i > 0) {
           builder.append(", ");
         }
@@ -267,7 +268,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     ClassLoader classLoader = type.getClassLoader();
     InvocationHandler handler = new SynthesizedMergedAnnotationInvocationHandler<>(annotation, type);
     Class<?>[] interfaces = isVisible(classLoader, SynthesizedAnnotation.class) ?
-            new Class<?>[] { type, SynthesizedAnnotation.class } : new Class<?>[] { type };
+                            new Class<?>[] { type, SynthesizedAnnotation.class } : new Class<?>[] { type };
     return (A) Proxy.newProxyInstance(classLoader, interfaces, handler);
   }
 

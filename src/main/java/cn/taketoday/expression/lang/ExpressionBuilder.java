@@ -71,14 +71,14 @@ public class ExpressionBuilder implements NodeVisitor {
   public static Node parse(final String expr) throws ExpressionException {
     Node node = ExpressionParser.parse(expr);
     // validate composite expression
-    int numChildren = node.jjtGetNumChildren();
+    int numChildren = node.getNumberOfChildren();
     if (numChildren == 1) {
-      node = node.jjtGetChild(0);
+      node = node.getChild(0);
     }
     else {
       Class<?> type = null;
       for (int i = 0; i < numChildren; i++) {
-        final Node child = node.jjtGetChild(i);
+        final Node child = node.getChild(i);
         if (child instanceof AstLiteralExpression) {
           continue;
         }
@@ -94,7 +94,7 @@ public class ExpressionBuilder implements NodeVisitor {
     }
 
     if (node instanceof AstDynamicExpression || node instanceof AstDeferredExpression) {
-      node = node.jjtGetChild(0);
+      node = node.getChild(0);
     }
     return node;
   }
@@ -120,7 +120,7 @@ public class ExpressionBuilder implements NodeVisitor {
     Node node = createNode(expression);
     this.prepare(node);
     if (node instanceof AstDeferredExpression || node instanceof AstDynamicExpression) {
-      node = node.jjtGetChild(0);
+      node = node.getChild(0);
     }
     return node;
   }
@@ -172,7 +172,7 @@ public class ExpressionBuilder implements NodeVisitor {
         throw new ExpressionException("Function ''" + funcNode.getOutputName() + "'' not found");
       }
       int pcnt = m.getParameterTypes().length;
-      int acnt = ((AstMethodArguments) node.jjtGetChild(0)).getParameterCount();
+      int acnt = ((AstMethodArguments) node.getChild(0)).getParameterCount();
       if (acnt != pcnt) {
         throw new ExpressionException(
                 "Function ''" + funcNode.getOutputName() + "'' specifies " + pcnt + " params, but " + acnt + " were supplied");

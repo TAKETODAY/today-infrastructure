@@ -28,22 +28,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.dependency.InjectionPoint;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.ListFactoryBean;
 import cn.taketoday.beans.factory.support.NestedTestBean;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.BeanDefinitionParsingException;
 import cn.taketoday.context.annotation.Configuration;
@@ -54,9 +55,6 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.annotation.Value;
 import jakarta.annotation.Resource;
 import jakarta.inject.Provider;
 
@@ -86,16 +84,15 @@ public class ConfigurationClassProcessingTests {
   }
 
   private void customBeanNameIsRespected(Class<?> testClass, Supplier<TestBean> testBeanSupplier, String beanName) {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
+    StandardApplicationContext ac = new StandardApplicationContext();
+//    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
     ac.registerBeanDefinition("config", new BeanDefinition(testClass));
     ac.refresh();
 
     assertThat(ac.getBean(beanName)).isSameAs(testBeanSupplier.get());
 
     // method name should not be registered
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-            ac.getBean("methodName"));
+    assertThat(ac.getBean("methodName")).isNull();
   }
 
   @Test
@@ -114,18 +111,21 @@ public class ConfigurationClassProcessingTests {
     TestBean testBean = testBeanSupplier.get();
     BeanFactory factory = initBeanFactory(testClass);
 
-    assertThat(factory.getBean(beanName)).isSameAs(testBean);
-    Arrays.stream(factory.getAliases(beanName)).map(factory::getBean).forEach(alias -> assertThat(alias).isSameAs(testBean));
+    assertThat(factory.getBean(beanName))
+            .isSameAs(testBean);
+
+    Arrays.stream(factory.getAliases(beanName))
+            .map(factory::getBean)
+            .forEach(alias -> assertThat(alias).isSameAs(testBean));
 
     // method name should not be registered
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-            factory.getBean("methodName"));
+    assertThat(factory.getBean("methodName")).isNull();
   }
 
   @Test  // SPR-11830
   public void configWithBeanWithProviderImplementation() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
+    StandardApplicationContext ac = new StandardApplicationContext();
+//    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
     ac.registerBeanDefinition("config", new BeanDefinition(ConfigWithBeanWithProviderImplementation.class));
     ac.refresh();
     assertThat(ConfigWithBeanWithProviderImplementation.testBean).isSameAs(ac.getBean("customName"));
@@ -133,8 +133,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test  // SPR-11830
   public void configWithSetWithProviderImplementation() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
+    StandardApplicationContext ac = new StandardApplicationContext();
     ac.registerBeanDefinition("config", new BeanDefinition(ConfigWithSetWithProviderImplementation.class));
     ac.refresh();
     assertThat(ConfigWithSetWithProviderImplementation.set).isSameAs(ac.getBean("customName"));
@@ -207,25 +206,25 @@ public class ConfigurationClassProcessingTests {
     BeanFactory factory = initBeanFactory(ConfigWithNullReference.class);
 
     TestBean foo = factory.getBean("foo", TestBean.class);
-    assertThat(factory.getBean("bar").equals(null)).isTrue();
+    assertThat(factory.getBean("bar")).isNull();
     assertThat(foo.getSpouse()).isNull();
   }
 
-  @Test
-  public void configurationWithAdaptivePrototypes() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.register(ConfigWithPrototypeBean.class, AdaptiveInjectionPoints.class);
-    ctx.refresh();
-
-    AdaptiveInjectionPoints adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
-    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-
-    adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
-    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-    ctx.close();
-  }
+//  @Test
+//  public void configurationWithAdaptivePrototypes() {
+//    StandardApplicationContext ctx = new StandardApplicationContext();
+//    ctx.register(ConfigWithPrototypeBean.class, AdaptiveInjectionPoints.class);
+//    ctx.refresh();
+//
+//    AdaptiveInjectionPoints adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
+//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+//
+//    adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
+//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+//    ctx.close();
+//  }
 
   @Test
   public void configurationWithAdaptiveResourcePrototypes() {
@@ -332,17 +331,18 @@ public class ConfigurationClassProcessingTests {
    * declared by {@code configClasses}.
    */
   private StandardBeanFactory initBeanFactory(Class<?>... configClasses) {
-    StandardBeanFactory factory = new StandardBeanFactory();
+    StandardApplicationContext ac = new StandardApplicationContext();
+    StandardBeanFactory beanFactory = ac.getBeanFactory();
     for (Class<?> configClass : configClasses) {
       String configBeanName = configClass.getName();
-      factory.registerBeanDefinition(configBeanName, new BeanDefinition(configClass));
+      beanFactory.registerBeanDefinition(configBeanName, new BeanDefinition(configClass));
     }
     ConfigurationClassPostProcessor ccpp = new ConfigurationClassPostProcessor(
-            new DefinitionLoadingContext(factory, null));
-    ccpp.postProcessBeanDefinitionRegistry(factory);
-    ccpp.postProcessBeanFactory(factory);
-//    factory.freezeConfiguration();
-    return factory;
+            new DefinitionLoadingContext(beanFactory, ac));
+    ccpp.postProcessBeanDefinitionRegistry(beanFactory);
+    ccpp.postProcessBeanFactory(beanFactory);
+    beanFactory.freezeConfiguration();
+    return beanFactory;
   }
 
   @Configuration
@@ -554,7 +554,7 @@ public class ConfigurationClassProcessingTests {
       };
     }
 
-    // @Bean
+    //    @Bean
     public BeanFactoryPostProcessor beanFactoryPostProcessor() {
       return beanFactory -> {
         BeanDefinition bd = beanFactory.getBeanDefinition("beanPostProcessor");

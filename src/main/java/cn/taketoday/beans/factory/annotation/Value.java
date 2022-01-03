@@ -24,10 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Env;
-import cn.taketoday.lang.Required;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 
 /**
  * Annotation used at the field or method/constructor parameter level
@@ -43,18 +42,17 @@ import cn.taketoday.lang.Required;
  * <code>${my.app.myProp}</code> style property placeholders.
  *
  * <p>Note that actual processing of the {@code @Value} annotation is performed
- * by a {@link cn.taketoday.context.annotation.ExpressionDependencyResolver ExpressionDependencyResolver}
- * which in turn means that you <em>cannot</em> use {@code @Value} within
- * {@link cn.taketoday.context.annotation.ExpressionDependencyResolver ExpressionDependencyResolver} or
- * {@link DependencyResolvingStrategy PropertyValueResolver}
- * types.
+ * by a {@link BeanPostProcessor BeanPostProcessor} which in turn means that you
+ * <em>cannot</em> use {@code @Value} within {@link BeanPostProcessor BeanPostProcessor} or
+ * {@link BeanFactoryPostProcessor BeanFactoryPostProcessor}
+ * types. Please consult the javadoc for the {@link
+ * cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor}
+ * class (which, by default, checks for the presence of this annotation).
  *
  * @author TODAY 2018-08-04 15:57
  * @see Autowired
- * @see Env
- * @see cn.taketoday.context.expression.ExpressionEvaluator
- * @see cn.taketoday.context.annotation.ExpressionDependencyResolver
- * @see DependencyResolvingStrategy
+ * @see cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor
+ * @see AutowireCandidateResolver#getSuggestedValue
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
@@ -63,34 +61,7 @@ public @interface Value {
   /**
    * The actual value expression such as <code>#{systemProperties.myProp}</code>
    * or property placeholder such as <code>${my.app.myProp}</code>.
-   * <p>
-   * If value is empty string when declared on Field, use
-   * <pre>
-   *     PropertyPlaceholderHandler.PLACEHOLDER_PREFIX +
-   *               field.getDeclaringClass().getName() +
-   *               Constant.PACKAGE_SEPARATOR +
-   *               field.getName() +
-   *               PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX
-   *  </pre>
-   * class full name dot property name as property-key to find in
-   * application environment
-   * </p>
-   *
-   * @see java.lang.reflect.Field
    */
-  String value() default Constant.BLANK;
-
-  /**
-   * Is required ?
-   *
-   * @see Required
-   * @see cn.taketoday.context.expression.ExpressionEvaluationException
-   */
-  boolean required() default true;
-
-  /**
-   * default value expression or fallback expression
-   */
-  String defaultValue() default Constant.BLANK;
+  String value();
 
 }

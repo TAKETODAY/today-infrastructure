@@ -20,10 +20,9 @@
 
 package cn.taketoday.context.expression;
 
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.lang.Env;
-import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * @author TODAY 2021/10/14 21:58
@@ -37,16 +36,7 @@ public class ExpressionInfo {
 
   public ExpressionInfo(Value value) {
     this.expression = value.value();
-    this.required = value.required();
-    this.defaultValue = value.defaultValue();
     this.placeholderOnly = false;
-  }
-
-  public ExpressionInfo(Env env) {
-    this.expression = env.value();
-    this.required = env.required();
-    this.defaultValue = env.defaultValue();
-    this.placeholderOnly = true;
   }
 
   public ExpressionInfo(AnnotationAttributes attributes, boolean placeholderOnly) {

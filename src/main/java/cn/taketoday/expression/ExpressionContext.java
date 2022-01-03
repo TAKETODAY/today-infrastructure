@@ -427,10 +427,10 @@ public abstract class ExpressionContext {
   public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) throws ExpressionException {
     if (base == null) {
       throw new PropertyNotFoundException(
-              "ExpressionResolver cannot handle a null base Object with identifier ''" + property + "''");
+              "ExpressionResolver cannot handle a null base Object with identifier '" + property + "'");
     }
     throw new PropertyNotFoundException(
-            "ExpressionResolver did not handle type: " + base.getClass() + " with property of ''" + property + "''");
+            "ExpressionResolver did not handle type: " + base.getClass() + " with property of '" + property + "'");
   }
 
   /**

@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.support;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -389,5 +390,35 @@ public interface ConfigurableBeanFactory
    * @since 4.0
    */
   void resolveAliases(StringValueResolver valueResolver);
+
+  /**
+   * Freeze all bean definitions, signalling that the registered bean definitions
+   * will not be modified or post-processed any further.
+   * <p>This allows the factory to aggressively cache bean definition metadata.
+   *
+   * @since 4.0
+   */
+  void freezeConfiguration();
+
+  /**
+   * Return whether this factory's bean definitions are frozen,
+   * i.e. are not supposed to be modified or post-processed any further.
+   *
+   * @return {@code true} if the factory's configuration is considered frozen
+   * @since 4.0
+   */
+  boolean isConfigurationFrozen();
+
+  /**
+   * Clear the merged bean definition cache, removing entries for beans
+   * which are not considered eligible for full metadata caching yet.
+   * <p>Typically triggered after changes to the original bean definitions,
+   * e.g. after applying a {@link BeanFactoryPostProcessor}. Note that metadata
+   * for beans which have already been created at this point will be kept around.
+   *
+   * @see #getBeanDefinition
+   * @since 4.0
+   */
+  void clearMetadataCache();
 
 }

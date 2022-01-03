@@ -22,10 +22,12 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -38,8 +40,8 @@ public class ImportVersusDirectRegistrationTests {
     try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
       directRegistration.register(AccidentalLiteConfiguration.class);
       directRegistration.refresh();
-      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-              directRegistration.getBean(Thing.class));
+      Thing bean = directRegistration.getBean(Thing.class);
+      assertThat(bean).isNull();
     }
   }
 
@@ -49,8 +51,8 @@ public class ImportVersusDirectRegistrationTests {
       directRegistration.registerBeanDefinition("config",
               new BeanDefinition(AccidentalLiteConfiguration.class.getName()));
       directRegistration.refresh();
-      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-              directRegistration.getBean(Thing.class));
+
+      assertThat(directRegistration.getBean(Thing.class)).isNull();
     }
   }
 
@@ -60,7 +62,7 @@ public class ImportVersusDirectRegistrationTests {
       viaImport.register(Importer.class);
       viaImport.refresh();
       assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-              viaImport.getBean(Thing.class));
+              BeanFactoryUtils.requiredBean(viaImport, Thing.class));
     }
   }
 

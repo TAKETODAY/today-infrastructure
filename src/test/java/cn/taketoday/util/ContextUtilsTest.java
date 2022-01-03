@@ -45,7 +45,6 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.lang.Env;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -170,7 +169,7 @@ public class ContextUtilsTest {
             @Props(prefix = "site.admin.") UserModel model, //
             @Props(prefix = "site.") Properties properties, //
             Properties emptyProperties, //
-            @Env("placeHolder") int placeHolderEnv,
+            @Value("${placeHolder}") int placeHolderEnv,
             @Value("${placeHolder}") int placeHolder,
 
             Collection<Object> objects,

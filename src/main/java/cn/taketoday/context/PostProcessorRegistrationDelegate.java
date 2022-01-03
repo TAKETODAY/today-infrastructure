@@ -27,15 +27,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.AbstractBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.event.ApplicationListenerDetector;
 import cn.taketoday.core.OrderComparator;
@@ -190,7 +190,7 @@ final class PostProcessorRegistrationDelegate {
 
     // Clear cached merged bean definitions since the post-processors might have
     // modified the original metadata, e.g. replacing placeholders in values...
-//    beanFactory.clearMetadataCache();
+    beanFactory.clearMetadataCache();
   }
 
   public static void registerBeanPostProcessors(

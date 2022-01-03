@@ -43,7 +43,7 @@ class ELFieldTests {
   @Value("#{235.1}")
   private float testFloat;
 
-  @Value(required = false, value = "#{user}")
+  @Value("#{user}")
   private User user;
 
   @Value(value = "#{env.getProperty('site.name')}")

@@ -20,15 +20,11 @@
 
 package cn.taketoday.beans.factory.support;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
@@ -141,25 +137,6 @@ public class DefaultBeanDefinitionRegistry
   @Override
   public boolean isAllowBeanDefinitionOverriding() {
     return allowBeanDefinitionOverriding;
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of Iterable interface
-  //---------------------------------------------------------------------
-
-  @Override
-  public Iterator<BeanDefinition> iterator() {
-    return beanDefinitionMap.values().iterator();
-  }
-
-  @Override
-  public void forEach(Consumer<? super BeanDefinition> action) {
-    beanDefinitionMap.values().forEach(action);
-  }
-
-  @Override
-  public Spliterator<BeanDefinition> spliterator() {
-    return beanDefinitionMap.values().spliterator();
   }
 
 }

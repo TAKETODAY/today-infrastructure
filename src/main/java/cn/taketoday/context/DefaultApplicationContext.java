@@ -27,11 +27,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
@@ -277,11 +277,6 @@ public class DefaultApplicationContext
   @Override
   public BeanDefinition getBeanDefinition(String beanName) {
     return beanFactory.getBeanDefinition(beanName);
-  }
-
-  @Override
-  public Iterator<BeanDefinition> iterator() {
-    return beanFactory.iterator();
   }
 
   //---------------------------------------------------------------------

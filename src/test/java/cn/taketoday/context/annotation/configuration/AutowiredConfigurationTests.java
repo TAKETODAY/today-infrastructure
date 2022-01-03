@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.Colour;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.StandardApplicationContext;
@@ -39,8 +41,6 @@ import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Value;
 import jakarta.inject.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -313,12 +313,12 @@ public class AutowiredConfigurationTests {
   @Configuration
   static class ValueConfig {
 
-    @Value("#{systemProperties[myProp]}")
+    @Value("#{systemProperties['myProp']}")
     private String name;
 
     private String name2;
 
-    @Value("#{systemProperties[myProp]}")
+    @Value("#{systemProperties['myProp']}")
     public void setName2(String name) {
       this.name2 = name;
     }
@@ -336,7 +336,7 @@ public class AutowiredConfigurationTests {
     }
   }
 
-  @Value("#{systemProperties[myProp]}")
+  @Value("#{systemProperties['myProp']}")
   @Retention(RetentionPolicy.RUNTIME)
   public @interface MyProp {
   }
@@ -380,12 +380,12 @@ public class AutowiredConfigurationTests {
   @Scope("prototype")
   static class ValueConfigWithAliasedMetaAnnotation {
 
-    @AliasedProp("#{systemProperties[myProp]}")
+    @AliasedProp("#{systemProperties['myProp']}")
     private String name;
 
     private String name2;
 
-    @AliasedProp("#{systemProperties[myProp]}")
+    @AliasedProp("#{systemProperties['myProp']}")
     public void setName2(String name) {
       this.name2 = name;
     }
@@ -406,12 +406,12 @@ public class AutowiredConfigurationTests {
   @Configuration
   static class ValueConfigWithProviderFields {
 
-    @Value("#{systemProperties[myProp]}")
+    @Value("#{systemProperties['myProp']}")
     private Provider<String> name;
 
     private Provider<String> name2;
 
-    @Value("#{systemProperties[myProp]}")
+    @Value("#{systemProperties['myProp']}")
     public void setName2(Provider<String> name) {
       this.name2 = name;
     }
@@ -436,8 +436,9 @@ public class AutowiredConfigurationTests {
     private final Provider<String> name2;
 
     @Autowired
-    public ValueConfigWithProviderConstructorArguments(@Value("#{systemProperties[myProp]}") Provider<String> name,
-                                                       @Value("#{systemProperties[myProp]}") Provider<String> name2) {
+    public ValueConfigWithProviderConstructorArguments(
+            @Value("#{systemProperties['myProp']}") Provider<String> name,
+            @Value("#{systemProperties['myProp']}") Provider<String> name2) {
       this.name = name;
       this.name2 = name2;
     }
@@ -460,13 +461,13 @@ public class AutowiredConfigurationTests {
 
     @Bean
     @Scope("prototype")
-    public TestBean testBean(@Value("#{systemProperties[myProp]}") Provider<String> name) {
+    public TestBean testBean(@Value("#{systemProperties['myProp']}") Provider<String> name) {
       return new TestBean(name.get());
     }
 
     @Bean
     @Scope("prototype")
-    public TestBean testBean2(@Value("#{systemProperties[myProp]}") Provider<String> name2) {
+    public TestBean testBean2(@Value("#{systemProperties['myProp']}") Provider<String> name2) {
       return new TestBean(name2.get());
     }
   }

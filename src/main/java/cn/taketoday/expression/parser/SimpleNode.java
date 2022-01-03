@@ -66,19 +66,19 @@ public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
     id = i;
   }
 
-  public void jjtOpen() { }
+  public void open() { }
 
-  public void jjtClose() { }
+  public void close() { }
 
-  public void jjtSetParent(Node n) {
+  public void setParent(Node n) {
     parent = n;
   }
 
-  public Node jjtGetParent() {
+  public Node getParent() {
     return parent;
   }
 
-  public void jjtAddChild(Node n, int i) {
+  public void addChild(Node n, int i) {
     if (children == null) {
       children = new Node[i + 1];
     }
@@ -90,11 +90,11 @@ public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
     children[i] = n;
   }
 
-  public Node jjtGetChild(int i) {
+  public Node getChild(int i) {
     return children[i];
   }
 
-  public int jjtGetNumChildren() {
+  public int getNumberOfChildren() {
     return (children == null) ? 0 : children.length;
   }
 

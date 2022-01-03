@@ -27,9 +27,9 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.lang.Env;
 import cn.taketoday.util.ResourceUtils;
 
 /**
@@ -38,7 +38,7 @@ import cn.taketoday.util.ResourceUtils;
  */
 public class MybatisConfigurationFactoryBean implements FactoryBean<Configuration>, InitializingBean {
 
-  @Env("mybatis.config")
+  @Value("${mybatis.config:}")
   private String configLocation;
 
   @Props(prefix = "mybatis.", replace = true)
