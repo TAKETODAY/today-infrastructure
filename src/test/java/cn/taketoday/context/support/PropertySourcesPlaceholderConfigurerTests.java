@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -352,7 +352,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   @Test
   public void optionalPropertyWithValue() {
     StandardBeanFactory bf = new StandardBeanFactory();
-    bf.setConversionService(new DefaultConversionService());
+    DefaultConversionService conversionService = new DefaultConversionService();
+    DefaultConversionService.addDefaultConverters(conversionService);
+    bf.setConversionService(conversionService);
     bf.registerBeanDefinition("testBean",
             new BeanDefinition(OptionalTestBean.class)
                     .addPropertyValue("name", "${my.name}")
@@ -371,7 +373,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   @Test
   public void optionalPropertyWithoutValue() {
     StandardBeanFactory bf = new StandardBeanFactory();
-    bf.setConversionService(new DefaultConversionService());
+    DefaultConversionService conversionService = new DefaultConversionService();
+    DefaultConversionService.addDefaultConverters(conversionService);
+    bf.setConversionService(conversionService);
     bf.registerBeanDefinition("testBean",
             new BeanDefinition(OptionalTestBean.class)
                     .addPropertyValue("name", "${my.name}"));

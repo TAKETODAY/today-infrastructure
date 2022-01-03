@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
+import cn.taketoday.aop.proxy.StandardProxy;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
@@ -149,7 +150,7 @@ class ConfigurationClassEnhancer {
    * must remain public in order to allow access to subclasses generated from other
    * packages (i.e. user code).
    */
-  public interface EnhancedConfiguration extends BeanFactoryAware { }
+  public interface EnhancedConfiguration extends BeanFactoryAware, StandardProxy { }
 
   /**
    * Conditional {@link Callback}.

@@ -22,10 +22,10 @@ package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -46,7 +46,8 @@ public class Spr7167Tests {
             .isEqualTo("post processed by MyPostProcessor");
 
     MyConfig config = ctx.getBean(MyConfig.class);
-    assertThat(AopUtils.isCglibProxy(config)).as("Config class was not enhanced").isTrue();
+    assertThat(config).as("Config class was not enhanced")
+            .isInstanceOf(BeanFactoryAware.class);
   }
 
 }

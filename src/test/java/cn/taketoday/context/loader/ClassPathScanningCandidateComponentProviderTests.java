@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.loader;
 
+import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
@@ -27,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Profile;
@@ -59,7 +59,6 @@ import example.scannable.ScopedProxyTestBean;
 import example.scannable.ServiceInvocationCounter;
 import example.scannable.StubFooDao;
 import example.scannable.sub.BarComponent;
-import type.AnnotatedComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -500,9 +499,9 @@ class ClassPathScanningCandidateComponentProviderTests {
   @Test
   public void componentScanningFindsComponentsAnnotatedWithAnnotationsContainingNestedAnnotations() {
     ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-    Set<BeanDefinition> components = provider.findCandidateComponents(AnnotatedComponent.class.getPackage().getName());
+    Set<BeanDefinition> components = provider.findCandidateComponents(example.gh24375.AnnotatedComponent.class.getPackage().getName());
     assertThat(components).hasSize(1);
-    assertThat(components.iterator().next().getBeanClassName()).isEqualTo(AnnotatedComponent.class.getName());
+    assertThat(components.iterator().next().getBeanClassName()).isEqualTo(example.gh24375.AnnotatedComponent.class.getName());
   }
 
   private boolean containsBeanClass(Set<BeanDefinition> candidates, Class<?> beanClass) {

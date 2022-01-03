@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.core.io.ClassRelativeResourceLoader;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.jdbc.core.JdbcTemplate;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 public class EmbeddedDatabaseFactoryBeanTests {
 
-  private final DefaultResourceLoader resourceLoader = new DefaultResourceLoader(getClass().getClassLoader());
+  private final DefaultResourceLoader resourceLoader = new ClassRelativeResourceLoader(getClass());
 
   Resource resource(String path) {
     return resourceLoader.getResource(path);
