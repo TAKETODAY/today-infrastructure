@@ -33,6 +33,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyReadOnlyException;
@@ -183,7 +184,11 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public final void setValue(Object obj, Object value) {
-    if (!getType().isInstance(value)) {
+    Class<?> propertyType = getType();
+    if (value == null && propertyType == Optional.class) {
+      value = Optional.empty();
+    }
+    else if (!propertyType.isInstance(value)) {
       ConversionService conversionService = getConversionService();
       if (conversionService == null) {
         conversionService = DefaultConversionService.getSharedInstance();
@@ -194,9 +199,20 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
         typeDescriptor = TypeDescriptor.fromProperty(this);
         this.typeDescriptor = typeDescriptor;
       }
-      value = conversionService.convert(value, typeDescriptor);
+      value = handleOptional(
+              conversionService.convert(value, typeDescriptor), propertyType);
     }
     setDirectly(obj, value);
+  }
+
+  // @since 4.0
+  @Nullable
+  static Object handleOptional(Object value, Class<?> propertyType) {
+    // convertedValue == null
+    if (value == null && propertyType == Optional.class) {
+      value = Optional.empty();
+    }
+    return value;
   }
 
   /**

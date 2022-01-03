@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.beans.InvalidPropertyValueException;
@@ -512,9 +513,6 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException conversion failed
    */
   public Object convertIfNecessary(Object value, BeanProperty beanProperty) {
-    if (value == null || beanProperty.isInstance(value)) {
-      return value;
-    }
     try {
       return doConvertInternal(value, beanProperty);
     }
@@ -523,6 +521,9 @@ public class BeanPropertyAccessor {
     }
   }
 
+  /**
+   * @throws InvalidPropertyValueException conversion failed
+   */
   protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
     return doConvertInternal(value, TypeDescriptor.fromProperty(beanProperty));
   }
@@ -531,13 +532,20 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException conversion failed
    */
   public Object convertIfNecessary(@Nullable Object value, Class<?> requiredType) {
-    if (value == null || requiredType.isInstance(value)) {
-      return value;
-    }
     return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
   }
 
-  protected Object doConvertInternal(Object value, TypeDescriptor requiredType) {
+  /**
+   * @throws InvalidPropertyValueException conversion failed
+   */
+  private Object doConvertInternal(Object value, TypeDescriptor requiredType) {
+    Class<?> type = requiredType.getType();
+    if (value == null && type == Optional.class) {
+      return Optional.empty();
+    }
+    if (requiredType.isInstance(value)) {
+      return value;
+    }
     ConversionService conversionService = getConversionService();
     if (conversionService == null) {
       conversionService = DefaultConversionService.getSharedInstance();
@@ -546,7 +554,8 @@ public class BeanPropertyAccessor {
     if (typeConverter == null) {
       return converterNotFound(value, requiredType);
     }
-    return typeConverter.convert(requiredType, value);
+    Object convertedValue = typeConverter.convert(requiredType, value);
+    return BeanProperty.handleOptional(convertedValue, type);
   }
 
   protected Object converterNotFound(Object value, TypeDescriptor requiredType) {

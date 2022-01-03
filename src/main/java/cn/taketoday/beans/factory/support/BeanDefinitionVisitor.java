@@ -29,8 +29,6 @@ import java.util.Set;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.beans.factory.PropertyValue;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.PlaceholderConfigurerSupport;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -157,6 +155,9 @@ public class BeanDefinitionVisitor {
       }
       return ref;
     }
+    else if (value instanceof BeanDefinition) {
+      visitBeanDefinition((BeanDefinition) value);
+    }
     else if (value instanceof Object[]) {
       visitArray((Object[]) value);
     }
@@ -168,6 +169,13 @@ public class BeanDefinitionVisitor {
     }
     else if (value instanceof Map) {
       visitMap((Map) value);
+    }
+    else if (value instanceof TypedStringValue typedStringValue) {
+      String stringValue = typedStringValue.getValue();
+      if (stringValue != null) {
+        String visitedString = resolveStringValue(stringValue);
+        typedStringValue.setValue(visitedString);
+      }
     }
     else if (value instanceof String) {
       return resolveStringValue((String) value);
