@@ -26,13 +26,15 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.core.ClassGenerator;
@@ -495,8 +497,14 @@ class ConfigurationClassEnhancer {
         fbProxy = ReflectionUtils.accessibleConstructor(fbClass).newInstance();
       }
       catch (Throwable ex) {
-        throw new IllegalStateException("Unable to instantiate enhanced FactoryBean using constructor, " +
-                "and regular FactoryBean instantiation via default constructor fails as well", ex);
+        try {
+          // fallback using BeanInstantiator.forSerialization
+          fbProxy = BeanInstantiator.forSerialization(fbClass).instantiate();
+        }
+        catch (BeanInstantiationException ignored) {
+          throw new IllegalStateException("Unable to instantiate enhanced FactoryBean using constructor, " +
+                  "and regular FactoryBean instantiation via default constructor fails as well", ex);
+        }
       }
 
       ((Factory) fbProxy).setCallback(0, (MethodInterceptor) (obj, method, args, proxy) -> {

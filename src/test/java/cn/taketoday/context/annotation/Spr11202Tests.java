@@ -34,7 +34,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -68,7 +67,7 @@ public class Spr11202Tests {
 
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      return new String[0];
+      return new String[] { Config.class.getName() };
     }
   }
 
