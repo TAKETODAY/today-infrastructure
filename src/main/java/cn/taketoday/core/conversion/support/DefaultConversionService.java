@@ -368,6 +368,9 @@ public class DefaultConversionService implements ConfigurableConversionService, 
             new IdToEntityConverter((ConversionService) registry),
             new ObjectToOptionalConverter((ConversionService) registry),
 
+            // @since 4.0
+            new ObjectToSupplierConverter((ConversionService) registry),
+
             new PrimitiveClassConverter(),
 
             new ObjectToObjectConverter(),
