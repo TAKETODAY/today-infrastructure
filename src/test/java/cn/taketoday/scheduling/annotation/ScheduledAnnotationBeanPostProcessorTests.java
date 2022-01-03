@@ -48,6 +48,7 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.annotation.AliasFor;
@@ -340,8 +341,8 @@ class ScheduledAnnotationBeanPostProcessorTests {
     BeanDefinition targetDefinition = new BeanDefinition(CronWithInvalidTimezoneTestBean.class);
     context.registerBeanDefinition("postProcessor", processorDefinition);
     context.registerBeanDefinition("target", targetDefinition);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-            context::refresh);
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh);
   }
 
 //  @Test
@@ -702,8 +703,8 @@ class ScheduledAnnotationBeanPostProcessorTests {
     BeanDefinition targetDefinition = new BeanDefinition(EmptyAnnotationTestBean.class);
     context.registerBeanDefinition("postProcessor", processorDefinition);
     context.registerBeanDefinition("target", targetDefinition);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-            context::refresh);
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh);
   }
 
   @Test
@@ -712,8 +713,8 @@ class ScheduledAnnotationBeanPostProcessorTests {
     BeanDefinition targetDefinition = new BeanDefinition(InvalidCronTestBean.class);
     context.registerBeanDefinition("postProcessor", processorDefinition);
     context.registerBeanDefinition("target", targetDefinition);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-            context::refresh);
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh);
   }
 
   @Test
@@ -722,8 +723,8 @@ class ScheduledAnnotationBeanPostProcessorTests {
     BeanDefinition targetDefinition = new BeanDefinition(NonEmptyParamListTestBean.class);
     context.registerBeanDefinition("postProcessor", processorDefinition);
     context.registerBeanDefinition("target", targetDefinition);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-            context::refresh);
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh);
   }
 
   static class FixedDelay {

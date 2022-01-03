@@ -29,8 +29,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.task.TaskExecutor;
@@ -108,6 +113,23 @@ public class ExecutorBeanDefinitionParserTests {
     context.registerBeanDefinition(new BeanDefinition(
             "propertySourcesPlaceholderConfigurer", PropertySourcesPlaceholderConfigurer.class)
             .addPropertyValue("properties", properties));
+
+    context.addBeanFactoryPostProcessor(new BeanDefinitionRegistryPostProcessor() {
+      @Override
+      public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        for (String beanDefinitionName : registry.getBeanDefinitionNames()) {
+          BeanDefinition beanDefinition = registry.getBeanDefinition(beanDefinitionName);
+          if (beanDefinition != null) {
+            beanDefinition.setLazyInit(true);
+          }
+        }
+      }
+
+      @Override
+      public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+
+      }
+    });
 
     context.refresh();
   }
@@ -191,8 +213,8 @@ public class ExecutorBeanDefinitionParserTests {
 
   @Test
   public void propertyPlaceholderWithInvalidPoolSize() {
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-            this.context.getBean("propertyPlaceholderWithInvalidPoolSize"));
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.context.getBean("propertyPlaceholderWithInvalidPoolSize"));
   }
 
   @Test
