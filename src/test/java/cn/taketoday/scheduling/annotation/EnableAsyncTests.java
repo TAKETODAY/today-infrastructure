@@ -39,9 +39,9 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
-import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;
@@ -324,9 +324,9 @@ public class EnableAsyncTests {
   @Test
   @SuppressWarnings("resource")
   public void exceptionThrownWithBeanNotOfRequiredTypeRootCause() {
-    assertThatExceptionOfType(Throwable.class).isThrownBy(() ->
-                    new StandardApplicationContext(JdkProxyConfiguration.class))
-            .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
+    assertThatExceptionOfType(Throwable.class)
+            .isThrownBy(() -> new StandardApplicationContext(JdkProxyConfiguration.class))
+            .withCauseInstanceOf(UnsatisfiedDependencyException.class);
   }
 
   static class AsyncBeanWithExecutorQualifiedByName {
