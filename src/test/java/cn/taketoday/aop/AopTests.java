@@ -47,9 +47,9 @@ import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,6 +75,7 @@ class AopTests {
           TestInterceptor.class, //
           TimeAspect.class//
   })
+  @EnableAspectAutoProxy
   static class AopConfig {
 
   }
@@ -270,6 +271,7 @@ class AopTests {
   }
 
   @Configuration
+  @EnableAspectAutoProxy
   @Import({ LoggingInterceptor.class, MyInterceptor.class })
   static class LoggingConfig {
 
