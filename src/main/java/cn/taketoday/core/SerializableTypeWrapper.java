@@ -39,6 +39,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Objects;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -249,14 +250,6 @@ final class SerializableTypeWrapper {
     private final int parameterIndex;
     private transient Parameter methodParameter;
 
-    public ParameterTypeProvider(MethodParameter methodParameter) {
-      this.methodName = (methodParameter.getMethod() != null ? methodParameter.getMethod().getName() : null);
-      this.parameterTypes = methodParameter.getExecutable().getParameterTypes();
-      this.declaringClass = methodParameter.getDeclaringClass();
-      this.parameterIndex = methodParameter.getParameterIndex();
-      this.methodParameter = methodParameter.getParameter();
-    }
-
     public ParameterTypeProvider(Parameter parameter) {
       this(parameter, ReflectionUtils.getParameterIndex(parameter));
     }
@@ -291,6 +284,61 @@ final class SerializableTypeWrapper {
         else {
           Constructor<?> constructor = this.declaringClass.getDeclaredConstructor(this.parameterTypes);
           this.methodParameter = constructor.getParameters()[parameterIndex];
+        }
+      }
+      catch (Throwable ex) {
+        throw new IllegalStateException("Could not find original class structure", ex);
+      }
+    }
+  }
+
+  /**
+   * {@link TypeProvider} for {@link Type Types} obtained from a {@link MethodParameter}.
+   *
+   * @since 4.0
+   */
+  static class MethodParameterTypeProvider implements TypeProvider {
+
+    @Nullable
+    private final String methodName;
+
+    private final Class<?>[] parameterTypes;
+
+    private final Class<?> declaringClass;
+
+    private final int parameterIndex;
+
+    private transient MethodParameter methodParameter;
+
+    public MethodParameterTypeProvider(MethodParameter methodParameter) {
+      this.methodName = (methodParameter.getMethod() != null ? methodParameter.getMethod().getName() : null);
+      this.parameterTypes = methodParameter.getExecutable().getParameterTypes();
+      this.declaringClass = methodParameter.getDeclaringClass();
+      this.parameterIndex = methodParameter.getParameterIndex();
+      this.methodParameter = methodParameter;
+    }
+
+    @Override
+    public Type getType() {
+      return this.methodParameter.getGenericParameterType();
+    }
+
+    @Override
+    public Object getSource() {
+      return this.methodParameter;
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
+      inputStream.defaultReadObject();
+      try {
+        if (this.methodName != null) {
+          this.methodParameter = new MethodParameter(
+                  this.declaringClass.getDeclaredMethod(this.methodName, this.parameterTypes), this.parameterIndex);
+        }
+        else {
+          this.methodParameter = new MethodParameter(
+                  this.declaringClass.getDeclaredConstructor(this.parameterTypes), this.parameterIndex);
         }
       }
       catch (Throwable ex) {

@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.core.SerializableTypeWrapper.MethodParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.ParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.lang.Assert;
@@ -1051,7 +1052,7 @@ public class ResolvableType implements Serializable {
     implementationType = (implementationType != null ? implementationType :
                           fromType(methodParameter.getContainingClass()));
     ResolvableType owner = implementationType.as(methodParameter.getDeclaringClass());
-    return valueOf(null, new ParameterTypeProvider(methodParameter), owner.asVariableResolver()).
+    return valueOf(null, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver()).
             getNested(methodParameter.getNestingLevel(), methodParameter.typeIndexesPerLevel);
   }
 
@@ -1085,7 +1086,7 @@ public class ResolvableType implements Serializable {
   static ResolvableType forMethodParameter(
           MethodParameter methodParameter, @Nullable Type targetType, int nestingLevel) {
     ResolvableType owner = fromType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
-    return valueOf(targetType, new ParameterTypeProvider(methodParameter), owner.asVariableResolver()).
+    return valueOf(targetType, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver()).
             getNested(nestingLevel, methodParameter.typeIndexesPerLevel);
   }
 
