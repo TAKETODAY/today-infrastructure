@@ -110,8 +110,8 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
   public void testMappingNullValue() throws Exception {
     BeanPropertyRowMapper<Person> mapper = new BeanPropertyRowMapper<>(Person.class);
     Mock mock = new Mock(MockType.TWO);
-    assertThatExceptionOfType(TypeMismatchException.class).isThrownBy(() ->
-            mock.getJdbcTemplate().query("select name, null as age, birth_date, balance from people", mapper));
+    assertThatExceptionOfType(TypeMismatchException.class)
+            .isThrownBy(() -> mock.getJdbcTemplate().query("select name, null as age, birth_date, balance from people", mapper));
   }
 
   @Test

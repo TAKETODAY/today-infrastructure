@@ -486,7 +486,7 @@ public class ClassPathBeanDefinitionScannerTests {
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(true);
     scanner.setBeanNamePopulator(new TestBeanNamePopulator());
-//    scanner.setAutowireCandidatePatterns("*FooDao");
+    scanner.setAutowireCandidatePatterns("*FooDao");
     scanner.scan(BASE_PACKAGE);
     context.refresh();
 

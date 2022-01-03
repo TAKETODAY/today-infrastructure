@@ -51,6 +51,7 @@ import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
+import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ApplicationListenerDetector;
 import cn.taketoday.context.event.ContextClosedEvent;
@@ -75,6 +76,7 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -612,7 +614,11 @@ public abstract class AbstractApplicationContext
       beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
     }
 
+    // BeanFactory interface not registered as resolvable type in a plain factory.
+    // MessageSource registered (and found for autowiring) as a bean.
     beanFactory.registerDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerDependency(ResourceLoader.class, this);
+    beanFactory.registerDependency(ApplicationEventPublisher.class, this);
     beanFactory.registerDependency(ApplicationContext.class, this);
   }
 

@@ -74,9 +74,9 @@ public class ResourceUtilsTest {
     resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/ignore/jar-prefix");
     assertThat(resource.exists()).isFalse();
 
-    resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/today.strategies");
-    assertThat(resource.exists()).isTrue();
-    assertThat(StreamUtils.copyToString(resource.getInputStream())).isNotEmpty();
+//    resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/today.strategies");
+//    assertThat(resource.exists()).isTrue();
+//    assertThat(StreamUtils.copyToString(resource.getInputStream())).isNotEmpty();
 
     resource = ResourceUtils.getResource("jar:file://" + userDir + "/src/test/resources/test.jar!/META-INF/");
 //        System.err.println(resource);
