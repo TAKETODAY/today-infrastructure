@@ -46,6 +46,7 @@ import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
@@ -1257,13 +1258,14 @@ public class ResolvableType implements Serializable {
 
       @Override
       public boolean isAssignableFrom(Class<?> other) {
-        return (clazz == null || clazz.isAssignableFrom(other));
+        return clazz == null || ClassUtils.isAssignable(clazz, other);
       }
 
       @Override
       public boolean isAssignableFrom(ResolvableType other) {
         Class<?> otherClass = other.resolve();
-        return (otherClass != null && (clazz == null || clazz.isAssignableFrom(otherClass)));
+        return otherClass != null
+                && (clazz == null || ClassUtils.isAssignable(clazz, otherClass));
       }
     };
   }
