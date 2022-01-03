@@ -285,6 +285,7 @@ public abstract class AbstractBeanFactory
           }
         }
         else {
+          // other scope
           String scopeName = definition.getScope();
           if (StringUtils.isEmpty(scopeName)) {
             throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
@@ -302,6 +303,10 @@ public abstract class AbstractBeanFactory
               afterPrototypeCreation(beanName);
             }
           });
+        }
+        // null
+        if (beanInstance == null) {
+          return null;
         }
         beanInstance = handleFactoryBean(name, beanName, definition, beanInstance);
       }
@@ -805,7 +810,8 @@ public abstract class AbstractBeanFactory
 
     if (allowInit && mbd.isSingleton()) {
       try {
-        FactoryBean<?> factoryBean = doGetBean(FACTORY_BEAN_PREFIX + mbd.getBeanName(), FactoryBean.class, null, true);
+        FactoryBean<?> factoryBean = doGetBean(
+                FACTORY_BEAN_PREFIX + mbd.getBeanName(), FactoryBean.class, null, true);
         Class<?> objectType = getTypeForFactoryBean(factoryBean);
         return objectType != null ? ResolvableType.fromClass(objectType) : ResolvableType.NONE;
       }
@@ -1510,12 +1516,17 @@ public abstract class AbstractBeanFactory
    */
   @Nullable
   protected Object handleFactoryBean(
-          String name, String beanName, BeanDefinition definition, @Nullable Object beanInstance) throws BeansException {
+          String name, String beanName,
+          @Nullable BeanDefinition definition, Object beanInstance) throws BeansException {
     // Don't let calling code try to dereference the factory if the bean isn't a factory.
     if (BeanFactoryUtils.isFactoryDereference(name)) {
       if (!(beanInstance instanceof FactoryBean)) {
         throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
       }
+      if (definition != null) {
+        definition.setFactoryBean(true);
+      }
+      // get FactoryBean instance
       return beanInstance;
     }
 
@@ -1528,6 +1539,9 @@ public abstract class AbstractBeanFactory
       }
       beanInstance = objectFromFactoryBeanCache.get(beanName);
       if (beanInstance == null) {
+        if (definition != null) {
+          definition.setFactoryBean(true);
+        }
         // get bean from FactoryBean
         boolean synthetic = (definition != null && definition.isSynthetic());
         beanInstance = getObjectFromFactoryBean(factory, beanName, !synthetic);
