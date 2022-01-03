@@ -159,6 +159,7 @@ public class ScopingTests {
     assertThat(condition).isFalse();
   }
 
+/*
   @Test
   public void testScopedProxyConfiguration() throws Exception {
     TestBean singleton = (TestBean) ctx.getBean("singletonWithScopedInterfaceDep");
@@ -191,7 +192,9 @@ public class ScopingTests {
     spouseFromBF = (ITestBean) ctx.getBean(scopedBeanName);
     assertThat(spouseFromBF.getName()).isSameAs(spouse.getName());
   }
+*/
 
+/*
   @Test
   public void testScopedProxyConfigurationWithClasses() throws Exception {
     TestBean singleton = (TestBean) ctx.getBean("singletonWithScopedClassDep");
@@ -225,6 +228,7 @@ public class ScopingTests {
     spouseFromBF = (TestBean) ctx.getBean(scopedBeanName);
     assertThat(spouseFromBF.getName()).isSameAs(spouse.getName());
   }
+*/
 
   static class Foo {
 
