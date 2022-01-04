@@ -510,7 +510,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
     // We at least need the JTA UserTransaction.
     if (this.userTransaction != null) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Using JTA UserTransaction: " + this.userTransaction);
+        logger.debug("Using JTA UserTransaction: {}", this.userTransaction);
       }
     }
     else {
@@ -521,7 +521,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
     // For transaction suspension, the JTA TransactionManager is necessary too.
     if (this.transactionManager != null) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Using JTA TransactionManager: " + this.transactionManager);
+        logger.debug("Using JTA TransactionManager: {}", this.transactionManager);
       }
     }
     else {
@@ -556,7 +556,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
 
     if (this.transactionSynchronizationRegistry != null) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Using JTA TransactionSynchronizationRegistry: " + this.transactionSynchronizationRegistry);
+        logger.debug("Using JTA TransactionSynchronizationRegistry: {}", transactionSynchronizationRegistry);
       }
     }
   }
@@ -591,7 +591,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
           throws TransactionSystemException {
     try {
       if (logger.isDebugEnabled()) {
-        logger.debug("Retrieving JTA UserTransaction from JNDI location [" + userTransactionName + "]");
+        logger.debug("Retrieving JTA UserTransaction from JNDI location [{}]", userTransactionName);
       }
       return getJndiTemplate().lookup(userTransactionName, UserTransaction.class);
     }
@@ -616,7 +616,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
           throws TransactionSystemException {
     try {
       if (logger.isDebugEnabled()) {
-        logger.debug("Retrieving JTA TransactionManager from JNDI location [" + transactionManagerName + "]");
+        logger.debug("Retrieving JTA TransactionManager from JNDI location [{}]", transactionManagerName);
       }
       return getJndiTemplate().lookup(transactionManagerName, TransactionManager.class);
     }
@@ -640,7 +640,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
   protected TransactionSynchronizationRegistry lookupTransactionSynchronizationRegistry(String registryName) throws TransactionSystemException {
     try {
       if (logger.isDebugEnabled()) {
-        logger.debug("Retrieving JTA TransactionSynchronizationRegistry from JNDI location [" + registryName + "]");
+        logger.debug("Retrieving JTA TransactionSynchronizationRegistry from JNDI location [{}]", registryName);
       }
       return getJndiTemplate().lookup(registryName, TransactionSynchronizationRegistry.class);
     }
@@ -707,14 +707,14 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
     try {
       UserTransaction ut = getJndiTemplate().lookup(jndiName, UserTransaction.class);
       if (logger.isDebugEnabled()) {
-        logger.debug("JTA UserTransaction found at default JNDI location [" + jndiName + "]");
+        logger.debug("JTA UserTransaction found at default JNDI location [{}]", jndiName);
       }
       this.userTransactionObtainedFromJndi = true;
       return ut;
     }
     catch (NamingException ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("No JTA UserTransaction found at default JNDI location [" + jndiName + "]", ex);
+        logger.debug("No JTA UserTransaction found at default JNDI location [{}]", jndiName, ex);
       }
       return null;
     }
@@ -733,7 +733,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
   protected TransactionManager findTransactionManager(@Nullable UserTransaction ut) {
     if (ut instanceof TransactionManager) {
       if (logger.isDebugEnabled()) {
-        logger.debug("JTA UserTransaction object [" + ut + "] implements TransactionManager");
+        logger.debug("JTA UserTransaction object [{}] implements TransactionManager", ut);
       }
       return (TransactionManager) ut;
     }
@@ -743,13 +743,13 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
       try {
         TransactionManager tm = getJndiTemplate().lookup(jndiName, TransactionManager.class);
         if (logger.isDebugEnabled()) {
-          logger.debug("JTA TransactionManager found at fallback JNDI location [" + jndiName + "]");
+          logger.debug("JTA TransactionManager found at fallback JNDI location [{}]", jndiName);
         }
         return tm;
       }
       catch (NamingException ex) {
         if (logger.isDebugEnabled()) {
-          logger.debug("No JTA TransactionManager found at fallback JNDI location [" + jndiName + "]", ex);
+          logger.debug("No JTA TransactionManager found at fallback JNDI location [{]]", jndiName, ex);
         }
       }
     }
@@ -781,13 +781,14 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
       try {
         TransactionSynchronizationRegistry tsr = getJndiTemplate().lookup(jndiName, TransactionSynchronizationRegistry.class);
         if (logger.isDebugEnabled()) {
-          logger.debug("JTA TransactionSynchronizationRegistry found at default JNDI location [" + jndiName + "]");
+          logger.debug("JTA TransactionSynchronizationRegistry found at default JNDI location [{}]", jndiName);
         }
         return tsr;
       }
       catch (NamingException ex) {
         if (logger.isDebugEnabled()) {
-          logger.debug("No JTA TransactionSynchronizationRegistry found at default JNDI location [" + jndiName + "]", ex);
+          logger.debug("No JTA TransactionSynchronizationRegistry found at default JNDI location [{}]",
+                  jndiName, ex);
         }
       }
     }
@@ -1052,7 +1053,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
         }
         catch (IllegalStateException ex) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Rollback failure with transaction already marked as rolled back: " + ex);
+            logger.debug("Rollback failure with transaction already marked as rolled back: {}", ex.toString());
           }
         }
         throw new UnexpectedRollbackException("JTA transaction already rolled back (probably due to a timeout)");
@@ -1090,7 +1091,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
           if (jtaStatus == Status.STATUS_ROLLEDBACK) {
             // Only really happens on JBoss 4.2 in case of an early timeout...
             if (logger.isDebugEnabled()) {
-              logger.debug("Rollback failure with transaction already marked as rolled back: " + ex);
+              logger.debug("Rollback failure with transaction already marked as rolled back: {}", ex.toString());
             }
           }
           else {
@@ -1142,14 +1143,14 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
         logger.debug("Participating in existing JTA transaction that has been marked for rollback: " +
                 "cannot register Framework after-completion callbacks with outer JTA transaction - " +
                 "immediately performing Framework after-completion callbacks with outcome status 'rollback'. " +
-                "Original exception: " + ex);
+                "Original exception: {}", ex.toString());
         invokeAfterCompletion(synchronizations, TransactionSynchronization.STATUS_ROLLED_BACK);
       }
       else {
         logger.debug("Participating in existing JTA transaction, but unexpected internal transaction " +
                 "state encountered: cannot register Framework after-completion callbacks with outer JTA " +
                 "transaction - processing Framework after-completion callbacks with outcome status 'unknown'" +
-                "Original exception: " + ex);
+                "Original exception: {}", ex.toString());
         invokeAfterCompletion(synchronizations, TransactionSynchronization.STATUS_UNKNOWN);
       }
     }

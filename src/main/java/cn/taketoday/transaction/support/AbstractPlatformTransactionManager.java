@@ -373,7 +373,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
               TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
         SuspendedResourcesHolder suspendedResources = suspend(null);
         if (debugEnabled) {
-          logger.debug("Creating new transaction with name [" + def.getName() + "]: " + def);
+          logger.debug("Creating new transaction with name [{}]: ", def, def.getName());
         }
         try {
           return startTransaction(def, transaction, debugEnabled, suspendedResources);
@@ -387,9 +387,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
         // Create "empty" transaction: no actual transaction, but potentially synchronization.
         if (def.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT && logger.isWarnEnabled()) {
           logger.warn("Custom isolation level specified but no actual transaction initiated; " +
-                  "isolation level will effectively be ignored: " + def);
+                  "isolation level will effectively be ignored: {}", def);
         }
-        boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
+        boolean newSynchronization = getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS;
         return prepareTransactionStatus(def, null, true, newSynchronization, debugEnabled, null);
       }
     }
@@ -403,7 +403,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
           TransactionDefinition definition, Object transaction,
           boolean debugEnabled, @Nullable SuspendedResourcesHolder suspendedResources) {
 
-    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+    boolean newSynchronization = getTransactionSynchronization() != SYNCHRONIZATION_NEVER;
     DefaultTransactionStatus status = newTransactionStatus(
             definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
     doBegin(transaction, definition);
@@ -435,8 +435,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
     if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW) {
       if (debugEnabled) {
-        logger.debug("Suspending current transaction, creating new transaction with name [" +
-                definition.getName() + "]");
+        logger.debug("Suspending current transaction, creating new transaction with name [{}]",
+                definition.getName());
       }
       SuspendedResourcesHolder suspendedResources = suspend(transaction);
       try {
@@ -455,7 +455,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
                         "specify 'nestedTransactionAllowed' property with value 'true'");
       }
       if (debugEnabled) {
-        logger.debug("Creating nested transaction with name [" + definition.getName() + "]");
+        logger.debug("Creating nested transaction with name [{}]", definition.getName());
       }
       if (useSavepointForNestedTransaction()) {
         // Create savepoint within existing Framework-managed transaction,
@@ -497,7 +497,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
         }
       }
     }
-    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+    boolean newSynchronization = getTransactionSynchronization() != SYNCHRONIZATION_NEVER;
     return prepareTransactionStatus(definition, transaction, false, newSynchronization, debugEnabled, null);
   }
 
