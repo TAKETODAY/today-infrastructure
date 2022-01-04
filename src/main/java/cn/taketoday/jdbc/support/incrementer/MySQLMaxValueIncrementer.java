@@ -65,6 +65,7 @@ import cn.taketoday.jdbc.support.JdbcUtils;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @since 4.0
  */
 public class MySQLMaxValueIncrementer extends AbstractColumnMaxValueIncrementer {
 
@@ -111,7 +112,6 @@ public class MySQLMaxValueIncrementer extends AbstractColumnMaxValueIncrementer 
    * <p>Default is {@code true}
    *
    * @see DataSource#getConnection()
-   * @since 4.0
    */
   public void setUseNewConnection(boolean useNewConnection) {
     this.useNewConnection = useNewConnection;
