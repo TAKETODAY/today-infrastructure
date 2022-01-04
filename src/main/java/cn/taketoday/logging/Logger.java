@@ -192,7 +192,7 @@ public abstract class Logger implements Serializable {
    * @param t the exception (throwable) to log
    */
   public void debug(String msg, Throwable t) {
-    logInternal(Level.DEBUG, msg);
+    logInternal(Level.DEBUG, msg, t);
   }
 
   /**
