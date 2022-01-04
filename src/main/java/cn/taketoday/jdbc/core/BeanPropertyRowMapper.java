@@ -179,6 +179,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     return this.mappedClass;
   }
 
+  @Nullable
   public BeanMetadata getMetadata() {
     return metadata;
   }
@@ -247,9 +248,10 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     this.mappedClass = mappedClass;
     this.mappedFields = new HashMap<>();
     this.mappedProperties = new HashSet<>();
-    this.metadata = BeanMetadata.from(mappedClass, collectPropertiesFromMethods);
+    BeanMetadata metadata = BeanMetadata.from(mappedClass, collectPropertiesFromMethods);
+    this.metadata = metadata;
+    this.accessor = new BeanPropertyAccessor();
 
-    accessor = new BeanPropertyAccessor();
     initBeanPropertyAccessor(accessor);
 
     for (BeanProperty property : metadata) {
