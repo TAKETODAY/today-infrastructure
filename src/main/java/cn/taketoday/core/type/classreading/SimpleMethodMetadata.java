@@ -23,6 +23,7 @@ package cn.taketoday.core.type.classreading;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -37,43 +38,37 @@ import cn.taketoday.util.ClassUtils;
  */
 final class SimpleMethodMetadata implements MethodMetadata {
 
-  private final String methodName;
-
   private final int access;
 
   private final String declaringClassName;
-
-  private final String returnTypeName;
 
   // The source implements equals(), hashCode(), and toString() for the underlying method.
   private final Object source;
 
   private final MergedAnnotations annotations;
 
-  private final int parameterCount;
-  private final Type[] argumentTypes;
+  private final MethodSignature methodSignature;
+
+  @Nullable
+  private volatile String returnTypeName;
 
   @Nullable
   private final ClassLoader classLoader;
 
-  SimpleMethodMetadata(String methodName, int access, String declaringClassName,
-                       String returnTypeName, Object source, MergedAnnotations annotations,
-                       Type[] argumentTypes, @Nullable ClassLoader classLoader) {
-
-    this.methodName = methodName;
+  SimpleMethodMetadata(int access, String declaringClassName,
+                       Object source, MergedAnnotations annotations,
+                       MethodSignature methodSignature, @Nullable ClassLoader classLoader) {
+    this.methodSignature = methodSignature;
     this.access = access;
     this.declaringClassName = declaringClassName;
-    this.returnTypeName = returnTypeName;
     this.source = source;
     this.annotations = annotations;
-    this.parameterCount = argumentTypes.length;
-    this.argumentTypes = argumentTypes;
     this.classLoader = classLoader;
   }
 
   @Override
   public String getMethodName() {
-    return this.methodName;
+    return this.methodSignature.getName();
   }
 
   @Override
@@ -83,7 +78,17 @@ final class SimpleMethodMetadata implements MethodMetadata {
 
   @Override
   public String getReturnTypeName() {
-    return this.returnTypeName;
+    String returnTypeName = this.returnTypeName;
+    if (returnTypeName == null) {
+      synchronized(this) {
+        returnTypeName = this.returnTypeName;
+        if (returnTypeName == null) {
+          returnTypeName = methodSignature.getReturnType().getClassName();
+          this.returnTypeName = returnTypeName;
+        }
+      }
+    }
+    return returnTypeName;
   }
 
   @Override
@@ -108,7 +113,7 @@ final class SimpleMethodMetadata implements MethodMetadata {
 
   @Override
   public int getParameterCount() {
-    return parameterCount;
+    return getArgumentTypes().length;
   }
 
   private boolean isPrivate() {
@@ -138,11 +143,13 @@ final class SimpleMethodMetadata implements MethodMetadata {
 
   @Override
   public Type[] getArgumentTypes() {
-    return argumentTypes;
+    return methodSignature.getArgumentTypes();
   }
 
   @Override
   public Class<?>[] getParameterTypes() {
+    Type[] argumentTypes = getArgumentTypes();
+    int parameterCount = argumentTypes.length;
     if (parameterCount == 0) {
       return Constant.EMPTY_CLASS_ARRAY;
     }

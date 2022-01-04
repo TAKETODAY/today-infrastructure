@@ -20,20 +20,8 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Indexed;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
 import org.junit.jupiter.api.Test;
 
-import jakarta.annotation.Resource;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -52,6 +40,18 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.Order;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
+import cn.taketoday.lang.Indexed;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+import jakarta.annotation.Resource;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -566,9 +566,9 @@ class MergedAnnotationsTests {
       }
     });
     Method bridgeMethod = methods.get(0).getReturnType().equals(Object.class) ?
-            methods.get(0) : methods.get(1);
+                          methods.get(0) : methods.get(1);
     Method bridgedMethod = methods.get(0).getReturnType().equals(Object.class) ?
-            methods.get(1) : methods.get(0);
+                           methods.get(1) : methods.get(0);
     assertThat(bridgeMethod.isBridge()).isTrue();
     assertThat(bridgedMethod.isBridge()).isFalse();
     MergedAnnotation<?> annotation = MergedAnnotations.from(bridgeMethod,
@@ -1343,8 +1343,8 @@ class MergedAnnotationsTests {
   @Test
   void getDirectRepeatablesDeclaredOnSuperclass() {
     Class<?> element = SubMyRepeatableClass.class;
-    String[] expectedValuesJava = { };
-    String[] expectedValuesSpring = { };
+    String[] expectedValuesJava = {};
+    String[] expectedValuesSpring = {};
     testRepeatables(SearchStrategy.DIRECT, element, expectedValuesJava, expectedValuesSpring);
   }
 
@@ -1358,8 +1358,8 @@ class MergedAnnotationsTests {
 
   private void testJavaRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
     MyRepeatable[] annotations = searchStrategy == SearchStrategy.DIRECT ?
-            element.getDeclaredAnnotationsByType(MyRepeatable.class) :
-            element.getAnnotationsByType(MyRepeatable.class);
+                                 element.getDeclaredAnnotationsByType(MyRepeatable.class) :
+                                 element.getAnnotationsByType(MyRepeatable.class);
     assertThat(Arrays.stream(annotations).map(MyRepeatable::value)).containsExactly(
             expected);
   }
@@ -1392,6 +1392,13 @@ class MergedAnnotationsTests {
     assertThat(synthesizedComponent).isNotNull();
     assertThat(synthesizedComponent).isEqualTo(component);
     assertThat(synthesizedComponent.value()).contains("webController");
+  }
+
+  @Indexed
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.TYPE, ElementType.METHOD })
+  public @interface Component {
+    String value() default "";
   }
 
   @Test

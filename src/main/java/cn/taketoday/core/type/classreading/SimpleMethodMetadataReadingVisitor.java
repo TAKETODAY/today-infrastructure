@@ -28,6 +28,7 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Type;
+import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -46,54 +47,49 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
 
   private final int access;
 
-  private final String methodName;
-
-  private final String descriptor;
-
-  private final ArrayList<MergedAnnotation<?>> annotations = new ArrayList<>(4);
+  @Nullable
+  private ArrayList<MergedAnnotation<?>> annotations;
 
   private final Consumer<SimpleMethodMetadata> consumer;
 
   @Nullable
   private Source source;
 
+  private final MethodSignature methodSignature;
+
   SimpleMethodMetadataReadingVisitor(
           @Nullable ClassLoader classLoader, String declaringClassName,
           int access, String methodName, String descriptor, Consumer<SimpleMethodMetadata> consumer) {
 
+    this.access = access;
+    this.consumer = consumer;
     this.classLoader = classLoader;
     this.declaringClassName = declaringClassName;
-    this.access = access;
-    this.methodName = methodName;
-    this.descriptor = descriptor;
-    this.consumer = consumer;
+    this.methodSignature = new MethodSignature(methodName, descriptor);
   }
 
   @Override
   @Nullable
   public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+    if (annotations == null) {
+      this.annotations = new ArrayList<>(4);
+    }
     return MergedAnnotationReadingVisitor.get(
             this.classLoader, getSource(), descriptor, visible, this.annotations::add);
   }
 
   @Override
   public void visitEnd() {
-    if (!this.annotations.isEmpty()) {
-      Type[] argumentTypes = Type.getArgumentTypes(descriptor);
-
-      String returnTypeName = Type.forReturnType(this.descriptor).getClassName();
-      MergedAnnotations annotations = MergedAnnotations.valueOf(this.annotations);
-      SimpleMethodMetadata metadata = new SimpleMethodMetadata(
-              this.methodName, this.access, this.declaringClassName,
-              returnTypeName, getSource(), annotations, argumentTypes, classLoader);
-      this.consumer.accept(metadata);
-    }
+    MergedAnnotations annotations = MergedAnnotations.valueOf(this.annotations);
+    SimpleMethodMetadata metadata = new SimpleMethodMetadata(
+            access, declaringClassName, getSource(), annotations, methodSignature, classLoader);
+    consumer.accept(metadata);
   }
 
   private Object getSource() {
     Source source = this.source;
     if (source == null) {
-      source = new Source(this.declaringClassName, this.methodName, this.descriptor);
+      source = new Source(declaringClassName, methodSignature);
       this.source = source;
     }
     return source;
@@ -105,26 +101,21 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
   static final class Source {
 
     private final String declaringClassName;
-
-    private final String methodName;
-
-    private final String descriptor;
+    private final MethodSignature methodSignature;
 
     @Nullable
     private String toStringValue;
 
-    Source(String declaringClassName, String methodName, String descriptor) {
+    Source(String declaringClassName, MethodSignature methodSignature) {
       this.declaringClassName = declaringClassName;
-      this.methodName = methodName;
-      this.descriptor = descriptor;
+      this.methodSignature = methodSignature;
     }
 
     @Override
     public int hashCode() {
       int result = 1;
       result = 31 * result + this.declaringClassName.hashCode();
-      result = 31 * result + this.methodName.hashCode();
-      result = 31 * result + this.descriptor.hashCode();
+      result = 31 * result + this.methodSignature.hashCode();
       return result;
     }
 
@@ -137,8 +128,8 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
         return false;
       }
       Source otherSource = (Source) other;
-      return (this.declaringClassName.equals(otherSource.declaringClassName) &&
-              this.methodName.equals(otherSource.methodName) && this.descriptor.equals(otherSource.descriptor));
+      return this.declaringClassName.equals(otherSource.declaringClassName)
+              && this.methodSignature.equals(otherSource.methodSignature);
     }
 
     @Override
@@ -148,8 +139,8 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
         StringBuilder builder = new StringBuilder();
         builder.append(this.declaringClassName);
         builder.append('.');
-        builder.append(this.methodName);
-        Type[] argumentTypes = Type.getArgumentTypes(this.descriptor);
+        builder.append(this.methodSignature.getName());
+        Type[] argumentTypes = methodSignature.getArgumentTypes();
         builder.append('(');
         for (int i = 0; i < argumentTypes.length; i++) {
           if (i != 0) {

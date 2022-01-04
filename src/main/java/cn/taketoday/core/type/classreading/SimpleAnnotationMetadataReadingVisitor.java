@@ -93,7 +93,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 
     if (ObjectUtils.isNotEmpty(interfaces)) {
       if (interfaceNames == null) {
-        interfaceNames = new LinkedHashSet<>();
+        interfaceNames = new LinkedHashSet<>(interfaces.length);
       }
       for (String anInterface : interfaces) {
         interfaceNames.add(toClassName(anInterface));
@@ -111,11 +111,11 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
     if (outerName != null) {
       String className = toClassName(name);
       String outerClassName = toClassName(outerName);
-      if (this.className.equals(className)) {
+      if (className.equals(className)) {
         this.enclosingClassName = outerClassName;
         this.independentInnerClass = (access & Opcodes.ACC_STATIC) != 0;
       }
-      else if (this.className.equals(outerClassName)) {
+      else if (className.equals(outerClassName)) {
         if (memberClassNames == null) {
           this.memberClassNames = new LinkedHashSet<>(4);
         }
@@ -185,13 +185,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
   /**
    * {@link MergedAnnotation} source.
    */
-  private static final class Source {
-
-    private final String className;
-
-    Source(String className) {
-      this.className = className;
-    }
+  private record Source(String className) {
 
     @Override
     public int hashCode() {

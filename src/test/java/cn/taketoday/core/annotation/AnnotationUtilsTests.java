@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -44,7 +45,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
-import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Indexed;
 import cn.taketoday.lang.NonNullApi;
 
 import static cn.taketoday.core.annotation.AnnotationUtils.VALUE;
@@ -114,6 +115,13 @@ class AnnotationUtilsTests {
     assertThat(m.getAnnotation(Component.class)).isNull();
     assertThat(getAnnotation(m, Component.class)).isNull();
     assertThat(findAnnotation(m, Component.class)).isNotNull();
+  }
+
+  @Indexed
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.TYPE, ElementType.METHOD })
+  public @interface Component {
+    String value() default "";
   }
 
   @Test

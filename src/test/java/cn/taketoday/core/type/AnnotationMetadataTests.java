@@ -20,12 +20,6 @@
 
 package cn.taketoday.core.type;
 
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
-import cn.taketoday.lang.Indexed;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -40,6 +34,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
+import cn.taketoday.lang.Indexed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -268,7 +269,6 @@ class AnnotationMetadataTests {
     assertThat(metadata.hasAnnotation(NamedComposedAnnotation.class.getName())).isFalse();
   }
 
-
   private void assertMultipleAnnotationsWithIdenticalAttributeNames(AnnotationMetadata metadata) {
     AnnotationAttributes attributes1 = (AnnotationAttributes) metadata.getAnnotationAttributes(
             NamedAnnotation1.class.getName(), false);
@@ -413,14 +413,13 @@ class AnnotationMetadataTests {
     }
   }
 
-
   // -------------------------------------------------------------------------
 
   public static enum SomeEnum {
     LABEL1, LABEL2, DEFAULT
   }
 
-  @Target({ })
+  @Target({})
   @Retention(RetentionPolicy.RUNTIME)
   public @interface NestedAnno {
 
@@ -503,10 +502,10 @@ class AnnotationMetadataTests {
   @Component("myName")
   @Scope("myScope")
   @SpecialAttr(clazz = String.class, state = Thread.State.NEW,
-          nestedAnno = @NestedAnno(value = "na", anEnum = SomeEnum.LABEL1, classArray = { String.class }),
-          nestedAnnoArray = { @NestedAnno, @NestedAnno(value = "na1", anEnum = SomeEnum.LABEL2, classArray = { Number.class }) })
+               nestedAnno = @NestedAnno(value = "na", anEnum = SomeEnum.LABEL1, classArray = { String.class }),
+               nestedAnnoArray = { @NestedAnno, @NestedAnno(value = "na1", anEnum = SomeEnum.LABEL2, classArray = { Number.class }) })
   @SuppressWarnings({ "serial", "unused" })
-  @DirectAnnotation(value = "direct", additional = "", additionalArray = { })
+  @DirectAnnotation(value = "direct", additional = "", additionalArray = {})
   @MetaMetaAnnotation
   @EnumSubclasses({ SubclassEnum.FOO, SubclassEnum.BAR })
   @NamedComposedAnnotation
@@ -543,11 +542,11 @@ class AnnotationMetadataTests {
   @Target(ElementType.TYPE)
   public @interface TestComponentScan {
 
-    String[] value() default { };
+    String[] value() default {};
 
-    String[] basePackages() default { };
+    String[] basePackages() default {};
 
-    Class<?>[] basePackageClasses() default { };
+    Class<?>[] basePackageClasses() default {};
   }
 
   @TestConfiguration
@@ -556,7 +555,7 @@ class AnnotationMetadataTests {
   @Target(ElementType.TYPE)
   public @interface ComposedConfigurationWithAttributeOverrides {
 
-    String[] basePackages() default { };
+    String[] basePackages() default {};
   }
 
   @ComposedConfigurationWithAttributeOverrides(basePackages = "org.example.componentscan")
@@ -607,6 +606,6 @@ class AnnotationMetadataTests {
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ ElementType.TYPE, ElementType.METHOD })
   public @interface Component {
-		  String value() default "";
+    String value() default "";
   }
 }
