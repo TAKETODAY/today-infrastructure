@@ -72,6 +72,10 @@ public class MethodSignature {
   /** The method descriptor. */
   private final String descriptor;
 
+  // for cache
+  private volatile Type returnType;
+  private volatile Type[] argumentTypes;
+
   /**
    * Constructs a new {@link MethodSignature}.
    *
@@ -226,7 +230,17 @@ public class MethodSignature {
    * @return the return type of the method described by this object.
    */
   public Type getReturnType() {
-    return Type.forReturnType(descriptor);
+    Type returnType = this.returnType;
+    if (returnType == null) {
+      synchronized(this) {
+        returnType = this.returnType;
+        if (returnType == null) {
+          returnType = Type.forReturnType(descriptor);
+          this.returnType = returnType;
+        }
+      }
+    }
+    return returnType;
   }
 
   /**
@@ -235,7 +249,17 @@ public class MethodSignature {
    * @return the argument types of the method described by this object.
    */
   public Type[] getArgumentTypes() {
-    return Type.getArgumentTypes(descriptor);
+    Type[] argumentTypes = this.argumentTypes;
+    if (argumentTypes == null) {
+      synchronized(this) {
+        argumentTypes = this.argumentTypes;
+        if (argumentTypes == null) {
+          argumentTypes = Type.getArgumentTypes(descriptor);
+          this.argumentTypes = argumentTypes;
+        }
+      }
+    }
+    return argumentTypes;
   }
 
   @Override
@@ -259,4 +283,5 @@ public class MethodSignature {
   public int hashCode() {
     return name.hashCode() ^ descriptor.hashCode();
   }
+
 }
