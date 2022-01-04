@@ -21,8 +21,6 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -156,18 +154,16 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
   /**
    * The {@code Set} of allowed placeholders.
    */
-  private static final Set<Object> ALLOWED_PLACEHOLDERS = new HashSet<>();
-
-  static {
-    ALLOWED_PLACEHOLDERS.addAll(Arrays.asList(PLACEHOLDER_INVOCATION_TIME,
-                                              PLACEHOLDER_EXCEPTION,
-                                              PLACEHOLDER_ARGUMENTS,
-                                              PLACEHOLDER_ARGUMENT_TYPES,
-                                              PLACEHOLDER_RETURN_VALUE,
-                                              PLACEHOLDER_TARGET_CLASS_SHORT_NAME,
-                                              PLACEHOLDER_TARGET_CLASS_NAME,
-                                              PLACEHOLDER_METHOD_NAME));
-  }
+  private static final Set<Object> ALLOWED_PLACEHOLDERS = Set.of(
+          PLACEHOLDER_INVOCATION_TIME,
+          PLACEHOLDER_EXCEPTION,
+          PLACEHOLDER_ARGUMENTS,
+          PLACEHOLDER_ARGUMENT_TYPES,
+          PLACEHOLDER_RETURN_VALUE,
+          PLACEHOLDER_TARGET_CLASS_SHORT_NAME,
+          PLACEHOLDER_TARGET_CLASS_NAME,
+          PLACEHOLDER_METHOD_NAME
+  );
 
   /**
    * The message for method entry.
@@ -198,11 +194,11 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
     Assert.hasText(enterMessage, "enterMessage must not be empty");
     checkForInvalidPlaceholders(enterMessage);
     Assert.doesNotContain(enterMessage, PLACEHOLDER_RETURN_VALUE,
-                          "enterMessage cannot contain placeholder " + PLACEHOLDER_RETURN_VALUE);
+            "enterMessage cannot contain placeholder " + PLACEHOLDER_RETURN_VALUE);
     Assert.doesNotContain(enterMessage, PLACEHOLDER_EXCEPTION,
-                          "enterMessage cannot contain placeholder " + PLACEHOLDER_EXCEPTION);
+            "enterMessage cannot contain placeholder " + PLACEHOLDER_EXCEPTION);
     Assert.doesNotContain(enterMessage, PLACEHOLDER_INVOCATION_TIME,
-                          "enterMessage cannot contain placeholder " + PLACEHOLDER_INVOCATION_TIME);
+            "enterMessage cannot contain placeholder " + PLACEHOLDER_INVOCATION_TIME);
     this.enterMessage = enterMessage;
   }
 
@@ -222,7 +218,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
     Assert.hasText(exitMessage, "exitMessage must not be empty");
     checkForInvalidPlaceholders(exitMessage);
     Assert.doesNotContain(exitMessage, PLACEHOLDER_EXCEPTION,
-                          "exitMessage cannot contain placeholder" + PLACEHOLDER_EXCEPTION);
+            "exitMessage cannot contain placeholder" + PLACEHOLDER_EXCEPTION);
     this.exitMessage = exitMessage;
   }
 
@@ -241,7 +237,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
     Assert.hasText(exceptionMessage, "exceptionMessage must not be empty");
     checkForInvalidPlaceholders(exceptionMessage);
     Assert.doesNotContain(exceptionMessage, PLACEHOLDER_RETURN_VALUE,
-                          "exceptionMessage cannot contain placeholder " + PLACEHOLDER_RETURN_VALUE);
+            "exceptionMessage cannot contain placeholder " + PLACEHOLDER_RETURN_VALUE);
     this.exceptionMessage = exceptionMessage;
   }
 
@@ -311,7 +307,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
     Object target = methodInvocation.getThis();
     Assert.state(target != null, "Target must not be null");
 
-    StringBuffer output = new StringBuffer();
+    StringBuilder output = new StringBuilder();
     while (matcher.find()) {
       String match = matcher.group();
       if (PLACEHOLDER_METHOD_NAME.equals(match)) {
@@ -327,7 +323,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
       }
       else if (PLACEHOLDER_ARGUMENTS.equals(match)) {
         matcher.appendReplacement(output,
-                                  Matcher.quoteReplacement(StringUtils.arrayToString(methodInvocation.getArguments())));
+                Matcher.quoteReplacement(StringUtils.arrayToString(methodInvocation.getArguments())));
       }
       else if (PLACEHOLDER_ARGUMENT_TYPES.equals(match)) {
         appendArgumentTypes(methodInvocation, matcher, output);
@@ -353,16 +349,16 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
 
   /**
    * Adds the {@code String} representation of the method return value
-   * to the supplied {@code StringBuffer}. Correctly handles
+   * to the supplied {@code StringBuilder}. Correctly handles
    * {@code null} and {@code void} results.
    *
    * @param methodInvocation the {@code MethodInvocation} that returned the value
    * @param matcher the {@code Matcher} containing the matched placeholder
-   * @param output the {@code StringBuffer} to write output to
+   * @param output the {@code StringBuilder} to write output to
    * @param returnValue the value returned by the method invocation.
    */
   private void appendReturnValue(
-          MethodInvocation methodInvocation, Matcher matcher, StringBuffer output, Object returnValue) {
+          MethodInvocation methodInvocation, Matcher matcher, StringBuilder output, Object returnValue) {
 
     if (methodInvocation.getMethod().getReturnType() == void.class) {
       matcher.appendReplacement(output, "void");
@@ -381,16 +377,16 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
    * @param methodInvocation the {@code MethodInvocation} being logged.
    * Arguments will be retrieved from the corresponding {@code Method}.
    * @param matcher the {@code Matcher} containing the state of the output
-   * @param output the {@code StringBuffer} containing the output
+   * @param output the {@code StringBuilder} containing the output
    */
-  private void appendArgumentTypes(MethodInvocation methodInvocation, Matcher matcher, StringBuffer output) {
+  private void appendArgumentTypes(MethodInvocation methodInvocation, Matcher matcher, StringBuilder output) {
     Class<?>[] argumentTypes = methodInvocation.getMethod().getParameterTypes();
     String[] argumentTypeShortNames = new String[argumentTypes.length];
     for (int i = 0; i < argumentTypeShortNames.length; i++) {
       argumentTypeShortNames[i] = ClassUtils.getShortName(argumentTypes[i]);
     }
     matcher.appendReplacement(output,
-                              Matcher.quoteReplacement(StringUtils.arrayToString(argumentTypeShortNames)));
+            Matcher.quoteReplacement(StringUtils.arrayToString(argumentTypeShortNames)));
   }
 
   /**
