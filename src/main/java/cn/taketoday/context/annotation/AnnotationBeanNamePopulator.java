@@ -25,17 +25,16 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -96,7 +95,6 @@ public class AnnotationBeanNamePopulator implements BeanNamePopulator {
    *
    * @param annotatedDef the annotation-aware bean definition
    */
-  @Nullable
   protected void determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
     Object attribute = annotatedDef.getAttribute(Component.ANNOTATION);
     if (attribute instanceof MergedAnnotation annotation) {

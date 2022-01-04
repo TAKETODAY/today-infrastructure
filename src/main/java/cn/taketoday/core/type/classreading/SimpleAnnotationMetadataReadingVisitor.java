@@ -111,11 +111,11 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
     if (outerName != null) {
       String className = toClassName(name);
       String outerClassName = toClassName(outerName);
-      if (className.equals(className)) {
+      if (this.className.equals(className)) {
         this.enclosingClassName = outerClassName;
         this.independentInnerClass = (access & Opcodes.ACC_STATIC) != 0;
       }
-      else if (className.equals(outerClassName)) {
+      else if (this.className.equals(outerClassName)) {
         if (memberClassNames == null) {
           this.memberClassNames = new LinkedHashSet<>(4);
         }
