@@ -273,8 +273,7 @@ public class DataSourceJtaTransactionTests {
                 assertThat(TransactionSynchronizationManager.hasResource(dsToUse)).as("Has thread connection").isTrue();
                 DataSourceUtils.releaseConnection(c, dsToUse);
               }
-              catch (SQLException ex) {
-              }
+              catch (SQLException ignored) { }
             }
           });
 

@@ -365,7 +365,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * @see #applyStatementSettings
    */
   protected Connection createConnectionProxy(Connection con) {
-    return (Connection) Proxy.newProxyInstance(
+    return (Connection) Proxy.newProxyInstance( // TODO 优化
             ConnectionProxy.class.getClassLoader(),
             new Class<?>[] { ConnectionProxy.class },
             new CloseSuppressingInvocationHandler(con));
@@ -415,13 +415,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   @Override
   public void execute(final String sql) throws DataAccessException {
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing SQL statement [" + sql + "]");
+      logger.debug("Executing SQL statement [{}]", sql);
     }
 
-    /**
+    /*
      * Callback to execute the statement.
      */
-    class ExecuteStatementCallback implements StatementCallback<Object>, SqlProvider {
+    final class ExecuteStatementCallback implements StatementCallback<Object>, SqlProvider {
       @Override
       @Nullable
       public Object doInStatement(Statement stmt) throws SQLException {
@@ -444,10 +444,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     Assert.notNull(sql, "SQL must not be null");
     Assert.notNull(rse, "ResultSetExtractor must not be null");
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing SQL query [" + sql + "]");
+      logger.debug("Executing SQL query [{}]", sql);
     }
 
-    /**
+    /*
      * Callback to execute the query.
      */
     class QueryStatementCallback implements StatementCallback<T>, SqlProvider {
@@ -543,10 +543,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   public int update(final String sql) throws DataAccessException {
     Assert.notNull(sql, "SQL must not be null");
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing SQL update [" + sql + "]");
+      logger.debug("Executing SQL update [{}]", sql);
     }
 
-    /**
+    /*
      * Callback to execute the update statement.
      */
     class UpdateStatementCallback implements StatementCallback<Integer>, SqlProvider {
@@ -554,7 +554,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
       public Integer doInStatement(Statement stmt) throws SQLException {
         int rows = stmt.executeUpdate(sql);
         if (logger.isTraceEnabled()) {
-          logger.trace("SQL update affected " + rows + " rows");
+          logger.trace("SQL update affected {} rows", rows);
         }
         return rows;
       }
@@ -572,13 +572,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   public int[] batchUpdate(final String... sql) throws DataAccessException {
     Assert.notEmpty(sql, "SQL array must not be empty");
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing SQL batch update of " + sql.length + " statements");
+      logger.debug("Executing SQL batch update of {} statements", sql.length);
     }
 
-    /**
+    /*
      * Callback to execute the batch update.
      */
-    class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
+    final class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
 
       @Nullable
       private String currSql;
@@ -649,7 +649,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     Assert.notNull(action, "Callback object must not be null");
     if (logger.isDebugEnabled()) {
       String sql = getSql(psc);
-      logger.debug("Executing prepared SQL statement" + (sql != null ? " [" + sql + "]" : ""));
+      logger.debug("Executing prepared SQL statement{}", (sql != null ? " [" + sql + "]" : ""));
     }
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
@@ -744,31 +744,36 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   @Override
   @Nullable
-  public <T> T query(PreparedStatementCreator psc, ResultSetExtractor<T> rse) throws DataAccessException {
+  public <T> T query(PreparedStatementCreator psc, ResultSetExtractor<T> rse)
+          throws DataAccessException {
     return query(psc, null, rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, @Nullable PreparedStatementSetter pss, ResultSetExtractor<T> rse) throws DataAccessException {
+  public <T> T query(String sql, @Nullable PreparedStatementSetter pss, ResultSetExtractor<T> rse)
+          throws DataAccessException {
     return query(new SimplePreparedStatementCreator(sql), pss, rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, Object[] args, int[] argTypes, ResultSetExtractor<T> rse) throws DataAccessException {
+  public <T> T query(String sql, Object[] args, int[] argTypes, ResultSetExtractor<T> rse)
+          throws DataAccessException {
     return query(sql, newArgTypePreparedStatementSetter(args, argTypes), rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, @Nullable Object[] args, ResultSetExtractor<T> rse) throws DataAccessException {
+  public <T> T query(String sql, @Nullable Object[] args, ResultSetExtractor<T> rse)
+          throws DataAccessException {
     return query(sql, newArgPreparedStatementSetter(args), rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, ResultSetExtractor<T> rse, @Nullable Object... args) throws DataAccessException {
+  public <T> T query(String sql, ResultSetExtractor<T> rse, @Nullable Object... args)
+          throws DataAccessException {
     return query(sql, newArgPreparedStatementSetter(args), rse);
   }
 
@@ -778,7 +783,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   }
 
   @Override
-  public void query(String sql, @Nullable PreparedStatementSetter pss, RowCallbackHandler rch) throws DataAccessException {
+  public void query(String sql, @Nullable PreparedStatementSetter pss, RowCallbackHandler rch)
+          throws DataAccessException {
     query(sql, pss, new RowCallbackHandlerResultSetExtractor(rch));
   }
 
@@ -834,11 +840,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * @return the result Stream, containing mapped objects, needing to be
    * closed once fully processed (e.g. through a try-with-resources clause)
    * @throws DataAccessException if the query fails
-   * @since 4.0
    */
-  public <T> Stream<T> queryForStream(PreparedStatementCreator psc, @Nullable PreparedStatementSetter pss,
-                                      RowMapper<T> rowMapper) throws DataAccessException {
-
+  public <T> Stream<T> queryForStream(
+          PreparedStatementCreator psc, @Nullable PreparedStatementSetter pss, RowMapper<T> rowMapper)
+          throws DataAccessException {
     return result(execute(psc, ps -> {
       if (pss != null) {
         pss.setValues(ps);
@@ -857,7 +862,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   }
 
   @Override
-  public <T> Stream<T> queryForStream(PreparedStatementCreator psc, RowMapper<T> rowMapper) throws DataAccessException {
+  public <T> Stream<T> queryForStream(
+          PreparedStatementCreator psc, RowMapper<T> rowMapper) throws DataAccessException {
     return queryForStream(psc, null, rowMapper);
   }
 
@@ -867,7 +873,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   }
 
   @Override
-  public <T> Stream<T> queryForStream(String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
+  public <T> Stream<T> queryForStream(
+          String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
     return queryForStream(new SimplePreparedStatementCreator(sql), newArgPreparedStatementSetter(args), rowMapper);
   }
 
@@ -896,19 +903,20 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, Object[] args, int[] argTypes, Class<T> requiredType)
-          throws DataAccessException {
-
+  public <T> T queryForObject(
+          String sql, Object[] args, int[] argTypes, Class<T> requiredType) throws DataAccessException {
     return queryForObject(sql, args, argTypes, getSingleColumnRowMapper(requiredType));
   }
 
   @Override
-  public <T> T queryForObject(String sql, @Nullable Object[] args, Class<T> requiredType) throws DataAccessException {
+  public <T> T queryForObject(
+          String sql, @Nullable Object[] args, Class<T> requiredType) throws DataAccessException {
     return queryForObject(sql, args, getSingleColumnRowMapper(requiredType));
   }
 
   @Override
-  public <T> T queryForObject(String sql, Class<T> requiredType, @Nullable Object... args) throws DataAccessException {
+  public <T> T queryForObject(
+          String sql, Class<T> requiredType, @Nullable Object... args) throws DataAccessException {
     return queryForObject(sql, args, getSingleColumnRowMapper(requiredType));
   }
 
@@ -923,22 +931,26 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
+  public <T> List<T> queryForList(
+          String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
     return query(sql, args, argTypes, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, @Nullable Object[] args, Class<T> elementType) throws DataAccessException {
+  public <T> List<T> queryForList(
+          String sql, @Nullable Object[] args, Class<T> elementType) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, Class<T> elementType, @Nullable Object... args) throws DataAccessException {
+  public <T> List<T> queryForList(
+          String sql, Class<T> elementType, @Nullable Object... args) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public List<Map<String, Object>> queryForList(String sql, Object[] args, int[] argTypes) throws DataAccessException {
+  public List<Map<String, Object>> queryForList(
+          String sql, Object[] args, int[] argTypes) throws DataAccessException {
     return query(sql, args, argTypes, getColumnMapRowMapper());
   }
 
@@ -959,9 +971,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   protected int update(final PreparedStatementCreator psc, @Nullable final PreparedStatementSetter pss)
           throws DataAccessException {
-
     logger.debug("Executing prepared SQL update");
-
     return updateCount(execute(psc, ps -> {
       try {
         if (pss != null) {
@@ -969,7 +979,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         int rows = ps.executeUpdate();
         if (logger.isTraceEnabled()) {
-          logger.trace("SQL update affected " + rows + " rows");
+          logger.trace("SQL update affected {} rows", rows);
         }
         return rows;
       }
@@ -1009,7 +1019,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
       }
       if (logger.isTraceEnabled()) {
-        logger.trace("SQL update affected " + rows + " rows and returned " + generatedKeys.size() + " keys");
+        logger.trace("SQL update affected {} rows and returned {} keys", rows, generatedKeys.size());
       }
       return rows;
     }, true));
@@ -1033,15 +1043,16 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   @Override
   public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss) throws DataAccessException {
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing SQL batch update [" + sql + "]");
+      logger.debug("Executing SQL batch update [{}]", sql);
     }
 
     int[] result = execute(sql, (PreparedStatementCallback<int[]>) ps -> {
       try {
         int batchSize = pss.getBatchSize();
         InterruptibleBatchPreparedStatementSetter ipss =
-                (pss instanceof InterruptibleBatchPreparedStatementSetter ?
-                 (InterruptibleBatchPreparedStatementSetter) pss : null);
+                pss instanceof InterruptibleBatchPreparedStatementSetter
+                ? (InterruptibleBatchPreparedStatementSetter) pss
+                : null;
         if (JdbcUtils.supportsBatchUpdates(ps.getConnection())) {
           for (int i = 0; i < batchSize; i++) {
             pss.setValues(ps, i);
@@ -1090,8 +1101,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
       return new int[0];
     }
 
-    return batchUpdate(
-            sql,
+    return batchUpdate(sql,
             new BatchPreparedStatementSetter() {
               @Override
               public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -1123,11 +1133,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   }
 
   @Override
-  public <T> int[][] batchUpdate(String sql, final Collection<T> batchArgs, final int batchSize,
-                                 final ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
+  public <T> int[][] batchUpdate(
+          String sql, final Collection<T> batchArgs, final int batchSize,
+          final ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
 
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing SQL batch update [" + sql + "] with a batch size of " + batchSize);
+      logger.debug("Executing SQL batch update [{}] with a batch size of {}", sql, batchSize);
     }
     int[][] result = execute(sql, (PreparedStatementCallback<int[][]>) ps -> {
       List<int[]> rowsAffected = new ArrayList<>();
@@ -1143,7 +1154,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
               if (logger.isTraceEnabled()) {
                 int batchIdx = (n % batchSize == 0) ? n / batchSize : (n / batchSize) + 1;
                 int items = n - ((n % batchSize == 0) ? n / batchSize - 1 : (n / batchSize)) * batchSize;
-                logger.trace("Sending SQL batch update #" + batchIdx + " with " + items + " items");
+                logger.trace("Sending SQL batch update #{} with {} items", batchIdx, items);
               }
               rowsAffected.add(ps.executeBatch());
             }
@@ -1183,7 +1194,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     Assert.notNull(action, "Callback object must not be null");
     if (logger.isDebugEnabled()) {
       String sql = getSql(csc);
-      logger.debug("Calling stored procedure" + (sql != null ? " [" + sql + "]" : ""));
+      logger.debug("Calling stored procedure{}", sql != null ? " [" + sql + "]" : "");
     }
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
@@ -1250,8 +1261,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
       boolean retVal = cs.execute();
       int updateCount = cs.getUpdateCount();
       if (logger.isTraceEnabled()) {
-        logger.trace("CallableStatement.execute() returned '" + retVal + "'");
-        logger.trace("CallableStatement.getUpdateCount() returned " + updateCount);
+        logger.trace("CallableStatement.execute() returned '{}'", retVal);
+        logger.trace("CallableStatement.getUpdateCount() returned {}", updateCount);
       }
       Map<String, Object> resultsMap = createResultsMap();
       if (retVal || updateCount != -1) {
@@ -1273,11 +1284,11 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * @param resultSetParameters the parameter list of declared resultSet parameters for the stored procedure
    * @return a Map that contains returned results
    */
-  protected Map<String, Object> extractReturnedResults(CallableStatement cs,
-                                                       @Nullable List<SqlParameter> updateCountParameters, @Nullable List<SqlParameter> resultSetParameters,
-                                                       int updateCount) throws SQLException {
+  protected Map<String, Object> extractReturnedResults(
+          CallableStatement cs, @Nullable List<SqlParameter> updateCountParameters,
+          @Nullable List<SqlParameter> resultSetParameters, int updateCount) throws SQLException {
 
-    Map<String, Object> results = new LinkedHashMap<>(4);
+    LinkedHashMap<String, Object> results = new LinkedHashMap<>(4);
     int rsIndex = 0;
     int updateIndex = 0;
     boolean moreResults;
@@ -1294,7 +1305,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
               String rsName = RETURN_RESULT_SET_PREFIX + (rsIndex + 1);
               SqlReturnResultSet undeclaredRsParam = new SqlReturnResultSet(rsName, getColumnMapRowMapper());
               if (logger.isTraceEnabled()) {
-                logger.trace("Added default SqlReturnResultSet parameter named '" + rsName + "'");
+                logger.trace("Added default SqlReturnResultSet parameter named '{}'", rsName);
               }
               results.putAll(processResultSet(cs.getResultSet(), undeclaredRsParam));
               rsIndex++;
@@ -1312,7 +1323,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             if (!this.skipUndeclaredResults) {
               String undeclaredName = RETURN_UPDATE_COUNT_PREFIX + (updateIndex + 1);
               if (logger.isTraceEnabled()) {
-                logger.trace("Added default SqlReturnUpdateCount parameter named '" + undeclaredName + "'");
+                logger.trace("Added default SqlReturnUpdateCount parameter named '{}'", undeclaredName);
               }
               results.put(undeclaredName, updateCount);
               updateIndex++;
@@ -1322,7 +1333,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         moreResults = cs.getMoreResults();
         updateCount = cs.getUpdateCount();
         if (logger.isTraceEnabled()) {
-          logger.trace("CallableStatement.getUpdateCount() returned " + updateCount);
+          logger.trace("CallableStatement.getUpdateCount() returned {}", updateCount);
         }
       }
       while (moreResults || updateCount != -1);
@@ -1361,7 +1372,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
               SqlReturnResultSet rsParam = new SqlReturnResultSet(rsName, getColumnMapRowMapper());
               results.putAll(processResultSet((ResultSet) out, rsParam));
               if (logger.isTraceEnabled()) {
-                logger.trace("Added default SqlReturnResultSet parameter named '" + rsName + "'");
+                logger.trace("Added default SqlReturnResultSet parameter named '{}'", rsName);
               }
             }
           }
@@ -1517,8 +1528,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
       if (logger.isDebugEnabled()) {
         SQLWarning warningToLog = stmt.getWarnings();
         while (warningToLog != null) {
-          logger.debug("SQLWarning ignored: SQL state '" + warningToLog.getSQLState() + "', error code '" +
-                  warningToLog.getErrorCode() + "', message [" + warningToLog.getMessage() + "]");
+          logger.debug("SQLWarning ignored: SQL state '{}', error code '{}', message [{}]",
+                  warningToLog.getSQLState(), warningToLog.getErrorCode(), warningToLog.getMessage());
           warningToLog = warningToLog.getNextWarning();
         }
       }
@@ -1549,7 +1560,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * @param ex the offending {@code SQLException}
    * @return a DataAccessException wrapping the {@code SQLException} (never {@code null})
    * @see #getExceptionTranslator()
-   * @since 4.0
    */
   protected DataAccessException translateException(String task, @Nullable String sql, SQLException ex) {
     DataAccessException dae = getExceptionTranslator().translate(task, sql, ex);
@@ -1644,13 +1654,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   /**
    * Simple adapter for PreparedStatementCreator, allowing to use a plain SQL statement.
    */
-  private static class SimplePreparedStatementCreator implements PreparedStatementCreator, SqlProvider {
+  private record SimplePreparedStatementCreator(String sql) implements PreparedStatementCreator, SqlProvider {
 
-    private final String sql;
-
-    public SimplePreparedStatementCreator(String sql) {
+    private SimplePreparedStatementCreator {
       Assert.notNull(sql, "SQL must not be null");
-      this.sql = sql;
     }
 
     @Override
@@ -1667,13 +1674,11 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   /**
    * Simple adapter for CallableStatementCreator, allowing to use a plain SQL statement.
    */
-  private static class SimpleCallableStatementCreator implements CallableStatementCreator, SqlProvider {
+  private record SimpleCallableStatementCreator(String callString)
+          implements CallableStatementCreator, SqlProvider {
 
-    private final String callString;
-
-    public SimpleCallableStatementCreator(String callString) {
+    private SimpleCallableStatementCreator {
       Assert.notNull(callString, "Call string must not be null");
-      this.callString = callString;
     }
 
     @Override
@@ -1692,13 +1697,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * <p>Uses a regular ResultSet, so we have to be careful when using it:
    * We don't use it for navigating since this could lead to unpredictable consequences.
    */
-  private static class RowCallbackHandlerResultSetExtractor implements ResultSetExtractor<Object> {
-
-    private final RowCallbackHandler rch;
-
-    public RowCallbackHandlerResultSetExtractor(RowCallbackHandler rch) {
-      this.rch = rch;
-    }
+  private record RowCallbackHandlerResultSetExtractor(RowCallbackHandler rch)
+          implements ResultSetExtractor<Object> {
 
     @Override
     @Nullable
@@ -1712,16 +1712,11 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   /**
    * Spliterator for queryForStream adaptation of a ResultSet to a Stream.
-   *
-   * @since 4.0
    */
   private static class ResultSetSpliterator<T> implements Spliterator<T> {
-
-    private final ResultSet rs;
-
-    private final RowMapper<T> rowMapper;
-
     private int rowNum = 0;
+    private final ResultSet rs;
+    private final RowMapper<T> rowMapper;
 
     public ResultSetSpliterator(ResultSet rs, RowMapper<T> rowMapper) {
       this.rs = rs;

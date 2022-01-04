@@ -143,9 +143,8 @@ public abstract class StatementCreatorUtils {
    * @param inValue the value to set
    * @throws SQLException if thrown by PreparedStatement methods
    */
-  public static void setParameterValue(PreparedStatement ps, int paramIndex, SqlParameter param,
-                                       @Nullable Object inValue) throws SQLException {
-
+  public static void setParameterValue(
+          PreparedStatement ps, int paramIndex, SqlParameter param, @Nullable Object inValue) throws SQLException {
     setParameterValueInternal(ps, paramIndex, param.getSqlType(), param.getTypeName(), param.getScale(), inValue);
   }
 
@@ -160,9 +159,8 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  public static void setParameterValue(PreparedStatement ps, int paramIndex, int sqlType,
-                                       @Nullable Object inValue) throws SQLException {
-
+  public static void setParameterValue(
+          PreparedStatement ps, int paramIndex, int sqlType, @Nullable Object inValue) throws SQLException {
     setParameterValueInternal(ps, paramIndex, sqlType, null, null, inValue);
   }
 
@@ -179,8 +177,9 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  public static void setParameterValue(PreparedStatement ps, int paramIndex, int sqlType, String typeName,
-                                       @Nullable Object inValue) throws SQLException {
+  public static void setParameterValue(
+          PreparedStatement ps, int paramIndex, int sqlType, String typeName,
+          @Nullable Object inValue) throws SQLException {
 
     setParameterValueInternal(ps, paramIndex, sqlType, typeName, null, inValue);
   }
@@ -200,8 +199,9 @@ public abstract class StatementCreatorUtils {
    * @throws SQLException if thrown by PreparedStatement methods
    * @see SqlTypeValue
    */
-  private static void setParameterValueInternal(PreparedStatement ps, int paramIndex, int sqlType,
-                                                @Nullable String typeName, @Nullable Integer scale, @Nullable Object inValue) throws SQLException {
+  private static void setParameterValueInternal(
+          PreparedStatement ps, int paramIndex, int sqlType,
+          @Nullable String typeName, @Nullable Integer scale, @Nullable Object inValue) throws SQLException {
 
     String typeNameToUse = typeName;
     int sqlTypeToUse = sqlType;
@@ -210,8 +210,8 @@ public abstract class StatementCreatorUtils {
     // override type info?
     if (inValue instanceof SqlParameterValue parameterValue) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Overriding type info with runtime info from SqlParameterValue: column index " + paramIndex +
-                ", SQL type " + parameterValue.getSqlType() + ", type name " + parameterValue.getTypeName());
+        logger.debug("Overriding type info with runtime info from SqlParameterValue: column index {}, SQL type {}, type name {}",
+                paramIndex, parameterValue.getSqlType(), parameterValue.getTypeName());
       }
       if (parameterValue.getSqlType() != SqlTypeValue.TYPE_UNKNOWN) {
         sqlTypeToUse = parameterValue.getSqlType();
@@ -223,10 +223,9 @@ public abstract class StatementCreatorUtils {
     }
 
     if (logger.isTraceEnabled()) {
-      logger.trace("Setting SQL statement parameter value: column index " + paramIndex +
-              ", parameter value [" + inValueToUse +
-              "], value class [" + (inValueToUse != null ? inValueToUse.getClass().getName() : "null") +
-              "], SQL type " + (sqlTypeToUse == SqlTypeValue.TYPE_UNKNOWN ? "unknown" : Integer.toString(sqlTypeToUse)));
+      logger.trace("Setting SQL statement parameter value: column index {}, parameter value [{}], value class [{}], SQL type {}",
+              paramIndex, inValueToUse, (inValueToUse != null ? inValueToUse.getClass().getName() : "null"),
+              (sqlTypeToUse == SqlTypeValue.TYPE_UNKNOWN ? "unknown" : Integer.toString(sqlTypeToUse)));
     }
 
     if (inValueToUse == null) {
@@ -253,7 +252,7 @@ public abstract class StatementCreatorUtils {
         }
         catch (SQLException ex) {
           if (logger.isDebugEnabled()) {
-            logger.debug("JDBC getParameterType call failed - using fallback method instead: " + ex);
+            logger.debug("JDBC getParameterType call failed - using fallback method instead: {}", ex.toString());
           }
         }
       }
@@ -290,8 +289,9 @@ public abstract class StatementCreatorUtils {
     }
   }
 
-  private static void setValue(PreparedStatement ps, int paramIndex, int sqlType,
-                               @Nullable String typeName, @Nullable Integer scale, Object inValue) throws SQLException {
+  private static void setValue(
+          PreparedStatement ps, int paramIndex, int sqlType,
+          @Nullable String typeName, @Nullable Integer scale, Object inValue) throws SQLException {
 
     if (inValue instanceof SqlTypeValue) {
       ((SqlTypeValue) inValue).setTypeValue(ps, paramIndex, sqlType, typeName);
