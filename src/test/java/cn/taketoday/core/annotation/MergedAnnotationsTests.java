@@ -1864,8 +1864,8 @@ class MergedAnnotationsTests {
     assertThatIllegalStateException()
             .isThrownBy(() -> annotation.synthesize().value())
             .withMessage("Attribute 'value' in annotation " +
-                    "cn.taketoday.lang.Component should be " +
-                    "compatible with [Ljava.lang.String; but a [Ljava.lang.Long; value was returned");
+                    "cn.taketoday.core.annotation.MergedAnnotationsTests$Component should be " +
+                    "compatible with java.lang.String but a java.lang.Long value was returned");
   }
 
   @Test
