@@ -39,14 +39,14 @@ import cn.taketoday.logging.LoggerFactory;
  * decorating an automatically detected internal {@code LoadTimeWeaver}.
  *
  * <p>Typically registered for the default bean name "{@code loadTimeWeaver}";
- * the most convenient way to achieve this is Spring's
+ * the most convenient way to achieve this is Framework's
  * {@code <context:load-time-weaver>} XML tag or {@code @EnableLoadTimeWeaving}
  * on a {@code @Configuration} class.
  *
  * <p>This class implements a runtime environment check for obtaining the
  * appropriate weaver implementation, including
- * {@link InstrumentationSavingAgent Spring's VM agent} and any {@link ClassLoader}
- * supported by Spring's {@link ReflectiveLoadTimeWeaver}.
+ * {@link InstrumentationSavingAgent Framework's VM agent} and any {@link ClassLoader}
+ * supported by Framework's {@link ReflectiveLoadTimeWeaver}.
  *
  * @author Juergen Hoeller
  * @author Ramnivas Laddad

@@ -33,19 +33,13 @@ import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link LoadTimeWeaver} relying on VM {@link Instrumentation}.
- *
- * <p>Start the JVM specifying the Java agent to be used &mdash; for example, as
- * follows where <code>spring-instrument-{version}.jar</code> is a JAR file
- * containing the {@link InstrumentationSavingAgent} class shipped with Spring
- * and where <code>{version}</code> is the release version of the Spring
- * Framework (e.g., {@code 5.1.5.RELEASE}).
- *
- * <p><code>-javaagent:path/to/spring-instrument-{version}.jar</code>
+ * *
+ * <p><code>-javaagent:path/to/instrument-{version}.jar</code>
  *
  * <p>In Eclipse, for example, add something similar to the following to the
  * JVM arguments for the Eclipse "Run configuration":
  *
- * <p><code>-javaagent:${project_loc}/lib/spring-instrument-{version}.jar</code>
+ * <p><code>-javaagent:${project_loc}/lib/instrument-{version}.jar</code>
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -90,7 +84,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
             new FilteringClassFileTransformer(transformer, this.classLoader);
     synchronized(this.transformers) {
       Assert.state(this.instrumentation != null,
-              "Must start with Java agent to use InstrumentationLoadTimeWeaver. See Spring documentation.");
+              "Must start with Java agent to use InstrumentationLoadTimeWeaver.");
       this.instrumentation.addTransformer(actualTransformer);
       this.transformers.add(actualTransformer);
     }

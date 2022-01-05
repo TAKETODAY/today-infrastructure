@@ -33,7 +33,7 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * {@link LoadTimeWeaver} implementation
  * for Tomcat's new {@code org.apache.tomcat.InstrumentableClassLoader}.
- * Also capable of handling Spring's TomcatInstrumentableClassLoader when encountered.
+ * Also capable of handling Framework's TomcatInstrumentableClassLoader when encountered.
  *
  * @author Juergen Hoeller
  * @since 4.0
@@ -75,7 +75,7 @@ public class TomcatLoadTimeWeaver implements LoadTimeWeaver {
       }
     }
     catch (ClassNotFoundException ex) {
-      // We're on an earlier version of Tomcat, probably with Spring's TomcatInstrumentableClassLoader
+      // We're on an earlier version of Tomcat, probably with Framework's TomcatInstrumentableClassLoader
       instrumentableLoaderClass = classLoader.getClass();
     }
 

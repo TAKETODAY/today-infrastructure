@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.support;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
@@ -420,5 +421,29 @@ public interface ConfigurableBeanFactory
    * @since 4.0
    */
   void clearMetadataCache();
+
+  /**
+   * Ignore the given dependency type for autowiring:
+   * for example, String. Default is none.
+   *
+   * @param type the dependency type to ignore
+   * @since 4.0
+   */
+  void ignoreDependencyType(Class<?> type);
+
+  /**
+   * Ignore the given dependency interface for autowiring.
+   * <p>This will typically be used by application contexts to register
+   * dependencies that are resolved in other ways, like BeanFactory through
+   * BeanFactoryAware or ApplicationContext through ApplicationContextAware.
+   * <p>By default, only the BeanFactoryAware interface is ignored.
+   * For further types to ignore, invoke this method for each type.
+   *
+   * @param ifc the dependency interface to ignore
+   * @see BeanFactoryAware
+   * @see cn.taketoday.context.aware.ApplicationContextAware
+   * @since 4.0
+   */
+  void ignoreDependencyInterface(Class<?> ifc);
 
 }

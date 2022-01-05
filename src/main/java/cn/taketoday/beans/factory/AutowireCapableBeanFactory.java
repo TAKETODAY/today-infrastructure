@@ -34,6 +34,45 @@ import cn.taketoday.lang.Nullable;
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
 
+  /**
+   * Constant that indicates no externally defined autowiring. Note that
+   * BeanFactoryAware etc and annotation-driven injection will still be applied.
+   *
+   * @see #createBean
+   * @see #autowire
+   * @see #autowireBeanProperties
+   */
+  int AUTOWIRE_NO = 0;
+
+  /**
+   * Constant that indicates autowiring bean properties by name
+   * (applying to all bean property setters).
+   *
+   * @see #createBean
+   * @see #autowire
+   * @see #autowireBeanProperties
+   */
+  int AUTOWIRE_BY_NAME = 1;
+
+  /**
+   * Constant that indicates autowiring bean properties by type
+   * (applying to all bean property setters).
+   *
+   * @see #createBean
+   * @see #autowire
+   * @see #autowireBeanProperties
+   */
+  int AUTOWIRE_BY_TYPE = 2;
+
+  /**
+   * Constant that indicates autowiring the greediest constructor that
+   * can be satisfied (involves resolving the appropriate constructor).
+   *
+   * @see #createBean
+   * @see #autowire
+   */
+  int AUTOWIRE_CONSTRUCTOR = 3;
+
   //-------------------------------------------------------------------------
   // Typical methods for creating and populating external bean instances
   //-------------------------------------------------------------------------
@@ -99,6 +138,53 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @see #applyBeanPostProcessorsAfterInitialization
    */
   Object autowire(Class<?> beanClass) throws BeansException;
+
+  /**
+   * Instantiate a new bean instance of the given class with the specified autowire
+   * strategy. All constants defined in this interface are supported here.
+   * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
+   * before-instantiation callbacks (e.g. for annotation-driven injection).
+   * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+   * callbacks or perform any further initialization of the bean. This interface
+   * offers distinct, fine-grained operations for those purposes, for example
+   * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
+   * callbacks are applied, if applicable to the construction of the instance.
+   *
+   * @param beanClass the class of the bean to instantiate
+   * @param autowireMode by name or type, using the constants in this interface
+   * @return the new bean instance
+   * @throws BeansException if instantiation or wiring failed
+   * @see #AUTOWIRE_NO
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_CONSTRUCTOR
+   * @see #initializeBean
+   * @see #applyBeanPostProcessorsBeforeInitialization
+   * @see #applyBeanPostProcessorsAfterInitialization
+   * @since 4.0
+   */
+  Object autowire(Class<?> beanClass, int autowireMode) throws BeansException;
+
+  /**
+   * Autowire the bean properties of the given bean instance by name or type.
+   * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
+   * after-instantiation callbacks (e.g. for annotation-driven injection).
+   * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+   * callbacks or perform any further initialization of the bean. This interface
+   * offers distinct, fine-grained operations for those purposes, for example
+   * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
+   * callbacks are applied, if applicable to the configuration of the instance.
+   *
+   * @param existingBean the existing bean instance
+   * @param autowireMode by name or type, using the constants in this interface
+   * @throws BeansException if wiring failed
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_NO
+   * @since 4.0
+   */
+  void autowireBeanProperties(Object existingBean, int autowireMode)
+          throws BeansException;
 
   /**
    * Configure the given raw bean: autowiring bean properties, applying

@@ -43,7 +43,11 @@ import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
+import cn.taketoday.context.aware.ApplicationEventPublisherAware;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ApplicationEventPublisher;
@@ -54,6 +58,7 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.ContextStoppedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
+import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.context.support.DelegatingMessageSource;
@@ -607,6 +612,14 @@ public abstract class AbstractApplicationContext
       // Set a temporary ClassLoader for type matching.
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
+
+    // @since 4.0
+    beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
+    beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
+    beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
+    beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+    beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+    beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
 
     // BeanFactory interface not registered as resolvable type in a plain factory.
     // MessageSource registered (and found for autowiring) as a bean.

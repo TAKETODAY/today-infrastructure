@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Post-processor that registers AspectJ's
  * {@link ClassPreProcessorAgentAdapter}
- * with the Spring application context's default
+ * with the Framework application context's default
  * {@link cn.taketoday.context.classloading.LoadTimeWeaver}.
  *
  * @author Juergen Hoeller

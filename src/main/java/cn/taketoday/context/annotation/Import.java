@@ -30,7 +30,7 @@ import cn.taketoday.context.loader.ImportSelector;
  * Indicates one or more <em>component classes</em> to import &mdash; typically
  * {@link Configuration @Configuration} classes.
  *
- * <p>Provides functionality equivalent to the Spring' {@code <import/>} element in beans XML.
+ * <p>Provides functionality equivalent to the Framework' {@code <import/>} element in beans XML.
  * Allows for importing {@code @Configuration} classes, {@link ImportSelector} and
  * {@link ImportBeanDefinitionRegistrar} implementations, as well as regular component
  * classes (analogous to {@link cn.taketoday.context.StandardApplicationContext#register}).

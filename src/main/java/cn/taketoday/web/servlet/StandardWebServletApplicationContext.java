@@ -29,6 +29,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.ServletContextAware;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -102,6 +103,13 @@ public class StandardWebServletApplicationContext
     beanFactory.registerDependency(HttpServletRequest.class, new RequestObjectSupplier());
     beanFactory.registerDependency(HttpServletResponse.class, new ResponseObjectSupplier());
     beanFactory.registerDependency(ServletContext.class, (Supplier<?>) this::getServletContext);
+  }
+
+  @Override
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    super.postProcessBeanFactory(beanFactory);
+    beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+
   }
 
   @Override

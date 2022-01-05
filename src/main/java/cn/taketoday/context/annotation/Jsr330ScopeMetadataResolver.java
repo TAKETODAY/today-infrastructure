@@ -38,8 +38,8 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>This scope resolver can be used with {@link ClassPathBeanDefinitionScanner} and
  * {@link AnnotatedBeanDefinitionReader} for standard JSR-330 compliance. However,
- * in practice, you will typically use Spring's rich default scoping instead - or extend
- * this resolver with custom scoping annotations that point to extended Spring scopes.
+ * in practice, you will typically use Framework's rich default scoping instead - or extend
+ * this resolver with custom scoping annotations that point to extended Framework scopes.
  *
  * @author Juergen Hoeller
  * @see #registerScope
@@ -58,10 +58,10 @@ public class Jsr330ScopeMetadataResolver implements ScopeMetadataResolver {
 
   /**
    * Register an extended JSR-330 scope annotation, mapping it onto a
-   * specific Spring scope by name.
+   * specific Framework scope by name.
    *
    * @param annotationType the JSR-330 annotation type as a Class
-   * @param scopeName the Spring scope name
+   * @param scopeName the Framework scope name
    */
   public final void registerScope(Class<?> annotationType, String scopeName) {
     this.scopeMap.put(annotationType.getName(), scopeName);
@@ -69,22 +69,22 @@ public class Jsr330ScopeMetadataResolver implements ScopeMetadataResolver {
 
   /**
    * Register an extended JSR-330 scope annotation, mapping it onto a
-   * specific Spring scope by name.
+   * specific Framework scope by name.
    *
    * @param annotationType the JSR-330 annotation type by name
-   * @param scopeName the Spring scope name
+   * @param scopeName the Framework scope name
    */
   public final void registerScope(String annotationType, String scopeName) {
     this.scopeMap.put(annotationType, scopeName);
   }
 
   /**
-   * Resolve the given annotation type into a named Spring scope.
+   * Resolve the given annotation type into a named Framework scope.
    * <p>The default implementation simply checks against registered scopes.
    * Can be overridden for custom mapping rules, e.g. naming conventions.
    *
    * @param annotationType the JSR-330 annotation type
-   * @return the Spring scope name
+   * @return the Framework scope name
    */
   @Nullable
   protected String resolveScopeName(String annotationType) {
@@ -109,7 +109,7 @@ public class Jsr330ScopeMetadataResolver implements ScopeMetadataResolver {
           String scopeName = resolveScopeName(annType);
           if (scopeName == null) {
             throw new IllegalStateException(
-                    "Unsupported scope annotation - not mapped onto Spring scope name: " + annType);
+                    "Unsupported scope annotation - not mapped onto Framework scope name: " + annType);
           }
           metadata.setScopeName(scopeName);
         }

@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -113,6 +114,34 @@ public class BeanDefinition
    * used when registering beans that are completely part of the internal workings
    */
   public static final int ROLE_INFRASTRUCTURE = 2;
+
+  /**
+   * Constant that indicates no external autowiring at all.
+   *
+   * @see #setAutowireMode
+   */
+  public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
+
+  /**
+   * Constant that indicates autowiring bean properties by name.
+   *
+   * @see #setAutowireMode
+   */
+  public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
+
+  /**
+   * Constant that indicates autowiring bean properties by type.
+   *
+   * @see #setAutowireMode
+   */
+  public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
+
+  /**
+   * Constant that indicates autowiring a constructor.
+   *
+   * @see #setAutowireMode
+   */
+  public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 
   /** bean name. */
   private String beanName;
@@ -197,6 +226,9 @@ public class BeanDefinition
   private AnnotatedElement qualifiedElement;
 
   private Map<String, AutowireCandidateQualifier> qualifiers;
+
+  // @since 4.0
+  private int autowireMode = AUTOWIRE_NO;
 
   // cache for fast access
   Executable executable;
@@ -1128,6 +1160,33 @@ public class BeanDefinition
       }
       qualifiers.putAll(source.qualifiers);
     }
+  }
+
+  /**
+   * Set the autowire mode. This determines whether any automagical detection
+   * and setting of bean references will happen. Default is AUTOWIRE_NO
+   * which means there won't be convention-based autowiring by name or type
+   * (however, there may still be explicit annotation-driven autowiring).
+   *
+   * @param autowireMode the autowire mode to set.
+   * Must be one of the constants defined in this class.
+   * @see #AUTOWIRE_NO
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_CONSTRUCTOR
+   * @since 4.0
+   */
+  public void setAutowireMode(int autowireMode) {
+    this.autowireMode = autowireMode;
+  }
+
+  /**
+   * Return the autowire mode as specified in the bean definition.
+   *
+   * @since 4.0
+   */
+  public int getAutowireMode() {
+    return this.autowireMode;
   }
 
   // postProcessingLock

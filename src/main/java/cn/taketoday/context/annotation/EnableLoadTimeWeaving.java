@@ -30,9 +30,9 @@ import cn.taketoday.context.classloading.LoadTimeWeaver;
 import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
 
 /**
- * Activates a Spring {@link LoadTimeWeaver} for this application context, available as
+ * Activates a Framework {@link LoadTimeWeaver} for this application context, available as
  * a bean with the name "loadTimeWeaver", similar to the {@code <context:load-time-weaver>}
- * element in Spring XML.
+ * element in Framework XML.
  *
  * <p>To be used on @{@link Configuration Configuration} classes;
  * the simplest possible example of which follows:
@@ -45,7 +45,7 @@ import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
  *     // application-specific &#064;Bean definitions ...
  * }</pre>
  *
- * The example above is equivalent to the following Spring XML configuration:
+ * The example above is equivalent to the following Framework XML configuration:
  *
  * <pre class="code">
  * &lt;beans&gt;
@@ -61,7 +61,7 @@ import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
  * Any bean that implements the {@link
  * cn.taketoday.context.weaving.LoadTimeWeaverAware LoadTimeWeaverAware} interface
  * will then receive the {@code LoadTimeWeaver} reference automatically; for example,
- * Spring's JPA bootstrap support.
+ * Framework's JPA bootstrap support.
  *
  * <h2>Customizing the {@code LoadTimeWeaver}</h2>
  * The default weaver is determined automatically: see {@link DefaultContextLoadTimeWeaver}.
@@ -85,7 +85,7 @@ import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
  *     }
  * }</pre>
  *
- * <p>The example above can be compared to the following Spring XML configuration:
+ * <p>The example above can be compared to the following Framework XML configuration:
  *
  * <pre class="code">
  * &lt;beans&gt;
@@ -114,7 +114,7 @@ import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
  * public class AppConfig {
  * }</pre>
  *
- * <p>The example above can be compared to the following Spring XML configuration:
+ * <p>The example above can be compared to the following Framework XML configuration:
  *
  * <pre class="code">
  * &lt;beans&gt;
@@ -123,12 +123,6 @@ import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
  *
  * &lt;/beans&gt;
  * </pre>
- *
- * <p>The two examples are equivalent with one significant exception: in the XML case,
- * the functionality of {@code <context:spring-configured>} is implicitly enabled when
- * {@code aspectj-weaving} is "on".  This does not occur when using
- * {@code @EnableLoadTimeWeaving(aspectjWeaving=ENABLED)}. Instead you must explicitly add
- * {@code @EnableSpringConfigured} (included in the {@code spring-aspects} module)
  *
  * @author Chris Beams
  * @see LoadTimeWeaver
