@@ -73,7 +73,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.transaction.jta.JtaTransactionManager
  * @see cn.taketoday.jdbc.datasource.DataSourceTransactionManager
  * @see cn.taketoday.jdbc.datasource.DataSourceUtils#getConnection
- * @since 02.06.2003
+ * @since 4.0
  */
 public abstract class TransactionSynchronizationManager {
 

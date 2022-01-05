@@ -65,11 +65,9 @@ import cn.taketoday.transaction.TransactionSystemException;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class TransactionTemplate extends DefaultTransactionDefinition
-        implements TransactionOperations, InitializingBean {
-
-  /** Logger available to subclasses. */
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+public class TransactionTemplate
+        extends DefaultTransactionDefinition implements TransactionOperations, InitializingBean {
+  private static final Logger log = LoggerFactory.getLogger(TransactionTemplate.class);
 
   @Nullable
   private PlatformTransactionManager transactionManager;
@@ -81,8 +79,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition
    *
    * @see #setTransactionManager
    */
-  public TransactionTemplate() {
-  }
+  public TransactionTemplate() { }
 
   /**
    * Construct a new TransactionTemplate using the given transaction manager.
@@ -131,28 +128,29 @@ public class TransactionTemplate extends DefaultTransactionDefinition
   @Override
   @Nullable
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-    Assert.state(this.transactionManager != null, "No PlatformTransactionManager set");
+    PlatformTransactionManager transactionManager = getTransactionManager();
+    Assert.state(transactionManager != null, "No PlatformTransactionManager set");
 
-    if (this.transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
-      return ((CallbackPreferringPlatformTransactionManager) this.transactionManager).execute(this, action);
+    if (transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
+      return ((CallbackPreferringPlatformTransactionManager) transactionManager).execute(this, action);
     }
     else {
-      TransactionStatus status = this.transactionManager.getTransaction(this);
+      TransactionStatus status = transactionManager.getTransaction(this);
       T result;
       try {
         result = action.doInTransaction(status);
       }
       catch (RuntimeException | Error ex) {
         // Transactional code threw application exception -> rollback
-        rollbackOnException(status, ex);
+        rollbackOnException(transactionManager, status, ex);
         throw ex;
       }
       catch (Throwable ex) {
         // Transactional code threw unexpected exception -> rollback
-        rollbackOnException(status, ex);
+        rollbackOnException(transactionManager, status, ex);
         throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
       }
-      this.transactionManager.commit(status);
+      transactionManager.commit(status);
       return result;
     }
   }
@@ -160,32 +158,32 @@ public class TransactionTemplate extends DefaultTransactionDefinition
   /**
    * Perform a rollback, handling rollback exceptions properly.
    *
+   * @param transactionManager PlatformTransactionManager
    * @param status object representing the transaction
    * @param ex the thrown application exception or error
    * @throws TransactionException in case of a rollback error
    */
-  private void rollbackOnException(TransactionStatus status, Throwable ex) throws TransactionException {
-    Assert.state(this.transactionManager != null, "No PlatformTransactionManager set");
-
-    logger.debug("Initiating transaction rollback on application exception", ex);
+  private void rollbackOnException(
+          PlatformTransactionManager transactionManager, TransactionStatus status, Throwable ex) throws TransactionException {
+    log.debug("Initiating transaction rollback on application exception", ex);
     try {
-      this.transactionManager.rollback(status);
+      transactionManager.rollback(status);
     }
     catch (TransactionSystemException ex2) {
-      logger.error("Application exception overridden by rollback exception", ex);
+      log.error("Application exception overridden by rollback exception", ex);
       ex2.initApplicationException(ex);
       throw ex2;
     }
     catch (RuntimeException | Error ex2) {
-      logger.error("Application exception overridden by rollback exception", ex);
+      log.error("Application exception overridden by rollback exception", ex);
       throw ex2;
     }
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (super.equals(other) && (!(other instanceof TransactionTemplate) ||
-            getTransactionManager() == ((TransactionTemplate) other).getTransactionManager())));
+    return (this == other || (super.equals(other) && (!(other instanceof TransactionTemplate)
+            || getTransactionManager() == ((TransactionTemplate) other).getTransactionManager())));
   }
 
 }
