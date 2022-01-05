@@ -27,18 +27,18 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.orm.mybatis.AbstractMyBatisSpringTest;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
-import cn.taketoday.context.support.GenericApplicationContext;
 
 class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   private SqlSessionDaoSupport sqlSessionDaoSupport;
 
-  private GenericApplicationContext applicationContext;
+  private DefaultApplicationContext applicationContext;
 
   @BeforeEach
   void setup() {
@@ -100,7 +100,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   }
 
   private void setupContext() {
-    applicationContext = new GenericApplicationContext();
+    applicationContext = new DefaultApplicationContext();
 
     GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(MockSqlSessionDao.class);

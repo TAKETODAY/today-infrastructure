@@ -19,21 +19,26 @@
  */
 package cn.taketoday.orm.mybatis.annotation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.mockrunner.mock.jdbc.MockDataSource;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.PropertySource;
+import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.annotation.mapper.ds1.AppConfigWithDefaultMapperScanAndRepeat;
@@ -47,21 +52,11 @@ import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
 import cn.taketoday.orm.mybatis.mapper.MapperSubinterface;
 import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;
 import cn.taketoday.orm.mybatis.type.DummyMapperFactoryBean;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.GenericBeanDefinition;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.PropertySource;
-import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.support.SimpleThreadScope;
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.lang.Component;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test for the MapperScannerRegistrar.
@@ -101,7 +96,8 @@ class MapperScanTest {
       assertBeanNotLoaded("package-info");
       // assertBeanNotLoaded("annotatedMapperZeroMethods"); // as of 1.1.0 mappers
       // with no methods are loaded
-    } finally {
+    }
+    finally {
       applicationContext.close();
     }
   }
@@ -119,7 +115,7 @@ class MapperScanTest {
     applicationContext.getBean("annotatedMapper");
 
     assertThat(applicationContext
-        .getBeanDefinition(applicationContext.getBeanNamesForType(MapperScannerConfigurer.class)[0]).getRole())
+            .getBeanDefinition(applicationContext.getBeanNamesForType(MapperScannerConfigurer.class)[0]).getRole())
             .isEqualTo(BeanDefinition.ROLE_INFRASTRUCTURE);
   }
 
@@ -223,7 +219,7 @@ class MapperScanTest {
 
   @Test
   void testScanWithNameConflict() {
-    GenericBeanDefinition definition = new GenericBeanDefinition();
+    BeanDefinition definition = new BeanDefinition();
     definition.setBeanClass(Object.class);
     applicationContext.registerBeanDefinition("mapperInterface", definition);
 
@@ -232,11 +228,11 @@ class MapperScanTest {
     startContext();
 
     assertThat(applicationContext.getBean("mapperInterface").getClass())
-        .as("scanner should not overwrite existing bean definition").isSameAs(Object.class);
+            .as("scanner should not overwrite existing bean definition").isSameAs(Object.class);
   }
 
   private void setupSqlSessionFactory() {
-    GenericBeanDefinition definition = new GenericBeanDefinition();
+    BeanDefinition definition = new BeanDefinition();
     definition.setBeanClass(SqlSessionFactoryBean.class);
     definition.getPropertyValues().add("dataSource", new MockDataSource());
     applicationContext.registerBeanDefinition("sqlSessionFactory", definition);
@@ -246,7 +242,8 @@ class MapperScanTest {
     try {
       applicationContext.getBean(name);
       fail("Spring bean should not be defined for class " + name);
-    } catch (NoSuchBeanDefinitionException nsbde) {
+    }
+    catch (NoSuchBeanDefinitionException nsbde) {
       // success
     }
   }
@@ -367,7 +364,7 @@ class MapperScanTest {
     startContext();
 
     List<String> scopedProxyTargetBeans = Stream.of(applicationContext.getBeanDefinitionNames())
-        .filter(x -> x.startsWith("scopedTarget")).collect(Collectors.toList());
+            .filter(x -> x.startsWith("scopedTarget")).collect(Collectors.toList());
     assertThat(scopedProxyTargetBeans).hasSize(1).contains("scopedTarget.ds1Mapper");
 
     for (String scopedProxyTargetBean : scopedProxyTargetBeans) {
@@ -447,7 +444,7 @@ class MapperScanTest {
 
   @Configuration
   @MapperScans({ @MapperScan(basePackages = "cn.taketoday.orm.mybatis.annotation.mapper.ds1"),
-      @MapperScan(basePackages = "cn.taketoday.orm.mybatis.annotation.mapper.ds2") })
+          @MapperScan(basePackages = "cn.taketoday.orm.mybatis.annotation.mapper.ds2") })
   public static class AppConfigWithMapperScans {
   }
 
@@ -470,7 +467,7 @@ class MapperScanTest {
   }
 
   @MapperScan(basePackages = { "cn.taketoday.orm.mybatis.annotation.mapper.ds1",
-      "cn.taketoday.orm.mybatis.annotation.mapper.ds2" }, defaultScope = "${mybatis.default-scope:thread}")
+          "cn.taketoday.orm.mybatis.annotation.mapper.ds2" }, defaultScope = "${mybatis.default-scope:thread}")
   public static class ScopedProxy {
 
   }
