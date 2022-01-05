@@ -338,7 +338,7 @@ public class MapperScannerConfigurer
     scanner.setBeanNamePopulator(this.namePopulator);
     scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
     if (StringUtils.hasText(lazyInitialization)) {
-      scanner.setLazyInitialization(Boolean.valueOf(lazyInitialization));
+      scanner.setLazyInitialization(Boolean.parseBoolean(lazyInitialization));
     }
     if (StringUtils.hasText(defaultScope)) {
       scanner.setDefaultScope(defaultScope);

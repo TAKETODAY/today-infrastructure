@@ -55,6 +55,9 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
     if (StringUtils.isEmpty(value)) {
       return value;
     }
+    if (!value.startsWith("#{") || !value.endsWith("}")) {
+      return value;
+    }
     try {
       StandardExpressionContext context = new StandardExpressionContext();
       context.addResolver(new BeanNameExpressionResolver(new BeanNameResolver() {
@@ -72,7 +75,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
       return expressionFactory.createValueExpression(context, value, Object.class).getValue(context);
     }
     catch (Throwable ex) {
-      throw new BeanExpressionException("Expression parsing failed", ex);
+      throw new BeanExpressionException("Expression '" + value + "' parsing failed", ex);
     }
   }
 
