@@ -19,12 +19,13 @@
  */
 package cn.taketoday.orm.mybatis.type;
 
+import org.apache.ibatis.session.SqlSessionFactory;
+
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.logging.Logger;
-import org.mybatis.logging.LoggerFactory;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
 
 public class DummyMapperFactoryBean<T> extends MapperFactoryBean<T> {
@@ -46,7 +47,7 @@ public class DummyMapperFactoryBean<T> extends MapperFactoryBean<T> {
     super.checkDaoConfig();
     // make something more
     if (isAddToConfig()) {
-      LOGGER.debug(() -> "register mapper for interface : " + getMapperInterface());
+      LOGGER.debug("register mapper for interface : " + getMapperInterface());
     }
   }
 
@@ -66,13 +67,13 @@ public class DummyMapperFactoryBean<T> extends MapperFactoryBean<T> {
 
     // just a dummy implementation example
     return (SqlSessionFactory) Proxy.newProxyInstance(SqlSessionFactory.class.getClassLoader(),
-        new Class[] { SqlSessionFactory.class }, (proxy, method, args) -> {
-          if ("getConfiguration".equals(method.getName())) {
-            return getSqlSession().getConfiguration();
-          }
-          // dummy
-          return null;
-        });
+            new Class[] { SqlSessionFactory.class }, (proxy, method, args) -> {
+              if ("getConfiguration".equals(method.getName())) {
+                return getSqlSession().getConfiguration();
+              }
+              // dummy
+              return null;
+            });
   }
 
   public static int getMapperCount() {

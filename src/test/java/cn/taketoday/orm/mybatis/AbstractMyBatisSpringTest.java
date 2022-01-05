@@ -19,21 +19,22 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
-
-import java.sql.SQLException;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+
+import java.sql.SQLException;
+
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractMyBatisSpringTest {
 
@@ -110,7 +111,7 @@ public abstract class AbstractMyBatisSpringTest {
 
   protected void assertExecuteCount(int count) {
     assertThat(connection.getPreparedStatementResultSetHandler().getExecutedStatements().size())
-        .as("should have executed %d SQL statements", count).isEqualTo(count);
+            .as("should have executed %d SQL statements", count).isEqualTo(count);
   }
 
   protected void assertConnectionClosed(MockConnection connection) {
@@ -118,7 +119,8 @@ public abstract class AbstractMyBatisSpringTest {
       if ((connection != null) && !connection.isClosed()) {
         fail("Connection is not closed");
       }
-    } catch (SQLException sqle) {
+    }
+    catch (SQLException sqle) {
       fail("cannot call Connection.isClosed() " + sqle.getMessage());
     }
   }

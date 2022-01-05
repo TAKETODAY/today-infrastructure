@@ -19,21 +19,22 @@
  */
 package cn.taketoday.orm.mybatis.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.sql.SQLException;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
+import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.orm.mybatis.AbstractMyBatisSpringTest;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
-import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.context.annotation.AnnotationConfigUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   private SqlSessionDaoSupport sqlSessionDaoSupport;
@@ -65,7 +66,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
     sqlSessionDaoSupport.afterPropertiesSet();
 
     assertThat(((SqlSessionTemplate) sqlSessionDaoSupport.getSqlSession()).getSqlSessionFactory())
-        .as("should store the Factory").isEqualTo(sqlSessionFactory);
+            .as("should store the Factory").isEqualTo(sqlSessionFactory);
   }
 
   @Test
@@ -102,7 +103,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   private void setupContext() {
     applicationContext = new DefaultApplicationContext();
 
-    GenericBeanDefinition definition = new GenericBeanDefinition();
+    BeanDefinition definition = new BeanDefinition();
     definition.setBeanClass(MockSqlSessionDao.class);
     applicationContext.registerBeanDefinition("dao", definition);
 
@@ -118,7 +119,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   }
 
   private void setupSqlSessionFactory(String name) {
-    GenericBeanDefinition definition = new GenericBeanDefinition();
+    BeanDefinition definition = new BeanDefinition();
     definition.setBeanClass(SqlSessionFactoryBean.class);
     definition.getPropertyValues().add("dataSource", dataSource);
 

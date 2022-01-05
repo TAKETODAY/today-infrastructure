@@ -19,10 +19,6 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.mockrunner.mock.ejb.MockUserTransaction;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockDataSource;
@@ -36,11 +32,16 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class MyBatisSpringTest extends AbstractMyBatisSpringTest {
 
@@ -52,7 +53,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
     if ((session != null) && !executorInterceptor.isExecutorClosed()) {
       session = null;
       fail("SqlSession is not closed");
-    } else {
+    }
+    else {
       session = null;
     }
   }
@@ -155,7 +157,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       // API usage
       assertNoCommit();
       assertSingleConnection();
-    } finally {
+    }
+    finally {
       sqlSessionFactory.getConfiguration().setEnvironment(original);
     }
   }
@@ -174,9 +177,10 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       status = txManager.getTransaction(new DefaultTransactionDefinition());
 
       assertThrows(TransientDataAccessResourceException.class,
-          () -> session = SqlSessionUtils.getSqlSession(sqlSessionFactory));
+              () -> session = SqlSessionUtils.getSqlSession(sqlSessionFactory));
       // fail("should not be able to get an SqlSession using non-Spring tx manager when there is an active Spring tx");
-    } finally {
+    }
+    finally {
       // rollback required to close connection
       txManager.rollback(status);
 
@@ -217,7 +221,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       assertThat(mockConnection.getNumberCommits()).as("should call commit on Connection").isEqualTo(0);
       assertThat(mockConnection.getNumberRollbacks()).as("should not call rollback on Connection").isEqualTo(0);
       assertCommitSession();
-    } finally {
+    }
+    finally {
       SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
 
       sqlSessionFactory.getConfiguration().setEnvironment(original);
@@ -234,10 +239,11 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       session = SqlSessionUtils.getSqlSession(sqlSessionFactory);
 
       assertThrows(TransientDataAccessResourceException.class,
-          () -> session = SqlSessionUtils.getSqlSession(sqlSessionFactory, ExecutorType.BATCH, exceptionTranslator));
+              () -> session = SqlSessionUtils.getSqlSession(sqlSessionFactory, ExecutorType.BATCH, exceptionTranslator));
 
       // fail("should not be able to change the Executor type during an existing transaction");
-    } finally {
+    }
+    finally {
       SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
 
       // rollback required to close connection
@@ -267,7 +273,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
       txManager.rollback(status);
 
-    } finally {
+    }
+    finally {
       // reset the txManager; keep other tests from potentially failing
       txManager.setDataSource(dataSource);
 
@@ -277,6 +284,7 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
     }
   }
 
+/*
   @Test
   void testWithJtaTxManager() {
     JtaTransactionManager jtaManager = new JtaTransactionManager(new MockUserTransaction());
@@ -297,7 +305,9 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
     assertCommitSession();
     assertSingleConnection();
   }
+*/
 
+/*
   @Test
   void testWithJtaTxManagerAndNonSpringTxManager() throws java.sql.SQLException {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();
@@ -334,7 +344,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
 
       assertThat(dataSource.getConnectionCount()).as("should not call DataSource.getConnection()").isEqualTo(0);
 
-    } finally {
+    }
+    finally {
       SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
 
       sqlSessionFactory.getConfiguration().setEnvironment(original);
@@ -344,6 +355,7 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       connection = null;
     }
   }
+*/
 
   @Test
   void testWithTxSupports() {
@@ -502,7 +514,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
 
       assertConnectionClosed(connection);
       assertConnectionClosed(connectionTwo);
-    } finally {
+    }
+    finally {
       // reset the txManager; keep other tests from potentially failing
       txManager.setDataSource(dataSource);
 
@@ -570,7 +583,8 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
       session.getMapper(TestMapper.class).insertTest("test3");
 
       assertThrows(PersistenceException.class, () -> session.commit(true));
-    } finally {
+    }
+    finally {
       SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
     }
   }
@@ -599,7 +613,7 @@ class MyBatisSpringTest extends AbstractMyBatisSpringTest {
   private void setupBatchStatements() {
     // these queries must be the same as the query in TestMapper.xml
     connection.getPreparedStatementResultSetHandler()
-        .addPreparedStatement(new MockPreparedStatement(connection, "INSERT ? INTO test"));
+            .addPreparedStatement(new MockPreparedStatement(connection, "INSERT ? INTO test"));
 
     connection.getPreparedStatementResultSetHandler().prepareThrowsSQLException("INSERT fail");
   }

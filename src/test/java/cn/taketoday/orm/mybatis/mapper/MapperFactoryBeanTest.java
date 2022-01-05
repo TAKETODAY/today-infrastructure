@@ -19,10 +19,6 @@
  */
 package cn.taketoday.orm.mybatis.mapper;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockDataSource;
 
@@ -31,14 +27,19 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.orm.mybatis.AbstractMyBatisSpringTest;
 import cn.taketoday.orm.mybatis.MyBatisSystemException;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.TestMapper;
-import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
 
@@ -91,12 +92,14 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
       SqlSessionFactory sqlSessionFactory = factoryBean.getObject();
 
       assertThrows(org.apache.ibatis.binding.BindingException.class,
-          () -> find(new SqlSessionTemplate(sqlSessionFactory), false));
+              () -> find(new SqlSessionTemplate(sqlSessionFactory), false));
       // fail("TestDao's mapper xml should not be loaded");
-    } catch (MyBatisSystemException mbse) {
+    }
+    catch (MyBatisSystemException mbse) {
       // unwrap exception so the exact MyBatis exception can be tested
       throw mbse.getCause();
-    } finally {
+    }
+    finally {
       // connection not used; force close to avoid failing in validateConnectionClosed()
       connection.close();
     }
@@ -130,7 +133,8 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
       assertCommitSession();
       assertSingleConnection();
       assertExecuteCount(1);
-    } finally {
+    }
+    finally {
       sqlSessionFactory.getConfiguration().setEnvironment(original);
     }
   }
@@ -151,11 +155,13 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
       find();
 
       fail("should not be able to get an SqlSession using non-Spring tx manager when there is an active Spring tx");
-    } catch (TransientDataAccessResourceException e) {
+    }
+    catch (TransientDataAccessResourceException e) {
       assertThat(e.getMessage())
-          .isEqualTo("SqlSessionFactory must be using a SpringManagedTransactionFactory in order to use"
-              + " Spring transaction synchronization");
-    } finally {
+              .isEqualTo("SqlSessionFactory must be using a SpringManagedTransactionFactory in order to use"
+                      + " Spring transaction synchronization");
+    }
+    finally {
       // rollback required to close connection
       txManager.rollback(status);
 
@@ -194,7 +200,8 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
       assertThat(mockConnection.getNumberCommits()).as("should call commit on Connection").isEqualTo(1);
       assertThat(mockConnection.getNumberRollbacks()).as("should not call rollback on Connection").isEqualTo(0);
       assertCommitSession();
-    } finally {
+    }
+    finally {
 
       sqlSessionFactory.getConfiguration().setEnvironment(original);
     }

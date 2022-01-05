@@ -21,17 +21,17 @@ package cn.taketoday.orm.mybatis.asyncsynchronization;
 
 import org.jboss.byteman.contrib.bmunit.BMRule;
 import org.junit.jupiter.api.Disabled;
+
 import cn.taketoday.orm.mybatis.SqlSessionTemplateTest;
 
 /**
- *
  * The same test as original but afterCompletion is being called on a separate thread
  *
  * @author Alex Rykov
- *
  */
 @Disabled // FIXME: Enable after migrate BMUnitRunner to BMUnitExtension
 // @ExtendWith(BMUnitRunner.class)
-@BMRule(name = "proxy synchronizations", targetClass = "TransactionSynchronizationManager", targetMethod = "registerSynchronization(TransactionSynchronization)", helper = "cn.taketoday.orm.mybatis.asyncsynchronization.AsyncAfterCompletionHelper", action = "$1=createSynchronizationWithAsyncAfterComplete($1)")
+@BMRule(name = "proxy synchronizations", targetClass = "TransactionSynchronizationManager", targetMethod = "registerSynchronization(TransactionSynchronization)",
+        helper = "cn.taketoday.orm.mybatis.asyncsynchronization.AsyncAfterCompletionHelper", action = "$1=createSynchronizationWithAsyncAfterComplete($1)")
 class SqlSessionTemplateAsyncAfterCompletionTest extends SqlSessionTemplateTest {
 }

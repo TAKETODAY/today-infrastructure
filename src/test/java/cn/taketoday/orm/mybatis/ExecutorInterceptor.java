@@ -19,14 +19,14 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import java.util.Properties;
-
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
+
+import java.util.Properties;
 
 /**
  * Keeps track of Executor commits, rollbacks and close status.
@@ -36,8 +36,8 @@ import org.apache.ibatis.plugin.Signature;
  * could change the test results.
  */
 @Intercepts({ @Signature(type = Executor.class, method = "commit", args = { boolean.class }),
-    @Signature(type = Executor.class, method = "rollback", args = { boolean.class }),
-    @Signature(type = Executor.class, method = "close", args = { boolean.class }) })
+        @Signature(type = Executor.class, method = "rollback", args = { boolean.class }),
+        @Signature(type = Executor.class, method = "close", args = { boolean.class }) })
 final class ExecutorInterceptor implements Interceptor {
 
   private int commitCount;
@@ -50,9 +50,11 @@ final class ExecutorInterceptor implements Interceptor {
   public Object intercept(Invocation invocation) throws Throwable {
     if ("commit".equals(invocation.getMethod().getName())) {
       ++this.commitCount;
-    } else if ("rollback".equals(invocation.getMethod().getName())) {
+    }
+    else if ("rollback".equals(invocation.getMethod().getName())) {
       ++this.rollbackCount;
-    } else if ("close".equals(invocation.getMethod().getName())) {
+    }
+    else if ("close".equals(invocation.getMethod().getName())) {
       this.closed = true;
     }
 

@@ -36,11 +36,9 @@ import cn.taketoday.transaction.support.TransactionSynchronization;
 @SuppressWarnings("unused")
 public class AsyncAfterCompletionHelper {
   /**
-   *
    * Invocation handler that performs afterCompletion on a separate thread See Github issue #18
    *
    * @author Alex Rykov
-   *
    */
   static class AsyncAfterCompletionInvocationHandler implements InvocationHandler {
 
@@ -58,10 +56,12 @@ public class AsyncAfterCompletionHelper {
         Thread thread = new Thread(() -> {
           try {
             retValSet.add(method.invoke(target, args));
-          } catch (InvocationTargetException ite) {
+          }
+          catch (InvocationTargetException ite) {
             exceptionSet.add(ite.getCause());
 
-          } catch (IllegalArgumentException | IllegalAccessException e) {
+          }
+          catch (IllegalArgumentException | IllegalAccessException e) {
             exceptionSet.add(e);
 
           }
@@ -70,10 +70,12 @@ public class AsyncAfterCompletionHelper {
         thread.join();
         if (exceptionSet.isEmpty()) {
           return retValSet.iterator().next();
-        } else {
+        }
+        else {
           throw exceptionSet.iterator().next();
         }
-      } else {
+      }
+      else {
         return method.invoke(target, args);
       }
     }
@@ -84,15 +86,15 @@ public class AsyncAfterCompletionHelper {
    * Creates proxy that performs afterCompletion call on a separate thread
    */
   public TransactionSynchronization createSynchronizationWithAsyncAfterComplete(
-      TransactionSynchronization synchronization) {
+          TransactionSynchronization synchronization) {
     if (Proxy.isProxyClass(synchronization.getClass())
-        && Proxy.getInvocationHandler(synchronization) instanceof AsyncAfterCompletionInvocationHandler) {
+            && Proxy.getInvocationHandler(synchronization) instanceof AsyncAfterCompletionInvocationHandler) {
       // avoiding double wrapping just in case
       return synchronization;
     }
     Class<?>[] interfaces = { TransactionSynchronization.class };
     return (TransactionSynchronization) Proxy.newProxyInstance(synchronization.getClass().getClassLoader(), interfaces,
-        new AsyncAfterCompletionInvocationHandler(synchronization));
+            new AsyncAfterCompletionInvocationHandler(synchronization));
 
   }
 

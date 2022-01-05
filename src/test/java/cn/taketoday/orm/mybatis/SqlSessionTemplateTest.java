@@ -19,22 +19,23 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.sql.SQLException;
-
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.sql.SQLException;
+
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // tests basic usage and implementation only
 // MapperFactoryBeanTest handles testing the transactional functions in SqlSessionTemplate
@@ -51,7 +52,8 @@ public class SqlSessionTemplateTest extends AbstractMyBatisSpringTest {
   void tearDown() {
     try {
       connection.close();
-    } catch (SQLException ignored) {
+    }
+    catch (SQLException ignored) {
     }
   }
 
@@ -75,7 +77,8 @@ public class SqlSessionTemplateTest extends AbstractMyBatisSpringTest {
 
       assertThat(conn.isClosed()).isFalse();
 
-    } finally {
+    }
+    finally {
       // rollback required to close connection
       txManager.rollback(status);
     }
@@ -114,7 +117,8 @@ public class SqlSessionTemplateTest extends AbstractMyBatisSpringTest {
       SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sqlSessionFactory);
 
       assertThat(holder.getExecutorType()).isEqualTo(ExecutorType.BATCH);
-    } finally {
+    }
+    finally {
       // rollback required to close connection
       txManager.rollback(status);
     }
@@ -125,11 +129,14 @@ public class SqlSessionTemplateTest extends AbstractMyBatisSpringTest {
     try {
       sqlSessionTemplate.selectOne("undefined");
       fail("exception not thrown when expected");
-    } catch (MyBatisSystemException mbse) {
+    }
+    catch (MyBatisSystemException mbse) {
       // success
-    } catch (Throwable t) {
+    }
+    catch (Throwable t) {
       fail("SqlSessionTemplate should translate MyBatis PersistenceExceptions");
-    } finally {
+    }
+    finally {
       connection.close(); // the template do not open the connection so it do not close it
     }
   }
@@ -143,11 +150,14 @@ public class SqlSessionTemplateTest extends AbstractMyBatisSpringTest {
     try {
       sqlSessionTemplate.selectOne("cn.taketoday.orm.mybatis.TestMapper.findFail");
       fail("exception not thrown when expected");
-    } catch (MyBatisSystemException mbse) {
+    }
+    catch (MyBatisSystemException mbse) {
       fail("SqlSessionTemplate should translate SQLExceptions into DataAccessExceptions");
-    } catch (DataAccessException dae) {
+    }
+    catch (DataAccessException dae) {
       // success
-    } catch (Throwable t) {
+    }
+    catch (Throwable t) {
       fail("SqlSessionTemplate should translate MyBatis PersistenceExceptions");
     }
   }

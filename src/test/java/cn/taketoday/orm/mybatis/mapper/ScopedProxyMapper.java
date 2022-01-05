@@ -20,11 +20,11 @@
 package cn.taketoday.orm.mybatis.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+
 import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.annotation.ScopedProxyMode;
 
 @Mapper
-@Scope(scopeName = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(scopeName = "thread"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
 public interface ScopedProxyMapper {
   default String test() {
     return "test";

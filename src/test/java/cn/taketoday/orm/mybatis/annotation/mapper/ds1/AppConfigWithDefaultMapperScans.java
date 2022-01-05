@@ -19,9 +19,9 @@
  */
 package cn.taketoday.orm.mybatis.annotation.mapper.ds1;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.orm.mybatis.annotation.MapperScan;
 import cn.taketoday.orm.mybatis.annotation.MapperScans;
-import cn.taketoday.context.annotation.Configuration;
 
 @Configuration
 @MapperScans({ @MapperScan, @MapperScan("cn.taketoday.orm.mybatis.annotation.mapper.ds2") })

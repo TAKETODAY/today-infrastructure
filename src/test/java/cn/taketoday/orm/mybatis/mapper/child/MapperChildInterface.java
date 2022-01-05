@@ -19,8 +19,8 @@
  */
 package cn.taketoday.orm.mybatis.mapper.child;
 
-import cn.taketoday.orm.mybatis.mapper.MapperInterface;
 import cn.taketoday.lang.Component;
+import cn.taketoday.orm.mybatis.mapper.MapperInterface;
 
 // interface for MapperScannerPostProcessor tests
 // tests subpackage search

@@ -19,17 +19,7 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.mockrunner.mock.jdbc.MockDataSource;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.io.JBoss6VFS;
@@ -50,13 +40,24 @@ import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.junit.jupiter.api.Test;
-import org.mybatis.core.jdk.type.AtomicNumberTypeHandler;
-import cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.orm.mybatis.transaction.ManagedTransactionFactory;
+import cn.taketoday.orm.mybatis.type.AtomicNumberTypeHandler;
 import cn.taketoday.orm.mybatis.type.DummyTypeAlias;
 import cn.taketoday.orm.mybatis.type.DummyTypeHandler;
 import cn.taketoday.orm.mybatis.type.SuperType;
 import cn.taketoday.orm.mybatis.type.TypeHandlerFactory;
-import cn.taketoday.core.io.ClassPathResource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SqlSessionFactoryBeanTest {
 
@@ -110,7 +111,7 @@ class SqlSessionFactoryBeanTest {
     setupFactoryBean();
     factoryBean.setTransactionFactory(null);
 
-    assertConfig(factoryBean.getObject(), SpringManagedTransactionFactory.class);
+    assertConfig(factoryBean.getObject(), ManagedTransactionFactory.class);
   }
 
   @Test
@@ -127,7 +128,7 @@ class SqlSessionFactoryBeanTest {
 
     factoryBean.setEnvironment("");
 
-    assertConfig(factoryBean.getObject(), "", cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory.class);
+    assertConfig(factoryBean.getObject(), "", ManagedTransactionFactory.class);
   }
 
   @Test
@@ -146,7 +147,7 @@ class SqlSessionFactoryBeanTest {
     factoryBean.setConfigurationProperties(configurationProperties);
 
     SqlSessionFactory factory = factoryBean.getObject();
-    assertConfig(factory, SpringManagedTransactionFactory.class);
+    assertConfig(factory, ManagedTransactionFactory.class);
     assertThat(factory.getConfiguration().getVariables().size()).isEqualTo(1);
     assertThat(factory.getConfiguration().getVariables().get("username")).isEqualTo("dev");
   }
@@ -165,10 +166,10 @@ class SqlSessionFactoryBeanTest {
     SqlSessionFactory factory = factoryBean.getObject();
 
     assertThat(factory.getConfiguration().getEnvironment().getId())
-        .isEqualTo(SqlSessionFactoryBean.class.getSimpleName());
+            .isEqualTo(SqlSessionFactoryBean.class.getSimpleName());
     assertThat(factory.getConfiguration().getEnvironment().getDataSource()).isSameAs(dataSource);
     assertThat(factory.getConfiguration().getEnvironment().getTransactionFactory().getClass())
-        .isSameAs(SpringManagedTransactionFactory.class);
+            .isSameAs(ManagedTransactionFactory.class);
     assertThat(factory.getConfiguration().getVfsImpl()).isSameAs(JBoss6VFS.class);
 
     assertThat(factory.getConfiguration().isCacheEnabled()).isFalse();
@@ -265,22 +266,22 @@ class SqlSessionFactoryBeanTest {
     setupFactoryBean();
 
     factoryBean
-        .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
+            .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
 
     SqlSessionFactory factory = factoryBean.getObject();
 
     assertThat(factory.getConfiguration().getEnvironment().getId())
-        .isEqualTo(SqlSessionFactoryBean.class.getSimpleName());
+            .isEqualTo(SqlSessionFactoryBean.class.getSimpleName());
     assertThat(factory.getConfiguration().getEnvironment().getDataSource()).isSameAs(dataSource);
     assertThat(factory.getConfiguration().getEnvironment().getTransactionFactory().getClass())
-        .isSameAs(cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory.class);
+            .isSameAs(cn.taketoday.orm.mybatis.transaction.ManagedTransactionFactory.class);
     assertThat(factory.getConfiguration().getVfsImpl()).isSameAs(JBoss6VFS.class);
 
     // properties explicitly set differently than the defaults in the config xml
     assertThat(factory.getConfiguration().isCacheEnabled()).isFalse();
     assertThat(factory.getConfiguration().isUseGeneratedKeys()).isTrue();
     assertThat(factory.getConfiguration().getDefaultExecutorType())
-        .isSameAs(org.apache.ibatis.session.ExecutorType.REUSE);
+            .isSameAs(org.apache.ibatis.session.ExecutorType.REUSE);
 
     // for each statement in the xml file: cn.taketoday.orm.mybatis.TestMapper.xxx & xxx
     assertThat(factory.getConfiguration().getMappedStatementNames().size()).isEqualTo(8);
@@ -295,11 +296,11 @@ class SqlSessionFactoryBeanTest {
 
     factoryBean.setConfiguration(new Configuration());
     factoryBean
-        .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
+            .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
 
     Throwable e = assertThrows(IllegalStateException.class, factoryBean::getObject);
     assertThat(e.getMessage())
-        .isEqualTo("Property 'configuration' and 'configLocation' can not specified with together");
+            .isEqualTo("Property 'configuration' and 'configLocation' can not specified with together");
   }
 
   @Test
@@ -497,8 +498,7 @@ class SqlSessionFactoryBeanTest {
   }
 
   private void assertDefaultConfig(SqlSessionFactory factory) {
-    assertConfig(factory, SqlSessionFactoryBean.class.getSimpleName(),
-        cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory.class);
+    assertConfig(factory, SqlSessionFactoryBean.class.getSimpleName(), ManagedTransactionFactory.class);
     assertThat(factory.getConfiguration().getVariables().size()).isEqualTo(0);
   }
 
@@ -507,11 +507,11 @@ class SqlSessionFactoryBeanTest {
   }
 
   private void assertConfig(SqlSessionFactory factory, String environment,
-      Class<? extends TransactionFactory> transactionFactoryClass) {
+                            Class<? extends TransactionFactory> transactionFactoryClass) {
     assertThat(factory.getConfiguration().getEnvironment().getId()).isEqualTo(environment);
     assertThat(factory.getConfiguration().getEnvironment().getDataSource()).isSameAs(dataSource);
     assertThat(factory.getConfiguration().getEnvironment().getTransactionFactory().getClass())
-        .isSameAs(transactionFactoryClass);
+            .isSameAs(transactionFactoryClass);
 
     // no mappers configured => no mapped statements or other parsed elements
     assertThat(factory.getConfiguration().getMappedStatementNames().size()).isEqualTo(0);
