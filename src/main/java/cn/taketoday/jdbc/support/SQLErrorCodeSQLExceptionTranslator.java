@@ -69,6 +69,7 @@ import cn.taketoday.util.SingletonSupplier;
  * @author Juergen Hoeller
  * @see SQLErrorCodesFactory
  * @see SQLStateSQLExceptionTranslator
+ * @since 4.0
  */
 public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExceptionTranslator {
 

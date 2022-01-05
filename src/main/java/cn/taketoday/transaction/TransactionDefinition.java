@@ -21,7 +21,9 @@ package cn.taketoday.transaction;
 
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
+import cn.taketoday.transaction.support.SynchronizationMetaData;
+import cn.taketoday.transaction.support.TransactionSynchronization;
+import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Interface that defines transaction properties.
@@ -71,8 +73,8 @@ public interface TransactionDefinition {
    * to configure your transaction manager appropriately (typically switching to
    * "synchronization on actual transaction").
    *
-   * @see cn.taketoday.transaction.AbstractTransactionManager#setTransactionSynchronization
-   * @see cn.taketoday.transaction.AbstractTransactionManager#SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
+   * @see cn.taketoday.transaction.support.AbstractPlatformTransactionManager#setTransactionSynchronization
+   * @see cn.taketoday.transaction.support.AbstractPlatformTransactionManager#SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
    */
   int PROPAGATION_SUPPORTS = 1;
 
@@ -194,7 +196,7 @@ public interface TransactionDefinition {
    *
    * @return the propagation behavior
    * @see #PROPAGATION_REQUIRED
-   * @see SynchronizationManager#isActive()
+   * @see TransactionSynchronizationManager#isSynchronizationActive()
    */
   default int getPropagationBehavior() {
     return PROPAGATION_REQUIRED;
@@ -217,7 +219,7 @@ public interface TransactionDefinition {
    *
    * @return the isolation level
    * @see #ISOLATION_DEFAULT
-   * @see cn.taketoday.transaction.AbstractTransactionManager#setValidateExistingTransaction
+   * @see cn.taketoday.transaction.support.AbstractPlatformTransactionManager#setValidateExistingTransaction
    */
   default int getIsolationLevel() {
     return ISOLATION_DEFAULT;
@@ -254,8 +256,8 @@ public interface TransactionDefinition {
    *
    * @return {@code true} if the transaction is to be optimized as read-only
    * ({@code false} by default)
-   * @see TransactionSynchronization#beforeCommit(SynchronizationMetaData, boolean)
-   * @see SynchronizationMetaData#isReadOnly()
+   * @see TransactionSynchronization#beforeCommit(boolean)
+   * @see SynchronizationMetaData#isCurrentTransactionReadOnly() ()
    */
   default boolean isReadOnly() {
     return false;
@@ -269,7 +271,7 @@ public interface TransactionDefinition {
    * the {@code fully-qualified class name + "." + method name} (by default).
    *
    * @return the name of this transaction ({@code null} by default}
-   * @see SynchronizationMetaData#getName()
+   * @see SynchronizationMetaData#getCurrentTransactionName()
    */
   @Nullable
   default String getName() {
@@ -281,7 +283,7 @@ public interface TransactionDefinition {
   /**
    * Return an unmodifiable {@code TransactionDefinition} with defaults.
    * <p>For customization purposes, use the modifiable
-   * {@link cn.taketoday.transaction.DefaultTransactionDefinition}
+   * {@link cn.taketoday.transaction.support.DefaultTransactionDefinition}
    * instead.
    *
    * @since 4.0

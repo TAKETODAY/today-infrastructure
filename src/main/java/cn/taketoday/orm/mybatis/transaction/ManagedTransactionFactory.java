@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,9 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.orm.mybatis;
+package cn.taketoday.orm.mybatis.transaction;
 
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.ibatis.transaction.Transaction;
@@ -28,14 +28,19 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-public class MybatisTransactionFactory implements TransactionFactory {
+/**
+ * Creates a {@code ManagedTransaction}.
+ *
+ * @author Hunter Presnall
+ */
+public class ManagedTransactionFactory implements TransactionFactory {
 
   /**
    * {@inheritDoc}
    */
   @Override
   public Transaction newTransaction(DataSource dataSource, TransactionIsolationLevel level, boolean autoCommit) {
-    return new MybatisTransaction(dataSource).setAutoCommit(autoCommit);
+    return new ManagedTransaction(dataSource);
   }
 
   /**
@@ -43,7 +48,7 @@ public class MybatisTransactionFactory implements TransactionFactory {
    */
   @Override
   public Transaction newTransaction(Connection conn) {
-    throw new UnsupportedOperationException("New Today transactions require a DataSource");
+    throw new UnsupportedOperationException("New Spring transactions require a DataSource");
   }
 
   /**

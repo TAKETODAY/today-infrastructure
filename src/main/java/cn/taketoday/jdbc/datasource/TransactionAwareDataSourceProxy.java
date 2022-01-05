@@ -31,7 +31,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.SynchronizationManager;
+import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Proxy for a target JDBC {@link DataSource}, adding awareness of
@@ -154,7 +154,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    * @param targetDataSource the target DataSource
    */
   protected boolean shouldObtainFixedConnection(DataSource targetDataSource) {
-    return !SynchronizationManager.isActive() || !this.reobtainTransactionalConnections;
+    return !TransactionSynchronizationManager.isSynchronizationActive() || !this.reobtainTransactionalConnections;
   }
 
   /**

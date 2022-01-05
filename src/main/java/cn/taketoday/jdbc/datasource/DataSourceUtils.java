@@ -32,10 +32,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.transaction.SynchronizationManager;
-import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import cn.taketoday.transaction.TransactionDefinition;
-import cn.taketoday.transaction.TransactionSynchronization;
+import cn.taketoday.transaction.support.SynchronizationMetaData;
+import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -65,7 +64,7 @@ public abstract class DataSourceUtils {
    * @see #releaseConnection
    */
   public static Connection getConnection(DataSource dataSource) {
-    return getConnection(SynchronizationManager.getMetaData(), dataSource);
+    return getConnection(TransactionSynchronizationManager.getMetaData(), dataSource);
   }
 
   /**
@@ -89,7 +88,7 @@ public abstract class DataSourceUtils {
   }
 
   public static Connection doGetConnection(final DataSource dataSource) throws SQLException {
-    return doGetConnection(SynchronizationManager.getMetaData(), dataSource);
+    return doGetConnection(TransactionSynchronizationManager.getMetaData(), dataSource);
   }
 
   public static Connection doGetConnection(
@@ -122,7 +121,7 @@ public abstract class DataSourceUtils {
 
     final Connection ret = fetchConnection(dataSource);
 
-    if (metaData.isActive()) {
+    if (metaData.isSynchronizationActive()) {
       try {
         // Use same Connection for further JDBC actions within the transaction.
         // Thread-bound object will get removed by synchronization at transaction completion.
@@ -372,7 +371,7 @@ public abstract class DataSourceUtils {
   public static void doReleaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) throws SQLException {
     if (con != null) {
       if (dataSource != null) {
-        final ConnectionHolder conHolder = (ConnectionHolder) SynchronizationManager.getResource(dataSource);
+        final ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
         if (conHolder != null && connectionEquals(conHolder, con)) {
           // It's the transactional Connection: Don't close it.
           conHolder.released();
@@ -412,7 +411,6 @@ public abstract class DataSourceUtils {
    * @return whether the given Connections are equal
    */
   private static boolean connectionEquals(ConnectionHolder conHolder, Connection passedInCon) {
-
     if (conHolder.hasConnection()) {
       final Connection heldCon = conHolder.getConnection();
       // Explicitly check for identity too: for Connection handles that do not
@@ -423,8 +421,46 @@ public abstract class DataSourceUtils {
   }
 
   /**
+   * Return the innermost target Connection of the given Connection. If the given
+   * Connection is a proxy, it will be unwrapped until a non-proxy Connection is
+   * found. Otherwise, the passed-in Connection will be returned as-is.
+   *
+   * @param con the Connection proxy to unwrap
+   * @return the innermost target Connection, or the passed-in one if no proxy
+   * @see ConnectionProxy#getTargetConnection()
+   */
+  public static Connection getTargetConnection(Connection con) {
+    Connection conToUse = con;
+    while (conToUse instanceof ConnectionProxy) {
+      conToUse = ((ConnectionProxy) conToUse).getTargetConnection();
+    }
+    return conToUse;
+  }
+
+  /**
+   * Determine the connection synchronization order to use for the given
+   * DataSource. Decreased for every level of nesting that a DataSource
+   * has, checked through the level of DelegatingDataSource nesting.
+   *
+   * @param dataSource the DataSource to check
+   * @return the connection synchronization order to use
+   * @see #CONNECTION_SYNCHRONIZATION_ORDER
+   */
+  private static int getConnectionSynchronizationOrder(DataSource dataSource) {
+    int order = CONNECTION_SYNCHRONIZATION_ORDER;
+    DataSource currDs = dataSource;
+    while (currDs instanceof DelegatingDataSource) {
+      order--;
+      currDs = ((DelegatingDataSource) currDs).getTargetDataSource();
+    }
+    return order;
+  }
+
+  /**
    * Callback for resource cleanup at the end of a non-native JDBC transaction
    * (e.g. when participating in a JtaTransactionManager transaction).
+   *
+   * @see cn.taketoday.transaction.jta.JtaTransactionManager
    */
   private static class ConnectionSynchronization implements TransactionSynchronization {
 
@@ -432,72 +468,76 @@ public abstract class DataSourceUtils {
 
     private final DataSource dataSource;
 
+    private final int order;
+
     private boolean holderActive = true;
 
     public ConnectionSynchronization(ConnectionHolder connectionHolder, DataSource dataSource) {
       this.connectionHolder = connectionHolder;
       this.dataSource = dataSource;
+      this.order = getConnectionSynchronizationOrder(dataSource);
     }
 
     @Override
-    public void suspend(final SynchronizationMetaData metaData) {
+    public int getOrder() {
+      return this.order;
+    }
+
+    @Override
+    public void suspend() {
       if (this.holderActive) {
-        metaData.unbindResource(this.dataSource);
-        final ConnectionHolder connectionHolder = this.connectionHolder;
-        if (connectionHolder.hasConnection() && !connectionHolder.isOpen()) {
+        TransactionSynchronizationManager.unbindResource(this.dataSource);
+        if (this.connectionHolder.hasConnection() && !this.connectionHolder.isOpen()) {
           // Release Connection on suspend if the application doesn't keep
           // a handle to it anymore. We will fetch a fresh Connection if the
           // application accesses the ConnectionHolder again after resume,
           // assuming that it will participate in the same transaction.
-          releaseConnection(connectionHolder.getConnection(), this.dataSource);
-          connectionHolder.setConnection(null);
+          releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
+          this.connectionHolder.setConnection(null);
         }
       }
     }
 
     @Override
-    public void resume(final SynchronizationMetaData metaData) {
+    public void resume() {
       if (this.holderActive) {
-        metaData.bindResource(this.dataSource, this.connectionHolder);
+        TransactionSynchronizationManager.bindResource(this.dataSource, this.connectionHolder);
       }
     }
 
     @Override
-    public void beforeCompletion(final SynchronizationMetaData metaData) {
+    public void beforeCompletion() {
       // Release Connection early if the holder is not open anymore
       // (that is, not used by another resource like a Hibernate Session
       // that has its own cleanup via transaction synchronization),
       // to avoid issues with strict JTA implementations that expect
       // the close call before transaction completion.
-      final ConnectionHolder connectionHolder = this.connectionHolder;
-      if (!connectionHolder.isOpen()) {
-        metaData.unbindResource(this.dataSource);
+      if (!this.connectionHolder.isOpen()) {
+        TransactionSynchronizationManager.unbindResource(this.dataSource);
         this.holderActive = false;
-        if (connectionHolder.hasConnection()) {
-          releaseConnection(connectionHolder.getConnection(), this.dataSource);
+        if (this.connectionHolder.hasConnection()) {
+          releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
         }
       }
     }
 
     @Override
-    public void afterCompletion(final SynchronizationMetaData metaData, int status) {
-//			log.debug("After Completion with status: [{}]", status);
+    public void afterCompletion(int status) {
       // If we haven't closed the Connection in beforeCompletion,
       // close it now. The holder might have been used for other
       // cleanup in the meantime, for example by a Hibernate Session.
-      final ConnectionHolder connectionHolder = this.connectionHolder;
       if (this.holderActive) {
         // The thread-bound ConnectionHolder might not be available anymore,
         // since afterCompletion might get called from a different thread.
-        metaData.unbindResourceIfPossible(this.dataSource);
+        TransactionSynchronizationManager.unbindResourceIfPossible(this.dataSource);
         this.holderActive = false;
-        if (connectionHolder.hasConnection()) {
-          releaseConnection(connectionHolder.getConnection(), this.dataSource);
+        if (this.connectionHolder.hasConnection()) {
+          releaseConnection(this.connectionHolder.getConnection(), this.dataSource);
           // Reset the ConnectionHolder: It might remain bound to the thread.
-          connectionHolder.setConnection(null);
+          this.connectionHolder.setConnection(null);
         }
       }
-      connectionHolder.reset();
+      this.connectionHolder.reset();
     }
   }
 

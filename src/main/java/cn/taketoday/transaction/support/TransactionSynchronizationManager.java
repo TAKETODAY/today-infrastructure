@@ -20,17 +20,11 @@
 
 package cn.taketoday.transaction.support;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.NamedThreadLocal;
-import cn.taketoday.core.OrderComparator;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -77,27 +71,15 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class TransactionSynchronizationManager {
 
-  private static final ThreadLocal<Map<Object, Object>> resources =
-          new NamedThreadLocal<>("Transactional resources");
-
-  private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
-          new NamedThreadLocal<>("Transaction synchronizations");
-
-  private static final ThreadLocal<String> currentTransactionName =
-          new NamedThreadLocal<>("Current transaction name");
-
-  private static final ThreadLocal<Boolean> currentTransactionReadOnly =
-          new NamedThreadLocal<>("Current transaction read-only status");
-
-  private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
-          new NamedThreadLocal<>("Current transaction isolation level");
-
-  private static final ThreadLocal<Boolean> actualTransactionActive =
-          new NamedThreadLocal<>("Actual transaction active");
+  private static final ThreadLocal<SynchronizationMetaData> META_DATA = ThreadLocal.withInitial(SynchronizationMetaData::new);
 
   //-------------------------------------------------------------------------
   // Management of transaction-associated resource handles
   //-------------------------------------------------------------------------
+
+  public static SynchronizationMetaData getMetaData() {
+    return META_DATA.get();
+  }
 
   /**
    * Return all resources that are bound to the current thread.
@@ -110,8 +92,7 @@ public abstract class TransactionSynchronizationManager {
    * @see #hasResource
    */
   public static Map<Object, Object> getResourceMap() {
-    Map<Object, Object> map = resources.get();
-    return (map != null ? Collections.unmodifiableMap(map) : Collections.emptyMap());
+    return getMetaData().getResourceMap();
   }
 
   /**
@@ -122,9 +103,7 @@ public abstract class TransactionSynchronizationManager {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public static boolean hasResource(Object key) {
-    Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    Object value = doGetResource(actualKey);
-    return (value != null);
+    return getMetaData().hasResource(key);
   }
 
   /**
@@ -137,30 +116,7 @@ public abstract class TransactionSynchronizationManager {
    */
   @Nullable
   public static Object getResource(Object key) {
-    Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    return doGetResource(actualKey);
-  }
-
-  /**
-   * Actually check the value of the resource that is bound for the given key.
-   */
-  @Nullable
-  private static Object doGetResource(Object actualKey) {
-    Map<Object, Object> map = resources.get();
-    if (map == null) {
-      return null;
-    }
-    Object value = map.get(actualKey);
-    // Transparently remove ResourceHolder that was marked as void...
-    if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
-      map.remove(actualKey);
-      // Remove entire ThreadLocal if empty...
-      if (map.isEmpty()) {
-        resources.remove();
-      }
-      value = null;
-    }
-    return value;
+    return getMetaData().getResource(key);
   }
 
   /**
@@ -172,23 +128,7 @@ public abstract class TransactionSynchronizationManager {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public static void bindResource(Object key, Object value) throws IllegalStateException {
-    Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    Assert.notNull(value, "Value must not be null");
-    Map<Object, Object> map = resources.get();
-    // set ThreadLocal Map if none found
-    if (map == null) {
-      map = new HashMap<>();
-      resources.set(map);
-    }
-    Object oldValue = map.put(actualKey, value);
-    // Transparently suppress a ResourceHolder that was marked as void...
-    if (oldValue instanceof ResourceHolder && ((ResourceHolder) oldValue).isVoid()) {
-      oldValue = null;
-    }
-    if (oldValue != null) {
-      throw new IllegalStateException(
-              "Already value [" + oldValue + "] for key [" + actualKey + "] bound to thread");
-    }
+    getMetaData().bindResource(key, value);
   }
 
   /**
@@ -200,12 +140,7 @@ public abstract class TransactionSynchronizationManager {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public static Object unbindResource(Object key) throws IllegalStateException {
-    Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    Object value = doUnbindResource(actualKey);
-    if (value == null) {
-      throw new IllegalStateException("No value for key [" + actualKey + "] bound to thread");
-    }
-    return value;
+    return getMetaData().unbindResource(key);
   }
 
   /**
@@ -216,29 +151,7 @@ public abstract class TransactionSynchronizationManager {
    */
   @Nullable
   public static Object unbindResourceIfPossible(Object key) {
-    Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    return doUnbindResource(actualKey);
-  }
-
-  /**
-   * Actually remove the value of the resource that is bound for the given key.
-   */
-  @Nullable
-  private static Object doUnbindResource(Object actualKey) {
-    Map<Object, Object> map = resources.get();
-    if (map == null) {
-      return null;
-    }
-    Object value = map.remove(actualKey);
-    // Remove entire ThreadLocal if empty...
-    if (map.isEmpty()) {
-      resources.remove();
-    }
-    // Transparently suppress a ResourceHolder that was marked as void...
-    if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
-      value = null;
-    }
-    return value;
+    return getMetaData().unbindResourceIfPossible(key);
   }
 
   //-------------------------------------------------------------------------
@@ -252,7 +165,7 @@ public abstract class TransactionSynchronizationManager {
    * @see #registerSynchronization
    */
   public static boolean isSynchronizationActive() {
-    return (synchronizations.get() != null);
+    return getMetaData().isSynchronizationActive();
   }
 
   /**
@@ -262,10 +175,7 @@ public abstract class TransactionSynchronizationManager {
    * @throws IllegalStateException if synchronization is already active
    */
   public static void initSynchronization() throws IllegalStateException {
-    if (isSynchronizationActive()) {
-      throw new IllegalStateException("Cannot activate transaction synchronization - already active");
-    }
-    synchronizations.set(new LinkedHashSet<>());
+    getMetaData().initSynchronization();
   }
 
   /**
@@ -279,15 +189,8 @@ public abstract class TransactionSynchronizationManager {
    * @throws IllegalStateException if transaction synchronization is not active
    * @see cn.taketoday.core.Ordered
    */
-  public static void registerSynchronization(TransactionSynchronization synchronization)
-          throws IllegalStateException {
-
-    Assert.notNull(synchronization, "TransactionSynchronization must not be null");
-    Set<TransactionSynchronization> synchs = synchronizations.get();
-    if (synchs == null) {
-      throw new IllegalStateException("Transaction synchronization is not active");
-    }
-    synchs.add(synchronization);
+  public static void registerSynchronization(TransactionSynchronization synchronization) throws IllegalStateException {
+    getMetaData().registerSynchronization(synchronization);
   }
 
   /**
@@ -299,22 +202,7 @@ public abstract class TransactionSynchronizationManager {
    * @see TransactionSynchronization
    */
   public static List<TransactionSynchronization> getSynchronizations() throws IllegalStateException {
-    Set<TransactionSynchronization> synchs = synchronizations.get();
-    if (synchs == null) {
-      throw new IllegalStateException("Transaction synchronization is not active");
-    }
-    // Return unmodifiable snapshot, to avoid ConcurrentModificationExceptions
-    // while iterating and invoking synchronization callbacks that in turn
-    // might register further synchronizations.
-    if (synchs.isEmpty()) {
-      return Collections.emptyList();
-    }
-    else {
-      // Sort lazily here, not in registerSynchronization.
-      List<TransactionSynchronization> sortedSynchs = new ArrayList<>(synchs);
-      OrderComparator.sort(sortedSynchs);
-      return Collections.unmodifiableList(sortedSynchs);
-    }
+    return getMetaData().getSynchronizations();
   }
 
   /**
@@ -324,10 +212,7 @@ public abstract class TransactionSynchronizationManager {
    * @throws IllegalStateException if synchronization is not active
    */
   public static void clearSynchronization() throws IllegalStateException {
-    if (!isSynchronizationActive()) {
-      throw new IllegalStateException("Cannot deactivate transaction synchronization - not active");
-    }
-    synchronizations.remove();
+    getMetaData().clearSynchronization();
   }
 
   //-------------------------------------------------------------------------
@@ -342,7 +227,7 @@ public abstract class TransactionSynchronizationManager {
    * @see cn.taketoday.transaction.TransactionDefinition#getName()
    */
   public static void setCurrentTransactionName(@Nullable String name) {
-    currentTransactionName.set(name);
+    getMetaData().setCurrentTransactionName(name);
   }
 
   /**
@@ -354,7 +239,7 @@ public abstract class TransactionSynchronizationManager {
    */
   @Nullable
   public static String getCurrentTransactionName() {
-    return currentTransactionName.get();
+    return getMetaData().getCurrentTransactionName();
   }
 
   /**
@@ -366,7 +251,7 @@ public abstract class TransactionSynchronizationManager {
    * @see cn.taketoday.transaction.TransactionDefinition#isReadOnly()
    */
   public static void setCurrentTransactionReadOnly(boolean readOnly) {
-    currentTransactionReadOnly.set(readOnly ? Boolean.TRUE : null);
+    getMetaData().setCurrentTransactionReadOnly(readOnly);
   }
 
   /**
@@ -383,7 +268,7 @@ public abstract class TransactionSynchronizationManager {
    * @see TransactionSynchronization#beforeCommit(boolean)
    */
   public static boolean isCurrentTransactionReadOnly() {
-    return (currentTransactionReadOnly.get() != null);
+    return getMetaData().isCurrentTransactionReadOnly();
   }
 
   /**
@@ -404,7 +289,7 @@ public abstract class TransactionSynchronizationManager {
    * @see cn.taketoday.transaction.TransactionDefinition#getIsolationLevel()
    */
   public static void setCurrentTransactionIsolationLevel(@Nullable Integer isolationLevel) {
-    currentTransactionIsolationLevel.set(isolationLevel);
+    getMetaData().setCurrentTransactionIsolationLevel(isolationLevel);
   }
 
   /**
@@ -427,7 +312,7 @@ public abstract class TransactionSynchronizationManager {
    */
   @Nullable
   public static Integer getCurrentTransactionIsolationLevel() {
-    return currentTransactionIsolationLevel.get();
+    return getMetaData().getCurrentTransactionIsolationLevel();
   }
 
   /**
@@ -438,7 +323,7 @@ public abstract class TransactionSynchronizationManager {
    * with an actual transaction; {@code false} to reset that marker
    */
   public static void setActualTransactionActive(boolean active) {
-    actualTransactionActive.set(active ? Boolean.TRUE : null);
+    getMetaData().setActualTransactionActive(active);
   }
 
   /**
@@ -454,7 +339,7 @@ public abstract class TransactionSynchronizationManager {
    * @see #isSynchronizationActive()
    */
   public static boolean isActualTransactionActive() {
-    return (actualTransactionActive.get() != null);
+    return getMetaData().isActualTransactionActive();
   }
 
   /**
@@ -468,11 +353,7 @@ public abstract class TransactionSynchronizationManager {
    * @see #setActualTransactionActive
    */
   public static void clear() {
-    synchronizations.remove();
-    currentTransactionName.remove();
-    currentTransactionReadOnly.remove();
-    currentTransactionIsolationLevel.remove();
-    actualTransactionActive.remove();
+    getMetaData().clear();
   }
 
 }
