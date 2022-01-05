@@ -1,17 +1,21 @@
 /*
- * Copyright 2010-2021 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.orm.mybatis;
 
@@ -26,11 +30,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
+import cn.taketoday.transaction.TransactionStatus;
+import cn.taketoday.transaction.support.DefaultTransactionDefinition;
+import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 // tests basic usage and implementation only
 // MapperFactoryBeanTest handles testing the transactional functions in SqlSessionTemplate
@@ -137,7 +141,7 @@ public class SqlSessionTemplateTest extends AbstractMyBatisSpringTest {
     connection.getPreparedStatementResultSetHandler().prepareThrowsSQLException("SELECT 'fail'");
 
     try {
-      sqlSessionTemplate.selectOne("org.mybatis.spring.TestMapper.findFail");
+      sqlSessionTemplate.selectOne("cn.taketoday.orm.mybatis.TestMapper.findFail");
       fail("exception not thrown when expected");
     } catch (MyBatisSystemException mbse) {
       fail("SqlSessionTemplate should translate SQLExceptions into DataAccessExceptions");

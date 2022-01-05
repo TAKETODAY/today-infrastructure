@@ -1,19 +1,23 @@
 /*
- * Copyright 2010-2022 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package org.mybatis.spring.mapper;
+package cn.taketoday.orm.mybatis.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,20 +37,20 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.mybatis.spring.mapper.child.MapperChildInterface;
-import org.mybatis.spring.type.DummyMapperFactoryBean;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.context.support.SimpleThreadScope;
-import org.springframework.stereotype.Component;
+import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
+import cn.taketoday.orm.mybatis.SqlSessionTemplate;
+import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;
+import cn.taketoday.orm.mybatis.type.DummyMapperFactoryBean;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.SimpleThreadScope;
+import cn.taketoday.lang.Component;
 
 class MapperScannerConfigurerTest {
   private GenericApplicationContext applicationContext;
@@ -60,14 +64,14 @@ class MapperScannerConfigurerTest {
     // an XML config file
     GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(MapperScannerConfigurer.class);
-    definition.getPropertyValues().add("basePackage", "org.mybatis.spring.mapper");
+    definition.getPropertyValues().add("basePackage", "cn.taketoday.orm.mybatis.mapper");
     applicationContext.registerBeanDefinition("mapperScanner", definition);
     applicationContext.getBeanFactory().registerScope("thread", new SimpleThreadScope());
 
     setupSqlSessionFactory("sqlSessionFactory");
 
     // assume support for autowiring fields is added by MapperScannerConfigurer via
-    // org.springframework.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
+    // cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
   }
 
   private void startContext() {
@@ -192,12 +196,12 @@ class MapperScannerConfigurerTest {
     startContext();
     {
       BeanDefinition definition = applicationContext.getBeanDefinition("scopedProxyMapper");
-      assertThat(definition.getBeanClassName()).isEqualTo("org.springframework.aop.scope.ScopedProxyFactoryBean");
+      assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.aop.scope.ScopedProxyFactoryBean");
       assertThat(definition.getScope()).isEqualTo("");
     }
     {
       BeanDefinition definition = applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper");
-      assertThat(definition.getBeanClassName()).isEqualTo("org.mybatis.spring.mapper.MapperFactoryBean");
+      assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.orm.mybatis.mapper.MapperFactoryBean");
       assertThat(definition.getScope()).isEqualTo("thread");
     }
     {
@@ -232,12 +236,12 @@ class MapperScannerConfigurerTest {
     for (String scopedProxyTargetBean : scopedProxyTargetBeans) {
       {
         BeanDefinition definition = applicationContext.getBeanDefinition(scopedProxyTargetBean);
-        assertThat(definition.getBeanClassName()).isEqualTo("org.mybatis.spring.mapper.MapperFactoryBean");
+        assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.orm.mybatis.mapper.MapperFactoryBean");
         assertThat(definition.getScope()).isEqualTo("thread");
       }
       {
         BeanDefinition definition = applicationContext.getBeanDefinition(scopedProxyTargetBean.substring(13));
-        assertThat(definition.getBeanClassName()).isEqualTo("org.springframework.aop.scope.ScopedProxyFactoryBean");
+        assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.aop.scope.ScopedProxyFactoryBean");
         assertThat(definition.getScope()).isEqualTo("");
       }
     }
@@ -348,7 +352,7 @@ class MapperScannerConfigurerTest {
     definition.getPropertyValues().add("configLocation", "${configLocationProperty}");
 
     Properties props = new java.util.Properties();
-    props.put("basePackageProperty", "org.mybatis.spring.mapper");
+    props.put("basePackageProperty", "cn.taketoday.orm.mybatis.mapper");
     props.put("configLocationProperty", "classpath:org/mybatis/spring/mybatis-config.xml");
     props.put("mybatis.lazy-initialization", "true");
 
@@ -418,7 +422,7 @@ class MapperScannerConfigurerTest {
     }
   }
 
-  public static class BeanNameGenerator implements org.springframework.beans.factory.support.BeanNameGenerator {
+  public static class BeanNameGenerator implements cn.taketoday.beans.factory.support.BeanNameGenerator {
 
     @Override
     public String generateBeanName(BeanDefinition beanDefinition, BeanDefinitionRegistry definitionRegistry) {

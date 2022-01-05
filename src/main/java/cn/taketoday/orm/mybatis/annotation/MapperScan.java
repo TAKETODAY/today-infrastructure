@@ -47,7 +47,7 @@ import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
  *
  * <pre class="code">
  * &#064;Configuration
- * &#064;MapperScan("org.mybatis.spring.sample.mapper")
+ * &#064;MapperScan("cn.taketoday.orm.mybatis.sample.mapper")
  * public class AppConfig {
  *
  *   &#064;Bean

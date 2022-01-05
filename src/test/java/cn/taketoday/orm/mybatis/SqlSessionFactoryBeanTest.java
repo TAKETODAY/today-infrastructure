@@ -1,17 +1,21 @@
 /*
- * Copyright 2010-2021 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.orm.mybatis;
 
@@ -47,12 +51,12 @@ import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.junit.jupiter.api.Test;
 import org.mybatis.core.jdk.type.AtomicNumberTypeHandler;
-import org.mybatis.spring.transaction.SpringManagedTransactionFactory;
-import org.mybatis.spring.type.DummyTypeAlias;
-import org.mybatis.spring.type.DummyTypeHandler;
-import org.mybatis.spring.type.SuperType;
-import org.mybatis.spring.type.TypeHandlerFactory;
-import org.springframework.core.io.ClassPathResource;
+import cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory;
+import cn.taketoday.orm.mybatis.type.DummyTypeAlias;
+import cn.taketoday.orm.mybatis.type.DummyTypeHandler;
+import cn.taketoday.orm.mybatis.type.SuperType;
+import cn.taketoday.orm.mybatis.type.TypeHandlerFactory;
+import cn.taketoday.core.io.ClassPathResource;
 
 class SqlSessionFactoryBeanTest {
 
@@ -123,7 +127,7 @@ class SqlSessionFactoryBeanTest {
 
     factoryBean.setEnvironment("");
 
-    assertConfig(factoryBean.getObject(), "", org.mybatis.spring.transaction.SpringManagedTransactionFactory.class);
+    assertConfig(factoryBean.getObject(), "", cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory.class);
   }
 
   @Test
@@ -261,7 +265,7 @@ class SqlSessionFactoryBeanTest {
     setupFactoryBean();
 
     factoryBean
-        .setConfigLocation(new org.springframework.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
+        .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
 
     SqlSessionFactory factory = factoryBean.getObject();
 
@@ -269,7 +273,7 @@ class SqlSessionFactoryBeanTest {
         .isEqualTo(SqlSessionFactoryBean.class.getSimpleName());
     assertThat(factory.getConfiguration().getEnvironment().getDataSource()).isSameAs(dataSource);
     assertThat(factory.getConfiguration().getEnvironment().getTransactionFactory().getClass())
-        .isSameAs(org.mybatis.spring.transaction.SpringManagedTransactionFactory.class);
+        .isSameAs(cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory.class);
     assertThat(factory.getConfiguration().getVfsImpl()).isSameAs(JBoss6VFS.class);
 
     // properties explicitly set differently than the defaults in the config xml
@@ -278,7 +282,7 @@ class SqlSessionFactoryBeanTest {
     assertThat(factory.getConfiguration().getDefaultExecutorType())
         .isSameAs(org.apache.ibatis.session.ExecutorType.REUSE);
 
-    // for each statement in the xml file: org.mybatis.spring.TestMapper.xxx & xxx
+    // for each statement in the xml file: cn.taketoday.orm.mybatis.TestMapper.xxx & xxx
     assertThat(factory.getConfiguration().getMappedStatementNames().size()).isEqualTo(8);
 
     assertThat(factory.getConfiguration().getResultMapNames().size()).isEqualTo(0);
@@ -291,7 +295,7 @@ class SqlSessionFactoryBeanTest {
 
     factoryBean.setConfiguration(new Configuration());
     factoryBean
-        .setConfigLocation(new org.springframework.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
+        .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
 
     Throwable e = assertThrows(IllegalStateException.class, factoryBean::getObject);
     assertThat(e.getMessage())
@@ -306,7 +310,7 @@ class SqlSessionFactoryBeanTest {
 
     SqlSessionFactory factory = factoryBean.getObject();
 
-    // one for 'includedSql' and another for 'org.mybatis.spring.TestMapper.includedSql'
+    // one for 'includedSql' and another for 'cn.taketoday.orm.mybatis.TestMapper.includedSql'
     assertThat(factory.getConfiguration().getSqlFragments().size()).isEqualTo(2);
   }
 
@@ -330,7 +334,7 @@ class SqlSessionFactoryBeanTest {
   @Test
   void testMapperLocationsWithNullEntry() throws Exception {
     setupFactoryBean();
-    factoryBean.setMapperLocations(new org.springframework.core.io.Resource[] { null });
+    factoryBean.setMapperLocations(new cn.taketoday.core.io.Resource[] { null });
 
     assertDefaultConfig(factoryBean.getObject());
   }
@@ -356,7 +360,7 @@ class SqlSessionFactoryBeanTest {
   @Test
   void testSearchATypeAliasPackage() throws Exception {
     setupFactoryBean();
-    factoryBean.setTypeAliasesPackage("org.mybatis.spring.type, org.mybatis.spring.scan");
+    factoryBean.setTypeAliasesPackage("cn.taketoday.orm.mybatis.type, cn.taketoday.orm.mybatis.scan");
 
     TypeAliasRegistry typeAliasRegistry = factoryBean.getObject().getConfiguration().getTypeAliasRegistry();
     System.out.println(typeAliasRegistry.getTypeAliases().keySet());
@@ -389,7 +393,7 @@ class SqlSessionFactoryBeanTest {
   @Test
   void testSearchATypeAliasPackageWithSamePackage() throws Exception {
     setupFactoryBean();
-    factoryBean.setTypeAliasesPackage("org.mybatis.spring.type, org.*.spring.type");
+    factoryBean.setTypeAliasesPackage("cn.taketoday.orm.mybatis.type, org.*.spring.type");
 
     TypeAliasRegistry typeAliasRegistry = factoryBean.getObject().getConfiguration().getTypeAliasRegistry();
     typeAliasRegistry.resolveAlias("testAlias");
@@ -414,7 +418,7 @@ class SqlSessionFactoryBeanTest {
   @Test
   void testSearchATypeHandlerPackageWithSamePackage() throws Exception {
     setupFactoryBean();
-    factoryBean.setTypeHandlersPackage("org.mybatis.spring.type, org.mybatis.*.type");
+    factoryBean.setTypeHandlersPackage("cn.taketoday.orm.mybatis.type, org.mybatis.*.type");
 
     TypeHandlerRegistry typeHandlerRegistry = factoryBean.getObject().getConfiguration().getTypeHandlerRegistry();
     assertThat(typeHandlerRegistry.hasTypeHandler(BigInteger.class)).isTrue();
@@ -494,7 +498,7 @@ class SqlSessionFactoryBeanTest {
 
   private void assertDefaultConfig(SqlSessionFactory factory) {
     assertConfig(factory, SqlSessionFactoryBean.class.getSimpleName(),
-        org.mybatis.spring.transaction.SpringManagedTransactionFactory.class);
+        cn.taketoday.orm.mybatis.transaction.SpringManagedTransactionFactory.class);
     assertThat(factory.getConfiguration().getVariables().size()).isEqualTo(0);
   }
 

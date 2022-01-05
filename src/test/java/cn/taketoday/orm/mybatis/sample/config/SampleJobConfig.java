@@ -1,19 +1,23 @@
 /*
- * Copyright 2010-2021 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package org.mybatis.spring.sample.config;
+package cn.taketoday.orm.mybatis.sample.config;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -23,28 +27,28 @@ import javax.sql.DataSource;
 
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.batch.MyBatisBatchItemWriter;
-import org.mybatis.spring.batch.MyBatisCursorItemReader;
-import org.mybatis.spring.batch.builder.MyBatisBatchItemWriterBuilder;
-import org.mybatis.spring.batch.builder.MyBatisCursorItemReaderBuilder;
-import org.mybatis.spring.sample.batch.UserToPersonItemProcessor;
-import org.mybatis.spring.sample.domain.Person;
-import org.mybatis.spring.sample.domain.User;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.transaction.PlatformTransactionManager;
+import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
+import cn.taketoday.orm.mybatis.batch.MyBatisBatchItemWriter;
+import cn.taketoday.orm.mybatis.batch.MyBatisCursorItemReader;
+import cn.taketoday.orm.mybatis.batch.builder.MyBatisBatchItemWriterBuilder;
+import cn.taketoday.orm.mybatis.batch.builder.MyBatisCursorItemReaderBuilder;
+import cn.taketoday.orm.mybatis.sample.batch.UserToPersonItemProcessor;
+import cn.taketoday.orm.mybatis.sample.domain.Person;
+import cn.taketoday.orm.mybatis.sample.domain.User;
+import cn.taketoday.batch.core.Job;
+import cn.taketoday.batch.core.Step;
+import cn.taketoday.batch.core.configuration.annotation.EnableBatchProcessing;
+import cn.taketoday.batch.core.configuration.annotation.JobBuilderFactory;
+import cn.taketoday.batch.core.configuration.annotation.StepBuilderFactory;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.convert.converter.Converter;
+import cn.taketoday.core.io.support.PathMatchingResourcePatternResolver;
+import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
+import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import cn.taketoday.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableBatchProcessing
@@ -87,7 +91,7 @@ public class SampleJobConfig {
     // @formatter:off
     return new MyBatisCursorItemReaderBuilder<User>()
         .sqlSessionFactory(sqlSessionFactory())
-        .queryId("org.mybatis.spring.sample.mapper.UserMapper.getUsers")
+        .queryId("cn.taketoday.orm.mybatis.sample.mapper.UserMapper.getUsers")
         .build();
     // @formatter:on
   }
@@ -102,7 +106,7 @@ public class SampleJobConfig {
     // @formatter:off
     return new MyBatisBatchItemWriterBuilder<Person>()
         .sqlSessionFactory(sqlSessionFactory())
-        .statementId("org.mybatis.spring.sample.mapper.PersonMapper.createPerson")
+        .statementId("cn.taketoday.orm.mybatis.sample.mapper.PersonMapper.createPerson")
         .itemToParameterConverter(createItemToParameterMapConverter("batch_java_config_user", LocalDateTime.now()))
         .build();
     // @formatter:on
