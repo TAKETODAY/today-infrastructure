@@ -170,7 +170,7 @@ public class TableMetaDataContext {
    * @param generatedKeyNames name of generated keys
    */
   public void processMetaData(DataSource dataSource, List<String> declaredColumns, String[] generatedKeyNames) {
-    this.metaDataProvider = TableMetaDataProviderFactory.createMetaDataProvider(dataSource, this);
+    this.metaDataProvider = TableMetaDataProvider.create(dataSource, this);
     this.tableColumns = reconcileColumnsToUse(declaredColumns, generatedKeyNames);
   }
 

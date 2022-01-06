@@ -24,6 +24,11 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import cn.taketoday.dao.DataAccessResourceFailureException;
+import cn.taketoday.jdbc.support.JdbcUtils;
+import cn.taketoday.jdbc.support.MetaDataAccessException;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -53,8 +58,9 @@ public interface TableMetaDataProvider {
    * @param tableName name of the table
    * @throws SQLException in case of initialization failure
    */
-  void initializeWithTableColumnMetaData(DatabaseMetaData databaseMetaData, @Nullable String catalogName,
-                                         @Nullable String schemaName, @Nullable String tableName) throws SQLException;
+  void initializeWithTableColumnMetaData(
+          DatabaseMetaData databaseMetaData, @Nullable String catalogName,
+          @Nullable String schemaName, @Nullable String tableName) throws SQLException;
 
   /**
    * Get the table name formatted based on meta-data information.
@@ -130,5 +136,50 @@ public interface TableMetaDataProvider {
    * @return a List of {@link TableParameterMetaData}
    */
   List<TableParameterMetaData> getTableParameterMetaData();
+
+  /**
+   * Create a {@link TableMetaDataProvider} based on the database meta-data.
+   *
+   * @param dataSource used to retrieve meta-data
+   * @param context the class that holds configuration and meta-data
+   * @return instance of the TableMetaDataProvider implementation to be used
+   * @throws DataAccessResourceFailureException Error retrieving database meta-data
+   */
+  static TableMetaDataProvider create(DataSource dataSource, TableMetaDataContext context) {
+    try {
+      return JdbcUtils.extractDatabaseMetaData(dataSource, databaseMetaData -> {
+        String databaseProductName = JdbcUtils.commonDatabaseName(databaseMetaData.getDatabaseProductName());
+        TableMetaDataProvider provider;
+
+        if ("Oracle".equals(databaseProductName)) {
+          provider = new OracleTableMetaDataProvider(
+                  databaseMetaData, context.isOverrideIncludeSynonymsDefault());
+        }
+        else if ("PostgreSQL".equals(databaseProductName)) {
+          provider = new PostgresTableMetaDataProvider(databaseMetaData);
+        }
+        else if ("Apache Derby".equals(databaseProductName)) {
+          provider = new DerbyTableMetaDataProvider(databaseMetaData);
+        }
+        else if ("HSQL Database Engine".equals(databaseProductName)) {
+          provider = new HsqlTableMetaDataProvider(databaseMetaData);
+        }
+        else {
+          provider = new GenericTableMetaDataProvider(databaseMetaData);
+        }
+
+        provider.initializeWithMetaData(databaseMetaData);
+
+        if (context.isAccessTableColumnMetaData()) {
+          provider.initializeWithTableColumnMetaData(databaseMetaData,
+                  context.getCatalogName(), context.getSchemaName(), context.getTableName());
+        }
+        return provider;
+      });
+    }
+    catch (MetaDataAccessException ex) {
+      throw new DataAccessResourceFailureException("Error retrieving database meta-data", ex);
+    }
+  }
 
 }
