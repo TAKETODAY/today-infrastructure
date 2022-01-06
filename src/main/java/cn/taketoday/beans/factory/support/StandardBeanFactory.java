@@ -21,11 +21,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -61,13 +57,12 @@ import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
+import cn.taketoday.beans.factory.dependency.InjectionPoint;
 import cn.taketoday.beans.factory.dependency.SimpleAutowireCandidateResolver;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -86,7 +81,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.inject.Provider;
 
@@ -125,10 +119,6 @@ public class StandardBeanFactory
 
   /** Resolver to use for checking if a bean definition is an autowire candidate. */
   private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
-
-  /** Resolver strategy for method parameter names. @since 4.0 */
-  @Nullable
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   /** Whether bean definition metadata may be cached for all beans. */
   private volatile boolean configurationFrozen;
@@ -252,28 +242,6 @@ public class StandardBeanFactory
    */
   public AutowireCandidateResolver getAutowireCandidateResolver() {
     return this.autowireCandidateResolver;
-  }
-
-  /**
-   * Set the ParameterNameDiscoverer to use for resolving method parameter
-   * names if needed (e.g. for constructor names).
-   * <p>Default is a {@link DefaultParameterNameDiscoverer}.
-   *
-   * @since 4.0
-   */
-  public void setParameterNameDiscoverer(@Nullable ParameterNameDiscoverer parameterNameDiscoverer) {
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  /**
-   * Return the ParameterNameDiscoverer to use for resolving method parameter
-   * names if needed.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  protected ParameterNameDiscoverer getParameterNameDiscoverer() {
-    return this.parameterNameDiscoverer;
   }
 
   //---------------------------------------------------------------------
@@ -1207,7 +1175,7 @@ public class StandardBeanFactory
 
     resolveBeanClass(definition);
     if (definition.isFactoryMethodUnique && definition.factoryMethodToIntrospect == null) {
-      resolveFactoryMethodIfPossible(definition);
+      new ConstructorResolver(this).resolveFactoryMethodIfPossible(definition);
     }
 
     String bdName = BeanFactoryUtils.transformedBeanName(beanName);
@@ -1217,49 +1185,6 @@ public class StandardBeanFactory
       definition.setAliases(getAliases(bdName));
     }
     return resolver.isAutowireCandidate(definition, descriptor);
-  }
-
-  /**
-   * Resolve the factory method in the specified bean definition, if possible.
-   * {@link BeanDefinition#getResolvedFactoryMethod()} can be checked for the result.
-   *
-   * @param mbd the bean definition to check
-   */
-  public void resolveFactoryMethodIfPossible(BeanDefinition mbd) {
-    Class<?> factoryClass;
-    boolean isStatic;
-    if (mbd.getFactoryBeanName() != null) {
-      factoryClass = getType(mbd.getFactoryBeanName());
-      isStatic = false;
-    }
-    else {
-      factoryClass = mbd.getBeanClass();
-      isStatic = true;
-    }
-    Assert.state(factoryClass != null, "Unresolvable factory class");
-    factoryClass = ClassUtils.getUserClass(factoryClass);
-
-    Method[] candidates = ReflectionUtils.getAllDeclaredMethods(factoryClass);
-    Method uniqueCandidate = null;
-    for (Method candidate : candidates) {
-      if (Modifier.isStatic(candidate.getModifiers()) == isStatic && mbd.isFactoryMethod(candidate)) {
-        if (uniqueCandidate == null) {
-          uniqueCandidate = candidate;
-        }
-        else if (isParamMismatch(uniqueCandidate, candidate)) {
-          uniqueCandidate = null;
-          break;
-        }
-      }
-    }
-    mbd.factoryMethodToIntrospect = uniqueCandidate;
-  }
-
-  private boolean isParamMismatch(Method uniqueCandidate, Method candidate) {
-    int uniqueCandidateParameterCount = uniqueCandidate.getParameterCount();
-    int candidateParameterCount = candidate.getParameterCount();
-    return (uniqueCandidateParameterCount != candidateParameterCount ||
-            !Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes()));
   }
 
   @Nullable
@@ -1303,78 +1228,83 @@ public class StandardBeanFactory
   public Object doResolveDependency(
           DependencyDescriptor descriptor, @Nullable String beanName,
           @Nullable Set<String> autowiredBeanNames) throws BeansException {
-
-    Object shortcut = descriptor.resolveShortcut(this);
-    if (shortcut != null) {
-      return shortcut;
-    }
-
-    Class<?> type = descriptor.getDependencyType();
-    Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
-    if (value != null) {
-      if (value instanceof String) {
-        String strVal = resolveEmbeddedValue((String) value);
-        BeanDefinition bd = beanName != null && containsBean(beanName)
-                            ? obtainLocalBeanDefinition(beanName) : null;
-        value = evaluateBeanDefinitionString(strVal, bd);
+    InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
+    try {
+      Object shortcut = descriptor.resolveShortcut(this);
+      if (shortcut != null) {
+        return shortcut;
       }
-      return convertIfNecessary(value, type, descriptor.getTypeDescriptor());
-    }
 
-    Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames);
-    if (multipleBeans != null) {
-      return multipleBeans;
-    }
-
-    Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
-    if (matchingBeans.isEmpty()) {
-      if (isRequired(descriptor)) {
-        raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
-      }
-      return null;
-    }
-
-    String autowiredBeanName;
-    Object instanceCandidate;
-
-    if (matchingBeans.size() > 1) {
-      autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
-      if (autowiredBeanName == null) {
-        if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
-          return descriptor.resolveNotUnique(descriptor.getResolvableType(), matchingBeans);
+      Class<?> type = descriptor.getDependencyType();
+      Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
+      if (value != null) {
+        if (value instanceof String) {
+          String strVal = resolveEmbeddedValue((String) value);
+          BeanDefinition bd = beanName != null && containsBean(beanName)
+                              ? obtainLocalBeanDefinition(beanName) : null;
+          value = evaluateBeanDefinitionString(strVal, bd);
         }
-        else {
-          // In case of an optional Collection/Map, silently ignore a non-unique case:
-          // possibly it was meant to be an empty collection of multiple regular beans
-          // (before 4.3 in particular when we didn't even look for collection beans).
-          return null;
+        return convertIfNecessary(value, type, descriptor.getTypeDescriptor());
+      }
+
+      Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames);
+      if (multipleBeans != null) {
+        return multipleBeans;
+      }
+
+      Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
+      if (matchingBeans.isEmpty()) {
+        if (isRequired(descriptor)) {
+          raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
+        }
+        return null;
+      }
+
+      String autowiredBeanName;
+      Object instanceCandidate;
+
+      if (matchingBeans.size() > 1) {
+        autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
+        if (autowiredBeanName == null) {
+          if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
+            return descriptor.resolveNotUnique(descriptor.getResolvableType(), matchingBeans);
+          }
+          else {
+            // In case of an optional Collection/Map, silently ignore a non-unique case:
+            // possibly it was meant to be an empty collection of multiple regular beans
+            // (before 4.3 in particular when we didn't even look for collection beans).
+            return null;
+          }
+        }
+        instanceCandidate = matchingBeans.get(autowiredBeanName);
+      }
+      else {
+        // We have exactly one match.
+        Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
+        autowiredBeanName = entry.getKey();
+        instanceCandidate = entry.getValue();
+      }
+
+      if (autowiredBeanNames != null) {
+        autowiredBeanNames.add(autowiredBeanName);
+      }
+      if (instanceCandidate instanceof Class) {
+        instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);
+      }
+      Object result = instanceCandidate;
+      if (result == null) {
+        if (isRequired(descriptor)) {
+          raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
         }
       }
-      instanceCandidate = matchingBeans.get(autowiredBeanName);
-    }
-    else {
-      // We have exactly one match.
-      Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
-      autowiredBeanName = entry.getKey();
-      instanceCandidate = entry.getValue();
-    }
-
-    if (autowiredBeanNames != null) {
-      autowiredBeanNames.add(autowiredBeanName);
-    }
-    if (instanceCandidate instanceof Class) {
-      instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);
-    }
-    Object result = instanceCandidate;
-    if (result == null) {
-      if (isRequired(descriptor)) {
-        raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
+      if (!ClassUtils.isAssignableValue(type, result)) {
+        throw new BeanNotOfRequiredTypeException(autowiredBeanName, type, instanceCandidate.getClass());
       }
+      return result;
     }
-    if (!ClassUtils.isAssignableValue(type, result)) {
-      throw new BeanNotOfRequiredTypeException(autowiredBeanName, type, instanceCandidate.getClass());
+    finally {
+      ConstructorResolver.setCurrentInjectionPoint(previousInjectionPoint);
     }
-    return result;
   }
 
   @Nullable
@@ -1541,7 +1471,7 @@ public class StandardBeanFactory
       Class<?> autowiringType = classObjectEntry.getKey();
       if (autowiringType.isAssignableFrom(requiredType)) {
         Object autowiringValue = classObjectEntry.getValue();
-        autowiringValue = resolveAutowiringValue(autowiringValue, requiredType);
+        autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
         if (requiredType.isInstance(autowiringValue)) {
           result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
           break;
@@ -1792,7 +1722,6 @@ public class StandardBeanFactory
           Class<?> type, ResolvableType resolvableType, DependencyDescriptor descriptor) throws BeansException {
 
     checkBeanNotOfRequiredType(type, descriptor);
-
     throw new NoSuchBeanDefinitionException(resolvableType,
             "expected at least 1 bean which qualifies as autowire candidate. " +
                     "Dependency annotations: " + ObjectUtils.nullSafeToString(descriptor.getAnnotations()));
@@ -1852,54 +1781,6 @@ public class StandardBeanFactory
 
     Object result = doResolveDependency(descriptorToUse, beanName, null);
     return result instanceof Optional ? (Optional<?>) result : Optional.ofNullable(result);
-  }
-
-  /**
-   * Resolve the given autowiring value against the given required type,
-   * e.g. an {@link Supplier} value to its actual object result.
-   *
-   * @param autowiringValue the value to resolve
-   * @param requiredType the type to assign the result to
-   * @return the resolved value
-   */
-  public static Object resolveAutowiringValue(Object autowiringValue, Class<?> requiredType) {
-    if (autowiringValue instanceof Supplier<?> factory && !requiredType.isInstance(autowiringValue)) {
-      if (autowiringValue instanceof Serializable && requiredType.isInterface()) {
-        autowiringValue = Proxy.newProxyInstance(requiredType.getClassLoader(),
-                new Class<?>[] { requiredType }, new ObjectFactoryDelegatingInvocationHandler(factory));
-      }
-      else {
-        return factory.get();
-      }
-    }
-    return autowiringValue;
-  }
-
-  /**
-   * Reflective {@link InvocationHandler} for lazy access to the current target object.
-   */
-  private record ObjectFactoryDelegatingInvocationHandler(Supplier<?> objectFactory)
-          implements InvocationHandler, Serializable {
-
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      switch (method.getName()) {
-        case "equals":
-          // Only consider equal when proxies are identical.
-          return (proxy == args[0]);
-        case "hashCode":
-          // Use hashCode of proxy.
-          return System.identityHashCode(proxy);
-        case "toString":
-          return this.objectFactory.toString();
-      }
-      try {
-        return method.invoke(this.objectFactory.get(), args);
-      }
-      catch (InvocationTargetException ex) {
-        throw ex.getTargetException();
-      }
-    }
   }
 
   private interface BeanObjectSupplier<T> extends ObjectSupplier<T>, Serializable { }

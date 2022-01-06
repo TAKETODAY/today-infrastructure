@@ -207,7 +207,8 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     for (BeanDefinition holder : beanDefinitions) {
       definition = holder;
       String beanClassName = definition.getBeanClassName();
-      log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface", holder.getBeanName(), beanClassName);
+      log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
+              holder.getBeanName(), beanClassName);
 
       // the mapper interface is the original class of the bean
       // but, the actual class of the bean is MapperFactoryBean

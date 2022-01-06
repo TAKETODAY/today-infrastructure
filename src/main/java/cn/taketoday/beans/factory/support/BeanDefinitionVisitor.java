@@ -85,8 +85,15 @@ public class BeanDefinitionVisitor {
     visitFactoryBeanName(beanDefinition);
     visitFactoryMethodName(beanDefinition);
     visitScope(beanDefinition);
+
     if (beanDefinition.hasPropertyValues()) {
       visitPropertyValues(beanDefinition.propertyValues());
+    }
+
+    if (beanDefinition.hasConstructorArgumentValues()) {
+      ConstructorArgumentValues cas = beanDefinition.getConstructorArgumentValues();
+      visitIndexedArgumentValues(cas.getIndexedArgumentValues());
+      visitGenericArgumentValues(cas.getGenericArgumentValues());
     }
   }
 
@@ -135,6 +142,24 @@ public class BeanDefinitionVisitor {
       Object newVal = resolveValue(pv.getValue());
       if (!ObjectUtils.nullSafeEquals(newVal, pv.getValue())) {
         pvs.add(pv.getName(), newVal);
+      }
+    }
+  }
+
+  protected void visitIndexedArgumentValues(Map<Integer, ConstructorArgumentValues.ValueHolder> ias) {
+    for (ConstructorArgumentValues.ValueHolder valueHolder : ias.values()) {
+      Object newVal = resolveValue(valueHolder.getValue());
+      if (!ObjectUtils.nullSafeEquals(newVal, valueHolder.getValue())) {
+        valueHolder.setValue(newVal);
+      }
+    }
+  }
+
+  protected void visitGenericArgumentValues(List<ConstructorArgumentValues.ValueHolder> gas) {
+    for (ConstructorArgumentValues.ValueHolder valueHolder : gas) {
+      Object newVal = resolveValue(valueHolder.getValue());
+      if (!ObjectUtils.nullSafeEquals(newVal, valueHolder.getValue())) {
+        valueHolder.setValue(newVal);
       }
     }
   }

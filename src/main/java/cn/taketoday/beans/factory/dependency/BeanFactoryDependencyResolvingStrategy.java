@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory.dependency;
 
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeansException;
@@ -84,12 +83,8 @@ public class BeanFactoryDependencyResolvingStrategy
   public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
     if (context.getBeanFactory() instanceof AutowireCapableBeanFactory factory) {
       String beanName = context.getBeanName();
-      Set<String> dependentBeans = null;
-      if (beanName != null) {
-        dependentBeans = context.dependentBeans();
-      }
       try {
-        Object dependency = factory.resolveDependency(descriptor, beanName, dependentBeans);
+        Object dependency = factory.resolveDependency(descriptor, beanName, context.getDependentBeans());
         context.setDependencyResolved(dependency);
       }
       catch (BeansException ex) {

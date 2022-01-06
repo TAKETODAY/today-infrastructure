@@ -23,6 +23,7 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.aop.Advice;
 
 import java.io.Serial;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,10 +41,10 @@ import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeansException;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -274,6 +275,12 @@ public abstract class AbstractAutoProxyCreator
     }
     Object cacheKey = getCacheKey(beanClass, beanName);
     return this.proxyTypes.get(cacheKey);
+  }
+
+  @Override
+  @Nullable
+  public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName) {
+    return null;
   }
 
   @Override

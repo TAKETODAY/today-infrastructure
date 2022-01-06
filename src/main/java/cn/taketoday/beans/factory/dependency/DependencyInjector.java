@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -99,8 +100,7 @@ public class DependencyInjector {
   @Nullable
   public Object resolveValue(DependencyDescriptor descriptor) {
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
-    Object resolved = resolve(descriptor, context);
-    return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
+    return resolveValue(descriptor, context);
   }
 
   @Nullable
@@ -112,9 +112,16 @@ public class DependencyInjector {
 
   @Nullable
   public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName) {
+    return resolveValue(descriptor, beanName, null);
+  }
+
+  @Nullable
+  public Object resolveValue(
+          DependencyDescriptor descriptor,
+          @Nullable String beanName, @Nullable Set<String> autowiredBeanNames) {
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
-    Object resolved = resolve(descriptor, context);
-    return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
+    context.setDependentBeans(autowiredBeanNames);
+    return resolveValue(descriptor, context);
   }
 
   @Nullable
@@ -137,6 +144,7 @@ public class DependencyInjector {
           DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, true);
           if (context == null) {
             context = new DependencyResolvingContext(executable, beanFactory, beanName);
+            context.setDependentBeans(new LinkedHashSet<>());
           }
           arguments[i] = resolveValue(currDesc, context);
         }

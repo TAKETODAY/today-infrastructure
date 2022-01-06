@@ -230,6 +230,14 @@ public class BeanDefinition
   // @since 4.0
   private int autowireMode = AUTOWIRE_NO;
 
+  // @since 4.0
+  @Nullable
+  private ConstructorArgumentValues constructorArgumentValues;
+
+  private boolean nonPublicAccessAllowed = true;
+
+  private boolean lenientConstructorResolution = true;
+
   // cache for fast access
   Executable executable;
   BeanInstantiator instantiator;
@@ -249,6 +257,9 @@ public class BeanDefinition
   /** Common lock for the two post-processing fields below. */
   final Object postProcessingLock = new Object();
 
+  /** Common lock for the four constructor fields below. */
+  final Object constructorArgumentLock = new Object();
+
   @Nullable
   private Set<Member> externallyManagedConfigMembers;
 
@@ -266,6 +277,17 @@ public class BeanDefinition
   /** Package-visible field for caching a resolved destroy method name (also for inferred). */
   @Nullable
   volatile String resolvedDestroyMethodName;
+
+  /** Package-visible field that marks the constructor arguments as resolved. */
+  boolean constructorArgumentsResolved = false;
+
+  /** Package-visible field for caching fully resolved constructor arguments. */
+  @Nullable
+  Object[] resolvedConstructorArguments;
+
+  /** Package-visible field for caching partly prepared constructor arguments. */
+  @Nullable
+  Object[] preparedConstructorArguments;
 
   public BeanDefinition() { }
 
@@ -285,6 +307,23 @@ public class BeanDefinition
   public BeanDefinition(String beanName, Class<?> beanClass) {
     setBeanName(beanName);
     setBeanClass(beanClass);
+  }
+
+  /**
+   * Create a new BeanDefinition for a singleton,
+   * providing constructor arguments and property values.
+   *
+   * @param beanClass the class of the bean to instantiate
+   * @param cargs the constructor argument values to apply
+   * @param pvs the property values to apply
+   */
+  public BeanDefinition(
+          @Nullable Class<?> beanClass,
+          @Nullable ConstructorArgumentValues cargs,
+          @Nullable PropertyValues pvs) {
+    setPropertyValues(pvs);
+    setBeanClass(beanClass);
+    setConstructorArgumentValues(cargs);
   }
 
   /**
@@ -781,6 +820,10 @@ public class BeanDefinition
     this.isFactoryMethodUnique = from.isFactoryMethodUnique;
     this.beforeInstantiationResolved = from.beforeInstantiationResolved;
 
+    if (from.hasConstructorArgumentValues()) {
+      setConstructorArgumentValues(new ConstructorArgumentValues(from.getConstructorArgumentValues()));
+    }
+
     if (from.getPropertyValues() != null) {
       propertyValues().add(from.getPropertyValues());
     }
@@ -1189,6 +1232,83 @@ public class BeanDefinition
     return this.autowireMode;
   }
 
+  /**
+   * Specify constructor argument values for this bean.
+   *
+   * @since 4.0
+   */
+  public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
+    this.constructorArgumentValues = constructorArgumentValues;
+  }
+
+  /**
+   * Return constructor argument values for this bean (never {@code null}).
+   *
+   * @since 4.0
+   */
+  public ConstructorArgumentValues getConstructorArgumentValues() {
+    if (this.constructorArgumentValues == null) {
+      this.constructorArgumentValues = new ConstructorArgumentValues();
+    }
+    return this.constructorArgumentValues;
+  }
+
+  /**
+   * Return if there are constructor argument values defined for this bean.
+   *
+   * @since 4.0
+   */
+  public boolean hasConstructorArgumentValues() {
+    return constructorArgumentValues != null && !constructorArgumentValues.isEmpty();
+  }
+
+  /**
+   * Specify whether to allow access to non-public constructors and methods,
+   * for the case of externalized metadata pointing to those. The default is
+   * {@code true}; switch this to {@code false} for public access only.
+   * <p>This applies to constructor resolution, factory method resolution,
+   * and also init/destroy methods. Bean property accessors have to be public
+   * in any case and are not affected by this setting.
+   * <p>Note that annotation-driven configuration will still access non-public
+   * members as far as they have been annotated. This setting applies to
+   * externalized metadata in this bean definition only.
+   *
+   * @since 4.0
+   */
+  public void setNonPublicAccessAllowed(boolean nonPublicAccessAllowed) {
+    this.nonPublicAccessAllowed = nonPublicAccessAllowed;
+  }
+
+  /**
+   * Return whether to allow access to non-public constructors and methods.
+   *
+   * @since 4.0
+   */
+  public boolean isNonPublicAccessAllowed() {
+    return this.nonPublicAccessAllowed;
+  }
+
+  /**
+   * Specify whether to resolve constructors in lenient mode ({@code true},
+   * which is the default) or to switch to strict resolution (throwing an exception
+   * in case of ambiguous constructors that all match when converting the arguments,
+   * whereas lenient mode would use the one with the 'closest' type matches).
+   *
+   * @since 4.0
+   */
+  public void setLenientConstructorResolution(boolean lenientConstructorResolution) {
+    this.lenientConstructorResolution = lenientConstructorResolution;
+  }
+
+  /**
+   * Return whether to resolve constructors in lenient mode or in strict mode.
+   *
+   * @since 4.0
+   */
+  public boolean isLenientConstructorResolution() {
+    return this.lenientConstructorResolution;
+  }
+
   // postProcessingLock
 
   /**
@@ -1233,33 +1353,59 @@ public class BeanDefinition
   // Object
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
       return true;
     }
-    if (obj instanceof BeanDefinition other) {
-      return Objects.equals(beanName, other.beanName)
-              && role == other.role
-              && lazyInit == other.lazyInit
-              && beanClass == other.beanClass
-              && synthetic == other.synthetic
-              && enableDependencyInjection == other.enableDependencyInjection
-              && instanceSupplier == other.instanceSupplier
-              && Objects.equals(scope, other.scope)
-              && Objects.equals(factoryBeanName, other.factoryBeanName)
-              && Objects.equals(factoryMethodName, other.factoryMethodName)
-              && Objects.deepEquals(initMethods, other.initMethods)
-              && Objects.deepEquals(destroyMethod, other.destroyMethod)
-              && Objects.equals(propertyValues, other.propertyValues);
+    if (!(other instanceof BeanDefinition that)) {
+      return false;
     }
-    return false;
+    return Objects.equals(getBeanClassName(), that.getBeanClassName())
+            && this.role == that.role
+            && this.primary == that.primary
+            && this.lazyInit == that.lazyInit
+            && this.synthetic == that.synthetic
+            && this.autowireMode == that.autowireMode
+            && this.autowireCandidate == that.autowireCandidate
+            && Objects.equals(this.scope, that.scope)
+            && Objects.equals(this.destroyMethod, that.destroyMethod)
+            && Objects.equals(this.factoryBeanName, that.factoryBeanName)
+            && Objects.equals(this.factoryMethodName, that.factoryMethodName)
+            && Objects.equals(this.qualifiers, that.qualifiers)
+            && Arrays.equals(this.dependsOn, that.dependsOn)
+            && equalsPropertyValues(that)
+            && equalsConstructorArgumentValues(that)
+            && super.equals(other);
+  }
+
+  private boolean equalsConstructorArgumentValues(BeanDefinition other) {
+    if (!hasConstructorArgumentValues()) {
+      return !other.hasConstructorArgumentValues();
+    }
+    return ObjectUtils.nullSafeEquals(this.constructorArgumentValues, other.constructorArgumentValues);
+  }
+
+  private boolean equalsPropertyValues(BeanDefinition other) {
+    if (!hasPropertyValues()) {
+      return !other.hasPropertyValues();
+    }
+    return ObjectUtils.nullSafeEquals(this.propertyValues, other.propertyValues);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-            beanName, beanClass, lazyInit, scope, synthetic, role, primary,
-            enableDependencyInjection, factoryMethodName, factoryBeanName);
+    int hashCode = ObjectUtils.nullSafeHashCode(getBeanClassName());
+    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.scope);
+    if (hasConstructorArgumentValues()) {
+      hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.constructorArgumentValues);
+    }
+    if (hasPropertyValues()) {
+      hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.propertyValues);
+    }
+    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.factoryBeanName);
+    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.factoryMethodName);
+    hashCode = 29 * hashCode + super.hashCode();
+    return hashCode;
   }
 
   @Override
@@ -1270,6 +1416,8 @@ public class BeanDefinition
     sb.append("; lazyInit=").append(this.lazyInit);
     sb.append("; primary=").append(this.primary);
     sb.append("; factoryBean=").append(this.factoryBean);
+    sb.append("; autowireMode=").append(this.autowireMode);
+    sb.append("; autowireCandidate=").append(this.autowireCandidate);
     sb.append("; initMethods=").append(Arrays.toString(initMethods));
     sb.append("; factoryBeanName=").append(this.factoryBeanName);
     sb.append("; factoryMethodName=").append(this.factoryMethodName);

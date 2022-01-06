@@ -62,9 +62,24 @@ import cn.taketoday.util.StringUtils;
 class BeanDefinitionValueResolver {
 
   private final String beanName;
+  @Nullable
   private final PropertyValuesBinder binder;
   private final BeanDefinition beanDefinition;
   private final AbstractAutowireCapableBeanFactory beanFactory;
+
+  /**
+   * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition.
+   *
+   * @param beanFactory the BeanFactory to resolve against
+   * @param beanDefinition the BeanDefinition of the bean that we work on
+   */
+  public BeanDefinitionValueResolver(
+          AbstractAutowireCapableBeanFactory beanFactory, BeanDefinition beanDefinition) {
+    this.binder = null;
+    this.beanFactory = beanFactory;
+    this.beanName = beanDefinition.getBeanName();
+    this.beanDefinition = beanDefinition;
+  }
 
   /**
    * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition.
@@ -103,10 +118,11 @@ class BeanDefinitionValueResolver {
    */
   @Nullable
   public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
-    if (value instanceof PropertyValueRetriever retriever) {
+    if (binder != null && value instanceof PropertyValueRetriever retriever) {
       return retriever.retrieve((String) argName, binder, beanFactory);
     }
-    else if (value instanceof BeanDefinition bd) {
+
+    if (value instanceof BeanDefinition bd) {
       String name = bd.getBeanName();
       if (!StringUtils.hasText(name)) {
         // Resolve plain BeanDefinition, without contained name: use dummy name.

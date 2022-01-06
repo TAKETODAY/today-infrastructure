@@ -48,7 +48,7 @@ public class DependencyResolvingContext {
 
   private boolean dependencyResolved;
 
-  private LinkedHashSet<String> dependentBeans;
+  private Set<String> dependentBeans;
 
   public DependencyResolvingContext(
           @Nullable Executable executable, @Nullable BeanFactory beanFactory) {
@@ -116,6 +116,11 @@ public class DependencyResolvingContext {
 
   // dependentBeans
 
+  void setDependentBeans(Set<String> dependentBeans) {
+    this.dependentBeans = dependentBeans;
+  }
+
+  // record
   @Nullable
   public Set<String> getDependentBeans() {
     return dependentBeans;

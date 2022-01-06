@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.dependency;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +45,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
@@ -58,6 +61,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -117,7 +121,8 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/12/26 14:51
  */
 public class StandardDependenciesBeanPostProcessor
-        implements DependenciesBeanPostProcessor, BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
+        implements DependenciesBeanPostProcessor, SmartInstantiationAwareBeanPostProcessor,
+                   BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -129,6 +134,7 @@ public class StandardDependenciesBeanPostProcessor
   private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
   private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
+  private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
 
   private DependencyInjector dependencyInjector;
 
@@ -227,6 +233,100 @@ public class StandardDependenciesBeanPostProcessor
   public void resetBeanDefinition(String beanName) {
     lookupMethodsChecked.remove(beanName);
     injectionMetadataCache.remove(beanName);
+  }
+
+  @Override
+  @Nullable
+  public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
+          throws BeanCreationException {
+
+    // Quick check on the concurrent map first, with minimal locking.
+    Constructor<?>[] candidateConstructors = this.candidateConstructorsCache.get(beanClass);
+    if (candidateConstructors == null) {
+      // Fully synchronized resolution now...
+      synchronized(this.candidateConstructorsCache) {
+        candidateConstructors = this.candidateConstructorsCache.get(beanClass);
+        if (candidateConstructors == null) {
+          Constructor<?>[] rawCandidates;
+          try {
+            rawCandidates = beanClass.getDeclaredConstructors();
+          }
+          catch (Throwable ex) {
+            throw new BeanCreationException(beanName,
+                    "Resolution of declared constructors on bean Class [" + beanClass.getName() +
+                            "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
+          }
+          List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
+          Constructor<?> requiredConstructor = null;
+          Constructor<?> defaultConstructor = null;
+          for (Constructor<?> candidate : rawCandidates) {
+            boolean canInject = dependencyInjector.canInject(candidate);
+            if (!canInject) {
+              Class<?> userClass = ClassUtils.getUserClass(beanClass);
+              if (userClass != beanClass) {
+                try {
+                  Constructor<?> superCtor =
+                          userClass.getDeclaredConstructor(candidate.getParameterTypes());
+                  canInject = dependencyInjector.canInject(superCtor);
+                  if (canInject) {
+                    candidate = superCtor;
+                  }
+                }
+                catch (NoSuchMethodException ex) {
+                  // Simply proceed, no equivalent superclass constructor found...
+                }
+              }
+            }
+
+            if (canInject) {
+              if (requiredConstructor != null) {
+                throw new BeanCreationException(beanName,
+                        "Invalid autowire-marked constructor: " + candidate +
+                                ". Found constructor with 'required' Autowired annotation already: " +
+                                requiredConstructor);
+              }
+              boolean required = determineRequiredStatus(candidate);
+              if (required) {
+                if (!candidates.isEmpty()) {
+                  throw new BeanCreationException(beanName,
+                          "Invalid autowire-marked constructors: " + candidates +
+                                  ". Found constructor with 'required' Autowired annotation: " +
+                                  candidate);
+                }
+                requiredConstructor = candidate;
+              }
+              candidates.add(candidate);
+            }
+            else if (candidate.getParameterCount() == 0) {
+              defaultConstructor = candidate;
+            }
+          }
+          if (!candidates.isEmpty()) {
+            // Add default constructor to list of optional constructors, as fallback.
+            if (requiredConstructor == null) {
+              if (defaultConstructor != null) {
+                candidates.add(defaultConstructor);
+              }
+              else if (candidates.size() == 1 && log.isInfoEnabled()) {
+                log.info("Inconsistent constructor declaration on bean with name '{}': " +
+                        "single autowire-marked constructor flagged as optional - " +
+                        "this constructor is effectively required since there is no " +
+                        "default constructor to fall back to: {}", beanName, candidates.get(0));
+              }
+            }
+            candidateConstructors = candidates.toArray(new Constructor<?>[0]);
+          }
+          else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
+            candidateConstructors = new Constructor<?>[] { rawCandidates[0] };
+          }
+          else {
+            candidateConstructors = new Constructor<?>[0];
+          }
+          candidateConstructorsCache.put(beanClass, candidateConstructors);
+        }
+      }
+    }
+    return candidateConstructors.length > 0 ? candidateConstructors : null;
   }
 
   /**

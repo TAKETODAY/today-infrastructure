@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -50,7 +49,6 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -70,11 +68,11 @@ import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.beans.support.PropertyValuesBinder;
-import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
@@ -113,7 +111,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractAutowireCapableBeanFactory
         extends AbstractBeanFactory implements AutowireCapableBeanFactory {
-  private static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
+  static final Logger log = LoggerFactory.getLogger(AbstractAutowireCapableBeanFactory.class);
 
   /** Whether to automatically try to resolve circular references between beans. @since 4.0 */
   private boolean allowCircularReferences = true;
@@ -146,6 +144,10 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @since 4.0
    */
   private final HashSet<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
+
+  /** Resolver strategy for method parameter names. @since 4.0 */
+  @Nullable
+  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   /**
    * Create a new AbstractAutowireCapableBeanFactory.
@@ -281,7 +283,9 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Nullable
   protected Object doCreateBean(
           String beanName, BeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+
     Object bean = createIfNecessary(beanName, definition, args);
+
     if (bean == null) {
       return null;
     }
@@ -366,6 +370,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     return fullyInitializedBean;
   }
 
+  @Nullable
   private Object createIfNecessary(String beanName, BeanDefinition definition, @Nullable Object[] args) {
     Object bean = null;
     if (definition.isSingleton()) {
@@ -606,113 +611,189 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
+  /**
+   * Create a new instance for the specified bean, using an appropriate instantiation strategy:
+   * factory method, constructor autowiring, or simple instantiation.
+   *
+   * @param mbd the bean definition for the bean
+   * @param args explicit arguments to use for constructor or factory method invocation
+   * @return a BeanWrapper for the new instance
+   * @see #instantiateUsingFactoryMethod
+   * @see #autowireConstructor
+   */
   @Nullable
   protected Object createBeanInstance(BeanDefinition mbd, @Nullable Object[] args) {
+    // Make sure bean class is actually resolved at this point.
+    Class<?> beanClass = resolveBeanClass(mbd);
+
+    if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
+      throw new BeanCreationException(mbd,
+              "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
+    }
+
     Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
     if (instanceSupplier != null) {
       return instanceSupplier.get(); // maybe null
     }
+
+    if (mbd.getFactoryMethodName() != null) {
+      return instantiateUsingFactoryMethod(mbd, args);
+    }
+
+    // Shortcut when re-creating the same bean...
+    boolean resolved = false;
+    boolean autowireNecessary = false;
+    if (args == null) {
+      synchronized(mbd.constructorArgumentLock) {
+        if (mbd.executable != null) {
+          resolved = true;
+          autowireNecessary = mbd.constructorArgumentsResolved;
+        }
+      }
+    }
+
+    if (resolved) {
+      if (autowireNecessary) {
+        return autowireConstructor(mbd, null, null);
+      }
+      else {
+        return instantiate(mbd, null);
+      }
+    }
+
+    // Candidate constructors for autowiring?
+    Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, mbd.getBeanName());
+    if (ctors != null
+            || mbd.getAutowireMode() == AUTOWIRE_CONSTRUCTOR
+            || mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+      return autowireConstructor(mbd, ctors, args);
+    }
+
     return instantiate(mbd, args);
   }
 
   /**
-   * Create new bean instance
-   * <p>
-   * Apply before-instantiation post-processors, resolving whether there is a
-   * before-instantiation shortcut for the specified bean.
-   * </p>
+   * Instantiate the bean using a named factory method. The method may be static, if the
+   * mbd parameter specifies a class, rather than a factoryBean, or an instance variable
+   * on a factory object itself configured using Dependency Injection.
    *
-   * @param def Target {@link BeanDefinition} descriptor
-   * @return A new bean object
-   * @throws BeanInstantiationException When instantiation of a bean failed
+   * @param mbd the bean definition for the bean
+   * @param explicitArgs argument values passed in programmatically via the getBean method,
+   * or {@code null} if none (implying the use of constructor argument values from bean definition)
+   * @return a BeanWrapper for the new instance
+   * @see #getBean(String, Object[])
+   * @since 4.0
    */
-  protected Object createBeanInstance(BeanDefinition def) {
-    return createBeanInstance(def, null);
+  protected Object instantiateUsingFactoryMethod(
+          BeanDefinition mbd, @Nullable Object[] explicitArgs) {
+    return new ConstructorResolver(this).instantiateUsingFactoryMethod(mbd, explicitArgs);
   }
 
-  private Object instantiate(BeanDefinition def, @Nullable Object[] constructorArgs) {
-    BeanInstantiator instantiator = resolveBeanInstantiator(def);
-    if (constructorArgs == null) {
-      constructorArgs = def.getConstructorArgs();
-      if (constructorArgs == null) {
-        constructorArgs = getInjector().resolveArguments(def.executable, def.getBeanName());
-      }
-    }
+  /**
+   * "autowire constructor" (with constructor arguments by type) behavior.
+   * Also applied if explicit constructor argument values are specified,
+   * matching all remaining arguments with beans from the bean factory.
+   * <p>This corresponds to constructor injection: In this mode, a Spring
+   * bean factory is able to host components that expect constructor-based
+   * dependency resolution.
+   *
+   * @param mbd the bean definition for the bean
+   * @param ctors the chosen candidate constructors
+   * @param explicitArgs argument values passed in programmatically via the getBean method,
+   * or {@code null} if none (implying the use of constructor argument values from bean definition)
+   * @return a BeanWrapper for the new instance
+   * @since 4.0
+   */
+  protected Object autowireConstructor(
+          BeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
 
-    // expose factory-method
-    if (def.executable instanceof Method factoryMethod) {
-      Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
-      try {
-        currentlyInvokedFactoryMethod.set(factoryMethod);
-        return instantiator.instantiate(constructorArgs);
-      }
-      catch (BeanInstantiationException ex) {
-        // try to un-warp Instantiation Exception
-        Throwable cause = ex.getCause();
-        if (cause instanceof IllegalArgumentException argument) {
-          throw new BeanInstantiationException(factoryMethod,
-                  "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
-                          "args: " + StringUtils.arrayToString(constructorArgs), argument);
-        }
-        else if (cause instanceof IllegalAccessException illegalAccess) {
-          throw new BeanInstantiationException(factoryMethod,
-                  "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", illegalAccess);
-        }
-        else if (cause instanceof InvocationTargetException inv) {
-          String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
-          if (def.getFactoryBeanName() != null && isCurrentlyInCreation(def.getFactoryBeanName())) {
-            msg = "Circular reference involving containing bean '" + def.getFactoryBeanName() + "' - consider " +
-                    "declaring the factory method as static for independence from its containing instance. " + msg;
-          }
-          throw new BeanInstantiationException(factoryMethod, msg, inv.getTargetException());
-        }
-        throw ex;
-      }
-      finally {
-        if (priorInvokedFactoryMethod != null) {
-          currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
-        }
-        else {
-          currentlyInvokedFactoryMethod.remove();
+    return new ConstructorResolver(this).autowireConstructor(mbd, ctors, explicitArgs);
+  }
+
+  /**
+   * Determine candidate constructors to use for the given bean, checking all registered
+   * {@link SmartInstantiationAwareBeanPostProcessor SmartInstantiationAwareBeanPostProcessors}.
+   *
+   * @param beanClass the raw class of the bean
+   * @param beanName the name of the bean
+   * @return the candidate constructors, or {@code null} if none specified
+   * @throws BeansException in case of errors
+   * @see SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors
+   */
+  @Nullable
+  protected Constructor<?>[] determineConstructorsFromBeanPostProcessors(
+          @Nullable Class<?> beanClass, String beanName) throws BeansException {
+
+    if (beanClass != null) {
+      for (SmartInstantiationAwareBeanPostProcessor bp : postProcessors().smartInstantiation) {
+        Constructor<?>[] ctors = bp.determineCandidateConstructors(beanClass, beanName);
+        if (ctors != null) {
+          return ctors;
         }
       }
     }
-    else {
+    return null;
+  }
+
+  protected Object instantiate(BeanDefinition def, Constructor<?> constructorToUse, Object[] constructorArgs) {
+    BeanInstantiator instantiator = resolveBeanInstantiator(def, constructorToUse);
+    try {
       return instantiator.instantiate(constructorArgs);
     }
+    catch (BeanInstantiationException ex) {
+      throw new BeanCreationException(def, "Bean instantiation via constructor failed", ex);
+    }
   }
 
-  private BeanInstantiator resolveBeanInstantiator(BeanDefinition definition) {
-    if (definition.instantiator == null) {
-      String factoryMethodName = definition.getFactoryMethodName();
-      // instantiate using factory-method
-      if (factoryMethodName != null) {
-        Class<?> factoryClass = getFactoryClass(definition);
-        Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
-        if (factoryMethod == null) {
-          throw new BeanCreationException(definition.getResourceDescription(), definition.getBeanName(),
-                  "factory method: '" + factoryMethodName + "' not found in class: " + factoryClass.getName());
-        }
-        MethodInvoker factoryMethodInvoker = determineMethodInvoker(definition, factoryMethod);
-        if (Modifier.isStatic(factoryMethod.getModifiers())) {
-          definition.instantiator = BeanInstantiator.fromStaticMethod(factoryMethodInvoker);
-        }
-        else {
-          // this is not a FactoryBean just a factory
-          definition.instantiator = BeanInstantiator.fromMethod(
-                  factoryMethodInvoker, BeanSupplier.from(this, definition.getFactoryBeanName())
-          );
-        }
-        definition.setResolvedFactoryMethod(factoryMethod);
-        definition.executable = factoryMethod;
+  protected Object instantiate(BeanDefinition def, @Nullable Object[] constructorArgs) {
+    BeanInstantiator instantiator = resolveBeanInstantiator(def, null);
+    try {
+      return instantiator.instantiate(constructorArgs);
+    }
+    catch (BeanInstantiationException ex) {
+      throw new BeanCreationException(def, "Bean instantiation via constructor failed", ex);
+    }
+  }
+
+  protected Object instantiateUsingFactoryMethod(
+          BeanDefinition def, @Nullable Object factoryBean, Method factoryMethod, @Nullable Object[] args) {
+    Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
+    try {
+      ReflectionUtils.makeAccessible(factoryMethod);
+      currentlyInvokedFactoryMethod.set(factoryMethod);
+      return factoryMethod.invoke(factoryBean, args);
+    }
+    catch (IllegalArgumentException ex) {
+      throw new BeanInstantiationException(factoryMethod,
+              "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
+                      "args: " + StringUtils.arrayToString(args), ex);
+    }
+    catch (IllegalAccessException ex) {
+      throw new BeanInstantiationException(factoryMethod,
+              "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
+    }
+    catch (InvocationTargetException ex) {
+      String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
+      if (def.getFactoryBeanName() != null && isCurrentlyInCreation(def.getFactoryBeanName())) {
+        msg = "Circular reference involving containing bean '" + def.getFactoryBeanName() + "' - consider " +
+                "declaring the factory method as static for independence from its containing instance. " + msg;
+      }
+      throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
+    }
+    finally {
+      if (priorInvokedFactoryMethod != null) {
+        currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
       }
       else {
-        // use a suitable constructor
-        Class<?> beanClass = resolveBeanClass(definition);
-        Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
-        if (constructor == null) {
-          throw new ConstructorNotFoundException(beanClass);
-        }
+        currentlyInvokedFactoryMethod.remove();
+      }
+    }
+  }
+
+  private BeanInstantiator resolveBeanInstantiator(
+          BeanDefinition definition, @Nullable Constructor<?> constructor) {
+    if (definition.instantiator == null) {
+      if (constructor != null) {
         if (definition.isSingleton()) {
           // use java-reflect invoking
           definition.instantiator = BeanInstantiator.fromReflective(constructor);
@@ -721,36 +802,19 @@ public abstract class AbstractAutowireCapableBeanFactory
           // provide fast access the method
           definition.instantiator = BeanInstantiator.fromConstructor(constructor);
         }
-        definition.executable = getUserDeclaredConstructor(constructor);
+      }
+      else {
+        if (definition.isSingleton()) {
+          // use java-reflect invoking
+          definition.instantiator = BeanInstantiator.fromClass(definition.getBeanClass());
+        }
+        else {
+          // provide fast access the method
+          definition.instantiator = BeanInstantiator.fromConstructor(definition.getBeanClass());
+        }
       }
     }
     return definition.instantiator;
-  }
-
-  protected Constructor<?> getUserDeclaredConstructor(Constructor<?> constructor) {
-    Class<?> declaringClass = constructor.getDeclaringClass();
-    Class<?> userClass = ClassUtils.getUserClass(declaringClass);
-    if (userClass != declaringClass) {
-      try {
-        return userClass.getDeclaredConstructor(constructor.getParameterTypes());
-      }
-      catch (NoSuchMethodException ex) {
-        // No equivalent constructor on user class (superclass)...
-        // Let's proceed with the given constructor as we usually would.
-      }
-    }
-    return constructor;
-  }
-
-  private MethodInvoker determineMethodInvoker(BeanDefinition definition, Method factoryMethod) {
-    if (definition.isSingleton()) {
-      // use java-reflect invoking
-      return MethodInvoker.formReflective(factoryMethod, false);
-    }
-    else {
-      // provide fast access the method
-      return MethodInvoker.fromMethod(factoryMethod);
-    }
   }
 
   @Override
@@ -764,9 +828,13 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public Object autowire(Class<?> beanClass, int autowireMode) throws BeansException {
     // Use non-singleton bean definition, to avoid registering bean as dependent bean.
-    BeanDefinition bd = new BeanDefinition(beanClass);
+    BeanDefinition bd = new BeanDefinition(beanClass.getName(), beanClass);
     bd.setAutowireMode(autowireMode);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+
+    if (bd.getAutowireMode() == AUTOWIRE_CONSTRUCTOR) {
+      return autowireConstructor(bd, null, null);
+    }
 
     Object bean = instantiate(bd, null);
     populateBean(bean, bd);
@@ -1126,21 +1194,23 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (cachedReturnType != null) {
       return cachedReturnType.resolve();
     }
-    Method factoryMethod;
-    Executable uniqueCandidate = def.executable;
-    if (uniqueCandidate instanceof Method) {
-      factoryMethod = ((Method) uniqueCandidate);
-    }
-    else {
-      String factoryBeanName = def.getFactoryBeanName();
+
+    Class<?> commonType = null;
+    Method uniqueCandidate = def.factoryMethodToIntrospect;
+
+    if (uniqueCandidate == null) {
       Class<?> factoryClass;
+      boolean isStatic = true;
+
+      String factoryBeanName = def.getFactoryBeanName();
       if (factoryBeanName != null) {
         if (factoryBeanName.equals(def.getBeanName())) {
-          throw new BeanDefinitionStoreException(def.getResourceDescription(), def.getBeanName(),
+          throw new BeanDefinitionStoreException(def,
                   "factory-bean reference points back to the same bean definition");
         }
         // Check declared factory method return type on factory class.
         factoryClass = getType(factoryBeanName);
+        isStatic = false;
       }
       else {
         // Check declared factory method return type on bean class.
@@ -1154,18 +1224,81 @@ public abstract class AbstractAutowireCapableBeanFactory
 
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
-      factoryMethod = getFactoryMethod(def, factoryClass, def.getFactoryMethodName());
-      if (factoryMethod != null) {
-        def.executable = factoryMethod;
+      int minNrOfArgs =
+              def.hasConstructorArgumentValues() ? def.getConstructorArgumentValues().getArgumentCount() : 0;
+      Method[] candidates = ReflectionUtils.getUniqueDeclaredMethods(
+              factoryClass, ReflectionUtils.USER_DECLARED_METHODS);
+
+      for (Method candidate : candidates) {
+        if (Modifier.isStatic(candidate.getModifiers()) == isStatic
+                && candidate.getParameterCount() >= minNrOfArgs
+                && def.isFactoryMethod(candidate)) {
+          // Declared type variables to inspect?
+          if (candidate.getTypeParameters().length > 0) {
+            try {
+              // Fully resolve parameter names and argument values.
+              Class<?>[] paramTypes = candidate.getParameterTypes();
+              String[] paramNames = null;
+
+              ParameterNameDiscoverer pnd = getParameterNameDiscoverer();
+              if (pnd != null) {
+                paramNames = pnd.getParameterNames(candidate);
+              }
+
+              ConstructorArgumentValues cav = def.getConstructorArgumentValues();
+              HashSet<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
+              Object[] args = new Object[paramTypes.length];
+              for (int i = 0; i < args.length; i++) {
+                String requiredName = paramNames != null ? paramNames[i] : null;
+
+                ConstructorArgumentValues.ValueHolder valueHolder =
+                        cav.getArgumentValue(i, paramTypes[i], requiredName, usedValueHolders);
+                if (valueHolder == null) {
+                  valueHolder = cav.getGenericArgumentValue(null, null, usedValueHolders);
+                }
+                if (valueHolder != null) {
+                  args[i] = valueHolder.getValue();
+                  usedValueHolders.add(valueHolder);
+                }
+              }
+              Class<?> returnType = AutowireUtils.resolveReturnTypeForFactoryMethod(
+                      candidate, args, getBeanClassLoader());
+              uniqueCandidate = commonType == null && returnType == candidate.getReturnType()
+                                ? candidate : null;
+              commonType = ClassUtils.determineCommonAncestor(returnType, commonType);
+              if (commonType == null) {
+                // Ambiguous return types found: return null to indicate "not determinable".
+                return null;
+              }
+            }
+            catch (Throwable ex) {
+              if (log.isDebugEnabled()) {
+                log.debug("Failed to resolve generic return type for factory method: {}", ex.toString());
+              }
+            }
+          }
+          else {
+            uniqueCandidate = commonType == null ? candidate : null;
+            commonType = ClassUtils.determineCommonAncestor(candidate.getReturnType(), commonType);
+            if (commonType == null) {
+              // Ambiguous return types found: return null to indicate "not determinable".
+              return null;
+            }
+          }
+        }
       }
-      else {
+
+      def.factoryMethodToIntrospect = uniqueCandidate;
+      if (commonType == null) {
         return null;
       }
     }
 
     // Common return type found: all factory methods return same type. For a non-parameterized
     // unique candidate, cache the full type declaration context of the target factory method.
-    cachedReturnType = ResolvableType.forReturnType(factoryMethod);
+    cachedReturnType = uniqueCandidate != null
+                       ? ResolvableType.forReturnType(uniqueCandidate)
+                       : ResolvableType.fromClass(commonType);
     def.factoryMethodReturnType = cachedReturnType;
     return cachedReturnType.resolve();
   }
@@ -1413,6 +1546,28 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
+
+  /**
+   * Set the ParameterNameDiscoverer to use for resolving method parameter
+   * names if needed (e.g. for constructor names).
+   * <p>Default is a {@link DefaultParameterNameDiscoverer}.
+   *
+   * @since 4.0
+   */
+  public void setParameterNameDiscoverer(@Nullable ParameterNameDiscoverer parameterNameDiscoverer) {
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
+  /**
+   * Return the ParameterNameDiscoverer to use for resolving method parameter
+   * names if needed.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  protected ParameterNameDiscoverer getParameterNameDiscoverer() {
+    return this.parameterNameDiscoverer;
+  }
 
   /**
    * Set whether to allow circular references between beans - and automatically

@@ -1,5 +1,7 @@
 package cn.taketoday.beans.factory;
 
+import java.lang.reflect.Constructor;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,6 +32,22 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
    */
   @Nullable
   default Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException {
+    return null;
+  }
+
+  /**
+   * Determine the candidate constructors to use for the given bean.
+   * <p>The default implementation returns {@code null}.
+   *
+   * @param beanClass the raw class of the bean (never {@code null})
+   * @param beanName the name of the bean
+   * @return the candidate constructors, or {@code null} if none specified
+   * @throws BeansException in case of errors
+   */
+  @Nullable
+  default Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName)
+          throws BeansException {
+
     return null;
   }
 

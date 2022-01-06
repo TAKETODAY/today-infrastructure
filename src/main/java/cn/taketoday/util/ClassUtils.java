@@ -1090,6 +1090,18 @@ public abstract class ClassUtils {
   }
 
   /**
+   * Check whether the given class matches the user-specified type name.
+   *
+   * @param clazz the class to check
+   * @param typeName the type name to match
+   * @since 4.0
+   */
+  public static boolean matchesTypeName(Class<?> clazz, @Nullable String typeName) {
+    return (typeName != null
+            && (typeName.equals(clazz.getTypeName()) || typeName.equals(clazz.getSimpleName())));
+  }
+
+  /**
    * Get the class name without the qualified package name.
    *
    * @param clazz the class to get the short name for
