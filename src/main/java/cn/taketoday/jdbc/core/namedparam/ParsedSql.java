@@ -34,15 +34,12 @@ public class ParsedSql {
 
   private final String originalSql;
 
-  private final List<String> parameterNames = new ArrayList<>();
-
-  private final List<int[]> parameterIndexes = new ArrayList<>();
-
   private int namedParameterCount;
-
+  private int totalParameterCount;
   private int unnamedParameterCount;
 
-  private int totalParameterCount;
+  private final ArrayList<String> parameterNames = new ArrayList<>();
+  private final ArrayList<int[]> parameterIndexes = new ArrayList<>();
 
   /**
    * Create a new instance of the {@link ParsedSql} class.

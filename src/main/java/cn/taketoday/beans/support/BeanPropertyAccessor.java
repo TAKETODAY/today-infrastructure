@@ -83,7 +83,7 @@ public class BeanPropertyAccessor {
     this(BeanMetadata.from(rootObject), rootObject);
   }
 
-  public BeanPropertyAccessor(BeanMetadata metadata, Object rootObject) {
+  public BeanPropertyAccessor(@Nullable BeanMetadata metadata, @Nullable Object rootObject) {
     this();
     this.metadata = metadata;
     this.rootObject = rootObject;

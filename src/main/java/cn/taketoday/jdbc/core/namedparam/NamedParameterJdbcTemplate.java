@@ -119,8 +119,6 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * in particular for passing it on to other {@code JdbcTemplate} consumers.
    * <p>If sufficient for the purposes at hand, {@link #getJdbcOperations()}
    * is recommended over this variant.
-   *
-   * @since 4.0
    */
   public JdbcTemplate getJdbcTemplate() {
     Assert.state(this.classicJdbcTemplate instanceof JdbcTemplate, "No JdbcTemplate available");
@@ -417,7 +415,6 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * @see #getParsedSql(String)
    * @see PreparedStatementCreatorFactory#PreparedStatementCreatorFactory(String, List)
    * @see PreparedStatementCreatorFactory#newPreparedStatementCreator(Object[])
-   * @since 4.0
    */
   protected PreparedStatementCreator getPreparedStatementCreator(
           String sql, SqlParameterSource paramSource,

@@ -87,9 +87,9 @@ public abstract class NamedParameterUtils {
   public static ParsedSql parseSqlStatement(final String sql) {
     Assert.notNull(sql, "SQL must not be null");
 
-    Set<String> namedParameters = new HashSet<>();
+    HashSet<String> namedParameters = new HashSet<>();
     StringBuilder sqlToUse = new StringBuilder(sql);
-    List<ParameterHolder> parameterList = new ArrayList<>();
+    ArrayList<ParameterHolder> parameterList = new ArrayList<>();
 
     char[] statement = sql.toCharArray();
     int namedParameterCount = 0;
@@ -181,7 +181,7 @@ public abstract class NamedParameterUtils {
     }
     ParsedSql parsedSql = new ParsedSql(sqlToUse.toString());
     for (ParameterHolder ph : parameterList) {
-      parsedSql.addNamedParameter(ph.getParameterName(), ph.getStartIndex(), ph.getEndIndex());
+      parsedSql.addNamedParameter(ph.parameterName(), ph.startIndex(), ph.endIndex());
     }
     parsedSql.setNamedParameterCount(namedParameterCount);
     parsedSql.setUnnamedParameterCount(unnamedParameterCount);
@@ -496,31 +496,6 @@ public abstract class NamedParameterUtils {
     return buildValueArray(parsedSql, new MapSqlParameterSource(paramMap), null);
   }
 
-  private static class ParameterHolder {
-
-    private final String parameterName;
-
-    private final int startIndex;
-
-    private final int endIndex;
-
-    public ParameterHolder(String parameterName, int startIndex, int endIndex) {
-      this.parameterName = parameterName;
-      this.startIndex = startIndex;
-      this.endIndex = endIndex;
-    }
-
-    public String getParameterName() {
-      return this.parameterName;
-    }
-
-    public int getStartIndex() {
-      return this.startIndex;
-    }
-
-    public int getEndIndex() {
-      return this.endIndex;
-    }
-  }
+  private record ParameterHolder(String parameterName, int startIndex, int endIndex) { }
 
 }

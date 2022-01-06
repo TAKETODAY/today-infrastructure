@@ -21,7 +21,6 @@
 package cn.taketoday.jdbc.core.namedparam;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.StringJoiner;
 
 import cn.taketoday.jdbc.core.SqlParameterValue;
@@ -45,9 +44,8 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class AbstractSqlParameterSource implements SqlParameterSource {
 
-  private final Map<String, Integer> sqlTypes = new HashMap<>();
-
-  private final Map<String, String> typeNames = new HashMap<>();
+  private final HashMap<String, Integer> sqlTypes = new HashMap<>();
+  private final HashMap<String, String> typeNames = new HashMap<>();
 
   /**
    * Register an SQL type for the given parameter.
@@ -103,7 +101,6 @@ public abstract class AbstractSqlParameterSource implements SqlParameterSource {
    * or just return the simple {@code SqlParameterSource} implementation class name otherwise.
    *
    * @see #getParameterNames()
-   * @since 4.0
    */
   @Override
   public String toString() {

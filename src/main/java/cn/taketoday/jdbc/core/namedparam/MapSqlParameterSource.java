@@ -50,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class MapSqlParameterSource extends AbstractSqlParameterSource {
 
-  private final Map<String, Object> values = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> values = new LinkedHashMap<>();
 
   /**
    * Create an empty MapSqlParameterSource,
@@ -58,8 +58,7 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
    *
    * @see #addValue(String, Object)
    */
-  public MapSqlParameterSource() {
-  }
+  public MapSqlParameterSource() { }
 
   /**
    * Create a new MapSqlParameterSource, with one value
@@ -142,12 +141,14 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
    */
   public MapSqlParameterSource addValues(@Nullable Map<String, ?> values) {
     if (values != null) {
-      values.forEach((key, value) -> {
+      for (Map.Entry<String, ?> entry : values.entrySet()) {
+        String key = entry.getKey();
+        Object value = entry.getValue();
         this.values.put(key, value);
         if (value instanceof SqlParameterValue) {
           registerSqlType(key, ((SqlParameterValue) value).getSqlType());
         }
-      });
+      }
     }
     return this;
   }

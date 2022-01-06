@@ -61,6 +61,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @see SqlUpdate
  * @see StoredProcedure
  * @see cn.taketoday.jdbc.core.JdbcTemplate
+ * @since 4.0
  */
 public abstract class RdbmsOperation implements InitializingBean {
 
@@ -82,7 +83,7 @@ public abstract class RdbmsOperation implements InitializingBean {
   @Nullable
   private String sql;
 
-  private final List<SqlParameter> declaredParameters = new ArrayList<>();
+  private final ArrayList<SqlParameter> declaredParameters = new ArrayList<>();
 
   /**
    * Has this operation been compiled? Compilation means at
@@ -257,7 +258,6 @@ public abstract class RdbmsOperation implements InitializingBean {
    * Resolve the configured SQL for actual use.
    *
    * @return the SQL (never {@code null})
-   * @since 4.0
    */
   protected String resolveSql() {
     String sql = getSql();
@@ -368,7 +368,7 @@ public abstract class RdbmsOperation implements InitializingBean {
       this.compiled = true;
 
       if (logger.isDebugEnabled()) {
-        logger.debug("RdbmsOperation with SQL [" + getSql() + "] compiled");
+        logger.debug("RdbmsOperation with SQL [{}] compiled", getSql());
       }
     }
   }

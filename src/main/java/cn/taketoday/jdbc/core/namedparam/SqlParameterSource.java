@@ -104,7 +104,6 @@ public interface SqlParameterSource {
    *
    * @return the array of parameter names, or {@code null} if not determinable
    * @see SqlParameterSourceUtils#extractCaseInsensitiveParameterNames
-   * @since 4.0
    */
   @Nullable
   default String[] getParameterNames() {

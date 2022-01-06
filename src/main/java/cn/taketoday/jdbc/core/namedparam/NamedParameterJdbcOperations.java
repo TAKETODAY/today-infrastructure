@@ -253,7 +253,6 @@ public interface NamedParameterJdbcOperations {
    * @return the result Stream, containing mapped objects, needing to be
    * closed once fully processed (e.g. through a try-with-resources clause)
    * @throws DataAccessException if the query fails
-   * @since 4.0
    */
   <T> Stream<T> queryForStream(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper)
           throws DataAccessException;
@@ -270,7 +269,6 @@ public interface NamedParameterJdbcOperations {
    * @return the result Stream, containing mapped objects, needing to be
    * closed once fully processed (e.g. through a try-with-resources clause)
    * @throws DataAccessException if the query fails
-   * @since 4.0
    */
   <T> Stream<T> queryForStream(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper)
           throws DataAccessException;
