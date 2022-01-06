@@ -65,8 +65,7 @@ public final class CallMetaDataProviderFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(CallMetaDataProviderFactory.class);
 
-  private CallMetaDataProviderFactory() {
-  }
+  private CallMetaDataProviderFactory() { }
 
   /**
    * Create a {@link CallMetaDataProvider} based on the database meta-data.
@@ -83,8 +82,8 @@ public final class CallMetaDataProviderFactory {
         if (context.isFunction()) {
           if (!supportedDatabaseProductsForFunctions.contains(databaseProductName)) {
             if (logger.isInfoEnabled()) {
-              logger.info(databaseProductName + " is not one of the databases fully supported for function calls " +
-                      "-- supported are: " + supportedDatabaseProductsForFunctions);
+              logger.info("{} is not one of the databases fully supported for function calls -- supported are: {}",
+                      databaseProductName, supportedDatabaseProductsForFunctions);
             }
             if (accessProcedureColumnMetaData) {
               logger.info("Metadata processing disabled - you must specify all parameters explicitly");
@@ -95,8 +94,8 @@ public final class CallMetaDataProviderFactory {
         else {
           if (!supportedDatabaseProductsForProcedures.contains(databaseProductName)) {
             if (logger.isInfoEnabled()) {
-              logger.info(databaseProductName + " is not one of the databases fully supported for procedure calls " +
-                      "-- supported are: " + supportedDatabaseProductsForProcedures);
+              logger.info("{} is not one of the databases fully supported for procedure calls -- supported are: {}",
+                      databaseProductName, supportedDatabaseProductsForProcedures);
             }
             if (accessProcedureColumnMetaData) {
               logger.info("Metadata processing disabled - you must specify all parameters explicitly");
