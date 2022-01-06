@@ -43,12 +43,10 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 final class TransactionalOperatorImpl implements TransactionalOperator {
-
-  private static final Logger logger = LoggerFactory.getLogger(TransactionalOperatorImpl.class);
-
-  private final ReactiveTransactionManager transactionManager;
+  private static final Logger log = LoggerFactory.getLogger(TransactionalOperatorImpl.class);
 
   private final TransactionDefinition transactionDefinition;
+  private final ReactiveTransactionManager transactionManager;
 
   /**
    * Construct a new TransactionTemplate using the given transaction manager,
@@ -75,13 +73,17 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
   @Override
   public <T> Mono<T> transactional(Mono<T> mono) {
     return TransactionContextManager.currentContext().flatMap(context -> {
-              Mono<ReactiveTransaction> status = this.transactionManager.getReactiveTransaction(this.transactionDefinition);
+              Mono<ReactiveTransaction> status = transactionManager.getReactiveTransaction(transactionDefinition);
               // This is an around advice: Invoke the next interceptor in the chain.
               // This will normally result in a target object being invoked.
               // Need re-wrapping of ReactiveTransaction until we get hold of the exception
               // through usingWhen.
-              return status.flatMap(it -> Mono.usingWhen(Mono.just(it), ignore -> mono,
-                              this.transactionManager::commit, (res, err) -> Mono.empty(), this.transactionManager::rollback)
+              return status.flatMap(it -> Mono.usingWhen(Mono.just(it),
+                              ignore -> mono,
+                              transactionManager::commit,
+                              (res, err) -> Mono.empty(),
+                              transactionManager::rollback
+                      )
                       .onErrorResume(ex -> rollbackOnException(it, ex).then(Mono.error(ex))));
             })
             .contextWrite(TransactionContextManager.getOrCreateContext())
@@ -91,20 +93,18 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
   @Override
   public <T> Flux<T> execute(TransactionCallback<T> action) throws TransactionException {
     return TransactionContextManager.currentContext().flatMapMany(context -> {
-              Mono<ReactiveTransaction> status = this.transactionManager.getReactiveTransaction(this.transactionDefinition);
+              Mono<ReactiveTransaction> status = transactionManager.getReactiveTransaction(transactionDefinition);
               // This is an around advice: Invoke the next interceptor in the chain.
               // This will normally result in a target object being invoked.
               // Need re-wrapping of ReactiveTransaction until we get hold of the exception
               // through usingWhen.
-              return status.flatMapMany(it -> Flux
-                      .usingWhen(
-                              Mono.just(it),
+              return status.flatMapMany(it -> Flux.usingWhen(Mono.just(it),
                               action::doInTransaction,
-                              this.transactionManager::commit,
+                              transactionManager::commit,
                               (tx, ex) -> Mono.empty(),
-                              this.transactionManager::rollback)
-                      .onErrorResume(ex ->
-                              rollbackOnException(it, ex).then(Mono.error(ex))));
+                              transactionManager::rollback
+                      )
+                      .onErrorResume(ex -> rollbackOnException(it, ex).then(Mono.error(ex))));
             })
             .contextWrite(TransactionContextManager.getOrCreateContext())
             .contextWrite(TransactionContextManager.getOrCreateContextHolder());
@@ -118,9 +118,9 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
    * @throws TransactionException in case of a rollback error
    */
   private Mono<Void> rollbackOnException(ReactiveTransaction status, Throwable ex) throws TransactionException {
-    logger.debug("Initiating transaction rollback on application exception", ex);
-    return this.transactionManager.rollback(status).onErrorMap(ex2 -> {
-              logger.error("Application exception overridden by rollback exception", ex);
+    log.debug("Initiating transaction rollback on application exception", ex);
+    return transactionManager.rollback(status).onErrorMap(ex2 -> {
+              log.error("Application exception overridden by rollback exception", ex);
               if (ex2 instanceof TransactionSystemException) {
                 ((TransactionSystemException) ex2).initApplicationException(ex);
               }
@@ -131,8 +131,8 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (super.equals(other) && (!(other instanceof TransactionalOperatorImpl) ||
-            getTransactionManager() == ((TransactionalOperatorImpl) other).getTransactionManager())));
+    return (this == other || (super.equals(other) && (!(other instanceof TransactionalOperatorImpl)
+            || getTransactionManager() == ((TransactionalOperatorImpl) other).getTransactionManager())));
   }
 
   @Override
