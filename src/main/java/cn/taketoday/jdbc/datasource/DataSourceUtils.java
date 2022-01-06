@@ -184,7 +184,21 @@ public abstract class DataSourceUtils {
         if (log.isDebugEnabled()) {
           log.debug("Setting JDBC Connection [{}] read-only", con);
         }
-        con.setReadOnly(true);
+        try {
+          con.setReadOnly(true);
+        }
+        catch (SQLException | RuntimeException ex) {
+          Throwable exToCheck = ex;
+          while (exToCheck != null) {
+            if (exToCheck.getClass().getSimpleName().contains("Timeout")) {
+              // Assume it's a connection timeout that would otherwise get lost: e.g. from JDBC 4.0
+              throw ex;
+            }
+            exToCheck = exToCheck.getCause();
+          }
+          // "read-only not supported" SQLException -> ignore, it's just a hint anyway
+          log.debug("Could not set JDBC Connection read-only", ex);
+        }
       }
 
       // Apply specific isolation level, if any.

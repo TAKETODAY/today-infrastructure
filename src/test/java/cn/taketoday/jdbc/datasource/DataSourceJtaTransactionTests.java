@@ -250,7 +250,7 @@ public class DataSourceJtaTransactionTests {
             DataSourceUtils.releaseConnection(c, dsToUse);
           }
         }
-        catch (SQLException ex) {
+        catch (SQLException ignored) {
         }
 
         for (int i = 0; i < 5; i++) {
@@ -296,7 +296,7 @@ public class DataSourceJtaTransactionTests {
             assertThat(TransactionSynchronizationManager.hasResource(dsToUse)).as("Has thread connection").isTrue();
             DataSourceUtils.releaseConnection(c, dsToUse);
           }
-          catch (SQLException ex) {
+          catch (SQLException ignored) {
           }
         }
 

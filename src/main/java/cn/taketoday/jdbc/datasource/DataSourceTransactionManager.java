@@ -268,17 +268,17 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
     Connection con = null;
 
     try {
-      if (!txObject.hasConnectionHolder() ||
-              txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
+      if (!txObject.hasConnectionHolder() || txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
         Connection newCon = obtainDataSource().getConnection();
         if (logger.isDebugEnabled()) {
-          logger.debug("Acquired Connection [" + newCon + "] for JDBC transaction");
+          logger.debug("Acquired Connection [{}] for JDBC transaction", newCon);
         }
         txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
       }
 
-      txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
-      con = txObject.getConnectionHolder().getConnection();
+      ConnectionHolder connectionHolder = txObject.getConnectionHolder();
+      connectionHolder.setSynchronizedWithTransaction(true);
+      con = connectionHolder.getConnection();
 
       Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
       txObject.setPreviousIsolationLevel(previousIsolationLevel);
@@ -290,25 +290,24 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
       if (con.getAutoCommit()) {
         txObject.setMustRestoreAutoCommit(true);
         if (logger.isDebugEnabled()) {
-          logger.debug("Switching JDBC Connection [" + con + "] to manual commit");
+          logger.debug("Switching JDBC Connection [{}] to manual commit", con);
         }
         con.setAutoCommit(false);
       }
 
       prepareTransactionalConnection(con, definition);
-      txObject.getConnectionHolder().setTransactionActive(true);
+      connectionHolder.setTransactionActive(true);
 
       int timeout = determineTimeout(definition);
       if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-        txObject.getConnectionHolder().setTimeoutInSeconds(timeout);
+        connectionHolder.setTimeoutInSeconds(timeout);
       }
 
       // Bind the connection holder to the thread.
       if (txObject.isNewConnectionHolder()) {
-        TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
+        TransactionSynchronizationManager.bindResource(obtainDataSource(), connectionHolder);
       }
     }
-
     catch (Throwable ex) {
       if (txObject.isNewConnectionHolder()) {
         DataSourceUtils.releaseConnection(con, obtainDataSource());

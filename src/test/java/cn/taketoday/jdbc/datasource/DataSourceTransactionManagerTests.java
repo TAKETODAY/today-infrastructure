@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.datasource;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -444,7 +445,9 @@ public class DataSourceTransactionManagerTests {
     boolean condition1 = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition1).as("Synchronization not active").isTrue();
 
-    assertThatExceptionOfType(IllegalTransactionStateException.class).isThrownBy(() -> {
+    Assertions.setMaxStackTraceElementsDisplayed(1000);
+
+  assertThatExceptionOfType(IllegalTransactionStateException.class).isThrownBy(() -> {
       final TransactionTemplate tt = new TransactionTemplate(tm);
       tt.setReadOnly(true);
       final TransactionTemplate tt2 = new TransactionTemplate(tm);
