@@ -20,16 +20,16 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
+
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * JDBC {@link DataSource} implementation that delegates all calls

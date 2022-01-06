@@ -20,9 +20,9 @@
 
 package cn.taketoday.jdbc.datasource.lookup;
 
-import cn.taketoday.lang.Assert;
-
 import javax.sql.DataSource;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * An implementation of the DataSourceLookup that simply wraps a

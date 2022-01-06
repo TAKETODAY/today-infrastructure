@@ -20,9 +20,9 @@
 
 package cn.taketoday.jdbc;
 
-import cn.taketoday.core.NestedRuntimeException;
-
 import java.io.Serial;
+
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * @author TODAY 2021/8/25 22:32

@@ -467,8 +467,8 @@ public final class Query implements AutoCloseable {
         if (log.isDebugEnabled()) {
           long afterClose = System.currentTimeMillis();
           log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                    afterClose - start, afterExecQuery - start,
-                    afterClose - afterExecQuery, name);
+                  afterClose - start, afterExecQuery - start,
+                  afterClose - afterExecQuery, name);
         }
       }
       catch (SQLException ex) {

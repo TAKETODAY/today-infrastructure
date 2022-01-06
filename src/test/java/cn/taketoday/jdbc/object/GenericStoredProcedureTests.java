@@ -85,7 +85,8 @@ public class GenericStoredProcedureTests {
 
     bf.registerBeanDefinition(new BeanDefinition("genericProcedure", GenericStoredProcedure.class)
             .addPropertyValue("dataSource", BeanReference.from("dataSource"))
-            .addPropertyValue("SqlParameter", List.of(
+            .addPropertyValue("sql", "add_invoice")
+            .addPropertyValue("parameters", List.of(
                     new SqlParameter("amount", java.sql.Types.INTEGER),
                     new SqlParameter("custid", java.sql.Types.INTEGER),
                     new SqlParameter("newid", java.sql.Types.INTEGER)

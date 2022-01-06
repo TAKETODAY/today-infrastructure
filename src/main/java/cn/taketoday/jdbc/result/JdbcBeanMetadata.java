@@ -100,10 +100,10 @@ public class JdbcBeanMetadata extends BeanMetadata {
 
   public JdbcBeanMetadata createProperty(Class<?> propertyType, boolean caseSensitive) {
     return new JdbcBeanMetadata(propertyType,
-                                caseSensitive,
-                                autoDeriveColumnNames,
-                                columnMappings,
-                                throwOnMappingFailure);
+            caseSensitive,
+            autoDeriveColumnNames,
+            columnMappings,
+            throwOnMappingFailure);
   }
 
   public boolean isThrowOnMappingFailure() {

@@ -20,13 +20,13 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import cn.taketoday.core.NamedThreadLocal;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StringUtils;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import cn.taketoday.core.NamedThreadLocal;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * An adapter for a target JDBC {@link javax.sql.DataSource}, applying the specified

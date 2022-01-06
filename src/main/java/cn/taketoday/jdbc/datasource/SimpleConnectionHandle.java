@@ -20,9 +20,9 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import cn.taketoday.lang.Assert;
-
 import java.sql.Connection;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * Simple implementation of the {@link ConnectionHandle} interface,

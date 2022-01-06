@@ -1,8 +1,8 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.core.NestedRuntimeException;
-
 import java.io.Serial;
+
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * Represents an exception thrown by today-jdbc.

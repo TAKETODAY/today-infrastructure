@@ -20,17 +20,17 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ObjectUtils;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Implementation of {@link SmartDataSource} that wraps a single JDBC Connection
@@ -79,8 +79,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
   /**
    * Constructor for bean-style configuration.
    */
-  public SingleConnectionDataSource() {
-  }
+  public SingleConnectionDataSource() { }
 
   /**
    * Create a new SingleConnectionDataSource with the given standard

@@ -103,7 +103,7 @@ public class JdbcOperations {
     this.connectionSource = source;
     final DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
     sharedInstance.addConverters(new ClobToStringConverter(),
-                                 new OffsetTimeToSQLTimeConverter());
+            new OffsetTimeToSQLTimeConverter());
     if (FeatureDetector.isJodaTimeAvailable()) {
       sharedInstance.addConverter(new TimeToJodaLocalTimeConverter());
     }

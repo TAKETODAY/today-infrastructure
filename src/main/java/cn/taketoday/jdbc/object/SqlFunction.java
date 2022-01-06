@@ -48,160 +48,166 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Like all RdbmsOperation objects, SqlFunction objects are thread-safe.
  *
+ * @param <T> the result type
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Jean-Pierre Pawlak
- * @param <T> the result type
  * @see StoredProcedure
  */
 public class SqlFunction<T> extends MappingSqlQuery<T> {
 
-	private final SingleColumnRowMapper<T> rowMapper = new SingleColumnRowMapper<>();
+  private final SingleColumnRowMapper<T> rowMapper = new SingleColumnRowMapper<>();
 
+  /**
+   * Constructor to allow use as a JavaBean.
+   * A DataSource, SQL and any parameters must be supplied before
+   * invoking the {@code compile} method and using this object.
+   *
+   * @see #setDataSource
+   * @see #setSql
+   * @see #compile
+   */
+  public SqlFunction() {
+    setRowsExpected(1);
+  }
 
-	/**
-	 * Constructor to allow use as a JavaBean.
-	 * A DataSource, SQL and any parameters must be supplied before
-	 * invoking the {@code compile} method and using this object.
-	 * @see #setDataSource
-	 * @see #setSql
-	 * @see #compile
-	 */
-	public SqlFunction() {
-		setRowsExpected(1);
-	}
+  /**
+   * Create a new SqlFunction object with SQL, but without parameters.
+   * Must add parameters or settle with none.
+   *
+   * @param ds the DataSource to obtain connections from
+   * @param sql the SQL to execute
+   */
+  public SqlFunction(DataSource ds, String sql) {
+    setRowsExpected(1);
+    setDataSource(ds);
+    setSql(sql);
+  }
 
-	/**
-	 * Create a new SqlFunction object with SQL, but without parameters.
-	 * Must add parameters or settle with none.
-	 * @param ds the DataSource to obtain connections from
-	 * @param sql the SQL to execute
-	 */
-	public SqlFunction(DataSource ds, String sql) {
-		setRowsExpected(1);
-		setDataSource(ds);
-		setSql(sql);
-	}
+  /**
+   * Create a new SqlFunction object with SQL and parameters.
+   *
+   * @param ds the DataSource to obtain connections from
+   * @param sql the SQL to execute
+   * @param types the SQL types of the parameters, as defined in the
+   * {@code java.sql.Types} class
+   * @see java.sql.Types
+   */
+  public SqlFunction(DataSource ds, String sql, int[] types) {
+    setRowsExpected(1);
+    setDataSource(ds);
+    setSql(sql);
+    setTypes(types);
+  }
 
-	/**
-	 * Create a new SqlFunction object with SQL and parameters.
-	 * @param ds the DataSource to obtain connections from
-	 * @param sql the SQL to execute
-	 * @param types the SQL types of the parameters, as defined in the
-	 * {@code java.sql.Types} class
-	 * @see java.sql.Types
-	 */
-	public SqlFunction(DataSource ds, String sql, int[] types) {
-		setRowsExpected(1);
-		setDataSource(ds);
-		setSql(sql);
-		setTypes(types);
-	}
+  /**
+   * Create a new SqlFunction object with SQL, parameters and a result type.
+   *
+   * @param ds the DataSource to obtain connections from
+   * @param sql the SQL to execute
+   * @param types the SQL types of the parameters, as defined in the
+   * {@code java.sql.Types} class
+   * @param resultType the type that the result object is required to match
+   * @see #setResultType(Class)
+   * @see java.sql.Types
+   */
+  public SqlFunction(DataSource ds, String sql, int[] types, Class<T> resultType) {
+    setRowsExpected(1);
+    setDataSource(ds);
+    setSql(sql);
+    setTypes(types);
+    setResultType(resultType);
+  }
 
-	/**
-	 * Create a new SqlFunction object with SQL, parameters and a result type.
-	 * @param ds the DataSource to obtain connections from
-	 * @param sql the SQL to execute
-	 * @param types the SQL types of the parameters, as defined in the
-	 * {@code java.sql.Types} class
-	 * @param resultType the type that the result object is required to match
-	 * @see #setResultType(Class)
-	 * @see java.sql.Types
-	 */
-	public SqlFunction(DataSource ds, String sql, int[] types, Class<T> resultType) {
-		setRowsExpected(1);
-		setDataSource(ds);
-		setSql(sql);
-		setTypes(types);
-		setResultType(resultType);
-	}
+  /**
+   * Specify the type that the result object is required to match.
+   * <p>If not specified, the result value will be exposed as
+   * returned by the JDBC driver.
+   */
+  public void setResultType(Class<T> resultType) {
+    this.rowMapper.setRequiredType(resultType);
+  }
 
+  /**
+   * This implementation of this method extracts a single value from the
+   * single row returned by the function. If there are a different number
+   * of rows returned, this is treated as an error.
+   */
+  @Override
+  @Nullable
+  protected T mapRow(ResultSet rs, int rowNum) throws SQLException {
+    return this.rowMapper.mapRow(rs, rowNum);
+  }
 
-	/**
-	 * Specify the type that the result object is required to match.
-	 * <p>If not specified, the result value will be exposed as
-	 * returned by the JDBC driver.
-	 */
-	public void setResultType(Class<T> resultType) {
-		this.rowMapper.setRequiredType(resultType);
-	}
+  /**
+   * Convenient method to run the function without arguments.
+   *
+   * @return the value of the function
+   */
+  public int run() {
+    return run(new Object[0]);
+  }
 
+  /**
+   * Convenient method to run the function with a single int argument.
+   *
+   * @param parameter single int parameter
+   * @return the value of the function
+   */
+  public int run(int parameter) {
+    return run(new Object[] { parameter });
+  }
 
-	/**
-	 * This implementation of this method extracts a single value from the
-	 * single row returned by the function. If there are a different number
-	 * of rows returned, this is treated as an error.
-	 */
-	@Override
-	@Nullable
-	protected T mapRow(ResultSet rs, int rowNum) throws SQLException {
-		return this.rowMapper.mapRow(rs, rowNum);
-	}
+  /**
+   * Analogous to the SqlQuery.execute([]) method. This is a
+   * generic method to execute a query, taken a number of arguments.
+   *
+   * @param parameters array of parameters. These will be objects or
+   * object wrapper types for primitives.
+   * @return the value of the function
+   */
+  public int run(Object... parameters) {
+    Object obj = super.findObject(parameters);
+    if (!(obj instanceof Number)) {
+      throw new TypeMismatchDataAccessException("Could not convert result object [" + obj + "] to int");
+    }
+    return ((Number) obj).intValue();
+  }
 
+  /**
+   * Convenient method to run the function without arguments,
+   * returning the value as an object.
+   *
+   * @return the value of the function
+   */
+  @Nullable
+  public Object runGeneric() {
+    return findObject((Object[]) null, null);
+  }
 
-	/**
-	 * Convenient method to run the function without arguments.
-	 * @return the value of the function
-	 */
-	public int run() {
-		return run(new Object[0]);
-	}
+  /**
+   * Convenient method to run the function with a single int argument.
+   *
+   * @param parameter single int parameter
+   * @return the value of the function as an Object
+   */
+  @Nullable
+  public Object runGeneric(int parameter) {
+    return findObject(parameter);
+  }
 
-	/**
-	 * Convenient method to run the function with a single int argument.
-	 * @param parameter single int parameter
-	 * @return the value of the function
-	 */
-	public int run(int parameter) {
-		return run(new Object[] {parameter});
-	}
-
-	/**
-	 * Analogous to the SqlQuery.execute([]) method. This is a
-	 * generic method to execute a query, taken a number of arguments.
-	 * @param parameters array of parameters. These will be objects or
-	 * object wrapper types for primitives.
-	 * @return the value of the function
-	 */
-	public int run(Object... parameters) {
-		Object obj = super.findObject(parameters);
-		if (!(obj instanceof Number)) {
-			throw new TypeMismatchDataAccessException("Could not convert result object [" + obj + "] to int");
-		}
-		return ((Number) obj).intValue();
-	}
-
-	/**
-	 * Convenient method to run the function without arguments,
-	 * returning the value as an object.
-	 * @return the value of the function
-	 */
-	@Nullable
-	public Object runGeneric() {
-		return findObject((Object[]) null, null);
-	}
-
-	/**
-	 * Convenient method to run the function with a single int argument.
-	 * @param parameter single int parameter
-	 * @return the value of the function as an Object
-	 */
-	@Nullable
-	public Object runGeneric(int parameter) {
-		return findObject(parameter);
-	}
-
-	/**
-	 * Analogous to the {@code SqlQuery.findObject(Object[])} method.
-	 * This is a generic method to execute a query, taken a number of arguments.
-	 * @param parameters array of parameters. These will be objects or
-	 * object wrapper types for primitives.
-	 * @return the value of the function, as an Object
-	 * @see #execute(Object[])
-	 */
-	@Nullable
-	public Object runGeneric(Object[] parameters) {
-		return findObject(parameters);
-	}
+  /**
+   * Analogous to the {@code SqlQuery.findObject(Object[])} method.
+   * This is a generic method to execute a query, taken a number of arguments.
+   *
+   * @param parameters array of parameters. These will be objects or
+   * object wrapper types for primitives.
+   * @return the value of the function, as an Object
+   * @see #execute(Object[])
+   */
+  @Nullable
+  public Object runGeneric(Object[] parameters) {
+    return findObject(parameters);
+  }
 
 }
