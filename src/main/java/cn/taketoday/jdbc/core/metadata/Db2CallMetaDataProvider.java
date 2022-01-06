@@ -45,25 +45,25 @@ public class Db2CallMetaDataProvider extends GenericCallMetaDataProvider {
       setSupportsCatalogsInProcedureCalls(databaseMetaData.supportsCatalogsInProcedureCalls());
     }
     catch (SQLException ex) {
-      logger.debug("Error retrieving 'DatabaseMetaData.supportsCatalogsInProcedureCalls' - " + ex.getMessage());
+      logger.debug("Error retrieving 'DatabaseMetaData.supportsCatalogsInProcedureCalls' - {}", ex.getMessage());
     }
     try {
       setSupportsSchemasInProcedureCalls(databaseMetaData.supportsSchemasInProcedureCalls());
     }
     catch (SQLException ex) {
-      logger.debug("Error retrieving 'DatabaseMetaData.supportsSchemasInProcedureCalls' - " + ex.getMessage());
+      logger.debug("Error retrieving 'DatabaseMetaData.supportsSchemasInProcedureCalls' - {}", ex.getMessage());
     }
     try {
       setStoresUpperCaseIdentifiers(databaseMetaData.storesUpperCaseIdentifiers());
     }
     catch (SQLException ex) {
-      logger.debug("Error retrieving 'DatabaseMetaData.storesUpperCaseIdentifiers' - " + ex.getMessage());
+      logger.debug("Error retrieving 'DatabaseMetaData.storesUpperCaseIdentifiers' - {}", ex.getMessage());
     }
     try {
       setStoresLowerCaseIdentifiers(databaseMetaData.storesLowerCaseIdentifiers());
     }
     catch (SQLException ex) {
-      logger.debug("Error retrieving 'DatabaseMetaData.storesLowerCaseIdentifiers' - " + ex.getMessage());
+      logger.debug("Error retrieving 'DatabaseMetaData.storesLowerCaseIdentifiers' - {}", ex.getMessage());
     }
   }
 

@@ -58,8 +58,9 @@ public interface CallMetaDataProvider {
    * @throws SQLException in case of initialization failure
    * @see cn.taketoday.jdbc.core.simple.SimpleJdbcCall#withoutProcedureColumnMetaDataAccess()
    */
-  void initializeWithProcedureColumnMetaData(DatabaseMetaData databaseMetaData, @Nullable String catalogName,
-                                             @Nullable String schemaName, @Nullable String procedureName) throws SQLException;
+  void initializeWithProcedureColumnMetaData(
+          DatabaseMetaData databaseMetaData, @Nullable String catalogName,
+          @Nullable String schemaName, @Nullable String procedureName) throws SQLException;
 
   /**
    * Provide any modification of the procedure name passed in to match the meta-data currently used.
