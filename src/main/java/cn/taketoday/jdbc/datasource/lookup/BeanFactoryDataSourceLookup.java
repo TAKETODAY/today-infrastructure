@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -75,13 +76,8 @@ public class BeanFactoryDataSourceLookup implements DataSourceLookup, BeanFactor
   @Override
   public DataSource getDataSource(String dataSourceName) throws DataSourceLookupFailureException {
     Assert.state(this.beanFactory != null, "BeanFactory is required");
-
-    DataSource bean = this.beanFactory.getBean(dataSourceName, DataSource.class);
-    if (bean == null) {
-
-    }
     try {
-      return bean;
+      return BeanFactoryUtils.requiredBean(beanFactory, dataSourceName, DataSource.class);
     }
     catch (BeansException ex) {
       throw new DataSourceLookupFailureException(

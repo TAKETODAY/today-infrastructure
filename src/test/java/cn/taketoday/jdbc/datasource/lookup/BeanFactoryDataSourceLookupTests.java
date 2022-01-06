@@ -66,8 +66,8 @@ public class BeanFactoryDataSourceLookupTests {
                     DataSource.class, String.class));
 
     BeanFactoryDataSourceLookup lookup = new BeanFactoryDataSourceLookup(beanFactory);
-    assertThatExceptionOfType(DataSourceLookupFailureException.class).isThrownBy(() ->
-            lookup.getDataSource(DATASOURCE_BEAN_NAME));
+    assertThatExceptionOfType(DataSourceLookupFailureException.class)
+            .isThrownBy(() -> lookup.getDataSource(DATASOURCE_BEAN_NAME));
   }
 
   @Test
