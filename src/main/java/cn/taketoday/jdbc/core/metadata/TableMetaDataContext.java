@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -50,9 +49,7 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0
  */
 public class TableMetaDataContext {
-
-  // Logger available to subclasses
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger logger = LoggerFactory.getLogger(TableMetaDataContext.class);
 
   // Name of table for this context
   @Nullable
@@ -192,11 +189,11 @@ public class TableMetaDataContext {
     if (!declaredColumns.isEmpty()) {
       return new ArrayList<>(declaredColumns);
     }
-    Set<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
+    LinkedHashSet<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
     for (String key : generatedKeyNames) {
       keys.add(key.toUpperCase());
     }
-    List<String> columns = new ArrayList<>();
+    ArrayList<String> columns = new ArrayList<>();
     for (TableParameterMetaData meta : obtainMetaDataProvider().getTableParameterMetaData()) {
       if (!keys.contains(meta.getParameterName().toUpperCase())) {
         columns.add(meta.getParameterName());
@@ -211,7 +208,7 @@ public class TableMetaDataContext {
    * @param parameterSource the parameter names and values
    */
   public List<Object> matchInParameterValuesWithInsertColumns(SqlParameterSource parameterSource) {
-    List<Object> values = new ArrayList<>();
+    ArrayList<Object> values = new ArrayList<>();
     // For parameter source lookups we need to provide case-insensitive lookup support since the
     // database meta-data is not necessarily providing case-sensitive column names
     Map<String, String> caseInsensitiveParameterNames =
@@ -251,7 +248,7 @@ public class TableMetaDataContext {
    * @param inParameters the parameter names and values
    */
   public List<Object> matchInParameterValuesWithInsertColumns(Map<String, ?> inParameters) {
-    List<Object> values = new ArrayList<>(inParameters.size());
+    ArrayList<Object> values = new ArrayList<>(inParameters.size());
     for (String column : this.tableColumns) {
       Object value = inParameters.get(column);
       if (value == null) {
@@ -276,7 +273,7 @@ public class TableMetaDataContext {
    * @return the insert string to be used
    */
   public String createInsertString(String... generatedKeyNames) {
-    Set<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
+    LinkedHashSet<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
     for (String key : generatedKeyNames) {
       keys.add(key.toUpperCase());
     }
@@ -302,8 +299,7 @@ public class TableMetaDataContext {
     if (columnCount < 1) {
       if (this.generatedKeyColumnsUsed) {
         if (logger.isDebugEnabled()) {
-          logger.debug("Unable to locate non-key columns for table '" +
-                  getTableName() + "' so an empty insert statement is generated");
+          logger.debug("Unable to locate non-key columns for table '{}' so an empty insert statement is generated", getTableName());
         }
       }
       else {

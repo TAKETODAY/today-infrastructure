@@ -63,7 +63,6 @@ public abstract class SqlParameterSourceUtils {
    * @see MapSqlParameterSource
    * @see BeanPropertySqlParameterSource
    * @see NamedParameterJdbcTemplate#batchUpdate(String, SqlParameterSource[])
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public static SqlParameterSource[] createBatch(Collection<?> candidates) {
@@ -120,7 +119,7 @@ public abstract class SqlParameterSourceUtils {
    * @return the Map that can be used for case insensitive matching of parameter names
    */
   public static Map<String, String> extractCaseInsensitiveParameterNames(SqlParameterSource parameterSource) {
-    Map<String, String> caseInsensitiveParameterNames = new HashMap<>();
+    HashMap<String, String> caseInsensitiveParameterNames = new HashMap<>();
     String[] paramNames = parameterSource.getParameterNames();
     if (paramNames != null) {
       for (String name : paramNames) {
