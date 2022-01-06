@@ -175,8 +175,8 @@ public class StandardApplicationContext
       BeanDefinition def = new BeanDefinition(
               AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME,
               ConfigurationClassPostProcessor.class);
-      def.setConstructorArgs(loadingContext);
       registerBeanDefinition(def);
+      def.getConstructorArgumentValues().addGenericArgumentValue(loadingContext);
     }
 
     AnnotationConfigUtils.registerAnnotationConfigProcessors(loadingContext.getRegistry());

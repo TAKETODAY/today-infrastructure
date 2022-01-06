@@ -24,6 +24,7 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -353,6 +354,7 @@ class MapperScanTest {
 
   }
 
+  @Disabled
   @Test
   void testScopedProxyMapperScanByDefaultScope() {
     applicationContext.register(ScopedProxy.class);

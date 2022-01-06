@@ -206,9 +206,6 @@ public class BeanDefinition
   @Nullable
   private String factoryMethodName;
 
-  @Nullable
-  private Object[] constructorArgs;
-
   /** enable DI @since 4.0 */
   private boolean enableDependencyInjection = true;
 
@@ -939,17 +936,6 @@ public class BeanDefinition
     Assert.hasText(name, "Factory method name must not be empty");
     setFactoryMethodName(name);
     this.isFactoryMethodUnique = false;
-  }
-
-  /** @since 4.0 */
-  public void setConstructorArgs(@Nullable Object... constructorArgs) {
-    this.constructorArgs = constructorArgs;
-  }
-
-  /** @since 4.0 */
-  @Nullable
-  public Object[] getConstructorArgs() {
-    return constructorArgs;
   }
 
   public boolean isFactoryMethod(Method method) {

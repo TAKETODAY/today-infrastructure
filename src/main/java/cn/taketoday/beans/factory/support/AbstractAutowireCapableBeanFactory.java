@@ -615,61 +615,62 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Create a new instance for the specified bean, using an appropriate instantiation strategy:
    * factory method, constructor autowiring, or simple instantiation.
    *
-   * @param mbd the bean definition for the bean
+   * @param definition the bean definition for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
    * @return a BeanWrapper for the new instance
    * @see #instantiateUsingFactoryMethod
    * @see #autowireConstructor
    */
   @Nullable
-  protected Object createBeanInstance(BeanDefinition mbd, @Nullable Object[] args) {
+  protected Object createBeanInstance(BeanDefinition definition, @Nullable Object[] args) {
     // Make sure bean class is actually resolved at this point.
-    Class<?> beanClass = resolveBeanClass(mbd);
+    Class<?> beanClass = resolveBeanClass(definition);
 
-    if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
-      throw new BeanCreationException(mbd,
+    if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !definition.isNonPublicAccessAllowed()) {
+      throw new BeanCreationException(definition,
               "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
     }
 
-    Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
+    Supplier<?> instanceSupplier = definition.getInstanceSupplier();
     if (instanceSupplier != null) {
       return instanceSupplier.get(); // maybe null
     }
 
-    if (mbd.getFactoryMethodName() != null) {
-      return instantiateUsingFactoryMethod(mbd, args);
+    if (definition.getFactoryMethodName() != null) {
+      return instantiateUsingFactoryMethod(definition, args);
     }
 
     // Shortcut when re-creating the same bean...
     boolean resolved = false;
     boolean autowireNecessary = false;
     if (args == null) {
-      synchronized(mbd.constructorArgumentLock) {
-        if (mbd.executable != null) {
+      synchronized(definition.constructorArgumentLock) {
+        if (definition.executable != null) {
           resolved = true;
-          autowireNecessary = mbd.constructorArgumentsResolved;
+          autowireNecessary = definition.constructorArgumentsResolved;
         }
       }
     }
 
     if (resolved) {
       if (autowireNecessary) {
-        return autowireConstructor(mbd, null, null);
+        return autowireConstructor(definition, null, null);
       }
       else {
-        return instantiate(mbd, null);
+        return instantiate(definition, null);
       }
     }
 
     // Candidate constructors for autowiring?
-    Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, mbd.getBeanName());
+    Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, definition.getBeanName());
     if (ctors != null
-            || mbd.getAutowireMode() == AUTOWIRE_CONSTRUCTOR
-            || mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
-      return autowireConstructor(mbd, ctors, args);
+            || definition.getAutowireMode() == AUTOWIRE_CONSTRUCTOR
+            || definition.hasConstructorArgumentValues()
+            || !ObjectUtils.isEmpty(args)) {
+      return autowireConstructor(definition, ctors, args);
     }
 
-    return instantiate(mbd, args);
+    return instantiate(definition, args);
   }
 
   /**

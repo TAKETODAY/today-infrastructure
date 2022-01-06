@@ -25,7 +25,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;
@@ -33,6 +32,7 @@ import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
@@ -118,7 +118,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
-            (bd) -> bd.setConstructorArgs(constructorArgs));
+            bd -> {
+              for (Object arg : constructorArgs) {
+                bd.getConstructorArgumentValues().addGenericArgumentValue(arg);
+              }
+            });
   }
 
   @Override

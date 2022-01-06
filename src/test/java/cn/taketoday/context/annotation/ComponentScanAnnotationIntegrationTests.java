@@ -29,8 +29,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashSet;
 
-import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -161,7 +159,9 @@ public class ComponentScanAnnotationIntegrationTests {
     BeanDefinition def = new BeanDefinition(
             "configurationClassPostProcessor",
             ConfigurationClassPostProcessor.class);
-    def.setConstructorArgs(loadingContext);
+
+    def.getConstructorArgumentValues().addGenericArgumentValue(loadingContext);
+
     bf.registerBeanDefinition(def);
 
     ctx.refresh();
