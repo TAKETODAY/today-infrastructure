@@ -29,10 +29,8 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.orm.mybatis.mapper.ClassPathMapperScanner;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
@@ -52,77 +50,67 @@ import cn.taketoday.util.StringUtils;
  * @see ClassPathMapperScanner
  * @since 4.0
  */
-public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
-
-  /**
-   * {@inheritDoc}
-   *
-   * @deprecated Since 2.0.2, this method not used never.
-   */
-  @Override
-  @Deprecated
-  public void setResourceLoader(ResourceLoader resourceLoader) {
-    // NOP
-  }
+public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
 
   /**
    * {@inheritDoc}
    */
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
-
-    AnnotationAttributes mapperScanAttrs = AnnotationAttributes
-            .fromMap(importMetadata.getAnnotationAttributes(MapperScan.class.getName()));
-    if (mapperScanAttrs != null) {
-      registerBeanDefinitions(importMetadata, mapperScanAttrs, context.getRegistry(), generateBaseBeanName(importMetadata, 0));
+    MergedAnnotation<MapperScan> mapperScan = importMetadata.getAnnotation(MapperScan.class);
+    if (mapperScan.isPresent()) {
+      registerBeanDefinitions(importMetadata, mapperScan,
+              context.getRegistry(), generateBaseBeanName(importMetadata, 0));
     }
   }
 
-  protected void registerBeanDefinitions(AnnotationMetadata annoMeta, AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry, String beanName) {
+  protected void registerBeanDefinitions(
+          AnnotationMetadata annoMeta, MergedAnnotation<MapperScan> mapperScan,
+          BeanDefinitionRegistry registry, String beanName) {
 
     BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
     definition.addPropertyValue("processPropertyPlaceHolders", true);
 
-    Class<? extends Annotation> annotationClass = annoAttrs.getClass("annotationClass");
+    Class<? extends Annotation> annotationClass = mapperScan.getClass("annotationClass");
     if (!Annotation.class.equals(annotationClass)) {
       definition.addPropertyValue("annotationClass", annotationClass);
     }
 
-    Class<?> markerInterface = annoAttrs.getClass("markerInterface");
+    Class<?> markerInterface = mapperScan.getClass("markerInterface");
     if (!Class.class.equals(markerInterface)) {
       definition.addPropertyValue("markerInterface", markerInterface);
     }
 
-    Class<? extends BeanNamePopulator> generatorClass = annoAttrs.getClass("namePopulator");
+    Class<? extends BeanNamePopulator> generatorClass = mapperScan.getClass("namePopulator");
     if (!BeanNamePopulator.class.equals(generatorClass)) {
       definition.addPropertyValue("namePopulator", BeanUtils.newInstance(generatorClass));
     }
 
-    Class<? extends MapperFactoryBean<?>> mapperFactoryBeanClass = annoAttrs.getClass("factoryBean");
+    Class<? extends MapperFactoryBean<?>> mapperFactoryBeanClass = mapperScan.getClass("factoryBean");
     if (!MapperFactoryBean.class.equals(mapperFactoryBeanClass)) {
       definition.addPropertyValue("mapperFactoryBeanClass", mapperFactoryBeanClass);
     }
 
-    String sqlSessionTemplateRef = annoAttrs.getString("sqlSessionTemplateRef");
+    String sqlSessionTemplateRef = mapperScan.getString("sqlSessionTemplateRef");
     if (StringUtils.hasText(sqlSessionTemplateRef)) {
-      definition.addPropertyValue("sqlSessionTemplateBeanName", annoAttrs.getString("sqlSessionTemplateRef"));
+      definition.addPropertyValue("sqlSessionTemplateBeanName", mapperScan.getString("sqlSessionTemplateRef"));
     }
 
-    String sqlSessionFactoryRef = annoAttrs.getString("sqlSessionFactoryRef");
+    String sqlSessionFactoryRef = mapperScan.getString("sqlSessionFactoryRef");
     if (StringUtils.hasText(sqlSessionFactoryRef)) {
-      definition.addPropertyValue("sqlSessionFactoryBeanName", annoAttrs.getString("sqlSessionFactoryRef"));
+      definition.addPropertyValue("sqlSessionFactoryBeanName", mapperScan.getString("sqlSessionFactoryRef"));
     }
 
     List<String> basePackages = new ArrayList<>();
-    basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value"))
+    basePackages.addAll(Arrays.stream(mapperScan.getStringArray("value"))
             .filter(StringUtils::hasText).toList()
     );
 
-    basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages"))
+    basePackages.addAll(Arrays.stream(mapperScan.getStringArray("basePackages"))
             .filter(StringUtils::hasText).toList()
     );
 
-    basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses"))
+    basePackages.addAll(Arrays.stream(mapperScan.getClassArray("basePackageClasses"))
             .map(ClassUtils::getPackageName).toList()
     );
 
@@ -130,12 +118,12 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
       basePackages.add(getDefaultBasePackage(annoMeta));
     }
 
-    String lazyInitialization = annoAttrs.getString("lazyInitialization");
+    String lazyInitialization = mapperScan.getString("lazyInitialization");
     if (StringUtils.hasText(lazyInitialization)) {
       definition.addPropertyValue("lazyInitialization", lazyInitialization);
     }
 
-    String defaultScope = annoAttrs.getString("defaultScope");
+    String defaultScope = mapperScan.getString("defaultScope");
     if (StringUtils.hasText(defaultScope)) {
       definition.addPropertyValue("defaultScope", defaultScope);
     }
@@ -148,7 +136,8 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
   }
 
   private static String generateBaseBeanName(AnnotationMetadata importingClassMetadata, int index) {
-    return importingClassMetadata.getClassName() + "#" + MapperScannerRegistrar.class.getSimpleName() + "#" + index;
+    return importingClassMetadata.getClassName() + "#" +
+            MapperScannerRegistrar.class.getSimpleName() + "#" + index;
   }
 
   private static String getDefaultBasePackage(AnnotationMetadata importingClassMetadata) {
@@ -159,18 +148,21 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
    * A {@link MapperScannerRegistrar} for {@link MapperScans}.
    */
   static class RepeatingRegistrar extends MapperScannerRegistrar {
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
-      AnnotationAttributes mapperScansAttrs = AnnotationAttributes
-              .fromMap(importingClassMetadata.getAnnotationAttributes(MapperScans.class.getName()));
-      if (mapperScansAttrs != null) {
-        AnnotationAttributes[] annotations = mapperScansAttrs.getAnnotationArray("value");
-        for (int i = 0; i < annotations.length; i++) {
-          registerBeanDefinitions(importingClassMetadata, annotations[i], context.getRegistry(),
-                  generateBaseBeanName(importingClassMetadata, i));
+      MergedAnnotation<MapperScans> annotation = importingClassMetadata.getAnnotation(MapperScans.class);
+      if (annotation.isPresent()) {
+
+        int i = 0;
+        MergedAnnotation<MapperScan>[] mapperScans = annotation.getAnnotationArray(
+                MergedAnnotation.VALUE, MapperScan.class);
+        for (MergedAnnotation<MapperScan> mapperScan : mapperScans) {
+          registerBeanDefinitions(importingClassMetadata, mapperScan, context.getRegistry(),
+                  generateBaseBeanName(importingClassMetadata, i++));
         }
       }
     }
