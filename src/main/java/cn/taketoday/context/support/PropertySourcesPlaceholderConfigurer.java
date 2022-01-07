@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanInitializationException;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.PlaceholderConfigurerSupport;
 import cn.taketoday.context.aware.EnvironmentAware;

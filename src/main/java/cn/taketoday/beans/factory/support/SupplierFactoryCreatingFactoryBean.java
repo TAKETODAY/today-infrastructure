@@ -22,10 +22,10 @@ package cn.taketoday.beans.factory.support;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AbstractFactoryBean;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.OrderComparator;

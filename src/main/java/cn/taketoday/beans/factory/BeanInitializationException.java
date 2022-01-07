@@ -21,6 +21,8 @@ package cn.taketoday.beans.factory;
 
 import java.io.Serial;
 
+import cn.taketoday.beans.BeansException;
+
 /**
  * Exception that a bean implementation is suggested to throw if its own
  * factory-aware initialization code fails. BeansExceptions thrown by

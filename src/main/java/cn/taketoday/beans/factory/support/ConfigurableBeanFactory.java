@@ -19,13 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;

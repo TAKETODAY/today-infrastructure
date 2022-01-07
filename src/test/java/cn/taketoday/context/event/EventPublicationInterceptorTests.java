@@ -21,7 +21,7 @@ package cn.taketoday.context.event;
 
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;

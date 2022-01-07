@@ -38,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -50,7 +51,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;

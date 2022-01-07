@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
+
 /**
  * Exception that indicates an expression evaluation attempt having failed.
  *

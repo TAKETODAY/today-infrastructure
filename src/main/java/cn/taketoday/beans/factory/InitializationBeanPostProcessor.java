@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
+
 /**
  * Factory hook that allows for custom modification of new bean instances
  * &mdash; for example, checking for marker interfaces or wrapping beans with

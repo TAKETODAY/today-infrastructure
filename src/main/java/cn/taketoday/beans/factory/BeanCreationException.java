@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;

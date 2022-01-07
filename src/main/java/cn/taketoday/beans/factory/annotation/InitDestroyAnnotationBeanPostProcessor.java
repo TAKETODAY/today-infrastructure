@@ -33,12 +33,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;

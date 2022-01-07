@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.io.Serial;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;

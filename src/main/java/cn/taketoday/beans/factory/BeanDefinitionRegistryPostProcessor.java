@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
+
 /**
  * Extension to the standard {@link BeanFactoryPostProcessor} SPI, allowing for
  * the registration of further bean definitions <i>before</i> regular

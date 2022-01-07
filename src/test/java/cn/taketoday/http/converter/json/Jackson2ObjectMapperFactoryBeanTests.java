@@ -64,7 +64,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

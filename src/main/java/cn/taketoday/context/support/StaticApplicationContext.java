@@ -22,7 +22,7 @@ package cn.taketoday.context.support;
 
 import java.util.Locale;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.lang.Nullable;

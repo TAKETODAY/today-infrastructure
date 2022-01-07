@@ -23,7 +23,6 @@ import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.lang.Nullable;
 
 /**

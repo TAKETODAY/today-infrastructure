@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

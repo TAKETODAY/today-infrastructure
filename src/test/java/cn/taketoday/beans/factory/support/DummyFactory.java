@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 
 /**

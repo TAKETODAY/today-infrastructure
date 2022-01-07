@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.Constants;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;

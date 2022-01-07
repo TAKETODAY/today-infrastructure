@@ -20,8 +20,8 @@
 
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.lang.Nullable;
 
 /**

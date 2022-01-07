@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.MessageSourceAccessor;

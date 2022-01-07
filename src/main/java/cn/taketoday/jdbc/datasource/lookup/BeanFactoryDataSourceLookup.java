@@ -25,7 +25,7 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 

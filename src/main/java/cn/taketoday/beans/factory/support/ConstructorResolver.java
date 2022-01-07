@@ -38,12 +38,12 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanMetadataElement;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;

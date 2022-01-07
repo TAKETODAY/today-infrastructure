@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.logging.Logger;

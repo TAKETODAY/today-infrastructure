@@ -22,7 +22,7 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;

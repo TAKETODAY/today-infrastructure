@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;

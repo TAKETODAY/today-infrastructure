@@ -26,10 +26,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanInitializationException;
-import cn.taketoday.beans.factory.BeansException;
 
 /**
  * Property resource configurer that overrides bean property values in an application

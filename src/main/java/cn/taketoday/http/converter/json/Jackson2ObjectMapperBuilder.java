@@ -64,7 +64,7 @@ import java.util.function.Supplier;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLResolver;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;

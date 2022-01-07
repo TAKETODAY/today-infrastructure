@@ -41,7 +41,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanReference;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;

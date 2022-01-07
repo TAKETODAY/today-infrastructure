@@ -19,6 +19,8 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
+
 /**
  * Interface to be implemented by beans that wish to be aware of their
  * owning {@link BeanFactory}.

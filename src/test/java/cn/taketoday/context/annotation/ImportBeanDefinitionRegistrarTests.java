@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.aware.EnvironmentAware;

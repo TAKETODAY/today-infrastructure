@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.aware.EnvironmentAware;

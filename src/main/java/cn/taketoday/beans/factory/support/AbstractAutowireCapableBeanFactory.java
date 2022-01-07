@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.Aware;
@@ -49,7 +50,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans;
 
 import java.io.Serial;
 

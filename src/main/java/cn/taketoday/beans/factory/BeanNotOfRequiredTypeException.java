@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.util.ClassUtils;
 
 /**

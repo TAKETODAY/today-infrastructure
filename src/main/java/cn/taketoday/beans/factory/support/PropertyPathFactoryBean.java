@@ -19,11 +19,11 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.lang.Assert;

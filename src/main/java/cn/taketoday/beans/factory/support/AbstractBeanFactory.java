@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
@@ -43,7 +44,6 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanIsNotAFactoryException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;

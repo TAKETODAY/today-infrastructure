@@ -23,8 +23,8 @@ package cn.taketoday.beans.factory.dependency;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;

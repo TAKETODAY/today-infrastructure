@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.Set;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;

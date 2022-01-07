@@ -34,8 +34,8 @@ import java.util.Date;
 import java.util.Locale;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DependencyInjectorProvider;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.support.BeanInstantiator;

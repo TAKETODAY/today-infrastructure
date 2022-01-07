@@ -23,7 +23,7 @@ package cn.taketoday.aop.support;
 import cn.taketoday.aop.proxy.AdvisorAdapter;
 import cn.taketoday.aop.proxy.AdvisorAdapterRegistry;
 import cn.taketoday.aop.proxy.DefaultAdvisorAdapterRegistry;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 
 /**

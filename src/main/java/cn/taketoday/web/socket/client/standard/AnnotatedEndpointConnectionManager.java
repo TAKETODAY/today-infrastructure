@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.client.standard;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.lang.Assert;

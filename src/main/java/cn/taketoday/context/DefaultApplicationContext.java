@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;

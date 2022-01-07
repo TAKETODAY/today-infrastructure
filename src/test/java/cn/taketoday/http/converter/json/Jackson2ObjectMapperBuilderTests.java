@@ -85,7 +85,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.StreamSupport;
 
-import cn.taketoday.beans.factory.BeansException;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

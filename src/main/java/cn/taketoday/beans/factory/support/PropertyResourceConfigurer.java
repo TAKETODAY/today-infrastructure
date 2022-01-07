@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanInitializationException;
-import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.io.PropertiesLoaderSupport;
@@ -152,7 +152,7 @@ public abstract class PropertyResourceConfigurer
    *
    * @param beanFactory the BeanFactory used by the application context
    * @param props the Properties to apply
-   * @throws cn.taketoday.beans.factory.BeansException in case of errors
+   * @throws BeansException in case of errors
    */
   protected abstract void processProperties(ConfigurableBeanFactory beanFactory, Properties props)
           throws BeansException;

@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
+
 /**
  * Exception to be thrown from a FactoryBean's {@code getObject()} method
  * if the bean is not fully initialized yet, for example because it is involved
