@@ -21,7 +21,6 @@
 package cn.taketoday.dao.support;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.lang.Assert;
@@ -34,12 +33,12 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @since 2.0
+ * @since 4.0
  */
 public class ChainedPersistenceExceptionTranslator implements PersistenceExceptionTranslator {
 
   /** List of PersistenceExceptionTranslators. */
-  private final List<PersistenceExceptionTranslator> delegates = new ArrayList<>(4);
+  private final ArrayList<PersistenceExceptionTranslator> delegates = new ArrayList<>(4);
 
   /**
    * Add a PersistenceExceptionTranslator to the chained delegate list.

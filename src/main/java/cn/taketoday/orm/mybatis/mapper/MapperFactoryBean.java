@@ -64,9 +64,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
 
   private boolean addToConfig = true;
 
-  public MapperFactoryBean() {
-    // intentionally empty
-  }
+  public MapperFactoryBean() { }
 
   public MapperFactoryBean(Class<T> mapperInterface) {
     this.mapperInterface = mapperInterface;
@@ -86,7 +84,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
         configuration.addMapper(this.mapperInterface);
       }
       catch (Exception e) {
-        log.error("Error while adding the mapper '" + this.mapperInterface + "' to configuration.", e);
+        log.error("Error while adding the mapper '{}' to configuration.", mapperInterface, e);
         throw new IllegalArgumentException(e);
       }
       finally {
