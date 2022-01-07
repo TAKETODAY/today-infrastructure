@@ -24,11 +24,11 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
-import java.util.Optional;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -344,8 +344,8 @@ public class MapperScannerConfigurer
       scanner.setDefaultScope(defaultScope);
     }
     scanner.registerFilters();
-    scanner.scan(
-            StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
+    scanner.scan(StringUtils.tokenizeToStringArray(
+            this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
   }
 
   /*
@@ -355,12 +355,12 @@ public class MapperScannerConfigurer
    * definition. Then update the values.
    */
   private void processPropertyPlaceHolders() {
-    Map<String, PropertyResourceConfigurer> prcs = applicationContext.getBeansOfType(PropertyResourceConfigurer.class,
-            false, false);
+    Map<String, PropertyResourceConfigurer> prcs = applicationContext.getBeansOfType(
+            PropertyResourceConfigurer.class, false, false);
 
     if (!prcs.isEmpty() && applicationContext instanceof ConfigurableApplicationContext) {
-      BeanDefinition mapperScannerBean = ((ConfigurableApplicationContext) applicationContext).getBeanFactory()
-              .getBeanDefinition(beanName);
+      BeanDefinition mapperScannerBean = BeanFactoryUtils.requiredDefinition(
+              ((ConfigurableApplicationContext) applicationContext).getBeanFactory(), beanName);
 
       // PropertyResourceConfigurer does not expose any methods to explicitly perform
       // property placeholder substitution. Instead, create a BeanFactory that just
@@ -372,22 +372,31 @@ public class MapperScannerConfigurer
         prc.postProcessBeanFactory(factory);
       }
 
-      PropertyValues values = mapperScannerBean.getPropertyValues();
+      PropertyValues values = mapperScannerBean.propertyValues();
 
       this.basePackage = getPropertyValue("basePackage", values);
+      this.defaultScope = getPropertyValue("defaultScope", values);
+      this.lazyInitialization = getPropertyValue("lazyInitialization", values);
       this.sqlSessionFactoryBeanName = getPropertyValue("sqlSessionFactoryBeanName", values);
       this.sqlSessionTemplateBeanName = getPropertyValue("sqlSessionTemplateBeanName", values);
-      this.lazyInitialization = getPropertyValue("lazyInitialization", values);
-      this.defaultScope = getPropertyValue("defaultScope", values);
     }
-    this.basePackage = Optional.ofNullable(this.basePackage).map(getEnvironment()::resolvePlaceholders).orElse(null);
-    this.sqlSessionFactoryBeanName = Optional.ofNullable(this.sqlSessionFactoryBeanName)
-            .map(getEnvironment()::resolvePlaceholders).orElse(null);
-    this.sqlSessionTemplateBeanName = Optional.ofNullable(this.sqlSessionTemplateBeanName)
-            .map(getEnvironment()::resolvePlaceholders).orElse(null);
-    this.lazyInitialization = Optional.ofNullable(this.lazyInitialization).map(getEnvironment()::resolvePlaceholders)
-            .orElse(null);
-    this.defaultScope = Optional.ofNullable(this.defaultScope).map(getEnvironment()::resolvePlaceholders).orElse(null);
+
+    if (this.basePackage != null) {
+      this.basePackage = getEnvironment().resolvePlaceholders(basePackage);
+    }
+    if (this.sqlSessionFactoryBeanName != null) {
+      this.sqlSessionFactoryBeanName = getEnvironment().resolvePlaceholders(sqlSessionFactoryBeanName);
+    }
+    if (this.sqlSessionTemplateBeanName != null) {
+      this.sqlSessionTemplateBeanName = getEnvironment().resolvePlaceholders(sqlSessionTemplateBeanName);
+    }
+    if (this.lazyInitialization != null) {
+      this.lazyInitialization = getEnvironment().resolvePlaceholders(lazyInitialization);
+    }
+    if (this.defaultScope != null) {
+      this.defaultScope = getEnvironment().resolvePlaceholders(defaultScope);
+    }
+
   }
 
   private Environment getEnvironment() {
