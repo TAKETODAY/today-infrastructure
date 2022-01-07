@@ -17,6 +17,8 @@
     and building high-performance web applications like Spring Boot.
   </description>
 
+  <inceptionYear>2017</inceptionYear>
+
   <properties>
     <skipTests>true</skipTests>
     <java.version>17</java.version>
