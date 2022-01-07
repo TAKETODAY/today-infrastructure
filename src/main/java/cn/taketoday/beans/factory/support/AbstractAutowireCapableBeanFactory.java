@@ -1225,8 +1225,8 @@ public abstract class AbstractAutowireCapableBeanFactory
 
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
-      int minNrOfArgs =
-              def.hasConstructorArgumentValues() ? def.getConstructorArgumentValues().getArgumentCount() : 0;
+      int minNrOfArgs = def.hasConstructorArgumentValues()
+                        ? def.getConstructorArgumentValues().getArgumentCount() : 0;
       Method[] candidates = ReflectionUtils.getUniqueDeclaredMethods(
               factoryClass, ReflectionUtils.USER_DECLARED_METHODS);
 

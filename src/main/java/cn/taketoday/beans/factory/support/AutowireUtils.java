@@ -141,14 +141,14 @@ abstract class AutowireUtils {
    */
   public static Class<?> resolveReturnTypeForFactoryMethod(
           Method method, Object[] args, @Nullable ClassLoader classLoader) {
-
     Assert.notNull(method, "Method must not be null");
     Assert.notNull(args, "Argument array must not be null");
 
-    TypeVariable<Method>[] declaredTypeVariables = method.getTypeParameters();
-    Type genericReturnType = method.getGenericReturnType();
     Type[] methodParameterTypes = method.getGenericParameterTypes();
     Assert.isTrue(args.length == methodParameterTypes.length, "Argument array does not match parameter count");
+
+    Type genericReturnType = method.getGenericReturnType();
+    TypeVariable<Method>[] declaredTypeVariables = method.getTypeParameters();
 
     // Ensure that the type variable (e.g., T) is declared directly on the method
     // itself (e.g., via <T>), not on the enclosing class or interface.
@@ -238,8 +238,11 @@ abstract class AutowireUtils {
   public static Object resolveAutowiringValue(Object autowiringValue, Class<?> requiredType) {
     if (autowiringValue instanceof Supplier<?> factory && !requiredType.isInstance(autowiringValue)) {
       if (autowiringValue instanceof Serializable && requiredType.isInterface()) {
-        autowiringValue = Proxy.newProxyInstance(requiredType.getClassLoader(),
-                new Class<?>[] { requiredType }, new ObjectFactoryDelegatingInvocationHandler(factory));
+        autowiringValue = Proxy.newProxyInstance(
+                requiredType.getClassLoader(),
+                new Class<?>[] { requiredType },
+                new ObjectFactoryDelegatingInvocationHandler(factory)
+        );
       }
       else {
         return factory.get();
