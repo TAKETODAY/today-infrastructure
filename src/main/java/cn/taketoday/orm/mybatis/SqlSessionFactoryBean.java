@@ -473,9 +473,16 @@ public class SqlSessionFactoryBean
       Optional.ofNullable(this.configurationProperties).ifPresent(targetConfiguration::setVariables);
     }
 
-    Optional.ofNullable(this.objectFactory).ifPresent(targetConfiguration::setObjectFactory);
-    Optional.ofNullable(this.objectWrapperFactory).ifPresent(targetConfiguration::setObjectWrapperFactory);
-    Optional.ofNullable(this.vfs).ifPresent(targetConfiguration::setVfsImpl);
+    if (objectFactory != null) {
+      targetConfiguration.setObjectFactory(objectFactory);
+    }
+
+    if (objectWrapperFactory != null) {
+      targetConfiguration.setObjectWrapperFactory(objectWrapperFactory);
+    }
+    if (vfs != null) {
+      targetConfiguration.setVfsImpl(vfs);
+    }
 
     if (StringUtils.isNotEmpty(this.typeAliasesPackage)) {
       scanClasses(this.typeAliasesPackage, this.typeAliasesSuperType).stream()
@@ -518,8 +525,10 @@ public class SqlSessionFactoryBean
         log.debug("Registered scripting language driver: '{}'", languageDriver);
       }
     }
-    Optional.ofNullable(this.defaultScriptingLanguageDriver)
-            .ifPresent(targetConfiguration::setDefaultScriptingLanguage);
+
+    if (defaultScriptingLanguageDriver != null) {
+      targetConfiguration.setDefaultScriptingLanguage(defaultScriptingLanguageDriver);
+    }
 
     if (this.databaseIdProvider != null) {// fix #64 set databaseId before parse mapper xmls
       try {
@@ -529,8 +538,9 @@ public class SqlSessionFactoryBean
         throw new NestedIOException("Failed getting a databaseId", e);
       }
     }
-
-    Optional.ofNullable(this.cache).ifPresent(targetConfiguration::addCache);
+    if (cache != null) {
+      targetConfiguration.addCache(cache);
+    }
 
     if (xmlConfigBuilder != null) {
       try {
