@@ -293,7 +293,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
       else {
         codes = "Error code '" + sqlEx.getErrorCode() + "'";
       }
-      logger.debug("Unable to translate SQLException with " + codes + ", will now try the fallback translator");
+      logger.debug("Unable to translate SQLException with {}, will now try the fallback translator", codes);
     }
 
     return null;
@@ -369,42 +369,47 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
       // invoke constructor
       Constructor<?> exceptionConstructor;
       switch (constructorType) {
-        case MESSAGE_SQL_SQLEX_CONSTRUCTOR:
+        case MESSAGE_SQL_SQLEX_CONSTRUCTOR -> {
           Class<?>[] messageAndSqlAndSqlExArgsClass = new Class<?>[] { String.class, String.class, SQLException.class };
           Object[] messageAndSqlAndSqlExArgs = new Object[] { task, sql, sqlEx };
           exceptionConstructor = exceptionClass.getConstructor(messageAndSqlAndSqlExArgsClass);
           return (DataAccessException) exceptionConstructor.newInstance(messageAndSqlAndSqlExArgs);
-        case MESSAGE_SQL_THROWABLE_CONSTRUCTOR:
+        }
+        case MESSAGE_SQL_THROWABLE_CONSTRUCTOR -> {
           Class<?>[] messageAndSqlAndThrowableArgsClass = new Class<?>[] { String.class, String.class, Throwable.class };
           Object[] messageAndSqlAndThrowableArgs = new Object[] { task, sql, sqlEx };
           exceptionConstructor = exceptionClass.getConstructor(messageAndSqlAndThrowableArgsClass);
           return (DataAccessException) exceptionConstructor.newInstance(messageAndSqlAndThrowableArgs);
-        case MESSAGE_SQLEX_CONSTRUCTOR:
+        }
+        case MESSAGE_SQLEX_CONSTRUCTOR -> {
           Class<?>[] messageAndSqlExArgsClass = new Class<?>[] { String.class, SQLException.class };
           Object[] messageAndSqlExArgs = new Object[] { task + ": " + sqlEx.getMessage(), sqlEx };
           exceptionConstructor = exceptionClass.getConstructor(messageAndSqlExArgsClass);
           return (DataAccessException) exceptionConstructor.newInstance(messageAndSqlExArgs);
-        case MESSAGE_THROWABLE_CONSTRUCTOR:
+        }
+        case MESSAGE_THROWABLE_CONSTRUCTOR -> {
           Class<?>[] messageAndThrowableArgsClass = new Class<?>[] { String.class, Throwable.class };
           Object[] messageAndThrowableArgs = new Object[] { task + ": " + sqlEx.getMessage(), sqlEx };
           exceptionConstructor = exceptionClass.getConstructor(messageAndThrowableArgsClass);
           return (DataAccessException) exceptionConstructor.newInstance(messageAndThrowableArgs);
-        case MESSAGE_ONLY_CONSTRUCTOR:
+        }
+        case MESSAGE_ONLY_CONSTRUCTOR -> {
           Class<?>[] messageOnlyArgsClass = new Class<?>[] { String.class };
           Object[] messageOnlyArgs = new Object[] { task + ": " + sqlEx.getMessage() };
           exceptionConstructor = exceptionClass.getConstructor(messageOnlyArgsClass);
           return (DataAccessException) exceptionConstructor.newInstance(messageOnlyArgs);
-        default:
+        }
+        default -> {
           if (logger.isWarnEnabled()) {
-            logger.warn("Unable to find appropriate constructor of custom exception class [" +
-                    exceptionClass.getName() + "]");
+            logger.warn("Unable to find appropriate constructor of custom exception class [{}]", exceptionClass.getName());
           }
           return null;
+        }
       }
     }
     catch (Throwable ex) {
       if (logger.isWarnEnabled()) {
-        logger.warn("Unable to instantiate custom exception class [" + exceptionClass.getName() + "]", ex);
+        logger.warn("Unable to instantiate custom exception class [{}]", exceptionClass.getName(), ex);
       }
       return null;
     }
@@ -413,9 +418,9 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
   private void logTranslation(String task, @Nullable String sql, SQLException sqlEx, boolean custom) {
     if (logger.isDebugEnabled()) {
       String intro = custom ? "Custom translation of" : "Translating";
-      logger.debug(intro + " SQLException with SQL state '" + sqlEx.getSQLState() +
-              "', error code '" + sqlEx.getErrorCode() + "', message [" + sqlEx.getMessage() + "]" +
-              (sql != null ? "; SQL was [" + sql + "]" : "") + " for task [" + task + "]");
+      logger.debug("{} SQLException with SQL state '{}', error code '{}', message [{}]{} for task [{}]",
+              intro, sqlEx.getSQLState(), sqlEx.getErrorCode(),
+              sqlEx.getMessage(), (sql != null ? "; SQL was [" + sql + "]" : ""), task);
     }
   }
 

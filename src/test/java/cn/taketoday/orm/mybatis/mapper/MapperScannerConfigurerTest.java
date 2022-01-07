@@ -136,7 +136,7 @@ class MapperScannerConfigurerTest {
 
     applicationContext.getBeanDefinition("mapperScanner")
             .propertyValues()
-            .add("nameGenerator", BeanReference.from("beanNameGenerator"));
+            .add("namePopulator", BeanReference.from("beanNameGenerator"));
 
     startContext();
 
@@ -419,7 +419,7 @@ class MapperScannerConfigurerTest {
   private void assertBeanNotLoaded(String name) {
     try {
       applicationContext.getBean(name);
-      fail("Spring bean should not be defined for class " + name);
+      fail("bean should not be defined for class " + name);
     }
     catch (NoSuchBeanDefinitionException nsbde) {
       // success

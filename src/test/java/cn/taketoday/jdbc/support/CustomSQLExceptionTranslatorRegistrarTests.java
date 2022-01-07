@@ -64,7 +64,7 @@ public class CustomSQLExceptionTranslatorRegistrarTests {
             .addPropertyValue("databaseType", "H2"));
 
     context.registerBeanDefinition(new BeanDefinition("dataSource", CustomSQLExceptionTranslatorRegistrar.class)
-            .addPropertyValue("translators", Map.of("H2", new CustomSqlExceptionTranslator())));
+            .addPropertyValue("translators[ ]", new CustomSqlExceptionTranslator()));
 
     context.refresh();
 
