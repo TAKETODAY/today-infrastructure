@@ -75,12 +75,9 @@ import static org.apache.ibatis.reflection.ExceptionUtil.unwrapThrowable;
  */
 public class SqlSessionTemplate implements SqlSession, DisposableBean {
 
-  private final SqlSessionFactory sqlSessionFactory;
-
   private final ExecutorType executorType;
-
   private final SqlSession sqlSessionProxy;
-
+  private final SqlSessionFactory sqlSessionFactory;
   private final PersistenceExceptionTranslator exceptionTranslator;
 
   /**
@@ -115,7 +112,8 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    * @param exceptionTranslator a translator of exception
    */
   public SqlSessionTemplate(
-          SqlSessionFactory sqlSessionFactory, ExecutorType executorType, PersistenceExceptionTranslator exceptionTranslator) {
+          SqlSessionFactory sqlSessionFactory,
+          ExecutorType executorType, PersistenceExceptionTranslator exceptionTranslator) {
 
     Assert.notNull(sqlSessionFactory, "Property 'sqlSessionFactory' is required");
     Assert.notNull(executorType, "Property 'executorType' is required");
@@ -123,8 +121,11 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     this.sqlSessionFactory = sqlSessionFactory;
     this.executorType = executorType;
     this.exceptionTranslator = exceptionTranslator;
-    this.sqlSessionProxy = (SqlSession) Proxy.newProxyInstance(SqlSessionFactory.class.getClassLoader(),
-            new Class[] { SqlSession.class }, new SqlSessionInterceptor());
+    this.sqlSessionProxy = (SqlSession) Proxy.newProxyInstance(
+            SqlSessionFactory.class.getClassLoader(),
+            new Class[] { SqlSession.class },
+            new SqlSessionInterceptor()
+    );
   }
 
   public SqlSessionFactory getSqlSessionFactory() {

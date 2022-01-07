@@ -50,9 +50,9 @@ public final class SqlSessionHolder extends ResourceHolderSupport {
    * @param executorType the {@code ExecutorType} has to be hold.
    * @param exceptionTranslator the {@code PersistenceExceptionTranslator} has to be hold.
    */
-  public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType,
-                          @Nullable PersistenceExceptionTranslator exceptionTranslator) {
-
+  public SqlSessionHolder(
+          SqlSession sqlSession, ExecutorType executorType,
+          @Nullable PersistenceExceptionTranslator exceptionTranslator) {
     Assert.notNull(sqlSession, "SqlSession must not be null");
     Assert.notNull(executorType, "ExecutorType must not be null");
 
