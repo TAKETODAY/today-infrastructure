@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;

@@ -19,11 +19,11 @@
  */
 package cn.taketoday.beans.factory;
 
+import java.io.Serial;
+
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-
-import java.io.Serial;
 
 /**
  * @author TODAY <br>

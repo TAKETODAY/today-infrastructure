@@ -18,13 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
 
+import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanInstantiatorFactory;
+import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.lang.Nullable;
 
 /**

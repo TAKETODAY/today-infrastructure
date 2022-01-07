@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;

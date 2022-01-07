@@ -19,13 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.core.YamlProcessor;
-import cn.taketoday.lang.Nullable;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.core.YamlProcessor;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Factory for a {@code Map} that reads from a YAML source, preserving the
@@ -112,7 +112,6 @@ public class YamlMapFactoryBean extends YamlProcessor implements FactoryBean<Map
   public Class<?> getObjectType() {
     return Map.class;
   }
-
 
   /**
    * Template method that subclasses may override to construct the object

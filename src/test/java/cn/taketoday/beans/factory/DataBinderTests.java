@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import lombok.Getter;
 import lombok.Setter;
 

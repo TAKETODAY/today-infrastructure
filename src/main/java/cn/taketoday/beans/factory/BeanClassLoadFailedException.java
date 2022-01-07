@@ -43,7 +43,7 @@ public class BeanClassLoadFailedException extends BeansException {
    */
   public BeanClassLoadFailedException(BeanDefinition def, ClassNotFoundException cause) {
     super("Cannot find class [" + def.getBeanClassName()
-                  + "] for bean with name '" + def.getBeanName() + "'" + getDesc(def), cause);
+            + "] for bean with name '" + def.getBeanName() + "'" + getDesc(def), cause);
     this.beanDefinition = def;
   }
 
@@ -54,7 +54,7 @@ public class BeanClassLoadFailedException extends BeansException {
    */
   public BeanClassLoadFailedException(BeanDefinition def, LinkageError cause) {
     super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + def.getBeanName()
-                  + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
+            + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
     this.beanDefinition = def;
   }
 

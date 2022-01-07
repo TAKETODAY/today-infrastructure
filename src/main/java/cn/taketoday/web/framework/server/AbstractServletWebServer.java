@@ -36,7 +36,7 @@ import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.annotation.ServletSecurity;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;

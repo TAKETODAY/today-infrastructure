@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;

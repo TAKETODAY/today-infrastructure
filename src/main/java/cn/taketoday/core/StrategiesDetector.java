@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Assert;

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanInstantiationException;
+import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;

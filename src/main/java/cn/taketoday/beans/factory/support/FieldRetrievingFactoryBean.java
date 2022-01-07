@@ -19,20 +19,19 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.lang.reflect.Field;
 
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.FactoryBeanNotInitializedException;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.lang.reflect.Field;
 
 /**
  * {@link FactoryBean} which retrieves a static or non-static field value.
@@ -213,7 +212,6 @@ public class FieldRetrievingFactoryBean
     Class<?> targetClass = (this.targetObject != null ? this.targetObject.getClass() : this.targetClass);
     this.fieldObject = targetClass.getField(this.targetField);
   }
-
 
   @Override
   @Nullable

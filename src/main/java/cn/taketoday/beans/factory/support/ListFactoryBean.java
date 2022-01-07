@@ -19,14 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.beans.factory.AbstractFactoryBean;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Simple factory for shared List instances. Allows for central setup
@@ -71,7 +70,6 @@ public class ListFactoryBean extends AbstractFactoryBean<List<Object>> {
     }
     this.targetListClass = targetListClass;
   }
-
 
   @Override
   @SuppressWarnings("rawtypes")

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.beans.factory.support;
 
 import java.beans.PropertyEditor;
 import java.util.ArrayList;
@@ -26,7 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.PropertyValue;
+import cn.taketoday.beans.PropertyValue;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
 

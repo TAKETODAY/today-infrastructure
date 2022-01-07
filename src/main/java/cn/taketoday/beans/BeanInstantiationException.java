@@ -17,11 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans;
 
+import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -33,6 +35,7 @@ import cn.taketoday.lang.Nullable;
  * @since 2.17
  */
 public class BeanInstantiationException extends BeansException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final Class<?> beanClass;

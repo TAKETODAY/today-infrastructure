@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanReference;
-import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

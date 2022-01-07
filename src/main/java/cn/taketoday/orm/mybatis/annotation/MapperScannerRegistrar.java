@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.DefinitionLoadingContext;

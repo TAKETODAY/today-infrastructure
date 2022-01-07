@@ -19,14 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.util.Map;
+
 import cn.taketoday.beans.factory.AbstractFactoryBean;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-
-import java.util.Map;
 
 /**
  * Simple factory for shared Map instances. Allows for central setup
@@ -46,7 +45,6 @@ public class MapFactoryBean extends AbstractFactoryBean<Map<Object, Object>> {
   @SuppressWarnings("rawtypes")
   @Nullable
   private Class<? extends Map> targetMapClass;
-
 
   /**
    * Set the source Map, typically populated via XML "map" elements.
@@ -72,7 +70,6 @@ public class MapFactoryBean extends AbstractFactoryBean<Map<Object, Object>> {
     }
     this.targetMapClass = targetMapClass;
   }
-
 
   @Override
   @SuppressWarnings("rawtypes")
@@ -113,6 +110,5 @@ public class MapFactoryBean extends AbstractFactoryBean<Map<Object, Object>> {
     }
     return result;
   }
-
 
 }

@@ -22,6 +22,8 @@ package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 
+import cn.taketoday.beans.factory.support.BeanUtils;
+
 /**
  * @author TODAY 2021/10/4 23:00
  * @since 4.0

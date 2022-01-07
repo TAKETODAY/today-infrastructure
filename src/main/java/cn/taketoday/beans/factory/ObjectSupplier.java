@@ -20,16 +20,16 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.Iterator;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
-
-import java.util.Iterator;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * A variant of {@link Supplier} designed specifically for injection points,

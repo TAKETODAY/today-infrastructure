@@ -19,13 +19,6 @@
  */
 package cn.taketoday.beans;
 
-import cn.taketoday.beans.factory.PropertyValue;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,6 +30,12 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Holder containing one or more {@link PropertyValue} objects,

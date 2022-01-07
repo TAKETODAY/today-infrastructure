@@ -62,7 +62,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.beans.factory.annotation.Autowired;

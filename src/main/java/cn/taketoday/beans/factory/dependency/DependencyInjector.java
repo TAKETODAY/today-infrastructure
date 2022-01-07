@@ -31,8 +31,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.lang.Assert;

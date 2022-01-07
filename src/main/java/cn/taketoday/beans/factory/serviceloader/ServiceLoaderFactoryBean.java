@@ -19,10 +19,10 @@
  */
 package cn.taketoday.beans.factory.serviceloader;
 
+import java.util.ServiceLoader;
+
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.FactoryBean;
-
-import java.util.ServiceLoader;
 
 /**
  * {@link FactoryBean} that exposes the JDK 1.6 {@link java.util.ServiceLoader}

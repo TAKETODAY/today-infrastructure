@@ -42,7 +42,7 @@ import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;

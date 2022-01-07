@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
-import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;

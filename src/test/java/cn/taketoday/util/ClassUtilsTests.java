@@ -21,7 +21,7 @@
 package cn.taketoday.util;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.StandardApplicationContext;

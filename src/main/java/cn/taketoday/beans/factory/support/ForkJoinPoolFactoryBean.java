@@ -19,13 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.lang.Nullable;
-
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link FactoryBean} that builds and exposes a preconfigured {@link ForkJoinPool}.
@@ -127,8 +127,8 @@ public class ForkJoinPoolFactoryBean implements FactoryBean<ForkJoinPool>, Initi
   @Override
   public void afterPropertiesSet() {
     this.forkJoinPool = this.commonPool
-            ? ForkJoinPool.commonPool()
-            : new ForkJoinPool(this.parallelism, this.threadFactory, this.uncaughtExceptionHandler, this.asyncMode);
+                        ? ForkJoinPool.commonPool()
+                        : new ForkJoinPool(this.parallelism, this.threadFactory, this.uncaughtExceptionHandler, this.asyncMode);
   }
 
   @Override

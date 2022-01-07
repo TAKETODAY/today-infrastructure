@@ -36,7 +36,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.NamedBeanHolder;
 import cn.taketoday.beans.factory.PropertyValueRetriever;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
-import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Nullable;

@@ -34,13 +34,13 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.PropertyValue;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;

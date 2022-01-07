@@ -1,6 +1,5 @@
 package cn.taketoday.beans;
 
-import cn.taketoday.beans.factory.PropertyValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -8,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

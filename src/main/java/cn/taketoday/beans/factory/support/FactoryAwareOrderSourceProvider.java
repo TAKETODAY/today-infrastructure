@@ -26,7 +26,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.lang.Nullable;
 

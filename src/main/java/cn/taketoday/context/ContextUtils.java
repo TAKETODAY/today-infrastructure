@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;

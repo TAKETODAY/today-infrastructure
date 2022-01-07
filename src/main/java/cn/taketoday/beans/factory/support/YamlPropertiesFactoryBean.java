@@ -19,14 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.factory.InitializingBean;
+import java.util.Properties;
+
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.YamlProcessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-
-import java.util.Properties;
-
 
 /**
  * Factory for {@link java.util.Properties} that reads from a YAML source,

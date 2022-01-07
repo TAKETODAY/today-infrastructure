@@ -21,8 +21,8 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.expression.ExpressionEvaluator;

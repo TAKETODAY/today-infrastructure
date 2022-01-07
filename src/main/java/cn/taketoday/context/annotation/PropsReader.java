@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;

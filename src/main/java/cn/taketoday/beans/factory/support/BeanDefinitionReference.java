@@ -21,7 +21,6 @@ package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.PropertyValueRetriever;
-import cn.taketoday.beans.support.PropertyValuesBinder;
 import cn.taketoday.lang.Nullable;
 
 /**

@@ -19,14 +19,13 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import cn.taketoday.beans.factory.AbstractFactoryBean;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * Simple factory for shared Set instances. Allows for central setup

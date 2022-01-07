@@ -25,9 +25,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.PropertyValue;
+import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.MethodParameter;

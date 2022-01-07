@@ -21,7 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 
 /**
  * interface for property value lazy loading

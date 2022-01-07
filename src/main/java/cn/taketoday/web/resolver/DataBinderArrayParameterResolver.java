@@ -24,7 +24,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import cn.taketoday.beans.factory.PropertyValue;
+import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.handler.MethodParameter;
 

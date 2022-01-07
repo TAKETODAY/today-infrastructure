@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serializable;
 
 import cn.taketoday.beans.factory.AbstractFactoryBean;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -27,8 +28,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import jakarta.inject.Provider;
-
-import java.io.Serializable;
 
 /**
  * A {@link FactoryBean} implementation that returns a value which is a

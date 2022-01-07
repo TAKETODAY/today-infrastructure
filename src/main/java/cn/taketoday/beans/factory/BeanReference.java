@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.Objects;
 
-import cn.taketoday.beans.support.PropertyValuesBinder;
+import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 

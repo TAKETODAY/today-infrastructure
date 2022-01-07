@@ -35,9 +35,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyReadOnlyException;
-import cn.taketoday.beans.factory.BeanInstantiationException;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;

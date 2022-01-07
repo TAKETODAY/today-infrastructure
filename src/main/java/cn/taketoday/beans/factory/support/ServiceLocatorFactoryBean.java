@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.support.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;

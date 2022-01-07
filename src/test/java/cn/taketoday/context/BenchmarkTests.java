@@ -15,7 +15,7 @@ import java.util.function.LongFunction;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.reflect.MethodAccessor;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.core.reflect.PropertyAccessor;

@@ -6,7 +6,6 @@ import java.sql.Connection;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.PropertyValueRetriever;
-import cn.taketoday.beans.support.PropertyValuesBinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
