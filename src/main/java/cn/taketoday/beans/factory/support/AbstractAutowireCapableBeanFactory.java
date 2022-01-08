@@ -624,7 +624,9 @@ public abstract class AbstractAutowireCapableBeanFactory
     // Make sure bean class is actually resolved at this point.
     Class<?> beanClass = resolveBeanClass(definition);
 
-    if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !definition.isNonPublicAccessAllowed()) {
+    if (beanClass != null
+            && !Modifier.isPublic(beanClass.getModifiers())
+            && !definition.isNonPublicAccessAllowed()) {
       throw new BeanCreationException(definition,
               "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
     }
@@ -792,25 +794,16 @@ public abstract class AbstractAutowireCapableBeanFactory
   private BeanInstantiator resolveBeanInstantiator(
           BeanDefinition definition, @Nullable Constructor<?> constructor) {
     if (definition.instantiator == null) {
-      if (constructor != null) {
-        if (definition.isSingleton()) {
-          // use java-reflect invoking
-          definition.instantiator = BeanInstantiator.fromReflective(constructor);
-        }
-        else {
-          // provide fast access the method
-          definition.instantiator = BeanInstantiator.fromConstructor(constructor);
-        }
+      if (constructor == null) {
+        constructor = BeanUtils.getConstructor(definition.getBeanClass());
+      }
+      if (definition.isSingleton()) {
+        // use java-reflect invoking
+        definition.instantiator = BeanInstantiator.fromReflective(constructor);
       }
       else {
-        if (definition.isSingleton()) {
-          // use java-reflect invoking
-          definition.instantiator = BeanInstantiator.fromClass(definition.getBeanClass());
-        }
-        else {
-          // provide fast access the method
-          definition.instantiator = BeanInstantiator.fromConstructor(definition.getBeanClass());
-        }
+        // provide fast access the method
+        definition.instantiator = BeanInstantiator.fromConstructor(constructor);
       }
     }
     return definition.instantiator;

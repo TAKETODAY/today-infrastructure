@@ -144,7 +144,9 @@ public class DependencyInjector {
           DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, true);
           if (context == null) {
             context = new DependencyResolvingContext(executable, beanFactory, beanName);
-            context.setDependentBeans(new LinkedHashSet<>());
+            if (beanName != null) {
+              context.setDependentBeans(new LinkedHashSet<>());
+            }
           }
           arguments[i] = resolveValue(currDesc, context);
         }

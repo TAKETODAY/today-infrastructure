@@ -26,6 +26,7 @@ package cn.taketoday.core.bytecode.proxy;
  */
 @FunctionalInterface
 public interface Dispatcher extends Callback {
+
   /**
    * Return the object which the original method invocation should be dispatched.
    * This method is called for <b>every</b> method invocation.

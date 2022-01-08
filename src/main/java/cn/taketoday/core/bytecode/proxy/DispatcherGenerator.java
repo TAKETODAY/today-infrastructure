@@ -50,11 +50,8 @@ final class DispatcherGenerator implements CallbackGenerator {
 
   @Override
   public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
-
     for (final MethodInfo method : methods) {
-
       if (!Modifier.isProtected(method.getModifiers())) {
-
         final CodeEmitter e = context.beginMethod(ce, method);
         context.emitCallback(e, context.getIndex(method));
         if (proxyRef) {

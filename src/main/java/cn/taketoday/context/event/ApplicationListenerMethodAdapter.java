@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.aop.support.AopUtils;
@@ -45,6 +46,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -78,7 +80,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   private final int order;
 
   @Nullable
-  private final String listenerId;
+  private volatile String listenerId;
 
   private final List<ResolvableType> declaredEventTypes;
 
@@ -109,8 +111,11 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     this.condition = annotation.getValue("condition", String.class)
             .filter(StringUtils::hasText)
             .orElse(null);
-    this.listenerId = annotation.isPresent() ? annotation.getString("id") : null;
 
+    if (annotation.isPresent()) {
+      String id = annotation.getString("id");
+      this.listenerId = !id.isEmpty() ? id : null;
+    }
   }
 
   protected void init(ApplicationContext context, EventExpressionEvaluator evaluator) {
@@ -223,6 +228,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   private boolean shouldInvoke(Object event, @Nullable Object[] args) {
+    if (args == null) {
+      return false;
+    }
     if (condition != null) {
       return evaluator.condition(
               condition, event, targetMethod, methodKey, args, context);
@@ -232,8 +240,15 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   @Nullable
   private Object[] resolveArguments(DependencyInjector resolver, Object event) {
+    if (targetMethod.getParameterCount() == 0) {
+      return Constant.EMPTY_OBJECT_ARRAY;
+    }
     if (resolver != null) {
       return resolver.resolveArguments(targetMethod, event);
+    }
+
+    if (supportsEventType(ResolvableType.fromInstance(event))) {
+      return new Object[] { event };
     }
     return null;
   }
@@ -241,7 +256,29 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   @Override
   @Nullable
   public String getListenerId() {
-    return listenerId;
+    String id = this.listenerId;
+    if (id == null) {
+      id = getDefaultListenerId();
+      this.listenerId = id;
+    }
+    return id;
+  }
+
+  /**
+   * Determine the default id for the target listener, to be applied in case of
+   * no {@link EventListener#id() annotation-specified id value}.
+   * <p>The default implementation builds a method name with parameter types.
+   *
+   * @see #getListenerId()
+   * @since 4.0
+   */
+  protected String getDefaultListenerId() {
+    Method method = getTargetMethod();
+    StringJoiner sj = new StringJoiner(",", "(", ")");
+    for (Class<?> paramType : method.getParameterTypes()) {
+      sj.add(paramType.getName());
+    }
+    return ClassUtils.getQualifiedMethodName(method) + sj;
   }
 
   protected void handleResult(Object result) {
@@ -307,7 +344,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
-  private static record EventPublicationSubscriber(ApplicationListenerMethodAdapter listener)
+  private record EventPublicationSubscriber(ApplicationListenerMethodAdapter listener)
           implements Subscriber<Object> {
 
     @Override
