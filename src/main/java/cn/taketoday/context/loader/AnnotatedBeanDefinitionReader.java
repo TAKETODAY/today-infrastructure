@@ -37,6 +37,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -119,8 +120,9 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
             bd -> {
+              ConstructorArgumentValues argumentValues = bd.getConstructorArgumentValues();
               for (Object arg : constructorArgs) {
-                bd.getConstructorArgumentValues().addGenericArgumentValue(arg);
+                argumentValues.addGenericArgumentValue(arg);
               }
             });
   }
@@ -250,11 +252,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
         else {
           definition.addQualifier(new AutowireCandidateQualifier(qualifier));
         }
-      }
-    }
-    if (customizers != null) {
-      for (BeanDefinitionCustomizer customizer : customizers) {
-        customizer.customize(definition);
       }
     }
 
