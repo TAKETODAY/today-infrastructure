@@ -221,8 +221,8 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
       final Type[] interfaces = Type.getTypes(proxiedInterfaces);
 
       ce.beginClass(Opcodes.JAVA_VERSION,
-                    Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
-                    getClassName(), targetType, interfaces, Constant.AOP_SOURCE_FILE);
+              Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+              getClassName(), targetType, interfaces, Constant.AOP_SOURCE_FILE);
 
       final boolean targetSourceStatic = targetSource.isStatic();
       if (targetSourceStatic) {

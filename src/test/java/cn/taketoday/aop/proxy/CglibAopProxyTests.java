@@ -77,7 +77,7 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
   @Test
   public void testNullConfig() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new CglibAopProxy(null));
+            new CglibAopProxy(null));
   }
 
   @Test
@@ -229,7 +229,6 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
     pf.setTarget(target);
     pf.setFrozen(true);
     pf.setExposeProxy(false);
-    pf.setUsingCglib(true);
 
     return (ITestBean) pf.getProxy();
   }
@@ -251,8 +250,6 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
   private ITestBean getIntroductionAdvisorProxy(TestBean target) {
     ProxyFactory pf = new ProxyFactory(ITestBean.class);
     pf.setProxyTargetClass(true);
-
-    pf.setUsingCglib(true);
 
     pf.addAdvisor(new LockMixinAdvisor());
     pf.setTarget(target);
@@ -356,7 +353,6 @@ public class CglibAopProxyTests extends AbstractAopProxyTests implements Seriali
     pf.setFrozen(false);
     pf.setOpaque(false);
     pf.setProxyTargetClass(true);
-    pf.setUsingCglib(true);
 
     TestBean proxy = (TestBean) pf.getProxy();
     assertThat(AopUtils.isCglibProxy(proxy)).isTrue();

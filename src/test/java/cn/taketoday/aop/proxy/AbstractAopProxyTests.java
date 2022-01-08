@@ -324,7 +324,6 @@ public abstract class AbstractAopProxyTests {
     ProxyFactory proxyFactory = new ProxyFactory(target);
     proxyFactory.setExposeProxy(true);
     assertThat(proxyFactory.isExposeProxy()).isTrue();
-    proxyFactory.setUsingCglib(true);
 
     proxyFactory.addAdvice(0, di);
     INeedsToSeeProxy proxied = (INeedsToSeeProxy) createProxy(proxyFactory);
@@ -349,7 +348,7 @@ public abstract class AbstractAopProxyTests {
     assertThat(pf1.isExposeProxy()).isFalse();
     INeedsToSeeProxy proxied = (INeedsToSeeProxy) createProxy(pf1);
     assertThatIllegalStateException().isThrownBy(() ->
-                                                         proxied.incrementViaProxy());
+            proxied.incrementViaProxy());
   }
 
   @Test
@@ -363,8 +362,7 @@ public abstract class AbstractAopProxyTests {
   }
 
   /**
-   * @param context
-   *         if true, want context
+   * @param context if true, want context
    */
   private void testContext(final boolean context) throws Throwable {
     final String s = "foo";
@@ -410,7 +408,6 @@ public abstract class AbstractAopProxyTests {
     ProxyCreatorSupport pc = new ProxyCreatorSupport();
     pc.setInterfaces(ITestBean.class);
     pc.setTarget(raw);
-    pc.setUsingCglib(true);
 
     ITestBean tb = (ITestBean) createProxy(pc);
     assertThat(tb.getSpouse()).as("this return is wrapped in proxy").isSameAs(tb);
@@ -554,7 +551,6 @@ public abstract class AbstractAopProxyTests {
     pc.addInterface(ITestBean.class);
     pc.addAdvisor(new LockMixinAdvisor());
     pc.setTarget(tb);
-    pc.setUsingCglib(true);
 
     testTestBeanIntroduction(pc);
   }
@@ -567,7 +563,6 @@ public abstract class AbstractAopProxyTests {
     // We don't use an IntroductionAdvisor, we can just add an advice that implements IntroductionInfo
     pc.addAdvice(new LockMixin());
     pc.setTarget(tb);
-    pc.setUsingCglib(true);
 
     testTestBeanIntroduction(pc);
   }
@@ -657,7 +652,6 @@ public abstract class AbstractAopProxyTests {
     String name = "tony";
     tb.setName(name);
     ProxyFactory pc = new ProxyFactory(tb);
-    pc.setUsingCglib(true);
 
     NopInterceptor di = new NopInterceptor();
     pc.addAdvice(di);
@@ -715,8 +709,8 @@ public abstract class AbstractAopProxyTests {
     target.setAge(21);
     ProxyFactory pc = new ProxyFactory(target);
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pc.addAdvisor(0, new DefaultIntroductionAdvisor(
-                                                                    new TimestampIntroductionInterceptor(), ITestBean.class)));
+            pc.addAdvisor(0, new DefaultIntroductionAdvisor(
+                    new TimestampIntroductionInterceptor(), ITestBean.class)));
     // Check it still works: proxy factory state shouldn't have been corrupted
     ITestBean proxied = (ITestBean) createProxy(pc);
     assertThat(proxied.getAge()).isEqualTo(target.getAge());
@@ -731,7 +725,6 @@ public abstract class AbstractAopProxyTests {
     TestBean target = new TestBean();
     target.setAge(21);
     ProxyFactory pc = new ProxyFactory(target);
-    pc.setUsingCglib(true);
 
     @SuppressWarnings("serial")
     class MyDi extends DelegatingIntroductionInterceptor implements TimeStamped {
@@ -880,7 +873,6 @@ public abstract class AbstractAopProxyTests {
   public void testCanPreventCastToAdvisedUsingOpaque() {
     TestBean target = new TestBean();
     ProxyFactory pc = new ProxyFactory(target);
-    pc.setUsingCglib(true);
 
     pc.setInterfaces(ITestBean.class);
     pc.addAdvice(new NopInterceptor());
@@ -1002,7 +994,6 @@ public abstract class AbstractAopProxyTests {
   public void testDynamicMethodPointcutThatAppliesStaticallyOnlyToSetters() throws Throwable {
     TestBean tb = new TestBean();
     ProxyFactory pc = new ProxyFactory();
-    pc.setUsingCglib(true);
 
     pc.addInterface(ITestBean.class);
     // Could apply dynamically to getAge/setAge but not to getName
@@ -1050,7 +1041,6 @@ public abstract class AbstractAopProxyTests {
     TestBean tb = new TestBean();
     ProxyFactory pc = new ProxyFactory(tb);
     pc.addInterface(ITestBean.class);
-    pc.setUsingCglib(true);
 
     MethodInterceptor twoBirthdayInterceptor = new MethodInterceptor() {
       @Override
@@ -1216,9 +1206,9 @@ public abstract class AbstractAopProxyTests {
     IOther b = new AllInstancesAreEqual();
     NopInterceptor i1 = new NopInterceptor();
     NopInterceptor i2 = new NopInterceptor();
-    ProxyFactory pfa = new ProxyFactory(a, true);
+    ProxyFactory pfa = new ProxyFactory(a);
     pfa.addAdvice(i1);
-    ProxyFactory pfb = new ProxyFactory(b, true);
+    ProxyFactory pfb = new ProxyFactory(b);
     pfb.addAdvice(i2);
     IOther proxyA = (IOther) createProxy(pfa);
     IOther proxyB = (IOther) createProxy(pfb);
@@ -1459,7 +1449,7 @@ public abstract class AbstractAopProxyTests {
     Exception exc = new Exception();
     // On exception it won't be invoked
     assertThatExceptionOfType(Throwable.class).isThrownBy(() ->
-                                                                  proxied.exceptional(exc))
+                    proxied.exceptional(exc))
             .satisfies(ex -> assertThat(ex).isSameAs(exc));
     assertThat(car.getCalls()).isEqualTo(2);
   }
@@ -1489,11 +1479,11 @@ public abstract class AbstractAopProxyTests {
     Exception ex = new Exception();
     // Will be advised but doesn't match
     assertThatExceptionOfType(Exception.class).isThrownBy(() ->
-                                                                  proxied.echoException(1, ex))
+                    proxied.echoException(1, ex))
             .matches(ex::equals);
     FileNotFoundException fex = new FileNotFoundException();
     assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(() ->
-                                                                              proxied.echoException(1, fex))
+                    proxied.echoException(1, fex))
             .matches(fex::equals);
     assertThat(th.getCalls("ioException")).isEqualTo(1);
   }

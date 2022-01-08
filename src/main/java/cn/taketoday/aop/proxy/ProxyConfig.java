@@ -45,8 +45,6 @@ public class ProxyConfig implements Serializable {
   private boolean optimize = false;
   private boolean proxyTargetClass = false;
 
-  private boolean usingCglib = false; //@since 3.0
-
   /**
    * Set whether to proxy the target class directly, instead of just proxying
    * specific interfaces. Default is "false".
@@ -147,16 +145,6 @@ public class ProxyConfig implements Serializable {
     return this.frozen;
   }
 
-  //
-
-  public boolean isUsingCglib() {
-    return usingCglib;
-  }
-
-  public void setUsingCglib(boolean usingCglib) {
-    this.usingCglib = usingCglib;
-  }
-
   /**
    * Copy configuration from the other config object.
    *
@@ -167,7 +155,6 @@ public class ProxyConfig implements Serializable {
     this.frozen = other.frozen;
     this.opaque = other.opaque;
     this.optimize = other.optimize;
-    this.usingCglib = other.usingCglib;
     this.exposeProxy = other.exposeProxy;
     this.proxyTargetClass = other.proxyTargetClass;
   }
