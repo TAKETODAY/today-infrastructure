@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
@@ -39,7 +40,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Service;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -466,6 +466,7 @@ public class EnableTransactionManagementTests {
 
     @Transactional
     default void saveBar() {
+
     }
   }
 

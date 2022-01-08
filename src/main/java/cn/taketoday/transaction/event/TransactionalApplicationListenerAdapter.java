@@ -20,12 +20,12 @@
 
 package cn.taketoday.transaction.event;
 
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -44,15 +44,15 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 public class TransactionalApplicationListenerAdapter<E>
         implements TransactionalApplicationListener<E>, Ordered {
 
-  private final ApplicationListener<E> targetListener;
+  private String listenerId = "";
 
   private int order = Ordered.LOWEST_PRECEDENCE;
 
+  private final ApplicationListener<E> targetListener;
+
   private TransactionPhase transactionPhase = TransactionPhase.AFTER_COMMIT;
 
-  private String listenerId = "";
-
-  private final List<SynchronizationCallback> callbacks = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<SynchronizationCallback> callbacks = new CopyOnWriteArrayList<>();
 
   /**
    * Construct a new TransactionalApplicationListenerAdapter.
@@ -125,9 +125,9 @@ public class TransactionalApplicationListenerAdapter<E>
 
   @Override
   public void onApplicationEvent(E event) {
-    if (TransactionSynchronizationManager.isSynchronizationActive() &&
-            TransactionSynchronizationManager.isActualTransactionActive()) {
-      TransactionSynchronizationManager.registerSynchronization(
+    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+    if (info.isSynchronizationActive() && info.isActualTransactionActive()) {
+      info.registerSynchronization(
               new TransactionalApplicationListenerSynchronization<>(event, this, this.callbacks));
     }
   }

@@ -148,7 +148,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   private static ResolvableType createGenericEventType(Class<?> payloadType) {
-    return ResolvableType.fromClassWithGenerics(String.class, payloadType);
+    return ResolvableType.fromClass(payloadType);
   }
 
   private static void runInTransaction(Runnable runnable) {

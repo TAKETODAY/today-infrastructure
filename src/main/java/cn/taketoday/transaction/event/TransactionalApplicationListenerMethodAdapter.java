@@ -21,7 +21,6 @@
 package cn.taketoday.transaction.event;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
@@ -31,6 +30,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -51,15 +51,13 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @since 4.0
  */
 public class TransactionalApplicationListenerMethodAdapter
-        extends ApplicationListenerMethodAdapter
-        implements TransactionalApplicationListener<Object> {
+        extends ApplicationListenerMethodAdapter implements TransactionalApplicationListener<Object> {
+
   private static final Logger log = LoggerFactory.getLogger(TransactionalApplicationListenerMethodAdapter.class);
 
-  private final TransactionalEventListener annotation;
-
   private final TransactionPhase transactionPhase;
-
-  private final List<SynchronizationCallback> callbacks = new CopyOnWriteArrayList<>();
+  private final TransactionalEventListener annotation;
+  private final CopyOnWriteArrayList<SynchronizationCallback> callbacks = new CopyOnWriteArrayList<>();
 
   /**
    * Construct a new TransactionalApplicationListenerMethodAdapter.
@@ -92,14 +90,14 @@ public class TransactionalApplicationListenerMethodAdapter
 
   @Override
   public void processEvent(Object event) {
-    onApplicationEvent(event);
+    super.onApplicationEvent(event);
   }
 
   @Override
   public void onApplicationEvent(Object event) {
-    if (TransactionSynchronizationManager.isSynchronizationActive()
-            && TransactionSynchronizationManager.isActualTransactionActive()) {
-      TransactionSynchronizationManager.registerSynchronization(
+    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+    if (info.isSynchronizationActive() && info.isActualTransactionActive()) {
+      info.registerSynchronization(
               new TransactionalApplicationListenerSynchronization<>(event, this, this.callbacks));
     }
     else if (this.annotation.fallbackExecution()) {

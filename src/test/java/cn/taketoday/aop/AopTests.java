@@ -22,6 +22,7 @@ package cn.taketoday.aop;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -50,6 +51,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.bytecode.core.DebuggingClassWriter;
 import cn.taketoday.lang.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,6 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * 2018-08-10 21:29
  */
 @Slf4j
+@Disabled
 class AopTests {
 
 //  static {
@@ -94,7 +97,7 @@ class AopTests {
       proxyCreator.setBeanFactory(beanFactory);
       proxyCreator.setProxyTargetClass(true);
       beanFactory.addBeanPostProcessor(proxyCreator);
-
+//      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
       context.refresh();
 
       UserService userService = context.getBean(UserService.class);
@@ -316,15 +319,12 @@ class AopTests {
       beanFactory.addBeanPostProcessor(autoProxyCreator);
       autoProxyCreator.setBeanFactory(beanFactory);
       autoProxyCreator.setFrozen(true);
+      autoProxyCreator.setOpaque(false);
       autoProxyCreator.setExposeProxy(true);
-//      autoProxyCreator.setOpaque(true);
-//      autoProxyCreator.setUsingCglib(true);
-
       autoProxyCreator.setTargetSourceCreators(targetSourceCreator);
 
       context.register(LoggingConfig.class, PrinterBean.class);
       context.refresh();
-//      DebuggingClassWriter.setDebugLocation("~/temp/debug");
       // TODO 调试 构造器问题
 //      DebuggingClassWriter.setDebugLocation("/Users/today/temp/debug");
 

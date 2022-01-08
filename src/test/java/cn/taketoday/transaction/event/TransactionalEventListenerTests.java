@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -41,7 +42,6 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Order;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
