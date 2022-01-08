@@ -256,7 +256,7 @@ public class StandardDependenciesBeanPostProcessor
                     "Resolution of declared constructors on bean Class [" + beanClass.getName() +
                             "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
           }
-          List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
+          ArrayList<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
           Constructor<?> requiredConstructor = null;
           Constructor<?> defaultConstructor = null;
           for (Constructor<?> candidate : rawCandidates) {
