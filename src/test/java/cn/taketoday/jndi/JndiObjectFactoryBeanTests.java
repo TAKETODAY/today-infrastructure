@@ -26,8 +26,8 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import cn.taketoday.aop.DerivedTestBean;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.testfixture.jndi.ExpectedLookupTemplate;
 
@@ -367,9 +367,9 @@ public class JndiObjectFactoryBeanTests {
     jof.setJndiName("foo");
     jof.setExpectedType(DerivedTestBean.class);
     jof.setProxyInterface(ITestBean.class);
-    assertThatExceptionOfType(NamingException.class).isThrownBy(
-                    jof::afterPropertiesSet)
-            .withMessageContaining("cn.taketoday.testfixture.beans.DerivedTestBean");
+    assertThatExceptionOfType(NamingException.class)
+            .isThrownBy(jof::afterPropertiesSet)
+            .withMessageContaining("cn.taketoday.aop.DerivedTestBean");
   }
 
   @Test

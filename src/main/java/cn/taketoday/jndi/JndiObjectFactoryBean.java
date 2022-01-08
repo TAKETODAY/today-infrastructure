@@ -22,7 +22,6 @@ package cn.taketoday.jndi;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.TypeMismatchException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -34,8 +33,9 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
@@ -221,7 +221,7 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
         try {
           this.defaultObject = conversionService.convert(this.defaultObject, getExpectedType());
         }
-        catch (TypeMismatchException ex) {
+        catch (ConversionException ex) {
           throw new IllegalArgumentException("Default object [" + this.defaultObject + "] of type [" +
                   this.defaultObject.getClass().getName() + "] is not of expected type [" +
                   getExpectedType().getName() + "] and cannot be converted either", ex);
