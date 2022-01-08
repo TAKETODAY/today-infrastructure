@@ -388,8 +388,9 @@ class MapperScannerConfigurerTest {
   @Test
   void testScanWithMapperFactoryBeanClass() {
     DummyMapperFactoryBean.clear();
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("mapperFactoryBeanClass",
-            DummyMapperFactoryBean.class);
+
+    applicationContext.getBeanDefinition("mapperScanner")
+            .propertyValues().add("mapperFactoryBeanClass", DummyMapperFactoryBean.class);
 
     startContext();
 

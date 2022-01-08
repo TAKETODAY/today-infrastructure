@@ -266,7 +266,7 @@ class SqlSessionFactoryBeanTest {
     setupFactoryBean();
 
     factoryBean
-            .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
+            .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("cn/taketoday/orm/mybatis/mybatis-config.xml"));
 
     SqlSessionFactory factory = factoryBean.getObject();
 
@@ -307,7 +307,7 @@ class SqlSessionFactoryBeanTest {
   void testFragmentsAreReadWithMapperLocations() throws Exception {
     setupFactoryBean();
 
-    factoryBean.setMapperLocations(new ClassPathResource("org/mybatis/spring/TestMapper.xml"));
+    factoryBean.setMapperLocations(new ClassPathResource("cn/taketoday/orm/mybatis/TestMapper.xml"));
 
     SqlSessionFactory factory = factoryBean.getObject();
 
@@ -365,7 +365,7 @@ class SqlSessionFactoryBeanTest {
 
     TypeAliasRegistry typeAliasRegistry = factoryBean.getObject().getConfiguration().getTypeAliasRegistry();
     System.out.println(typeAliasRegistry.getTypeAliases().keySet());
-    assertThat(typeAliasRegistry.getTypeAliases().size()).isEqualTo(81);
+    assertThat(typeAliasRegistry.getTypeAliases().size()).isEqualTo(82);
     typeAliasRegistry.resolveAlias("testAlias");
     typeAliasRegistry.resolveAlias("testAlias2");
     typeAliasRegistry.resolveAlias("dummyTypeHandler");
@@ -381,7 +381,7 @@ class SqlSessionFactoryBeanTest {
   void testSearchATypeAliasPackageWithSuperType() throws Exception {
     setupFactoryBean();
     factoryBean.setTypeAliasesSuperType(SuperType.class);
-    factoryBean.setTypeAliasesPackage("org.mybatis.*.type");
+    factoryBean.setTypeAliasesPackage("cn.taketoday.orm.mybatis.type");
 
     TypeAliasRegistry typeAliasRegistry = factoryBean.getObject().getConfiguration().getTypeAliasRegistry();
     typeAliasRegistry.resolveAlias("testAlias2");
@@ -406,7 +406,7 @@ class SqlSessionFactoryBeanTest {
   @Test
   void testSearchATypeHandlerPackage() throws Exception {
     setupFactoryBean();
-    factoryBean.setTypeHandlersPackage("org.mybatis.**.type");
+    factoryBean.setTypeHandlersPackage("cn.taketoday.orm.mybatis.**.type");
 
     TypeHandlerRegistry typeHandlerRegistry = factoryBean.getObject().getConfiguration().getTypeHandlerRegistry();
     assertThat(typeHandlerRegistry.hasTypeHandler(BigInteger.class)).isTrue();

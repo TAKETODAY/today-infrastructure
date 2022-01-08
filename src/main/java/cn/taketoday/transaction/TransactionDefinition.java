@@ -21,7 +21,7 @@ package cn.taketoday.transaction;
 
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.support.SynchronizationMetaData;
+import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
@@ -257,7 +257,7 @@ public interface TransactionDefinition {
    * @return {@code true} if the transaction is to be optimized as read-only
    * ({@code false} by default)
    * @see TransactionSynchronization#beforeCommit(boolean)
-   * @see SynchronizationMetaData#isCurrentTransactionReadOnly() ()
+   * @see SynchronizationInfo#isCurrentTransactionReadOnly() ()
    */
   default boolean isReadOnly() {
     return false;
@@ -271,7 +271,7 @@ public interface TransactionDefinition {
    * the {@code fully-qualified class name + "." + method name} (by default).
    *
    * @return the name of this transaction ({@code null} by default}
-   * @see SynchronizationMetaData#getCurrentTransactionName()
+   * @see SynchronizationInfo#getCurrentTransactionName()
    */
   @Nullable
   default String getName() {

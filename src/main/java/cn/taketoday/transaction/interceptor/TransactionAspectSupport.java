@@ -326,7 +326,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     // If the transaction attribute is null, the method is non-transactional.
     TransactionAttributeSource tas = getTransactionAttributeSource();
-    final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
+    final TransactionAttribute txAttr = tas != null
+                                        ? tas.getTransactionAttribute(method, targetClass)
+                                        : null;
+
     final TransactionManager tm = determineTransactionManager(txAttr);
 
     if (this.reactiveAdapterRegistry != null && tm instanceof ReactiveTransactionManager) {
@@ -334,8 +337,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         Class<?> reactiveType = method.getReturnType();
         ReactiveAdapter adapter = this.reactiveAdapterRegistry.getAdapter(reactiveType);
         if (adapter == null) {
-          throw new IllegalStateException("Cannot apply reactive transaction to non-reactive return type: " +
-                  method.getReturnType());
+          throw new IllegalStateException(
+                  "Cannot apply reactive transaction to non-reactive return type: " + method.getReturnType());
         }
         return new ReactiveTransactionSupport(adapter);
       });
@@ -693,8 +696,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     @Nullable
     public TransactionInfo oldTransactionInfo;
 
-    public TransactionInfo(@Nullable PlatformTransactionManager transactionManager,
-                           @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
+    public TransactionInfo(
+            @Nullable PlatformTransactionManager transactionManager,
+            @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
 
       this.transactionManager = transactionManager;
       this.transactionAttribute = transactionAttribute;
@@ -950,14 +954,15 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
                   txInfo.getJoinpointIdentification(), ex.toString());
         }
         if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
-          return txInfo.getTransactionManager().rollback(txInfo.getReactiveTransaction()).onErrorMap(ex2 -> {
-                    logger.error("Application exception overridden by rollback exception", ex);
-                    if (ex2 instanceof TransactionSystemException) {
-                      ((TransactionSystemException) ex2).initApplicationException(ex);
-                    }
-                    return ex2;
-                  }
-          );
+          return txInfo.getTransactionManager().rollback(txInfo.getReactiveTransaction())
+                  .onErrorMap(ex2 -> {
+                            logger.error("Application exception overridden by rollback exception", ex);
+                            if (ex2 instanceof TransactionSystemException) {
+                              ((TransactionSystemException) ex2).initApplicationException(ex);
+                            }
+                            return ex2;
+                          }
+                  );
         }
         else {
           // We don't roll back on this exception.

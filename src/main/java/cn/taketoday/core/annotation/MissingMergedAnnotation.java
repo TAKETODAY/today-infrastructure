@@ -160,7 +160,7 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
   protected <T> T getAttributeValue(String attributeName, Class<T> type) {
     throw new NoSuchElementException(
             "Unable to get attribute '" + attributeName + "'s value "
-                    + type.getName() + "for missing annotation");
+                    + type.getName() + " for missing annotation from");
   }
 
   @Override

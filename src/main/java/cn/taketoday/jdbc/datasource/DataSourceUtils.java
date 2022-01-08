@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.TransactionDefinition;
-import cn.taketoday.transaction.support.SynchronizationMetaData;
+import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
@@ -64,7 +64,7 @@ public abstract class DataSourceUtils {
    * @see #releaseConnection
    */
   public static Connection getConnection(DataSource dataSource) {
-    return getConnection(TransactionSynchronizationManager.getMetaData(), dataSource);
+    return getConnection(TransactionSynchronizationManager.getSynchronizationInfo(), dataSource);
   }
 
   /**
@@ -75,7 +75,7 @@ public abstract class DataSourceUtils {
    * @see #releaseConnection
    */
   public static Connection getConnection(
-          final SynchronizationMetaData metaData, final DataSource dataSource) {
+          final SynchronizationInfo metaData, final DataSource dataSource) {
     try {
       return doGetConnection(metaData, dataSource);
     }
@@ -88,11 +88,11 @@ public abstract class DataSourceUtils {
   }
 
   public static Connection doGetConnection(final DataSource dataSource) throws SQLException {
-    return doGetConnection(TransactionSynchronizationManager.getMetaData(), dataSource);
+    return doGetConnection(TransactionSynchronizationManager.getSynchronizationInfo(), dataSource);
   }
 
   public static Connection doGetConnection(
-          final SynchronizationMetaData metaData, final DataSource dataSource) throws SQLException {
+          final SynchronizationInfo metaData, final DataSource dataSource) throws SQLException {
     Assert.notNull(dataSource, "No DataSource specified");
 
     ConnectionHolder conHolder = null;

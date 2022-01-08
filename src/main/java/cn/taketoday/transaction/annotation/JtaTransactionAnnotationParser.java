@@ -53,7 +53,7 @@ public class JtaTransactionAnnotationParser implements TransactionAnnotationPars
   @Nullable
   public TransactionAttribute parseTransactionAnnotation(AnnotatedElement element) {
     MergedAnnotation<Transactional> attributes = MergedAnnotations.from(element).get(Transactional.class);
-    if (attributes != null) {
+    if (attributes.isPresent()) {
       return parseTransactionAnnotation(attributes);
     }
     else {

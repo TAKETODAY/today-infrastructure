@@ -20,8 +20,8 @@ import cn.taketoday.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/5 11:13
  */
-public class SynchronizationMetaData implements Serializable {
-  private static final Logger log = LoggerFactory.getLogger(SynchronizationMetaData.class);
+public class SynchronizationInfo implements Serializable {
+  private static final Logger log = LoggerFactory.getLogger(SynchronizationInfo.class);
 
   @Serial
   private static final long serialVersionUID = 1L;
