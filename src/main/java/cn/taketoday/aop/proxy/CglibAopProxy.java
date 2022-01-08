@@ -272,7 +272,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * passed directly back to the target. Used when the proxy needs to be exposed
    * and it can't be determined that the method won't return {@code this}.
    */
-  record StaticUnadvisedInterceptor(Object target) implements MethodInterceptor, Serializable {
+  private record StaticUnadvisedInterceptor(Object target) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -286,7 +286,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * Method interceptor used for static targets with no advice chain, when the
    * proxy is to be exposed.
    */
-  record StaticUnadvisedExposedInterceptor(Object target) implements MethodInterceptor, Serializable {
+  private record StaticUnadvisedExposedInterceptor(Object target) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -308,7 +308,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * invocation or evaluating an advice chain. (We know there was no advice for
    * this method.)
    */
-  record DynamicUnadvisedInterceptor(TargetSource targetSource) implements MethodInterceptor, Serializable {
+  private record DynamicUnadvisedInterceptor(TargetSource targetSource) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -329,7 +329,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   /**
    * Interceptor for unadvised dynamic targets when the proxy needs exposing.
    */
-  record DynamicUnadvisedExposedInterceptor(TargetSource targetSource) implements MethodInterceptor, Serializable {
+  private record DynamicUnadvisedExposedInterceptor(
+          TargetSource targetSource) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -355,7 +356,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * This will be used whenever it can be determined that a method definitely does
    * not return "this"
    */
-  record StaticDispatcher(Object target) implements Dispatcher, Serializable {
+  private record StaticDispatcher(Object target) implements Dispatcher, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -368,7 +369,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   /**
    * Dispatcher for any methods declared on the Advised class.
    */
-  record AdvisedDispatcher(AdvisedSupport advised) implements Dispatcher, Serializable {
+  private record AdvisedDispatcher(AdvisedSupport advised) implements Dispatcher, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -382,7 +383,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * Dispatcher for the {@code equals} method. Ensures that the method call is
    * always handled by this class.
    */
-  record EqualsInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
+  private record EqualsInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -410,7 +411,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * Dispatcher for the {@code hashCode} method. Ensures that the method call is
    * always handled by this class.
    */
-  record HashCodeInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
+  private record HashCodeInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -448,7 +449,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * General purpose AOP callback. Used when the target is dynamic or when the
    * proxy is not frozen.
    */
-  record DynamicAdvisedInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
+  private record DynamicAdvisedInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -574,18 +575,9 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   /**
    * CallbackFilter to assign Callbacks to methods.
    */
-  static class ProxyCallbackFilter implements CallbackFilter {
-    final AdvisedSupport advised;
-    final int fixedInterceptorOffset;
-    final Map<Method, Integer> fixedInterceptorMap;
-
-    public ProxyCallbackFilter(
-            AdvisedSupport advised, Map<Method, Integer> fixedInterceptorMap, int fixedInterceptorOffset) {
-
-      this.advised = advised;
-      this.fixedInterceptorMap = fixedInterceptorMap;
-      this.fixedInterceptorOffset = fixedInterceptorOffset;
-    }
+  private record ProxyCallbackFilter(
+          AdvisedSupport advised, Map<Method, Integer> fixedInterceptorMap, int fixedInterceptorOffset)
+          implements CallbackFilter {
 
     /**
      * Implementation of CallbackFilter.accept() to return the index of the callback
