@@ -51,6 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @see java.sql.DatabaseMetaData#getDatabaseProductName()
  */
 public class SQLErrorCodesFactory {
+  private static final Logger logger = LoggerFactory.getLogger(SQLErrorCodesFactory.class);
 
   /**
    * The name of custom SQL error codes file, loading from the root
@@ -61,9 +62,7 @@ public class SQLErrorCodesFactory {
   /**
    * The name of default SQL error code files, loading from the class path.
    */
-  public static final String SQL_ERROR_CODE_DEFAULT_PATH = "cn.taketoday/jdbc/support/sql-error-codes.xml";
-
-  private static final Logger logger = LoggerFactory.getLogger(SQLErrorCodesFactory.class);
+  public static final String SQL_ERROR_CODE_DEFAULT_PATH = "cn/taketoday/jdbc/support/sql-error-codes.xml";
 
   /**
    * Keep track of a single instance so we can return it to classes that request it.
@@ -219,11 +218,11 @@ public class SQLErrorCodesFactory {
     // HDB
     SQLErrorCodes hDBCodes = new SQLErrorCodes();
     hDBCodes.setDatabaseProductNames("SAP HANA", "SAP DB");
-    hDBCodes.setBadSqlGrammarCodes("""
-            257,259,260,261,262,263,264,267,268,269,270,271,272,273,275,276,277,278,
-            278,279,280,281,282,283,284,285,286,288,289,290,294,295,296,297,299,308,309,
-            313,315,316,318,319,320,321,322,323,324,328,329,330,333,335,336,337,338,340,
-            343,350,351,352,362,368F""".split(","));
+    hDBCodes.setBadSqlGrammarCodes(
+            ("257,259,260,261,262,263,264,267,268,269,270,271,272,273,275,276,277," +
+                    "278,278,279,280,281,282,283,284,285,286,288,289,290,294,295,296," +
+                    "297,299,308,309,313,315,316,318,319,320,321,322,323,324,328,329," +
+                    "330,333,335,336,337,338,340,343,350,351,352,362,368").split(","));
     hDBCodes.setPermissionDeniedCodes("10", "258");
     hDBCodes.setDuplicateKeyCodes("301");
     hDBCodes.setDataIntegrityViolationCodes("461", "462");
