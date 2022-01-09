@@ -40,7 +40,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.DummyFactory;
 import cn.taketoday.beans.factory.support.ITestBean;
@@ -72,7 +72,7 @@ class AutoProxyCreatorTests {
 
     BeanDefinition bd = new BeanDefinition(TestBean.class);
     bd.addPropertyValue("spouse", BeanDefinitionReference.from("innerBean", TestBean.class));
-    bd.addPropertyValue("nestedIndexedBean", BeanReference.from("autowiredIndexedTestBean"));
+    bd.addPropertyValue("nestedIndexedBean", RuntimeBeanReference.from("autowiredIndexedTestBean"));
     sac.getBeanFactory().registerBeanDefinition("singletonToBeProxied", bd);
 
     sac.registerSingleton("singletonFactoryToBeProxied", DummyFactory.class);

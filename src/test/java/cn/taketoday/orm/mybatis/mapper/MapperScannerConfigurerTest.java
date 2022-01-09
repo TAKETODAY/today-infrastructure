@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -136,7 +136,7 @@ class MapperScannerConfigurerTest {
 
     applicationContext.getBeanDefinition("mapperScanner")
             .propertyValues()
-            .add("namePopulator", BeanReference.from("beanNameGenerator"));
+            .add("namePopulator", RuntimeBeanReference.from("beanNameGenerator"));
 
     startContext();
 

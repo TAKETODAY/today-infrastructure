@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.PropertyValueRetriever;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

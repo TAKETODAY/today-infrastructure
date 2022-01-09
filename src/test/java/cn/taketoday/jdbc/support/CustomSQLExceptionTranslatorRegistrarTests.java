@@ -23,7 +23,6 @@ package cn.taketoday.jdbc.support;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.Map;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.DefaultApplicationContext;
@@ -63,8 +62,8 @@ public class CustomSQLExceptionTranslatorRegistrarTests {
     context.registerBeanDefinition(new BeanDefinition("dataSource", EmbeddedDatabaseFactoryBean.class)
             .addPropertyValue("databaseType", "H2"));
 
-    context.registerBeanDefinition(new BeanDefinition("dataSource", CustomSQLExceptionTranslatorRegistrar.class)
-            .addPropertyValue("translators[ ]", new CustomSqlExceptionTranslator()));
+    context.registerBeanDefinition(new BeanDefinition("customSQLExceptionTranslatorRegistrar", CustomSQLExceptionTranslatorRegistrar.class)
+            .addPropertyValue("translators[H2]", new CustomSqlExceptionTranslator()));
 
     context.refresh();
 

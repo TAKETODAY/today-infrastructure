@@ -252,7 +252,7 @@ public class TransactionInterceptorTests extends AbstractTransactionAspectTests 
     TransactionInterceptor ti = simpleTransactionInterceptor(beanFactory);
 
     PlatformTransactionManager txManager = mock(PlatformTransactionManager.class);
-    given(beanFactory.getBean(PlatformTransactionManager.class)).willReturn(txManager);
+    given(beanFactory.getBean(TransactionManager.class)).willReturn(txManager);
 
     DefaultTransactionAttribute attribute = new DefaultTransactionAttribute();
     TransactionManager actual = ti.determineTransactionManager(attribute);
@@ -261,7 +261,7 @@ public class TransactionInterceptorTests extends AbstractTransactionAspectTests 
     // Call again, should be cached
     TransactionManager actual2 = ti.determineTransactionManager(attribute);
     assertThat(actual2).isSameAs(txManager);
-    verify(beanFactory, times(1)).getBean(PlatformTransactionManager.class);
+    verify(beanFactory, times(1)).getBean(TransactionManager.class);
   }
 
   private TransactionInterceptor createTransactionInterceptor(

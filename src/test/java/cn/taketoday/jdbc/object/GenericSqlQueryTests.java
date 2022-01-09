@@ -36,7 +36,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
-import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.jdbc.core.SqlParameter;
 import cn.taketoday.jdbc.core.namedparam.Customer;
@@ -142,7 +142,7 @@ public class GenericSqlQueryTests {
 
     beanFactory.registerBeanDefinition(new BeanDefinition("dataSource", TestDataSourceWrapper.class));
     beanFactory.registerBeanDefinition(new BeanDefinition("queryWithPlaceholders", GenericSqlQuery.class)
-            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("dataSource", RuntimeBeanReference.from("dataSource"))
             .addPropertyValue("rowMapperClass", CustomerMapper.class)
             .addPropertyValue("sql", "select id, forename from custmr where id = ? and country = ?")
             .addPropertyValue("parameters", List.of(
@@ -166,7 +166,7 @@ public class GenericSqlQueryTests {
     );
 
     beanFactory.registerBeanDefinition(new BeanDefinition("queryWithNamedParameters", GenericSqlQuery.class)
-            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("dataSource", RuntimeBeanReference.from("dataSource"))
             .addPropertyValue("rowMapperClass", CustomerMapper.class)
             .addPropertyValue("sql", "select id, forename from custmr where id = :id and country = :country")
             .addPropertyValue("parameters", List.of(
@@ -176,7 +176,7 @@ public class GenericSqlQueryTests {
 
     );
     beanFactory.registerBeanDefinition(new BeanDefinition("queryWithRowMapperBean", GenericSqlQuery.class)
-            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("dataSource", RuntimeBeanReference.from("dataSource"))
             .addPropertyValue("rowMapperClass", CustomerMapper.class)
             .addPropertyValue("rowMapper", BeanDefinitionReference.from(CustomerMapper.class))
             .addPropertyValue("sql", "select id, forename from custmr where id = :id and country = :country")

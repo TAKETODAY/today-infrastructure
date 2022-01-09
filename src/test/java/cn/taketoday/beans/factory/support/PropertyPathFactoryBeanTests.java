@@ -3,7 +3,6 @@ package cn.taketoday.beans.factory.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.beans.factory.Scope;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +97,7 @@ class PropertyPathFactoryBeanTests {
     //	</bean>
 
     BeanDefinition tbWithNullReference = new BeanDefinition("tbWithNullReference", TestBean.class);
-    tbWithNullReference.addPropertyValue("spouse", BeanReference.from("tb.spouse.spouse"));
+    tbWithNullReference.addPropertyValue("spouse", RuntimeBeanReference.from("tb.spouse.spouse"));
     factory.registerBeanDefinition(tbWithNullReference);
 
     //	<bean id="tbWithInnerNull" class="TestBean">

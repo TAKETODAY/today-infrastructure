@@ -34,7 +34,7 @@ import cn.taketoday.aop.BeforeAdvice;
 import cn.taketoday.aop.support.AdvisorAdapterRegistrationManager;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.DefaultApplicationContext;
@@ -80,7 +80,7 @@ public class AdvisorAdapterRegistrationTests {
     beanFactory.registerBeanDefinition(testBean);
 
     BeanDefinition adviceAdvisor = new BeanDefinition("simpleBeforeAdviceAdvisor", DefaultPointcutAdvisor.class);
-    adviceAdvisor.addPropertyValue("advice", BeanReference.from("simpleBeforeAdvice"));
+    adviceAdvisor.addPropertyValue("advice", RuntimeBeanReference.from("simpleBeforeAdvice"));
     beanFactory.registerBeanDefinition(adviceAdvisor);
 
     beanFactory.refresh();

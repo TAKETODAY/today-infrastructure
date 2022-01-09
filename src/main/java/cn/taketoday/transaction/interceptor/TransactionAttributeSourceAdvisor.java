@@ -58,8 +58,7 @@ public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
   /**
    * Create a new TransactionAttributeSourceAdvisor.
    */
-  public TransactionAttributeSourceAdvisor() {
-  }
+  public TransactionAttributeSourceAdvisor() { }
 
   /**
    * Create a new TransactionAttributeSourceAdvisor.

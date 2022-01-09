@@ -29,21 +29,21 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.aop.DerivedTestBean;
 import cn.taketoday.aop.proxy.ProxyFactoryBean;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
 import cn.taketoday.aop.support.interceptor.DebugInterceptor;
 import cn.taketoday.aop.target.HotSwappableTargetSource;
 import cn.taketoday.aop.target.LazyInitTargetSource;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
-import cn.taketoday.beans.factory.BeanReference;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.DerivedTestBean;
 import cn.taketoday.beans.factory.support.ITestBean;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.CallCountingTransactionManager;
@@ -104,7 +104,7 @@ public class BeanFactoryTransactionTests {
     factory.registerBeanDefinition(new BeanDefinition("target", DerivedTestBean.class)
             .addPropertyValue("name", "custom")
             .addPropertyValue("age", "666")
-            .addPropertyValue("spouse", BeanReference.from("targetDependency"))
+            .addPropertyValue("spouse", RuntimeBeanReference.from("targetDependency"))
     );
     factory.registerBeanDefinition(new BeanDefinition("debugInterceptor", DebugInterceptor.class));
     factory.registerBeanDefinition(new BeanDefinition("mockMan", PlatformTransactionManagerFacade.class));
@@ -116,7 +116,7 @@ public class BeanFactoryTransactionTests {
     properties.setProperty("cn.taketoday.beans.factory.support.ITestBean.set*", " PROPAGATION_SUPPORTS , readOnly");
     source.setProperties(properties);
     factory.registerBeanDefinition(new BeanDefinition("txInterceptor", TransactionInterceptor.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributeSource", source)
     );
 
@@ -162,9 +162,9 @@ public class BeanFactoryTransactionTests {
     properties.setProperty("set*", " PROPAGATION_SUPPORTS , readOnly");
 
     factory.registerBeanDefinition(new BeanDefinition("proxyFactory2DynamicProxy", TransactionProxyFactoryBean.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
-            .addPropertyValue("target", BeanReference.from("target"))
+            .addPropertyValue("target", RuntimeBeanReference.from("target"))
     );
 
   }
@@ -210,13 +210,13 @@ public class BeanFactoryTransactionTests {
     properties.setProperty("set*", " PROPAGATION_SUPPORTS , readOnly");
 
     factory.registerBeanDefinition(new BeanDefinition("proxyFactory2Cglib", TransactionProxyFactoryBean.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
-            .addPropertyValue("target", BeanReference.from("target"))
+            .addPropertyValue("target", RuntimeBeanReference.from("target"))
     );
 
     factory.registerBeanDefinition(new BeanDefinition("proxyFactory2Lazy", TransactionProxyFactoryBean.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
             .addPropertyValue("target", BeanDefinitionReference.from(
                     BeanDefinitionBuilder.from(LazyInitTargetSource.class)
@@ -225,13 +225,13 @@ public class BeanFactoryTransactionTests {
     );
 
     factory.registerBeanDefinition(new BeanDefinition("proxyFactory3", TransactionProxyFactoryBean.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
-            .addPropertyValue("target", BeanReference.from("target"))
+            .addPropertyValue("target", RuntimeBeanReference.from("target"))
             .addPropertyValue("proxyTargetClass", true)
-            .addPropertyValue("pointcut", BeanReference.from("txnInvocationCounterPointcut"))
-            .addPropertyValue("preInterceptors", BeanReference.from("preInvocationCounterInterceptor"))
-            .addPropertyValue("postInterceptors", BeanReference.from("preInvocationCounterInterceptor"))
+            .addPropertyValue("pointcut", RuntimeBeanReference.from("txnInvocationCounterPointcut"))
+            .addPropertyValue("preInterceptors", RuntimeBeanReference.from("preInvocationCounterInterceptor"))
+            .addPropertyValue("postInterceptors", RuntimeBeanReference.from("preInvocationCounterInterceptor"))
     );
 
   }
@@ -285,19 +285,20 @@ public class BeanFactoryTransactionTests {
     Properties properties = new Properties();
     properties.setProperty("*", "PROPAGATION_REQUIRED");
     factory.registerBeanDefinition(new BeanDefinition("cglibNoInterfaces", TransactionProxyFactoryBean.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
             .addPropertyValue("target", BeanDefinitionReference.from(
                     BeanDefinitionBuilder.from(ImplementsNoInterfaces.class)
                             .propertyValues(new PropertyValues()
-                                    .add("dependency", BeanReference.from("targetDependency"))))
+                                    .add("dependency", RuntimeBeanReference.from("targetDependency"))))
             )
     );
 
     // The HotSwappableTargetSource is a Type 3 component.
 
     BeanDefinition definition = new BeanDefinition("swapper", HotSwappableTargetSource.class);
-    definition.setInstanceSupplier(() -> new HotSwappableTargetSource(factory.getBean("target")));
+    definition.getConstructorArgumentValues().addGenericArgumentValue(RuntimeBeanReference.from("target"));
+//    definition.setInstanceSupplier(() -> new HotSwappableTargetSource(factory.getBean("target")));
     factory.registerBeanDefinition(definition);
 
     Properties swapperProperties = new Properties();
@@ -306,9 +307,9 @@ public class BeanFactoryTransactionTests {
     swapperProperties.setProperty("set*", "PROPAGATION_SUPPORTS");
 
     factory.registerBeanDefinition(new BeanDefinition("hotSwapped", TransactionProxyFactoryBean.class)
-            .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
+            .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", swapperProperties)
-            .addPropertyValue("target", BeanReference.from("swapper"))
+            .addPropertyValue("target", RuntimeBeanReference.from("swapper"))
             .addPropertyValue("proxyTargetClass", true)
             .addPropertyValue("optimize", false)
     );
@@ -341,7 +342,11 @@ public class BeanFactoryTransactionTests {
   @Test
   public void testGetsAreNotTransactionalWithProxyFactory2Cglib() {
     ITestBean testBean = (ITestBean) factory.getBean("proxyFactory2Cglib");
-    assertThat(AopUtils.isCglibProxy(testBean)).as("testBean is CGLIB advised").isTrue();
+
+    assertThat(AopUtils.isCglibProxy(testBean))
+            .as("testBean is CGLIB advised")
+            .isTrue();
+
     boolean condition = testBean instanceof TransactionalProxy;
     assertThat(condition).isTrue();
     doTestGetsAreNotTransactional(testBean);
@@ -472,8 +477,8 @@ public class BeanFactoryTransactionTests {
       bf.registerBeanDefinition(new BeanDefinition("target", DerivedTestBean.class));
       bf.registerBeanDefinition(new BeanDefinition("mockMan", PlatformTransactionManagerFacade.class));
       bf.registerBeanDefinition(new BeanDefinition("noTransactionAttributeSource", TransactionProxyFactoryBean.class)
-              .addPropertyValue("transactionManager", BeanReference.from("mockMan"))
-              .addPropertyValue("target", BeanReference.from("target"))
+              .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
+              .addPropertyValue("target", RuntimeBeanReference.from("target"))
       );
 
       bf.getBean("noTransactionAttributeSource");

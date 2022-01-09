@@ -194,7 +194,7 @@ public class TransactionProxyFactoryBean
   }
 
   /**
-   * As of 4.2, this method adds {@link TransactionalProxy} to the set of
+   * this method adds {@link TransactionalProxy} to the set of
    * proxy interfaces in order to avoid re-processing of transaction metadata.
    */
   @Override

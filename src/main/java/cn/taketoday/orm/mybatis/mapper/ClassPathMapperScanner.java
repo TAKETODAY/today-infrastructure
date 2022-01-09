@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
@@ -224,7 +224,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
       boolean explicitFactoryUsed = false;
       if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) {
-        definition.propertyValues().add("sqlSessionFactory", BeanReference.from(this.sqlSessionFactoryBeanName));
+        definition.propertyValues().add("sqlSessionFactory", RuntimeBeanReference.from(this.sqlSessionFactoryBeanName));
         explicitFactoryUsed = true;
       }
       else if (this.sqlSessionFactory != null) {
@@ -237,7 +237,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
           log.warn("Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
         }
         definition.propertyValues()
-                .add("sqlSessionTemplate", BeanReference.from(this.sqlSessionTemplateBeanName));
+                .add("sqlSessionTemplate", RuntimeBeanReference.from(this.sqlSessionTemplateBeanName));
         explicitFactoryUsed = true;
       }
       else if (this.sqlSessionTemplate != null) {

@@ -59,12 +59,12 @@ public class SimpleTransactionScopeTests {
 
     context.refresh();
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    context.getBean(TestBean.class))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> context.getBean(TestBean.class))
             .withCauseInstanceOf(IllegalStateException.class);
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    context.getBean(DerivedTestBean.class))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> context.getBean(DerivedTestBean.class))
             .withCauseInstanceOf(IllegalStateException.class);
 
     TestBean bean1 = null;
@@ -104,12 +104,12 @@ public class SimpleTransactionScopeTests {
     assertThat(bean2b.wasDestroyed()).isTrue();
     assertThat(TransactionSynchronizationManager.getResourceMap().isEmpty()).isTrue();
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    context.getBean(TestBean.class))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> context.getBean(TestBean.class))
             .withCauseInstanceOf(IllegalStateException.class);
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    context.getBean(DerivedTestBean.class))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> context.getBean(DerivedTestBean.class))
             .withCauseInstanceOf(IllegalStateException.class);
   }
 

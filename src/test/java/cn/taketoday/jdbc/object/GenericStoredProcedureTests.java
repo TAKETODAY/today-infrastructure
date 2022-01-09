@@ -32,7 +32,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.jdbc.core.SqlParameter;
 import cn.taketoday.jdbc.datasource.TestDataSourceWrapper;
@@ -84,7 +84,7 @@ public class GenericStoredProcedureTests {
     bf.registerBeanDefinition(new BeanDefinition("dataSource", TestDataSourceWrapper.class));
 
     bf.registerBeanDefinition(new BeanDefinition("genericProcedure", GenericStoredProcedure.class)
-            .addPropertyValue("dataSource", BeanReference.from("dataSource"))
+            .addPropertyValue("dataSource", RuntimeBeanReference.from("dataSource"))
             .addPropertyValue("sql", "add_invoice")
             .addPropertyValue("parameters", List.of(
                     new SqlParameter("amount", java.sql.Types.INTEGER),

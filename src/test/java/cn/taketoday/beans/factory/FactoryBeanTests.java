@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
@@ -180,15 +181,15 @@ class FactoryBeanTests {
     reader.registerBean("gamma", Gamma.class);
     reader.register(gammaFactoryDef);
     reader.registerBean("betaFactory", BetaFactoryBean.class, definition -> {
-      definition.addPropertyValue("beta", BeanReference.required());
+      definition.addPropertyValue("beta", RuntimeBeanReference.from("beta"));
     });
     reader.registerBean("beta", Beta.class, definition -> {
       definition.addPropertyValue("name", "yourName");
-      definition.addPropertyValue("gamma", BeanReference.required());
+      definition.addPropertyValue("gamma", RuntimeBeanReference.from("gamma"));
     });
 
     reader.registerBean("alpha", Alpha.class, definition -> {
-      definition.addPropertyValue("beta", BeanReference.required());
+      definition.addPropertyValue("beta", RuntimeBeanReference.from("beta"));
     });
 
     assertThat(factory.getType("betaFactory")).isNull();
@@ -210,11 +211,11 @@ class FactoryBeanTests {
     AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(factory, false);
 
     reader.registerBean("bean2", BeanImpl2.class, definition -> {
-      definition.addPropertyValue("impl1", BeanReference.required(BeanImpl1.class));
+      definition.addPropertyValue("impl1", new RuntimeBeanReference(BeanImpl1.class));
     });
 
     reader.registerBean("bean1", BeanImpl1.class, definition -> {
-      definition.addPropertyValue("impl2", BeanReference.required(BeanImpl2.class));
+      definition.addPropertyValue("impl2", new RuntimeBeanReference(BeanImpl2.class));
     });
 
     CountingPostProcessor counter = new CountingPostProcessor();
