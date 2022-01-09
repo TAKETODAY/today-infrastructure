@@ -37,7 +37,6 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public final class CustomSQLExceptionTranslatorRegistry {
-
   private static final Logger logger = LoggerFactory.getLogger(CustomSQLExceptionTranslatorRegistry.class);
 
   /**
@@ -63,8 +62,7 @@ public final class CustomSQLExceptionTranslatorRegistry {
    * Create a new instance of the {@link CustomSQLExceptionTranslatorRegistry} class.
    * <p>Not public to enforce Singleton design pattern.
    */
-  private CustomSQLExceptionTranslatorRegistry() {
-  }
+  private CustomSQLExceptionTranslatorRegistry() { }
 
   /**
    * Register a new custom translator for the specified database name.
@@ -76,12 +74,11 @@ public final class CustomSQLExceptionTranslatorRegistry {
     SQLExceptionTranslator replaced = this.translatorMap.put(dbName, translator);
     if (logger.isDebugEnabled()) {
       if (replaced != null) {
-        logger.debug("Replacing custom translator [" + replaced + "] for database '" + dbName +
-                "' with [" + translator + "]");
+        logger.debug("Replacing custom translator [{}] for database '{}' with [{}]", replaced, dbName, translator);
       }
       else {
-        logger.debug("Adding custom translator of type [" + translator.getClass().getName() +
-                "] for database '" + dbName + "'");
+        logger.debug("Adding custom translator of type [{}] for database '{}'",
+                translator.getClass().getName(), translator.getClass().getName(), dbName);
       }
     }
   }

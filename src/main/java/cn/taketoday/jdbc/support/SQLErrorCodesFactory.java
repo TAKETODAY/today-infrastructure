@@ -126,7 +126,6 @@ public class SQLErrorCodesFactory {
     // H2
     SQLErrorCodes h2Codes = new SQLErrorCodes();
 
-    h2Codes.setDatabaseProductName("Apache Derby");
     h2Codes.setBadSqlGrammarCodes("42000,42001,42101,42102,42111,42112,42121,42122,42132".split(","));
     h2Codes.setDuplicateKeyCodes("23001", "23505");
     h2Codes.setDataIntegrityViolationCodes("22001,22003,22012,22018,22025,23000,23002,23003,23502,23503,23506,23507,23513".split(","));
@@ -157,7 +156,7 @@ public class SQLErrorCodesFactory {
     oracleCodes.setCannotSerializeTransactionCodes("8177");
     errorCodes.put("Oracle", oracleCodes);
 
-    // Oracle
+    // PostgreSQL
     SQLErrorCodes postgresCodes = new SQLErrorCodes();
     postgresCodes.setUseSqlStateForTranslation(true);
     postgresCodes.setBadSqlGrammarCodes("03000,42000,42601,42602,42622,42804,42P01".split(","));
