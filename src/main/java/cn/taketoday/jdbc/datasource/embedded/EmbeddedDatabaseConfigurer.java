@@ -22,6 +22,8 @@ package cn.taketoday.jdbc.datasource.embedded;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.lang.Assert;
+
 /**
  * {@code EmbeddedDatabaseConfigurer} encapsulates the configuration required to
  * create, connect to, and shut down a specific type of embedded database such as
@@ -48,5 +50,26 @@ public interface EmbeddedDatabaseConfigurer {
    * @param databaseName the name of the database being shut down
    */
   void shutdown(DataSource dataSource, String databaseName);
+
+  /**
+   * Return a configurer instance for the given embedded database type.
+   *
+   * @param type the embedded database type (HSQL, H2 or Derby)
+   * @return the configurer instance
+   * @throws IllegalStateException if the driver for the specified database type is not available
+   */
+  static EmbeddedDatabaseConfigurer from(EmbeddedDatabaseType type) throws IllegalStateException {
+    Assert.notNull(type, "EmbeddedDatabaseType is required");
+    try {
+      return switch (type) {
+        case HSQL -> HsqlEmbeddedDatabaseConfigurer.getInstance();
+        case H2 -> H2EmbeddedDatabaseConfigurer.getInstance();
+        case DERBY -> DerbyEmbeddedDatabaseConfigurer.getInstance();
+      };
+    }
+    catch (ClassNotFoundException | NoClassDefFoundError ex) {
+      throw new IllegalStateException("Driver for test database type [" + type + "] is not available", ex);
+    }
+  }
 
 }

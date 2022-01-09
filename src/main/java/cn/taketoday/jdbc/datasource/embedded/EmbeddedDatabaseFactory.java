@@ -133,7 +133,7 @@ public class EmbeddedDatabaseFactory {
    * @param type the database type
    */
   public void setDatabaseType(EmbeddedDatabaseType type) {
-    this.databaseConfigurer = EmbeddedDatabaseConfigurerFactory.getConfigurer(type);
+    this.databaseConfigurer = EmbeddedDatabaseConfigurer.from(type);
   }
 
   /**
@@ -181,7 +181,7 @@ public class EmbeddedDatabaseFactory {
 
     // Create the embedded database first
     if (this.databaseConfigurer == null) {
-      this.databaseConfigurer = EmbeddedDatabaseConfigurerFactory.getConfigurer(EmbeddedDatabaseType.HSQL);
+      this.databaseConfigurer = EmbeddedDatabaseConfigurer.from(EmbeddedDatabaseType.HSQL);
     }
     this.databaseConfigurer.configureConnectionProperties(
             this.dataSourceFactory.getConnectionProperties(), this.databaseName);
@@ -219,12 +219,11 @@ public class EmbeddedDatabaseFactory {
   protected void shutdownDatabase() {
     if (this.dataSource != null) {
       if (logger.isInfoEnabled()) {
-        if (this.dataSource instanceof SimpleDriverDataSource) {
-          logger.info(String.format("Shutting down embedded database: url='%s'",
-                  ((SimpleDriverDataSource) this.dataSource).getUrl()));
+        if (this.dataSource instanceof SimpleDriverDataSource simple) {
+          logger.info("Shutting down embedded database: url='{}'", simple.getUrl());
         }
         else {
-          logger.info(String.format("Shutting down embedded database '%s'", this.databaseName));
+          logger.info("Shutting down embedded database '{}'", this.databaseName);
         }
       }
       if (this.databaseConfigurer != null) {
