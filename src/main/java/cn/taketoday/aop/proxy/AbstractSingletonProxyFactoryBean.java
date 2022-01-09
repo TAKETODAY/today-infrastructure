@@ -22,10 +22,10 @@ package cn.taketoday.aop.proxy;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.FactoryBeanNotInitializedException;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 

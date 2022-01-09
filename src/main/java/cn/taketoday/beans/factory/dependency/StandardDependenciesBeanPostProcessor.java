@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -225,7 +224,7 @@ public class StandardDependenciesBeanPostProcessor
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              definition.getResourceDescription(), beanName, "Injection of autowired dependencies failed", ex);
+              definition, "Injection of autowired dependencies failed", ex);
     }
   }
 
@@ -282,16 +281,14 @@ public class StandardDependenciesBeanPostProcessor
               if (requiredConstructor != null) {
                 throw new BeanCreationException(beanName,
                         "Invalid autowire-marked constructor: " + candidate +
-                                ". Found constructor with 'required' Autowired annotation already: " +
-                                requiredConstructor);
+                                ". Found constructor with 'required' Autowired annotation already: " + requiredConstructor);
               }
               boolean required = determineRequiredStatus(candidate);
               if (required) {
                 if (!candidates.isEmpty()) {
                   throw new BeanCreationException(beanName,
                           "Invalid autowire-marked constructors: " + candidates +
-                                  ". Found constructor with 'required' Autowired annotation: " +
-                                  candidate);
+                                  ". Found constructor with 'required' Autowired annotation: " + candidate);
                 }
                 requiredConstructor = candidate;
               }
@@ -355,7 +352,7 @@ public class StandardDependenciesBeanPostProcessor
   private InjectionMetadata findAutowiringMetadata(
           String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
     // Fall back to class name as cache key, for backwards compatibility with custom callers.
-    String cacheKey = (StringUtils.isNotEmpty(beanName) ? beanName : clazz.getName());
+    String cacheKey = StringUtils.isNotEmpty(beanName) ? beanName : clazz.getName();
     // Quick check on the concurrent map first, with minimal locking.
     InjectionMetadata metadata = injectionMetadataCache.get(cacheKey);
     if (InjectionMetadata.needsRefresh(metadata, clazz)) {
