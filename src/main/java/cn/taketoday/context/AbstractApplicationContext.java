@@ -31,18 +31,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
@@ -476,10 +476,8 @@ public abstract class AbstractApplicationContext
         finishRefresh();
       }
       catch (Exception ex) {
-        if (log.isWarnEnabled()) {
-          log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
-                  ex.toString());
-        }
+        log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
+                ex.toString());
 
         cancelRefresh(ex);
         applyState(State.FAILED);
