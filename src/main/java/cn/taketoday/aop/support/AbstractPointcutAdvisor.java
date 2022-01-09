@@ -24,11 +24,12 @@ import org.aopalliance.aop.Advice;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Objects;
 
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Abstract base class for {@link PointcutAdvisor}
@@ -45,8 +46,6 @@ public abstract class AbstractPointcutAdvisor
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private Advice advice = EMPTY_ADVICE;
-
   @Override
   public int getOrder() {
     if (this.order != null) {
@@ -59,42 +58,26 @@ public abstract class AbstractPointcutAdvisor
     return Ordered.LOWEST_PRECEDENCE;
   }
 
-  /**
-   * Specify the advice that this advisor should apply.
-   */
-  public void setAdvice(Advice advice) {
-    this.advice = advice;
-  }
-
-  @Override
-  public Advice getAdvice() {
-    return this.advice;
-  }
-
   @Override
   public boolean isPerInstance() {
     return true;
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
     if (!(other instanceof PointcutAdvisor otherAdvisor)) {
       return false;
     }
-    return Objects.equals(getAdvice(), otherAdvisor.getAdvice())
-            && Objects.equals(getPointcut(), otherAdvisor.getPointcut());
+    return (ObjectUtils.nullSafeEquals(getAdvice(), otherAdvisor.getAdvice()) &&
+            ObjectUtils.nullSafeEquals(getPointcut(), otherAdvisor.getPointcut()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(advice);
+    return PointcutAdvisor.class.hashCode();
   }
 
-  @Override
-  public String toString() {
-    return getClass().getName() + ": advice [" + getAdvice() + "]";
-  }
 }

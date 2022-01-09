@@ -42,7 +42,7 @@ import cn.taketoday.aop.Pointcut;
  */
 @SuppressWarnings("serial")
 public class DefaultPointcutAdvisor
-        extends AbstractPointcutAdvisor implements Serializable {
+        extends AbstractGenericPointcutAdvisor implements Serializable {
 
   private Pointcut pointcut = Pointcut.TRUE;
 

@@ -36,7 +36,7 @@ import cn.taketoday.aop.Pointcut;
  * @since 3.0
  */
 @SuppressWarnings("serial")
-public class NameMatchMethodPointcutAdvisor extends AbstractPointcutAdvisor {
+public class NameMatchMethodPointcutAdvisor extends AbstractGenericPointcutAdvisor {
   private final NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
 
   public NameMatchMethodPointcutAdvisor() { }
