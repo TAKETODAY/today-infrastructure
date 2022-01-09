@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
@@ -60,7 +61,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2019-02-01 12:23
  */
 public class BeanDefinition
-        extends AttributeAccessorSupport implements AttributeAccessor {
+        extends AttributeAccessorSupport implements AttributeAccessor, BeanMetadataElement {
 
   public static final String INIT_METHODS = "initMethods";
   public static final String DESTROY_METHOD = "destroyMethod";
@@ -285,6 +286,66 @@ public class BeanDefinition
   /** Package-visible field for caching partly prepared constructor arguments. */
   @Nullable
   Object[] preparedConstructorArguments;
+
+  /**
+   * @since 3.0
+   */
+  public void copyFrom(BeanDefinition from) {
+    setBeanName(from.getBeanName());
+    setScope(from.getScope());
+
+    setFactoryBean(from.isFactoryBean());
+    setDestroyMethod(from.getDestroyMethod());
+    // copy
+
+    this.role = from.role;
+    this.source = from.source;
+    this.primary = from.primary;
+    this.lazyInit = from.lazyInit;
+    this.synthetic = from.synthetic;
+    this.beanClass = from.beanClass;
+    this.dependsOn = from.dependsOn;
+    this.initMethods = from.initMethods;
+    this.description = from.description;
+    this.autowireMode = from.autowireMode;
+    this.factoryBeanName = from.factoryBeanName;
+    this.autowireCandidate = from.autowireCandidate;
+    this.factoryMethodName = from.factoryMethodName;
+    this.instanceSupplier = from.instanceSupplier;
+    this.qualifiedElement = from.qualifiedElement;
+    this.enableDependencyInjection = from.enableDependencyInjection;
+    this.factoryMethodToIntrospect = from.factoryMethodToIntrospect;
+
+    this.executable = from.executable;
+    this.targetType = from.targetType;
+    this.instantiator = from.instantiator;
+    this.initMethodArray = from.initMethodArray;
+    this.resolvedTargetType = from.resolvedTargetType;
+    this.isFactoryMethodUnique = from.isFactoryMethodUnique;
+    this.factoryMethodReturnType = from.factoryMethodReturnType;
+    this.beforeInstantiationResolved = from.beforeInstantiationResolved;
+
+    if (from.hasConstructorArgumentValues()) {
+      setConstructorArgumentValues(new ConstructorArgumentValues(from.getConstructorArgumentValues()));
+    }
+
+    if (from.getPropertyValues() != null) {
+      propertyValues().add(from.getPropertyValues());
+    }
+
+    copyQualifiersFrom(from);
+    copyAttributesFrom(from);
+
+    setInitMethods(from.getInitMethods());
+    setBeanClassName(from.getBeanClassName());
+  }
+
+  /** @since 4.0 */
+  public BeanDefinition cloneDefinition() {
+    BeanDefinition definition = new BeanDefinition();
+    definition.copyFrom(this);
+    return definition;
+  }
 
   public BeanDefinition() { }
 
@@ -781,65 +842,6 @@ public class BeanDefinition
   }
 
   /**
-   * @since 3.0
-   */
-  public void copyFrom(BeanDefinition from) {
-    setBeanName(from.getBeanName());
-    setScope(from.getScope());
-
-    setFactoryBean(from.isFactoryBean());
-    setDestroyMethod(from.getDestroyMethod());
-    // copy
-
-    setLazyInit(from.isLazyInit());
-
-    setRole(from.getRole());
-    setPrimary(from.isPrimary());
-    setSynthetic(from.isSynthetic());
-    setDependsOn(from.getDependsOn());
-
-    this.source = from.source;
-    this.beanClass = from.beanClass;
-    this.initMethods = from.initMethods;
-    this.factoryBeanName = from.factoryBeanName;
-    this.factoryMethodName = from.factoryMethodName;
-    this.instanceSupplier = from.instanceSupplier;
-    this.qualifiedElement = from.qualifiedElement;
-    this.enableDependencyInjection = from.enableDependencyInjection;
-    this.factoryMethodToIntrospect = from.factoryMethodToIntrospect;
-
-    this.executable = from.executable;
-    this.targetType = from.targetType;
-    this.instantiator = from.instantiator;
-    this.initMethodArray = from.initMethodArray;
-    this.resolvedTargetType = from.resolvedTargetType;
-    this.factoryMethodReturnType = from.factoryMethodReturnType;
-    this.isFactoryMethodUnique = from.isFactoryMethodUnique;
-    this.beforeInstantiationResolved = from.beforeInstantiationResolved;
-
-    if (from.hasConstructorArgumentValues()) {
-      setConstructorArgumentValues(new ConstructorArgumentValues(from.getConstructorArgumentValues()));
-    }
-
-    if (from.getPropertyValues() != null) {
-      propertyValues().add(from.getPropertyValues());
-    }
-
-    copyQualifiersFrom(from);
-    copyAttributesFrom(from);
-
-    setInitMethods(from.getInitMethods());
-    setBeanClassName(from.getBeanClassName());
-  }
-
-  /** @since 4.0 */
-  public BeanDefinition cloneDefinition() {
-    BeanDefinition definition = new BeanDefinition();
-    definition.copyFrom(this);
-    return definition;
-  }
-
-  /**
    * Apply the provided default values to this bean.
    *
    * @param defaults the default settings to apply
@@ -850,6 +852,8 @@ public class BeanDefinition
     if (lazyInit != null) {
       setLazyInit(lazyInit);
     }
+
+    setAutowireMode(defaults.getAutowireMode());
     setInitMethods(defaults.getInitMethodNames());
     setDestroyMethod(defaults.getDestroyMethodName());
   }
@@ -1040,6 +1044,7 @@ public class BeanDefinition
 
   /** @since 4.0 source */
   @Nullable
+  @Override
   public Object getSource() {
     return this.source;
   }

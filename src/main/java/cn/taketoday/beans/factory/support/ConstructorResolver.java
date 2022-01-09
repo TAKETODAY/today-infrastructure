@@ -185,8 +185,8 @@ final class ConstructorResolver {
       }
 
       // Need to resolve the constructor.
-      boolean autowiring = (chosenCtors != null ||
-              definition.getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
+      boolean autowiring = chosenCtors != null
+              || definition.getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
       ConstructorArgumentValues resolvedValues = null;
 
       int minNrOfArgs;
@@ -196,7 +196,7 @@ final class ConstructorResolver {
       else {
         ConstructorArgumentValues cargs = definition.getConstructorArgumentValues();
         resolvedValues = new ConstructorArgumentValues();
-        minNrOfArgs = resolveConstructorArguments(beanName, definition, cargs, resolvedValues);
+        minNrOfArgs = resolveConstructorArguments(definition, cargs, resolvedValues);
       }
 
       AutowireUtils.sortConstructors(candidates);
@@ -492,7 +492,7 @@ final class ConstructorResolver {
         if (mbd.hasConstructorArgumentValues()) {
           ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
           resolvedValues = new ConstructorArgumentValues();
-          minNrOfArgs = resolveConstructorArguments(beanName, mbd, cargs, resolvedValues);
+          minNrOfArgs = resolveConstructorArguments(mbd, cargs, resolvedValues);
         }
         else {
           minNrOfArgs = 0;
@@ -656,18 +656,14 @@ final class ConstructorResolver {
    * <p>This method is also used for handling invocations of static factory methods.
    */
   private int resolveConstructorArguments(
-          String beanName, BeanDefinition mbd,
-          ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
-
+          BeanDefinition mbd, ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
     BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, mbd);
-
     int minNrOfArgs = cargs.getArgumentCount();
-
     for (Map.Entry<Integer, ValueHolder> entry : cargs.getIndexedArgumentValues().entrySet()) {
       int index = entry.getKey();
       if (index < 0) {
-        throw new BeanCreationException(mbd.getResourceDescription(), beanName,
-                "Invalid constructor argument index: " + index);
+        throw new BeanCreationException(
+                mbd, "Invalid constructor argument index: " + index);
       }
       if (index + 1 > minNrOfArgs) {
         minNrOfArgs = index + 1;
@@ -677,8 +673,8 @@ final class ConstructorResolver {
         resolvedValues.addIndexedArgumentValue(index, valueHolder);
       }
       else {
-        Object resolvedValue =
-                valueResolver.resolveValueIfNecessary("constructor argument", valueHolder.getValue());
+        Object resolvedValue = valueResolver.resolveValueIfNecessary(
+                "constructor argument", valueHolder.getValue());
         ValueHolder resolvedValueHolder =
                 new ValueHolder(resolvedValue, valueHolder.getType(), valueHolder.getName());
         resolvedValueHolder.setSource(valueHolder);
@@ -691,8 +687,8 @@ final class ConstructorResolver {
         resolvedValues.addGenericArgumentValue(valueHolder);
       }
       else {
-        Object resolvedValue =
-                valueResolver.resolveValueIfNecessary("constructor argument", valueHolder.getValue());
+        Object resolvedValue = valueResolver.resolveValueIfNecessary(
+                "constructor argument", valueHolder.getValue());
         ValueHolder resolvedValueHolder = new ValueHolder(
                 resolvedValue, valueHolder.getType(), valueHolder.getName());
         resolvedValueHolder.setSource(valueHolder);
@@ -708,9 +704,8 @@ final class ConstructorResolver {
    * given the resolved constructor argument values.
    */
   private ArgumentsHolder createArgumentArray(
-          BeanDefinition definition,
-          @Nullable ConstructorArgumentValues resolvedValues, Class<?>[] paramTypes,
-          @Nullable String[] paramNames, Executable executable,
+          BeanDefinition definition, @Nullable ConstructorArgumentValues resolvedValues,
+          Class<?>[] paramTypes, @Nullable String[] paramNames, Executable executable,
           boolean autowiring, boolean fallback) throws UnsatisfiedDependencyException {
 
     String beanName = definition.getBeanName();
@@ -769,12 +764,12 @@ final class ConstructorResolver {
         MethodParameter methodParam = MethodParameter.forExecutable(executable, paramIndex);
         // No explicit match found: we're either supposed to autowire or
         // have to fail creating an argument array for the given constructor.
-        if (!autowiring) {
-          throw new UnsatisfiedDependencyException(
-                  definition.getResourceDescription(), beanName, new InjectionPoint(methodParam),
-                  "Ambiguous argument values for parameter of type [" + paramType.getName() +
-                          "] - did you specify the correct bean references as arguments?");
-        }
+//        if (!autowiring) {
+//          throw new UnsatisfiedDependencyException(
+//                  definition.getResourceDescription(), beanName, new InjectionPoint(methodParam),
+//                  "Ambiguous argument values for parameter of type [" + paramType.getName() +
+//                          "] - did you specify the correct bean references as arguments?");
+//        }
         try {
           Object autowiredArgument = resolveAutowiredArgument(
                   methodParam, beanName, autowiredBeanNames, fallback);
@@ -803,6 +798,9 @@ final class ConstructorResolver {
   }
 
   private Object convertIfNecessary(Object originalValue, Class<?> paramType, MethodParameter methodParam) {
+    if (paramType.isInstance(originalValue)) {
+      return originalValue;
+    }
     ConversionService conversionService = beanFactory.getConversionService();
     if (conversionService == null) {
       conversionService = DefaultConversionService.getSharedInstance();

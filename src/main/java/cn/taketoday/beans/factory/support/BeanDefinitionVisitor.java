@@ -28,12 +28,10 @@ import java.util.Set;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeanReference;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Visitor class for traversing {@link BeanDefinition} objects, in particular
@@ -167,18 +165,23 @@ public class BeanDefinitionVisitor {
   @SuppressWarnings("rawtypes")
   @Nullable
   protected Object resolveValue(@Nullable Object value) {
-    if (value instanceof BeanReference ref) {
-      String beanName = ref.getBeanName();
-      if (StringUtils.hasText(beanName)) {
-        String newBeanName = resolveStringValue(beanName);
-        if (newBeanName == null) {
-          return null;
-        }
-        if (!newBeanName.equals(beanName)) {
-          ref.setBeanName(newBeanName);
-        }
+    if (value instanceof RuntimeBeanReference ref) {
+      String newBeanName = resolveStringValue(ref.getBeanName());
+      if (newBeanName == null) {
+        return null;
       }
-      return ref;
+      if (!newBeanName.equals(ref.getBeanName())) {
+        return new RuntimeBeanReference(newBeanName);
+      }
+    }
+    else if (value instanceof RuntimeBeanNameReference ref) {
+      String newBeanName = resolveStringValue(ref.getBeanName());
+      if (newBeanName == null) {
+        return null;
+      }
+      if (!newBeanName.equals(ref.getBeanName())) {
+        return new RuntimeBeanNameReference(newBeanName);
+      }
     }
     else if (value instanceof BeanDefinition) {
       visitBeanDefinition((BeanDefinition) value);

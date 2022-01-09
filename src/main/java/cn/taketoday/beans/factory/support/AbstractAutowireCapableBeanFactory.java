@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -55,7 +56,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.PropertyValueRetriever;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
@@ -657,20 +657,20 @@ public abstract class AbstractAutowireCapableBeanFactory
         return autowireConstructor(definition, null, null);
       }
       else {
-        return instantiate(definition, null);
+        return instantiateBean(definition, null);
       }
     }
 
     // Candidate constructors for autowiring?
-    Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, definition.getBeanName());
-    if (ctors != null
+    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, definition.getBeanName());
+    if (constructors != null
             || definition.getAutowireMode() == AUTOWIRE_CONSTRUCTOR
             || definition.hasConstructorArgumentValues()
             || !ObjectUtils.isEmpty(args)) {
-      return autowireConstructor(definition, ctors, args);
+      return autowireConstructor(definition, constructors, args);
     }
 
-    return instantiate(definition, args);
+    return instantiateBean(definition, args);
   }
 
   /**
@@ -722,7 +722,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors
    */
   @Nullable
-  protected Constructor<?>[] determineConstructorsFromBeanPostProcessors(
+  protected Constructor<?>[] determineConstructorsFromPostProcessors(
           @Nullable Class<?> beanClass, String beanName) throws BeansException {
 
     if (beanClass != null) {
@@ -736,7 +736,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     return null;
   }
 
-  protected Object instantiate(BeanDefinition def, Constructor<?> constructorToUse, Object[] constructorArgs) {
+  protected Object instantiate(
+          BeanDefinition def, Constructor<?> constructorToUse, Object[] constructorArgs) {
     BeanInstantiator instantiator = resolveBeanInstantiator(def, constructorToUse);
     try {
       return instantiator.instantiate(constructorArgs);
@@ -746,8 +747,14 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
-  protected Object instantiate(BeanDefinition def, @Nullable Object[] constructorArgs) {
+  protected Object instantiateBean(BeanDefinition def, @Nullable Object[] constructorArgs) {
     BeanInstantiator instantiator = resolveBeanInstantiator(def, null);
+    Executable executable = def.executable;
+    if (executable.getParameterCount() != 0 && constructorArgs == null) {
+//      DependencyInjector injector = getInjector();
+//      constructorArgs = injector.resolveArguments(executable, (Object[]) null);
+      return autowireConstructor(def, new Constructor[] { (Constructor<?>) executable }, null);
+    }
     try {
       return instantiator.instantiate(constructorArgs);
     }
@@ -805,6 +812,9 @@ public abstract class AbstractAutowireCapableBeanFactory
         // provide fast access the method
         definition.instantiator = BeanInstantiator.fromConstructor(constructor);
       }
+      if (definition.executable == null) {
+        definition.executable = constructor;
+      }
     }
     return definition.instantiator;
   }
@@ -812,7 +822,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
-    Object existingBean = instantiate(prototypeDef, null);
+    Object existingBean = instantiateBean(prototypeDef, null);
     populateBean(existingBean, prototypeDef);
     return existingBean;
   }
@@ -828,7 +838,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       return autowireConstructor(bd, null, null);
     }
 
-    Object bean = instantiate(bd, null);
+    Object bean = instantiateBean(bd, null);
     populateBean(bean, bd);
     return bean;
   }
@@ -907,17 +917,23 @@ public abstract class AbstractAutowireCapableBeanFactory
           initPropertyValuesBinder(binder);
         }
 
-        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, binder, definition);
+        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition);
 
         // property-path -> property-value (maybe PropertyValueRetriever)
         for (Map.Entry<String, Object> entry : map.entrySet()) {
           Object value = entry.getValue();
           String propertyPath = entry.getKey();
 
-          value = valueResolver.resolveValueIfNecessary(propertyPath, value);
-          if (value == PropertyValueRetriever.DO_NOT_SET) {
-            continue;
+          if (value instanceof PropertyValueRetriever retriever) {
+            value = retriever.retrieve(propertyPath, binder, this);
+            if (value == PropertyValueRetriever.DO_NOT_SET) {
+              continue;
+            }
           }
+          else {
+            value = valueResolver.resolveValueIfNecessary(propertyPath, value);
+          }
+
           binder.setProperty(bean, metadata, propertyPath, value);
         }
       }

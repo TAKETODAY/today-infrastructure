@@ -43,6 +43,29 @@ public class BeanDefinitionDefaults {
   @Nullable
   private String destroyMethodName;
 
+  private int autowireMode = BeanDefinition.AUTOWIRE_NO;
+
+  /**
+   * Set the autowire mode. This determines whether any automagical detection
+   * and setting of bean references will happen. Default is AUTOWIRE_NO
+   * which means there won't be convention-based autowiring by name or type
+   * (however, there may still be explicit annotation-driven autowiring).
+   *
+   * @param autowireMode the autowire mode to set.
+   * Must be one of the constants defined in {@link BeanDefinition}.
+   * @see BeanDefinition#setAutowireMode
+   */
+  public void setAutowireMode(int autowireMode) {
+    this.autowireMode = autowireMode;
+  }
+
+  /**
+   * Return the default autowire mode.
+   */
+  public int getAutowireMode() {
+    return this.autowireMode;
+  }
+
   /**
    * Set whether beans should be lazily initialized by default.
    * <p>If {@code false}, the bean will get instantiated on startup by bean
