@@ -58,6 +58,7 @@ import static org.mockito.Mockito.verify;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  */
+// @Disabled
 public class SqlQueryTests {
 
   //FIXME inline?

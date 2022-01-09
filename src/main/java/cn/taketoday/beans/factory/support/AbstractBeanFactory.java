@@ -290,19 +290,26 @@ public abstract class AbstractBeanFactory
           if (StringUtils.isEmpty(scopeName)) {
             throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
           }
+
           Scope scope = this.scopes.get(scopeName);
           if (scope == null) {
             throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
           }
-          beanInstance = scope.get(beanName, () -> {
-            beforePrototypeCreation(beanName);
-            try {
-              return createBean(beanName, definition, args);
-            }
-            finally {
-              afterPrototypeCreation(beanName);
-            }
-          });
+
+          try {
+            beanInstance = scope.get(beanName, () -> {
+              beforePrototypeCreation(beanName);
+              try {
+                return createBean(beanName, definition, args);
+              }
+              finally {
+                afterPrototypeCreation(beanName);
+              }
+            });
+          }
+          catch (IllegalStateException ex) {
+            throw new ScopeNotActiveException(beanName, scopeName, ex);
+          }
         }
         // null
         if (beanInstance == null) {

@@ -712,28 +712,50 @@ public class StandardBeanFactory
       @Override
       @Nullable
       public T getIfAvailable() throws BeansException {
-        return resolveBean(requiredType, null, false);
+        try {
+          return resolveBean(requiredType, null, false);
+        }
+        catch (ScopeNotActiveException ex) {
+          // Ignore resolved bean in non-active scope
+          return null;
+        }
       }
 
       @Override
       public void ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
         T dependency = getIfAvailable();
         if (dependency != null) {
-          dependencyConsumer.accept(dependency);
+          try {
+            dependencyConsumer.accept(dependency);
+          }
+          catch (ScopeNotActiveException ex) {
+            // Ignore resolved bean in non-active scope, even on scoped proxy invocation
+          }
         }
       }
 
       @Override
       @Nullable
       public T getIfUnique() throws BeansException {
-        return resolveBean(requiredType, null, true);
+        try {
+          return resolveBean(requiredType, null, true);
+        }
+        catch (ScopeNotActiveException ex) {
+          // Ignore resolved bean in non-active scope
+          return null;
+        }
       }
 
       @Override
       public void ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
         T dependency = getIfUnique();
         if (dependency != null) {
-          dependencyConsumer.accept(dependency);
+          try {
+            dependencyConsumer.accept(dependency);
+          }
+          catch (ScopeNotActiveException ex) {
+            // Ignore resolved bean in non-active scope, even on scoped proxy invocation
+          }
         }
       }
 
@@ -1875,17 +1897,23 @@ public class StandardBeanFactory
     @Override
     @Nullable
     public Object getIfAvailable() throws BeansException {
-      if (this.optional) {
-        return createOptionalDependency(this.descriptor, this.beanName);
+      try {
+        if (this.optional) {
+          return createOptionalDependency(this.descriptor, this.beanName);
+        }
+        else {
+          DependencyDescriptor descriptorToUse = new DependencyDescriptor(this.descriptor) {
+            @Override
+            public boolean isRequired() {
+              return false;
+            }
+          };
+          return doResolveDependency(descriptorToUse, this.beanName, null);
+        }
       }
-      else {
-        DependencyDescriptor descriptorToUse = new DependencyDescriptor(this.descriptor) {
-          @Override
-          public boolean isRequired() {
-            return false;
-          }
-        };
-        return doResolveDependency(descriptorToUse, this.beanName, null);
+      catch (ScopeNotActiveException ex) {
+        // Ignore resolved bean in non-active scope
+        return null;
       }
     }
 
@@ -1893,7 +1921,12 @@ public class StandardBeanFactory
     public void ifAvailable(Consumer<Object> dependencyConsumer) throws BeansException {
       Object dependency = getIfAvailable();
       if (dependency != null) {
-        dependencyConsumer.accept(dependency);
+        try {
+          dependencyConsumer.accept(dependency);
+        }
+        catch (ScopeNotActiveException ex) {
+          // Ignore resolved bean in non-active scope, even on scoped proxy invocation
+        }
       }
     }
 
@@ -1912,11 +1945,17 @@ public class StandardBeanFactory
           return null;
         }
       };
-      if (this.optional) {
-        return createOptionalDependency(descriptorToUse, this.beanName);
+      try {
+        if (this.optional) {
+          return createOptionalDependency(descriptorToUse, this.beanName);
+        }
+        else {
+          return doResolveDependency(descriptorToUse, this.beanName, null);
+        }
       }
-      else {
-        return doResolveDependency(descriptorToUse, this.beanName, null);
+      catch (ScopeNotActiveException ex) {
+        // Ignore resolved bean in non-active scope
+        return null;
       }
     }
 
@@ -1924,7 +1963,12 @@ public class StandardBeanFactory
     public void ifUnique(Consumer<Object> dependencyConsumer) throws BeansException {
       Object dependency = getIfUnique();
       if (dependency != null) {
-        dependencyConsumer.accept(dependency);
+        try {
+          dependencyConsumer.accept(dependency);
+        }
+        catch (ScopeNotActiveException ex) {
+          // Ignore resolved bean in non-active scope, even on scoped proxy invocation
+        }
       }
     }
 

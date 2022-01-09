@@ -20,10 +20,9 @@
 
 package cn.taketoday.core.type;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
@@ -42,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  */
 @Order(1)
-@Execution(ExecutionMode.SAME_THREAD)
+@Disabled
 class AnnotationTypeFilterTests {
 
   @Test

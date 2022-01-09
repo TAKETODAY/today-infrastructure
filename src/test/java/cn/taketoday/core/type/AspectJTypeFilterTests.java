@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.type;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/15 23:03
  */
+@Disabled
 class AspectJTypeFilterTests {
 
   @Test
