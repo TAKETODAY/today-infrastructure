@@ -88,8 +88,8 @@ public class TransactionalEventListenerTests {
       getEventCollector().assertEvents(EventCollector.IMMEDIATELY, "test");
       getEventCollector().assertTotalEventsCount(1);
       return null;
-
     });
+
     getEventCollector().assertEvents(EventCollector.IMMEDIATELY, "test");
     getEventCollector().assertTotalEventsCount(1);
   }
@@ -130,8 +130,8 @@ public class TransactionalEventListenerTests {
       getEventCollector().assertNoEventReceived();
       status.setRollbackOnly();
       return null;
-
     });
+
     getEventCollector().assertEvents(EventCollector.AFTER_COMPLETION, "test");
     getEventCollector().assertTotalEventsCount(1); // After rollback not invoked
   }

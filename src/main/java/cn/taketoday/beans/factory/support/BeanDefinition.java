@@ -43,7 +43,6 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
@@ -238,7 +237,6 @@ public class BeanDefinition
 
   // cache for fast access
   Executable executable;
-  BeanInstantiator instantiator;
 
   ResolvableType factoryMethodReturnType;
 
@@ -321,7 +319,6 @@ public class BeanDefinition
 
     this.executable = from.executable;
     this.targetType = from.targetType;
-    this.instantiator = from.instantiator;
     this.initMethodArray = from.initMethodArray;
     this.resolvedTargetType = from.resolvedTargetType;
     this.isFactoryMethodUnique = from.isFactoryMethodUnique;
