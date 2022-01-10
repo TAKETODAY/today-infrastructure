@@ -1780,11 +1780,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     int rowCount = NUMBER_OF_USERS_IN_THE_TEST;
     connection.createQuery(
-            "create table User(\n" +
-                    "id int identity primary key,\n" +
-                    "name varchar(20),\n" +
-                    "email varchar(255),\n" +
-                    "text varchar(100))").executeUpdate();
+            """
+                    create table User(
+                    id int identity primary key,
+                    name varchar(20),
+                    email varchar(255),
+                    text varchar(100))""").executeUpdate();
 
     Query insQuery = connection.createQuery("insert into User(name, email, text) values (:name, :email, :text)");
     insQuery.setMaxBatchRecords(maxBatchRecords);

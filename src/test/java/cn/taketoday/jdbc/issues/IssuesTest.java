@@ -173,7 +173,8 @@ public class IssuesTest {
   public void testForNullToSimpeType() {
     sql2o.createQuery("create table issue5table(id int identity primary key, val integer)").executeUpdate();
 
-    sql2o.createQuery("insert into issue5table(val) values (:val)").addParameter("val", (Object) null).executeUpdate();
+    sql2o.createQuery("insert into issue5table(val) values (:val)")
+            .addParameter("val", (Object) null).executeUpdate();
 
     List<Issue5POJO> list1 = sql2o.createQuery("select * from issue5table")
             .fetch(Issue5POJO.class);
