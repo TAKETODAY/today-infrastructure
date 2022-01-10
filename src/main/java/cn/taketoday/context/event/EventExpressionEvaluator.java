@@ -59,6 +59,10 @@ class EventExpressionEvaluator extends CachedExpressionEvaluator {
               new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
     }
 
+    if (!conditionExpression.startsWith("#{") && !conditionExpression.endsWith("}")) {
+      conditionExpression = "#{" + conditionExpression + "}";
+    }
+
     return Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression)
             .getValue(evaluationContext));
   }
