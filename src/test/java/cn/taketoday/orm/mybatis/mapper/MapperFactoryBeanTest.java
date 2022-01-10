@@ -62,7 +62,7 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
 
   @Test
   void testAddToConfigTrue() throws Exception {
-    // the default SqlSessionFactory in AbstractMyBatisSpringTest is created with an explicitly set
+    // the default SqlSessionFactory in AbstractMyBatisTodayTest is created with an explicitly set
     // MapperLocations list, so create a new factory here that tests auto-loading the config
     SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
     factoryBean.setDatabaseIdProvider(null);
@@ -82,7 +82,7 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
   @Test
   void testAddToConfigFalse() throws Throwable {
     try {
-      // the default SqlSessionFactory in AbstractMyBatisSpringTest is created with an explicitly
+      // the default SqlSessionFactory in AbstractMyBatisTodayTest is created with an explicitly
       // set MapperLocations list, so create a new factory here that tests auto-loading the
       // config
       SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
@@ -121,10 +121,10 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
   // MapperFactoryBeans should be usable outside of TX, as long as a there is no active
   // transaction
   @Test
-  void testWithNonSpringTransactionFactory() throws Exception {
+  void testWithNonTodayTransactionFactory() throws Exception {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();
-    Environment nonSpring = new Environment("non-today", new JdbcTransactionFactory(), dataSource);
-    sqlSessionFactory.getConfiguration().setEnvironment(nonSpring);
+    Environment nonToday = new Environment("non-today", new JdbcTransactionFactory(), dataSource);
+    sqlSessionFactory.getConfiguration().setEnvironment(nonToday);
 
     try {
       find(new SqlSessionTemplate(sqlSessionFactory));
@@ -139,13 +139,13 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
     }
   }
 
-  // active transaction using the DataSource, but without a SpringTransactionFactory
+  // active transaction using the DataSource, but without a TodayTransactionFactory
   // this should error
   @Test
-  void testNonSpringTxMgrWithTx() throws Exception {
+  void testNonTodayTxMgrWithTx() throws Exception {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();
-    Environment nonSpring = new Environment("non-today", new JdbcTransactionFactory(), dataSource);
-    sqlSessionFactory.getConfiguration().setEnvironment(nonSpring);
+    Environment nonToday = new Environment("non-today", new JdbcTransactionFactory(), dataSource);
+    sqlSessionFactory.getConfiguration().setEnvironment(nonToday);
 
     TransactionStatus status = null;
 
@@ -158,8 +158,8 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
     }
     catch (TransientDataAccessResourceException e) {
       assertThat(e.getMessage())
-              .isEqualTo("SqlSessionFactory must be using a SpringManagedTransactionFactory in order to use"
-                      + " Today transaction synchronization");
+              .isEqualTo("SqlSessionFactory must be using a ManagedTransactionFactory in order to use"
+                      + " transaction synchronization");
     }
     finally {
       // rollback required to close connection
@@ -169,16 +169,16 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
     }
   }
 
-  // similar to testNonSpringTxFactoryNonSpringDSWithTx() in MyBatisSpringTest
+  // similar to testNonTodayTxFactoryNonTodayDSWithTx() in MyBatisTodayTest
   @Test
-  void testNonSpringWithTx() throws Exception {
+  void testNonTodayWithTx() throws Exception {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();
 
     MockDataSource mockDataSource = new MockDataSource();
     mockDataSource.setupConnection(createMockConnection());
 
-    Environment nonSpring = new Environment("non-today", new JdbcTransactionFactory(), mockDataSource);
-    sqlSessionFactory.getConfiguration().setEnvironment(nonSpring);
+    Environment nonToday = new Environment("non-today", new JdbcTransactionFactory(), mockDataSource);
+    sqlSessionFactory.getConfiguration().setEnvironment(nonToday);
 
     SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);
 

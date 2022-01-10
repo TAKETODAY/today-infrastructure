@@ -481,7 +481,7 @@ public abstract class AbstractApplicationContext
 
         cancelRefresh(ex);
         applyState(State.FAILED);
-        throw new ApplicationContextException("context refresh failed", ex);
+        throw new ApplicationContextException("context refresh failed, cause: " + ex.getMessage(), ex);
       }
       finally {
         resetCommonCaches();
