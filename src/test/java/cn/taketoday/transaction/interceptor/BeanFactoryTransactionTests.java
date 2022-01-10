@@ -212,6 +212,7 @@ public class BeanFactoryTransactionTests {
     factory.registerBeanDefinition(new BeanDefinition("proxyFactory2Cglib", TransactionProxyFactoryBean.class)
             .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
+            .addPropertyValue("proxyTargetClass", true)
             .addPropertyValue("target", RuntimeBeanReference.from("target"))
     );
 
@@ -231,7 +232,7 @@ public class BeanFactoryTransactionTests {
             .addPropertyValue("proxyTargetClass", true)
             .addPropertyValue("pointcut", RuntimeBeanReference.from("txnInvocationCounterPointcut"))
             .addPropertyValue("preInterceptors", RuntimeBeanReference.from("preInvocationCounterInterceptor"))
-            .addPropertyValue("postInterceptors", RuntimeBeanReference.from("preInvocationCounterInterceptor"))
+            .addPropertyValue("postInterceptors", RuntimeBeanReference.from("postInvocationCounterInterceptor"))
     );
 
   }
