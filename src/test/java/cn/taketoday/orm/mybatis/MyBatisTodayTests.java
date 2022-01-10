@@ -19,7 +19,6 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import com.mockrunner.mock.ejb.MockUserTransaction;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockDataSource;
 import com.mockrunner.mock.jdbc.MockPreparedStatement;
@@ -29,21 +28,19 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.transaction.TransactionStatus;
-import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class MyBatisSpringTest extends AbstractMyBatisSpringTest {
+class MyBatisTodayTests extends AbstractMyBatisTodayTest {
 
   private SqlSession session;
 

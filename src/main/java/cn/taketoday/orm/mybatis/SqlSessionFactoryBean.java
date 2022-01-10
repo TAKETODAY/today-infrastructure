@@ -23,7 +23,6 @@ import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.ErrorContext;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.mapping.Environment;
@@ -38,12 +37,8 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.TypeHandler;
 
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -52,15 +47,17 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextRefreshedEvent;
+import cn.taketoday.context.loader.ClassPathScanningComponentProvider;
+import cn.taketoday.context.loader.MetadataReaderConsumer;
 import cn.taketoday.core.NestedIOException;
-import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
-import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.ClassMetadata;
-import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.jdbc.datasource.TransactionAwareDataSourceProxy;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.orm.mybatis.transaction.ManagedTransactionFactory;
@@ -90,9 +87,6 @@ public class SqlSessionFactoryBean
         implements FactoryBean<SqlSessionFactory>, InitializingBean, ApplicationListener<ContextRefreshedEvent> {
 
   private static final Logger log = LoggerFactory.getLogger(SqlSessionFactoryBean.class);
-
-  private static final PatternResourceLoader RESOURCE_PATTERN_RESOLVER = new PathMatchingPatternResourceLoader();
-  private static final MetadataReaderFactory METADATA_READER_FACTORY = new CachingMetadataReaderFactory();
 
   private Resource configLocation;
 
@@ -143,6 +137,27 @@ public class SqlSessionFactoryBean
   private ObjectFactory objectFactory;
 
   private ObjectWrapperFactory objectWrapperFactory;
+
+  private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+
+  private ClassPathScanningComponentProvider componentProvider;
+
+  /**
+   * Set the ClassLoader for loading (scanning) TypeHandlers or typeAliases classes
+   *
+   * @param classLoader ClassLoader
+   */
+  public void setClassLoader(ClassLoader classLoader) {
+    this.classLoader = classLoader;
+  }
+
+  public ClassLoader getClassLoader() {
+    return classLoader;
+  }
+
+  public void setComponentProvider(ClassPathScanningComponentProvider componentProvider) {
+    this.componentProvider = componentProvider;
+  }
 
   /**
    * Sets the ObjectFactory.
@@ -470,7 +485,9 @@ public class SqlSessionFactoryBean
     else {
       log.debug("Property 'configuration' or 'configLocation' not specified, using default MyBatis Configuration");
       targetConfiguration = new Configuration();
-      Optional.ofNullable(this.configurationProperties).ifPresent(targetConfiguration::setVariables);
+      if (configurationProperties != null) {
+        targetConfiguration.setVariables(configurationProperties);
+      }
     }
 
     if (objectFactory != null) {
@@ -485,9 +502,16 @@ public class SqlSessionFactoryBean
     }
 
     if (StringUtils.isNotEmpty(this.typeAliasesPackage)) {
-      scanClasses(this.typeAliasesPackage, this.typeAliasesSuperType).stream()
-              .filter(clazz -> !clazz.isAnonymousClass()).filter(clazz -> !clazz.isInterface())
-              .filter(clazz -> !clazz.isMemberClass()).forEach(targetConfiguration.getTypeAliasRegistry()::registerAlias);
+      scanClassPath(typeAliasesPackage, typeAliasesSuperType, new MetadataReaderConsumer() {
+        @Override
+        public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) {
+          ClassMetadata classMetadata = metadataReader.getClassMetadata();
+          if (classMetadata.isIndependent() && !classMetadata.isAbstract() && !classMetadata.isInterface()) {
+            targetConfiguration.getTypeAliasRegistry()
+                    .registerAlias(ClassUtils.resolveClassName(classMetadata.getClassName(), classLoader));
+          }
+        }
+      });
     }
 
     if (ObjectUtils.isNotEmpty(this.typeAliases)) {
@@ -505,9 +529,16 @@ public class SqlSessionFactoryBean
     }
 
     if (StringUtils.isNotEmpty(this.typeHandlersPackage)) {
-      scanClasses(this.typeHandlersPackage, TypeHandler.class).stream().filter(clazz -> !clazz.isAnonymousClass())
-              .filter(clazz -> !clazz.isInterface()).filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-              .forEach(targetConfiguration.getTypeHandlerRegistry()::register);
+      scanClassPath(typeHandlersPackage, TypeHandler.class, new MetadataReaderConsumer() {
+        @Override
+        public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) {
+          ClassMetadata classMetadata = metadataReader.getClassMetadata();
+          if (classMetadata.isIndependent() && !classMetadata.isAbstract() && !classMetadata.isInterface()) {
+            targetConfiguration.getTypeHandlerRegistry()
+                    .register(ClassUtils.resolveClassName(classMetadata.getClassName(), classLoader));
+          }
+        }
+      });
     }
 
     if (ObjectUtils.isNotEmpty(this.typeHandlers)) {
@@ -556,8 +587,7 @@ public class SqlSessionFactoryBean
     }
 
     targetConfiguration.setEnvironment(new Environment(this.environment,
-            this.transactionFactory == null ? new ManagedTransactionFactory() : this.transactionFactory,
-            this.dataSource));
+            this.transactionFactory == null ? new ManagedTransactionFactory() : this.transactionFactory, this.dataSource));
 
     if (this.mapperLocations != null) {
       if (this.mapperLocations.length == 0) {
@@ -628,28 +658,37 @@ public class SqlSessionFactoryBean
     }
   }
 
-  @Deprecated
-  private Set<Class<?>> scanClasses(String packagePatterns, Class<?> assignableType) throws IOException {
-    Set<Class<?>> classes = new HashSet<>();
+  private void scanClassPath(
+          String packagePatterns, @Nullable Class<?> assignableType, MetadataReaderConsumer consumer) throws IOException {
+
     String[] packagePatternArray = StringUtils.tokenizeToStringArray(packagePatterns,
             ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+
+    if (componentProvider == null) {
+      componentProvider = new ClassPathScanningComponentProvider();
+    }
+    AssignableTypeFilter typeFilter = getTypeFilter(assignableType);
     for (String packagePattern : packagePatternArray) {
-      Set<Resource> resources = RESOURCE_PATTERN_RESOLVER.getResources(PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX
-              + ClassUtils.convertClassNameToResourcePath(packagePattern) + "/**/*.class");
-      for (Resource resource : resources) {
+      componentProvider.scan(packagePattern, (metadataReader, factory) -> {
         try {
-          ClassMetadata classMetadata = METADATA_READER_FACTORY.getMetadataReader(resource).getClassMetadata();
-          Class<?> clazz = Resources.classForName(classMetadata.getClassName());
-          if (assignableType == null || assignableType.isAssignableFrom(clazz)) {
-            classes.add(clazz);
+          if (typeFilter == null || typeFilter.match(metadataReader, factory)) {
+            consumer.accept(metadataReader, factory);
           }
         }
         catch (Throwable e) {
-          log.warn("Cannot load the '{}'. Cause by {}", resource, e.toString());
+          log.warn("Cannot load the '{}'. Cause by {}", metadataReader, e.toString());
         }
-      }
+      });
     }
-    return classes;
+  }
+
+  @Nullable
+  private AssignableTypeFilter getTypeFilter(@Nullable Class<?> assignableType) {
+    AssignableTypeFilter typeFilter = null;
+    if (assignableType != null) {
+      typeFilter = new AssignableTypeFilter(assignableType);
+    }
+    return typeFilter;
   }
 
 }

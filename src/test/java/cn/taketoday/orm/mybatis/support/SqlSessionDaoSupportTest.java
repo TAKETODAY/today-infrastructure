@@ -27,16 +27,17 @@ import java.sql.SQLException;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
-import cn.taketoday.orm.mybatis.AbstractMyBatisSpringTest;
+import cn.taketoday.orm.mybatis.AbstractMyBatisTodayTest;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
+class SqlSessionDaoSupportTest extends AbstractMyBatisTodayTest {
   private SqlSessionDaoSupport sqlSessionDaoSupport;
 
   private DefaultApplicationContext applicationContext;
@@ -87,7 +88,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   @Test
   void testAutowireWithNoFactoryOrSession() {
     setupContext();
-    assertThrows(BeanCreationException.class, this::startContext);
+    assertThrows(ApplicationContextException.class, this::startContext);
   }
 
   @Test
@@ -97,7 +98,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
     setupSqlSessionFactory("factory1");
     setupSqlSessionFactory("factory2");
 
-    assertThrows(BeanCreationException.class, this::startContext);
+    assertThrows(ApplicationContextException.class, this::startContext);
   }
 
   private void setupContext() {
@@ -121,7 +122,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisSpringTest {
   private void setupSqlSessionFactory(String name) {
     BeanDefinition definition = new BeanDefinition();
     definition.setBeanClass(SqlSessionFactoryBean.class);
-    definition.getPropertyValues().add("dataSource", dataSource);
+    definition.propertyValues().add("dataSource", dataSource);
 
     applicationContext.registerBeanDefinition(name, definition);
   }

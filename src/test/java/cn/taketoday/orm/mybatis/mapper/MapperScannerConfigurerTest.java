@@ -34,12 +34,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
@@ -356,7 +357,7 @@ class MapperScannerConfigurerTest {
 
     Properties props = new java.util.Properties();
     props.put("basePackageProperty", "cn.taketoday.orm.mybatis.mapper");
-    props.put("configLocationProperty", "classpath:org/mybatis/spring/mybatis-config.xml");
+    props.put("configLocationProperty", "classpath:cn/taketoday/orm/mybatis/mybatis-config.xml");
     props.put("mybatis.lazy-initialization", "true");
 
     BeanDefinition propertyDefinition = new BeanDefinition();
@@ -419,7 +420,7 @@ class MapperScannerConfigurerTest {
 
   private void assertBeanNotLoaded(String name) {
     try {
-      applicationContext.getBean(name);
+      BeanFactoryUtils.requiredBean(applicationContext, name);
       fail("bean should not be defined for class " + name);
     }
     catch (NoSuchBeanDefinitionException nsbde) {

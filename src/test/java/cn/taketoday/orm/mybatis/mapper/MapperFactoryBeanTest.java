@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.dao.TransientDataAccessResourceException;
-import cn.taketoday.orm.mybatis.AbstractMyBatisSpringTest;
+import cn.taketoday.orm.mybatis.AbstractMyBatisTodayTest;
 import cn.taketoday.orm.mybatis.MyBatisSystemException;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
+class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
 
   private static SqlSessionTemplate sqlSessionTemplate;
 
@@ -118,12 +118,12 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
     assertExecuteCount(1);
   }
 
-  // MapperFactoryBeans should be usable outside of Spring TX, as long as a there is no active
+  // MapperFactoryBeans should be usable outside of TX, as long as a there is no active
   // transaction
   @Test
   void testWithNonSpringTransactionFactory() throws Exception {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();
-    Environment nonSpring = new Environment("non-spring", new JdbcTransactionFactory(), dataSource);
+    Environment nonSpring = new Environment("non-today", new JdbcTransactionFactory(), dataSource);
     sqlSessionFactory.getConfiguration().setEnvironment(nonSpring);
 
     try {
@@ -144,7 +144,7 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
   @Test
   void testNonSpringTxMgrWithTx() throws Exception {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();
-    Environment nonSpring = new Environment("non-spring", new JdbcTransactionFactory(), dataSource);
+    Environment nonSpring = new Environment("non-today", new JdbcTransactionFactory(), dataSource);
     sqlSessionFactory.getConfiguration().setEnvironment(nonSpring);
 
     TransactionStatus status = null;
@@ -154,12 +154,12 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
 
       find();
 
-      fail("should not be able to get an SqlSession using non-Spring tx manager when there is an active Spring tx");
+      fail("should not be able to get an SqlSession using non-Today tx manager when there is an active Today tx");
     }
     catch (TransientDataAccessResourceException e) {
       assertThat(e.getMessage())
               .isEqualTo("SqlSessionFactory must be using a SpringManagedTransactionFactory in order to use"
-                      + " Spring transaction synchronization");
+                      + " Today transaction synchronization");
     }
     finally {
       // rollback required to close connection
@@ -177,7 +177,7 @@ class MapperFactoryBeanTest extends AbstractMyBatisSpringTest {
     MockDataSource mockDataSource = new MockDataSource();
     mockDataSource.setupConnection(createMockConnection());
 
-    Environment nonSpring = new Environment("non-spring", new JdbcTransactionFactory(), mockDataSource);
+    Environment nonSpring = new Environment("non-today", new JdbcTransactionFactory(), mockDataSource);
     sqlSessionFactory.getConfiguration().setEnvironment(nonSpring);
 
     SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);

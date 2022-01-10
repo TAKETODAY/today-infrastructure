@@ -295,8 +295,7 @@ class SqlSessionFactoryBeanTest {
     setupFactoryBean();
 
     factoryBean.setConfiguration(new Configuration());
-    factoryBean
-            .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("org/mybatis/spring/mybatis-config.xml"));
+    factoryBean.setConfigLocation(new ClassPathResource("cn/taketoday/orm/mybatis/mybatis-config.xml"));
 
     Throwable e = assertThrows(IllegalStateException.class, factoryBean::getObject);
     assertThat(e.getMessage())
