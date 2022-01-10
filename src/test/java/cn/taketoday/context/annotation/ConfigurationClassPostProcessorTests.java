@@ -136,7 +136,7 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerBeanDefinition("config", new BeanDefinition(NonEnhancedSingletonBeanConfig.class));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
     pp.postProcessBeanFactory(beanFactory);
-    assertThat(((BeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(beanFactory.getBeanDefinition("config").hasBeanClass()).isTrue();
     Foo foo = beanFactory.getBean("foo", Foo.class);
     Bar bar = beanFactory.getBean("bar", Bar.class);
     assertThat(bar.foo).isNotSameAs(foo);

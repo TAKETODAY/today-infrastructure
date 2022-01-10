@@ -511,8 +511,9 @@ public class TransactionalEventListenerTests {
     void handleAfterCommit(String data);
   }
 
-  static class TransactionalComponentTestListener extends BaseTransactionalTestListener implements
-                                                                                        TransactionalComponentTestListenerInterface {
+  static class TransactionalComponentTestListener
+          extends BaseTransactionalTestListener
+          implements TransactionalComponentTestListenerInterface {
 
     @Override
     public void handleAfterCommit(String data) {

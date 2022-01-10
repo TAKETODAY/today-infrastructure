@@ -21,8 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -63,7 +61,6 @@ import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
-import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
@@ -125,8 +122,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   /** Cache of unfinished FactoryBean instances: FactoryBean name to its instance. @since 4.0 */
   private final ConcurrentHashMap<String, Object> factoryBeanInstanceCache = new ConcurrentHashMap<>();
 
-  private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
-
   /**
    * Dependency types to ignore on dependency check and autowire, as Set of
    * Class objects: for example, String. Default is none.
@@ -147,6 +142,9 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Nullable
   private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
+  /** Strategy for creating bean instances. */
+  private InstantiationStrategy instantiationStrategy;
+
   /**
    * Create a new AbstractAutowireCapableBeanFactory.
    */
@@ -154,6 +152,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     ignoreDependencyInterface(BeanNameAware.class);
     ignoreDependencyInterface(BeanFactoryAware.class);
     ignoreDependencyInterface(BeanClassLoaderAware.class);
+    this.instantiationStrategy = new InstantiationStrategy();
   }
 
   /**
@@ -164,16 +163,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   public AbstractAutowireCapableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
     this();
     setParentBeanFactory(parentBeanFactory);
-  }
-
-  /**
-   * Return the factory method currently being invoked or {@code null} if none.
-   * <p>Allows factory method implementations to determine whether the current
-   * caller is the container itself as opposed to user code.
-   */
-  @Nullable
-  public static Method getCurrentlyInvokedFactoryMethod() {
-    return currentlyInvokedFactoryMethod.get();
   }
 
   //---------------------------------------------------------------------
@@ -657,7 +646,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         return autowireConstructor(definition, null, null);
       }
       else {
-        return instantiateBean(definition, null);
+        return instantiateBean(definition);
       }
     }
 
@@ -670,7 +659,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       return autowireConstructor(definition, constructors, args);
     }
 
-    return instantiateBean(definition, args);
+    return instantiateBean(definition);
   }
 
   /**
@@ -736,93 +725,19 @@ public abstract class AbstractAutowireCapableBeanFactory
     return null;
   }
 
-  protected Object instantiate(
-          BeanDefinition def, Constructor<?> constructorToUse, Object[] constructorArgs) {
-    BeanInstantiator instantiator = resolveBeanInstantiator(def, constructorToUse);
+  protected Object instantiateBean(BeanDefinition def) {
     try {
-      return instantiator.instantiate(constructorArgs);
+      return getInstantiationStrategy().instantiate(def, this);
     }
     catch (BeanInstantiationException ex) {
-      throw new BeanCreationException(def, "Bean instantiation via constructor failed", ex);
+      throw new BeanCreationException(def, "Instantiation of bean failed", ex);
     }
-  }
-
-  protected Object instantiateBean(BeanDefinition def, @Nullable Object[] constructorArgs) {
-    BeanInstantiator instantiator = resolveBeanInstantiator(def, null);
-    Executable executable = def.executable;
-    if (executable.getParameterCount() != 0 && constructorArgs == null) {
-//      DependencyInjector injector = getInjector();
-//      constructorArgs = injector.resolveArguments(executable, (Object[]) null);
-      return autowireConstructor(def, new Constructor[] { (Constructor<?>) executable }, null);
-    }
-    try {
-      return instantiator.instantiate(constructorArgs);
-    }
-    catch (BeanInstantiationException ex) {
-      throw new BeanCreationException(def, "Bean instantiation via constructor failed", ex);
-    }
-  }
-
-  protected Object instantiateUsingFactoryMethod(
-          BeanDefinition def, @Nullable Object factoryBean, Method factoryMethod, @Nullable Object[] args) {
-    Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
-    try {
-      ReflectionUtils.makeAccessible(factoryMethod);
-      currentlyInvokedFactoryMethod.set(factoryMethod);
-      return factoryMethod.invoke(factoryBean, args);
-    }
-    catch (IllegalArgumentException ex) {
-      throw new BeanInstantiationException(factoryMethod,
-              "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
-                      "args: " + StringUtils.arrayToString(args), ex);
-    }
-    catch (IllegalAccessException ex) {
-      throw new BeanInstantiationException(factoryMethod,
-              "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
-    }
-    catch (InvocationTargetException ex) {
-      String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
-      if (def.getFactoryBeanName() != null && isCurrentlyInCreation(def.getFactoryBeanName())) {
-        msg = "Circular reference involving containing bean '" + def.getFactoryBeanName() + "' - consider " +
-                "declaring the factory method as static for independence from its containing instance. " + msg;
-      }
-      throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
-    }
-    finally {
-      if (priorInvokedFactoryMethod != null) {
-        currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
-      }
-      else {
-        currentlyInvokedFactoryMethod.remove();
-      }
-    }
-  }
-
-  private BeanInstantiator resolveBeanInstantiator(
-          BeanDefinition definition, @Nullable Constructor<?> constructor) {
-    if (definition.instantiator == null) {
-      if (constructor == null) {
-        constructor = BeanUtils.getConstructor(definition.getBeanClass());
-      }
-      if (definition.isSingleton()) {
-        // use java-reflect invoking
-        definition.instantiator = BeanInstantiator.fromReflective(constructor);
-      }
-      else {
-        // provide fast access the method
-        definition.instantiator = BeanInstantiator.fromConstructor(constructor);
-      }
-      if (definition.executable == null) {
-        definition.executable = constructor;
-      }
-    }
-    return definition.instantiator;
   }
 
   @Override
   public Object autowire(Class<?> beanClass) throws BeansException {
     BeanDefinition prototypeDef = getPrototypeBeanDefinition(beanClass);
-    Object existingBean = instantiateBean(prototypeDef, null);
+    Object existingBean = getInstantiationStrategy().instantiate(prototypeDef, this);
     populateBean(existingBean, prototypeDef);
     return existingBean;
   }
@@ -838,7 +753,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       return autowireConstructor(bd, null, null);
     }
 
-    Object bean = instantiateBean(bd, null);
+    Object bean = getInstantiationStrategy().instantiate(bd, this);
     populateBean(bean, bd);
     return bean;
   }
@@ -1556,6 +1471,25 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
 
   /**
+   * Set the instantiation strategy to use for creating bean instances.
+   * Default is CglibSubclassingInstantiationStrategy.
+   *
+   * @since 4.0
+   */
+  public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
+    this.instantiationStrategy = instantiationStrategy;
+  }
+
+  /**
+   * Return the instantiation strategy to use for creating bean instances.
+   *
+   * @since 4.0
+   */
+  protected InstantiationStrategy getInstantiationStrategy() {
+    return this.instantiationStrategy;
+  }
+
+  /**
    * Set the ParameterNameDiscoverer to use for resolving method parameter
    * names if needed (e.g. for constructor names).
    * <p>Default is a {@link DefaultParameterNameDiscoverer}.
@@ -1666,8 +1600,8 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
     super.copyConfigurationFrom(otherFactory);
-
     if (otherFactory instanceof AbstractAutowireCapableBeanFactory otherAutowireFactory) {
+      this.instantiationStrategy = otherAutowireFactory.instantiationStrategy;
       this.allowCircularReferences = otherAutowireFactory.allowCircularReferences;
       this.ignoredDependencyTypes.addAll(otherAutowireFactory.ignoredDependencyTypes);
       this.ignoredDependencyInterfaces.addAll(otherAutowireFactory.ignoredDependencyInterfaces);

@@ -58,7 +58,6 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -180,7 +179,7 @@ final class ConstructorResolver {
             definition.constructorArgumentsResolved = true;
             definition.resolvedConstructorArguments = EMPTY_ARGS;
           }
-          return instantiate(beanName, definition, uniqueCandidate, EMPTY_ARGS);
+          return instantiate(definition, uniqueCandidate, EMPTY_ARGS);
         }
       }
 
@@ -296,17 +295,17 @@ final class ConstructorResolver {
     }
 
     Assert.state(argsToUse != null, "Unresolved constructor arguments");
-    return instantiate(beanName, definition, constructorToUse, argsToUse);
+    return instantiate(definition, constructorToUse, argsToUse);
   }
 
   private Object instantiate(
-          String beanName, BeanDefinition mbd, Constructor<?> constructorToUse, Object[] argsToUse) {
-    mbd.executable = getUserDeclaredConstructor(constructorToUse);
+          BeanDefinition mbd, Constructor<?> constructorToUse, Object[] argsToUse) {
     try {
-      return beanFactory.instantiate(mbd, getUserDeclaredConstructor(constructorToUse), argsToUse);
+      return beanFactory.getInstantiationStrategy()
+              .instantiate(mbd, beanFactory, constructorToUse, argsToUse);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+      throw new BeanCreationException(mbd,
               "Bean instantiation via constructor failed", ex);
     }
   }
@@ -469,7 +468,7 @@ final class ConstructorResolver {
             mbd.constructorArgumentsResolved = true;
             mbd.resolvedConstructorArguments = EMPTY_ARGS;
           }
-          return instantiate(beanName, mbd, factoryBean, uniqueCandidate, EMPTY_ARGS);
+          return instantiate(mbd, factoryBean, uniqueCandidate, EMPTY_ARGS);
         }
       }
 
@@ -624,29 +623,18 @@ final class ConstructorResolver {
       }
     }
 
-    return instantiate(beanName, mbd, factoryBean, factoryMethodToUse, argsToUse);
+    return instantiate(mbd, factoryBean, factoryMethodToUse, argsToUse);
   }
 
   private Object instantiate(
-          String beanName, BeanDefinition definition,
-          @Nullable Object factoryBean, Method factoryMethod, Object[] args) {
+          BeanDefinition mbd, @Nullable Object factoryBean, Method factoryMethod, Object[] args) {
+
     try {
-      return beanFactory.instantiateUsingFactoryMethod(definition, factoryBean, factoryMethod, args);
+      return this.beanFactory.getInstantiationStrategy().instantiate(
+              mbd, this.beanFactory, factoryBean, factoryMethod, args);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(definition.getResourceDescription(), beanName,
-              "Bean instantiation via factory method failed", ex);
-    }
-  }
-
-  private MethodInvoker determineMethodInvoker(BeanDefinition definition, Method factoryMethod) {
-    if (definition.isSingleton()) {
-      // use java-reflect invoking
-      return MethodInvoker.formReflective(factoryMethod, false);
-    }
-    else {
-      // provide fast access the method
-      return MethodInvoker.fromMethod(factoryMethod);
+      throw new BeanCreationException(mbd, "Bean instantiation via factory method failed", ex);
     }
   }
 

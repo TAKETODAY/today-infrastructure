@@ -152,6 +152,7 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(Constructor<T> constructor, @Nullable Object[] parameter) {
     try {
+      ReflectionUtils.makeAccessible(constructor);
       return constructor.newInstance(parameter);
     }
     catch (InstantiationException ex) {

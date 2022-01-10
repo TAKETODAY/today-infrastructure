@@ -27,14 +27,14 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import cn.taketoday.aop.proxy.StandardProxy;
+import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.InstantiationStrategy;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
@@ -366,7 +366,7 @@ class ConfigurationClassEnhancer {
             throw new IllegalStateException(msg);
           }
         }
-        Method currentlyInvoked = AbstractAutowireCapableBeanFactory.getCurrentlyInvokedFactoryMethod();
+        Method currentlyInvoked = InstantiationStrategy.getCurrentlyInvokedFactoryMethod();
         if (currentlyInvoked != null) {
           String outerBeanName = BeanAnnotationHelper.determineBeanNameFor(currentlyInvoked);
           beanFactory.registerDependentBean(beanName, outerBeanName);
@@ -422,7 +422,7 @@ class ConfigurationClassEnhancer {
      * to happen on Groovy classes).
      */
     private boolean isCurrentlyInvokedFactoryMethod(Method method) {
-      Method currentlyInvoked = AbstractAutowireCapableBeanFactory.getCurrentlyInvokedFactoryMethod();
+      Method currentlyInvoked = InstantiationStrategy.getCurrentlyInvokedFactoryMethod();
       return currentlyInvoked != null && method.getName().equals(currentlyInvoked.getName())
               && Arrays.equals(method.getParameterTypes(), currentlyInvoked.getParameterTypes());
     }
