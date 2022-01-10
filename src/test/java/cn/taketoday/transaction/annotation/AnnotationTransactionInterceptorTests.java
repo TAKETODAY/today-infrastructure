@@ -21,7 +21,6 @@
 package cn.taketoday.transaction.annotation;
 
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.function.Try;
 
 import java.time.Duration;
 
@@ -252,54 +251,6 @@ public class AnnotationTransactionInterceptorTests {
 
     StepVerifier.withVirtualTime(proxy::fluxSuccess).thenAwait(Duration.ofSeconds(1)).thenCancel().verify();
     assertReactiveGetTransactionAndRollbackCount(1);
-  }
-
-  @Test
-  public void withVavrTrySuccess() {
-    ProxyFactory proxyFactory = new ProxyFactory();
-    proxyFactory.setTarget(new TestWithVavrTry());
-    proxyFactory.addAdvice(this.ti);
-
-    TestWithVavrTry proxy = (TestWithVavrTry) proxyFactory.getProxy();
-
-    proxy.doSomething();
-    assertGetTransactionAndCommitCount(1);
-  }
-
-  @Test
-  public void withVavrTryRuntimeException() {
-    ProxyFactory proxyFactory = new ProxyFactory();
-    proxyFactory.setTarget(new TestWithVavrTry());
-    proxyFactory.addAdvice(this.ti);
-
-    TestWithVavrTry proxy = (TestWithVavrTry) proxyFactory.getProxy();
-
-    proxy.doSomethingErroneous();
-    assertGetTransactionAndRollbackCount(1);
-  }
-
-  @Test
-  public void withVavrTryCheckedException() {
-    ProxyFactory proxyFactory = new ProxyFactory();
-    proxyFactory.setTarget(new TestWithVavrTry());
-    proxyFactory.addAdvice(this.ti);
-
-    TestWithVavrTry proxy = (TestWithVavrTry) proxyFactory.getProxy();
-
-    proxy.doSomethingErroneousWithCheckedException();
-    assertGetTransactionAndCommitCount(1);
-  }
-
-  @Test
-  public void withVavrTryCheckedExceptionAndRollbackRule() {
-    ProxyFactory proxyFactory = new ProxyFactory();
-    proxyFactory.setTarget(new TestWithVavrTry());
-    proxyFactory.addAdvice(this.ti);
-
-    TestWithVavrTry proxy = (TestWithVavrTry) proxyFactory.getProxy();
-
-    proxy.doSomethingErroneousWithCheckedExceptionAndRollbackRule();
-    assertGetTransactionAndRollbackCount(1);
   }
 
   @Test
@@ -559,35 +510,6 @@ public class AnnotationTransactionInterceptorTests {
 
     public Flux<Object> fluxFailure() {
       return Flux.error(new IllegalStateException());
-    }
-  }
-
-  @Transactional
-  public static class TestWithVavrTry {
-
-    public Try<String> doSomething() {
-      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      return Try.success("ok");
-    }
-
-    public Try<String> doSomethingErroneous() {
-      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      return Try.failure(new IllegalStateException());
-    }
-
-    public Try<String> doSomethingErroneousWithCheckedException() {
-      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      return Try.failure(new Exception());
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public Try<String> doSomethingErroneousWithCheckedExceptionAndRollbackRule() {
-      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      return Try.failure(new Exception());
     }
   }
 

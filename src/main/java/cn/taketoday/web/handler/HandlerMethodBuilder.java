@@ -79,7 +79,7 @@ public class HandlerMethodBuilder<T extends AnnotationHandlerMethod> {
 
   public void setHandlerMethodClass(Class<?> handlerMethodClass) {
     try {
-      Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Object.class, Method.class);
+      Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Method.class);
       this.constructor = BeanInstantiator.fromConstructor(declared);
     }
     catch (NoSuchMethodException e) {

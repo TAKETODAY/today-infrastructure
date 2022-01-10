@@ -28,6 +28,7 @@ import java.util.List;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
@@ -52,7 +53,8 @@ public class JtaTransactionAnnotationParser implements TransactionAnnotationPars
   @Override
   @Nullable
   public TransactionAttribute parseTransactionAnnotation(AnnotatedElement element) {
-    MergedAnnotation<Transactional> attributes = MergedAnnotations.from(element).get(Transactional.class);
+    MergedAnnotation<Transactional> attributes = MergedAnnotations.from(
+            element, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none()).get(Transactional.class);
     if (attributes.isPresent()) {
       return parseTransactionAnnotation(attributes);
     }

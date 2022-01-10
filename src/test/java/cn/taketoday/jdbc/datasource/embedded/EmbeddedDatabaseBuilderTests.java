@@ -21,6 +21,8 @@
 package cn.taketoday.jdbc.datasource.embedded;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.core.io.ClassRelativeResourceLoader;
 import cn.taketoday.jdbc.core.JdbcTemplate;
@@ -38,6 +40,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @author Keith Donald
  * @author Sam Brannen
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class EmbeddedDatabaseBuilderTests {
 
   private final EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(
