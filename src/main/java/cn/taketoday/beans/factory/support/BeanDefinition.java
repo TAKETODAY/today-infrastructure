@@ -308,6 +308,7 @@ public class BeanDefinition
     this.initMethods = from.initMethods;
     this.description = from.description;
     this.autowireMode = from.autowireMode;
+    this.postProcessed = from.postProcessed;
     this.factoryBeanName = from.factoryBeanName;
     this.autowireCandidate = from.autowireCandidate;
     this.factoryMethodName = from.factoryMethodName;
@@ -315,6 +316,8 @@ public class BeanDefinition
     this.qualifiedElement = from.qualifiedElement;
     this.enableDependencyInjection = from.enableDependencyInjection;
     this.factoryMethodToIntrospect = from.factoryMethodToIntrospect;
+    this.nonPublicAccessAllowed = from.nonPublicAccessAllowed;
+    this.lenientConstructorResolution = from.lenientConstructorResolution;
 
     this.executable = from.executable;
     this.targetType = from.targetType;

@@ -37,6 +37,7 @@ public class ConfigBeanDefinition extends AnnotatedBeanDefinition {
   public ConfigBeanDefinition(MethodMetadata componentMethod, AnnotationMetadata annotationMetadata) {
     super(annotationMetadata, componentMethod);
     setBeanClass(null);
+    setLenientConstructorResolution(false);
   }
 
   @Override
