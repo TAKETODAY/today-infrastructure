@@ -44,6 +44,7 @@ import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -99,7 +100,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
                         ? AopUtils.getMostSpecificMethod(method, targetClass) : method;
     this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
 
-    MergedAnnotations annotations = MergedAnnotations.from(targetMethod);
+    MergedAnnotations annotations = MergedAnnotations.from(targetMethod, SearchStrategy.TYPE_HIERARCHY);
 
     MergedAnnotation<Order> order = annotations.get(Order.class);
     this.order = order.getValue(Integer.class)
