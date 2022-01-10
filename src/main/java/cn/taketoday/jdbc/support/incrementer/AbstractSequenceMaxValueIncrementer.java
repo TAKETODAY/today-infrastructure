@@ -48,8 +48,7 @@ public abstract class AbstractSequenceMaxValueIncrementer extends AbstractDataFi
    * @see #setDataSource
    * @see #setIncrementerName
    */
-  public AbstractSequenceMaxValueIncrementer() {
-  }
+  public AbstractSequenceMaxValueIncrementer() { }
 
   /**
    * Convenience constructor.

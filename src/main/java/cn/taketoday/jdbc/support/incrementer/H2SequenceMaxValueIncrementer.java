@@ -37,8 +37,7 @@ public class H2SequenceMaxValueIncrementer extends AbstractSequenceMaxValueIncre
    * @see #setDataSource
    * @see #setIncrementerName
    */
-  public H2SequenceMaxValueIncrementer() {
-  }
+  public H2SequenceMaxValueIncrementer() { }
 
   /**
    * Convenience constructor.
@@ -52,7 +51,7 @@ public class H2SequenceMaxValueIncrementer extends AbstractSequenceMaxValueIncre
 
   @Override
   protected String getSequenceQuery() {
-    return "select " + getIncrementerName() + ".nextval from dual";
+    return "values next value for " + getIncrementerName();
   }
 
 }
