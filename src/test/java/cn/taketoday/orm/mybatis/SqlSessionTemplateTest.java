@@ -22,7 +22,7 @@ package cn.taketoday.orm.mybatis;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -41,10 +41,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 // MapperFactoryBeanTest handles testing the transactional functions in SqlSessionTemplate
 public class SqlSessionTemplateTest extends AbstractMyBatisTodayTest {
 
-  private static SqlSession sqlSessionTemplate;
+  private SqlSession sqlSessionTemplate;
 
-  @BeforeAll
-  static void setupSqlTemplate() {
+  @BeforeEach
+  void setupSqlTemplate() {
     sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);
   }
 

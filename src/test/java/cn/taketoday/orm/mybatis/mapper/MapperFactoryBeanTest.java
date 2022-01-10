@@ -25,7 +25,7 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.dao.TransientDataAccessResourceException;
@@ -43,10 +43,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
 
-  private static SqlSessionTemplate sqlSessionTemplate;
+  private SqlSessionTemplate sqlSessionTemplate;
 
-  @BeforeAll
-  static void setupSqlTemplate() {
+  @BeforeEach
+  void setupSqlTemplate() {
     sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);
   }
 
@@ -208,7 +208,7 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
   }
 
   private void find() throws Exception {
-    find(MapperFactoryBeanTest.sqlSessionTemplate, true);
+    find(sqlSessionTemplate, true);
   }
 
   private void find(SqlSessionTemplate sqlSessionTemplate) throws Exception {
@@ -224,6 +224,7 @@ class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
     mapper.setAddToConfig(addToConfig);
     mapper.afterPropertiesSet();
 
-    mapper.getObject().findTest();
+    TestMapper object = mapper.getObject();
+    object.findTest();
   }
 }

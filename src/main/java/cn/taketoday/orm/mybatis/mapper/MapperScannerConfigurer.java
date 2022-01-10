@@ -274,7 +274,7 @@ public class MapperScannerConfigurer
   /**
    * Gets beanNameGenerator to be used while running the scanner.
    *
-   * @return the beanNameGenerator BeanNameGenerator that has been configured
+   * @return the BeanNamePopulator that has been configured
    */
   public BeanNamePopulator getNamePopulator() {
     return namePopulator;
@@ -358,9 +358,8 @@ public class MapperScannerConfigurer
     Map<String, PropertyResourceConfigurer> prcs = applicationContext.getBeansOfType(
             PropertyResourceConfigurer.class, false, false);
 
-    if (!prcs.isEmpty() && applicationContext instanceof ConfigurableApplicationContext) {
-      BeanDefinition mapperScannerBean = BeanFactoryUtils.requiredDefinition(
-              ((ConfigurableApplicationContext) applicationContext).getBeanFactory(), beanName);
+    if (!prcs.isEmpty()) {
+      BeanDefinition mapperScannerBean = BeanFactoryUtils.requiredDefinition(applicationContext.getBeanFactory(), beanName);
 
       // PropertyResourceConfigurer does not expose any methods to explicitly perform
       // property placeholder substitution. Instead, create a BeanFactory that just
@@ -396,7 +395,6 @@ public class MapperScannerConfigurer
     if (this.defaultScope != null) {
       this.defaultScope = getEnvironment().resolvePlaceholders(defaultScope);
     }
-
   }
 
   private Environment getEnvironment() {

@@ -24,7 +24,6 @@ import com.mockrunner.mock.jdbc.MockResultSet;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.SQLException;
@@ -38,22 +37,22 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class AbstractMyBatisTodayTest {
 
-  protected static PooledMockDataSource dataSource = new PooledMockDataSource();
+  protected PooledMockDataSource dataSource = new PooledMockDataSource();
 
-  protected static SqlSessionFactory sqlSessionFactory;
+  protected SqlSessionFactory sqlSessionFactory;
 
-  protected static ExecutorInterceptor executorInterceptor = new ExecutorInterceptor();
+  protected ExecutorInterceptor executorInterceptor = new ExecutorInterceptor();
 
-  protected static DataSourceTransactionManager txManager;
+  protected DataSourceTransactionManager txManager;
 
-  protected static PersistenceExceptionTranslator exceptionTranslator;
+  protected PersistenceExceptionTranslator exceptionTranslator;
 
   protected MockConnection connection;
 
   protected MockConnection connectionTwo;
 
-  @BeforeAll
-  public static void setupBase() throws Exception {
+  @BeforeEach
+  public void setupBase() throws Exception {
     // create an SqlSessionFactory that will use SpringManagedTransactions
     SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
     factoryBean.setMapperLocations(new ClassPathResource("cn/taketoday/orm/mybatis/TestMapper.xml"));

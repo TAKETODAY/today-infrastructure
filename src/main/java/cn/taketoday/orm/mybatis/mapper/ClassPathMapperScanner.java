@@ -25,10 +25,11 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
 
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -122,14 +123,6 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   }
 
   /**
-   * @deprecated Please use the {@link #setMapperFactoryBeanClass(Class)}.
-   */
-  @Deprecated
-  public void setMapperFactoryBean(MapperFactoryBean<?> mapperFactoryBean) {
-    this.mapperFactoryBeanClass = mapperFactoryBean == null ? MapperFactoryBean.class : mapperFactoryBean.getClass();
-  }
-
-  /**
    * Set the {@code MapperFactoryBean} class.
    *
    * @param mapperFactoryBeanClass the {@code MapperFactoryBean} class
@@ -196,68 +189,63 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     if (beanDefinitions.isEmpty()) {
       log.warn("No MyBatis mapper was found in '{}' package. Please check your configuration.", Arrays.toString(basePackages));
     }
-    else {
-      processBeanDefinitions(beanDefinitions);
-    }
     return beanDefinitions;
   }
 
-  private void processBeanDefinitions(Set<BeanDefinition> beanDefinitions) {
-    BeanDefinition definition;
-    for (BeanDefinition holder : beanDefinitions) {
-      definition = holder;
-      String beanClassName = definition.getBeanClassName();
-      log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
-              holder.getBeanName(), beanClassName);
+  @Override
+  protected void postProcessBeanDefinition(BeanDefinition definition, String beanName) {
+    super.postProcessBeanDefinition(definition, beanName);
+    String beanClassName = definition.getBeanClassName();
+    log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
+            definition.getBeanName(), beanClassName);
 
-      // the mapper interface is the original class of the bean
-      // but, the actual class of the bean is MapperFactoryBean
-      definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
+    // the mapper interface is the original class of the bean
+    // but, the actual class of the bean is MapperFactoryBean
+    definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
 
-      definition.setBeanClass(this.mapperFactoryBeanClass);
+    definition.setBeanClass(mapperFactoryBeanClass);
 
-      definition.propertyValues().add("addToConfig", this.addToConfig);
+    PropertyValues propertyValues = definition.propertyValues();
+    propertyValues.add("addToConfig", addToConfig);
 
-      // Attribute for MockitoPostProcessor
-      // https://github.com/mybatis/spring-boot-starter/issues/475
-      definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
+    // Attribute for MockitoPostProcessor
+    // https://github.com/mybatis/spring-boot-starter/issues/475
+    definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
 
-      boolean explicitFactoryUsed = false;
-      if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) {
-        definition.propertyValues().add("sqlSessionFactory", RuntimeBeanReference.from(this.sqlSessionFactoryBeanName));
-        explicitFactoryUsed = true;
+    boolean explicitFactoryUsed = false;
+    if (StringUtils.hasText(sqlSessionFactoryBeanName)) {
+      propertyValues.add("sqlSessionFactory", RuntimeBeanReference.from(sqlSessionFactoryBeanName));
+      explicitFactoryUsed = true;
+    }
+    else if (sqlSessionFactory != null) {
+      propertyValues.add("sqlSessionFactory", sqlSessionFactory);
+      explicitFactoryUsed = true;
+    }
+
+    if (StringUtils.hasText(sqlSessionTemplateBeanName)) {
+      if (explicitFactoryUsed) {
+        log.warn("Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
       }
-      else if (this.sqlSessionFactory != null) {
-        definition.propertyValues().add("sqlSessionFactory", this.sqlSessionFactory);
-        explicitFactoryUsed = true;
+      propertyValues.add("sqlSessionTemplate", RuntimeBeanReference.from(sqlSessionTemplateBeanName));
+      explicitFactoryUsed = true;
+    }
+    else if (sqlSessionTemplate != null) {
+      if (explicitFactoryUsed) {
+        log.warn("Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
       }
+      propertyValues.add("sqlSessionTemplate", sqlSessionTemplate);
+      explicitFactoryUsed = true;
+    }
 
-      if (StringUtils.hasText(this.sqlSessionTemplateBeanName)) {
-        if (explicitFactoryUsed) {
-          log.warn("Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
-        }
-        definition.propertyValues()
-                .add("sqlSessionTemplate", RuntimeBeanReference.from(this.sqlSessionTemplateBeanName));
-        explicitFactoryUsed = true;
-      }
-      else if (this.sqlSessionTemplate != null) {
-        if (explicitFactoryUsed) {
-          log.warn("Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
-        }
-        definition.propertyValues().add("sqlSessionTemplate", this.sqlSessionTemplate);
-        explicitFactoryUsed = true;
-      }
+    if (!explicitFactoryUsed) {
+      log.debug("Enabling autowire by type for MapperFactoryBean with name '{}'.", definition.getBeanName());
+      definition.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
+    }
 
-      if (!explicitFactoryUsed) {
-        log.debug("Enabling autowire by type for MapperFactoryBean with name '{}'.", holder.getBeanName());
-        definition.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
-      }
-
-      definition.setLazyInit(lazyInitialization);
-
-      if (BeanDefinition.SCOPE_SINGLETON.equals(definition.getScope()) && defaultScope != null) {
-        definition.setScope(defaultScope);
-      }
+    definition.setLazyInit(lazyInitialization);
+    if (BeanDefinition.SCOPE_SINGLETON.equals(definition.getScope()) && defaultScope != null) {
+      definition.setScope(defaultScope);
+    }
 
 //      if (!definition.isSingleton()) {
 //        BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
@@ -267,7 +255,6 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 //        registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
 //      }
 
-    }
   }
 
   /**
