@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.EnableAspectAutoProxy;
+import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.aop.Logger;
 import cn.taketoday.aop.support.annotation.Around;
 import cn.taketoday.aop.support.annotation.Aspect;

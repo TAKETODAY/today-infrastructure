@@ -22,6 +22,7 @@ package cn.taketoday.transaction.annotation;
 
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AdviceModeImportSelector;
+import cn.taketoday.context.annotation.AutoProxyRegistrar;
 import cn.taketoday.transaction.TransactionManagementConfigUtils;
 import cn.taketoday.util.ClassUtils;
 
@@ -50,7 +51,10 @@ public class TransactionManagementConfigurationSelector
   @Override
   protected String[] selectImports(AdviceMode adviceMode) {
     return switch (adviceMode) {
-      case PROXY -> new String[] { ProxyTransactionManagementConfiguration.class.getName() };
+      case PROXY -> new String[] {
+              AutoProxyRegistrar.class.getName(),
+              ProxyTransactionManagementConfiguration.class.getName()
+      };
       case ASPECTJ -> new String[] { determineTransactionAspectClass() };
     };
   }

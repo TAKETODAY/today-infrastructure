@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.aop.EnableAspectAutoProxy;
+import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;

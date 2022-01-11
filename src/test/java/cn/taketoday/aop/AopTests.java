@@ -49,9 +49,9 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.bytecode.core.DebuggingClassWriter;
 import cn.taketoday.lang.Singleton;
 import lombok.extern.slf4j.Slf4j;
 

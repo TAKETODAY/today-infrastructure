@@ -20,12 +20,14 @@
 
 package cn.taketoday.transaction.annotation;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -206,12 +208,13 @@ public class EnableTransactionManagementTests {
    * get loaded -- or in this case, attempted to be loaded at which point the test fails.
    */
   @Test
+  @Disabled("Waiting for AspectJ")
   @SuppressWarnings("resource")
   public void proxyTypeAspectJCausesRegistrationOfAnnotationTransactionAspect() {
     // should throw CNFE when trying to load AnnotationTransactionAspect.
     // Do you actually have cn.taketoday.aspects on the classpath?
-    assertThatExceptionOfType(Exception.class).isThrownBy(() ->
-                    new StandardApplicationContext(EnableAspectjTxConfig.class, TxManagerConfig.class))
+    assertThatExceptionOfType(Exception.class)
+            .isThrownBy(() -> new StandardApplicationContext(EnableAspectjTxConfig.class, TxManagerConfig.class))
             .withMessageContaining("AspectJJtaTransactionManagementConfiguration");
   }
 
@@ -305,6 +308,7 @@ public class EnableTransactionManagementTests {
   }
 
   @Configuration
+  @EnableAspectAutoProxy
   @EnableTransactionManagement
   @Import(PlaceholderConfig.class)
   static class EnableTxConfig {

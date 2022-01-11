@@ -47,8 +47,8 @@ public class DuplicateConfigurationClassPostProcessorTests {
     StandardBeanFactory beanFactory = ctx.getBeanFactory();
     DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, ctx);
     beanFactory.registerSingleton(loadingContext);
-    ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class));
-    ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class));
+    ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class, BeanDefinition.AUTOWIRE_CONSTRUCTOR));
+    ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class, BeanDefinition.AUTOWIRE_CONSTRUCTOR));
     ctx.registerBeanDefinition("myConfig", new BeanDefinition(Config.class));
     ctx.refresh();
   }

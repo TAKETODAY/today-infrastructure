@@ -353,6 +353,11 @@ public class BeanDefinition
     setBeanClass(beanClass);
   }
 
+  public BeanDefinition(Class<?> beanClass, int autowireMode) {
+    setBeanClass(beanClass);
+    setAutowireMode(autowireMode);
+  }
+
   public BeanDefinition(String beanClassName) {
     this.beanClass = beanClassName;
   }
