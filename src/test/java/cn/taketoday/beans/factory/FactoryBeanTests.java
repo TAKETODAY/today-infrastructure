@@ -181,6 +181,7 @@ class FactoryBeanTests {
     reader.registerBean("gamma", Gamma.class);
     reader.register(gammaFactoryDef);
     reader.registerBean("betaFactory", BetaFactoryBean.class, definition -> {
+      definition.setAutowireMode(BeanDefinition.AUTOWIRE_CONSTRUCTOR);
       definition.addPropertyValue("beta", RuntimeBeanReference.from("beta"));
     });
     reader.registerBean("beta", Beta.class, definition -> {
