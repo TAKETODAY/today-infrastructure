@@ -484,7 +484,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       }
     }
 
-    if (!type.isInstance(value)) {
+    if (!ClassUtils.isAssignableValue(type, value)) {
       throw new IllegalArgumentException(
               "Unable to adapt value of type " +
                       value.getClass().getName() + " to " + type.getName());
