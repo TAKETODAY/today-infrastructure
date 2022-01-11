@@ -1074,27 +1074,26 @@ public class StandardBeanFactory
           }
         }
       }
-      else {
-        // find it on class
-        Class<?> beanType = getType(beanName, allowFactoryBeanInit);
-        if (beanType != null) {
-          MergedAnnotation<A> annotation =
-                  MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-        }
+    }
 
-        // Check raw bean class, e.g. in case of a proxy.
-        if (definition.hasBeanClass()) {
-          Class<?> beanClass = definition.getBeanClass();
-          if (beanClass != beanType) {
-            MergedAnnotation<A> annotation =
-                    MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-            if (annotation.isPresent()) {
-              return annotation;
-            }
-          }
+    // find it on class
+    Class<?> beanType = getType(beanName, allowFactoryBeanInit);
+    if (beanType != null) {
+      MergedAnnotation<A> annotation =
+              MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+      if (annotation.isPresent()) {
+        return annotation;
+      }
+    }
+
+    // Check raw bean class, e.g. in case of a proxy.
+    if (definition != null && definition.hasBeanClass()) {
+      Class<?> beanClass = definition.getBeanClass();
+      if (beanClass != beanType) {
+        MergedAnnotation<A> annotation =
+                MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+        if (annotation.isPresent()) {
+          return annotation;
         }
       }
     }
