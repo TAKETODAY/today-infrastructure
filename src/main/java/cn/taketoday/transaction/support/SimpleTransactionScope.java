@@ -49,11 +49,13 @@ public class SimpleTransactionScope implements Scope {
 
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
-    ScopedObjectsHolder scopedObjects = (ScopedObjectsHolder) TransactionSynchronizationManager.getResource(this);
+    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+
+    ScopedObjectsHolder scopedObjects = (ScopedObjectsHolder) info.getResource(this);
     if (scopedObjects == null) {
       scopedObjects = new ScopedObjectsHolder();
-      TransactionSynchronizationManager.registerSynchronization(new CleanupSynchronization(scopedObjects));
-      TransactionSynchronizationManager.bindResource(this, scopedObjects);
+      info.registerSynchronization(new CleanupSynchronization(scopedObjects));
+      info.bindResource(this, scopedObjects);
     }
     // NOTE: Do NOT modify the following to use Map::computeIfAbsent. For details,
     // see https://github.com/spring-projects/spring-framework/issues/25801.

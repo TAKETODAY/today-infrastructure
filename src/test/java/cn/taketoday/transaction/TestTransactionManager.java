@@ -20,6 +20,7 @@
 
 package cn.taketoday.transaction;
 
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.transaction.support.AbstractPlatformTransactionManager;
 import cn.taketoday.transaction.support.DefaultTransactionStatus;
 
@@ -72,7 +73,7 @@ class TestTransactionManager extends AbstractPlatformTransactionManager {
   }
 
   @Override
-  protected void doCommit(DefaultTransactionStatus status) {
+  protected void doCommit(@NonNull DefaultTransactionStatus status) {
     if (!TRANSACTION.equals(status.getTransaction())) {
       throw new IllegalArgumentException("Not the same transaction object");
     }
@@ -88,7 +89,7 @@ class TestTransactionManager extends AbstractPlatformTransactionManager {
   }
 
   @Override
-  protected void doSetRollbackOnly(DefaultTransactionStatus status) {
+  protected void doSetRollbackOnly(@NonNull DefaultTransactionStatus status) {
     if (!TRANSACTION.equals(status.getTransaction())) {
       throw new IllegalArgumentException("Not the same transaction object");
     }

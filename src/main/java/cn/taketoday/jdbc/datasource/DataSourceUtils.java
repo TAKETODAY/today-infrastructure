@@ -92,12 +92,12 @@ public abstract class DataSourceUtils {
   }
 
   public static Connection doGetConnection(
-          final SynchronizationInfo metaData, final DataSource dataSource) throws SQLException {
+          final SynchronizationInfo info, final DataSource dataSource) throws SQLException {
     Assert.notNull(dataSource, "No DataSource specified");
 
     ConnectionHolder conHolder = null;
 
-    final Object resource = metaData.getResource(dataSource);
+    final Object resource = info.getResource(dataSource);
     if (resource instanceof ConnectionHolder) {
       conHolder = (ConnectionHolder) resource;
 
@@ -121,7 +121,7 @@ public abstract class DataSourceUtils {
 
     final Connection ret = fetchConnection(dataSource);
 
-    if (metaData.isSynchronizationActive()) {
+    if (info.isSynchronizationActive()) {
       try {
         // Use same Connection for further JDBC actions within the transaction.
         // Thread-bound object will get removed by synchronization at transaction completion.
@@ -133,11 +133,11 @@ public abstract class DataSourceUtils {
           holderToUse.setConnection(ret);
         }
         holderToUse.requested();
-        metaData.registerSynchronization(new ConnectionSynchronization(holderToUse, dataSource));
+        info.registerSynchronization(new ConnectionSynchronization(holderToUse, dataSource));
         holderToUse.setSynchronizedWithTransaction(true);
 
         if (holderToUse != conHolder) {
-          metaData.bindResource(dataSource, holderToUse);
+          info.bindResource(dataSource, holderToUse);
         }
       }
       catch (RuntimeException ex) {
@@ -217,39 +217,6 @@ public abstract class DataSourceUtils {
       return previousIsolationLevel;
     }
     return null;
-  }
-
-  /**
-   * Reset the given Connection after a transaction, regarding read-only flag and
-   * isolation level.
-   *
-   * @param con the Connection to reset
-   * @param previousIsolationLevel the isolation level to restore, if any
-   * @see #prepareConnectionForTransaction
-   */
-  public static void resetConnectionAfterTransaction(Connection con, @Nullable Integer previousIsolationLevel) {
-    Assert.notNull(con, "No Connection specified");
-
-    try {
-      // Reset transaction isolation to previous value, if changed for the transaction.
-      if (previousIsolationLevel != null) {
-        if (log.isDebugEnabled()) {
-          log.debug("Resetting isolation level of JDBC Connection [{}] to [{}]", con, previousIsolationLevel);
-        }
-        con.setTransactionIsolation(previousIsolationLevel);
-      }
-
-      // Reset read-only flag.
-      if (con.isReadOnly()) {
-        if (log.isDebugEnabled()) {
-          log.debug("Resetting read-only flag of JDBC Connection [{}]", con);
-        }
-        con.setReadOnly(false);
-      }
-    }
-    catch (Throwable ex) {
-      log.debug("Could not reset JDBC Connection after transaction", ex);
-    }
   }
 
   /**

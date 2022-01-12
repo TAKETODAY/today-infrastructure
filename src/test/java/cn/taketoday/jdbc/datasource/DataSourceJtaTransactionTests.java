@@ -23,6 +23,8 @@ package cn.taketoday.jdbc.datasource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,6 +67,7 @@ import static org.mockito.Mockito.verify;
  * @author Juergen Hoeller
  * @since 4.0
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class DataSourceJtaTransactionTests {
 
   private Connection connection;

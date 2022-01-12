@@ -22,6 +22,8 @@ package cn.taketoday.jdbc.object;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,6 +53,7 @@ import static org.mockito.Mockito.verify;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class GenericSqlQueryTests {
 
   private static final String SELECT_ID_FORENAME_NAMED_PARAMETERS_PARSED =

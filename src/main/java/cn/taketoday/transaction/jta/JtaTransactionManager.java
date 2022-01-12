@@ -134,9 +134,10 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    * @see #setTransactionManagerName
    * @see #setAutodetectTransactionManager
    */
-  public static final String[] FALLBACK_TRANSACTION_MANAGER_NAMES =
-          new String[] { "java:comp/TransactionManager", "java:appserver/TransactionManager",
-                  "java:pm/TransactionManager", "java:/TransactionManager" };
+  public static final String[] FALLBACK_TRANSACTION_MANAGER_NAMES = {
+          "java:comp/TransactionManager", "java:appserver/TransactionManager",
+          "java:pm/TransactionManager", "java:/TransactionManager"
+  };
 
   /**
    * Standard Jakarta EE JNDI location for the JTA TransactionSynchronizationRegistry.
@@ -1015,13 +1016,13 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    */
   protected void doJtaResume(@Nullable JtaTransactionObject txObject, Object suspendedTransaction)
           throws InvalidTransactionException, SystemException {
-
-    if (getTransactionManager() == null) {
+    TransactionManager transactionManager = getTransactionManager();
+    if (transactionManager == null) {
       throw new TransactionSuspensionNotSupportedException(
               "JtaTransactionManager needs a JTA TransactionManager for suspending a transaction: " +
                       "specify the 'transactionManager' or 'transactionManagerName' property");
     }
-    getTransactionManager().resume((Transaction) suspendedTransaction);
+    transactionManager.resume((Transaction) suspendedTransaction);
   }
 
   /**

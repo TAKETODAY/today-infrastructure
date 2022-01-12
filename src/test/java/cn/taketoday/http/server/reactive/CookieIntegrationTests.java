@@ -20,7 +20,9 @@
 
 package cn.taketoday.http.server.reactive;
 
-import java.net.CookieHandler;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rossen Stoyanchev
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
   private final CookieHandler cookieHandler = new CookieHandler();

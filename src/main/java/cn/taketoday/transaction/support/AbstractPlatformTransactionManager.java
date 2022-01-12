@@ -537,13 +537,15 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    */
   protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
     if (status.isNewSynchronization()) {
-      TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());
-      TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(
+      SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+
+      info.setActualTransactionActive(status.hasTransaction());
+      info.setCurrentTransactionIsolationLevel(
               definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
               definition.getIsolationLevel() : null);
-      TransactionSynchronizationManager.setCurrentTransactionReadOnly(definition.isReadOnly());
-      TransactionSynchronizationManager.setCurrentTransactionName(definition.getName());
-      TransactionSynchronizationManager.initSynchronization();
+      info.setCurrentTransactionReadOnly(definition.isReadOnly());
+      info.setCurrentTransactionName(definition.getName());
+      info.initSynchronization();
     }
   }
 
@@ -577,21 +579,23 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    */
   @Nullable
   protected final SuspendedResourcesHolder suspend(@Nullable Object transaction) throws TransactionException {
-    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+
+    if (info.isSynchronizationActive()) {
       List<TransactionSynchronization> suspendedSynchronizations = doSuspendSynchronization();
       try {
         Object suspendedResources = null;
         if (transaction != null) {
           suspendedResources = doSuspend(transaction);
         }
-        String name = TransactionSynchronizationManager.getCurrentTransactionName();
-        TransactionSynchronizationManager.setCurrentTransactionName(null);
-        boolean readOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
-        TransactionSynchronizationManager.setCurrentTransactionReadOnly(false);
-        Integer isolationLevel = TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();
-        TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(null);
-        boolean wasActive = TransactionSynchronizationManager.isActualTransactionActive();
-        TransactionSynchronizationManager.setActualTransactionActive(false);
+        String name = info.getCurrentTransactionName();
+        info.setCurrentTransactionName(null);
+        boolean readOnly = info.isCurrentTransactionReadOnly();
+        info.setCurrentTransactionReadOnly(false);
+        Integer isolationLevel = info.getCurrentTransactionIsolationLevel();
+        info.setCurrentTransactionIsolationLevel(null);
+        boolean wasActive = info.isActualTransactionActive();
+        info.setActualTransactionActive(false);
         return new SuspendedResourcesHolder(
                 suspendedResources, suspendedSynchronizations, name, readOnly, isolationLevel, wasActive);
       }
@@ -633,10 +637,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
       }
       List<TransactionSynchronization> suspendedSynchronizations = resourcesHolder.suspendedSynchronizations;
       if (suspendedSynchronizations != null) {
-        TransactionSynchronizationManager.setActualTransactionActive(resourcesHolder.wasActive);
-        TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(resourcesHolder.isolationLevel);
-        TransactionSynchronizationManager.setCurrentTransactionReadOnly(resourcesHolder.readOnly);
-        TransactionSynchronizationManager.setCurrentTransactionName(resourcesHolder.name);
+        SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+
+        info.setActualTransactionActive(resourcesHolder.wasActive);
+        info.setCurrentTransactionIsolationLevel(resourcesHolder.isolationLevel);
+        info.setCurrentTransactionReadOnly(resourcesHolder.readOnly);
+        info.setCurrentTransactionName(resourcesHolder.name);
         doResumeSynchronization(suspendedSynchronizations);
       }
     }
@@ -665,12 +671,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    * @return the List of suspended TransactionSynchronization objects
    */
   private List<TransactionSynchronization> doSuspendSynchronization() {
-    List<TransactionSynchronization> suspendedSynchronizations =
-            TransactionSynchronizationManager.getSynchronizations();
+    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+    List<TransactionSynchronization> suspendedSynchronizations = info.getSynchronizations();
     for (TransactionSynchronization synchronization : suspendedSynchronizations) {
       synchronization.suspend();
     }
-    TransactionSynchronizationManager.clearSynchronization();
+    info.clearSynchronization();
     return suspendedSynchronizations;
   }
 
@@ -681,10 +687,11 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    * @param suspendedSynchronizations a List of TransactionSynchronization objects
    */
   private void doResumeSynchronization(List<TransactionSynchronization> suspendedSynchronizations) {
-    TransactionSynchronizationManager.initSynchronization();
+    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+    info.initSynchronization();
     for (TransactionSynchronization synchronization : suspendedSynchronizations) {
       synchronization.resume();
-      TransactionSynchronizationManager.registerSynchronization(synchronization);
+      info.registerSynchronization(synchronization);
     }
   }
 
@@ -965,8 +972,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    */
   private void triggerAfterCompletion(DefaultTransactionStatus status, int completionStatus) {
     if (status.isNewSynchronization()) {
-      List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
-      TransactionSynchronizationManager.clearSynchronization();
+      SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+      List<TransactionSynchronization> synchronizations = info.getSynchronizations();
+      info.clearSynchronization();
       if (!status.hasTransaction() || status.isNewTransaction()) {
         // No transaction or new transaction for the current scope ->
         // invoke the afterCompletion callbacks immediately

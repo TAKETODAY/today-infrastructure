@@ -334,7 +334,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
     DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
     Connection con = txObject.getConnectionHolder().getConnection();
     if (status.isDebug()) {
-      logger.debug("Committing JDBC transaction on Connection [" + con + "]");
+      logger.debug("Committing JDBC transaction on Connection [{}]", con);
     }
     try {
       con.commit();
@@ -349,7 +349,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
     DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
     Connection con = txObject.getConnectionHolder().getConnection();
     if (status.isDebug()) {
-      logger.debug("Rolling back JDBC transaction on Connection [" + con + "]");
+      logger.debug("Rolling back JDBC transaction on Connection [{}]", con);
     }
     try {
       con.rollback();
@@ -363,8 +363,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
   protected void doSetRollbackOnly(DefaultTransactionStatus status) {
     DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
     if (status.isDebug()) {
-      logger.debug("Setting JDBC transaction [" + txObject.getConnectionHolder().getConnection() +
-              "] rollback-only");
+      logger.debug("Setting JDBC transaction [{}] rollback-only", txObject.getConnectionHolder().getConnection());
     }
     txObject.setRollbackOnly();
   }
@@ -393,7 +392,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
     if (txObject.isNewConnectionHolder()) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Releasing JDBC Connection [" + con + "] after transaction");
+        logger.debug("Releasing JDBC Connection [{}] after transaction", con);
       }
       DataSourceUtils.releaseConnection(con, this.dataSource);
     }
