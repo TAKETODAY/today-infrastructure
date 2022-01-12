@@ -68,8 +68,7 @@ public abstract class SqlQuery<T> extends SqlOperation {
    * <p>The {@code DataSource} and SQL must be supplied before
    * compilation and use.
    */
-  public SqlQuery() {
-  }
+  public SqlQuery() { }
 
   /**
    * Convenient constructor with a {@code DataSource} and SQL string.

@@ -258,7 +258,8 @@ public class PreparedStatementCreatorFactory {
     public void setValues(PreparedStatement ps) throws SQLException {
       // Set arguments: Does nothing if there are no parameters.
       int sqlColIndx = 1;
-      for (int i = 0; i < this.parameters.size(); i++) {
+      int size = this.parameters.size();
+      for (int i = 0; i < size; i++) {
         Object in = this.parameters.get(i);
         SqlParameter declaredParameter;
         // SqlParameterValue overrides declared parameter meta-data, in particular for

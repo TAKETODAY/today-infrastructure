@@ -25,8 +25,6 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Base class for {@link cn.taketoday.jdbc.core.JdbcTemplate} and
@@ -42,9 +40,6 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public abstract class JdbcAccessor implements InitializingBean {
-
-  /** Logger available to subclasses. */
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private DataSource dataSource;
