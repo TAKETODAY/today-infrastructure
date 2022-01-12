@@ -163,7 +163,7 @@ public class GenericSqlQueryTests {
                       </bean>*/
 
                     new SqlParameter("amount", Types.INTEGER),
-                    new SqlParameter("custid", Types.INTEGER)
+                    new SqlParameter("custid", Types.VARCHAR)
             ))
 
     );
@@ -174,7 +174,7 @@ public class GenericSqlQueryTests {
             .addPropertyValue("sql", "select id, forename from custmr where id = :id and country = :country")
             .addPropertyValue("parameters", List.of(
                     new SqlParameter("id", Types.INTEGER),
-                    new SqlParameter("country", Types.INTEGER)
+                    new SqlParameter("country", Types.VARCHAR)
             ))
 
     );
@@ -199,7 +199,7 @@ public class GenericSqlQueryTests {
                         </bean>
                       </list>*/
                     new SqlParameter("id", Types.INTEGER),
-                    new SqlParameter("country", Types.INTEGER)
+                    new SqlParameter("country", Types.VARCHAR)
             ))
 
     );
@@ -257,7 +257,7 @@ public class GenericSqlQueryTests {
 
     verify(resultSet).close();
     verify(preparedStatement).setObject(1, 1, Types.INTEGER);
-//    verify(preparedStatement).setString(2, "UK");
+    verify(preparedStatement).setString(2, "UK");
     verify(preparedStatement).close();
   }
 

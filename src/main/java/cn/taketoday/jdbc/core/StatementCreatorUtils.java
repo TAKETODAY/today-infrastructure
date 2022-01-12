@@ -79,7 +79,7 @@ public abstract class StatementCreatorUtils {
 
   static boolean shouldIgnoreGetParameterType = TodayStrategies.getFlag(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
 
-  private static final Logger logger = LoggerFactory.getLogger(StatementCreatorUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(StatementCreatorUtils.class);
 
   private static final Map<Class<?>, Integer> javaTypeToSqlTypeMap = new HashMap<>(32);
 
@@ -209,8 +209,8 @@ public abstract class StatementCreatorUtils {
 
     // override type info?
     if (inValue instanceof SqlParameterValue parameterValue) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Overriding type info with runtime info from SqlParameterValue: column index {}, SQL type {}, type name {}",
+      if (log.isDebugEnabled()) {
+        log.debug("Overriding type info with runtime info from SqlParameterValue: column index {}, SQL type {}, type name {}",
                 paramIndex, parameterValue.getSqlType(), parameterValue.getTypeName());
       }
       if (parameterValue.getSqlType() != SqlTypeValue.TYPE_UNKNOWN) {
@@ -222,8 +222,8 @@ public abstract class StatementCreatorUtils {
       inValueToUse = parameterValue.getValue();
     }
 
-    if (logger.isTraceEnabled()) {
-      logger.trace("Setting SQL statement parameter value: column index {}, parameter value [{}], value class [{}], SQL type {}",
+    if (log.isTraceEnabled()) {
+      log.trace("Setting SQL statement parameter value: column index {}, parameter value [{}], value class [{}], SQL type {}",
               paramIndex, inValueToUse, (inValueToUse != null ? inValueToUse.getClass().getName() : "null"),
               (sqlTypeToUse == SqlTypeValue.TYPE_UNKNOWN ? "unknown" : Integer.toString(sqlTypeToUse)));
     }
@@ -251,8 +251,8 @@ public abstract class StatementCreatorUtils {
           sqlTypeToUse = ps.getParameterMetaData().getParameterType(paramIndex);
         }
         catch (SQLException ex) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("JDBC getParameterType call failed - using fallback method instead: {}", ex.toString());
+          if (log.isDebugEnabled()) {
+            log.debug("JDBC getParameterType call failed - using fallback method instead: {}", ex.toString());
           }
         }
       }

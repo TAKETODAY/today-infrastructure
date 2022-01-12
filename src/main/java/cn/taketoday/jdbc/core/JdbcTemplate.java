@@ -114,7 +114,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
 
   private static final String RETURN_RESULT_SET_PREFIX = "#result-set-";
-
   private static final String RETURN_UPDATE_COUNT_PREFIX = "#update-count-";
 
   /** If this variable is false, we will throw exceptions on SQL warnings. */

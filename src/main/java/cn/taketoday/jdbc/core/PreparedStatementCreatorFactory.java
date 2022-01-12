@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.lang.Nullable;
@@ -202,7 +201,6 @@ public class PreparedStatementCreatorFactory {
           implements PreparedStatementCreator, PreparedStatementSetter, SqlProvider, ParameterDisposer {
 
     private final String actualSql;
-
     private final List<?> parameters;
 
     public PreparedStatementCreatorImpl(List<?> parameters) {
@@ -212,10 +210,11 @@ public class PreparedStatementCreatorFactory {
     public PreparedStatementCreatorImpl(String actualSql, List<?> parameters) {
       this.actualSql = actualSql;
       this.parameters = parameters;
-      if (parameters.size() != declaredParameters.size()) {
+      int size = parameters.size();
+      if (size != declaredParameters.size()) {
         // Account for named parameters being used multiple times
-        Set<String> names = new HashSet<>();
-        for (int i = 0; i < parameters.size(); i++) {
+        HashSet<String> names = new HashSet<>();
+        for (int i = 0; i < size; i++) {
           Object param = parameters.get(i);
           if (param instanceof SqlParameterValue) {
             names.add(((SqlParameterValue) param).getName());
@@ -237,17 +236,17 @@ public class PreparedStatementCreatorFactory {
       PreparedStatement ps;
       if (generatedKeysColumnNames != null || returnGeneratedKeys) {
         if (generatedKeysColumnNames != null) {
-          ps = con.prepareStatement(this.actualSql, generatedKeysColumnNames);
+          ps = con.prepareStatement(actualSql, generatedKeysColumnNames);
         }
         else {
-          ps = con.prepareStatement(this.actualSql, Statement.RETURN_GENERATED_KEYS);
+          ps = con.prepareStatement(actualSql, Statement.RETURN_GENERATED_KEYS);
         }
       }
       else if (resultSetType == ResultSet.TYPE_FORWARD_ONLY && !updatableResults) {
-        ps = con.prepareStatement(this.actualSql);
+        ps = con.prepareStatement(actualSql);
       }
       else {
-        ps = con.prepareStatement(this.actualSql, resultSetType,
+        ps = con.prepareStatement(actualSql, resultSetType,
                 updatableResults ? ResultSet.CONCUR_UPDATABLE : ResultSet.CONCUR_READ_ONLY);
       }
       setValues(ps);
@@ -258,9 +257,9 @@ public class PreparedStatementCreatorFactory {
     public void setValues(PreparedStatement ps) throws SQLException {
       // Set arguments: Does nothing if there are no parameters.
       int sqlColIndx = 1;
-      int size = this.parameters.size();
+      int size = parameters.size();
       for (int i = 0; i < size; i++) {
-        Object in = this.parameters.get(i);
+        Object in = parameters.get(i);
         SqlParameter declaredParameter;
         // SqlParameterValue overrides declared parameter meta-data, in particular for
         // independence from the declared parameter position in case of named parameters.
@@ -302,12 +301,12 @@ public class PreparedStatementCreatorFactory {
 
     @Override
     public void cleanupParameters() {
-      StatementCreatorUtils.cleanupParameters(this.parameters);
+      StatementCreatorUtils.cleanupParameters(parameters);
     }
 
     @Override
     public String toString() {
-      return "PreparedStatementCreator: sql=[" + sql + "]; parameters=" + this.parameters;
+      return "PreparedStatementCreator: sql=[" + sql + "]; parameters=" + parameters;
     }
   }
 
