@@ -19,14 +19,11 @@
  */
 package cn.taketoday.web.handler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
@@ -39,7 +36,7 @@ public abstract class InterceptableRequestHandler
         extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
 
   /** interceptors array */
-  private HandlerInterceptor[] interceptors;
+  private final ArrayHolder<HandlerInterceptor> interceptors = new ArrayHolder<>();
 
   public InterceptableRequestHandler() { }
 
@@ -56,6 +53,7 @@ public abstract class InterceptableRequestHandler
    */
   @Override
   public Object handleRequest(final RequestContext context) throws Throwable {
+    HandlerInterceptor[] interceptors = this.interceptors.get();
     if (interceptors == null) {
       return handleInternal(context);
     }
@@ -76,14 +74,7 @@ public abstract class InterceptableRequestHandler
    * @since 3.0.1
    */
   public void setInterceptors(HandlerInterceptor... interceptors) {
-    if (ObjectUtils.isNotEmpty(interceptors)) {
-      sort(interceptors);
-    }
-    this.interceptors = interceptors;
-  }
-
-  protected void sort(HandlerInterceptor[] interceptors) {
-    AnnotationAwareOrderComparator.sort(interceptors);
+    this.interceptors.set(interceptors);
   }
 
   /**
@@ -93,10 +84,7 @@ public abstract class InterceptableRequestHandler
    * @throws NullPointerException interceptors is null
    */
   public void addInterceptors(HandlerInterceptor... interceptors) {
-    final ArrayList<HandlerInterceptor> objects = new ArrayList<>(interceptors.length);
-    CollectionUtils.addAll(objects, this.interceptors);
-    CollectionUtils.addAll(objects, interceptors);
-    setInterceptors(objects);
+    this.interceptors.add(interceptors);
   }
 
   /**
@@ -107,25 +95,17 @@ public abstract class InterceptableRequestHandler
    * @since 3.0.1
    */
   public void addInterceptors(List<HandlerInterceptor> interceptors) {
-    ArrayList<HandlerInterceptor> objects = new ArrayList<>(interceptors.size());
-    CollectionUtils.addAll(objects, this.interceptors);
-    CollectionUtils.addAll(objects, interceptors);
-    setInterceptors(objects);
+    this.interceptors.add(interceptors);
   }
 
   public void setInterceptors(@Nullable List<HandlerInterceptor> interceptors) {
-    if (CollectionUtils.isEmpty(interceptors)) {
-      this.interceptors = null;
-    }
-    else {
-      setInterceptors(interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
-    }
+    this.interceptors.set(interceptors);
   }
 
   @Override
   @Nullable
   public HandlerInterceptor[] getInterceptors() {
-    return interceptors;
+    return interceptors.get();
   }
 
   private final class DefaultInterceptorChain extends InterceptorChain {
