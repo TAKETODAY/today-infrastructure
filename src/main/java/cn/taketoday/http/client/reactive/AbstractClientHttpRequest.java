@@ -77,12 +77,21 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
       return this.readOnlyHeaders;
     }
     else if (State.COMMITTED.equals(this.state.get())) {
-      this.readOnlyHeaders = HttpHeaders.readOnlyHttpHeaders(this.headers);
+      this.readOnlyHeaders = initReadOnlyHeaders();
       return this.readOnlyHeaders;
     }
     else {
       return this.headers;
     }
+  }
+
+  /**
+   * Initialize the read-only headers after the request is committed.
+   * <p>By default, this method simply applies a read-only wrapper.
+   * Subclasses can do the same for headers from the native request.
+   */
+  protected HttpHeaders initReadOnlyHeaders() {
+    return HttpHeaders.readOnlyHttpHeaders(this.headers);
   }
 
   @Override

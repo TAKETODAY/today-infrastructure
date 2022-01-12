@@ -21,7 +21,7 @@
 package cn.taketoday.http.client.reactive;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpMessage;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -48,21 +48,22 @@ import cn.taketoday.util.CollectionUtils;
  */
 class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
-  private final HttpResponse response;
+  private final HttpMessage message;
 
-  HttpComponentsHeadersAdapter(HttpResponse response) {
-    this.response = response;
+  HttpComponentsHeadersAdapter(HttpMessage message) {
+    this.message = message;
   }
 
+  @Nullable
   @Override
   public String getFirst(String key) {
-    Header header = this.response.getFirstHeader(key);
+    Header header = this.message.getFirstHeader(key);
     return header != null ? header.getValue() : null;
   }
 
   @Override
   public void add(String key, @Nullable String value) {
-    this.response.addHeader(key, value);
+    this.message.addHeader(key, value);
   }
 
   @Override
@@ -77,7 +78,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   public void set(String key, @Nullable String value) {
-    this.response.setHeader(key, value);
+    this.message.setHeader(key, value);
   }
 
   @Override
@@ -88,29 +89,29 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> map = CollectionUtils.newLinkedHashMap(size());
-    this.response.headerIterator().forEachRemaining(h -> map.putIfAbsent(h.getName(), h.getValue()));
+    this.message.headerIterator().forEachRemaining(h -> map.putIfAbsent(h.getName(), h.getValue()));
     return map;
   }
 
   @Override
   public int size() {
-    return this.response.getHeaders().length;
+    return this.message.getHeaders().length;
   }
 
   @Override
   public boolean isEmpty() {
-    return this.response.getHeaders().length == 0;
+    return this.message.getHeaders().length == 0;
   }
 
   @Override
   public boolean containsKey(Object key) {
-    return key instanceof String headerName && this.response.containsHeader(headerName);
+    return key instanceof String headerName && this.message.containsHeader(headerName);
   }
 
   @Override
   public boolean containsValue(Object value) {
     return value instanceof String
-            && Arrays.stream(this.response.getHeaders()).anyMatch(h -> h.getValue().equals(value));
+            && Arrays.stream(this.message.getHeaders()).anyMatch(h -> h.getValue().equals(value));
   }
 
   @Nullable
@@ -118,7 +119,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   public List<String> get(Object key) {
     ArrayList<String> values = null;
     if (containsKey(key)) {
-      Header[] headers = this.response.getHeaders((String) key);
+      Header[] headers = this.message.getHeaders((String) key);
       values = new ArrayList<>(headers.length);
       for (Header header : headers) {
         values.add(header.getValue());
@@ -142,7 +143,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   public List<String> remove(Object key) {
     if (key instanceof String headerName) {
       List<String> oldValues = get(key);
-      this.response.removeHeaders(headerName);
+      this.message.removeHeaders(headerName);
       return oldValues;
     }
     return null;
@@ -155,13 +156,13 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   public void clear() {
-    this.response.setHeaders();
+    this.message.setHeaders();
   }
 
   @Override
   public Set<String> keySet() {
     LinkedHashSet<String> keys = new LinkedHashSet<>(size());
-    for (Header header : this.response.getHeaders()) {
+    for (Header header : this.message.getHeaders()) {
       keys.add(header.getName());
     }
     return keys;
@@ -170,7 +171,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public Collection<List<String>> values() {
     ArrayList<List<String>> values = new ArrayList<>(size());
-    for (Header header : this.response.getHeaders()) {
+    for (Header header : this.message.getHeaders()) {
       values.add(get(header.getName()));
     }
     return values;
@@ -198,7 +199,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
-    private final Iterator<Header> iterator = response.headerIterator();
+    private final Iterator<Header> iterator = message.headerIterator();
 
     @Override
     public boolean hasNext() {

@@ -103,8 +103,8 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
     return writeWith(Flux.from(body)
-                             .flatMap(Function.identity())
-                             .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release));
+            .flatMap(Function.identity())
+            .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release));
   }
 
   private String getContentType() {
@@ -150,6 +150,11 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
         fields.add(HttpHeaders.ACCEPT, "*/*");
       }
     });
+  }
+
+  @Override
+  protected HttpHeaders initReadOnlyHeaders() {
+    return HttpHeaders.readOnlyHttpHeaders(new JettyHeadersAdapter(this.jettyRequest.getHeaders()));
   }
 
   public ReactiveRequest toReactiveRequest() {

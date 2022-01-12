@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -50,6 +51,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param key the key
    * @return the first value for the specified key, or {@code null} if none
    */
+  @Nullable
   V getFirst(K key);
 
   /**
@@ -58,7 +60,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param key the key
    * @param value the value to be added
    */
-  void add(K key, V value);
+  void add(K key, @Nullable V value);
 
   /**
    * Add all the values of the given list to the current list of values for the
@@ -98,7 +100,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param key the key
    * @param value the value to be added
    */
-  default void addIfAbsent(K key, V value) {
+  default void addIfAbsent(K key, @Nullable V value) {
     if (!containsKey(key)) {
       add(key, value);
     }
@@ -110,7 +112,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param key the key
    * @param value the value to set
    */
-  void set(K key, V value);
+  void set(K key, @Nullable V value);
 
   /**
    * Set the given values under.

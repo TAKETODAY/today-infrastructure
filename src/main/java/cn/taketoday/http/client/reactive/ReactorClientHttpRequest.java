@@ -29,6 +29,7 @@ import java.util.Collection;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import io.netty.buffer.ByteBuf;
@@ -130,4 +131,8 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
             .forEach(this.request::addCookie);
   }
 
+  @Override
+  protected HttpHeaders initReadOnlyHeaders() {
+    return HttpHeaders.readOnlyHttpHeaders(new NettyHeadersAdapter(this.request.requestHeaders()));
+  }
 }
