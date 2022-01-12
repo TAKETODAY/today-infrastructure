@@ -95,31 +95,19 @@ public abstract class DataSourceUtils {
           final SynchronizationInfo info, final DataSource dataSource) throws SQLException {
     Assert.notNull(dataSource, "No DataSource specified");
 
-    ConnectionHolder conHolder = null;
-
-    final Object resource = info.getResource(dataSource);
-    if (resource instanceof ConnectionHolder) {
-      conHolder = (ConnectionHolder) resource;
-
-      if (conHolder.isSynchronizedWithTransaction()) {
-        if (!conHolder.hasConnection()) {
-          if (log.isDebugEnabled()) {
-            log.debug("Fetching resumed JDBC Connection from DataSource");
-          }
-          conHolder.setConnection(fetchConnection(dataSource));
-        }
-        return conHolder.getConnection();
+    ConnectionHolder conHolder = (ConnectionHolder) info.getResource(dataSource);
+    if (conHolder != null && (conHolder.hasConnection() || conHolder.isSynchronizedWithTransaction())) {
+      conHolder.requested();
+      if (!conHolder.hasConnection()) {
+        log.debug("Fetching resumed JDBC Connection from DataSource");
+        conHolder.setConnection(fetchConnection(dataSource));
       }
-      if (conHolder.hasConnection()) {
-        return conHolder.getConnection();
-      }
+      return conHolder.getConnection();
     }
     // Else we either got no holder or an empty thread-bound holder here.
-    if (log.isDebugEnabled()) {
-      log.debug("Fetching JDBC Connection from DataSource");
-    }
 
-    final Connection ret = fetchConnection(dataSource);
+    log.debug("Fetching JDBC Connection from DataSource");
+    Connection con = fetchConnection(dataSource);
 
     if (info.isSynchronizationActive()) {
       try {
@@ -127,10 +115,10 @@ public abstract class DataSourceUtils {
         // Thread-bound object will get removed by synchronization at transaction completion.
         ConnectionHolder holderToUse = conHolder;
         if (holderToUse == null) {
-          holderToUse = new ConnectionHolder(ret);
+          holderToUse = new ConnectionHolder(con);
         }
         else {
-          holderToUse.setConnection(ret);
+          holderToUse.setConnection(con);
         }
         holderToUse.requested();
         info.registerSynchronization(new ConnectionSynchronization(holderToUse, dataSource));
@@ -141,11 +129,13 @@ public abstract class DataSourceUtils {
         }
       }
       catch (RuntimeException ex) {
-        releaseConnection(ret, dataSource); // Unexpected exception from external delegation call -> close Connection and rethrow.
+        // Unexpected exception from external delegation call -> close Connection and rethrow.
+        releaseConnection(con, dataSource);
         throw ex;
       }
     }
-    return ret;
+
+    return con;
   }
 
   /**
