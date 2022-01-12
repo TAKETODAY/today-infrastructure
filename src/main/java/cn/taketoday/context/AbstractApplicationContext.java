@@ -1398,7 +1398,7 @@ public abstract class AbstractApplicationContext
     // (such as a PropertySourcesPlaceholderConfigurer bean) registered any before:
     // at this point, primarily for resolution in annotation attribute values.
     if (!beanFactory.hasEmbeddedValueResolver()) {
-      beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
+      beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolveRequiredPlaceholders(strVal));
     }
 
     // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.

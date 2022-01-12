@@ -25,7 +25,6 @@ import java.util.Date;
 
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.expression.ExpressionEvaluator;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -46,7 +45,7 @@ class ELFieldTests {
   @Value("#{user}")
   private User user;
 
-  @Value(value = "#{env.getProperty('site.name')}")
+  @Value("${site.name:TODAY}")
   private String siteName;
 
   @Getter
@@ -65,7 +64,7 @@ class ELFieldTests {
   @Test
   void number() {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-
+      applicationContext.register(User.class);
       applicationContext.register(ELFieldTests.class);
       applicationContext.refresh();
       ELFieldTests bean = applicationContext.getBean(getClass());
@@ -74,6 +73,7 @@ class ELFieldTests {
 
       assert bean.testFloat == 235.1f;
       assert bean.testDouble == 235.1;
+      assert bean.siteName.equals("TODAY");
     }
   }
 
@@ -86,10 +86,9 @@ class ELFieldTests {
               .setBrithday(new Date())//
               .setId(1);
 
-      ExpressionEvaluator expressionEvaluator = applicationContext.getExpressionEvaluator();
-      expressionEvaluator.obtainProcessor().defineBean("user", user);
       applicationContext.setPropertiesLocation("info.properties");
 
+      applicationContext.registerBean(user);
       applicationContext.register(ELFieldTests.class);
       applicationContext.refresh();
 

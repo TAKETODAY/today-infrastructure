@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;
@@ -50,12 +51,11 @@ class AutoProxyConfigurationTests {
       assertThat(proxyCreatorDef).isNotNull();
 
       Object exposeProxy = proxyCreatorDef.getRequiredPropertyValue("exposeProxy");
-      Object proxyTargetClass = proxyCreatorDef.getRequiredPropertyValue("proxyTargetClass");
-
+      PropertyValues propertyValues = proxyCreatorDef.getPropertyValues();
+      assertThat(propertyValues).isNotNull();
       ProxyConfig proxyCreator = context.getBean(ProxyConfig.class);
 
       assertThat(exposeProxy).isInstanceOf(Boolean.class).isEqualTo(true).isEqualTo(proxyCreator.isExposeProxy());
-      assertThat(proxyTargetClass).isInstanceOf(Boolean.class).isEqualTo(false).isEqualTo(proxyCreator.isProxyTargetClass());
 
     }
   }
