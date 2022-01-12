@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
 
 /**
  * @author TODAY 2020/12/12 0:02
@@ -28,8 +28,8 @@ public interface AnnotationHandlerMethodCustomizer extends HandlerCustomizer {
 
   @Override
   default Object customize(String handlerKey, Object handler) {
-    return handler instanceof AnnotationHandlerMethod
-            ? customize((AnnotationHandlerMethod) handler)
+    return handler instanceof ActionMappingAnnotationHandler
+            ? customize((ActionMappingAnnotationHandler) handler)
             : handler;
   }
 
@@ -37,5 +37,5 @@ public interface AnnotationHandlerMethodCustomizer extends HandlerCustomizer {
    * @param handlerMethod HandlerMethod
    * @return a modified handler
    */
-  Object customize(AnnotationHandlerMethod handlerMethod);
+  Object customize(ActionMappingAnnotationHandler handlerMethod);
 }

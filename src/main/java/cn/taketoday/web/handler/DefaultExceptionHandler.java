@@ -52,21 +52,21 @@ public class DefaultExceptionHandler
         extends SimpleExceptionHandler implements WebApplicationInitializer {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
-  private final HashMap<Class<? extends Throwable>, ThrowableHandlerMethod>
+  private final HashMap<Class<? extends Throwable>, ExceptionHandlerActionMappingHandler>
           exceptionHandlers = new HashMap<>();
 
   /** @since 3.0 */
   private boolean inheritable;
 
   /** @since 3.0 */
-  private ThrowableHandlerMethod globalHandler;
+  private ExceptionHandlerActionMappingHandler globalHandler;
 
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
     context.setAttribute(KEY_THROWABLE, target);
     // catch all handlers
-    ThrowableHandlerMethod exHandler = lookupExceptionHandler(target);
+    ExceptionHandlerActionMappingHandler exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
       return super.handleException(context, target, handler);
     }
@@ -82,14 +82,14 @@ public class DefaultExceptionHandler
   }
 
   /**
-   * Handle Exception use {@link ThrowableHandlerMethod}
+   * Handle Exception use {@link ExceptionHandlerActionMappingHandler}
    *
    * @param context current request
    * @param exHandler ThrowableHandlerMethod
    * @return handler return value
    * @throws Throwable occurred in exHandler
    */
-  protected Object handleException(RequestContext context, ThrowableHandlerMethod exHandler)
+  protected Object handleException(RequestContext context, ExceptionHandlerActionMappingHandler exHandler)
           throws Throwable {
     exHandler.handleReturnValue(context, exHandler, exHandler.invokeHandler(context));
     return NONE_RETURN_VALUE;
@@ -101,8 +101,8 @@ public class DefaultExceptionHandler
    * @param ex Target {@link Exception}
    * @return Mapped {@link Exception} handler mapping
    */
-  protected ThrowableHandlerMethod lookupExceptionHandler(Throwable ex) {
-    ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
+  protected ExceptionHandlerActionMappingHandler lookupExceptionHandler(Throwable ex) {
+    ExceptionHandlerActionMappingHandler ret = exceptionHandlers.get(ex.getClass());
     if (ret == null) {
       if (inheritable) {
         Class<? extends Throwable> runtimeEx = ex.getClass();
@@ -129,7 +129,7 @@ public class DefaultExceptionHandler
     this.inheritable = inheritable;
   }
 
-  void setGlobalHandler(ThrowableHandlerMethod globalHandler) {
+  void setGlobalHandler(ExceptionHandlerActionMappingHandler globalHandler) {
     this.globalHandler = globalHandler;
   }
 
@@ -138,8 +138,8 @@ public class DefaultExceptionHandler
   @Override
   public void onStartup(WebApplicationContext beanFactory) {
     log.info("Initialize @ExceptionHandler");
-    HandlerMethodBuilder<ThrowableHandlerMethod> handlerBuilder = new HandlerMethodBuilder<>(beanFactory);
-    handlerBuilder.setHandlerMethodClass(ThrowableHandlerMethod.class);
+    HandlerMethodBuilder<ExceptionHandlerActionMappingHandler> handlerBuilder = new HandlerMethodBuilder<>(beanFactory);
+    handlerBuilder.setHandlerMethodClass(ExceptionHandlerActionMappingHandler.class);
 
     // get all error handlers
     List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
@@ -148,7 +148,7 @@ public class DefaultExceptionHandler
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
           for (var exceptionClass : getCatchThrowableClasses(method)) {
             // @since 3.0
-            ThrowableHandlerMethod handlerMethod = handlerBuilder.build(errorHandler, method);
+            ExceptionHandlerActionMappingHandler handlerMethod = handlerBuilder.build(errorHandler, method);
             exceptionHandlers.put(exceptionClass, handlerMethod);
           }
         }
@@ -156,7 +156,7 @@ public class DefaultExceptionHandler
     }
 
     // @since 3.0
-    ThrowableHandlerMethod global = exceptionHandlers.get(Throwable.class);
+    ExceptionHandlerActionMappingHandler global = exceptionHandlers.get(Throwable.class);
     if (global != null) {
       setGlobalHandler(global);
       exceptionHandlers.remove(Throwable.class);
@@ -190,9 +190,9 @@ public class DefaultExceptionHandler
 
   // exception handler
 
-  protected static class ThrowableHandlerMethod extends AnnotationHandlerMethod {
+  protected static class ExceptionHandlerActionMappingHandler extends ActionMappingAnnotationHandler {
 
-    public ThrowableHandlerMethod(HandlerMethod method) {
+    public ExceptionHandlerActionMappingHandler(HandlerMethod method) {
       super(method);
     }
 

@@ -61,8 +61,8 @@ public class HandlerMethodBuilderTests {
       context.register(AppConfig.class);
       context.refresh();
 
-      HandlerMethodBuilder<AnnotationHandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
-      AnnotationHandlerMethod handlerMethod = handlerMethodBuilder.build(new MyController(), MyController.class.getMethod("get"));
+      HandlerMethodBuilder<ActionMappingAnnotationHandler> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
+      ActionMappingAnnotationHandler handlerMethod = handlerMethodBuilder.build(new MyController(), MyController.class.getMethod("get"));
       assertThat(handlerMethod).isNotNull();
 //      assertThat(handlerMethod.getBean()).isNotNull();
       assertThat(handlerMethod.getMethod()).isNotNull();

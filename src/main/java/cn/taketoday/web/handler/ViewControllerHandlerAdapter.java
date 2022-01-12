@@ -53,7 +53,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
   }
 
   protected Object invokeHandlerMethod(final RequestContext context, final ViewController view) throws Throwable {
-    final AnnotationHandlerMethod handler = view.getHandler();
+    final ActionMappingAnnotationHandler handler = view.getHandler();
     final Object result = handler.invokeHandler(context);
 
     // If return type is void or result is null use xml configuration's resource

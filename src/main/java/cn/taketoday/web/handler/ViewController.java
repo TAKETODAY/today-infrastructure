@@ -40,7 +40,7 @@ public class ViewController extends OrderedSupport {
   /** The request status @since 2.3.7 */
   private Integer status;
 
-  private final AnnotationHandlerMethod handlerMethod;
+  private final ActionMappingAnnotationHandler handlerMethod;
 
   public ViewController() {
     this(null, null);
@@ -52,7 +52,7 @@ public class ViewController extends OrderedSupport {
   }
 
   public ViewController(Object bean, Method method) { // FIXME
-    this.handlerMethod = (method == null) ? null : AnnotationHandlerMethod.from(bean, method);
+    this.handlerMethod = (method == null) ? null : ActionMappingAnnotationHandler.from(bean, method);
   }
 
   public boolean hasAction() {
@@ -95,7 +95,7 @@ public class ViewController extends OrderedSupport {
             .toString();
   }
 
-  public AnnotationHandlerMethod getHandler() {
+  public ActionMappingAnnotationHandler getHandler() {
     return handlerMethod;
   }
 }

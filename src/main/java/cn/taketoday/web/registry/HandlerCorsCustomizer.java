@@ -29,7 +29,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
-import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -52,7 +52,7 @@ public class HandlerCorsCustomizer implements AnnotationHandlerMethodCustomizer 
   }
 
   @Override
-  public Object customize(AnnotationHandlerMethod handler) {
+  public Object customize(ActionMappingAnnotationHandler handler) {
 
     // 预防已经设置
     HandlerInterceptor[] interceptors = handler.getInterceptors();

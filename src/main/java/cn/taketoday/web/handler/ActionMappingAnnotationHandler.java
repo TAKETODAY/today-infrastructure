@@ -40,7 +40,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * @see cn.taketoday.web.annotation.Controller
  * @since 4.0 2021/11/29 22:48
  */
-public abstract class AnnotationHandlerMethod
+public abstract class ActionMappingAnnotationHandler
         extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {
   private final HandlerMethod handlerMethod;
 
@@ -53,11 +53,11 @@ public abstract class AnnotationHandlerMethod
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
 
-  public AnnotationHandlerMethod(HandlerMethod handlerMethod) {
+  public ActionMappingAnnotationHandler(HandlerMethod handlerMethod) {
     this.handlerMethod = handlerMethod;
   }
 
-  public AnnotationHandlerMethod(AnnotationHandlerMethod handler) {
+  public ActionMappingAnnotationHandler(ActionMappingAnnotationHandler handler) {
     this.handlerMethod = handler.handlerMethod;
     this.handlerInvoker = handler.handlerInvoker;
     this.resultHandlers = handler.resultHandlers;
@@ -167,32 +167,32 @@ public abstract class AnnotationHandlerMethod
   // Static methods
   //---------------------------------------------------------------------
 
-  public static AnnotationHandlerMethod copy(AnnotationHandlerMethod handler) {
-    Class<? extends AnnotationHandlerMethod> handlerClass = handler.getClass();
+  public static ActionMappingAnnotationHandler copy(ActionMappingAnnotationHandler handler) {
+    Class<? extends ActionMappingAnnotationHandler> handlerClass = handler.getClass();
     return ReflectionUtils.invokeConstructor(
             ReflectionUtils.getConstructor(handlerClass, handlerClass), new Object[] { handler });
   }
 
-  public static AnnotationHandlerMethod from(Object handlerBean, Method method) {
+  public static ActionMappingAnnotationHandler from(Object handlerBean, Method method) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
-    return new SingletonAnnotationHandlerMethod(handlerBean, handlerMethod);
+    return new SingletonActionMappingAnnotationHandler(handlerBean, handlerMethod);
   }
 
-  public static AnnotationHandlerMethod from(BeanSupplier<Object> beanSupplier, Method method) {
+  public static ActionMappingAnnotationHandler from(BeanSupplier<Object> beanSupplier, Method method) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
-    return new SuppliedAnnotationHandlerMethod(beanSupplier, handlerMethod);
+    return new SuppliedActionMappingAnnotationHandler(beanSupplier, handlerMethod);
   }
 
-  static class SingletonAnnotationHandlerMethod extends AnnotationHandlerMethod {
+  static class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
 
     private final Object handlerBean;
 
-    public SingletonAnnotationHandlerMethod(Object handlerBean, HandlerMethod handlerMethod) {
+    public SingletonActionMappingAnnotationHandler(Object handlerBean, HandlerMethod handlerMethod) {
       super(handlerMethod);
       this.handlerBean = handlerBean;
     }
 
-    public SingletonAnnotationHandlerMethod(SingletonAnnotationHandlerMethod handler) {
+    public SingletonActionMappingAnnotationHandler(SingletonActionMappingAnnotationHandler handler) {
       super(handler);
       this.handlerBean = handler.handlerBean;
     }
@@ -204,10 +204,10 @@ public abstract class AnnotationHandlerMethod
 
   }
 
-  private static class SuppliedAnnotationHandlerMethod extends AnnotationHandlerMethod {
+  private static class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
     private final BeanSupplier<Object> beanSupplier;
 
-    public SuppliedAnnotationHandlerMethod(BeanSupplier<Object> beanSupplier, HandlerMethod method) {
+    public SuppliedActionMappingAnnotationHandler(BeanSupplier<Object> beanSupplier, HandlerMethod method) {
       super(method);
       this.beanSupplier = beanSupplier;
     }

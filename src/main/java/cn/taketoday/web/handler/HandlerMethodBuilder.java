@@ -40,7 +40,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * @author TODAY 2021/5/1 13:53
  * @since 3.0
  */
-public class HandlerMethodBuilder<T extends AnnotationHandlerMethod> {
+public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
 
   private ParameterResolvingRegistry resolverRegistry;
   private ReturnValueHandlers returnValueHandlers;
@@ -96,7 +96,7 @@ public class HandlerMethodBuilder<T extends AnnotationHandlerMethod> {
   }
 
   /**
-   * @see AnnotationHandlerMethod#AnnotationHandlerMethod(HandlerMethod)
+   * @see ActionMappingAnnotationHandler#ActionMappingAnnotationHandler(HandlerMethod)
    */
   @SuppressWarnings("unchecked")
   public T build(Object handlerBean, Method method) {
@@ -118,7 +118,7 @@ public class HandlerMethodBuilder<T extends AnnotationHandlerMethod> {
   }
 
   /**
-   * @see AnnotationHandlerMethod#AnnotationHandlerMethod(HandlerMethod)
+   * @see ActionMappingAnnotationHandler#ActionMappingAnnotationHandler(HandlerMethod)
    */
   public T build(Object handlerBean, Method method, List<HandlerInterceptor> interceptors) {
     T handlerMethod = build(handlerBean, method);

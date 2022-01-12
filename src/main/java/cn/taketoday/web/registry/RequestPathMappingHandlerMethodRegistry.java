@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.PatternHandler;
 
 /**
@@ -85,7 +85,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
 
   @Override
   protected void mappingHandlerMethod(
-          AnnotationHandlerMethod handler,
+          ActionMappingAnnotationHandler handler,
           @Nullable MergedAnnotation<ActionMapping> controllerMapping,
           MergedAnnotation<ActionMapping> handlerMethodMapping) {
     AnnotationAttributes mapping = new AnnotationAttributes(ActionMapping.class);
@@ -103,10 +103,10 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   @Override
   protected Object transformHandler(String handlerKey, Object handler) {
     if (handler instanceof AnnotationMappingInfo mapping) {
-      AnnotationHandlerMethod handlerMethod = mapping.getHandler();
+      ActionMappingAnnotationHandler handlerMethod = mapping.getHandler();
       Object transformed = super.transformHandler(handlerKey, handlerMethod);
       if (transformed != handlerMethod) {
-        mapping = new AnnotationMappingInfo(mapping, (AnnotationHandlerMethod) transformed);
+        mapping = new AnnotationMappingInfo(mapping, (ActionMappingAnnotationHandler) transformed);
       }
       return mapping;
     }

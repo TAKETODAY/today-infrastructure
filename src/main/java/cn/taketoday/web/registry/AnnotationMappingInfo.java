@@ -30,7 +30,7 @@ import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 
 import java.util.Arrays;
@@ -51,13 +51,13 @@ final class AnnotationMappingInfo implements Ordered {
   private final HttpMethod[] method;
   private final RequestParameter[] params;
 
-  private final AnnotationHandlerMethod handler;
+  private final ActionMappingAnnotationHandler handler;
 
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(String[] value, String[] produces, String[] consumes,
-                        String[] params, HttpMethod[] method, AnnotationHandlerMethod handler) {
+                        String[] params, HttpMethod[] method, ActionMappingAnnotationHandler handler) {
     this.value = value;
     this.handler = handler;
     this.method = compute(method);
@@ -88,7 +88,7 @@ final class AnnotationMappingInfo implements Ordered {
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
-  AnnotationMappingInfo(ActionMapping mapping, AnnotationHandlerMethod handler) {
+  AnnotationMappingInfo(ActionMapping mapping, ActionMappingAnnotationHandler handler) {
     this(mapping.value(), mapping.produces(), mapping.consumes(),
          mapping.params(), mapping.method(), handler);
   }
@@ -96,13 +96,13 @@ final class AnnotationMappingInfo implements Ordered {
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
-  AnnotationMappingInfo(AnnotationAttributes attributes, AnnotationHandlerMethod handler) {
+  AnnotationMappingInfo(AnnotationAttributes attributes, ActionMappingAnnotationHandler handler) {
     this(attributes.getStringArray(MergedAnnotation.VALUE), attributes.getStringArray("produces"),
          attributes.getStringArray("consumes"), attributes.getStringArray("params"),
          attributes.getRequiredAttribute("method", HttpMethod[].class), handler);
   }
 
-  public AnnotationMappingInfo(AnnotationMappingInfo mapping, AnnotationHandlerMethod handler) {
+  public AnnotationMappingInfo(AnnotationMappingInfo mapping, ActionMappingAnnotationHandler handler) {
     this.handler = handler;
     this.value = mapping.value;
     this.params = mapping.params;
@@ -111,7 +111,7 @@ final class AnnotationMappingInfo implements Ordered {
     this.consumes = mapping.consumes;
   }
 
-  public AnnotationHandlerMethod getHandler() {
+  public ActionMappingAnnotationHandler getHandler() {
     return handler;
   }
 

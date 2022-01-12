@@ -31,7 +31,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.HandlerMethodBuilder;
 import cn.taketoday.web.handler.MethodParametersBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
@@ -102,14 +102,14 @@ public class WebSocketHandlerRegistry
 
     Method[] declaredMethods = endpointClass.getDeclaredMethods();
 
-    AnnotationHandlerMethod afterHandshake = null;
+    ActionMappingAnnotationHandler afterHandshake = null;
     WebSocketHandlerMethod onOpen = null;
     WebSocketHandlerMethod onClose = null;
     WebSocketHandlerMethod onError = null;
     WebSocketHandlerMethod onMessage = null;
 
     MethodParametersBuilder parameterBuilder = new MethodParametersBuilder();
-    HandlerMethodBuilder<AnnotationHandlerMethod> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
+    HandlerMethodBuilder<ActionMappingAnnotationHandler> handlerMethodBuilder = new HandlerMethodBuilder<>(context);
     for (Method declaredMethod : declaredMethods) {
       if (isOnOpenHandler(declaredMethod, definition)) {
         onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);

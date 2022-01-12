@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.AnnotationHandlerMethod;
+import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.socket.WebSocketHandler;
 
@@ -44,7 +44,7 @@ public class AnnotationHandlerDelegate {
   @Nullable
   protected final WebSocketHandlerMethod onMessage;
   @Nullable
-  protected final AnnotationHandlerMethod afterHandshake;
+  protected final ActionMappingAnnotationHandler afterHandshake;
 
   protected final boolean containsPathVariable;
 
@@ -53,7 +53,7 @@ public class AnnotationHandlerDelegate {
                                    @Nullable WebSocketHandlerMethod onClose,
                                    @Nullable WebSocketHandlerMethod onError,
                                    @Nullable WebSocketHandlerMethod onMessage,
-                                   @Nullable AnnotationHandlerMethod afterHandshake) {
+                                   @Nullable ActionMappingAnnotationHandler afterHandshake) {
     this.onOpen = onOpen;
     this.onClose = onClose;
     this.onError = onError;
