@@ -19,14 +19,6 @@
  */
 package cn.taketoday.http;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.StringUtils;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -55,6 +47,14 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Locale.US;
@@ -1039,8 +1039,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-            ? ContentDisposition.parse(contentDisposition)
-            : ContentDisposition.empty();
+           ? ContentDisposition.parse(contentDisposition)
+           : ContentDisposition.empty();
   }
 
   /**
@@ -1261,8 +1261,8 @@ public abstract class HttpHeaders
     String host = null;
     int port = 0;
     int separator = StringUtils.matchesFirst(value, '[')
-            ? value.indexOf(':', value.indexOf(']'))
-            : value.lastIndexOf(':');
+                    ? value.indexOf(':', value.indexOf(']'))
+                    : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);
@@ -1858,8 +1858,8 @@ public abstract class HttpHeaders
               List<String> values = entry.getValue();
               return entry.getKey() + ":"
                       + (values.size() == 1
-                      ? "\"" + values.get(0) + "\""
-                      : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                         ? "\"" + values.get(0) + "\""
+                         : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }
@@ -1901,6 +1901,19 @@ public abstract class HttpHeaders
 
   public static DefaultHttpHeaders create() {
     return new DefaultHttpHeaders();
+  }
+
+  /**
+   * Construct a new {@code HttpHeaders} instance backed by an existing map.
+   * <p>This constructor is available as an optimization for adapting to existing
+   * headers map structures, primarily for internal use within the framework.
+   *
+   * @param headers the original map
+   * @return the adapted multi-value map (wrapping the original map)
+   * @since 4.0
+   */
+  public static DefaultHttpHeaders from(MultiValueMap<String, String> headers) {
+    return new DefaultHttpHeaders(headers);
   }
 
   /**
