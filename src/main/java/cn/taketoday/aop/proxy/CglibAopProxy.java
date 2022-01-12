@@ -24,7 +24,6 @@ import org.aopalliance.aop.Advice;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -37,7 +36,6 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.core.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.core.bytecode.proxy.Callback;
@@ -153,29 +151,11 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) throws Exception {
-//    enhancer.setInterceptDuringConstruction(false);
-    if (constructorArgs != null && constructorArgTypes != null) {
-      // use constructor
-      enhancer.setCallbacks(callbacks);
-      return enhancer.create(constructorArgTypes, constructorArgs);
-    }
-    else {
-      Object proxy;
-      // use default constructor
-      Class<?> proxyClass = enhancer.createClass();
-      Constructor<?> constructor = ReflectionUtils.getConstructorIfAvailable(proxyClass);
-      if (constructor != null) {
-        proxy = constructor.newInstance();
-      }
-      else {
-        // use SunReflectionFactoryInstantiator
-        proxy = BeanInstantiator.forSerialization(proxyClass).instantiate();
-      }
-      if (proxy instanceof Factory) {
-        ((Factory) proxy).setCallbacks(callbacks);
-      }
-      return proxy;
-    }
+    enhancer.setInterceptDuringConstruction(false);
+    enhancer.setCallbacks(callbacks);
+    return this.constructorArgs != null && this.constructorArgTypes != null
+           ? enhancer.create(this.constructorArgTypes, this.constructorArgs)
+           : enhancer.create();
   }
 
   /**
