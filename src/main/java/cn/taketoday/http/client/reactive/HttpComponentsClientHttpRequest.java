@@ -68,6 +68,8 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
   @Nullable
   private Flux<ByteBuffer> byteBufferFlux;
 
+  private transient long contentLength = -1;
+
   public HttpComponentsClientHttpRequest(
           HttpMethod method, URI uri,
           HttpClientContext context, DataBufferFactory dataBufferFactory) {
@@ -123,7 +125,8 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected void applyHeaders() {
-    for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+    HttpHeaders headers = getHeaders();
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
       String key = entry.getKey();
       if (!HttpHeaders.CONTENT_LENGTH.equals(key)) {
         for (String v : entry.getValue()) {
@@ -135,6 +138,8 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
     if (!this.httpRequest.containsHeader(HttpHeaders.ACCEPT)) {
       this.httpRequest.addHeader(HttpHeaders.ACCEPT, ALL_VALUE);
     }
+
+    this.contentLength = headers.getContentLength();
   }
 
   @Override
@@ -169,7 +174,7 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
         contentType = ContentType.parse(getHeaders().getContentType().toString());
       }
       reactiveEntityProducer = new ReactiveEntityProducer(
-              this.byteBufferFlux, getHeaders().getContentLength(), contentType, contentEncoding);
+              this.byteBufferFlux, contentLength, contentType, contentEncoding);
     }
 
     return new BasicRequestProducer(this.httpRequest, reactiveEntityProducer);
