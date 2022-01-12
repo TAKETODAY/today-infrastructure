@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Abstract base class for integration tests for {@link ResourceDatabasePopulator}
- * and {@link DatabasePopulatorUtils}.
+ * and {@link DatabasePopulator}.
  *
  * @author Dave Syer
  * @author Sam Brannen
@@ -54,7 +54,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     databasePopulator.addScript(resource("db-schema-failed-drop-comments.sql"));
     databasePopulator.addScript(resource("db-test-data.sql"));
     databasePopulator.setIgnoreFailedDrops(true);
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertTestDatabaseCreated();
   }
 
@@ -62,7 +62,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithStandardEscapedLiteral() throws Exception {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-escaped-literal.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertTestDatabaseCreated("'Keith'");
   }
 
@@ -70,7 +70,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithMySqlEscapedLiteral() throws Exception {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-mysql-escaped-literal.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertTestDatabaseCreated("\\$Keith\\$");
   }
 
@@ -78,7 +78,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithMultipleStatements() throws Exception {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-multiple.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertThat(jdbcTemplate.queryForObject(COUNT_KEITH_SQL, Integer.class)).isEqualTo(1);
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
@@ -88,7 +88,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-endings.sql"));
     databasePopulator.setSeparator("@@");
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertThat(jdbcTemplate.queryForObject(COUNT_KEITH_SQL, Integer.class)).isEqualTo(1);
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
@@ -98,7 +98,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-whitespace.sql"));
     databasePopulator.setSeparator("/\n");
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertThat(jdbcTemplate.queryForObject(COUNT_KEITH_SQL, Integer.class)).isEqualTo(1);
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
@@ -107,7 +107,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithMultipleStatementsAndNewlineSeparator() throws Exception {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-newline.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertThat(jdbcTemplate.queryForObject(COUNT_KEITH_SQL, Integer.class)).isEqualTo(1);
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
@@ -117,7 +117,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-multi-newline.sql"));
     databasePopulator.setSeparator("\n\n");
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertThat(jdbcTemplate.queryForObject(COUNT_KEITH_SQL, Integer.class)).isEqualTo(1);
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
@@ -126,7 +126,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithEolBetweenTokens() throws Exception {
     databasePopulator.addScript(usersSchema());
     databasePopulator.addScript(resource("users-data.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertUsersDatabaseCreated("Brannen");
   }
 
@@ -134,7 +134,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithCommentsWithinStatements() throws Exception {
     databasePopulator.addScript(usersSchema());
     databasePopulator.addScript(resource("users-data-with-comments.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertUsersDatabaseCreated("Brannen", "Hoeller");
   }
 
@@ -144,7 +144,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     databasePopulator.addScript(resource("drop-users-schema.sql"));
     databasePopulator.addScript(resource("users-schema-without-separator.sql"));
     databasePopulator.addScript(resource("users-data-without-separator.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
 
     assertUsersDatabaseCreated("Brannen");
   }
@@ -153,7 +153,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void constructorWithMultipleScriptResources() throws Exception {
     final ResourceDatabasePopulator populator = new ResourceDatabasePopulator(usersSchema(),
             resource("users-data-with-comments.sql"));
-    DatabasePopulatorUtils.execute(populator, db);
+    DatabasePopulator.execute(populator, db);
     assertUsersDatabaseCreated("Brannen", "Hoeller");
   }
 
@@ -161,7 +161,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void scriptWithSelectStatements() throws Exception {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-select.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     assertThat(jdbcTemplate.queryForObject(COUNT_KEITH_SQL, Integer.class)).isEqualTo(1);
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
@@ -174,7 +174,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     TransactionSynchronizationManager.initSynchronization();
     Connection connection = DataSourceUtils.getConnection(db);
     DatabasePopulator populator = mock(DatabasePopulator.class);
-    DatabasePopulatorUtils.execute(populator, db);
+    DatabasePopulator.execute(populator, db);
     verify(populator).populate(connection);
   }
 
@@ -186,7 +186,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
   void executesHugeScriptInReasonableTime() throws SQLException {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-huge.sql"));
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
   }
 
   private void assertTestDatabaseCreated() {

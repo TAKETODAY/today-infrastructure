@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
 import cn.taketoday.jdbc.datasource.init.DatabasePopulator;
-import cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -200,7 +199,7 @@ public class EmbeddedDatabaseFactory {
     // Now populate the database
     if (this.databasePopulator != null) {
       try {
-        DatabasePopulatorUtils.execute(this.databasePopulator, this.dataSource);
+        DatabasePopulator.execute(this.databasePopulator, this.dataSource);
       }
       catch (RuntimeException ex) {
         // failed to populate, so leave it as not initialized

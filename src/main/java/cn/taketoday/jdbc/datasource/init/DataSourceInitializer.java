@@ -114,7 +114,7 @@ public class DataSourceInitializer implements InitializingBean, DisposableBean {
   private void execute(@Nullable DatabasePopulator populator) {
     Assert.state(this.dataSource != null, "DataSource must be set");
     if (this.enabled && populator != null) {
-      DatabasePopulatorUtils.execute(populator, this.dataSource);
+      DatabasePopulator.execute(populator, this.dataSource);
     }
   }
 

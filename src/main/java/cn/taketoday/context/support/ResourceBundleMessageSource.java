@@ -351,7 +351,7 @@ public class ResourceBundleMessageSource
   /**
    * Efficiently retrieve the String value for the specified key,
    * or return {@code null} if not found.
-   * <p>As of 4.2, the default implementation checks {@code containsKey}
+   * <p>the default implementation checks {@code containsKey}
    * before it attempts to call {@code getString} (which would require
    * catching {@code MissingResourceException} for key not found).
    * <p>Can be overridden in subclasses.

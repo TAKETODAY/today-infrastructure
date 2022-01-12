@@ -52,7 +52,7 @@ import cn.taketoday.lang.Repository;
  * <p>{@code PersistenceExceptionTranslator} beans will be sorted according
  * to  dependency ordering rules: see {@link cn.taketoday.core.Ordered}
  * and {@link cn.taketoday.core.Order}. Note that such beans will
- * get retrieved from any scope, not just singleton scope, as of this 5.3 revision.
+ * get retrieved from any scope, not just singleton scope
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

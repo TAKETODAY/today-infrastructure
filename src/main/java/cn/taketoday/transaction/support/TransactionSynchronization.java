@@ -36,7 +36,7 @@ import cn.taketoday.core.Ordered;
  * allowing for fine-grained interaction with their execution order (if necessary).
  *
  * <p>Implements the {@link Ordered} interface to enable the execution order of
- * synchronizations to be controlled declaratively, as of 5.3. The default
+ * synchronizations to be controlled declaratively. The default
  * {@link #getOrder() order} is {@link Ordered#LOWEST_PRECEDENCE}, indicating
  * late execution; return a lower value for earlier execution.
  *

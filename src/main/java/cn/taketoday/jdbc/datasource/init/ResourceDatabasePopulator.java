@@ -52,7 +52,7 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @author Chris Baldwin
  * @author Phillip Webb
- * @see DatabasePopulatorUtils
+ * @see DatabasePopulator
  * @see ScriptUtils
  * @since 4.0
  */
@@ -268,14 +268,14 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
   /**
    * Execute this {@code ResourceDatabasePopulator} against the given
    * {@link DataSource}.
-   * <p>Delegates to {@link DatabasePopulatorUtils#execute}.
+   * <p>Delegates to {@link DatabasePopulator#execute}.
    *
    * @param dataSource the {@code DataSource} to execute against (never {@code null})
    * @throws ScriptException if an error occurs
    * @see #populate(Connection)
    */
   public void execute(DataSource dataSource) throws ScriptException {
-    DatabasePopulatorUtils.execute(this, dataSource);
+    DatabasePopulator.execute(this, dataSource);
   }
 
 }

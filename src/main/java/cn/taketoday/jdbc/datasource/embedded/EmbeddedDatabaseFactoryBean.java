@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.jdbc.datasource.init.DatabasePopulator;
-import cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -87,7 +86,7 @@ public class EmbeddedDatabaseFactoryBean extends EmbeddedDatabaseFactory
   @Override
   public void destroy() {
     if (this.databaseCleaner != null && getDataSource() != null) {
-      DatabasePopulatorUtils.execute(this.databaseCleaner, getDataSource());
+      DatabasePopulator.execute(this.databaseCleaner, getDataSource());
     }
     shutdownDatabase();
   }

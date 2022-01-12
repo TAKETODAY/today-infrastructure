@@ -60,7 +60,7 @@ class H2DatabasePopulatorTests extends AbstractDatabasePopulatorTests {
     // considered a statement separator within the source code of the
     // aliased function 'REVERSE'.
     databasePopulator.setSeparator("\n\n");
-    DatabasePopulatorUtils.execute(databasePopulator, db);
+    DatabasePopulator.execute(databasePopulator, db);
     String sql = "select REVERSE(first_name) from users where last_name='Brannen'";
     assertThat(jdbcTemplate.queryForObject(sql, String.class)).isEqualTo("maS");
   }
@@ -82,12 +82,12 @@ class H2DatabasePopulatorTests extends AbstractDatabasePopulatorTests {
 
       // Set up schema
       databasePopulator.setScripts(usersSchema());
-      DatabasePopulatorUtils.execute(databasePopulator, database);
+      DatabasePopulator.execute(databasePopulator, database);
       assertThat(selectFirstNames(database)).isEmpty();
 
       // Insert data
       databasePopulator.setScripts(resource("users-data.sql"));
-      DatabasePopulatorUtils.execute(databasePopulator, database);
+      DatabasePopulator.execute(databasePopulator, database);
       assertThat(selectFirstNames(database)).containsExactly("Sam");
     }
     finally {
@@ -98,7 +98,7 @@ class H2DatabasePopulatorTests extends AbstractDatabasePopulatorTests {
   }
 
   /**
-   * DatabasePopulatorUtils.execute() will obtain a new Connection, so we're
+   * DatabasePopulator.execute() will obtain a new Connection, so we're
    * really just testing the configuration of the database here.
    */
   private void assertAutoCommitDisabledPreconditions(DataSource dataSource) throws Exception {

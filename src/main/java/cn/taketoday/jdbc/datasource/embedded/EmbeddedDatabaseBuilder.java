@@ -53,7 +53,7 @@ import cn.taketoday.lang.Assert;
  * @author Sam Brannen
  * @see ScriptUtils
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
- * @see cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils
+ * @see cn.taketoday.jdbc.datasource.init.DatabasePopulator
  * @since 4.0
  */
 public class EmbeddedDatabaseBuilder {

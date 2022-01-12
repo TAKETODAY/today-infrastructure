@@ -23,13 +23,18 @@ package cn.taketoday.jdbc.datasource.init;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
+import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.lang.Assert;
+
 /**
  * Strategy used to populate, initialize, or clean up a database.
  *
  * @author Keith Donald
  * @author Sam Brannen
  * @see ResourceDatabasePopulator
- * @see DatabasePopulatorUtils
  * @see DataSourceInitializer
  * @since 4.0
  */
@@ -42,7 +47,7 @@ public interface DatabasePopulator {
    * <p>Concrete implementations <em>may</em> throw an {@link SQLException} if
    * an error is encountered but are <em>strongly encouraged</em> to throw a
    * specific {@link ScriptException} instead. For example,
-   * {@link ResourceDatabasePopulator} and {@link DatabasePopulatorUtils} wrap
+   * {@link ResourceDatabasePopulator} and {@link DatabasePopulator} wrap
    * all {@code SQLExceptions} in {@code ScriptExceptions}.
    *
    * @param connection the JDBC connection to use to populate the db; already
@@ -50,8 +55,43 @@ public interface DatabasePopulator {
    * @throws SQLException if an unrecoverable data access exception occurs
    * during database population
    * @throws ScriptException in all other error cases
-   * @see DatabasePopulatorUtils#execute
+   * @see DatabasePopulator#execute
    */
   void populate(Connection connection) throws SQLException, ScriptException;
+
+  /**
+   * Execute the given {@link DatabasePopulator} against the given {@link DataSource}.
+   * <p>the {@link Connection} for the supplied
+   * {@code DataSource} will be {@linkplain Connection#commit() committed} if
+   * it is not configured for {@link Connection#getAutoCommit() auto-commit} and
+   * is not {@linkplain DataSourceUtils#isConnectionTransactional transactional}.
+   *
+   * @param populator the {@code DatabasePopulator} to execute
+   * @param dataSource the {@code DataSource} to execute against
+   * @throws DataAccessException if an error occurs, specifically a {@link ScriptException}
+   * @see DataSourceUtils#isConnectionTransactional(Connection, DataSource)
+   */
+  static void execute(DatabasePopulator populator, DataSource dataSource) throws DataAccessException {
+    Assert.notNull(populator, "DatabasePopulator must not be null");
+    Assert.notNull(dataSource, "DataSource must not be null");
+    try {
+      Connection connection = DataSourceUtils.getConnection(dataSource);
+      try {
+        populator.populate(connection);
+        if (!connection.getAutoCommit() && !DataSourceUtils.isConnectionTransactional(connection, dataSource)) {
+          connection.commit();
+        }
+      }
+      finally {
+        DataSourceUtils.releaseConnection(connection, dataSource);
+      }
+    }
+    catch (ScriptException ex) {
+      throw ex;
+    }
+    catch (Throwable ex) {
+      throw new UncategorizedScriptException("Failed to execute database script", ex);
+    }
+  }
 
 }
