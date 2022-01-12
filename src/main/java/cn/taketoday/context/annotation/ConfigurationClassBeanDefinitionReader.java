@@ -102,6 +102,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     if (trackedConditionEvaluator.shouldSkip(configClass)) {
       String beanName = configClass.getBeanName();
+      // TODO annotated with both @Component and @ConditionalOnMissingBean，condition matching error
       if (StringUtils.isNotEmpty(beanName) && loadingContext.containsBeanDefinition(beanName)) {
         loadingContext.removeBeanDefinition(beanName);
       }
