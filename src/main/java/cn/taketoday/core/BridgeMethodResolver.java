@@ -97,10 +97,9 @@ public abstract class BridgeMethodResolver {
    * checks and can be used quickly filter for a set of possible matches.
    */
   private static boolean isBridgedCandidateFor(Method candidateMethod, Method bridgeMethod) {
-    return (!candidateMethod.isBridge()
-            && !candidateMethod.equals(bridgeMethod)
+    return !candidateMethod.isBridge()
             && candidateMethod.getName().equals(bridgeMethod.getName())
-            && candidateMethod.getParameterCount() == bridgeMethod.getParameterCount());
+            && candidateMethod.getParameterCount() == bridgeMethod.getParameterCount();
   }
 
   /**
@@ -164,8 +163,8 @@ public abstract class BridgeMethodResolver {
         }
       }
       // A non-array type: compare the type itself.
-      if (!ClassUtils.resolvePrimitiveIfNecessary(candidateParameter)
-              .equals(ClassUtils.resolvePrimitiveIfNecessary(genericParameter.toClass()))) {
+      if (!ClassUtils.resolvePrimitiveIfNecessary(candidateParameter).equals(
+              ClassUtils.resolvePrimitiveIfNecessary(genericParameter.toClass()))) {
         return false;
       }
     }
