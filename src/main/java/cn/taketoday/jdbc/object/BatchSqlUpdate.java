@@ -31,6 +31,8 @@ import javax.sql.DataSource;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.core.BatchPreparedStatementSetter;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * SqlUpdate subclass that performs batch update operations. Encapsulates
@@ -49,6 +51,7 @@ import cn.taketoday.jdbc.core.BatchPreparedStatementSetter;
  * @since 4.0
  */
 public class BatchSqlUpdate extends SqlUpdate {
+  private static final Logger log = LoggerFactory.getLogger(BatchSqlUpdate.class);
 
   /**
    * Default number of inserts to accumulate before committing a batch (5000).
@@ -170,8 +173,8 @@ public class BatchSqlUpdate extends SqlUpdate {
     this.parameterQueue.add(params.clone());
 
     if (this.parameterQueue.size() == this.batchSize) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Triggering auto-flush because queue reached batch size of " + this.batchSize);
+      if (log.isDebugEnabled()) {
+        log.debug("Triggering auto-flush because queue reached batch size of {}", this.batchSize);
       }
       flush();
     }
@@ -238,8 +241,9 @@ public class BatchSqlUpdate extends SqlUpdate {
    * @see #reset
    */
   public int[] getRowsAffected() {
-    int[] result = new int[this.rowsAffected.size()];
-    for (int i = 0; i < this.rowsAffected.size(); i++) {
+    int size = this.rowsAffected.size();
+    int[] result = new int[size];
+    for (int i = 0; i < size; i++) {
       result[i] = this.rowsAffected.get(i);
     }
     return result;

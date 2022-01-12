@@ -31,6 +31,8 @@ import cn.taketoday.jdbc.core.ParameterMapper;
 import cn.taketoday.jdbc.core.SqlParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * RdbmsOperation using a JdbcTemplate and representing an SQL-based
@@ -44,6 +46,7 @@ import cn.taketoday.lang.Nullable;
  * @see CallableStatementCreatorFactory
  */
 public abstract class SqlCall extends RdbmsOperation {
+  private static final Logger log = LoggerFactory.getLogger(SqlCall.class);
 
   /**
    * Flag used to indicate that this call is for a function and to
@@ -159,8 +162,8 @@ public abstract class SqlCall extends RdbmsOperation {
       callString.append(")}");
       this.callString = callString.toString();
     }
-    if (logger.isDebugEnabled()) {
-      logger.debug("Compiled stored procedure. Call string is [" + this.callString + "]");
+    if (log.isDebugEnabled()) {
+      log.debug("Compiled stored procedure. Call string is [{}]", callString);
     }
 
     this.callableStatementFactory = new CallableStatementCreatorFactory(this.callString, getDeclaredParameters());

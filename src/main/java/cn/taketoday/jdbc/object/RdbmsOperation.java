@@ -64,9 +64,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public abstract class RdbmsOperation implements InitializingBean {
-
-  /** Logger available to subclasses. */
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(RdbmsOperation.class);
 
   /** Lower-level class used to execute SQL. */
   private JdbcTemplate jdbcTemplate = new JdbcTemplate();
@@ -367,8 +365,8 @@ public abstract class RdbmsOperation implements InitializingBean {
       compileInternal();
       this.compiled = true;
 
-      if (logger.isDebugEnabled()) {
-        logger.debug("RdbmsOperation with SQL [{}] compiled", getSql());
+      if (log.isDebugEnabled()) {
+        log.debug("RdbmsOperation with SQL [{}] compiled", getSql());
       }
     }
   }
@@ -393,7 +391,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    */
   protected void checkCompiled() {
     if (!isCompiled()) {
-      logger.debug("SQL operation not compiled before execution - invoking compile");
+      log.debug("SQL operation not compiled before execution - invoking compile");
       compile();
     }
   }
@@ -459,12 +457,14 @@ public abstract class RdbmsOperation implements InitializingBean {
    */
   private void validateParameterCount(int suppliedParamCount, int declaredInParamCount) {
     if (suppliedParamCount < declaredInParamCount) {
-      throw new InvalidDataAccessApiUsageException(suppliedParamCount + " parameters were supplied, but " +
-              declaredInParamCount + " in parameters were declared in class [" + getClass().getName() + "]");
+      throw new InvalidDataAccessApiUsageException(
+              suppliedParamCount + " parameters were supplied, but " +
+                      declaredInParamCount + " in parameters were declared in class [" + getClass().getName() + "]");
     }
     if (suppliedParamCount > this.declaredParameters.size() && !allowsUnusedParameters()) {
-      throw new InvalidDataAccessApiUsageException(suppliedParamCount + " parameters were supplied, but " +
-              declaredInParamCount + " parameters were declared in class [" + getClass().getName() + "]");
+      throw new InvalidDataAccessApiUsageException(
+              suppliedParamCount + " parameters were supplied, but " +
+                      declaredInParamCount + " parameters were declared in class [" + getClass().getName() + "]");
     }
   }
 

@@ -19,8 +19,9 @@
  */
 package test.context.props;
 
-import cn.taketoday.context.StandardApplicationContext;
 import org.junit.jupiter.api.Test;
+
+import cn.taketoday.context.StandardApplicationContext;
 
 /**
  * @author Today <br>
@@ -48,7 +49,7 @@ class PropsTests {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
       applicationContext.registerBean("testBean", PropsBean.class);
-			applicationContext.refresh();
+      applicationContext.refresh();
 
       PropsBean bean = applicationContext.getBean(PropsBean.class);
 
