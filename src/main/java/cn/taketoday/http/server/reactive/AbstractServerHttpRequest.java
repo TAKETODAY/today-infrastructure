@@ -211,9 +211,17 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
    */
   String getLogPrefix() {
     if (this.logPrefix == null) {
-      this.logPrefix = "[" + getId() + "] ";
+      this.logPrefix = "[" + initLogPrefix() + "] ";
     }
     return this.logPrefix;
+  }
+
+  /**
+   * Subclasses can override this to provide the prefix to use for log messages.
+   * <p>By default, this is {@link #getId()}.
+   */
+  protected String initLogPrefix() {
+    return getId();
   }
 
 }
