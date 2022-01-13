@@ -97,18 +97,9 @@ public class WebApplication {
       SingletonBeanRegistry registry = context.unwrapFactory(SingletonBeanRegistry.class);
       registry.registerSingleton(this);
 
-      AnnotationConfigRegistry configRegistry = context.unwrap(AnnotationConfigRegistry.class);
-
       Class<?> startupClass = context.getStartupClass();
-      configRegistry.register(startupClass); // @since 1.0.2 import startup class
-      if (startupClass == null) {
-        log.info("There isn't a Startup Class");
-        configRegistry.scan(); // load from all classpath
-      }
-      else {
-        configRegistry.scan(startupClass.getPackage().getName());
-      }
-
+      context.unwrap(AnnotationConfigRegistry.class)
+              .register(startupClass); // @since 1.0.2 import startup class
       context.refresh();
 
       WebServer webServer = context.getWebServer();
