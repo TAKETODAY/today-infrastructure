@@ -22,13 +22,13 @@ package cn.taketoday.web.framework.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContextHolder;
@@ -66,7 +66,7 @@ public @interface EnableNettyHandling {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class NettyConfig implements AnnotationImportSelector<EnableNettyHandling> {
 
   @MissingBean(type = ReactiveChannelHandler.class)

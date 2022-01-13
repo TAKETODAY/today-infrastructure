@@ -24,10 +24,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 
@@ -44,7 +44,7 @@ public @interface EnableFunctionalHandling {
 /**
  * @since 3.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class FunctionalConfig {
 
   @MissingBean

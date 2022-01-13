@@ -25,12 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.http.CorsProcessor;
 import cn.taketoday.http.DefaultCorsProcessor;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.registry.HandlerCorsCustomizer;
 
 /**
@@ -43,7 +43,7 @@ public @interface EnableCrossOrigin {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class CrossOriginConfiguration {
 
   @MissingBean

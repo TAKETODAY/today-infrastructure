@@ -24,14 +24,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Singleton;
 
 /**
  * Context will create a bean definition when current context were missing
  *
  * @author TODAY 2019-01-31 14:36
  */
+@Singleton
+@ConditionalOnMissingBean
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface MissingBean {
@@ -40,8 +44,8 @@ public @interface MissingBean {
   /**
    * Missing bean name alias
    */
-  @AliasFor("name")
-  String value() default Constant.BLANK;
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
+  String[] value() default Constant.BLANK;
 
   /**
    * Missing bean name
@@ -53,19 +57,13 @@ public @interface MissingBean {
    * when its declare on a method default bean name is method-name
    * </p>
    */
-  @AliasFor("value")
-  String name() default Constant.BLANK;
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
+  String[] name() default Constant.BLANK;
 
   /**
    * this attr determine the bean definition
    */
-  Class<?> type() default void.class;
-
-  /**
-   * equals {@link #type()} ?
-   *
-   * @since 3.0
-   */
-  boolean equals() default false;
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "value")
+  Class<?>[] type() default {};
 
 }

@@ -24,10 +24,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 
@@ -44,7 +44,7 @@ public @interface EnableViewController {
 /**
  * @since 3.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class ViewControllerConfig {
 
   @MissingBean

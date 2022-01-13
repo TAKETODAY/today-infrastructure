@@ -41,7 +41,7 @@ public @interface EnableCompression {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class CompressionConfig {
 
   @MissingBean
