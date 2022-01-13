@@ -59,7 +59,7 @@ class LightHttpConfiguration {
    *
    * @return returns a default {@link LightWebServer} object
    */
-  @MissingBean(type = WebServer.class)
+  @MissingBean(value = WebServer.class)
   @Props(prefix = { "server.", "server.light." })
   LightWebServer lightWebServer(LightHttpConfig lightHttpConfig) {
     return new LightWebServer(lightHttpConfig);

@@ -49,7 +49,7 @@ class FreeMarkerConfig {
 
   @Props(prefix = "web.mvc.view.")
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
-  @MissingBean(type = AbstractFreeMarkerTemplateRenderer.class)
+  @MissingBean(value = AbstractFreeMarkerTemplateRenderer.class)
   @ConditionalOnClass({ "freemarker.template.Configuration" })
   FreeMarkerTemplateRenderer freeMarkerTemplateRenderer() {
     return new FreeMarkerTemplateRenderer();

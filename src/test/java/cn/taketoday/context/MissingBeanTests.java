@@ -21,8 +21,8 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import lombok.Getter;
@@ -53,7 +53,7 @@ class MissingBeanTests {
 
   }
 
-  @MissingBean("user")
+  @MissingBean(name = "user")
   public User user() {
     return new User().setAge(21).setId(1).setPasswd("666").setUserName("default user");
   }

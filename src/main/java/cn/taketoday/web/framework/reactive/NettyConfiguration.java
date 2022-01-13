@@ -22,7 +22,7 @@ import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 public class NettyConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @MissingBean(type = ReactiveChannelHandler.class)
+  @MissingBean(value = ReactiveChannelHandler.class)
   ReactiveChannelHandler reactiveChannelHandler(
           NettyDispatcher nettyDispatcher,
           NettyRequestContextConfig contextConfig,
@@ -39,7 +39,7 @@ public class NettyConfiguration {
     return new NettyWebSocketHandlerAdapter();
   }
 
-  @MissingBean(type = DispatcherHandler.class)
+  @MissingBean(value = DispatcherHandler.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   DispatcherHandler dispatcherHandler() {
     return new DispatcherHandler();

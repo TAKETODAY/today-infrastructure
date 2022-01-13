@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
@@ -41,10 +42,13 @@ public @interface MissingBean {
   String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   /**
-   * Missing bean name alias
+   * The class types of beans that should be checked. The condition matches when no bean
+   * of each class specified is contained in the {@link BeanFactory}.
+   *
+   * @return the class types of beans to check
    */
-  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
-  String[] value() default {};
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "value")
+  Class<?>[] value() default {};
 
   /**
    * Missing bean name
@@ -58,11 +62,5 @@ public @interface MissingBean {
    */
   @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
   String[] name() default {};
-
-  /**
-   * this attr determine the bean definition
-   */
-  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "value")
-  Class<?>[] type() default {};
 
 }

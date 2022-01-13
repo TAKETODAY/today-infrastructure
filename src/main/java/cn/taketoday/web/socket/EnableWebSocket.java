@@ -57,7 +57,7 @@ public @interface EnableWebSocket {
 @Configuration(proxyBeanMethods = false)
 class WebSocketConfig implements WebApplicationInitializer {
 
-  @MissingBean(type = AbstractWebSocketHandlerAdapter.class)
+  @MissingBean(value = AbstractWebSocketHandlerAdapter.class)
   AbstractWebSocketHandlerAdapter webSocketHandlerAdapter() {
     if (ClassUtils.isPresent("org.apache.tomcat.websocket.WsHandshakeResponse")) {
       return new TomcatWebSocketHandlerAdapter();
@@ -84,7 +84,7 @@ class WebSocketConfig implements WebApplicationInitializer {
     return new WebSocketSessionParameterResolver();
   }
 
-  @MissingBean(type = AnnotationWebSocketHandlerBuilder.class)
+  @MissingBean(value = AnnotationWebSocketHandlerBuilder.class)
   AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(
           List<EndpointParameterResolver> resolvers) {
     final AnnotationWebSocketHandlerBuilder handlerBuilder;
