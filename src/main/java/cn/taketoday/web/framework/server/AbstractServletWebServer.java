@@ -64,6 +64,7 @@ public abstract class AbstractServletWebServer
 
   @Autowired(required = false)
   private JspServletConfiguration jspServletConfiguration;
+
   @Autowired(required = false)
   private DefaultServletConfiguration defaultServletConfiguration;
 

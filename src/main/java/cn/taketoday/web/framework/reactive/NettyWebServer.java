@@ -107,7 +107,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer, Disp
    * Subclasses can override this method to perform epoll is available logic
    */
   protected boolean epollIsAvailable() {
-    return epollPresent;
+    return epollPresent && "Linux".equalsIgnoreCase(System.getProperty("os.name"));
   }
 
   /**
