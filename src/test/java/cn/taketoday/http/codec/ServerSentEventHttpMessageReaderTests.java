@@ -68,11 +68,11 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer(
                     "id:c42\nevent:foo\nretry:123\n:bla\n:bla bla\n:bla bla bla\ndata:bar\n\n" +
-                            "id:c43\nevent:bar\nretry:456\ndata:baz\n\n")));
+                            "id:c43\nevent:bar\nretry:456\ndata:baz\n\ndata:\n\ndata: \n\n")));
 
     Flux<ServerSentEvent> events = this.reader
             .read(ResolvableType.fromClassWithGenerics(ServerSentEvent.class, String.class),
-                  request, Collections.emptyMap()).cast(ServerSentEvent.class);
+                    request, Collections.emptyMap()).cast(ServerSentEvent.class);
 
     StepVerifier.create(events)
             .consumeNextWith(event -> {
@@ -89,6 +89,8 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
               assertThat(event.comment()).isNull();
               assertThat(event.data()).isEqualTo("baz");
             })
+            .consumeNextWith(event -> assertThat(event.data()).isNull())
+            .consumeNextWith(event -> assertThat(event.data()).isNull())
             .expectComplete()
             .verify();
   }
@@ -104,7 +106,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
 
     Flux<ServerSentEvent> events = reader
             .read(ResolvableType.fromClassWithGenerics(ServerSentEvent.class, String.class),
-                  request, Collections.emptyMap()).cast(ServerSentEvent.class);
+                    request, Collections.emptyMap()).cast(ServerSentEvent.class);
 
     StepVerifier.create(events)
             .consumeNextWith(event -> {
@@ -131,7 +133,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .body(Mono.just(stringBuffer("data:foo\ndata:bar\n\ndata:baz\n\n")));
 
     Flux<String> data = reader.read(ResolvableType.fromClass(String.class),
-                                    request, Collections.emptyMap()).cast(String.class);
+            request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
             .expectNextMatches(elem -> elem.equals("foo\nbar"))
@@ -146,7 +148,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .body(Mono.just(stringBuffer("data: \tfoo \ndata:bar\t\n\n")));
 
     Flux<String> data = reader.read(ResolvableType.fromClass(String.class),
-                                    request, Collections.emptyMap()).cast(String.class);
+            request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
             .expectNext("\tfoo \nbar\t")
@@ -162,7 +164,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
                             "data:{\"foo\": \"foofoofoo\", \"bar\": \"barbarbar\"}\n\n")));
 
     Flux<Pojo> data = reader.read(ResolvableType.fromClass(Pojo.class), request,
-                                  Collections.emptyMap()).cast(Pojo.class);
+            Collections.emptyMap()).cast(Pojo.class);
 
     StepVerifier.create(data)
             .consumeNextWith(pojo -> {
@@ -213,7 +215,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .body(body);
 
     Flux<String> data = reader.read(ResolvableType.fromClass(String.class),
-                                    request, Collections.emptyMap()).cast(String.class);
+            request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
             .expectNextMatches(elem -> elem.equals("foo\nbar"))
@@ -231,7 +233,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .body(Flux.just(stringBuffer("data:\"TOO MUCH DATA\"\ndata:bar\n\ndata:baz\n\n")));
 
     Flux<String> data = this.reader.read(ResolvableType.fromClass(String.class),
-                                         request, Collections.emptyMap()).cast(String.class);
+            request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
             .expectError(DataBufferLimitException.class)
@@ -254,7 +256,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     messageReader.setMaxInMemorySize(limit + 1024);
 
     Flux<Pojo> data = messageReader.read(ResolvableType.fromClass(Pojo.class), request,
-                                         Collections.emptyMap()).cast(Pojo.class);
+            Collections.emptyMap()).cast(Pojo.class);
 
     StepVerifier.create(data)
             .consumeNextWith(pojo -> assertThat(pojo.getFoo()).isEqualTo(fooValue))
