@@ -22,19 +22,11 @@ package cn.taketoday.web.framework.reactive;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.session.EnableWebSession;
-import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -46,9 +38,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author TODAY 2019-11-22 00:30
  */
 @Retention(RUNTIME)
-@Target({ TYPE, METHOD })
 @EnableWebSession
-@Import(NettyConfig.class)
+@Target({ TYPE, METHOD })
+@Import(NettyConfigurationImportSelector.class)
 public @interface EnableNettyHandling {
 
   /**
@@ -66,63 +58,11 @@ public @interface EnableNettyHandling {
 
 }
 
-@Configuration(proxyBeanMethods = false)
-class NettyConfig implements AnnotationImportSelector<EnableNettyHandling> {
-
-  @MissingBean(type = ReactiveChannelHandler.class)
-  ReactiveChannelHandler reactiveChannelHandler(
-          NettyDispatcher nettyDispatcher,
-          NettyRequestContextConfig contextConfig,
-          @Autowired(required = false) WebSocketHandlerRegistry registry) {
-    if (registry != null) {
-      return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig);
-    }
-    return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
-  }
-
-  @Singleton
-  NettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
-    return new NettyWebSocketHandlerAdapter();
-  }
-
-  @MissingBean(type = DispatcherHandler.class)
-  DispatcherHandler dispatcherHandler() {
-    return new DispatcherHandler();
-  }
-
-  /**
-   * Default {@link NettyWebServer} object
-   * <p>
-   * framework will auto inject properties start with 'server.' or 'server.netty.'
-   * </p>
-   *
-   * @return returns a default {@link NettyWebServer} object
-   */
-  @MissingBean
-  @Props(prefix = { "server.", "server.netty." })
-  NettyWebServer nettyWebServer() {
-    return new NettyWebServer();
-  }
-
-  /**
-   * Framework Channel Initializer
-   *
-   * @param channelHandler ChannelInboundHandler
-   */
-  @MissingBean
-  NettyServerInitializer nettyServerInitializer(ReactiveChannelHandler channelHandler) {
-    return new NettyServerInitializer(channelHandler);
-  }
-
-  @MissingBean
-  NettyRequestContextConfig nettyRequestContextConfig() {
-    return new NettyRequestContextConfig();
-  }
+final class NettyConfigurationImportSelector implements AnnotationImportSelector<EnableNettyHandling> {
 
   /**
    * register a {@link NettyDispatcher} bean
    */
-  @Nullable
   @Override
   public String[] selectImports(
           EnableNettyHandling target, AnnotationMetadata annotatedMetadata) {
@@ -132,10 +72,16 @@ class NettyConfig implements AnnotationImportSelector<EnableNettyHandling> {
     }
 
     if (target.async()) {
-      return new String[] { AsyncNettyDispatcherHandler.class.getName() };
+      return new String[] {
+              AsyncNettyDispatcherHandler.class.getName(),
+              NettyConfiguration.class.getName()
+      };
     }
     else {
-      return new String[] { NettyDispatcher.class.getName() };
+      return new String[] {
+              NettyDispatcher.class.getName(),
+              NettyConfiguration.class.getName()
+      };
     }
   }
 
