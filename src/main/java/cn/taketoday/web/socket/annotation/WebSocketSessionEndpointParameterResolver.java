@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.NativeWebSocketSession;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -31,16 +31,16 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class WebSocketSessionEndpointParameterResolver implements EndpointParameterResolver {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(ResolvableMethodParameter parameter) {
     return parameter.isAssignableTo(WebSocketSession.class);
   }
 
   @Override
-  public Object resolve(WebSocketSession session, MethodParameter parameter) {
+  public Object resolve(WebSocketSession session, ResolvableMethodParameter parameter) {
     return session;
   }
 
-  static Object getNativeSessionSession(WebSocketSession session, MethodParameter parameter) {
+  static Object getNativeSessionSession(WebSocketSession session, ResolvableMethodParameter parameter) {
     if (session instanceof NativeWebSocketSession) {
       final Object nativeSession = ((NativeWebSocketSession<?>) session).obtainNativeSession();
       if (parameter.isInstance(nativeSession)) {

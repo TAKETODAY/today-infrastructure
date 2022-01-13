@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.io.Serial;
+
 /**
  * Multipart cannot be parsed include
  * {@link cn.taketoday.web.multipart.MultipartFile} and normal part
@@ -27,6 +29,7 @@ package cn.taketoday.web.resolver;
  * @since 3.0
  */
 public class MultipartParsingException extends ParameterReadFailedException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public MultipartParsingException() {

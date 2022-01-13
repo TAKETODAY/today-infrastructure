@@ -20,7 +20,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY <br>
@@ -38,12 +38,12 @@ public final class DelegatingParameterResolver implements ParameterResolvingStra
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return function.supports(parameter);
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     return resolver.resolveParameter(context, parameter);
   }
 

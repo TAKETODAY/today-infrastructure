@@ -27,7 +27,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * download file, serialize {@link Resource} or {@link File} to client

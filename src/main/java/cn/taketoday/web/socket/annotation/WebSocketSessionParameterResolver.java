@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.http.BadRequestException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -35,12 +35,12 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class WebSocketSessionParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.is(WebSocketSession.class);
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     final Object attribute = context.getAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY);
     if (attribute instanceof WebSocketSession) {
       return attribute;

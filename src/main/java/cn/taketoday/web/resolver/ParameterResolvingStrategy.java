@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * Strategy interface for method parameter resolving.
@@ -30,7 +30,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * </p>
  *
  * @author TODAY 2019-07-07 23:24
- * @see MethodParameter
+ * @see ResolvableMethodParameter
  * @see MethodParameterResolvingException
  */
 public interface ParameterResolvingStrategy {
@@ -41,7 +41,7 @@ public interface ParameterResolvingStrategy {
    * static match
    * </p>
    */
-  boolean supportsParameter(MethodParameter parameter);
+  boolean supportsParameter(ResolvableMethodParameter parameter);
 
   /**
    * Resolve parameter
@@ -53,18 +53,18 @@ public interface ParameterResolvingStrategy {
    * @see MethodParameterResolvingException
    */
   @Nullable
-  Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
+  Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable;
 
   @FunctionalInterface
   interface SupportsFunction {
 
-    boolean supports(MethodParameter parameter);
+    boolean supports(ResolvableMethodParameter parameter);
   }
 
   record TargetSupportsFunction(Class<?> targetType) implements SupportsFunction {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supports(ResolvableMethodParameter parameter) {
       return parameter.is(targetType);
     }
   }

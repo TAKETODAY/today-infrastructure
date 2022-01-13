@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.handler.MethodParameter;
+import java.io.Serial;
+
+import cn.taketoday.core.MethodParameter;
 
 /**
  * Parameter can't convert to target class
@@ -28,12 +30,13 @@ import cn.taketoday.web.handler.MethodParameter;
  * @since 3.0
  */
 public class ParameterConversionException extends MethodParameterResolvingException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final String value;
 
   public ParameterConversionException(MethodParameter parameter, String value, Throwable cause) {
-    super(parameter, "Cannot convert '" + value + "' to " + parameter.getParameterClass(), cause);
+    super(parameter, "Cannot convert '" + value + "' to " + parameter.getParameterType(), cause);
     this.value = value;
   }
 

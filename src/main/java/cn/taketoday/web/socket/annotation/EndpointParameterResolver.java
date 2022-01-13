@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -30,14 +30,14 @@ import cn.taketoday.web.socket.WebSocketSession;
  */
 public interface EndpointParameterResolver {
 
-  boolean supports(MethodParameter parameter);
+  boolean supports(ResolvableMethodParameter parameter);
 
-  default Object resolve(WebSocketSession session, MethodParameter parameter) {
+  default Object resolve(WebSocketSession session, ResolvableMethodParameter parameter) {
     return null;
   }
 
   default Object resolve(
-          WebSocketSession session, Message<?> message, MethodParameter parameter) {
+          WebSocketSession session, Message<?> message, ResolvableMethodParameter parameter) {
     return resolve(session, parameter);
   }
 

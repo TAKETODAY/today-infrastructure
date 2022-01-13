@@ -24,7 +24,7 @@ import java.util.Map;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
@@ -49,7 +49,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return parameter.isAssignableTo(Model.class) // Model
             || parameter.is(HttpHeaders.class) // HTTP request headers @since 3.0
             || (
@@ -64,7 +64,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
    */
   @Override
   public Object resolveParameter(final RequestContext context,
-                                 final MethodParameter parameter) throws Throwable {
+                                 final ResolvableMethodParameter parameter) throws Throwable {
     if (parameter.isAssignableTo(RedirectModel.class)) { // RedirectModel
       final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
       final RedirectModelManager modelManager = getModelManager();

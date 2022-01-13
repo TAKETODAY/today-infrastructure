@@ -21,7 +21,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/3/10 19:59
@@ -36,7 +36,7 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
    * @throws MissingParameterException parameter cannot be resolved
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     final Object parameterValue = resolveInternal(context, parameter);
     if (parameterValue == null) {
       if (parameter.isRequired()) {
@@ -56,14 +56,14 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
    *
    * @param original original value
    */
-  protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
+  protected Object transformValue(RequestContext context, ResolvableMethodParameter parameter, Object original) {
     return original;
   }
 
   /**
    * @return null-able parameter value
    */
-  protected abstract Object resolveInternal(final RequestContext context, final MethodParameter parameter) throws Throwable;
+  protected abstract Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable;
 
   protected Object fromDefaultValue(RequestContext context, String defaultValue) throws Throwable {
     return null;
@@ -72,8 +72,8 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
   /**
    * handle missed parameter value
    */
-  protected Object missingParameter(final MethodParameter parameter) {
-    throw new MissingParameterException(parameter);
+  protected Object missingParameter(final ResolvableMethodParameter parameter) {
+    throw new MissingParameterException(parameter.getParameter());
   }
 
 }

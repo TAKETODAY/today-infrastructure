@@ -24,9 +24,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
+ * Annotation which indicates that a method parameter should be bound to a web request parameter.
+ *
  * @author TODAY <br>
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,12 +37,23 @@ import cn.taketoday.lang.Constant;
 public @interface RequestParam {
 
   /**
+   * Alias for {@link #name}.
+   */
+  @AliasFor("name")
+  String value() default Constant.BLANK;
+
+  /**
+   * The name of the request parameter to bind to.
+   *
+   * @since 4.0
+   */
+  @AliasFor("value")
+  String name() default "";
+
+  /**
    * If required == true when request parameter is null, will be throws exception
    */
   boolean required() default false;
-
-  /** Parameter name. */
-  String value() default Constant.BLANK;
 
   /** When required == false, and parameter == null. use default value. */
   String defaultValue() default Constant.BLANK;

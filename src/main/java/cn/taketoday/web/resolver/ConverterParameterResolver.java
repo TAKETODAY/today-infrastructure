@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY <br>
@@ -42,17 +42,17 @@ public class ConverterParameterResolver
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return supports.supports(parameter);
   }
 
   @Override
-  protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     return context.getParameter(parameter.getName());
   }
 
   @Override
-  protected Object transformValue(RequestContext context, MethodParameter parameter, Object original) {
+  protected Object transformValue(RequestContext context, ResolvableMethodParameter parameter, Object original) {
     return converter.convert((String) original);
   }
 

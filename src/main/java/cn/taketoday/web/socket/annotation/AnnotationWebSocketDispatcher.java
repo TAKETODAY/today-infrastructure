@@ -25,7 +25,7 @@ import java.util.Map;
 
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
@@ -73,13 +73,13 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
 
   protected Object[] resolveParameters(
           WebSocketSession session, WebSocketHandlerMethod handler, Message<?> message, Object... providedArgs) {
-    final MethodParameter[] parameters = handler.getParameters();
+    final ResolvableMethodParameter[] parameters = handler.getParameters();
     if (parameters == null) {
       return null;
     }
     final Object[] ret = new Object[parameters.length];
     int i = 0;
-    for (final MethodParameter parameter : parameters) {
+    for (final ResolvableMethodParameter parameter : parameters) {
       Object argument = findProvidedArgument(parameter, providedArgs);
       if (argument == null) {
         for (final EndpointParameterResolver resolver : resolvers) {
@@ -94,7 +94,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     return ret;
   }
 
-  protected static Object findProvidedArgument(MethodParameter parameter, Object[] providedArgs) {
+  protected static Object findProvidedArgument(ResolvableMethodParameter parameter, Object[] providedArgs) {
     if (providedArgs != null) {
       final Class<?> parameterType = parameter.getParameterClass();
       for (final Object providedArg : providedArgs) {

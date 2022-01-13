@@ -39,7 +39,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.AnnotationParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import freemarker.cache.TemplateLoader;
@@ -301,7 +301,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
     }
 
     @Override
-    protected Object resolveInternal(SharedVariable target, RequestContext context, MethodParameter parameter) {
+    protected Object resolveInternal(SharedVariable target, RequestContext context, ResolvableMethodParameter parameter) {
       TemplateModel sharedVariable = getConfiguration().getSharedVariable(parameter.getName());
 
       if (parameter.isInstance(sharedVariable)) {
@@ -325,12 +325,12 @@ public abstract class AbstractFreeMarkerTemplateRenderer
 
   private final class FreemarkerConfigParameterResolver implements ParameterResolvingStrategy {
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.is(Configuration.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return getConfiguration();
     }
   }

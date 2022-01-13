@@ -24,7 +24,7 @@ import java.util.List;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * @author TODAY 2019-07-14 01:14

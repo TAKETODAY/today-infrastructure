@@ -19,8 +19,10 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.io.Serial;
+
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.WebNestedRuntimeException;
-import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * MethodParameter can't be resolved
@@ -29,6 +31,7 @@ import cn.taketoday.web.handler.MethodParameter;
  * @since 3.0
  */
 public class MethodParameterResolvingException extends WebNestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final MethodParameter parameter;
@@ -55,10 +58,10 @@ public class MethodParameterResolvingException extends WebNestedRuntimeException
   }
 
   public String getParameterName() {
-    return parameter.getName();
+    return parameter.getParameterName();
   }
 
-  public Class<?> getParameterClass() {
-    return parameter.getParameterClass();
+  public Class<?> getParameterType() {
+    return parameter.getParameterType();
   }
 }

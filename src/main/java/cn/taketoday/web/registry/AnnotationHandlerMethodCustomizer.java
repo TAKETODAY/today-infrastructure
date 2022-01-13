@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 
 /**
  * @author TODAY 2020/12/12 0:02

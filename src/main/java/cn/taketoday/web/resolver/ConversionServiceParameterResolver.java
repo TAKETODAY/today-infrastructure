@@ -25,14 +25,14 @@ import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * ConversionService convert original to target
  *
  * @author TODAY 2019-07-13 11:21
  * @see ConversionService
- * @see #transformValue(RequestContext, MethodParameter, Object)
+ * @see #transformValue(RequestContext, ResolvableMethodParameter, Object)
  */
 public abstract class ConversionServiceParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
@@ -40,10 +40,10 @@ public abstract class ConversionServiceParameterResolver
   protected ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Override
-  public abstract boolean supportsParameter(MethodParameter parameter);
+  public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
 
   @Override
-  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
+  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {
     return context.getParameter(parameter.getName());
   }
 
@@ -52,7 +52,7 @@ public abstract class ConversionServiceParameterResolver
    */
   @Override
   protected Object transformValue(
-          final RequestContext context, final MethodParameter parameter, final Object original) {
+          final RequestContext context, final ResolvableMethodParameter parameter, final Object original) {
     TypeDescriptor targetType = parameter.getTypeDescriptor();
     return conversionService.convert(original, targetType);
   }

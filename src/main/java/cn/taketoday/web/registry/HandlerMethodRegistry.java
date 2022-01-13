@@ -52,11 +52,11 @@ import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.HandlerMethodBuilder;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.PathVariableMethodParameter;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethodBuilder;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.method.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
@@ -302,17 +302,17 @@ public class HandlerMethodRegistry
    * Mapping path variable.
    */
   protected void mappingPathVariable(String pathPattern, ActionMappingAnnotationHandler handler) {
-    HashMap<String, MethodParameter> parameterMapping = new HashMap<>();
+    HashMap<String, ResolvableMethodParameter> parameterMapping = new HashMap<>();
     HandlerMethod method = handler.getMethod();
-    MethodParameter[] methodParameters = method.getParameters();
-    for (MethodParameter methodParameter : methodParameters) {
+    ResolvableMethodParameter[] methodParameters = method.getParameters();
+    for (ResolvableMethodParameter methodParameter : methodParameters) {
       parameterMapping.put(methodParameter.getName(), methodParameter);
     }
 
     int i = 0;
     PathMatcher pathMatcher = getPathMatcher();
     for (String variable : pathMatcher.extractVariableNames(pathPattern)) {
-      MethodParameter parameter = parameterMapping.get(variable);
+      ResolvableMethodParameter parameter = parameterMapping.get(variable);
       if (parameter == null) {
         throw new ConfigurationException(
                 "There isn't a variable named: [" + variable +

@@ -35,7 +35,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/9/4 22:49
@@ -57,21 +57,21 @@ public class JacksonMessageBodyConverter extends MessageBodyConverter {
   }
 
   @Override
-  public Object read(RequestContext context, MethodParameter parameter) throws IOException {
+  public Object read(RequestContext context, ResolvableMethodParameter parameter) throws IOException {
     final ObjectMapper mapper = obtainMapper();
     final JsonNode body = mapper.readTree(context.getInputStream());
     return readInternal(mapper, body, parameter);
   }
 
   @Override
-  public Object read(String message, MethodParameter parameter) throws IOException {
+  public Object read(String message, ResolvableMethodParameter parameter) throws IOException {
     final ObjectMapper mapper = obtainMapper();
     final JsonNode body = mapper.readTree(message);
     return readInternal(mapper, body, parameter);
   }
 
   private Object readInternal(
-          ObjectMapper mapper, JsonNode body, MethodParameter parameter) throws JsonProcessingException {
+          ObjectMapper mapper, JsonNode body, ResolvableMethodParameter parameter) throws JsonProcessingException {
     if (body != null) {
       // Json node
       if (parameter.is(JsonNode.class)) {

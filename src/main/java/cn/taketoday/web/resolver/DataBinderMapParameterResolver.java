@@ -28,7 +28,7 @@ import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2019-07-09 22:49
@@ -38,7 +38,7 @@ public class DataBinderMapParameterResolver
         extends AbstractDataBinderParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsInternal(final MethodParameter parameter) {
+  public boolean supportsInternal(final ResolvableMethodParameter parameter) {
     if (isMap(parameter)) {
       final Type valueType = parameter.getGeneric(1);
       if (valueType instanceof Class) {
@@ -48,7 +48,7 @@ public class DataBinderMapParameterResolver
     return false;
   }
 
-  public static boolean isMap(MethodParameter parameter) {
+  public static boolean isMap(ResolvableMethodParameter parameter) {
     return parameter.is(Map.class);
   }
 
@@ -56,7 +56,7 @@ public class DataBinderMapParameterResolver
    * Resolve {@link Map} parameter.
    */
   @Override
-  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
     final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterClass(), propertyValues.size());
 
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder();

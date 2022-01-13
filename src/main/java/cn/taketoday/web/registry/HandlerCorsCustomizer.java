@@ -29,7 +29,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
-import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 

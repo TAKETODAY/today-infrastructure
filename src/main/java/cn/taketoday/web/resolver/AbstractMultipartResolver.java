@@ -26,7 +26,7 @@ import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -49,7 +49,7 @@ public abstract class AbstractMultipartResolver
    * @see MultipartConfiguration#getMaxRequestSize()
    */
   @Override
-  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     if (WebUtils.isMultipart(context)) {
       final DataSize maxRequestSize = getMultipartConfiguration().getMaxRequestSize();
       // exceed max size?
@@ -63,12 +63,12 @@ public abstract class AbstractMultipartResolver
   }
 
   @Override
-  protected Object missingParameter(MethodParameter parameter) {
-    throw new MissingMultipartFileException(parameter);
+  protected Object missingParameter(ResolvableMethodParameter parameter) {
+    throw new MissingMultipartFileException(parameter.getParameter());
   }
 
   protected Object resolveInternal(final RequestContext context,
-                                   final MethodParameter parameter,
+                                   final ResolvableMethodParameter parameter,
                                    final MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
 
     final List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
@@ -82,13 +82,13 @@ public abstract class AbstractMultipartResolver
    * @param multipartFiles none null multipart files
    */
   protected Object resolveInternal(final RequestContext context,
-                                   final MethodParameter parameter,
+                                   final ResolvableMethodParameter parameter,
                                    final List<MultipartFile> multipartFiles) throws Throwable {
     return null;
   }
 
   @Override
-  public abstract boolean supportsParameter(final MethodParameter parameter);
+  public abstract boolean supportsParameter(final ResolvableMethodParameter parameter);
 
   public MultipartConfiguration getMultipartConfiguration() {
     return multipartConfiguration;

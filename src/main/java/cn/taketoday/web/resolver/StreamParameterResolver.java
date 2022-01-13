@@ -26,7 +26,7 @@ import java.io.Writer;
 
 import cn.taketoday.core.io.OutputStreamSource;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.Model;
 
 /**
@@ -36,7 +36,7 @@ import cn.taketoday.web.view.Model;
 public class StreamParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
 
     final Class<?> parameterClass = parameter.getParameterClass();
     return parameterClass == Readable.class//
@@ -51,7 +51,7 @@ public class StreamParameterResolver implements ParameterResolvingStrategy {
    * Resolve {@link Model} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
 
     final Class<?> parameterClass = parameter.getParameterClass();
 

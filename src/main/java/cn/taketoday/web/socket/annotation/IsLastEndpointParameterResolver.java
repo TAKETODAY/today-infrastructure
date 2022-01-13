@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -31,13 +31,13 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class IsLastEndpointParameterResolver implements EndpointParameterResolver {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(ResolvableMethodParameter parameter) {
     return parameter.is(boolean.class)
             || parameter.is(Boolean.class);
   }
 
   @Override
-  public Object resolve(WebSocketSession session, Message<?> message, MethodParameter parameter) {
+  public Object resolve(WebSocketSession session, Message<?> message, ResolvableMethodParameter parameter) {
     return message.isLast();
   }
 

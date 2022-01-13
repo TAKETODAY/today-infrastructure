@@ -36,6 +36,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.TemplateRendererReturnValueHandler;
 

@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.socket.WebSocketHandler;
 

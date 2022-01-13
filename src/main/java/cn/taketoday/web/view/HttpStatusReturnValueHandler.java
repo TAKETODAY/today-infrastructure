@@ -21,7 +21,7 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * @author TODAY 2020/12/23 20:12

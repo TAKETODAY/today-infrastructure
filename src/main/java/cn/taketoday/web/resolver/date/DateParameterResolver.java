@@ -26,7 +26,7 @@ import java.util.Date;
 
 import cn.taketoday.core.DateTimeFormat;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
@@ -41,12 +41,12 @@ public class DateParameterResolver
   private String defaultPattern = "yyyy-MM-dd HH:mm:ss";
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.is(Date.class);
   }
 
   @Override
-  protected Object resolveInternal(String parameterValue, MethodParameter parameter) {
+  protected Object resolveInternal(String parameterValue, ResolvableMethodParameter parameter) {
 
     final SimpleDateFormat simpleDateFormat = getFormatter(parameter);
 
@@ -54,14 +54,14 @@ public class DateParameterResolver
       return simpleDateFormat.parse(parameterValue);
     }
     catch (ParseException e) {
-      throw new DateParameterParsingException(parameter, parameterValue, e);
+      throw new DateParameterParsingException(parameter.getParameter(), parameterValue, e);
     }
   }
 
   /**
    * Get {@link SimpleDateFormat}
    */
-  protected SimpleDateFormat getFormatter(MethodParameter parameter) {
+  protected SimpleDateFormat getFormatter(ResolvableMethodParameter parameter) {
     final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
     if (dateTimeFormat != null) {
       final String pattern = dateTimeFormat.value();

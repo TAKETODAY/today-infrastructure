@@ -30,8 +30,8 @@ import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 import java.util.Arrays;
 import java.util.function.Function;

@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY <br>
@@ -30,12 +30,12 @@ import cn.taketoday.web.handler.MethodParameter;
 public class ThrowableHandlerParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.isAssignableTo(Throwable.class);
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     return context.getAttribute(HandlerExceptionHandler.KEY_THROWABLE);
   }
 

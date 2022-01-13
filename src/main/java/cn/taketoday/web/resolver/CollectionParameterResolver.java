@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY <br>
@@ -33,11 +33,11 @@ public abstract class CollectionParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public final boolean supportsParameter(final MethodParameter parameter) {
+  public final boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return parameter.isCollection() && supportsInternal(parameter);
   }
 
-  protected boolean supportsInternal(final MethodParameter parameter) {
+  protected boolean supportsInternal(final ResolvableMethodParameter parameter) {
     return true;
   }
 
@@ -45,7 +45,7 @@ public abstract class CollectionParameterResolver
    * Resolve {@link Collection} parameter.
    */
   @Override
-  protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     final Collection<?> collection = resolveCollection(context, parameter);
     if (parameter.is(collection.getClass())) {
       return collection;
@@ -57,6 +57,6 @@ public abstract class CollectionParameterResolver
   }
 
   protected abstract Collection<?> resolveCollection(
-          final RequestContext context, final MethodParameter parameter) throws Throwable;
+          final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable;
 
 }

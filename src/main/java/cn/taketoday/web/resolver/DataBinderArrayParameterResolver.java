@@ -26,7 +26,7 @@ import java.util.Collection;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/4/8 17:32
@@ -36,13 +36,13 @@ import cn.taketoday.web.handler.MethodParameter;
 public class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
 
   @Override
-  protected boolean supportsInternal(MethodParameter parameter) {
+  protected boolean supportsInternal(ResolvableMethodParameter parameter) {
     return parameter.isArray() && supportsSetProperties(parameter.getComponentType());
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
     final ArrayList<Object> list = (ArrayList<Object>) super.doBind(propertyValues, parameter);
     final Class<?> componentType = parameter.getComponentType();
     final Object[] o = (Object[]) Array.newInstance(componentType, list.size());
@@ -50,12 +50,12 @@ public class DataBinderArrayParameterResolver extends DataBinderCollectionParame
   }
 
   @Override
-  protected Class<?> getComponentType(MethodParameter parameter) {
+  protected Class<?> getComponentType(ResolvableMethodParameter parameter) {
     return parameter.getComponentType();
   }
 
   @Override
-  protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+  protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
     return new ArrayList<>(propertyValues.size());
   }
 }

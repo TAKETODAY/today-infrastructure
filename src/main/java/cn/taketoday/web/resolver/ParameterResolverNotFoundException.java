@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.FrameworkConfigurationException;
 
 /**
@@ -36,26 +36,26 @@ import cn.taketoday.web.view.FrameworkConfigurationException;
 public class ParameterResolverNotFoundException extends FrameworkConfigurationException {
   private static final long serialVersionUID = 1L;
 
-  private final MethodParameter parameter;
+  private final ResolvableMethodParameter parameter;
 
-  public ParameterResolverNotFoundException(MethodParameter parameter) {
+  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter) {
     this(parameter, null, null);
   }
 
-  public ParameterResolverNotFoundException(MethodParameter parameter, String message) {
+  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, String message) {
     this(parameter, message, null);
   }
 
-  public ParameterResolverNotFoundException(MethodParameter parameter, Throwable cause) {
+  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, Throwable cause) {
     this(parameter, null, cause);
   }
 
-  public ParameterResolverNotFoundException(MethodParameter parameter, String message, Throwable cause) {
+  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, String message, Throwable cause) {
     super(message, cause);
     this.parameter = parameter;
   }
 
-  public MethodParameter getParameter() {
+  public ResolvableMethodParameter getParameter() {
     return parameter;
   }
 

@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.core.MethodParameter;
 
 /**
  * Parameter format error like number-format error

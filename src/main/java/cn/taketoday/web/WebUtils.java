@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * @author TODAY <br>

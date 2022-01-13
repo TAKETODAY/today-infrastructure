@@ -21,7 +21,7 @@ package cn.taketoday.web.view;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * for HandlerMethod return-value

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler;
+package cn.taketoday.web.handler.method;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -31,6 +31,8 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
@@ -91,13 +93,13 @@ public abstract class ActionMappingAnnotationHandler
       }
     }
 
-    MethodParameter[] parameters = handlerMethod.getParameters();
+    ResolvableMethodParameter[] parameters = handlerMethod.getParameters();
     if (ObjectUtils.isEmpty(parameters)) {
       return invokeHandler(handlerInvoker, null);
     }
     Object[] args = new Object[parameters.length];
     int i = 0;
-    for (MethodParameter parameter : parameters) {
+    for (ResolvableMethodParameter parameter : parameters) {
       args[i++] = parameter.resolveParameter(context);
     }
     return invokeHandler(handlerInvoker, args);

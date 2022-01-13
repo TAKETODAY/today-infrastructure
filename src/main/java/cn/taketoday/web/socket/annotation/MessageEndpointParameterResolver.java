@@ -25,7 +25,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
@@ -57,14 +57,14 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(Message.class)
             && parameter.is(supportParameterType);
   }
 
   @Override
   public Object resolve(
-          WebSocketSession session, cn.taketoday.web.socket.Message<?> message, MethodParameter parameter) {
+          WebSocketSession session, cn.taketoday.web.socket.Message<?> message, ResolvableMethodParameter parameter) {
     Object payload = message.getPayload();
     if (supportParameterType.isInstance(payload)) {
       return payload;

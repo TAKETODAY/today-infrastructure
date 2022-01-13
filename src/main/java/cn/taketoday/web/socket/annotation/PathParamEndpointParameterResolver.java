@@ -21,7 +21,7 @@
 package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import jakarta.websocket.server.PathParam;
 
 /**
@@ -35,12 +35,12 @@ public class PathParamEndpointParameterResolver extends PathVariableEndpointPara
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(PathParam.class);
   }
 
   @Override
-  protected String resolveName(MethodParameter parameter) {
+  protected String resolveName(ResolvableMethodParameter parameter) {
     return parameter.getAnnotation(PathParam.class).value();
   }
 

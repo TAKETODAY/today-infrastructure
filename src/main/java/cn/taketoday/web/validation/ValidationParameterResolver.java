@@ -26,8 +26,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
@@ -39,7 +39,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
 
   /** list of validators @since 3.0 */
   private final WebValidator validator;
-  private final HashMap<MethodParameter, ParameterResolvingStrategy> resolverMap = new HashMap<>();
+  private final HashMap<ResolvableMethodParameter, ParameterResolvingStrategy> resolverMap = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.load("jakarta.validation.Valid");
 
   private ParameterResolvingRegistry resolvingRegistry;
@@ -57,7 +57,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     if (parameter.isAnnotationPresent(Validated.class)
             || parameter.isAnnotationPresent(VALID_CLASS)) {
       for (final ParameterResolvingStrategy resolver : obtainResolvers().getDefaultStrategies()) {
@@ -71,7 +71,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     final Object value = resolveValue(context, parameter);
 
     final DefaultErrors errors = new DefaultErrors();
@@ -82,7 +82,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
     if (errors.hasErrors()) {
       HandlerMethod method = parameter.getHandlerMethod();
       Assert.state(method != null, "No HandlerMethod");
-      final MethodParameter[] parameters = method.getParameters();
+      final ResolvableMethodParameter[] parameters = method.getParameters();
       final int length = parameters.length;
       if (length == 1) {
         // use  @ExceptionHandler(ValidationException.class) to handle validation exception
@@ -99,11 +99,11 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
   }
 
   /**
-   * Use {@link ParameterResolvingStrategy#resolveParameter(RequestContext, MethodParameter)}
+   * Use {@link ParameterResolvingStrategy#resolveParameter(RequestContext, ResolvableMethodParameter)}
    *
    * @return Has not been validate parameter value
    */
-  protected Object resolveValue(RequestContext context, MethodParameter parameter) throws Throwable {
+  protected Object resolveValue(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     return obtainResolver(parameter).resolveParameter(context, parameter);
   }
 
@@ -125,7 +125,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
     return validator;
   }
 
-  protected ParameterResolvingStrategy getResolver(final MethodParameter parameter) {
+  protected ParameterResolvingStrategy getResolver(final ResolvableMethodParameter parameter) {
     return resolverMap.get(parameter);
   }
 
@@ -143,7 +143,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
     return ret;
   }
 
-  private ParameterResolvingStrategy obtainResolver(final MethodParameter parameter) {
+  private ParameterResolvingStrategy obtainResolver(final ResolvableMethodParameter parameter) {
     final ParameterResolvingStrategy resolver = getResolver(parameter);
     if (resolver == null) {
       throw new IllegalStateException(

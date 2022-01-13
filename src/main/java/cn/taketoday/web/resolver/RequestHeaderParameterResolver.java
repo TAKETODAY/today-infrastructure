@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestHeader;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * for {@link RequestHeader}
@@ -33,17 +33,17 @@ import cn.taketoday.web.handler.MethodParameter;
 public class RequestHeaderParameterResolver extends ConversionServiceParameterResolver {
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(RequestHeader.class);
   }
 
   @Override
-  protected Object missingParameter(MethodParameter parameter) {
-    throw new MissingRequestHeaderException(parameter);
+  protected Object missingParameter(ResolvableMethodParameter parameter) {
+    throw new MissingRequestHeaderException(parameter.getParameter());
   }
 
   @Override
-  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
+  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {
     final String headerName = parameter.getName();
     final HttpHeaders httpHeaders = context.requestHeaders();
     return httpHeaders.get(headerName);

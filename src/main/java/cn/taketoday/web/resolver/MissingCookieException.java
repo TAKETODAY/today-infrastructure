@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.core.MethodParameter;
 
 /**
  * @author TODAY 2021/3/10 20:14

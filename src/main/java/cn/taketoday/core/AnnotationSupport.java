@@ -29,6 +29,7 @@ import cn.taketoday.core.annotation.AnnotationUtils;
  * @author TODAY 2021/3/20 22:59
  * @since 3.0
  */
+@Deprecated
 public interface AnnotationSupport extends AnnotatedElement {
 
   AnnotatedElement getAnnotationSource();

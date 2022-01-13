@@ -28,7 +28,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
@@ -47,7 +47,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   }
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return supportsMultipart(parameter.getParameterClass());
   }
 
@@ -57,7 +57,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
   @Override
   protected Object resolveInternal(final RequestContext context,
-                                   final MethodParameter parameter,
+                                   final ResolvableMethodParameter parameter,
                                    final List<MultipartFile> files) {
     return files.get(0);
   }
@@ -82,7 +82,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(final ResolvableMethodParameter parameter) {
       final Class<?> parameterClass = parameter.getParameterClass();
       return CollectionUtils.isCollection(parameterClass) && (
               parameter.isGenericPresent(MultipartFile.class, 0)
@@ -92,7 +92,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     protected Object resolveInternal(final RequestContext context,
-                                     final MethodParameter parameter,
+                                     final ResolvableMethodParameter parameter,
                                      final List<MultipartFile> multipartFiles) //
     {
       final Class<?> parameterClass = parameter.getParameterClass();
@@ -118,7 +118,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(final ResolvableMethodParameter parameter) {
       if (parameter.isArray()) {
         final Class<?> componentType = parameter.getComponentType();
         return DefaultMultipartResolver.supportsMultipart(componentType);
@@ -128,7 +128,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     protected Object resolveInternal(final RequestContext context,
-                                     final MethodParameter parameter,
+                                     final ResolvableMethodParameter parameter,
                                      final List<MultipartFile> multipartFiles) {
 
       return multipartFiles.toArray(new MultipartFile[multipartFiles.size()]);
@@ -148,7 +148,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supportsParameter(final MethodParameter parameter) {
+    public boolean supportsParameter(final ResolvableMethodParameter parameter) {
       if (isMap(parameter) || parameter.is(MultiValueMap.class)) {
         if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
           Class<?> target = null;
@@ -170,7 +170,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     protected Object resolveInternal(
-            final RequestContext context, final MethodParameter parameter,
+            final RequestContext context, final ResolvableMethodParameter parameter,
             final MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
       // Map<String, List<MultipartFile>>
       if (parameter.is(MultiValueMap.class) || parameter.isGenericPresent(List.class, 1)) {

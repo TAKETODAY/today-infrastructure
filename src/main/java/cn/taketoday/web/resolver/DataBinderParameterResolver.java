@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.lang.reflect.AnnotatedElement;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
@@ -117,7 +117,7 @@ public class DataBinderParameterResolver
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     if (!parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
             && !ClassUtils.isSimpleType(parameter.getParameterClass())) {
       setAttribute(parameter, registry);
@@ -129,7 +129,7 @@ public class DataBinderParameterResolver
   /**
    * @since 4.0
    */
-  static void setAttribute(MethodParameter parameter, ParameterResolvingRegistry registry) {
+  static void setAttribute(ResolvableMethodParameter parameter, ParameterResolvingRegistry registry) {
     if (registry != null) {
       // supports annotated-property-resolvers
       ArrayList<AnnotatedPropertyResolver> resolverList = new ArrayList<>();
@@ -149,7 +149,7 @@ public class DataBinderParameterResolver
    */
   @Override
   public Object resolveParameter(
-          final RequestContext context, final MethodParameter parameter) throws Throwable {
+          final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     final Class<?> parameterClass = parameter.getParameterClass();
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder(parameterClass, conversionService);
 
@@ -191,7 +191,7 @@ public class DataBinderParameterResolver
    * @since 4.0
    */
   static void resolveAnnotatedProperty(
-          RequestContext context, MethodParameter parameter, PropertyValuesBinder dataBinder) throws Throwable {
+          RequestContext context, ResolvableMethodParameter parameter, PropertyValuesBinder dataBinder) throws Throwable {
     Object attribute = parameter.getAttribute(ANNOTATED_RESOLVERS_KEY);
     if (attribute instanceof List) {
       @SuppressWarnings("unchecked")
@@ -232,7 +232,7 @@ public class DataBinderParameterResolver
     /**
      * @throws IllegalStateException If there isn't a suitable resolver
      */
-    AnnotatedPropertyResolver(MethodParameter other, Field field, ParameterResolvingRegistry registry) {
+    AnnotatedPropertyResolver(ResolvableMethodParameter other, Field field, ParameterResolvingRegistry registry) {
       this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName
       this.parameter = new AnnotationBinderParameter(other, field);
       this.resolver = registry.obtainResolvingStrategy(this.parameter);
@@ -248,11 +248,11 @@ public class DataBinderParameterResolver
   /**
    * @since 4.0
    */
-  static final class AnnotationBinderParameter extends MethodParameter {
+  static final class AnnotationBinderParameter extends ResolvableMethodParameter {
     private final Field field;
     private final Class<?> parameterClass;
 
-    public AnnotationBinderParameter(MethodParameter other, Field field) {
+    public AnnotationBinderParameter(ResolvableMethodParameter other, Field field) {
       super(other);
       this.parameterClass = field.getType();
       this.field = field;
@@ -268,8 +268,13 @@ public class DataBinderParameterResolver
     }
 
     @Override
-    public AnnotatedElement getAnnotationSource() {
-      return field;
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
+      return field.isAnnotationPresent(annotationClass);
+    }
+
+    @Override
+    public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+      return field.getAnnotation(annotationClass);
     }
 
     @Override

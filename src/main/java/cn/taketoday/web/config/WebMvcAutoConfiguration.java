@@ -30,7 +30,7 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.handler.DefaultExceptionHandler;
+import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;

@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/10 22:47
  */
-class MethodParameterTests {
+class ResolveableMethodParameterTests {
 
   private Method method;
 

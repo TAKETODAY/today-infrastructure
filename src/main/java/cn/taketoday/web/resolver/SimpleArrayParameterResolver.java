@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * 数组参数解析器
@@ -36,12 +36,12 @@ import cn.taketoday.web.handler.MethodParameter;
 public class SimpleArrayParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return parameter.isArray(); // TODO
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     final String name = parameter.getName();
     // parameter value[]
     String[] values = context.getParameters(name);
@@ -50,7 +50,7 @@ public class SimpleArrayParameterResolver implements ParameterResolvingStrategy 
       values = StringUtils.split(context.getParameter(name));
       if (ObjectUtils.isEmpty(values)) {
         if (parameter.isRequired()) {
-          throw new MissingParameterException("Array", parameter);
+          throw new MissingParameterException("Array", parameter.getParameter());
         }
         return null;
       }

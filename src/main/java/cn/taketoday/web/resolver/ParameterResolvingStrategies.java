@@ -33,7 +33,7 @@ import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * Composite ParameterResolvingStrategy
@@ -61,7 +61,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   //---------------------------------------------------------------------
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(parameter)) {
         return true;
@@ -72,7 +72,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(parameter)) {
         return strategy.resolveParameter(context, parameter);

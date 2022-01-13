@@ -30,7 +30,7 @@ import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -108,7 +108,7 @@ public interface HttpMessageReader<T> {
    * with additional context available.
    *
    * @param actualType the actual type of the target method parameter;
-   * for annotated controllers, the {@link MethodParameter} can be accessed
+   * for annotated controllers, the {@link ResolvableMethodParameter} can be accessed
    * via {@link ResolvableType#getSource()}.
    * @param elementType the type of Objects in the output stream
    * @param request the current request
@@ -129,7 +129,7 @@ public interface HttpMessageReader<T> {
    * with additional, context available.
    *
    * @param actualType the actual type of the target method parameter;
-   * for annotated controllers, the {@link MethodParameter} can be accessed
+   * for annotated controllers, the {@link ResolvableMethodParameter} can be accessed
    * via {@link ResolvableType#getSource()}.
    * @param elementType the type of Objects in the output stream
    * @param request the current request

@@ -26,7 +26,7 @@ import java.util.List;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY <br>
@@ -36,18 +36,18 @@ public class CookieParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return parameter.is(HttpCookie.class);
   }
 
   @Override
-  protected Object missingParameter(MethodParameter parameter) {
+  protected Object missingParameter(ResolvableMethodParameter parameter) {
     // no cookie
-    throw new MissingCookieException(parameter);
+    throw new MissingCookieException(parameter.getParameter());
   }
 
   @Override
-  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) {
+  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {
     final String name = parameter.getName();
     for (final HttpCookie cookie : context.getCookies()) {
       if (name.equals(cookie.getName())) {
@@ -59,25 +59,25 @@ public class CookieParameterResolver
 
   public static void register(ParameterResolvingStrategies resolvers) {
     resolvers.add(new CookieParameterResolver(),
-                  new CookieArrayParameterResolver(),
-                  new CookieAnnotationParameterResolver(),
-                  new CookieCollectionParameterResolver());
+            new CookieArrayParameterResolver(),
+            new CookieAnnotationParameterResolver(),
+            new CookieCollectionParameterResolver());
   }
 
   private static class CookieAnnotationParameterResolver extends ConversionServiceParameterResolver {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isAnnotationPresent(CookieValue.class);
     }
 
     @Override
-    protected Object missingParameter(MethodParameter parameter) {
-      throw new MissingCookieException(parameter);
+    protected Object missingParameter(ResolvableMethodParameter parameter) {
+      throw new MissingCookieException(parameter.getParameter());
     }
 
     @Override
-    protected Object resolveInternal(RequestContext context, MethodParameter parameter) {
+    protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) {
       final HttpCookie cookie = context.getCookie(parameter.getName());
       if (cookie != null) {
         return cookie.getValue();
@@ -89,12 +89,12 @@ public class CookieParameterResolver
   private static class CookieArrayParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isArray() && parameter.getParameterClass().getComponentType() == HttpCookie.class;
     }
 
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(final RequestContext requestContext, final ResolvableMethodParameter parameter) throws Throwable {
       return requestContext.getCookies();
     }
   }
@@ -103,12 +103,12 @@ public class CookieParameterResolver
           extends CollectionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    protected boolean supportsInternal(MethodParameter parameter) {
+    protected boolean supportsInternal(ResolvableMethodParameter parameter) {
       return parameter.isGenericPresent(HttpCookie.class, 0);
     }
 
     @Override
-    protected List<?> resolveCollection(RequestContext context, MethodParameter parameter) {
+    protected List<?> resolveCollection(RequestContext context, ResolvableMethodParameter parameter) {
 
       final HttpCookie[] cookies = context.getCookies();
       final List<HttpCookie> ret = new ArrayList<>(cookies.length);

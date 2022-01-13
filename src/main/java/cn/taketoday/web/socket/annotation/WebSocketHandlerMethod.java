@@ -23,8 +23,8 @@ package cn.taketoday.web.socket.annotation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.MethodParametersBuilder;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.method.MethodParametersBuilder;
 
 /**
  * @author TODAY 2021/5/7 15:32
@@ -37,7 +37,7 @@ public class WebSocketHandlerMethod {
 
   private final MethodInvoker handlerInvoker;
 
-  private final MethodParameter[] parameters;
+  private final ResolvableMethodParameter[] parameters;
 
   public WebSocketHandlerMethod(Object bean, Method method, MethodParametersBuilder parameterBuilder) {
     this.bean = bean;
@@ -50,7 +50,7 @@ public class WebSocketHandlerMethod {
     handlerInvoker.invoke(bean, args);
   }
 
-  public MethodParameter[] getParameters() {
+  public ResolvableMethodParameter[] getParameters() {
     return parameters;
   }
 

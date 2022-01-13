@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * @author TODAY 2021/9/3 23:51

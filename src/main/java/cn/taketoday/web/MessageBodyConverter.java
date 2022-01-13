@@ -30,7 +30,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.support.FastJSONMessageConverter;
 import cn.taketoday.web.support.JacksonMessageBodyConverter;
 import cn.taketoday.web.view.JsonSequence;
@@ -102,7 +102,7 @@ public abstract class MessageBodyConverter {
    * @return The handler method parameter object
    * @throws IOException If any input output exception occurred
    */
-  public abstract Object read(RequestContext context, MethodParameter parameter) throws IOException;
+  public abstract Object read(RequestContext context, ResolvableMethodParameter parameter) throws IOException;
 
   /**
    * read a object from given string message
@@ -110,7 +110,7 @@ public abstract class MessageBodyConverter {
    * @param message string message
    * @throws IOException if underlying input contains invalid content
    */
-  public abstract Object read(String message, MethodParameter parameter) throws IOException;
+  public abstract Object read(String message, ResolvableMethodParameter parameter) throws IOException;
 
   /**
    * for write string

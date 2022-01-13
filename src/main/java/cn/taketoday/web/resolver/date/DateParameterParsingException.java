@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver.date;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.resolver.ParameterConversionException;
 
 /**

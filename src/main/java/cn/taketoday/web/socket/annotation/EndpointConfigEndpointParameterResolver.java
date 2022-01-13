@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import jakarta.websocket.EndpointConfig;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
@@ -32,12 +32,12 @@ import cn.taketoday.web.socket.WebSocketSession;
 public class EndpointConfigEndpointParameterResolver implements EndpointParameterResolver {
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(ResolvableMethodParameter parameter) {
     return parameter.is(EndpointConfig.class);
   }
 
   @Override
-  public Object resolve(WebSocketSession session, MethodParameter parameter) {
+  public Object resolve(WebSocketSession session, ResolvableMethodParameter parameter) {
     return session.getAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY);
   }
 }

@@ -36,6 +36,9 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.ParameterResolversMethodParameterBuilder;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
@@ -122,7 +125,7 @@ public class HandlerMethodTests {
     resolversRegistry.setApplicationContext(applicationContext);
 
     resolversRegistry.registerDefaultParameterResolvers();
-    final MethodParameter[] parameters = methodParameterBuilder.build(produce);
+    final ResolvableMethodParameter[] parameters = methodParameterBuilder.build(produce);
     produceMethod.setParameters(parameters);
 
     setResultHandlers(produceMethod, applicationContext);

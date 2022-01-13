@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.handler.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.PatternHandler;
 
 /**

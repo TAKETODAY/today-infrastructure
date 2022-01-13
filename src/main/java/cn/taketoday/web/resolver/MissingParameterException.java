@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.core.MethodParameter;
 
 /**
  * Missing Parameter Exception
@@ -36,7 +36,7 @@ public class MissingParameterException extends MethodParameterResolvingException
   }
 
   public MissingParameterException(String type, MethodParameter parameter) {
-    super(parameter, "Required " + type + " '" + parameter.getName() + "' is not present");
+    super(parameter, "Required " + type + " '" + parameter.getParameterName() + "' is not present");
     this.type = type;
   }
 

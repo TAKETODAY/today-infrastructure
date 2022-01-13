@@ -19,7 +19,8 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * Raised when the part of a "multipart/form-data" request identified by its

@@ -31,7 +31,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/4/8 17:33
@@ -40,17 +40,17 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public abstract class AbstractDataBinderParameterResolver extends AbstractParameterResolver {
 
-  public final boolean supportsParameter(MethodParameter parameter) {
+  public final boolean supportsParameter(ResolvableMethodParameter parameter) {
     return !parameter.isAnnotationPresent(RequestBody.class) && supportsInternal(parameter);
   }
 
   /**
    * @since 3.0.3 fix request body
    */
-  protected abstract boolean supportsInternal(MethodParameter parameter);
+  protected abstract boolean supportsInternal(ResolvableMethodParameter parameter);
 
   @Override
-  protected Object resolveInternal(RequestContext context, MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     final String parameterName = parameter.getName();
     final int parameterNameLength = parameterName.length();
     // prepare property values
@@ -84,7 +84,7 @@ public abstract class AbstractDataBinderParameterResolver extends AbstractParame
    * Bind {@code propertyValues} to object
    */
   protected abstract Object doBind(
-          MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter);
+          MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter);
 
   protected boolean supportsSetProperties(final Type valueType) {
     return !ClassUtils.primitiveTypes.contains(valueType);

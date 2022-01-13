@@ -27,7 +27,7 @@ import java.time.temporal.TemporalAccessor;
 import cn.taketoday.core.DateTimeFormat;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/2/23 21:25
@@ -38,13 +38,13 @@ public abstract class AbstractJavaTimeParameterResolver extends AbstractDatePara
   private DateTimeFormatter defaultFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   @Override
-  protected Object resolveInternal(String parameterValue, MethodParameter parameter) {
+  protected Object resolveInternal(String parameterValue, ResolvableMethodParameter parameter) {
     DateTimeFormatter formatter = getFormatter(parameter);
     try {
       return fromTemporalAccessor(formatter.parse(parameterValue));
     }
     catch (DateTimeParseException e) {
-      throw new DateParameterParsingException(parameter, parameterValue, e);
+      throw new DateParameterParsingException(parameter.getParameter(), parameterValue, e);
     }
   }
 
@@ -55,7 +55,7 @@ public abstract class AbstractJavaTimeParameterResolver extends AbstractDatePara
   /**
    * Get {@link DateTimeFormatter}
    */
-  protected DateTimeFormatter getFormatter(MethodParameter parameter) {
+  protected DateTimeFormatter getFormatter(ResolvableMethodParameter parameter) {
     final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
     if (dateTimeFormat != null) {
       final String pattern = dateTimeFormat.value();

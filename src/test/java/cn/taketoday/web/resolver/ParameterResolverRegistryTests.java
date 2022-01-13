@@ -23,15 +23,15 @@ package cn.taketoday.web.resolver;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.WebNestedRuntimeException;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockMethodParameter;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.support.JacksonMessageBodyConverter;
@@ -82,13 +82,13 @@ class ParameterResolverRegistryTests {
   void test(List<UserForm> userList, UserForm[] userArray,
             Set<UserForm> userSet, Map<String, UserForm> mapUser) { }
 
-  static final MethodParameter testUser;
-  static final MethodParameter testUserSet;
-  static final MethodParameter testListUsers;
-  static final MethodParameter testUserArray;
-  static final MethodParameter testMapUser;
+  static final ResolvableMethodParameter testUser;
+  static final ResolvableMethodParameter testUserSet;
+  static final ResolvableMethodParameter testListUsers;
+  static final ResolvableMethodParameter testUserArray;
+  static final ResolvableMethodParameter testMapUser;
 
-  static final Parameter sharedParameter;
+  static final MethodParameter sharedParameter;
 
 //  void sharedParameter(UserForm user) { }
 
@@ -98,12 +98,12 @@ class ParameterResolverRegistryTests {
       final Method testList = ParameterResolverRegistryTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class, Map.class);
 
-      testUser = new MethodParameter(0, test, "user");
+      testUser = new ResolvableMethodParameter(0, test, "user");
 
-      testListUsers = new MethodParameter(0, testList, "userList");
-      testUserArray = new MethodParameter(1, testList, "userArray");
-      testUserSet = new MethodParameter(2, testList, "userSet");
-      testMapUser = new MethodParameter(3, testList, "mapUser");
+      testListUsers = new ResolvableMethodParameter(0, testList, "userList");
+      testUserArray = new ResolvableMethodParameter(1, testList, "userArray");
+      testUserSet = new ResolvableMethodParameter(2, testList, "userSet");
+      testMapUser = new ResolvableMethodParameter(3, testList, "mapUser");
 
       sharedParameter = testUser.getParameter();
     }
@@ -112,7 +112,7 @@ class ParameterResolverRegistryTests {
     }
   }
 
-  MethodParameter mockParameter(int index, Class<?> type, String name) {
+  ResolvableMethodParameter mockParameter(int index, Class<?> type, String name) {
     BeanInstantiator instantiator = BeanInstantiator.forSerialization(MockMethodParameter.class);
     MockMethodParameter parameter = (MockMethodParameter) instantiator.instantiate();
 
@@ -123,7 +123,7 @@ class ParameterResolverRegistryTests {
     return parameter;
   }
 
-  MethodParameter mockParameter(Class<?> type, String name) {
+  ResolvableMethodParameter mockParameter(Class<?> type, String name) {
     return mockParameter(0, type, name);
   }
 
@@ -186,7 +186,7 @@ class ParameterResolverRegistryTests {
   }
 
   private void testConverterParameterResolver(ParameterResolvingRegistry registry, Class<?> type) {
-    MethodParameter test = mockParameter(type, "test");
+    ResolvableMethodParameter test = mockParameter(type, "test");
     assertThat(registry.findStrategy(test)).isNotNull().isInstanceOf(ConverterParameterResolver.class);
   }
 

@@ -25,7 +25,7 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * Handle {@link ResponseEntity}

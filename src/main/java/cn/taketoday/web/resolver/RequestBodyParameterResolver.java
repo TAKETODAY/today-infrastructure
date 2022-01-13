@@ -25,7 +25,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY <br>
@@ -41,12 +41,12 @@ public class RequestBodyParameterResolver
   }
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(RequestBody.class);
   }
 
   @Override
-  protected Object resolveInternal(final RequestContext context, final MethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     try {
       return messageBodyConverter.read(context, parameter);
     }

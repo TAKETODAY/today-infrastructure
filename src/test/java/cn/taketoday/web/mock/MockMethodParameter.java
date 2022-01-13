@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -38,8 +39,8 @@ import cn.taketoday.util.NumberUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -48,8 +49,8 @@ import lombok.experimental.Accessors;
  */
 @Setter
 @Accessors(chain = false)
-public class MockMethodParameter extends MethodParameter {
-  private Parameter parameter;
+public class MockMethodParameter extends ResolvableMethodParameter {
+  private MethodParameter parameter;
 
   private int parameterIndex;
   private Class<?> parameterClass;
@@ -70,16 +71,12 @@ public class MockMethodParameter extends MethodParameter {
 
   private AnnotatedElement annotatedElement;
 
-  public MockMethodParameter(@Nullable HandlerMethod handlerMethod, MethodParameter other) {
+  public MockMethodParameter(@Nullable HandlerMethod handlerMethod, ResolvableMethodParameter other) {
     super(handlerMethod, other);
   }
 
-  public MockMethodParameter(MethodParameter other) {
+  public MockMethodParameter(ResolvableMethodParameter other) {
     super(other);
-  }
-
-  public MockMethodParameter(int index, Parameter parameter) {
-    super(index, parameter);
   }
 
   public MockMethodParameter(int index, Parameter parameter, String parameterName) {
@@ -105,11 +102,6 @@ public class MockMethodParameter extends MethodParameter {
     if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
       this.defaultValue = "0"; // fix default value
     }
-  }
-
-  @Override
-  public AnnotatedElement getAnnotationSource() {
-    return annotatedElement;
   }
 
   @Override
@@ -150,7 +142,7 @@ public class MockMethodParameter extends MethodParameter {
   }
 
   @Override
-  public Parameter getParameter() {
+  public MethodParameter getParameter() {
     return parameter;
   }
 

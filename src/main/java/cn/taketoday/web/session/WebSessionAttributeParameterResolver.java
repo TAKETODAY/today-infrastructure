@@ -22,7 +22,7 @@ package cn.taketoday.web.session;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.AbstractParameterResolver;
 
 /**
@@ -39,13 +39,13 @@ public final class WebSessionAttributeParameterResolver extends AbstractParamete
   }
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
+  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(SessionAttribute.class);
   }
 
   @Override
   protected Object resolveInternal(
-          final RequestContext context, final MethodParameter parameter) throws Throwable {
+          final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
     final WebSession session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;

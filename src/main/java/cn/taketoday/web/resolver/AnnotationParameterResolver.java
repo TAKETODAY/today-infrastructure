@@ -24,7 +24,7 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/4/8 22:38
@@ -39,17 +39,17 @@ public abstract class AnnotationParameterResolver<A extends Annotation> implemen
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(annotationClass);
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     final A target = parameter.getAnnotation(annotationClass);
     return resolveInternal(target, context, parameter);
   }
 
-  protected Object resolveInternal(A target, RequestContext context, MethodParameter parameter) {
+  protected Object resolveInternal(A target, RequestContext context, ResolvableMethodParameter parameter) {
     return null;
   }
 }

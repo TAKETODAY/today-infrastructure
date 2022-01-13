@@ -39,7 +39,7 @@ import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.WebNestedRuntimeException;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import lombok.Data;
 
@@ -91,13 +91,13 @@ public class DataBinderParameterResolverTests {
   void test(List<UserForm> userList, UserForm[] userArray,
             Set<UserForm> userSet, Map<String, UserForm> mapUser) { }
 
-  static final MethodParameter testUser;
-  static final MethodParameter testMultipartFileUserForm;
+  static final ResolvableMethodParameter testUser;
+  static final ResolvableMethodParameter testMultipartFileUserForm;
 
-  static final MethodParameter testUserSet;
-  static final MethodParameter testListUsers;
-  static final MethodParameter testUserArray;
-  static final MethodParameter testMapUser;
+  static final ResolvableMethodParameter testUserSet;
+  static final ResolvableMethodParameter testListUsers;
+  static final ResolvableMethodParameter testUserArray;
+  static final ResolvableMethodParameter testMapUser;
 
   static {
     try {
@@ -106,13 +106,13 @@ public class DataBinderParameterResolverTests {
       Method testList = DataBinderParameterResolverTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class, Map.class);
 
-      testUser = new MethodParameter(0, test, "user");
-      testMultipartFileUserForm = new MethodParameter(0, multipartFileUserForm, "user");
+      testUser = new ResolvableMethodParameter(0, test, "user");
+      testMultipartFileUserForm = new ResolvableMethodParameter(0, multipartFileUserForm, "user");
 
-      testListUsers = new MethodParameter(0, testList, "userList");
-      testUserArray = new MethodParameter(1, testList, "userArray");
-      testUserSet = new MethodParameter(2, testList, "userSet");
-      testMapUser = new MethodParameter(3, testList, "mapUser");
+      testListUsers = new ResolvableMethodParameter(0, testList, "userList");
+      testUserArray = new ResolvableMethodParameter(1, testList, "userArray");
+      testUserSet = new ResolvableMethodParameter(2, testList, "userSet");
+      testMapUser = new ResolvableMethodParameter(3, testList, "mapUser");
     }
     catch (NoSuchMethodException e) {
       throw new WebNestedRuntimeException(e);

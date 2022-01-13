@@ -25,8 +25,8 @@ import cn.taketoday.core.EmptyObject;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
@@ -37,10 +37,10 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
   protected static final String FORMAT_ANNOTATION_KEY = AbstractDateParameterResolver.class.getName() + "-DateTimeFormat";
 
   @Override
-  public abstract boolean supportsParameter(MethodParameter parameter);
+  public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
 
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     final String parameterValue = getParameterValue(context, parameter);
     if (StringUtils.isEmpty(parameterValue)) {
       return null;
@@ -48,15 +48,15 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
     return resolveInternal(parameterValue, parameter);
   }
 
-  protected Object resolveInternal(String parameterValue, MethodParameter parameter) {
+  protected Object resolveInternal(String parameterValue, ResolvableMethodParameter parameter) {
     return null;
   }
 
-  protected String getParameterValue(RequestContext context, MethodParameter parameter) {
+  protected String getParameterValue(RequestContext context, ResolvableMethodParameter parameter) {
     return context.getParameter(parameter.getName());
   }
 
-  protected DateTimeFormat getAnnotation(MethodParameter parameter) {
+  protected DateTimeFormat getAnnotation(ResolvableMethodParameter parameter) {
     final Object attribute = parameter.getAttribute(FORMAT_ANNOTATION_KEY);
     if (attribute == null) {
       DateTimeFormat ret = parameter.getAnnotation(DateTimeFormat.class);

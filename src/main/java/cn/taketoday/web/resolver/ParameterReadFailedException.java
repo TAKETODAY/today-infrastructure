@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.resolver;
 
+import java.io.Serial;
+
 import cn.taketoday.web.WebNestedRuntimeException;
 
 /**
@@ -29,6 +31,7 @@ import cn.taketoday.web.WebNestedRuntimeException;
  * @since 3.0
  */
 public class ParameterReadFailedException extends WebNestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public ParameterReadFailedException() {

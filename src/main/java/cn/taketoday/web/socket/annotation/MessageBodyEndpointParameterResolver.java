@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.MessageBodyConverter;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.TextMessage;
@@ -43,13 +43,13 @@ public class MessageBodyEndpointParameterResolver implements EndpointParameterRe
   }
 
   @Override
-  public boolean supports(MethodParameter parameter) {
+  public boolean supports(ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(MessageBody.class);
   }
 
   @Override
   public Object resolve(
-          WebSocketSession session, Message<?> message, MethodParameter parameter) {
+          WebSocketSession session, Message<?> message, ResolvableMethodParameter parameter) {
     if (message instanceof TextMessage) {
       final String payload = (String) message.getPayload();
       try {

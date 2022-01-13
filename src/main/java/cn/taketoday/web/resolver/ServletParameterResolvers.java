@@ -23,18 +23,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.ServletContextAttribute;
+import cn.taketoday.web.annotation.SessionAttribute;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.ServletContextAttribute;
-import cn.taketoday.web.annotation.SessionAttribute;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * @author TODAY <br>
@@ -63,12 +62,12 @@ public class ServletParameterResolvers {
   static class ServletRequestParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(ServletRequest.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return ServletUtils.getServletRequest(context);
     }
   }
@@ -76,12 +75,12 @@ public class ServletParameterResolvers {
   static class ServletResponseParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isInterface() && parameter.isAssignableTo(ServletResponse.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return ServletUtils.getServletResponse(context);
     }
   }
@@ -89,13 +88,13 @@ public class ServletParameterResolvers {
   static class HttpSessionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isAssignableTo(HttpSession.class);
     }
 
     @Override
     public Object resolveParameter(
-            RequestContext context, MethodParameter parameter) throws Throwable {
+            RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return ServletUtils.getHttpSession(context);
     }
   }
@@ -103,12 +102,12 @@ public class ServletParameterResolvers {
   static class HttpSessionAttributeParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isAnnotationPresent(SessionAttribute.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       HttpSession httpSession = ServletUtils.getHttpSession(context, false);
       if (httpSession == null) {
         return null;
@@ -126,12 +125,12 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.is(ServletContext.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return servletContext;
     }
   }
@@ -141,12 +140,12 @@ public class ServletParameterResolvers {
   static class ServletCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.is(Cookie.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
 
       String name = parameter.getName();
       for (Cookie cookie : context.unwrapRequest(HttpServletRequest.class).getCookies()) {
@@ -156,7 +155,7 @@ public class ServletParameterResolvers {
       }
       // no cookie
       if (parameter.isRequired()) {
-        throw new MissingParameterException("Cookie", parameter);
+        throw new MissingParameterException("Cookie", parameter.getParameter());
       }
       return null;
     }
@@ -166,12 +165,12 @@ public class ServletParameterResolvers {
           extends CollectionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    protected boolean supportsInternal(MethodParameter parameter) {
+    protected boolean supportsInternal(ResolvableMethodParameter parameter) {
       return parameter.isGenericPresent(Cookie.class, 0);
     }
 
     @Override
-    protected List<?> resolveCollection(RequestContext context, MethodParameter parameter) {
+    protected List<?> resolveCollection(RequestContext context, ResolvableMethodParameter parameter) {
       Cookie[] cookies = context.unwrapRequest(HttpServletRequest.class).getCookies();
       ArrayList<Cookie> ret = new ArrayList<>(cookies.length);
       Collections.addAll(ret, cookies);
@@ -182,12 +181,12 @@ public class ServletParameterResolvers {
   static class ServletCookieArrayParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isArray() && parameter.getParameterClass().getComponentType() == Cookie.class;
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return context.unwrapRequest(HttpServletRequest.class).getCookies();
     }
   }
@@ -200,12 +199,12 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.isAnnotationPresent(ServletContextAttribute.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return servletContext.getAttribute(parameter.getName());
     }
   }

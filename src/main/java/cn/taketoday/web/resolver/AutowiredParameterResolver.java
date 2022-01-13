@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * @author TODAY 2021/4/2 23:21
@@ -41,19 +41,17 @@ public class AutowiredParameterResolver
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.isAnnotationPresent(Autowired.class);
   }
 
   @Override
-  protected Object missingParameter(MethodParameter parameter) {
+  protected Object missingParameter(ResolvableMethodParameter parameter) {
     throw new NoSuchBeanDefinitionException(parameter.getParameterClass());
   }
 
   @Override
-  protected Object resolveInternal(RequestContext ctx, MethodParameter parameter) throws Throwable {
-    cn.taketoday.core.MethodParameter forParameter =
-            cn.taketoday.core.MethodParameter.forParameter(parameter.getParameter());
-    return beanFactory.resolveDependency(new DependencyDescriptor(forParameter, true), parameter.getName());
+  protected Object resolveInternal(RequestContext ctx, ResolvableMethodParameter parameter) throws Throwable {
+    return beanFactory.resolveDependency(new DependencyDescriptor(parameter.getParameter(), true), parameter.getName());
   }
 }

@@ -37,8 +37,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
@@ -100,7 +100,7 @@ public class ParameterResolvingRegistry
   }
 
   /**
-   * Find a suitable {@link ParameterResolvingStrategy} for given {@link MethodParameter}
+   * Find a suitable {@link ParameterResolvingStrategy} for given {@link ResolvableMethodParameter}
    *
    * @param parameter MethodParameter
    * @return a suitable {@link ParameterResolvingStrategy},
@@ -108,7 +108,7 @@ public class ParameterResolvingRegistry
    */
   @Nullable
   protected ParameterResolvingStrategy lookupStrategy(
-          MethodParameter parameter, Iterable<ParameterResolvingStrategy> strategies) {
+          ResolvableMethodParameter parameter, Iterable<ParameterResolvingStrategy> strategies) {
     for (final ParameterResolvingStrategy resolver : strategies) {
       if (resolver.supportsParameter(parameter)) {
         return resolver;
@@ -126,7 +126,7 @@ public class ParameterResolvingRegistry
    * @return A suitable {@link ParameterResolvingStrategy}
    */
   @Nullable
-  public ParameterResolvingStrategy findStrategy(final MethodParameter parameter) {
+  public ParameterResolvingStrategy findStrategy(final ResolvableMethodParameter parameter) {
     ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedStrategies);
     if (resolvingStrategy == null) {
       resolvingStrategy = lookupStrategy(parameter, defaultStrategies);
@@ -141,7 +141,7 @@ public class ParameterResolvingRegistry
    * @return A suitable {@link ParameterResolvingStrategy}
    * @throws ParameterResolverNotFoundException If there isn't a suitable resolver
    */
-  public ParameterResolvingStrategy obtainResolvingStrategy(final MethodParameter parameter) {
+  public ParameterResolvingStrategy obtainResolvingStrategy(final ResolvableMethodParameter parameter) {
     final ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
       throw new ParameterResolverNotFoundException(
@@ -388,17 +388,10 @@ public class ParameterResolvingRegistry
 
   // ParameterResolver
 
-  static final class OR implements ParameterResolvingStrategy.SupportsFunction {
-    final Class<?> one;
-    final Class<?> two;
-
-    OR(Class<?> one, Class<?> two) {
-      this.one = one;
-      this.two = two;
-    }
+  record OR(Class<?> one, Class<?> two) implements ParameterResolvingStrategy.SupportsFunction {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
+    public boolean supports(ResolvableMethodParameter parameter) {
       return parameter.is(one) || parameter.is(two);
     }
   }
@@ -418,7 +411,7 @@ public class ParameterResolvingRegistry
     }
 
     @Override
-    protected Object resolveInternal(Props target, RequestContext ctx, MethodParameter parameter) {
+    protected Object resolveInternal(Props target, RequestContext ctx, ResolvableMethodParameter parameter) {
       final Object bean = beanInstantiator.instantiate(parameter.getParameterClass(), new Object[] { ctx });
       return propsReader.read(target, bean);
     }
@@ -433,7 +426,7 @@ public class ParameterResolvingRegistry
     }
 
     @Override
-    protected Object resolveInternal(Value target, RequestContext context, MethodParameter parameter) {
+    protected Object resolveInternal(Value target, RequestContext context, ResolvableMethodParameter parameter) {
       ExpressionInfo expressionInfo = new ExpressionInfo(target);
       return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterClass());
     }
@@ -445,19 +438,19 @@ public class ParameterResolvingRegistry
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return context.getAttribute(parameter.getName());
     }
   }
 
   static final class HandlerMethodParameterResolver implements ParameterResolvingStrategy {
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(ResolvableMethodParameter parameter) {
       return parameter.is(HandlerMethod.class);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return parameter.getHandlerMethod();
     }
   }

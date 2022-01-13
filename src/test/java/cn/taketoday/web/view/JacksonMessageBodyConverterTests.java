@@ -23,7 +23,6 @@ package cn.taketoday.web.view;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Disabled;
@@ -45,7 +44,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.User;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.support.JacksonMessageBodyConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,15 +64,15 @@ public class JacksonMessageBodyConverterTests {
 
   void testRequired(@RequestBody(required = true) User userList) { }
 
-  static final MethodParameter testUser;
-  static final MethodParameter testJsonNode;
+  static final ResolvableMethodParameter testUser;
+  static final ResolvableMethodParameter testJsonNode;
 
-  static final MethodParameter testUserSet;
-  static final MethodParameter testListUsers;
-  static final MethodParameter testUserArray;
-  static final MethodParameter testJsonNodeInList;
+  static final ResolvableMethodParameter testUserSet;
+  static final ResolvableMethodParameter testListUsers;
+  static final ResolvableMethodParameter testUserArray;
+  static final ResolvableMethodParameter testJsonNodeInList;
 
-  static final MethodParameter testRequired;
+  static final ResolvableMethodParameter testRequired;
 
   static {
     try {
@@ -83,15 +82,15 @@ public class JacksonMessageBodyConverterTests {
               .getDeclaredMethod("test", List.class, JsonNode.class, User[].class, Set.class);
       final Method testRequiredM = JacksonMessageBodyConverterTests.class.getDeclaredMethod("testRequired", User.class);
 
-      testUser = new MethodParameter(0, test, "user");
-      testJsonNode = new MethodParameter(0, testJsonNodeMethod, "node");
+      testUser = new ResolvableMethodParameter(0, test, "user");
+      testJsonNode = new ResolvableMethodParameter(0, testJsonNodeMethod, "node");
 
-      testListUsers = new MethodParameter(0, testList, "userList");
-      testJsonNodeInList = new MethodParameter(1, testList, "node");
-      testUserArray = new MethodParameter(2, testList, "userArray");
-      testUserSet = new MethodParameter(3, testList, "testUserSet");
+      testListUsers = new ResolvableMethodParameter(0, testList, "userList");
+      testJsonNodeInList = new ResolvableMethodParameter(1, testList, "node");
+      testUserArray = new ResolvableMethodParameter(2, testList, "userArray");
+      testUserSet = new ResolvableMethodParameter(3, testList, "testUserSet");
 
-      testRequired = new MethodParameter(0, testRequiredM, "testRequired");
+      testRequired = new ResolvableMethodParameter(0, testRequiredM, "testRequired");
     }
     catch (NoSuchMethodException e) {
       throw new WebNestedRuntimeException(e);

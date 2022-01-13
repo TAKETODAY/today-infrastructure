@@ -34,7 +34,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * support {@link JSONArray}, {@link JSONObject},
@@ -72,18 +72,18 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
   }
 
   @Override
-  public Object read(final RequestContext context, final MethodParameter parameter) throws IOException {
+  public Object read(final RequestContext context, final ResolvableMethodParameter parameter) throws IOException {
     final Object body = getBody(context);
     return getObject(parameter, body);
   }
 
   @Override
-  public Object read(String message, MethodParameter parameter) throws IOException {
+  public Object read(String message, ResolvableMethodParameter parameter) throws IOException {
     final Object body = parseRequestBody(message);
     return getObject(parameter, body);
   }
 
-  private Object getObject(MethodParameter parameter, Object body) {
+  private Object getObject(ResolvableMethodParameter parameter, Object body) {
     if (body instanceof JSONArray) { // array
       return fromJSONArray(parameter, (JSONArray) body);
     }
@@ -118,7 +118,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
     return JSON.parse(body, parserConfig, parserFeature);
   }
 
-  protected Object fromJSONArray(final MethodParameter parameter, final JSONArray requestBody) {
+  protected Object fromJSONArray(final ResolvableMethodParameter parameter, final JSONArray requestBody) {
     // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
 
     if (parameter.is(List.class)) {
@@ -141,7 +141,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
     return null;
   }
 
-  protected Object fromJSONObject(final MethodParameter parameter, final JSONObject requestBody) {
+  protected Object fromJSONObject(final ResolvableMethodParameter parameter, final JSONObject requestBody) {
 
     if (parameter.is(List.class)) {
       return getJSONArray(parameter, requestBody)
@@ -166,7 +166,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
             .toJavaObject(parameter.getParameterClass());
   }
 
-  protected JSONObject getJSONObject(final MethodParameter parameter, final JSONObject requestBody) {
+  protected JSONObject getJSONObject(final ResolvableMethodParameter parameter, final JSONObject requestBody) {
     final JSONObject obj = requestBody.getJSONObject(parameter.getName());
     if (obj == null) { // only one request body
       return requestBody; // style: {'name':'today','age':21}
@@ -174,7 +174,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
     return obj; // style: {'user':{'name':'today','age':21},...}
   }
 
-  protected JSONArray getJSONArray(final MethodParameter parameter, final JSONObject requestBody) {
+  protected JSONArray getJSONArray(final ResolvableMethodParameter parameter, final JSONObject requestBody) {
     // style: {"users":[{"name":"today","age":21},{"name":"YHJ","age":22}],...}
     return requestBody.getJSONArray(parameter.getName());
   }

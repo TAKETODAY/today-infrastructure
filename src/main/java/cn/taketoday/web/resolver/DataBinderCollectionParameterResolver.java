@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
+import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * resolve collection parameter
@@ -61,7 +61,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   private int maxValueIndex = 500;
 
   @Override
-  protected boolean supportsInternal(MethodParameter parameter) {
+  protected boolean supportsInternal(ResolvableMethodParameter parameter) {
     if (parameter.isCollection()) {
       final Type valueType = parameter.getGeneric(0);
       if (valueType instanceof Class) {
@@ -75,11 +75,11 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
    * @return Collection object
    * @throws ParameterIndexExceededException {@code valueIndex} exceed {@link #maxValueIndex}
    * @throws ParameterFormatException {@code valueIndex} number format error
-   * @see #createCollection(MultiValueMap, MethodParameter)
+   * @see #createCollection(MultiValueMap, ResolvableMethodParameter)
    */
   @Override
   @SuppressWarnings({ "rawtypes" })
-  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
     final Collection<Object> collection = createCollection(propertyValues, parameter);
     final boolean isList = collection instanceof List;
 
@@ -98,12 +98,12 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
           final String key = entry.getKey();
           final int valueIndex = Integer.parseInt(key);
           if (valueIndex > maxValueIndex) {
-            throw new ParameterIndexExceededException(parameter);
+            throw new ParameterIndexExceededException(parameter.getParameter());
           }
           CollectionUtils.setValue((List) collection, valueIndex, rootObject);
         }
         catch (NumberFormatException e) {
-          throw new ParameterFormatException(parameter, e);
+          throw new ParameterFormatException(parameter.getParameter(), e);
         }
       }
       else {
@@ -116,11 +116,11 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   /**
    * create {@link Collection} object
    */
-  protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, MethodParameter parameter) {
+  protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
     return CollectionUtils.createCollection(parameter.getParameterClass(), propertyValues.size());
   }
 
-  protected Class<?> getComponentType(MethodParameter parameter) {
+  protected Class<?> getComponentType(ResolvableMethodParameter parameter) {
     return (Class<?>) parameter.getGeneric(0);
   }
 

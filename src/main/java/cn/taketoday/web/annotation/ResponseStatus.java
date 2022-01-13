@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
 
@@ -60,6 +61,12 @@ import cn.taketoday.lang.Constant;
 public @interface ResponseStatus {
 
   /**
+   * Alias for {@link #code}.
+   */
+  @AliasFor("code")
+  HttpStatus value() default HttpStatus.INTERNAL_SERVER_ERROR;
+
+  /**
    * The status <em>code</em> to use for the response.
    * <p>Default is {@link HttpStatus#INTERNAL_SERVER_ERROR}, which should
    * typically be changed to something more appropriate.
@@ -68,10 +75,13 @@ public @interface ResponseStatus {
    * @see jakarta.servlet.http.HttpServletResponse#sendError(int)
    * @since 3.0
    */
-  HttpStatus value() default HttpStatus.INTERNAL_SERVER_ERROR;
+  @AliasFor("value")
+  HttpStatus code() default HttpStatus.INTERNAL_SERVER_ERROR;
 
   /**
    * The <em>reason</em> to be used for the response.
+   * <p>Defaults to an empty string which will be ignored. Set the reason to a
+   * non-empty value to have it used for the response.
    *
    * @see jakarta.servlet.http.HttpServletResponse#sendError(int, String)
    * @since 3.0

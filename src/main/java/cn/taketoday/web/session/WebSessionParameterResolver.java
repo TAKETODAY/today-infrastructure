@@ -22,7 +22,7 @@ package cn.taketoday.web.session;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
@@ -39,12 +39,12 @@ public class WebSessionParameterResolver
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.isAssignableTo(WebSession.class);
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, MethodParameter parameter) {
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) {
     return getSession(context);
   }
 
