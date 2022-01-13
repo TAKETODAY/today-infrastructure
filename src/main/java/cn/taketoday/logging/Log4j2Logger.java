@@ -140,6 +140,10 @@ final class Log4j2Logger extends Logger {
 
 final class Log4j2LoggerFactory extends LoggerFactory {
 
+  Log4j2LoggerFactory() {
+    LogManager.class.getName();
+  }
+
   @Override
   protected Logger createLogger(String name) {
     return new Log4j2Logger(name);

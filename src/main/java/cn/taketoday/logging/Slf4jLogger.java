@@ -129,6 +129,7 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
 final class Slf4jLoggerFactory extends LoggerFactory {
 
   Slf4jLoggerFactory() {
+    org.slf4j.Logger.class.getName();
     SLF4JBridgeHandler.install(); // @since 4.0
   }
 
