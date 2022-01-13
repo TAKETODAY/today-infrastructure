@@ -32,7 +32,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 @SuppressWarnings("all")
 public class DefaultResponseStatus implements ResponseStatus {
   private String reason;
-  private HttpStatus value;
+  private HttpStatus code;
 
   public DefaultResponseStatus() { }
 
@@ -41,12 +41,12 @@ public class DefaultResponseStatus implements ResponseStatus {
   }
 
   public DefaultResponseStatus(HttpStatus value, String reason) {
-    this.value = value;
+    this.code = value;
     this.reason = reason;
   }
 
   public DefaultResponseStatus(ResponseStatus status) {
-    this.value = status.value();
+    this.code = status.code();
     this.reason = status.reason();
     if (StringUtils.isEmpty(this.reason)) {
       this.reason = status.value().getReasonPhrase();
@@ -55,7 +55,12 @@ public class DefaultResponseStatus implements ResponseStatus {
 
   @Override
   public HttpStatus value() {
-    return value;
+    return code();
+  }
+
+  @Override
+  public HttpStatus code() {
+    return code;
   }
 
   @Override
@@ -68,8 +73,8 @@ public class DefaultResponseStatus implements ResponseStatus {
     return ResponseStatus.class;
   }
 
-  public void setValue(final HttpStatus value) {
-    this.value = value;
+  public void setCode(HttpStatus code) {
+    this.code = code;
   }
 
   public void setReason(final String reason) {
@@ -83,11 +88,11 @@ public class DefaultResponseStatus implements ResponseStatus {
     if (!(o instanceof DefaultResponseStatus))
       return false;
     final DefaultResponseStatus that = (DefaultResponseStatus) o;
-    return Objects.equals(reason, that.reason) && value == that.value;
+    return Objects.equals(reason, that.reason) && code == that.code;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(reason, value);
+    return Objects.hash(reason, code);
   }
 }
