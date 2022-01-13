@@ -26,15 +26,15 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Singleton;
 
 /**
  * Context will create a bean definition when current context were missing
  *
  * @author TODAY 2019-01-31 14:36
  */
-@Singleton
+@Component
 @ConditionalOnMissingBean
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

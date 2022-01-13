@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
@@ -31,7 +32,6 @@ import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -74,7 +74,7 @@ public class LoadTimeWeavingConfiguration implements ImportAware, BeanClassLoade
   }
 
   @Override
-  public void setBeanClassLoader(ClassLoader beanClassLoader) {
+  public void setBeanClassLoader(@Nullable ClassLoader beanClassLoader) {
     this.beanClassLoader = beanClassLoader;
   }
 

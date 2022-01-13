@@ -22,13 +22,13 @@ package cn.taketoday.web.session;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
@@ -46,7 +46,7 @@ public @interface EnableWebSession {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @DisableAllDependencyInjection
 class WebSessionConfiguration {
 

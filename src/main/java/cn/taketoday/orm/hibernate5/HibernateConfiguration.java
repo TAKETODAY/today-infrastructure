@@ -51,7 +51,7 @@ import jakarta.persistence.Entity;
 /**
  * @author TODAY 2019-11-05 22:11
  */
-@cn.taketoday.context.annotation.Configuration
+@cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
 public class HibernateConfiguration extends Configuration
         implements AnnotationBeanDefinitionRegistrar<EnableHibernate>, ApplicationContextAware {
 

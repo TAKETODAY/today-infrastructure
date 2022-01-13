@@ -25,7 +25,6 @@ import java.util.Collection;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -45,7 +44,6 @@ import cn.taketoday.util.CollectionUtils;
  * @see EnableTransactionManagement
  * @since 4.0
  */
-@Configuration
 public abstract class AbstractTransactionManagementConfiguration implements ImportAware {
 
   @Nullable

@@ -26,9 +26,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
@@ -54,7 +54,7 @@ public @interface EnableWebSocket {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean(type = AbstractWebSocketHandlerAdapter.class)

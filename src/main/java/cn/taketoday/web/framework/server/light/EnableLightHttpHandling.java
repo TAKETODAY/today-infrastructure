@@ -23,10 +23,11 @@ package cn.taketoday.web.framework.server.light;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.web.framework.server.WebServer;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 
@@ -39,6 +40,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @author TODAY 2021/4/13 19:30
  */
+@Experimental
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
 @Import(LightHttpConfiguration.class)
@@ -46,7 +48,7 @@ public @interface EnableLightHttpHandling {
 
 }
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class LightHttpConfiguration {
 
   /**
