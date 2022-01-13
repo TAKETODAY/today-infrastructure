@@ -80,7 +80,7 @@ public class WebApplicationLoader
     configureFunctionHandler(context, mvcConfiguration);
     configureViewControllerHandler(context, mvcConfiguration);
     configureExceptionHandler(context, mvcConfiguration);
-    configureResultHandler(context, mvcConfiguration);
+    configureReturnValueHandler(context, mvcConfiguration);
     configureConversionService(context, mvcConfiguration);
     configureHandlerAdapter(context, mvcConfiguration);
     configureParameterResolving(context, mvcConfiguration);
@@ -104,7 +104,7 @@ public class WebApplicationLoader
   protected void logStartup(WebApplicationContext context) {
     if (TodayStrategies.getFlag(ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-               System.currentTimeMillis() - context.getStartupDate()//
+              System.currentTimeMillis() - context.getStartupDate()//
       );
     }
   }
@@ -260,8 +260,8 @@ public class WebApplicationLoader
     mvcConfiguration.configureConversionService(typeConverters);
   }
 
-  private void configureResultHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureResultHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
+  private void configureReturnValueHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+    configureReturnValueHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
   }
 
   /**
@@ -270,7 +270,8 @@ public class WebApplicationLoader
    * @param handlers {@link ReturnValueHandler} registry
    * @param mvcConfiguration All {@link WebMvcConfiguration} object
    */
-  protected void configureResultHandler(List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
+  protected void configureReturnValueHandler(
+          List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
     DispatcherHandler obtainDispatcher = obtainDispatcher();
     SelectableReturnValueHandler existingHandlers = obtainDispatcher.getReturnValueHandler();
     if (existingHandlers != null) {
@@ -279,7 +280,7 @@ public class WebApplicationLoader
     WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
     ReturnValueHandlers returnValueHandlers = context.getBean(ReturnValueHandlers.class);
-    Assert.state(returnValueHandlers != null, "No ResultHandlers");
+    Assert.state(returnValueHandlers != null, "No ReturnValueHandlers");
     // user config
     mvcConfiguration.configureResultHandler(handlers);
 
