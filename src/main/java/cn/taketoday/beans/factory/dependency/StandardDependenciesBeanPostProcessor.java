@@ -405,9 +405,6 @@ public class StandardDependenciesBeanPostProcessor
             log.info("Autowired annotation is not supported on static methods: {}", method);
             return;
           }
-          if (method.getParameterCount() == 0) {
-            log.info("Autowired annotation should only be used on methods with parameters: {}", method);
-          }
           boolean required = determineRequiredStatus(method);
           PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
           currElements.add(new AutowiredMethodElement(method, required, pd));
