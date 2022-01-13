@@ -86,6 +86,9 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
   public AnnotatedBeanDefinitionReader(ApplicationContext context) {
     this.context = context;
+    if (context instanceof BeanDefinitionRegistry registry) {
+      this.registry = registry;
+    }
   }
 
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {

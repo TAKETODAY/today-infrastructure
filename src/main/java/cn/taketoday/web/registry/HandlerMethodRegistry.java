@@ -194,14 +194,14 @@ public class HandlerMethodRegistry
       for (String value : controllerMapping.getStringArray(MergedAnnotation.VALUE)) {
         namespaces.add(StringUtils.formatURL(value));
       }
-      Collections.addAll(classRequestMethods, controllerMapping.getEnum("method", HttpMethod.class));
+      Collections.addAll(classRequestMethods, controllerMapping.getEnumArray("method", HttpMethod.class));
       emptyNamespaces = namespaces.isEmpty();
       addClassRequestMethods = !classRequestMethods.isEmpty();
     }
 
     boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
     Set<HttpMethod> requestMethods = // http request method on method(action/handler)
-            CollectionUtils.newHashSet(handlerMethodMapping.getEnum("method", HttpMethod.class));
+            CollectionUtils.newHashSet(handlerMethodMapping.getEnumArray("method", HttpMethod.class));
 
     if (addClassRequestMethods)
       requestMethods.addAll(classRequestMethods);
