@@ -20,19 +20,20 @@
 
 package cn.taketoday.web.config;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
+import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
@@ -46,8 +47,9 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * config framework
  * </p>
  */
-@Configuration(proxyBeanMethods = false)
 @DisableAllDependencyInjection
+@Configuration(proxyBeanMethods = false)
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class WebMvcAutoConfiguration {
 
   /**
@@ -55,7 +57,9 @@ public class WebMvcAutoConfiguration {
    */
   @Lazy
   @Component
+  @EnableDependencyInjection
   @Props(prefix = "multipart.")
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(MultipartConfiguration.class)
   MultipartConfiguration multipartConfiguration() {
     return new MultipartConfiguration();
@@ -65,6 +69,7 @@ public class WebMvcAutoConfiguration {
    * default {@link NotFoundRequestAdapter} to handle request-url not found
    */
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(NotFoundRequestAdapter.class)
   NotFoundRequestAdapter notFoundRequestAdapter() {
     return new NotFoundRequestAdapter();
@@ -108,7 +113,7 @@ public class WebMvcAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ReturnValueHandlers resultHandlers(WebApplicationContext context) {
+  ReturnValueHandlers returnValueHandlers(WebApplicationContext context) {
     ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     resultHandlers.setApplicationContext(context);
     resultHandlers.initHandlers();

@@ -100,7 +100,7 @@ public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
    */
   @SuppressWarnings("unchecked")
   public T build(Object handlerBean, Method method) {
-    Assert.state(returnValueHandlers != null, "No ResultHandlers set");
+    Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
 
     T handler = (T) getConstructor().instantiate(new Object[] { method });
@@ -128,7 +128,7 @@ public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
 
   @SuppressWarnings("unchecked")
   public T build(BeanSupplier<Object> handlerBean, Method method, List<HandlerInterceptor> interceptors) {
-    Assert.state(returnValueHandlers != null, "No ResultHandlers set");
+    Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
     T handler = (T) getConstructor().instantiate(new Object[] { method });
     ResolvableMethodParameter[] parameters = parametersBuilder.build(method);
