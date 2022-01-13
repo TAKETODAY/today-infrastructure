@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.core.EmptyObject;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -63,8 +62,6 @@ public interface Constant extends Serializable {
   Object[] EMPTY_OBJECT_ARRAY = {};
   Class<?>[] EMPTY_CLASS_ARRAY = {};
   Annotation[] EMPTY_ANNOTATION_ARRAY = {};
-
-  Serializable EMPTY_OBJECT = EmptyObject.INSTANCE;
 
   //
   // ----------------------------------------------------------------

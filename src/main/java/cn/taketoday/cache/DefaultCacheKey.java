@@ -22,7 +22,7 @@ package cn.taketoday.cache;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import cn.taketoday.core.EmptyObject;
+import cn.taketoday.lang.NullValue;
 
 /**
  * @author TODAY <br>
@@ -31,7 +31,7 @@ import cn.taketoday.core.EmptyObject;
 public class DefaultCacheKey implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  public static final DefaultCacheKey EMPTY = new DefaultCacheKey(new Object[] { EmptyObject.INSTANCE });
+  public static final DefaultCacheKey EMPTY = new DefaultCacheKey(new Object[] { NullValue.INSTANCE });
 
   private final int hash;
   private final Object[] params;
