@@ -22,6 +22,7 @@ class VersionTests {
     assertThat(version.major()).isEqualTo(4);
     assertThat(version.minor()).isEqualTo(0);
     assertThat(version.micro()).isEqualTo(0);
+    assertThat(version.extension()).isNull();
 
     // release
     version = Version.parse("4.0.0");
@@ -46,6 +47,12 @@ class VersionTests {
     version = Version.parse("4.0.0-Alpha.3");
     assertThat(version.step()).isEqualTo(3);
     assertThat(version.type()).isEqualTo(Version.Alpha);
+
+    // extension
+    version = Version.parse("4.0.0-Alpha.3-jdk8");
+    assertThat(version.step()).isEqualTo(3);
+    assertThat(version.type()).isEqualTo(Version.Alpha);
+    assertThat(version.extension()).isEqualTo("jdk8");
 
   }
 }
