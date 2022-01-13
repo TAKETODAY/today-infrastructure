@@ -162,8 +162,11 @@ public class DependencyInjector {
     return null;
   }
 
+  /**
+   * @see InjectionPoint#DO_NOT_SET
+   */
   @Nullable
-  private Object resolve(
+  public Object resolve(
           DependencyDescriptor descriptor, DependencyResolvingContext context) {
     getResolvingStrategies().resolveDependency(descriptor, context);
     if (context.isDependencyResolved()) {

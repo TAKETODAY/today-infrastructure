@@ -513,11 +513,12 @@ public class StandardDependenciesBeanPostProcessor
       desc.setContainingClass(bean.getClass());
       Assert.state(beanFactory != null, "No BeanFactory available");
       DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
-      Object value = obtainDependencyInjector().resolveValue(desc, context);
+      Object value = obtainDependencyInjector().resolve(desc, context);
 
       synchronized(this) {
         if (!cached) {
           Object cachedFieldValue = null;
+          // not required don't modify its original value
           if (value != null || required) {
             cachedFieldValue = desc;
             Set<String> autowiredBeanNames = context.getDependentBeans();
@@ -530,9 +531,13 @@ public class StandardDependenciesBeanPostProcessor
                   cachedFieldValue = new ShortcutDependencyDescriptor(
                           desc, autowiredBeanName, field.getType());
                 }
+                else {
+                  cachedFieldValue = value;
+                }
               }
             }
           }
+
           this.cachedFieldValue = cachedFieldValue;
           this.cached = true;
         }
@@ -601,7 +606,6 @@ public class StandardDependenciesBeanPostProcessor
       return arguments;
     }
 
-    @Nullable
     private Object[] resolveMethodArguments(Method method, Object bean, @Nullable String beanName) {
       int argumentCount = method.getParameterCount();
       Object[] arguments = new Object[argumentCount];
@@ -617,10 +621,6 @@ public class StandardDependenciesBeanPostProcessor
 
         try {
           Object arg = obtainDependencyInjector().resolveValue(currDesc, context);
-          if (arg == null && !this.required) {
-            arguments = null;
-            break;
-          }
           arguments[i] = arg;
         }
         catch (BeansException ex) {
@@ -629,29 +629,27 @@ public class StandardDependenciesBeanPostProcessor
       }
       synchronized(this) {
         if (!this.cached) {
-          if (arguments != null) {
-            DependencyDescriptor[] cachedMethodArguments = Arrays.copyOf(descriptors, arguments.length);
-            Set<String> autowiredBeans = context.getDependentBeans();
-            if (CollectionUtils.isNotEmpty(autowiredBeans)) {
-              registerDependentBeans(beanName, autowiredBeans);
-              if (autowiredBeans.size() == argumentCount) {
-                Iterator<String> it = autowiredBeans.iterator();
-                Class<?>[] paramTypes = method.getParameterTypes();
-                for (int i = 0; i < paramTypes.length; i++) {
-                  String autowiredBeanName = it.next();
-                  if (beanFactory.containsBean(autowiredBeanName)
-                          && beanFactory.isTypeMatch(autowiredBeanName, paramTypes[i])) {
-                    cachedMethodArguments[i] = new ShortcutDependencyDescriptor(
-                            descriptors[i], autowiredBeanName, paramTypes[i]);
-                  }
+          Object[] cachedMethodArguments = Arrays.copyOf(descriptors, arguments.length);
+          Set<String> autowiredBeans = context.getDependentBeans();
+          if (CollectionUtils.isNotEmpty(autowiredBeans)) {
+            registerDependentBeans(beanName, autowiredBeans);
+            if (autowiredBeans.size() == argumentCount) {
+              Iterator<String> it = autowiredBeans.iterator();
+              Class<?>[] paramTypes = method.getParameterTypes();
+              for (int i = 0; i < paramTypes.length; i++) {
+                String autowiredBeanName = it.next();
+                if (beanFactory.containsBean(autowiredBeanName)
+                        && beanFactory.isTypeMatch(autowiredBeanName, paramTypes[i])) {
+                  cachedMethodArguments[i] = new ShortcutDependencyDescriptor(
+                          descriptors[i], autowiredBeanName, paramTypes[i]);
+                }
+                else {
+                  cachedMethodArguments[i] = arguments[i];
                 }
               }
             }
-            this.cachedMethodArguments = cachedMethodArguments;
           }
-          else {
-            this.cachedMethodArguments = null;
-          }
+          this.cachedMethodArguments = cachedMethodArguments;
           this.cached = true;
         }
       }
