@@ -816,6 +816,7 @@ public abstract class ClassUtils {
    * @see java.lang.reflect.Proxy#getProxyClass
    * @since 4.0
    */
+  @SuppressWarnings("deprecation")
   public static Class<?> createCompositeInterface(Class<?>[] interfaces, @Nullable ClassLoader classLoader) {
     Assert.notEmpty(interfaces, "Interface array must not be empty");
     return Proxy.getProxyClass(classLoader, interfaces);
