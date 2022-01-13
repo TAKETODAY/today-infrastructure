@@ -84,7 +84,12 @@ public class BeanFactoryDependencyResolvingStrategy
     if (context.getBeanFactory() instanceof AutowireCapableBeanFactory factory) {
       String beanName = context.getBeanName();
       try {
+        // resolve dependency and check required
         Object dependency = factory.resolveDependency(descriptor, beanName, context.getDependentBeans());
+        if (dependency == null) {
+          // not required dependency
+          dependency = DependencyDescriptor.DO_NOT_SET;
+        }
         context.setDependencyResolved(dependency);
       }
       catch (BeansException ex) {

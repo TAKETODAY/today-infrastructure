@@ -40,11 +40,6 @@ public class SimpleAutowireCandidateResolver implements AutowireCandidateResolve
   }
 
   @Override
-  public boolean isRequired(DependencyDescriptor descriptor) {
-    return descriptor.isRequired();
-  }
-
-  @Override
   @Nullable
   public Object getSuggestedValue(DependencyDescriptor descriptor) {
     return null;

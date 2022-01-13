@@ -75,6 +75,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
         return;
       }
     }
+    // TODO maybe check required status?
   }
 
   public void initStrategies(

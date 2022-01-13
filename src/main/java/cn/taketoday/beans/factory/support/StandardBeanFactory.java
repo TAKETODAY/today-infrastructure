@@ -1449,7 +1449,7 @@ public class StandardBeanFactory
   }
 
   private boolean isRequired(DependencyDescriptor descriptor) {
-    return getAutowireCandidateResolver().isRequired(descriptor);
+    return descriptor.isRequired();
   }
 
   private boolean indicatesMultipleBeans(Class<?> type) {
