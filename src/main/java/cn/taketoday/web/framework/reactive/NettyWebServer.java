@@ -23,9 +23,9 @@ import java.util.Objects;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.framework.StandardWebServerApplicationContext;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.WebServerException;
@@ -128,7 +128,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer, Disp
       loader.onStartup(context);
     }
     catch (Throwable e) {
-      throw new ConfigurationException(e);
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
