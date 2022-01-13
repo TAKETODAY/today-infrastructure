@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Constant;
 
 /**
  * Context will create a bean definition when current context were missing
@@ -44,8 +43,8 @@ public @interface MissingBean {
   /**
    * Missing bean name alias
    */
-  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
-  String[] value() default Constant.BLANK;
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "value")
+  String[] value() default {};
 
   /**
    * Missing bean name
@@ -58,7 +57,7 @@ public @interface MissingBean {
    * </p>
    */
   @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
-  String[] name() default Constant.BLANK;
+  String[] name() default {};
 
   /**
    * this attr determine the bean definition
