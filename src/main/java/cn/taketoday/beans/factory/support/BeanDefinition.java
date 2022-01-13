@@ -1408,6 +1408,8 @@ public class BeanDefinition
   public String toString() {
     StringBuilder sb = new StringBuilder("class [");
     sb.append(getBeanClassName()).append(']');
+    sb.append("; beanName=").append(this.beanName);
+    sb.append("; aliases=").append(Arrays.toString(this.aliases));
     sb.append("; scope=").append(this.scope);
     sb.append("; lazyInit=").append(this.lazyInit);
     sb.append("; primary=").append(this.primary);
