@@ -17,29 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
 
-import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.web.handler.method.HandlerMethod;
+package cn.taketoday.web.handler.method;
+
+import java.lang.reflect.Method;
+
+import cn.taketoday.beans.factory.BeanSupplier;
 
 /**
- * for HandlerMethod return-value
- *
- * @author TODAY 2019-12-13 13:52
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/13 20:09
  */
-public abstract class HandlerMethodReturnValueHandler
-        extends OrderedSupport implements ReturnValueHandler {
+class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
+  private final BeanSupplier<Object> beanSupplier;
 
-  @Override
-  public final boolean supportsHandler(final Object handler) {
-    return handler instanceof HandlerMethod && supportsHandlerMethod((HandlerMethod) handler);
+  SuppliedActionMappingAnnotationHandler(BeanSupplier<Object> beanSupplier, Method method) {
+    super(method);
+    this.beanSupplier = beanSupplier;
   }
 
-  /**
-   * match function for {@link HandlerMethod}
-   *
-   * @see HandlerMethod
-   */
-  protected abstract boolean supportsHandlerMethod(HandlerMethod handler);
+  @Override
+  protected Object getHandlerBean() {
+    return beanSupplier.get();
+  }
 
 }
+

@@ -117,7 +117,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
    * create {@link Collection} object
    */
   protected Collection<Object> createCollection(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
-    return CollectionUtils.createCollection(parameter.getParameterClass(), propertyValues.size());
+    return CollectionUtils.createCollection(parameter.getParameterType(), propertyValues.size());
   }
 
   protected Class<?> getComponentType(ResolvableMethodParameter parameter) {

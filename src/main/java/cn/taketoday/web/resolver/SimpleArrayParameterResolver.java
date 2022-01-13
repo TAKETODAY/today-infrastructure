@@ -55,7 +55,7 @@ public class SimpleArrayParameterResolver implements ParameterResolvingStrategy 
         return null;
       }
     }
-    return ObjectUtils.toArrayObject(values, parameter.getParameterClass());
+    return ObjectUtils.toArrayObject(values, parameter.getParameterType());
   }
 
 }

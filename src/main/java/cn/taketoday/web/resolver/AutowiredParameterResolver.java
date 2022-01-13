@@ -47,7 +47,7 @@ public class AutowiredParameterResolver
 
   @Override
   protected Object missingParameter(ResolvableMethodParameter parameter) {
-    throw new NoSuchBeanDefinitionException(parameter.getParameterClass());
+    throw new NoSuchBeanDefinitionException(parameter.getParameterType());
   }
 
   @Override

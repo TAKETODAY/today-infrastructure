@@ -20,14 +20,13 @@
 
 package cn.taketoday.web.handler;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.lang.Required;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -55,16 +54,15 @@ public class ResolveableMethodParameterTests {
   @Test
   public void test() throws NoSuchMethodException {
     final Method method = ResolveableMethodParameterTests.class.getDeclaredMethod("method", String.class);
-    final ResolvableMethodParameter methodParameter = new ResolvableMethodParameter(0, method, "name");
+    final ResolvableMethodParameter methodParameter = createParameter(0, method, "name");
 
     assertThat(methodParameter).isNotNull();
-    assertThat(methodParameter.getHandlerMethod()).isNull();
 
     assertThat(methodParameter.is(String.class)).isTrue();
     assertThat(methodParameter.getName()).isNotNull().isEqualTo("name");
 
     assertThat(methodParameter.getParameterIndex()).isZero();
-    assertThat(methodParameter.getParameterClass()).isEqualTo(String.class);
+    assertThat(methodParameter.getParameterType()).isEqualTo(String.class);
     assertThat(methodParameter.isRequired()).isFalse();
     assertThat(methodParameter.getDefaultValue()).isNull();
 
@@ -73,16 +71,16 @@ public class ResolveableMethodParameterTests {
   @Test
   public void testRequired() throws NoSuchMethodException {
     final Method method = ResolveableMethodParameterTests.class.getDeclaredMethod("isRequired", String.class, int.class);
-    final ResolvableMethodParameter methodParameter = new ResolvableMethodParameter(0, method, "name");
+    final ResolvableMethodParameter methodParameter = createParameter(0, method, "name");
     assertThat(methodParameter.isRequired()).isTrue();
     assertThat(methodParameter.isAssignableTo(CharSequence.class)).isTrue();
     assertThat(methodParameter.isInstance("dbashbgdsaydgasyu")).isTrue();
     assertThat(methodParameter.is(int.class)).isFalse();
 
-    final ResolvableMethodParameter ageMethodParameter = new ResolvableMethodParameter(1, method, null);
+    final ResolvableMethodParameter ageMethodParameter = createParameter(1, method, null);
     assertThat(ageMethodParameter.isRequired()).isTrue();
     assertThat(ageMethodParameter.getParameterIndex()).isEqualTo(1);
-    assertThat(ageMethodParameter.getParameterClass()).isEqualTo(int.class);
+    assertThat(ageMethodParameter.getParameterType()).isEqualTo(int.class);
     assertThat(ageMethodParameter.getName()).isEqualTo("myAge");
     assertThat(ageMethodParameter.isArray()).isFalse();
     assertThat(ageMethodParameter.isCollection()).isFalse();
@@ -91,15 +89,20 @@ public class ResolveableMethodParameterTests {
 
   }
 
+  static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
+    SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
+    return new ResolvableMethodParameter(parameter, name);
+  }
+
   @Test
   public void getGenerics() throws NoSuchMethodException {
     final Method getGenerics = ResolveableMethodParameterTests.class.getDeclaredMethod("getGenerics", List.class, Map.class, String.class);
-    final ResolvableMethodParameter listParameter = new ResolvableMethodParameter(0, getGenerics, "names");
-    final ResolvableMethodParameter mapParameter = new ResolvableMethodParameter(1, getGenerics, "map");
-    final ResolvableMethodParameter stringParameter = new ResolvableMethodParameter(2, getGenerics, "name");
+    final ResolvableMethodParameter listParameter = createParameter(0, getGenerics, "names");
+    final ResolvableMethodParameter mapParameter = createParameter(1, getGenerics, "map");
+    final ResolvableMethodParameter stringParameter = createParameter(2, getGenerics, "name");
 
-    assertThat(listParameter.getParameterClass()).isInterface().isEqualTo(List.class);
-    assertThat(mapParameter.getParameterClass()).isInterface().isEqualTo(Map.class);
+    assertThat(listParameter.getParameterType()).isInterface().isEqualTo(List.class);
+    assertThat(mapParameter.getParameterType()).isInterface().isEqualTo(Map.class);
 
     // getGenerics
     assertThat(listParameter.getGenerics()).hasSize(1);

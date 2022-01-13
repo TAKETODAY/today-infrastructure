@@ -96,7 +96,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
 
   protected static Object findProvidedArgument(ResolvableMethodParameter parameter, Object[] providedArgs) {
     if (providedArgs != null) {
-      final Class<?> parameterType = parameter.getParameterClass();
+      final Class<?> parameterType = parameter.getParameterType();
       for (final Object providedArg : providedArgs) {
         if (parameterType.isInstance(providedArg)) {
           return providedArg;

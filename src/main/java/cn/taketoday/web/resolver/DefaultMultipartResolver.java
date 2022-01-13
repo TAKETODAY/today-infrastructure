@@ -48,7 +48,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
   @Override
   public boolean supportsParameter(final ResolvableMethodParameter parameter) {
-    return supportsMultipart(parameter.getParameterClass());
+    return supportsMultipart(parameter.getParameterType());
   }
 
   protected static boolean supportsMultipart(final Class<?> type) {
@@ -83,7 +83,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     public boolean supportsParameter(final ResolvableMethodParameter parameter) {
-      final Class<?> parameterClass = parameter.getParameterClass();
+      final Class<?> parameterClass = parameter.getParameterType();
       return CollectionUtils.isCollection(parameterClass) && (
               parameter.isGenericPresent(MultipartFile.class, 0)
                       || parameter.isGenericPresent(ServletPartMultipartFile.class, 0)
@@ -95,7 +95,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
                                      final ResolvableMethodParameter parameter,
                                      final List<MultipartFile> multipartFiles) //
     {
-      final Class<?> parameterClass = parameter.getParameterClass();
+      final Class<?> parameterClass = parameter.getParameterType();
       if (parameterClass == Collection.class || parameterClass == List.class) {
         //for Collection List
         return multipartFiles;

@@ -57,7 +57,7 @@ public class DataBinderMapParameterResolver
    */
   @Override
   protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
-    final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterClass(), propertyValues.size());
+    final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterType(), propertyValues.size());
 
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
     final Class<?> parameterClass = (Class<?>) parameter.getGeneric(1);

@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.view;
 
-import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +38,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import cn.taketoday.core.annotation.SynthesizingMethodParameter;
+import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.User;
@@ -82,15 +83,15 @@ public class JacksonMessageBodyConverterTests {
               .getDeclaredMethod("test", List.class, JsonNode.class, User[].class, Set.class);
       final Method testRequiredM = JacksonMessageBodyConverterTests.class.getDeclaredMethod("testRequired", User.class);
 
-      testUser = new ResolvableMethodParameter(0, test, "user");
-      testJsonNode = new ResolvableMethodParameter(0, testJsonNodeMethod, "node");
+      testUser = createParameter(0, test, "user");
+      testJsonNode = createParameter(0, testJsonNodeMethod, "node");
 
-      testListUsers = new ResolvableMethodParameter(0, testList, "userList");
-      testJsonNodeInList = new ResolvableMethodParameter(1, testList, "node");
-      testUserArray = new ResolvableMethodParameter(2, testList, "userArray");
-      testUserSet = new ResolvableMethodParameter(3, testList, "testUserSet");
+      testListUsers = createParameter(0, testList, "userList");
+      testJsonNodeInList = createParameter(1, testList, "node");
+      testUserArray = createParameter(2, testList, "userArray");
+      testUserSet = createParameter(3, testList, "testUserSet");
 
-      testRequired = new ResolvableMethodParameter(0, testRequiredM, "testRequired");
+      testRequired = createParameter(0, testRequiredM, "testRequired");
     }
     catch (NoSuchMethodException e) {
       throw new WebNestedRuntimeException(e);
@@ -190,4 +191,10 @@ public class JacksonMessageBodyConverterTests {
       assertThat(e.getMessage()).startsWith("Unexpected end-of-input in field name");
     }
   }
+
+  static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
+    SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
+    return new ResolvableMethodParameter(parameter, name);
+  }
+
 }

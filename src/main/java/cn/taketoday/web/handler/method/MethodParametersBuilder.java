@@ -21,10 +21,11 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -45,15 +46,17 @@ public class MethodParametersBuilder {
     }
     final ResolvableMethodParameter[] ret = new ResolvableMethodParameter[length];
     final String[] methodArgsNames = parameterNameDiscoverer.getParameterNames(method);
-    final Parameter[] parameters = method.getParameters();
     for (int i = 0; i < length; i++) {
-      ret[i] = createParameter(methodArgsNames[i], parameters[i], i);
+      MethodParameter parameter = new SynthesizingMethodParameter(method, i);
+      parameter.initParameterNameDiscovery(parameterNameDiscoverer);
+      ret[i] = createParameter(methodArgsNames[i], parameter);
     }
+
     return ret;
   }
 
-  protected ResolvableMethodParameter createParameter(String methodArgsName, Parameter parameter, int index) {
-    return new ResolvableMethodParameter(index, parameter, methodArgsName);
+  protected ResolvableMethodParameter createParameter(String methodArgsName, MethodParameter parameter) {
+    return new ResolvableMethodParameter(parameter, methodArgsName);
   }
 
   public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {

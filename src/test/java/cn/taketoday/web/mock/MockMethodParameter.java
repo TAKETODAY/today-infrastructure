@@ -21,25 +21,14 @@
 package cn.taketoday.web.mock;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Required;
-import cn.taketoday.util.NumberUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestParam;
-import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -64,44 +53,12 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   @Nullable
   private Type[] generics;
 
-  @Nullable
-  private HandlerMethod handlerMethod;
-
   protected TypeDescriptor typeDescriptor;
 
   private AnnotatedElement annotatedElement;
 
-  public MockMethodParameter(@Nullable HandlerMethod handlerMethod, ResolvableMethodParameter other) {
-    super(handlerMethod, other);
-  }
-
   public MockMethodParameter(ResolvableMethodParameter other) {
     super(other);
-  }
-
-  public MockMethodParameter(int index, Parameter parameter, String parameterName) {
-    super(index, parameter, parameterName);
-  }
-
-  public MockMethodParameter(int index, Method method, String parameterName) {
-    super(index, method, parameterName);
-  }
-
-  @Override
-  protected void initRequestParam(AnnotatedElement element) {
-    AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            element, RequestParam.class);
-    if (attributes != null) {
-      this.name = attributes.getString(Constant.VALUE);
-      this.required = attributes.getBoolean("required");
-      this.defaultValue = attributes.getString("defaultValue");
-    }
-    if (!this.required) { // @since 3.0 Required
-      this.required = AnnotationUtils.isPresent(element, Required.class);
-    }
-    if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
-      this.defaultValue = "0"; // fix default value
-    }
   }
 
   @Override
@@ -125,7 +82,7 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   }
 
   @Override
-  public Class<?> getParameterClass() {
+  public Class<?> getParameterType() {
     return parameterClass;
   }
 
@@ -146,12 +103,6 @@ public class MockMethodParameter extends ResolvableMethodParameter {
     return parameter;
   }
 
-  @Nullable
-  @Override
-  public HandlerMethod getHandlerMethod() {
-    return handlerMethod;
-  }
-
   @Override
   public TypeDescriptor getTypeDescriptor() {
     return typeDescriptor;
@@ -159,7 +110,8 @@ public class MockMethodParameter extends ResolvableMethodParameter {
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(super.hashCode(), parameterIndex, parameterClass, name, required, defaultValue, handlerMethod, typeDescriptor, annotatedElement);
+    int result = Objects.hash(super.hashCode(), parameterIndex,
+            parameterClass, name, required, defaultValue, typeDescriptor, annotatedElement);
     result = 31 * result + Arrays.hashCode(generics);
     return result;
   }
@@ -181,7 +133,6 @@ public class MockMethodParameter extends ResolvableMethodParameter {
             && Objects.equals(name, parameter.name)
             && Arrays.equals(generics, parameter.generics)
             && Objects.equals(defaultValue, parameter.defaultValue)
-            && Objects.equals(handlerMethod, parameter.handlerMethod)
             && Objects.equals(parameterClass, parameter.parameterClass)
             && Objects.equals(typeDescriptor, parameter.typeDescriptor)
             && Objects.equals(annotatedElement, parameter.annotatedElement);

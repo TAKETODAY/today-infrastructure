@@ -64,7 +64,7 @@ public class ParameterResolverNotFoundException extends FrameworkConfigurationEx
   }
 
   public Class<?> getParameterClass() {
-    return parameter.getParameterClass();
+    return parameter.getParameterType();
   }
 
 }

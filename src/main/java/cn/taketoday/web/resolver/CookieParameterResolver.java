@@ -90,7 +90,7 @@ public class CookieParameterResolver
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isArray() && parameter.getParameterClass().getComponentType() == HttpCookie.class;
+      return parameter.isArray() && parameter.getParameterType().getComponentType() == HttpCookie.class;
     }
 
     @Override

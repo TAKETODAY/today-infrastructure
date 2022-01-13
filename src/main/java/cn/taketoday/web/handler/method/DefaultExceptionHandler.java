@@ -22,9 +22,10 @@ package cn.taketoday.web.handler.method;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
-import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.beans.factory.BeanSupplier;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.logging.Logger;
@@ -53,21 +54,21 @@ public class DefaultExceptionHandler
         extends SimpleExceptionHandler implements WebApplicationInitializer {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
-  private final HashMap<Class<? extends Throwable>, ExceptionHandlerActionMappingHandler>
+  private final HashMap<Class<? extends Throwable>, ExceptionHandlerMappingHandler>
           exceptionHandlers = new HashMap<>();
 
   /** @since 3.0 */
   private boolean inheritable;
 
   /** @since 3.0 */
-  private ExceptionHandlerActionMappingHandler globalHandler;
+  private ExceptionHandlerMappingHandler globalHandler;
 
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
     // prepare context throwable
     context.setAttribute(KEY_THROWABLE, target);
     // catch all handlers
-    ExceptionHandlerActionMappingHandler exHandler = lookupExceptionHandler(target);
+    ExceptionHandlerMappingHandler exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
       return super.handleException(context, target, handler);
     }
@@ -83,14 +84,14 @@ public class DefaultExceptionHandler
   }
 
   /**
-   * Handle Exception use {@link ExceptionHandlerActionMappingHandler}
+   * Handle Exception use {@link ExceptionHandlerMappingHandler}
    *
    * @param context current request
    * @param exHandler ThrowableHandlerMethod
    * @return handler return value
    * @throws Throwable occurred in exHandler
    */
-  protected Object handleException(RequestContext context, ExceptionHandlerActionMappingHandler exHandler)
+  protected Object handleException(RequestContext context, ExceptionHandlerMappingHandler exHandler)
           throws Throwable {
     exHandler.handleReturnValue(context, exHandler, exHandler.invokeHandler(context));
     return NONE_RETURN_VALUE;
@@ -102,8 +103,8 @@ public class DefaultExceptionHandler
    * @param ex Target {@link Exception}
    * @return Mapped {@link Exception} handler mapping
    */
-  protected ExceptionHandlerActionMappingHandler lookupExceptionHandler(Throwable ex) {
-    ExceptionHandlerActionMappingHandler ret = exceptionHandlers.get(ex.getClass());
+  protected ExceptionHandlerMappingHandler lookupExceptionHandler(Throwable ex) {
+    ExceptionHandlerMappingHandler ret = exceptionHandlers.get(ex.getClass());
     if (ret == null) {
       if (inheritable) {
         Class<? extends Throwable> runtimeEx = ex.getClass();
@@ -130,34 +131,39 @@ public class DefaultExceptionHandler
     this.inheritable = inheritable;
   }
 
-  void setGlobalHandler(ExceptionHandlerActionMappingHandler globalHandler) {
+  void setGlobalHandler(ExceptionHandlerMappingHandler globalHandler) {
     this.globalHandler = globalHandler;
   }
 
   // WebApplicationInitializer
 
   @Override
-  public void onStartup(WebApplicationContext beanFactory) {
+  public void onStartup(WebApplicationContext context) {
     log.info("Initialize @ExceptionHandler");
-    HandlerMethodBuilder<ExceptionHandlerActionMappingHandler> handlerBuilder = new HandlerMethodBuilder<>(beanFactory);
-    handlerBuilder.setHandlerMethodClass(ExceptionHandlerActionMappingHandler.class);
 
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+
+    var handlerBuilder = new AnnotationHandlerBuilder<ExceptionHandlerMappingHandler>(beanFactory);
+    handlerBuilder.setHandlerSupplier(ExceptionHandlerMappingHandler::new);
+
+    Set<String> errorHandlers = beanFactory.getBeanNamesForAnnotation(ControllerAdvice.class);
     // get all error handlers
-    List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
-    for (Object errorHandler : errorHandlers) {
-      for (Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
+    for (String errorHandler : errorHandlers) {
+      Class<?> errorHandlerType = beanFactory.getType(errorHandler);
+      for (Method method : ReflectionUtils.getDeclaredMethods(errorHandlerType)) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
           for (var exceptionClass : getCatchThrowableClasses(method)) {
             // @since 3.0
-            ExceptionHandlerActionMappingHandler handlerMethod = handlerBuilder.build(errorHandler, method);
-            exceptionHandlers.put(exceptionClass, handlerMethod);
+            BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
+            ExceptionHandlerMappingHandler handler = handlerBuilder.build(handlerBean, method);
+            exceptionHandlers.put(exceptionClass, handler);
           }
         }
       }
     }
 
     // @since 3.0
-    ExceptionHandlerActionMappingHandler global = exceptionHandlers.get(Throwable.class);
+    ExceptionHandlerMappingHandler global = exceptionHandlers.get(Throwable.class);
     if (global != null) {
       setGlobalHandler(global);
       exceptionHandlers.remove(Throwable.class);
@@ -191,15 +197,10 @@ public class DefaultExceptionHandler
 
   // exception handler
 
-  protected static class ExceptionHandlerActionMappingHandler extends ActionMappingAnnotationHandler {
+  protected static class ExceptionHandlerMappingHandler extends SuppliedActionMappingAnnotationHandler {
 
-    public ExceptionHandlerActionMappingHandler(HandlerMethod method) {
-      super(method);
-    }
-
-    @Override
-    protected Object invokeHandler(MethodInvoker handlerInvoker, Object[] args) {
-      return null;
+    ExceptionHandlerMappingHandler(BeanSupplier<Object> beanSupplier, Method method) {
+      super(beanSupplier, method);
     }
 
     @Override

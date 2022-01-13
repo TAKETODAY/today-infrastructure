@@ -119,7 +119,7 @@ public class DataBinderParameterResolver
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
     if (!parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
-            && !ClassUtils.isSimpleType(parameter.getParameterClass())) {
+            && !ClassUtils.isSimpleType(parameter.getParameterType())) {
       setAttribute(parameter, registry);
       return true;
     }
@@ -133,7 +133,7 @@ public class DataBinderParameterResolver
     if (registry != null) {
       // supports annotated-property-resolvers
       ArrayList<AnnotatedPropertyResolver> resolverList = new ArrayList<>();
-      Class<?> parameterClass = parameter.getParameterClass();
+      Class<?> parameterClass = parameter.getParameterType();
 
       ReflectionUtils.doWithFields(parameterClass, field -> {
         if (AnnotationUtils.isPresent(field, RequestParam.class)) {
@@ -150,7 +150,7 @@ public class DataBinderParameterResolver
   @Override
   public Object resolveParameter(
           final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    final Class<?> parameterClass = parameter.getParameterClass();
+    final Class<?> parameterClass = parameter.getParameterType();
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder(parameterClass, conversionService);
 
     final Map<String, String[]> parameters = context.getParameters();
@@ -256,14 +256,14 @@ public class DataBinderParameterResolver
       super(other);
       this.parameterClass = field.getType();
       this.field = field;
-      initRequestParam(field);
+//      initRequestParam(field); FIXME initRequestParam
       if (StringUtils.isEmpty(getName())) {
         setName(field.getName());
       }
     }
 
     @Override
-    public Class<?> getParameterClass() {
+    public Class<?> getParameterType() {
       return parameterClass;
     }
 

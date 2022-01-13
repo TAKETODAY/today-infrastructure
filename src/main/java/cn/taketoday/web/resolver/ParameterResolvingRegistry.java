@@ -37,7 +37,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
-import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.date.DateParameterResolver;
@@ -147,8 +146,8 @@ public class ParameterResolvingRegistry
       throw new ParameterResolverNotFoundException(
               parameter,
               "There isn't have a parameter resolver to resolve parameter: ["
-                      + parameter.getParameterClass() + "] called: ["
-                      + parameter.getName() + "] on " + parameter.getHandlerMethod());
+                      + parameter.getParameterType() + "] called: ["
+                      + parameter.getName() + "] on " + parameter.getParameter().getExecutable());
     }
     return resolver;
   }
@@ -188,9 +187,7 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestAttributeParameterResolver(),
             new ValueParameterResolver(expressionEvaluator),
             new PropsParameterResolver(context),
-            new AutowiredParameterResolver(context),
-            // HandlerMethod
-            new HandlerMethodParameterResolver()
+            new AutowiredParameterResolver(context)
     );
 
     // For cookies
@@ -412,7 +409,7 @@ public class ParameterResolvingRegistry
 
     @Override
     protected Object resolveInternal(Props target, RequestContext ctx, ResolvableMethodParameter parameter) {
-      final Object bean = beanInstantiator.instantiate(parameter.getParameterClass(), new Object[] { ctx });
+      final Object bean = beanInstantiator.instantiate(parameter.getParameterType(), new Object[] { ctx });
       return propsReader.read(target, bean);
     }
   }
@@ -428,7 +425,7 @@ public class ParameterResolvingRegistry
     @Override
     protected Object resolveInternal(Value target, RequestContext context, ResolvableMethodParameter parameter) {
       ExpressionInfo expressionInfo = new ExpressionInfo(target);
-      return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterClass());
+      return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterType());
     }
   }
 
@@ -440,18 +437,6 @@ public class ParameterResolvingRegistry
     @Override
     public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
       return context.getAttribute(parameter.getName());
-    }
-  }
-
-  static final class HandlerMethodParameterResolver implements ParameterResolvingStrategy {
-    @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.is(HandlerMethod.class);
-    }
-
-    @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
-      return parameter.getHandlerMethod();
     }
   }
 

@@ -93,7 +93,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     for (String path : mapping.getStringArray("value")) { // url on method
       String pathPattern = getRequestPathPattern(path);
       // transform
-      handler = transformHandlerMethod(pathPattern, handler);
+      handler = transformHandler(pathPattern, handler);
       AnnotationMappingInfo mappingInfo = new AnnotationMappingInfo(mapping, handler);
       registerMappingInfo(pathPattern, mappingInfo);
     }

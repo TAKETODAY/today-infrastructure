@@ -313,7 +313,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
         if (parameter.isInstance(wrappedObject)) {
           return wrappedObject;
         }
-        throw new IllegalStateException("Not a instance of: " + parameter.getParameterClass());
+        throw new IllegalStateException("Not a instance of: " + parameter.getParameterType());
       }
       if (parameter.isRequired()) {
         throw new IllegalStateException("There is no shared variable named: ".concat(parameter.getName()));

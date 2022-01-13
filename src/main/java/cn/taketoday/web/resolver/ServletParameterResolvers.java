@@ -182,7 +182,7 @@ public class ServletParameterResolvers {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isArray() && parameter.getParameterClass().getComponentType() == Cookie.class;
+      return parameter.isArray() && parameter.getParameterType().getComponentType() == Cookie.class;
     }
 
     @Override

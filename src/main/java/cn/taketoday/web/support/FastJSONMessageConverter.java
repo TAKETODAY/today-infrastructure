@@ -126,7 +126,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
     }
 
     if (parameter.isArray()) {
-      return requestBody.toJavaList(parameter.getParameterClass())
+      return requestBody.toJavaList(parameter.getParameterType())
               .toArray();
     }
 
@@ -134,7 +134,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
       return requestBody;
     }
 
-    final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
+    final List<?> list = requestBody.toJavaList(parameter.getParameterType());
     if (CollectionUtils.isNotEmpty(list)) {
       return list.get(0);
     }
@@ -150,7 +150,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
 
     if (parameter.isArray()) {
       return getJSONArray(parameter, requestBody)
-              .toJavaList(parameter.getParameterClass())
+              .toJavaList(parameter.getParameterType())
               .toArray();
     }
 
@@ -163,7 +163,7 @@ public class FastJSONMessageConverter extends MessageBodyConverter {
     }
 
     return getJSONObject(parameter, requestBody)
-            .toJavaObject(parameter.getParameterClass());
+            .toJavaObject(parameter.getParameterType());
   }
 
   protected JSONObject getJSONObject(final ResolvableMethodParameter parameter, final JSONObject requestBody) {

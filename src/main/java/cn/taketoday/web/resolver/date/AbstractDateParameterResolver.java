@@ -21,11 +21,9 @@
 package cn.taketoday.web.resolver.date;
 
 import cn.taketoday.core.DateTimeFormat;
-import cn.taketoday.core.EmptyObject;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
@@ -61,18 +59,16 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
     if (attribute == null) {
       DateTimeFormat ret = parameter.getAnnotation(DateTimeFormat.class);
       if (ret == null) {
-        final HandlerMethod handlerMethod = parameter.getHandlerMethod();
-        Assert.state(handlerMethod != null, "No HandlerMethod.");
-        ret = handlerMethod.getMethodAnnotation(DateTimeFormat.class);
+        ret = parameter.getParameter().getMethodAnnotation(DateTimeFormat.class);
         if (ret == null) {
-          ret = handlerMethod.getDeclaringClassAnnotation(DateTimeFormat.class);
+          ret = parameter.getParameter().getContainingClass().getAnnotation(DateTimeFormat.class);
         }
       }
 
-      parameter.setAttribute(FORMAT_ANNOTATION_KEY, ret == null ? EmptyObject.INSTANCE : ret);
+      parameter.setAttribute(FORMAT_ANNOTATION_KEY, ret == null ? NullValue.INSTANCE : ret);
       return ret;
     }
-    else if (attribute == EmptyObject.INSTANCE) {
+    else if (attribute == NullValue.INSTANCE) {
       return null;
     }
     return (DateTimeFormat) attribute;

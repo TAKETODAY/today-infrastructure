@@ -20,13 +20,14 @@
 package cn.taketoday.web.validation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
@@ -80,9 +81,9 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
     doValidate(getValidator(), value, errors);
 
     if (errors.hasErrors()) {
-      HandlerMethod method = parameter.getHandlerMethod();
-      Assert.state(method != null, "No HandlerMethod");
-      final ResolvableMethodParameter[] parameters = method.getParameters();
+      Method method = parameter.getParameter().getMethod();
+      Assert.state(method != null, "No Method");
+      Parameter[] parameters = method.getParameters();
       final int length = parameters.length;
       if (length == 1) {
         // use  @ExceptionHandler(ValidationException.class) to handle validation exception
@@ -90,7 +91,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
       }
       // > 1
       int index = parameter.getParameterIndex();
-      if (++index == length || !parameters[index].isAssignableTo(Errors.class)) {
+      if (++index == length || !Errors.class.isAssignableFrom(parameters[index].getType())) {
         // use  @ExceptionHandler(ValidationException.class) to handle validation exception
         throw buildException(errors);
       }

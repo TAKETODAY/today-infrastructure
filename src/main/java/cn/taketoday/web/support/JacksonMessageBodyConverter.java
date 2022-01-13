@@ -81,7 +81,7 @@ public class JacksonMessageBodyConverter extends MessageBodyConverter {
       // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
       if (body.isArray()) {
         if (parameter.isCollection()) {
-          final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterClass(), body.size());
+          final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterType(), body.size());
           final Class<?> valueType = getCollectionValueType(parameter.getTypeDescriptor());
           for (final JsonNode node : body) {
             final Object value = mapper.treeToValue(node, valueType);
@@ -105,13 +105,13 @@ public class JacksonMessageBodyConverter extends MessageBodyConverter {
         // fallback to first one
         final JsonNode jsonNode = body.get(0);
         if (jsonNode != null) {
-          return mapper.treeToValue(jsonNode, parameter.getParameterClass());
+          return mapper.treeToValue(jsonNode, parameter.getParameterType());
         }
         // null
       }
       else {
         // TODO 类型判断
-        return mapper.treeToValue(body, parameter.getParameterClass());
+        return mapper.treeToValue(body, parameter.getParameterType());
       }
     }
     return null;

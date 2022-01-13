@@ -51,7 +51,7 @@ public abstract class CollectionParameterResolver
       return collection;
     }
 
-    final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterClass(), collection.size());
+    final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterType(), collection.size());
     ret.addAll(collection);
     return ret;
   }

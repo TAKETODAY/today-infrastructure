@@ -40,15 +40,16 @@ public class PathVariableMethodParameter extends ResolvableMethodParameter {
   private final String pathPattern;
   private final PathMatcher pathMatcher;
 
-  public PathVariableMethodParameter(int variableIndex,
-                                     String pathPattern,
-                                     HandlerMethod handler,
-                                     ResolvableMethodParameter other,
-                                     PathMatcher pathMatcher) {
-    super(handler, other);
-    this.variableIndex = variableIndex;
+  public PathVariableMethodParameter(
+          int variableIndex,
+          String pathPattern,
+          ResolvableMethodParameter other,
+          PathMatcher pathMatcher
+  ) {
+    super(other);
     this.pathPattern = pathPattern;
     this.pathMatcher = pathMatcher;
+    this.variableIndex = variableIndex;
   }
 
   @Override

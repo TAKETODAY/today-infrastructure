@@ -19,8 +19,7 @@
  */
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Parameter;
-
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
@@ -34,14 +33,14 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
   private ParameterResolvingStrategy resolver;
 
   public ParameterResolverMethodParameter(
-          HandlerMethod handler, ResolvableMethodParameter other, ParameterResolvingRegistry resolvers) {
-    super(handler, other);
+          ResolvableMethodParameter other, ParameterResolvingRegistry resolvers) {
+    super(other);
     this.resolvers = resolvers;
   }
 
   public ParameterResolverMethodParameter(
-          int index, Parameter parameter, String parameterName, ParameterResolvingRegistry resolvers) {
-    super(index, parameter, parameterName);
+          MethodParameter parameter, String parameterName, ParameterResolvingRegistry resolvers) {
+    super(parameter, parameterName);
     this.resolvers = resolvers;
   }
 

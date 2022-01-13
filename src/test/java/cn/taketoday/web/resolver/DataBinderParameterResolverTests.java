@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
@@ -106,13 +107,13 @@ public class DataBinderParameterResolverTests {
       Method testList = DataBinderParameterResolverTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class, Map.class);
 
-      testUser = new ResolvableMethodParameter(0, test, "user");
-      testMultipartFileUserForm = new ResolvableMethodParameter(0, multipartFileUserForm, "user");
+      testUser = createParameter(0, test, "user");
+      testMultipartFileUserForm = createParameter(0, multipartFileUserForm, "user");
 
-      testListUsers = new ResolvableMethodParameter(0, testList, "userList");
-      testUserArray = new ResolvableMethodParameter(1, testList, "userArray");
-      testUserSet = new ResolvableMethodParameter(2, testList, "userSet");
-      testMapUser = new ResolvableMethodParameter(3, testList, "mapUser");
+      testListUsers = createParameter(0, testList, "userList");
+      testUserArray = createParameter(1, testList, "userArray");
+      testUserSet = createParameter(2, testList, "userSet");
+      testMapUser = createParameter(3, testList, "mapUser");
     }
     catch (NoSuchMethodException e) {
       throw new WebNestedRuntimeException(e);
@@ -287,7 +288,7 @@ public class DataBinderParameterResolverTests {
     MultiValueMap<String, MultipartFile> map = new DefaultMultiValueMap<>();
     List<MultipartFile> uploadFile = Collections.singletonList(new NamedMockMultipartFile("uploadFile"));
     List<MultipartFile> files = Arrays.asList(new NamedMockMultipartFile("uploadFiles"),
-                                              new NamedMockMultipartFile("uploadFiles"));
+            new NamedMockMultipartFile("uploadFiles"));
 
     map.put("uploadFile", uploadFile);
     map.put("uploadFiles", files);
@@ -574,6 +575,11 @@ public class DataBinderParameterResolverTests {
             .containsEntry("2", 2)
             .hasSize(2);
 
+  }
+
+  static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
+    SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
+    return new ResolvableMethodParameter(parameter, name);
   }
 
 }

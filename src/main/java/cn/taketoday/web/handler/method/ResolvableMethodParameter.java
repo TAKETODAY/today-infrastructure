@@ -20,16 +20,12 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Constant;
@@ -38,7 +34,6 @@ import cn.taketoday.lang.Required;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.NumberUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
@@ -69,9 +64,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   @Nullable
   private Type[] generics;
 
-  @Nullable
-  private HandlerMethod handlerMethod;
-
   /**
    * @since 3.0.1
    */
@@ -79,17 +71,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   // @since 4.0
   private MethodParameter parameter;
-
-  public ResolvableMethodParameter(@Nullable HandlerMethod handlerMethod, ResolvableMethodParameter other) {
-    this.name = other.name;
-    this.generics = other.generics;
-    this.required = other.required;
-    this.parameter = other.parameter;
-    this.defaultValue = other.defaultValue;
-
-    this.handlerMethod = handlerMethod;
-    this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
-  }
 
   /**
    * @since 4.0
@@ -101,43 +82,35 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     this.parameter = other.parameter;
     this.defaultValue = other.defaultValue;
 
-    this.handlerMethod = other.handlerMethod;
     this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
-  public ResolvableMethodParameter(int index, Parameter parameter) {
-    initRequestParam(parameter);
-  }
-
-  public ResolvableMethodParameter(int index, Parameter parameter, String parameterName) {
-    this(index, parameter);
+  public ResolvableMethodParameter(MethodParameter parameter, String name) {
+    this(parameter);
     if (StringUtils.isEmpty(this.name)) {
-      this.name = parameterName; // use method parameter name
+      this.name = name; // use method parameter name
     }
   }
 
-  /**
-   * @since 3.0
-   */
-  public ResolvableMethodParameter(int index, Method method, String parameterName) {
-    this(index, ReflectionUtils.getParameter(method, index), parameterName);
+  public ResolvableMethodParameter(MethodParameter parameter) {
+    initRequestParam(parameter);
   }
 
   /**
    * init name, required, defaultValue
    *
-   * @param element AnnotatedElement may annotated RequestParam
    * @since 4.0
    */
-  protected void initRequestParam(AnnotatedElement element) {
-    MergedAnnotation<RequestParam> requestParam = MergedAnnotations.from(element).get(RequestParam.class);
+  protected void initRequestParam(MethodParameter parameter) {
+    MergedAnnotations annotations = MergedAnnotations.from(parameter.getParameterAnnotations());
+    MergedAnnotation<RequestParam> requestParam = annotations.get(RequestParam.class);
     if (requestParam.isPresent()) {
       this.name = requestParam.getStringValue();
       this.required = requestParam.getBoolean("required");
       this.defaultValue = requestParam.getString("defaultValue");
     }
     if (!this.required) { // @since 3.0 Required
-      this.required = AnnotationUtils.isPresent(element, Required.class);
+      this.required = annotations.isPresent(Required.class);
     }
     if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameter.getParameterType())) {
       this.defaultValue = "0"; // fix default value
@@ -145,27 +118,27 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   }
 
   public boolean isArray() {
-    return getParameterClass().isArray();
+    return getParameterType().isArray();
   }
 
   public boolean isCollection() {
-    return CollectionUtils.isCollection(getParameterClass());
+    return CollectionUtils.isCollection(getParameterType());
   }
 
   public boolean isInterface() {
-    return getParameterClass().isInterface();
+    return getParameterType().isInterface();
   }
 
   public boolean is(final Class<?> type) {
-    return type == getParameterClass();
+    return type == getParameterType();
   }
 
   public boolean isAssignableTo(final Class<?> superClass) {
-    return superClass.isAssignableFrom(getParameterClass());
+    return superClass.isAssignableFrom(getParameterType());
   }
 
   public boolean isInstance(final Object obj) {
-    return getParameterClass().isInstance(obj);
+    return getParameterType().isInstance(obj);
   }
 
   @Nullable
@@ -226,7 +199,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   @Override
   public String toString() {
-    return getParameterClass().getSimpleName() + " " + getName();
+    return getParameterType().getSimpleName() + " " + getName();
   }
 
   @Override
@@ -254,12 +227,12 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return required;
   }
 
-  public Class<?> getParameterClass() {
+  public Class<?> getParameterType() {
     return parameter.getParameterType();
   }
 
   public Class<?> getComponentType() {
-    return getParameterClass().getComponentType();
+    return getParameterType().getComponentType();
   }
 
   public void setDefaultValue(@Nullable String defaultValue) {
@@ -290,15 +263,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   public MethodParameter getParameter() {
     return parameter;
-  }
-
-  @Nullable
-  public HandlerMethod getHandlerMethod() {
-    return handlerMethod;
-  }
-
-  public void setHandlerMethod(@Nullable HandlerMethod handlerMethod) {
-    this.handlerMethod = handlerMethod;
   }
 
   //

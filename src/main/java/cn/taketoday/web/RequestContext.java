@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.core.EmptyObject;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
@@ -44,6 +43,7 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -819,13 +819,13 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   /**
    * Cache request body object
    * <p>
-   * If input body is {@code null} will cache {@link cn.taketoday.core.EmptyObject#INSTANCE}
+   * If input body is {@code null} will cache {@link cn.taketoday.lang.NullValue#INSTANCE}
    * </p>
    *
    * @param body Target request body object
    */
   public void setRequestBody(Object body) {
-    this.requestBody = body != null ? body : EmptyObject.INSTANCE;
+    this.requestBody = body != null ? body : NullValue.INSTANCE;
   }
 
   public String[] pathVariables() {

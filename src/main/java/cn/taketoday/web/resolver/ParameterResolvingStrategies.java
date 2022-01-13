@@ -41,7 +41,8 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author TODAY 2021/9/26 21:07
  * @since 4.0
  */
-public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy>, ParameterResolvingStrategy {
+public class ParameterResolvingStrategies
+        implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy>, ParameterResolvingStrategy {
   private final ArrayList<ParameterResolvingStrategy> strategies;
 
   public ParameterResolvingStrategies() {

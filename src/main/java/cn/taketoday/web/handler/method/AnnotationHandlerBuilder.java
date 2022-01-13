@@ -20,56 +20,53 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.function.BiFunction;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanSupplier;
-import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
- * build {@link HandlerMethod}
+ * build {@link ActionMappingAnnotationHandler}
  *
  * @author TODAY 2021/5/1 13:53
  * @since 3.0
  */
-public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
+public class AnnotationHandlerBuilder<T extends ActionMappingAnnotationHandler> {
 
   private ParameterResolvingRegistry resolverRegistry;
   private ReturnValueHandlers returnValueHandlers;
   private MethodParametersBuilder parametersBuilder;
 
-  private BeanInstantiator constructor;
+  private BiFunction<BeanSupplier<Object>, Method, T> handlerSupplier;
 
-  public HandlerMethodBuilder() { }
+  public AnnotationHandlerBuilder() { }
 
   /**
    * this application must have ParameterResolvers bean
    *
-   * @param context Application context or bean factory
+   * @param factory Application context or bean factory
    */
-  public HandlerMethodBuilder(ApplicationContext context) {
-    Assert.notNull(context, "ApplicationContext must not be null");
-    ParameterResolvingRegistry resolversRegistry = context.getBean(ParameterResolvingRegistry.class);
+  public AnnotationHandlerBuilder(BeanFactory factory) {
+    Assert.notNull(factory, "BeanFactory is required");
+    ParameterResolvingRegistry resolversRegistry = factory.getBean(ParameterResolvingRegistry.class);
     Assert.state(resolversRegistry != null, "No ParameterResolvers");
     setResolverRegistry(resolversRegistry);
-    setReturnValueHandlers(context.getBean(ReturnValueHandlers.class));
+    setReturnValueHandlers(factory.getBean(ReturnValueHandlers.class));
     setParametersBuilder(new ParameterResolversMethodParameterBuilder(resolversRegistry));
   }
 
-  public HandlerMethodBuilder(
+  public AnnotationHandlerBuilder(
           ParameterResolvingRegistry resolvers, ReturnValueHandlers returnValueHandlers) {
     this(resolvers, returnValueHandlers, new ParameterResolversMethodParameterBuilder(resolvers));
   }
 
-  public HandlerMethodBuilder(
+  public AnnotationHandlerBuilder(
           ParameterResolvingRegistry resolvers,
           ReturnValueHandlers returnValueHandlers, MethodParametersBuilder builder) {
     setParametersBuilder(builder);
@@ -77,22 +74,8 @@ public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
     setReturnValueHandlers(returnValueHandlers);
   }
 
-  public void setHandlerMethodClass(Class<?> handlerMethodClass) {
-    try {
-      Constructor<?> declared = handlerMethodClass.getDeclaredConstructor(Method.class);
-      this.constructor = BeanInstantiator.fromConstructor(declared);
-    }
-    catch (NoSuchMethodException e) {
-      throw new ConfigurationException(
-              "Target class: '" + handlerMethodClass + "' don't exist a suitable constructor", e);
-    }
-  }
-
-  public BeanInstantiator getConstructor() {
-    if (constructor == null) {
-      setHandlerMethodClass(HandlerMethod.class);
-    }
-    return constructor;
+  public void setHandlerSupplier(BiFunction<BeanSupplier<Object>, Method, T> handlerSupplier) {
+    this.handlerSupplier = handlerSupplier;
   }
 
   /**
@@ -103,18 +86,13 @@ public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
     Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
 
-    T handler = (T) getConstructor().instantiate(new Object[] { method });
     ResolvableMethodParameter[] parameters = parametersBuilder.build(method);
-    HandlerMethod handlerMethod = handler.getMethod();
 
-    handlerMethod.setParameters(parameters);
-    handler.setResultHandlers(returnValueHandlers);
-    if (ObjectUtils.isNotEmpty(parameters)) {
-      for (ResolvableMethodParameter parameter : parameters) {
-        parameter.setHandlerMethod(handlerMethod);
-      }
-    }
-    return handler;
+    ActionMappingAnnotationHandler annotationHandler = ActionMappingAnnotationHandler.from(handlerBean, method);
+    annotationHandler.getMethod().setParameters(parameters);
+    annotationHandler.setReturnValueHandlers(returnValueHandlers);
+
+    return (T) annotationHandler;
   }
 
   /**
@@ -126,25 +104,25 @@ public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
     return handlerMethod;
   }
 
-  @SuppressWarnings("unchecked")
   public T build(BeanSupplier<Object> handlerBean, Method method, List<HandlerInterceptor> interceptors) {
     Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
-    T handler = (T) getConstructor().instantiate(new Object[] { method });
     ResolvableMethodParameter[] parameters = parametersBuilder.build(method);
 
-    HandlerMethod handlerMethod = HandlerMethod.from(method);
-    handlerMethod.setParameters(parameters);
+    T handler = getHandler(handlerBean, method);
 
+    handler.setReturnValueHandlers(returnValueHandlers);
     handler.setInterceptors(interceptors);
-    handler.setResultHandlers(returnValueHandlers);
-
-    if (ObjectUtils.isNotEmpty(parameters)) {
-      for (ResolvableMethodParameter parameter : parameters) {
-        parameter.setHandlerMethod(handlerMethod);
-      }
-    }
+    handler.getMethod().setParameters(parameters);
     return handler;
+  }
+
+  @SuppressWarnings("unchecked")
+  private T getHandler(BeanSupplier<Object> handlerBean, Method method) {
+    if (handlerSupplier != null) {
+      return handlerSupplier.apply(handlerBean, method);
+    }
+    return (T) ActionMappingAnnotationHandler.from(handlerBean, method);
   }
 
   public void setResolverRegistry(ParameterResolvingRegistry resolverRegistry) {
@@ -153,10 +131,6 @@ public class HandlerMethodBuilder<T extends ActionMappingAnnotationHandler> {
 
   public void setReturnValueHandlers(ReturnValueHandlers returnValueHandlers) {
     this.returnValueHandlers = returnValueHandlers;
-  }
-
-  public void setConstructor(BeanInstantiator constructor) {
-    this.constructor = constructor;
   }
 
   public void setParametersBuilder(MethodParametersBuilder parameterBuilder) {

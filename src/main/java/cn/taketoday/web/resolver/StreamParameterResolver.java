@@ -38,7 +38,7 @@ public class StreamParameterResolver implements ParameterResolvingStrategy {
   @Override
   public boolean supportsParameter(final ResolvableMethodParameter parameter) {
 
-    final Class<?> parameterClass = parameter.getParameterClass();
+    final Class<?> parameterClass = parameter.getParameterType();
     return parameterClass == Readable.class//
             || parameterClass == OutputStreamSource.class//
             || parameterClass == Reader.class//
@@ -53,7 +53,7 @@ public class StreamParameterResolver implements ParameterResolvingStrategy {
   @Override
   public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
 
-    final Class<?> parameterClass = parameter.getParameterClass();
+    final Class<?> parameterClass = parameter.getParameterType();
 
     if (parameterClass == Readable.class || parameterClass == OutputStreamSource.class) {
       return context;

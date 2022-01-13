@@ -30,6 +30,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockMethodParameter;
@@ -98,12 +99,12 @@ class ParameterResolverRegistryTests {
       final Method testList = ParameterResolverRegistryTests.class
               .getDeclaredMethod("test", List.class, UserForm[].class, Set.class, Map.class);
 
-      testUser = new ResolvableMethodParameter(0, test, "user");
+      testUser = createParameter(0, test, "user");
 
-      testListUsers = new ResolvableMethodParameter(0, testList, "userList");
-      testUserArray = new ResolvableMethodParameter(1, testList, "userArray");
-      testUserSet = new ResolvableMethodParameter(2, testList, "userSet");
-      testMapUser = new ResolvableMethodParameter(3, testList, "mapUser");
+      testListUsers = createParameter(0, testList, "userList");
+      testUserArray = createParameter(1, testList, "userArray");
+      testUserSet = createParameter(2, testList, "userSet");
+      testMapUser = createParameter(3, testList, "mapUser");
 
       sharedParameter = testUser.getParameter();
     }
@@ -188,6 +189,11 @@ class ParameterResolverRegistryTests {
   private void testConverterParameterResolver(ParameterResolvingRegistry registry, Class<?> type) {
     ResolvableMethodParameter test = mockParameter(type, "test");
     assertThat(registry.findStrategy(test)).isNotNull().isInstanceOf(ConverterParameterResolver.class);
+  }
+
+  static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
+    SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
+    return new ResolvableMethodParameter(parameter, name);
   }
 
 }

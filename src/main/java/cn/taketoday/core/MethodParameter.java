@@ -658,15 +658,19 @@ public class MethodParameter {
     if (this.parameterIndex < 0) {
       return null;
     }
-    ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
-    if (discoverer != null) {
-      String[] parameterNames = discoverer.getParameterNames(this.executable);
-      if (parameterNames != null) {
-        this.parameterName = parameterNames[this.parameterIndex];
+    String parameterName = this.parameterName;
+    if (parameterName == null) {
+      ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
+      if (discoverer != null) {
+        String[] parameterNames = discoverer.getParameterNames(this.executable);
+        if (parameterNames != null) {
+          parameterName = parameterNames[this.parameterIndex];
+          this.parameterName = parameterName;
+        }
+        this.parameterNameDiscoverer = null;
       }
-      this.parameterNameDiscoverer = null;
     }
-    return this.parameterName;
+    return parameterName;
   }
 
   /**

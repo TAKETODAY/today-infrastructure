@@ -121,7 +121,7 @@ public class HandlerMethodTests {
 
     final ParameterResolversMethodParameterBuilder methodParameterBuilder
             = new ParameterResolversMethodParameterBuilder();
-    final ParameterResolvingRegistry resolversRegistry = methodParameterBuilder.getParameterResolvers();
+    final ParameterResolvingRegistry resolversRegistry = methodParameterBuilder.getResolvingRegistry();
     resolversRegistry.setApplicationContext(applicationContext);
 
     resolversRegistry.registerDefaultParameterResolvers();

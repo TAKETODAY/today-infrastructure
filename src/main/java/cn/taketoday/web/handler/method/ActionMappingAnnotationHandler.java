@@ -37,8 +37,11 @@ import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
+ * HTTP Request Annotation Handler
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.annotation.RequestMapping
+ * @see cn.taketoday.web.annotation.ActionMapping
  * @see cn.taketoday.web.annotation.Controller
  * @since 4.0 2021/11/29 22:48
  */
@@ -54,6 +57,10 @@ public abstract class ActionMappingAnnotationHandler
 
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
+
+  public ActionMappingAnnotationHandler(Method method) {
+    this.handlerMethod = HandlerMethod.from(method);
+  }
 
   public ActionMappingAnnotationHandler(HandlerMethod handlerMethod) {
     this.handlerMethod = handlerMethod;
@@ -74,7 +81,7 @@ public abstract class ActionMappingAnnotationHandler
     return handlerInvoker;
   }
 
-  public void setResultHandlers(ReturnValueHandlers resultHandlers) {
+  public void setReturnValueHandlers(ReturnValueHandlers resultHandlers) {
     this.resultHandlers = resultHandlers;
   }
 
@@ -93,19 +100,21 @@ public abstract class ActionMappingAnnotationHandler
       }
     }
 
+    Object handlerBean = getHandlerBean();
     ResolvableMethodParameter[] parameters = handlerMethod.getParameters();
     if (ObjectUtils.isEmpty(parameters)) {
-      return invokeHandler(handlerInvoker, null);
+      return handlerInvoker.invoke(handlerBean, null);
     }
     Object[] args = new Object[parameters.length];
     int i = 0;
     for (ResolvableMethodParameter parameter : parameters) {
       args[i++] = parameter.resolveParameter(context);
     }
-    return invokeHandler(handlerInvoker, args);
+
+    return handlerInvoker.invoke(handlerBean, args);
   }
 
-  protected abstract Object invokeHandler(MethodInvoker handlerInvoker, Object[] args);
+  protected abstract Object getHandlerBean();
 
   // HandlerAdapter
 
@@ -176,49 +185,11 @@ public abstract class ActionMappingAnnotationHandler
   }
 
   public static ActionMappingAnnotationHandler from(Object handlerBean, Method method) {
-    HandlerMethod handlerMethod = HandlerMethod.from(method);
-    return new SingletonActionMappingAnnotationHandler(handlerBean, handlerMethod);
+    return new SingletonActionMappingAnnotationHandler(handlerBean, method);
   }
 
   public static ActionMappingAnnotationHandler from(BeanSupplier<Object> beanSupplier, Method method) {
-    HandlerMethod handlerMethod = HandlerMethod.from(method);
-    return new SuppliedActionMappingAnnotationHandler(beanSupplier, handlerMethod);
-  }
-
-  static class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
-
-    private final Object handlerBean;
-
-    public SingletonActionMappingAnnotationHandler(Object handlerBean, HandlerMethod handlerMethod) {
-      super(handlerMethod);
-      this.handlerBean = handlerBean;
-    }
-
-    public SingletonActionMappingAnnotationHandler(SingletonActionMappingAnnotationHandler handler) {
-      super(handler);
-      this.handlerBean = handler.handlerBean;
-    }
-
-    @Override
-    protected Object invokeHandler(MethodInvoker handlerInvoker, Object[] args) {
-      return handlerInvoker.invoke(handlerBean, args);
-    }
-
-  }
-
-  private static class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
-    private final BeanSupplier<Object> beanSupplier;
-
-    public SuppliedActionMappingAnnotationHandler(BeanSupplier<Object> beanSupplier, HandlerMethod method) {
-      super(method);
-      this.beanSupplier = beanSupplier;
-    }
-
-    @Override
-    protected Object invokeHandler(MethodInvoker handlerInvoker, Object[] args) {
-      return handlerInvoker.invoke(beanSupplier.get(), args);
-    }
-
+    return new SuppliedActionMappingAnnotationHandler(beanSupplier, method);
   }
 
 }
