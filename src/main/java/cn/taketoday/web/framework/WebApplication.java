@@ -122,7 +122,12 @@ public class WebApplication {
     }
     catch (Throwable e) {
       context.close();
-      context.publishEvent(new WebApplicationFailedEvent(context, e));
+      try {
+        context.publishEvent(new WebApplicationFailedEvent(context, e));
+      }
+      catch (Throwable ex) {
+        log.warn("Exception thrown from publishEvent handling WebApplicationFailedEvent", ex);
+      }
       throw ExceptionUtils.sneakyThrow(e);
     }
   }
