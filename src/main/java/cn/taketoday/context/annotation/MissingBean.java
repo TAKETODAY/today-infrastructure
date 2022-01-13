@@ -43,7 +43,7 @@ public @interface MissingBean {
   /**
    * Missing bean name alias
    */
-  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "value")
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
   String[] value() default {};
 
   /**
