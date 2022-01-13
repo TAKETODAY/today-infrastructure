@@ -21,9 +21,73 @@
 package cn.taketoday.lang;
 
 /**
+ * Class that exposes the version. Fetches the
+ * "Implementation-Version" manifest attribute from the jar file.
+ *
  * @author TODAY 2021/10/11 23:28
  * @since 4.0
  */
-public class Version {
+public record Version(int major, int minor, int micro, String type, int step) {
+  public static final String Draft = "Draft";
+  public static final String Alpha = "Alpha";
+  public static final String Beta = "Beta";
+  public static final String RELEASE = "RELEASE";
+
+  private static final Version instance;
+
+  static {
+    Package pkg = Version.class.getPackage();
+    String implementationVersion = pkg.getImplementationVersion();
+    if (implementationVersion != null) {
+      instance = parse(implementationVersion);
+    }
+    else {
+      instance = new Version(0, 0, 0, "Draft", 0);
+      System.err.println("cn.taketoday.lang.Version cannot get 'implementationVersion' in manifest.");
+    }
+  }
+
+  /**
+   * parse {@link Version},
+   * version format: {major}.{minor}.{micro}-{type}.{step}
+   *
+   * @param implementationVersion 'implementationVersion' in manifest
+   */
+  static Version parse(String implementationVersion) {
+    String type;
+    int major;
+    int minor;
+    int micro;
+    int step = 0;
+
+    String[] split = implementationVersion.split("-");
+
+    if (split.length == 1) {
+      type = RELEASE;
+    }
+    else {
+      type = split[1];
+      String[] typeSplit = type.split("\\.");
+      if (typeSplit.length == 2) {
+        type = typeSplit[0];
+        step = Integer.parseInt(typeSplit[1]);
+      }
+    }
+
+    String ver = split[0];
+    String[] verSplit = ver.split("\\.");
+    major = Integer.parseInt(verSplit[0]);
+    minor = Integer.parseInt(verSplit[1]);
+    micro = Integer.parseInt(verSplit[2]);
+
+    return new Version(major, minor, micro, type, step);
+  }
+
+  /**
+   * @see Package#getImplementationVersion()
+   */
+  public static Version get() {
+    return instance;
+  }
 
 }
