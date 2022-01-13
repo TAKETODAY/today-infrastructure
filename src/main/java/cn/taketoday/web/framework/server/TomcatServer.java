@@ -62,10 +62,10 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -126,6 +126,14 @@ public class TomcatServer extends AbstractServletWebServer implements Disposable
   private boolean enableApr;
   private boolean autoStart = true;
   private boolean useRelativeRedirects = false;
+
+  public boolean isAutoStart() {
+    return autoStart;
+  }
+
+  public boolean isUseRelativeRedirects() {
+    return useRelativeRedirects;
+  }
 
   private Context findContext() {
     for (Container child : this.tomcat.getHost().findChildren()) {
@@ -398,7 +406,7 @@ public class TomcatServer extends AbstractServletWebServer implements Disposable
   protected void configureJasperInitializer(TomcatEmbeddedContext context) {
 
     JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
-    if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
+    if (jspServletConfiguration != null && jspServletConfiguration.isEnabled()) {
       // org.apache.jasper.servlet.JasperInitializer
       Class<ServletContainerInitializer> jasperInitializer =
               ClassUtils.load("org.apache.jasper.servlet.JasperInitializer");

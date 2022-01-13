@@ -23,13 +23,10 @@ package cn.taketoday.jdbc.dialect;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Data;
-
 /**
  * @author TODAY 2021/10/10 13:16
  * @since 4.0
  */
-@Data
 public class SQLParams {
 
   private Class<?> modelClass;
@@ -51,4 +48,99 @@ public class SQLParams {
 
   private String customSQL;
 
+  public Class<?> getModelClass() {
+    return modelClass;
+  }
+
+  public void setModelClass(Class<?> modelClass) {
+    this.modelClass = modelClass;
+  }
+
+  public Object getModel() {
+    return model;
+  }
+
+  public void setModel(Object model) {
+    this.model = model;
+  }
+
+  public String getSelectColumns() {
+    return selectColumns;
+  }
+
+  public void setSelectColumns(String selectColumns) {
+    this.selectColumns = selectColumns;
+  }
+
+  public String getTableName() {
+    return tableName;
+  }
+
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
+
+  public String getPkName() {
+    return pkName;
+  }
+
+  public void setPkName(String pkName) {
+    this.pkName = pkName;
+  }
+
+  public StringBuilder getConditionSQL() {
+    return conditionSQL;
+  }
+
+  public void setConditionSQL(StringBuilder conditionSQL) {
+    this.conditionSQL = conditionSQL;
+  }
+
+  public Map<String, Object> getUpdateColumns() {
+    return updateColumns;
+  }
+
+  public void setUpdateColumns(Map<String, Object> updateColumns) {
+    this.updateColumns = updateColumns;
+  }
+
+  public List<String> getExcludedColumns() {
+    return excludedColumns;
+  }
+
+  public void setExcludedColumns(List<String> excludedColumns) {
+    this.excludedColumns = excludedColumns;
+  }
+
+  public PageRow getPageRow() {
+    return pageRow;
+  }
+
+  public void setPageRow(PageRow pageRow) {
+    this.pageRow = pageRow;
+  }
+
+  public String getOrderBy() {
+    return orderBy;
+  }
+
+  public void setOrderBy(String orderBy) {
+    this.orderBy = orderBy;
+  }
+
+  public boolean isSQLLimit() {
+    return isSQLLimit;
+  }
+
+  public void setSQLLimit(boolean SQLLimit) {
+    isSQLLimit = SQLLimit;
+  }
+
+  public String getCustomSQL() {
+    return customSQL;
+  }
+
+  public void setCustomSQL(String customSQL) {
+    this.customSQL = customSQL;
+  }
 }

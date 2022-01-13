@@ -22,21 +22,13 @@ package cn.taketoday.web.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.servlet.Servlet;
-
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.lang.Constant;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.servlet.Servlet;
 
 /**
  * @author TODAY <br>
  * 2019-02-03 18:06
  */
-@Getter
-@Setter
-@ConditionalOnClass(Constant.ENV_SERVLET)
 @Props(prefix = "server.servlet.default.")
 public class DefaultServletConfiguration {
 
@@ -46,4 +38,35 @@ public class DefaultServletConfiguration {
 
   private Map<String, String> initParameters = new HashMap<>();
 
+  public boolean isEnable() {
+    return enable;
+  }
+
+  public void setEnable(boolean enable) {
+    this.enable = enable;
+  }
+
+  public String[] getUrlMappings() {
+    return urlMappings;
+  }
+
+  public void setUrlMappings(String[] urlMappings) {
+    this.urlMappings = urlMappings;
+  }
+
+  public Servlet getDefaultServlet() {
+    return defaultServlet;
+  }
+
+  public void setDefaultServlet(Servlet defaultServlet) {
+    this.defaultServlet = defaultServlet;
+  }
+
+  public Map<String, String> getInitParameters() {
+    return initParameters;
+  }
+
+  public void setInitParameters(Map<String, String> initParameters) {
+    this.initParameters = initParameters;
+  }
 }

@@ -20,15 +20,11 @@
 package cn.taketoday.web.framework.config;
 
 import cn.taketoday.util.DataSize;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  * 2019-02-07 16:31
  */
-@Setter
-@Getter
 public class CompressionConfiguration {
 
   private String level = "on";
@@ -51,4 +47,92 @@ public class CompressionConfiguration {
           "text/javascript", "application/javascript", //
           "text/css", "text/javascript", "application/xml"//
   };
+
+  public String getLevel() {
+    return level;
+  }
+
+  public void setLevel(String level) {
+    this.level = level;
+  }
+
+  public boolean isEnable() {
+    return enable;
+  }
+
+  public void setEnable(boolean enable) {
+    this.enable = enable;
+  }
+
+  public String[] getExcludePaths() {
+    return excludePaths;
+  }
+
+  public void setExcludePaths(String[] excludePaths) {
+    this.excludePaths = excludePaths;
+  }
+
+  public String[] getIncludedPaths() {
+    return includedPaths;
+  }
+
+  public void setIncludedPaths(String[] includedPaths) {
+    this.includedPaths = includedPaths;
+  }
+
+  public String[] getExcludeMethods() {
+    return excludeMethods;
+  }
+
+  public void setExcludeMethods(String[] excludeMethods) {
+    this.excludeMethods = excludeMethods;
+  }
+
+  public String[] getIncludeMethods() {
+    return includeMethods;
+  }
+
+  public void setIncludeMethods(String[] includeMethods) {
+    this.includeMethods = includeMethods;
+  }
+
+  public String[] getExcludeUserAgents() {
+    return excludeUserAgents;
+  }
+
+  public void setExcludeUserAgents(String[] excludeUserAgents) {
+    this.excludeUserAgents = excludeUserAgents;
+  }
+
+  public String[] getExcludeAgentPatterns() {
+    return excludeAgentPatterns;
+  }
+
+  public void setExcludeAgentPatterns(String[] excludeAgentPatterns) {
+    this.excludeAgentPatterns = excludeAgentPatterns;
+  }
+
+  public String[] getIncludeAgentPatterns() {
+    return includeAgentPatterns;
+  }
+
+  public void setIncludeAgentPatterns(String[] includeAgentPatterns) {
+    this.includeAgentPatterns = includeAgentPatterns;
+  }
+
+  public DataSize getMinResponseSize() {
+    return minResponseSize;
+  }
+
+  public void setMinResponseSize(DataSize minResponseSize) {
+    this.minResponseSize = minResponseSize;
+  }
+
+  public String[] getMimeTypes() {
+    return mimeTypes;
+  }
+
+  public void setMimeTypes(String[] mimeTypes) {
+    this.mimeTypes = mimeTypes;
+  }
 }

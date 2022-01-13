@@ -20,19 +20,32 @@
 
 package cn.taketoday.jdbc.dialect;
 
-import lombok.Data;
-
 /**
  * @author TODAY 2021/10/10 13:23
  * @since 4.0
  */
-@Data
 public class PageRow {
   private int pageNum;
   private int pageSize;
 
   public PageRow(int pageNum, int pageSize) {
     this.pageNum = pageNum;
+    this.pageSize = pageSize;
+  }
+
+  public int getPageNum() {
+    return pageNum;
+  }
+
+  public void setPageNum(int pageNum) {
+    this.pageNum = pageNum;
+  }
+
+  public int getPageSize() {
+    return pageSize;
+  }
+
+  public void setPageSize(int pageSize) {
     this.pageSize = pageSize;
   }
 }

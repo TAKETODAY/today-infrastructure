@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -34,14 +33,12 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
-import lombok.Getter;
 
 /**
  * @author TODAY <br>
  * 2019-05-15 21:43
  * @since 2.3.7
  */
-@Getter
 public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsCapable {
   @Serial
   private static final long serialVersionUID = 1L;
@@ -175,6 +172,18 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
   @Override
   public int getOrder() {
     return order;
+  }
+
+  public int getBufferSize() {
+    return bufferSize;
+  }
+
+  public long getExpires() {
+    return expires;
+  }
+
+  public ArrayList<String> getLocations() {
+    return locations;
   }
 
   public ResourceMapping setOrder(int order) {

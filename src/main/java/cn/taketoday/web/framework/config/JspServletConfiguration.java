@@ -23,10 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.lang.Constant;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Configuration for the server's JSP servlet.
@@ -34,13 +30,10 @@ import lombok.Setter;
  * @author TODAY <br>
  * 2019-01-26 16:39
  */
-@Getter
-@Setter
 @Props(prefix = "server.servlet.jsp.")
-@ConditionalOnClass(Constant.ENV_SERVLET)
 public class JspServletConfiguration {
 
-  private boolean enable;
+  private boolean enabled;
 
   private String name = "jsp";
   private String[] urlMappings = { "*.jsp", "*.jspx" };
@@ -53,4 +46,43 @@ public class JspServletConfiguration {
     this.initParameters.put("development", "false");
   }
 
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String[] getUrlMappings() {
+    return urlMappings;
+  }
+
+  public void setUrlMappings(String[] urlMappings) {
+    this.urlMappings = urlMappings;
+  }
+
+  public String getClassName() {
+    return className;
+  }
+
+  public void setClassName(String className) {
+    this.className = className;
+  }
+
+  public Map<String, String> getInitParameters() {
+    return initParameters;
+  }
+
+  public void setInitParameters(Map<String, String> initParameters) {
+    this.initParameters = initParameters;
+  }
 }

@@ -132,7 +132,7 @@ public class JettyServer
         protected void doStart() throws Exception {
           for (Connector connector : JettyServer.this.connectors) {
             Assert.state(connector.isStopped(),
-                         () -> "Connector " + connector + " has been started prematurely");
+                    () -> "Connector " + connector + " has been started prematurely");
           }
           JettyServer.this.server.setConnectors(null);
         }
@@ -182,7 +182,7 @@ public class JettyServer
       }
       getStarted().set(true);
       log.info("Jetty started on port(s) '{}' with context path '{}'", //
-               getActualPortsDescription(), getContextPath());
+              getActualPortsDescription(), getContextPath());
     }
     catch (WebServerException ex) {
       stopSilently();
@@ -219,7 +219,7 @@ public class JettyServer
   public synchronized void stop() {
     getStarted().set(false);
     log.info("Jetty stopping on port(s) '{}' with context path '{}'", //
-             getActualPortsDescription(), getContextPath());
+            getActualPortsDescription(), getContextPath());
     try {
       this.server.stop();
     }

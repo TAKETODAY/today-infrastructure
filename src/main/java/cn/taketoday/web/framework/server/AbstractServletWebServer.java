@@ -28,19 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletSecurityElement;
-import jakarta.servlet.SessionCookieConfig;
-import jakarta.servlet.SessionTrackingMode;
-import jakarta.servlet.annotation.ServletSecurity;
-
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.framework.WebServerApplicationContext;
@@ -50,6 +43,12 @@ import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.session.SessionConfiguration;
 import cn.taketoday.web.session.SessionCookieConfiguration;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletSecurityElement;
+import jakarta.servlet.SessionCookieConfig;
+import jakarta.servlet.SessionTrackingMode;
+import jakarta.servlet.annotation.ServletSecurity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -83,20 +82,18 @@ public abstract class AbstractServletWebServer
     if (jspServletConfiguration != null) {
       // config jsp servlet
       getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
-      if (jspServletConfiguration.isEnable()) {
+      if (jspServletConfiguration.isEnabled()) {
         try {
           Servlet jspServlet = BeanUtils.newInstance(jspServletConfiguration.getClassName());
-          if (jspServlet != null) {
-            log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
+          log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
 
-            WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
-            initializer.setName(jspServletConfiguration.getName());
-            initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
-            initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
-            initializer.setInitParameters(jspServletConfiguration.getInitParameters());
+          WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
+          initializer.setName(jspServletConfiguration.getName());
+          initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
+          initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
+          initializer.setInitParameters(jspServletConfiguration.getInitParameters());
 
-            getContextInitializers().add(initializer);
-          }
+          getContextInitializers().add(initializer);
         }
         catch (ClassNotFoundException e) {
           throw new ConfigurationException("jsp servlet class not found", e);
@@ -200,7 +197,7 @@ public abstract class AbstractServletWebServer
         BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
         if (registry.containsBeanDefinition(ServletSecurityElement.class)) {
           log.info("Multiple: [{}] Overriding its bean definition",
-                   ServletSecurityElement.class.getName());
+                  ServletSecurityElement.class.getName());
         }
 
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
