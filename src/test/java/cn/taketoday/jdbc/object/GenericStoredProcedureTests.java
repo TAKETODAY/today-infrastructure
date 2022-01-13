@@ -34,6 +34,7 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.jdbc.core.SqlOutParameter;
 import cn.taketoday.jdbc.core.SqlParameter;
 import cn.taketoday.jdbc.datasource.TestDataSourceWrapper;
 
@@ -89,7 +90,7 @@ public class GenericStoredProcedureTests {
             .addPropertyValue("parameters", List.of(
                     new SqlParameter("amount", java.sql.Types.INTEGER),
                     new SqlParameter("custid", java.sql.Types.INTEGER),
-                    new SqlParameter("newid", java.sql.Types.INTEGER)
+                    new SqlOutParameter("newid", java.sql.Types.INTEGER)
             )));
 
     Connection connection = mock(Connection.class);

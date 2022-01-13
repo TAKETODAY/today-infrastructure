@@ -96,8 +96,6 @@ public class PreparedStatementCreatorFactory {
 
   /**
    * Return the SQL statement to execute.
-   *
-   * @since 4.0
    */
   public final String getSql() {
     return this.sql;

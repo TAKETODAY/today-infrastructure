@@ -194,7 +194,7 @@ public class SqlParameter {
     if (types == null) {
       return new ArrayList<>();
     }
-    List<SqlParameter> result = new ArrayList<>(types.length);
+    ArrayList<SqlParameter> result = new ArrayList<>(types.length);
     for (int type : types) {
       result.add(new SqlParameter(type));
     }
