@@ -68,8 +68,6 @@ public class StrategiesDetector {
 
   private final DefaultMultiValueMap<String, String> strategies = new DefaultMultiValueMap<>();
 
-//  private final DefaultSingletonBeanRegistry singletonBeanRegistry = new DefaultSingletonBeanRegistry();
-
   public StrategiesDetector() {
     this(new DefaultStrategiesReader());
   }
@@ -356,7 +354,6 @@ public class StrategiesDetector {
    */
   public Collection<String> getStrategies(String strategyKey, boolean filterRepeat) {
     Assert.notNull(strategyKey, "strategy-key must not be null");
-    loadStrategies();
     List<String> strategies = this.strategies.get(strategyKey);
     if (strategies == null) {
       return Collections.emptyList();
@@ -381,6 +378,7 @@ public class StrategiesDetector {
   public void setStrategiesLocation(String strategiesLocation) {
     Assert.notNull(classLoader, "strategiesLocation must not be null");
     this.strategiesLocation = strategiesLocation;
+    loadStrategies();
   }
 
   public String getStrategiesLocation() {
