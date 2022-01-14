@@ -3,11 +3,13 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.env.MapPropertyResolver;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +55,10 @@ class PropsDependencyResolverTests {
     StandardBeanFactory factory = new StandardBeanFactory();
     Method autowired = PropsDependencyResolverTests.class.getDeclaredMethod("autowired", PropsBean.class);
 
-    PropsReader propsReader = new PropsReader();
+    Map<String, Object> map = Map.of("name", "TODAY", "age", 21);
+
+    MapPropertyResolver environment = new MapPropertyResolver(map);
+    PropsReader propsReader = new PropsReader(environment);
     propsReader.setBeanFactory(factory);
     PropsDependencyResolver resolver = new PropsDependencyResolver(propsReader);
 
@@ -63,9 +68,17 @@ class PropsDependencyResolverTests {
     DependencyResolvingContext context = new DependencyResolvingContext(autowired, factory);
     resolver.resolveDependency(descriptor, context);
 
-    assertThat(context.getDependency())
+    Object dependency = context.getDependency();
+    assertThat(dependency)
             .isNotNull()
             .isInstanceOf(PropsBean.class);
+    PropsBean propsBean = (PropsBean) dependency;
+
+    assertThat(propsBean.name)
+            .isEqualTo("TODAY");
+
+    assertThat(propsBean.age)
+            .isEqualTo(21);
   }
 
   @Props
@@ -75,6 +88,7 @@ class PropsDependencyResolverTests {
 
   @Data
   static class PropsBean {
+    int age;
     String name;
   }
 
