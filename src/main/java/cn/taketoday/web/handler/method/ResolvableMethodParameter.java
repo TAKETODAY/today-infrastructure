@@ -70,7 +70,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   protected TypeDescriptor typeDescriptor;
 
   // @since 4.0
-  private MethodParameter parameter;
+  private final MethodParameter parameter;
 
   /**
    * @since 4.0
@@ -94,6 +94,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   public ResolvableMethodParameter(MethodParameter parameter) {
     initRequestParam(parameter);
+    this.parameter = parameter;
   }
 
   /**
