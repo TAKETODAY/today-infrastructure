@@ -174,6 +174,11 @@ public abstract class ActionMappingAnnotationHandler
     return handleInternal(request);
   }
 
+  @Override
+  public String toString() {
+    return handlerMethod.toString();
+  }
+
   //---------------------------------------------------------------------
   // Static methods
   //---------------------------------------------------------------------

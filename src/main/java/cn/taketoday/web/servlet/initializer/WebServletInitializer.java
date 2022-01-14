@@ -19,17 +19,17 @@
  */
 package cn.taketoday.web.servlet.initializer;
 
+import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.StringUtils;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.ServletRegistration.Dynamic;
 import jakarta.servlet.ServletSecurityElement;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -147,17 +147,17 @@ public class WebServletInitializer<T extends Servlet>
 
   @Override
   public String toString() {
-    return new StringBuilder()//
-            .append("{\n\t\"servlet\":\"").append(servlet)//
-            .append("\",\n\t\"name\":\"").append(getName())//
-            .append("\",\n\t\"loadOnStartup\":\"").append(loadOnStartup)//
-            .append("\",\n\t\"multipartConfig\":\"").append(multipartConfig)//
-            .append("\",\n\t\"servletSecurity\":\"").append(servletSecurity)//
-            .append("\",\n\t\"initParameters\":\"").append(getInitParameters())//
-            .append("\",\n\t\"order\":\"").append(getOrder())//
-            .append("\",\n\t\"urlMappings\":\"").append(getUrlMappings())//
-            .append("\",\n\t\"asyncSupported\":\"").append(isAsyncSupported())//
-            .append("\"\n}").toString();
+    return ToStringBuilder.valueOf(this)
+            .append("servlet", servlet)
+            .append("name", getName())
+            .append("loadOnStartup", loadOnStartup)
+            .append("multipartConfig", multipartConfig)
+            .append("servletSecurity", servletSecurity)
+            .append("initParameters", getInitParameters())
+            .append("order", getOrder())
+            .append("urlMappings", getUrlMappings())
+            .append("asyncSupported", isAsyncSupported())
+            .toString();
   }
 
 }

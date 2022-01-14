@@ -19,11 +19,11 @@
  */
 package cn.taketoday.web.handler;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-
-import java.lang.reflect.Method;
 
 /**
  * Views request mapping
@@ -89,7 +89,7 @@ public class ViewController extends OrderedSupport {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
+    return ToStringBuilder.valueOf(this)
             .append("status", status)
             .append("resource", resource)
             .append("contentType", contentType)

@@ -203,4 +203,8 @@ public class ToStringBuilder {
     return this.buffer.toString();
   }
 
+  public static ToStringBuilder valueOf(Object obj) {
+    return new ToStringBuilder(obj);
+  }
+
 }
