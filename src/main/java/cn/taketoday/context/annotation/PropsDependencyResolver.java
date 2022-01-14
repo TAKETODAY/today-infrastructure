@@ -21,6 +21,7 @@ package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,6 +31,9 @@ import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultProps;
+import cn.taketoday.core.MethodParameter;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -52,14 +56,16 @@ public class PropsDependencyResolver
   }
 
   @Override
-  public boolean supports(Executable method) {
-    return false;
+  public boolean supports(Executable executable) {
+    return executable instanceof Method method
+            && method.getReturnType() == void.class
+            && super.supports(executable);
   }
 
   @Override
   public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
-    Props annotation = descriptor.getAnnotation(Props.class);
+    Props annotation = getProps(descriptor);
     if (annotation != null) {
       Object dependency = resolvingContext.getDependency();
       DefaultProps props = new DefaultProps(annotation);
@@ -81,6 +87,18 @@ public class PropsDependencyResolver
     }
   }
 
+  @Nullable
+  private Props getProps(DependencyDescriptor descriptor) {
+    Props annotation = descriptor.getAnnotation(Props.class);
+    if (annotation == null) {
+      MethodParameter methodParam = descriptor.getMethodParameter();
+      if (methodParam != null) {
+        annotation = methodParam.getMethodAnnotation(Props.class);
+      }
+    }
+    return annotation;
+  }
+
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static Map adaptMap(Map map, Class<?> type) {
     if (type != Map.class) {
@@ -92,6 +110,7 @@ public class PropsDependencyResolver
   }
 
   @Override
+  @SuppressWarnings({ "unchecked" })
   protected Class<? extends Annotation>[] getSupportedAnnotations() {
     return new Class[] { Props.class };
   }

@@ -36,8 +36,6 @@ public @interface Props {
 
   /**
    * Properties file name
-   * <p>
-   * Properties 文件名
    *
    * @return Properties file name
    * @see PropsReader
