@@ -44,17 +44,21 @@ public class WebApplication {
   private final WebServerApplicationContext context;
   private final String appBasePath = System.getProperty("user.dir");
 
+  private final String[] args;
+
   public WebApplication() {
     this(null);
   }
 
   public WebApplication(Class<?> startupClass, String... args) {
+    this.args = args;
     context = ClassUtils.isPresent(Constant.ENV_SERVLET)
               ? new ServletWebServerApplicationContext(startupClass, args)
               : new StandardWebServerApplicationContext(startupClass, args);
   }
 
   public WebApplication(WebServerApplicationContext context) {
+    this.args = null;
     this.context = context;
   }
 
@@ -69,7 +73,7 @@ public class WebApplication {
    * @param args Startup arguments
    */
   public static WebServerApplicationContext run(Class<?> startupClass, String... args) {
-    return new WebApplication(startupClass, args).run(args);
+    return new WebApplication(startupClass, args).run();
   }
 
   /**
@@ -79,16 +83,15 @@ public class WebApplication {
    * @param args Startup arguments
    */
   public static WebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
-    return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run(args);
+    return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run();
   }
 
   /**
    * Startup Web Application
    *
-   * @param args Startup arguments
    * @return {@link WebServerApplicationContext}
    */
-  public WebServerApplicationContext run(String... args) {
+  public WebServerApplicationContext run() {
     configureHeadlessProperty();
     log.info("Starting Web Application at [{}]", getAppBasePath());
 
