@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -59,6 +60,7 @@ public class BeanFactoryAwareBeanInstantiator {
    * @param providedArgs User provided arguments
    * @return bean class 's instance
    * @throws BeanInstantiationException if any reflective operation exception occurred
+   * @throws ConstructorNotFoundException If beanClass has no suitable constructor
    * @see BeanUtils#obtainConstructor(Class)
    * @since 4.0
    */

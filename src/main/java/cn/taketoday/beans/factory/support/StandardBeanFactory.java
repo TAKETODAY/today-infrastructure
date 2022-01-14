@@ -1753,12 +1753,13 @@ public class StandardBeanFactory
    * i.e. if the target type of the bean would match but an exposed proxy doesn't.
    */
   private void checkBeanNotOfRequiredType(Class<?> type, DependencyDescriptor descriptor) {
-    for (String beanName : this.beanDefinitionNames) {
+    AutowireCandidateResolver candidateResolver = getAutowireCandidateResolver();
+    for (String beanName : beanDefinitionNames) {
       try {
         BeanDefinition mbd = beanDefinitionMap.get(beanName);
         Class<?> targetType = mbd.getTargetType();
-        if (targetType != null && type.isAssignableFrom(targetType) &&
-                isAutowireCandidate(beanName, mbd, descriptor, getAutowireCandidateResolver())) {
+        if (targetType != null && type.isAssignableFrom(targetType)
+                && isAutowireCandidate(beanName, mbd, descriptor, candidateResolver)) {
           // Probably a proxy interfering with target type match -> throw meaningful exception.
           Object beanInstance = getSingleton(beanName, false);
           Class<?> beanType = (beanInstance == null || beanInstance == NullValue.INSTANCE)
