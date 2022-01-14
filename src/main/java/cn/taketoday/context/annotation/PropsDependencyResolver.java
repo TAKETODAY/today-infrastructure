@@ -20,6 +20,7 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.util.Map;
 import java.util.Properties;
 
@@ -51,6 +52,11 @@ public class PropsDependencyResolver
   }
 
   @Override
+  public boolean supports(Executable method) {
+    return false;
+  }
+
+  @Override
   public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
     Props annotation = descriptor.getAnnotation(Props.class);
@@ -73,7 +79,6 @@ public class PropsDependencyResolver
       }
       resolvingContext.setDependencyResolved(dependency);
     }
-
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })

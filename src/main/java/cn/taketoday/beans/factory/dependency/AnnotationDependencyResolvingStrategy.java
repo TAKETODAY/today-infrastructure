@@ -40,12 +40,12 @@ public abstract class AnnotationDependencyResolvingStrategy
         extends OrderedSupport implements DependencyResolvingStrategy {
 
   @Override
-  public final boolean supports(Field field) {
+  public boolean supports(Field field) {
     return supportsInternal(field);
   }
 
   @Override
-  public final boolean supports(Executable method) {
+  public boolean supports(Executable method) {
     return supportsInternal(method);
   }
 
