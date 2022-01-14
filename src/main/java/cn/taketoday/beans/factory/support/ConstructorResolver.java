@@ -767,6 +767,9 @@ final class ConstructorResolver {
           args.rawArguments[paramIndex] = autowiredArgument;
           args.preparedArguments[paramIndex] = autowiredArgumentMarker;
         }
+        catch (UnsatisfiedDependencyException e) {
+          throw e;
+        }
         catch (BeansException ex) {
           throw new UnsatisfiedDependencyException(
                   definition.getResourceDescription(), beanName, new InjectionPoint(methodParam), ex);

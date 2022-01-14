@@ -173,6 +173,21 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   }
 
   /**
+   * Determine whether the given dependency declares an autowired annotation,
+   * checking its required flag.
+   *
+   * @see Autowired#required()
+   */
+  @Override
+  public boolean isRequired(DependencyDescriptor descriptor) {
+    if (!super.isRequired(descriptor)) {
+      return false;
+    }
+    Autowired autowired = descriptor.getAnnotation(Autowired.class);
+    return (autowired == null || autowired.required());
+  }
+
+  /**
    * Match the given qualifier annotations against the candidate bean definition.
    */
   protected boolean checkQualifiers(BeanDefinition definition, Annotation[] annotationsToSearch) {
