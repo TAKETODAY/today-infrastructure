@@ -32,8 +32,17 @@ import jakarta.servlet.ServletRegistration.Dynamic;
 import jakarta.servlet.ServletSecurityElement;
 
 /**
- * @author TODAY <br>
- * 2019-02-03 12:28
+ * A {@link ServletContextInitializer} to register {@link Servlet}s in a Servlet 3.0+
+ * container. Similar to the {@link ServletContext#addServlet(String, Servlet)
+ * registration} features provided by {@link ServletContext} but with a Bean
+ * friendly design.
+ *
+ * @param <T> the type of the {@link Servlet} to register
+ * @author Phillip Webb
+ * @author TODAY
+ * @see ServletContextInitializer
+ * @see ServletContext#addServlet(String, Servlet)
+ * @since 2019-02-03 12:28
  */
 public class WebServletInitializer<T extends Servlet>
         extends WebComponentInitializer<ServletRegistration.Dynamic> {
@@ -54,7 +63,8 @@ public class WebServletInitializer<T extends Servlet>
   protected Dynamic addRegistration(ServletContext servletContext) {
     final T servlet = getServlet();
     Assert.state(servlet != null, "servlet can't be null");
-    return servletContext.addServlet(getName(), servlet);
+    String name = getOrDeduceName(servlet);
+    return servletContext.addServlet(name, servlet);
   }
 
   /**
@@ -65,7 +75,7 @@ public class WebServletInitializer<T extends Servlet>
    */
   @Override
   protected void configureRegistration(Dynamic registration) {
-    log.debug("Configure servlet registration: [{}]", this);
+    log.debug("Configure servlet registration: {}", this);
     registration.setLoadOnStartup(this.loadOnStartup);
 
     super.configureRegistration(registration);
@@ -95,22 +105,23 @@ public class WebServletInitializer<T extends Servlet>
     }
   }
 
+  /**
+   * Sets the servlet to be registered.
+   *
+   * @param servlet the servlet
+   */
   public void setServlet(T servlet) {
+    Assert.notNull(servlet, "Servlet must not be null");
     this.servlet = servlet;
   }
 
+  /**
+   * Return the servlet being registered.
+   *
+   * @return the servlet
+   */
   public T getServlet() {
-    return servlet;
-  }
-
-  @Override
-  protected String getDefaultName() {
-
-    final T servlet = getServlet();
-    if (servlet != null) {
-      return servlet.getClass().getName();
-    }
-    return null;
+    return this.servlet;
   }
 
   // ---------------
@@ -149,7 +160,7 @@ public class WebServletInitializer<T extends Servlet>
   public String toString() {
     return ToStringBuilder.valueOf(this)
             .append("servlet", servlet)
-            .append("name", getName())
+            .append("name", getOrDeduceName(servlet))
             .append("loadOnStartup", loadOnStartup)
             .append("multipartConfig", multipartConfig)
             .append("servletSecurity", servletSecurity)

@@ -26,22 +26,29 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.StringUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.FilterRegistration.Dynamic;
 import jakarta.servlet.ServletContext;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.StringUtils;
-
 /**
- * @author TODAY <br>
- * 2019-02-03 13:22
+ * A {@link ServletContextInitializer} to register {@link Filter}s in a Servlet 3.0+
+ * container. Similar to the {@link ServletContext#addFilter(String, Filter) registration}
+ * features provided by {@link ServletContext} but with a Bean friendly design.
+ * <p>
+ *
+ * @param <T> the type of {@link Filter} to register
+ * @author TODAY
+ * @since 2019-02-03 13:22
  */
 public class WebFilterInitializer<T extends Filter>
         extends WebComponentInitializer<FilterRegistration.Dynamic> {
+
+  private static final String[] DEFAULT_URL_MAPPINGS = { "/*" };
 
   private T filter;
   private boolean matchAfter;
@@ -59,7 +66,8 @@ public class WebFilterInitializer<T extends Filter>
   protected Dynamic addRegistration(ServletContext servletContext) {
     final T filter = getFilter();
     Assert.state(filter != null, "filter can't be null");
-    return servletContext.addFilter(getName(), filter);
+    String name = getOrDeduceName(filter);
+    return servletContext.addFilter(name, filter);
   }
 
   @Override
@@ -93,11 +101,17 @@ public class WebFilterInitializer<T extends Filter>
   }
 
   public T getFilter() {
-    return filter;
+    return this.filter;
   }
 
-  public boolean isMatchAfter() {
-    return matchAfter;
+  /**
+   * Set the filter to be registered.
+   *
+   * @param filter the filter
+   */
+  public void setFilter(T filter) {
+    Assert.notNull(filter, "Filter must not be null");
+    this.filter = filter;
   }
 
   public DispatcherType[] getDispatcherTypes() {
@@ -108,63 +122,54 @@ public class WebFilterInitializer<T extends Filter>
     return servletNames;
   }
 
-  public WebFilterInitializer<T> setFilter(T filter) {
-    this.filter = filter;
-    return this;
-  }
-
-  public WebFilterInitializer<T> setMatchAfter(boolean matchAfter) {
+  /**
+   * Set if the filter mappings should be matched after any declared filter mappings of
+   * the ServletContext. Defaults to {@code false} indicating the filters are supposed
+   * to be matched before any declared filter mappings of the ServletContext.
+   *
+   * @param matchAfter if filter mappings are matched after
+   */
+  public void setMatchAfter(boolean matchAfter) {
     this.matchAfter = matchAfter;
-    return this;
   }
 
-  public WebFilterInitializer<T> setDispatcherTypes(DispatcherType[] dispatcherTypes) {
+  /**
+   * Return if filter mappings should be matched after any declared Filter mappings of
+   * the ServletContext.
+   *
+   * @return if filter mappings are matched after
+   */
+  public boolean isMatchAfter() {
+    return this.matchAfter;
+  }
+
+  public void setDispatcherTypes(DispatcherType... dispatcherTypes) {
     this.dispatcherTypes = dispatcherTypes;
-    return this;
   }
 
-  public WebFilterInitializer<T> setServletNames(Set<String> servletNames) {
+  public void setServletNames(Set<String> servletNames) {
     this.servletNames = servletNames;
-    return this;
   }
 
-  public WebFilterInitializer<T> addServletNames(String... servletNames) {
+  public void addServletNames(String... servletNames) {
     Collections.addAll(this.servletNames, servletNames);
-    return this;
-  }
-
-  @Override
-  protected String getDefaultName() {
-
-    final T t = getFilter();
-    if (t != null) {
-      return t.getClass().getName();
-    }
-    return null;
   }
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("{\n\t\"filter\":\"");
-    builder.append(filter);
-    builder.append("\",\n\t\"matchAfter\":\"");
-    builder.append(matchAfter);
-    builder.append("\",\n\t\"dispatcherTypes\":\"");
-    builder.append(Arrays.toString(dispatcherTypes));
-    builder.append("\",\n\t\"servletNames\":\"");
-    builder.append(servletNames);
-    builder.append("\",\n\t\"initParameters\":\"");
-    builder.append(getInitParameters());
-    builder.append("\",\n\t\"urlMappings\":\"");
-    builder.append(getUrlMappings());
-    builder.append("\",\n\t\"order\":\"");
-    builder.append(getOrder());
-    builder.append("\",\n\t\"name\":\"");
-    builder.append(getName());
-    builder.append("\",\n\t\"asyncSupported\":\"");
-    builder.append(isAsyncSupported());
-    builder.append("\"\n}");
+    StringBuilder builder = new StringBuilder(getOrDeduceName(this));
+    if (this.servletNames.isEmpty() && getUrlMappings().isEmpty()) {
+      builder.append(" urls=").append(Arrays.toString(DEFAULT_URL_MAPPINGS));
+    }
+    else {
+      if (!this.servletNames.isEmpty()) {
+        builder.append(" servlets=").append(this.servletNames);
+      }
+      if (!getUrlMappings().isEmpty()) {
+        builder.append(" urls=").append(getUrlMappings());
+      }
+    }
+    builder.append(" order=").append(getOrder());
     return builder.toString();
   }
 

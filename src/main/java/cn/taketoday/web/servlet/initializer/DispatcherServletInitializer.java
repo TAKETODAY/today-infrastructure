@@ -19,10 +19,6 @@
  */
 package cn.taketoday.web.servlet.initializer;
 
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.ServletRegistration.Dynamic;
-import jakarta.servlet.ServletSecurityElement;
-
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.logging.Logger;
@@ -30,6 +26,9 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletRegistration.Dynamic;
+import jakarta.servlet.ServletSecurityElement;
 
 /**
  * @author TODAY <br>
@@ -84,13 +83,15 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
   protected void configureMultipart(Dynamic registration) {
     MultipartConfigElement multipartConfig = getMultipartConfig();
     if (multipartConfig == null) {
-
       MultipartConfiguration configuration = getApplicationContext().getBean(MultipartConfiguration.class);
-      multipartConfig = new MultipartConfigElement(configuration.getLocation(),
-                                                   configuration.getMaxFileSize().toBytes(),
-                                                   configuration.getMaxRequestSize().toBytes(),
-                                                   (int) configuration.getFileSizeThreshold().toBytes());
-      log.info("DispatcherServlet use: {}", configuration);
+      if (configuration != null) {
+        multipartConfig = new MultipartConfigElement(
+                configuration.getLocation(),
+                configuration.getMaxFileSize().toBytes(),
+                configuration.getMaxRequestSize().toBytes(),
+                (int) configuration.getFileSizeThreshold().toBytes());
+        log.info("configure DispatcherServlet multipart: {}", configuration);
+      }
     }
 
     setMultipartConfig(multipartConfig);

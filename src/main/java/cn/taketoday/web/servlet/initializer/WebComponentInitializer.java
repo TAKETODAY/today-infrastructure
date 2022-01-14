@@ -26,20 +26,22 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.core.Conventions;
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.lang.Assert;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Registration;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 
-import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StringUtils;
-
 /**
  * Initialize {@link Filter}, {@link Servlet},Listener
+ * <p>
+ * Base class for Servlet 3.0+ {@link jakarta.servlet.Registration.Dynamic dynamic} based
+ * registration beans.
  *
- * @author TODAY <br>
- * 2019-02-03 12:22
+ * @author TODAY
+ * @since 2019-02-03 12:22
  */
 public abstract class WebComponentInitializer<D extends Registration.Dynamic>
         extends OrderedSupport implements ServletContextInitializer {
@@ -75,16 +77,66 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
     }
   }
 
+  /**
+   * Set the name of this registration. If not specified the bean name will be used.
+   *
+   * @param name the name of the registration
+   */
+  public void setName(String name) {
+    Assert.hasLength(name, "Name must not be empty");
+    this.name = name;
+  }
+
+  /**
+   * Sets if asynchronous operations are supported for this registration. If not
+   * specified defaults to {@code true}.
+   *
+   * @param asyncSupported if async is supported
+   */
+  public void setAsyncSupported(boolean asyncSupported) {
+    this.asyncSupported = asyncSupported;
+  }
+
+  /**
+   * Returns if asynchronous operations are supported for this registration.
+   *
+   * @return if async is supported
+   */
+  public boolean isAsyncSupported() {
+    return this.asyncSupported;
+  }
+
+  /**
+   * Set init-parameters for this registration. Calling this method will replace any
+   * existing init-parameters.
+   *
+   * @param initParameters the init parameters
+   * @see #getInitParameters
+   * @see #addInitParameter
+   */
   public void setInitParameters(Map<String, String> initParameters) {
+    Assert.notNull(initParameters, "InitParameters must not be null");
     this.initParameters = new LinkedHashMap<>(initParameters);
   }
 
-  public void addInitParameter(String name, String value) {
-    this.initParameters.put(name, value);
-  }
-
+  /**
+   * Returns a mutable Map of the registration init-parameters.
+   *
+   * @return the init parameters
+   */
   public Map<String, String> getInitParameters() {
     return this.initParameters;
+  }
+
+  /**
+   * Add a single init-parameter, replacing any existing parameter with the same name.
+   *
+   * @param name the init-parameter name
+   * @param value the init-parameter value
+   */
+  public void addInitParameter(String name, String value) {
+    Assert.notNull(name, "Name must not be null");
+    this.initParameters.put(name, value);
   }
 
   public void setUrlMappings(Collection<String> urlMappings) {
@@ -102,30 +154,18 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
     Collections.addAll(this.urlMappings, urlMappings);
   }
 
-  public String getName() {
-    if (StringUtils.isEmpty(name)) {
-      return getDefaultName();
-    }
-    return name;
-  }
-
-  protected String getDefaultName() {
-    return null;
+  /**
+   * Deduces the name for this registration. Will return user specified name or fallback
+   * to convention based naming.
+   *
+   * @param value the object used for convention based names
+   * @return the deduced name
+   */
+  protected final String getOrDeduceName(Object value) {
+    return this.name != null ? this.name : Conventions.getVariableName(value);
   }
 
   // -----------
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public boolean isAsyncSupported() {
-    return asyncSupported;
-  }
-
-  public void setAsyncSupported(boolean asyncSupported) {
-    this.asyncSupported = asyncSupported;
-  }
 
   public ServletContext getServletContext() {
     return servletContext;

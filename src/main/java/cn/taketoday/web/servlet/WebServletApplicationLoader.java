@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
