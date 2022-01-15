@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.proxy.ProxyFactoryBean;
 import cn.taketoday.aop.target.CommonsPool2TargetSource;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * @author Juergen Hoeller

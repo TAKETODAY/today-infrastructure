@@ -25,7 +25,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.context.event.test.TestEvent;
 import org.junit.jupiter.api.Test;
 

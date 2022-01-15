@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.env;
 
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.lang.Constant;
 
 /**
@@ -64,7 +65,7 @@ import cn.taketoday.lang.Constant;
  * @see cn.taketoday.context.aware.EnvironmentAware
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#setEnvironment
- * @see cn.taketoday.context.AbstractApplicationContext#createEnvironment
+ * @see AbstractApplicationContext#createEnvironment
  * @since 4.0
  */
 public interface Environment extends PropertyResolver {

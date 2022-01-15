@@ -47,7 +47,7 @@ import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.IndexedTestBean;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;

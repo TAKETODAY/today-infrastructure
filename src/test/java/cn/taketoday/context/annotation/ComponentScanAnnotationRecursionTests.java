@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.componentscan.cycle.left.LeftConfig;
 import cn.taketoday.context.annotation.componentscan.level1.Level1Config;
 import cn.taketoday.context.annotation.componentscan.level2.Level2Config;

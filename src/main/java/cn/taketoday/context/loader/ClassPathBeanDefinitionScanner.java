@@ -33,6 +33,7 @@ import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ScannedBeanDefinition;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -60,7 +61,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.context.StandardApplicationContext#scan
+ * @see StandardApplicationContext#scan
  * @see cn.taketoday.lang.Component
  * @see cn.taketoday.lang.Repository
  * @see cn.taketoday.lang.Service

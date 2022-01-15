@@ -47,7 +47,7 @@ import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Import;

@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.objects.DerivedTestObject;
 import cn.taketoday.context.objects.ITestInterface;
 import cn.taketoday.context.objects.ITestObject;

@@ -44,7 +44,7 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;

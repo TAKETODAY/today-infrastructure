@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;

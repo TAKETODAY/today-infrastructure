@@ -15,20 +15,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context;
+package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactoryAwareInstantiatorFunction;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.AnnotationConfigRegistry;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.EnvironmentPostProcessor;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -45,6 +51,7 @@ import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -161,8 +168,8 @@ public class StandardApplicationContext
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
 
-    List<BeanDefinitionLoader> strategies =
-            strategiesDetector.getStrategies(BeanDefinitionLoader.class, beanFactory);
+    List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
+            BeanDefinitionLoader.class, new BeanFactoryAwareInstantiatorFunction<>(beanFactory));
 
     if (strategies.isEmpty()) {
       DefinitionLoadingContext loadingContext = loadingContext();
@@ -216,8 +223,8 @@ public class StandardApplicationContext
       processor.postProcessEnvironment();
 
       // prepare properties
-      List<EnvironmentPostProcessor> postProcessors = strategiesDetector.getStrategies(
-              EnvironmentPostProcessor.class, getBeanFactory());
+      List<EnvironmentPostProcessor> postProcessors = TodayStrategies.getStrategies(
+              EnvironmentPostProcessor.class, new BeanFactoryAwareInstantiatorFunction<>(beanFactory));
       for (EnvironmentPostProcessor postProcessor : postProcessors) {
         postProcessor.postProcessEnvironment(environment, this);
       }
@@ -317,7 +324,6 @@ public class StandardApplicationContext
   private DefinitionLoadingContext loadingContext() {
     if (loadingContext == null) {
       loadingContext = new DefinitionLoadingContext(beanFactory, this);
-      loadingContext.setStrategiesDetector(strategiesDetector);
     }
     return loadingContext;
   }

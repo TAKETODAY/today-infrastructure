@@ -21,8 +21,10 @@ package cn.taketoday.web.framework;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.AnnotationConfigRegistry;
+import cn.taketoday.context.Application;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -35,16 +37,10 @@ import cn.taketoday.web.framework.server.WebServer;
  *
  * @author TODAY 2018-10-16 15:46
  */
-public class WebApplication {
+public class WebApplication extends Application {
   private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
-  private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
-
-  private boolean headless = true;
 
   private final WebServerApplicationContext context;
-  private final String appBasePath = System.getProperty("user.dir");
-
-  private final String[] args;
 
   public WebApplication() {
     this(null);
@@ -82,6 +78,7 @@ public class WebApplication {
    * @param startupClass Startup class
    * @param args Startup arguments
    */
+  @Experimental
   public static WebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
     return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run();
   }
@@ -92,7 +89,6 @@ public class WebApplication {
    * @return {@link WebServerApplicationContext}
    */
   public WebServerApplicationContext run() {
-    configureHeadlessProperty();
     log.info("Starting Web Application at [{}]", getAppBasePath());
 
     WebServerApplicationContext context = getApplicationContext();
@@ -124,23 +120,6 @@ public class WebApplication {
       }
       throw ExceptionUtils.sneakyThrow(e);
     }
-  }
-
-  private void configureHeadlessProperty() {
-    System.setProperty(SYSTEM_PROPERTY_JAVA_AWT_HEADLESS, System.getProperty(
-            SYSTEM_PROPERTY_JAVA_AWT_HEADLESS, Boolean.toString(this.headless)));
-  }
-
-  public String getAppBasePath() {
-    return appBasePath;
-  }
-
-  public void setHeadless(boolean headless) {
-    this.headless = headless;
-  }
-
-  public boolean isHeadless() {
-    return headless;
   }
 
 }

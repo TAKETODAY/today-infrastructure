@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import lombok.Getter;

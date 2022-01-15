@@ -26,7 +26,7 @@ import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;

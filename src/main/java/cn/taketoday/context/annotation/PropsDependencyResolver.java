@@ -30,9 +30,7 @@ import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 

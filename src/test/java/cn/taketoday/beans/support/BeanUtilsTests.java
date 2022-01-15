@@ -23,7 +23,7 @@ package cn.taketoday.beans.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.BeanUtils;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;

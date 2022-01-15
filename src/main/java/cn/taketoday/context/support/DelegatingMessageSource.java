@@ -22,7 +22,6 @@ package cn.taketoday.context.support;
 
 import java.util.Locale;
 
-import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.HierarchicalMessageSource;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.MessageSourceResolvable;

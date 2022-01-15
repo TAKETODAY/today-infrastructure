@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;

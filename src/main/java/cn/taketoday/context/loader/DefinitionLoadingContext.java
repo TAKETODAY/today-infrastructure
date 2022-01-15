@@ -226,7 +226,7 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   private BeanFactoryAwareBeanInstantiator instantiator() {
     if (instantiator == null) {
-      this.instantiator = new BeanFactoryAwareBeanInstantiator(applicationContext);
+      this.instantiator = BeanFactoryAwareBeanInstantiator.from(applicationContext);
     }
     return instantiator;
   }

@@ -26,8 +26,9 @@ import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcess
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -56,7 +57,7 @@ public abstract class AnnotationConfigUtils {
 
   /**
    * The bean name of the internally managed BeanNamePopulator for use when processing
-   * {@link Configuration} classes. Set by {@link cn.taketoday.context.StandardApplicationContext}
+   * {@link Configuration} classes. Set by {@link StandardApplicationContext}
    * and {@code AnnotationConfigWebApplicationContext} during bootstrap in order to make
    * any custom name generation strategy available to the underlying
    * {@link ConfigurationClassPostProcessor}.

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.beans.factory.BeanFactoryAwareInstantiatorFunction;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -39,9 +39,6 @@ public class BeanDefinitionCustomizers {
 
   @Nullable
   protected List<BeanDefinitionCustomizer> customizers;
-
-  @Nullable
-  private StrategiesDetector strategiesDetector;
 
   @Nullable
   public List<BeanDefinitionCustomizer> getCustomizers() {
@@ -94,25 +91,13 @@ public class BeanDefinitionCustomizers {
     return customizers;
   }
 
-  public void setStrategiesDetector(@Nullable StrategiesDetector strategiesDetector) {
-    this.strategiesDetector = strategiesDetector;
-  }
-
-  @Nullable
-  public StrategiesDetector getStrategiesDetector() {
-    return strategiesDetector;
-  }
-
   public void loadDefaultCustomizers() {
     loadDefaultCustomizers(null);
   }
 
   public void loadDefaultCustomizers(@Nullable BeanFactory beanFactory) {
-    StrategiesDetector strategiesDetector = getStrategiesDetector();
-    if (strategiesDetector == null) {
-      strategiesDetector = TodayStrategies.getDetector();
-    }
-    addCustomizers(strategiesDetector.getStrategies(BeanDefinitionCustomizer.class, beanFactory));
+    addCustomizers(TodayStrategies.getStrategies(
+            BeanDefinitionCustomizer.class, new BeanFactoryAwareInstantiatorFunction<>(beanFactory)));
   }
 
 }

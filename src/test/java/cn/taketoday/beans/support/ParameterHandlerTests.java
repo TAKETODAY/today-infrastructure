@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;

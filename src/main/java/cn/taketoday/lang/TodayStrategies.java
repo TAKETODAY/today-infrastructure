@@ -20,59 +20,69 @@
 
 package cn.taketoday.lang;
 
-import cn.taketoday.core.DefaultStrategiesReader;
-import cn.taketoday.core.StrategiesDetector;
-import cn.taketoday.core.StrategiesReader;
-import cn.taketoday.core.YamlStrategiesReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
  * today-framework Strategies
  * <p>General purpose factory loading mechanism for internal use within the framework.
- * <p>Reads a {@code today.strategies} file from the root of the library classpath,
+ * <p>Reads a {@code META-INF/today-strategies.properties} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
  * When checking a property, local entries are being checked first, then falling back
  * to JVM-level system properties through a {@link System#getProperty} check.
+ * <p>
+ * Get keyed strategies
+ * <p>
+ * Like Spring's SpringFactoriesLoader
  *
  * @author TODAY 2021/9/5 13:57
  * @since 4.0
  */
-public final class TodayStrategies extends StrategiesDetector {
+public final class TodayStrategies {
+  private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
 
-  public static final String STRATEGIES_LOCATION = "classpath*:META-INF/today.strategies";
-  public static final String KEY_STRATEGIES_LOCATION = "strategies.file.location";
-  public static final String KEY_STRATEGIES_FILE_TYPE = "strategies.file.type";
+  public static final String STRATEGIES_LOCATION = "META-INF/today-strategies.properties";
 
-  private static final TodayStrategies todayStrategies;
+  static final ConcurrentReferenceHashMap<ClassLoader, MultiValueMap<String, String>>
+          strategiesCache = new ConcurrentReferenceHashMap<>();
+
+  private static final String PROPERTIES_RESOURCE_LOCATION = "today.properties";
+
+  private static final Properties localProperties = new Properties();
 
   static {
-    final String strategiesFileType = System.getProperty(KEY_STRATEGIES_FILE_TYPE, Constant.DEFAULT);// default,yaml
-    final String strategiesLocation = System.getProperty(KEY_STRATEGIES_LOCATION, STRATEGIES_LOCATION);
-    StrategiesReader strategiesReader;
-    if (Constant.DEFAULT.equals(strategiesFileType)) {
-      strategiesReader = new DefaultStrategiesReader();
-    }
-    else if ("yaml".equals(strategiesFileType) || "yml".equals(strategiesFileType)) {
-      strategiesReader = new YamlStrategiesReader();// org.yaml.snakeyaml.Yaml must present
-    }
-    else {
-      try {
-        strategiesReader = ReflectionUtils.newInstance(strategiesFileType);
-      }
-      catch (ClassNotFoundException e) {
-        throw new UnsupportedOperationException("Unsupported strategies file type", e);
+    try {
+      ClassLoader cl = TodayStrategies.class.getClassLoader();
+      URL url = (cl != null ? cl.getResource(PROPERTIES_RESOURCE_LOCATION) :
+                 ClassLoader.getSystemResource(PROPERTIES_RESOURCE_LOCATION));
+      if (url != null) {
+        try (InputStream is = url.openStream()) {
+          localProperties.load(is);
+        }
       }
     }
-    todayStrategies = new TodayStrategies(strategiesReader, strategiesLocation);
-  }
-
-  private TodayStrategies(StrategiesReader reader, String strategiesLocation) {
-    super(reader, strategiesLocation);
-  }
-
-  public static TodayStrategies getDetector() {
-    return todayStrategies;
+    catch (IOException ex) {
+      System.err.println("Could not load 'spring.properties' file from local classpath: " + ex);
+    }
   }
 
   /**
@@ -109,7 +119,7 @@ public final class TodayStrategies extends StrategiesDetector {
    * @param key the property key
    */
   public static void setFlag(String key) {
-    getDetector().getStrategies().set(key, Boolean.TRUE.toString());
+    localProperties.put(key, Boolean.TRUE.toString());
   }
 
   /**
@@ -121,10 +131,10 @@ public final class TodayStrategies extends StrategiesDetector {
    */
   public static void setProperty(String key, @Nullable String value) {
     if (value != null) {
-      getDetector().getStrategies().set(key, value);
+      localProperties.setProperty(key, value);
     }
     else {
-      getDetector().getStrategies().remove(key);
+      localProperties.remove(key);
     }
   }
 
@@ -137,7 +147,7 @@ public final class TodayStrategies extends StrategiesDetector {
    */
   @Nullable
   public static String getProperty(String key) {
-    String value = getDetector().getFirst(key);
+    String value = localProperties.getProperty(key);
 
     if (value == null) {
       try {
@@ -302,6 +312,166 @@ public final class TodayStrategies extends StrategiesDetector {
       catch (NumberFormatException ignored) { }
     }
     return val;
+  }
+
+  //---------------------------------------------------------------------
+  // Strategies
+  //---------------------------------------------------------------------
+
+  @Nullable
+  public static String getFirst(String strategyKey) {
+    return CollectionUtils.firstElement(getStrategies(strategyKey, null));
+  }
+
+  public static String getFirst(String strategyKey, Supplier<String> defaultValue) {
+    String first = getFirst(strategyKey);
+    if (first == null) {
+      return defaultValue.get();
+    }
+    return first;
+  }
+
+  /**
+   * get none repeatable strategies by given class
+   * <p>
+   * strategies must be instance-of given strategy class
+   * use default {@link #beanFactory}
+   *
+   * @param strategyClass strategy class
+   * @param <T> target type
+   * @return returns none repeatable strategies by given class
+   */
+  public static <T> List<T> getStrategies(Class<T> strategyClass) {
+    return getStrategies(strategyClass, (ClassLoader) null);
+  }
+
+  /**
+   * get none repeatable strategies by given class
+   * <p>
+   * strategies must be an instance of given strategy class
+   * </p>
+   *
+   * @param strategyClass strategy class
+   * @param <T> target type
+   * @return returns none repeatable strategies by given class
+   */
+  public static <T> List<T> getStrategies(
+          Class<T> strategyClass, @Nullable ClassLoader classLoader) {
+    Assert.notNull(strategyClass, "strategy-class must not be null");
+    return getStrategies(strategyClass, classLoader, ReflectionUtils::newInstance);
+  }
+
+  /**
+   * get collection of strategies
+   *
+   * @param strategyClass strategy super class
+   * @param converter converter to convert strategyImpl to T
+   * @param <T> return type
+   * @return collection of strategies
+   */
+  public static <T> List<T> getStrategies(Class<T> strategyClass, Function<Class<T>, T> converter) {
+    return getStrategies(strategyClass, null, converter);
+  }
+
+  /**
+   * get collection of strategies
+   *
+   * @param strategyClass strategy super class
+   * @param converter converter to convert strategyImpl to T
+   * @param <T> return type
+   * @return collection of strategies
+   */
+  public static <T> List<T> getStrategies(
+          Class<T> strategyClass, @Nullable ClassLoader classLoader, Function<Class<T>, T> converter) {
+    Assert.notNull(converter, "converter is required");
+    Assert.notNull(strategyClass, "strategy-class is required");
+    if (classLoader == null) {
+      classLoader = TodayStrategies.class.getClassLoader();
+    }
+    // get class list by class full name
+    List<String> strategies = getStrategies(strategyClass.getName(), classLoader);
+    if (log.isTraceEnabled()) {
+      log.trace("Loaded [{}] names: {}", strategyClass.getName(), strategies);
+    }
+
+    ArrayList<T> ret = new ArrayList<>(strategies.size());
+    for (String strategy : strategies) {
+      Class<T> strategyImpl = ClassUtils.resolveClassName(strategy, classLoader);
+      if (strategyImpl.isAssignableFrom(strategyImpl)) {
+        T converted = converter.apply(strategyImpl);
+        if (converted != null) {
+          ret.add(converted);
+        }
+      }
+      else {
+        throw new IllegalArgumentException("Class [" + strategy +
+                "] is not assignable to strategy type [" + strategyClass.getName() + "]");
+      }
+    }
+
+    AnnotationAwareOrderComparator.sort(ret);
+    return ret;
+  }
+
+  public static List<String> getStrategies(String strategyKey) {
+    return getStrategies(strategyKey, null);
+  }
+
+  public static List<String> getStrategies(
+          String strategyKey, @Nullable ClassLoader classLoader) {
+    Assert.notNull(strategyKey, "strategy-key must not be null");
+    if (classLoader == null) {
+      classLoader = TodayStrategies.class.getClassLoader();
+    }
+    List<String> strategies = loadStrategies(classLoader).get(strategyKey);
+    if (strategies == null) {
+      return Collections.emptyList();
+    }
+    return strategies;
+  }
+
+  private static MultiValueMap<String, String> loadStrategies(ClassLoader classLoader) {
+    MultiValueMap<String, String> strategies = strategiesCache.get(classLoader);
+    if (strategies != null) {
+      return strategies;
+    }
+    log.info("Detecting strategies location '{}'", STRATEGIES_LOCATION);
+    strategies = MultiValueMap.fromLinkedHashMap();
+    try {
+      Enumeration<URL> urls = classLoader.getResources(STRATEGIES_LOCATION);
+      while (urls.hasMoreElements()) {
+        URL url = urls.nextElement();
+        Properties properties = new Properties();
+
+        try (InputStream inputStream = url.openStream()) {
+          properties.load(inputStream);
+        }
+        log.info("Reading strategies file '{}'", url);
+
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+          Object key = entry.getKey();
+          Object value = entry.getValue();
+          if (key != null && value != null) {
+            String strategyKey = key.toString();
+            // split as string list
+            List<String> strategyValues = StringUtils.splitAsList(value.toString());
+            for (String strategyValue : strategyValues) {
+              strategyValue = strategyValue.trim(); // trim whitespace
+              if (StringUtils.isNotEmpty(strategyValue)) {
+                strategies.add(strategyKey, strategyValue);
+              }
+            }
+          }
+        }
+      }
+
+      strategiesCache.put(classLoader, strategies);
+    }
+    catch (IOException ex) {
+      throw new IllegalArgumentException(
+              "Unable to load factories from location [" + STRATEGIES_LOCATION + "]", ex);
+    }
+    return strategies;
   }
 
 }

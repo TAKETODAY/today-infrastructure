@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation.spr16756;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * @author Juergen Hoeller

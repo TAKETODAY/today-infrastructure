@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context;
+package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAwareInstantiatorFunction;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -43,6 +44,16 @@ import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.HierarchicalMessageSource;
+import cn.taketoday.context.Lifecycle;
+import cn.taketoday.context.LifecycleProcessor;
+import cn.taketoday.context.MessageSource;
+import cn.taketoday.context.MessageSourceAware;
+import cn.taketoday.context.MessageSourceResolvable;
+import cn.taketoday.context.NoSuchMessageException;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
@@ -61,11 +72,9 @@ import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
-import cn.taketoday.context.support.DelegatingMessageSource;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAwareProcessor;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.conversion.ConversionService;
@@ -202,9 +211,6 @@ public abstract class AbstractApplicationContext
   @Nullable
   private MessageSource messageSource;
 
-  // @since 4.0
-  protected StrategiesDetector strategiesDetector = TodayStrategies.getDetector();
-
   /**
    * Create a new AbstractApplicationContext with no parent.
    */
@@ -218,25 +224,6 @@ public abstract class AbstractApplicationContext
   public AbstractApplicationContext(@Nullable ApplicationContext parent) {
     this();
     setParent(parent);
-  }
-
-  /**
-   * set StrategiesDetector for this context
-   *
-   * @param strategiesDetector StrategiesDetector
-   * @see StrategiesDetector
-   * @since 4.0
-   */
-  public void setStrategiesDetector(@Nullable StrategiesDetector strategiesDetector) {
-    this.strategiesDetector =
-            strategiesDetector == null ? TodayStrategies.getDetector() : strategiesDetector;
-  }
-
-  /**
-   * @since 4.0
-   */
-  public StrategiesDetector getStrategiesDetector() {
-    return strategiesDetector;
   }
 
   //---------------------------------------------------------------------
@@ -1310,13 +1297,6 @@ public abstract class AbstractApplicationContext
 
   }
 
-  public final BeanFactoryAwareBeanInstantiator getBeanInstantiator() {
-    if (beanInstantiator == null) {
-      beanInstantiator = new BeanFactoryAwareBeanInstantiator(getBeanFactory());
-    }
-    return beanInstantiator;
-  }
-
   protected void registerApplicationListeners() {
     log.debug("Loading Application Listeners.");
 
@@ -1338,7 +1318,7 @@ public abstract class AbstractApplicationContext
     // Load the META-INF/listeners
     // ---------------------------------------------------
     Set<Class<?>> listeners = ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
-    BeanFactoryAwareBeanInstantiator instantiator = getBeanInstantiator();
+    BeanFactoryAwareBeanInstantiator instantiator = BeanFactoryAwareBeanInstantiator.from(getBeanFactory());
     for (Class<?> listener : listeners) {
       ApplicationListener applicationListener = (ApplicationListener) instantiator.instantiate(listener);
       addApplicationListener(applicationListener);
@@ -1346,8 +1326,9 @@ public abstract class AbstractApplicationContext
 
     // load from strategy files
 
-    log.debug("Loading listeners from strategies files: {}", strategiesDetector.getStrategiesLocation());
-    for (ApplicationListener listener : strategiesDetector.getStrategies(ApplicationListener.class, this)) {
+    log.debug("Loading listeners from strategies files: {}", TodayStrategies.STRATEGIES_LOCATION);
+    for (ApplicationListener listener : TodayStrategies.getStrategies(
+            ApplicationListener.class, getClassLoader(), new BeanFactoryAwareInstantiatorFunction<>(instantiator))) {
       addApplicationListener(listener);
     }
 

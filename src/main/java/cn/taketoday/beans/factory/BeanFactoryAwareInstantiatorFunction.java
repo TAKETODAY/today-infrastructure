@@ -17,40 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.expression;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.expression.BeanNameResolver;
+package cn.taketoday.beans.factory;
+
+import java.util.function.Function;
+
+import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.lang.Assert;
 
 /**
- * @author TODAY <br>
- * 2019-02-23 10:36
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/15 23:34
  */
-public class BeanFactoryResolver implements BeanNameResolver {
-  private final BeanFactory beanFactory;
+public class BeanFactoryAwareInstantiatorFunction<T> implements Function<Class<T>, T> {
+  private final BeanFactoryAwareBeanInstantiator instantiator;
 
-  public BeanFactoryResolver(BeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
+  public BeanFactoryAwareInstantiatorFunction(BeanFactory beanFactory) {
+    this.instantiator = BeanFactoryAwareBeanInstantiator.from(beanFactory);
   }
 
-  public BeanFactoryResolver(AbstractApplicationContext beanFactory) {
-    this(beanFactory.getBeanFactory());
-  }
-
-  @Override
-  public boolean isReadOnly(String beanName) {
-    return true;
+  public BeanFactoryAwareInstantiatorFunction(BeanFactoryAwareBeanInstantiator instantiator) {
+    Assert.notNull(instantiator, "instantiator is required");
+    this.instantiator = instantiator;
   }
 
   @Override
-  public boolean isNameResolved(String beanName) {
-    return beanFactory.containsBean(beanName);
-  }
-
-  @Override
-  public Object getBean(String beanName) {
-    return beanFactory.getBean(beanName);
+  public T apply(Class<T> strategyImpl) {
+    return instantiator.instantiate(strategyImpl);
   }
 
 }

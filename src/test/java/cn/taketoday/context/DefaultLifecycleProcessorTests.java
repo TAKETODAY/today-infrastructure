@@ -3,6 +3,8 @@ package cn.taketoday.context;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultLifecycleProcessor;
 import cn.taketoday.core.type.EnabledForTestGroups;
 import org.junit.jupiter.api.Test;
 

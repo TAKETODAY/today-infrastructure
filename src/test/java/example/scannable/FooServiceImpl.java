@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.MessageSource;

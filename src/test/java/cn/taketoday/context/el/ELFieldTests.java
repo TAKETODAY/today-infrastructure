@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

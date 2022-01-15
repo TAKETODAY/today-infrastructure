@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.MockRequestContext;

@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation6.ComponentForScanning;
 import cn.taketoday.context.annotation6.ConfigForScanning;
 import cn.taketoday.context.annotation6.Jsr330NamedForScanning;

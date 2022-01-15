@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;

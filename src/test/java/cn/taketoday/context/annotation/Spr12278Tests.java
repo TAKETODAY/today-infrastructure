@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

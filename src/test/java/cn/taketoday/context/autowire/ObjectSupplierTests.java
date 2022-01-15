@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;

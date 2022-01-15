@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;

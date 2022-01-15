@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;

@@ -1529,22 +1529,21 @@ public abstract class ReflectionUtils {
    * @throws ClassNotFoundException If the class was not found
    * @since 4.0
    */
-  @SuppressWarnings("unchecked")
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return (T) newInstance(ClassUtils.resolveClassName(beanClassName, null));
+    return newInstance(ClassUtils.resolveClassName(beanClassName, null));
   }
 
   /**
    * @since 4.0
    */
-  public static Object newInstance(Class<?> type) {
+  public static <T> T newInstance(Class<T> type) {
     return newInstance(type, Constant.EMPTY_CLASS_ARRAY, null);
   }
 
   /**
    * @since 4.0
    */
-  public static Object newInstance(Class<?> type, Class[] parameterTypes, Object[] args) {
+  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, Object[] args) {
     return invokeConstructor(getConstructor(type, parameterTypes), args);
   }
 

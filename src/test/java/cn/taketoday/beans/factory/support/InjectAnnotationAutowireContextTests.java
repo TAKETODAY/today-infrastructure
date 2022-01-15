@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;

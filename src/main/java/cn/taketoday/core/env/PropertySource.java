@@ -22,6 +22,7 @@ package cn.taketoday.core.env;
 
 import java.util.Objects;
 
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -196,7 +197,7 @@ public abstract class PropertySource<T> {
    * intended default position/order of the property source, then be replaced
    * during context refresh.
    *
-   * @see cn.taketoday.context.AbstractApplicationContext#initPropertySources(ConfigurableEnvironment)
+   * @see AbstractApplicationContext#initPropertySources(ConfigurableEnvironment)
    */
   public static class StubPropertySource extends PropertySource<Object> {
 

@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.MessageSourceAware;
 import cn.taketoday.context.expression.EmbeddedValueResolver;

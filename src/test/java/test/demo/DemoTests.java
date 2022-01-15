@@ -21,7 +21,7 @@ package test.demo;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import org.junit.jupiter.api.Test;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;

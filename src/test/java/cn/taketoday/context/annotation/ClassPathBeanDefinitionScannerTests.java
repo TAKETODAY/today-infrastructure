@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.loader.CandidateComponentsTestClassLoader;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;

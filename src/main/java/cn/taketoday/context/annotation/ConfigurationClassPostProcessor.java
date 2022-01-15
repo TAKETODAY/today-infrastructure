@@ -47,6 +47,7 @@ import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfig
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -132,7 +133,7 @@ public class ConfigurationClassPostProcessor
    * application contexts or the {@code <context:annotation-config>} element. Any bean name
    * generator specified against the application context will take precedence over any set here.
    *
-   * @see cn.taketoday.context.StandardApplicationContext#setBeanNamePopulator(BeanNamePopulator)
+   * @see StandardApplicationContext#setBeanNamePopulator(BeanNamePopulator)
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {

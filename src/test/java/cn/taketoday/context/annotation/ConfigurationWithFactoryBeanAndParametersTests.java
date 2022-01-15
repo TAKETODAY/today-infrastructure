@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

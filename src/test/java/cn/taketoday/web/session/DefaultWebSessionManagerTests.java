@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.net.HttpCookie;
 import java.util.List;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.web.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

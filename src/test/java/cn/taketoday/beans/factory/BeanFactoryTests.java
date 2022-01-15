@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;

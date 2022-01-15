@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.core.type.EnabledForTestGroups;
 import cn.taketoday.context.annotation.Configuration;

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.beans.factory.annotation.Autowired;
 

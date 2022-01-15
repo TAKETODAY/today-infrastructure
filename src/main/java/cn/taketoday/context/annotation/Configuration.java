@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
@@ -49,7 +50,7 @@ import cn.taketoday.lang.Component;
  * <h3>Via {@code StandardApplicationContext}</h3>
  *
  * <p>{@code @Configuration} classes are typically bootstrapped using either
- * {@link cn.taketoday.context.StandardApplicationContext} or its web-capable variant,
+ * {@link StandardApplicationContext} or its web-capable variant,
  * {@link cn.taketoday.web.servlet.StandardWebServletApplicationContext
  * StandardWebServletApplicationContext}. A simple example with the former follows:
  *
@@ -61,7 +62,7 @@ import cn.taketoday.lang.Component;
  * // use myBean ...
  * </pre>
  *
- * <p>See the {@link cn.taketoday.context.StandardApplicationContext} javadocs for further details, and see
+ * <p>See the {@link StandardApplicationContext} javadocs for further details, and see
  * {@link cn.taketoday.web.servlet.StandardWebServletApplicationContext
  * AnnotationConfigWebApplicationContext} for web configuration instructions in a
  * {@code Servlet} container.
@@ -392,7 +393,7 @@ import cn.taketoday.lang.Component;
  * @see ComponentScan
  * @see Lazy
  * @see cn.taketoday.context.annotation.PropertySource
- * @see cn.taketoday.context.StandardApplicationContext
+ * @see StandardApplicationContext
  * @see ConfigurationClassPostProcessor
  * @see cn.taketoday.core.env.Environment
  * @since 4.0
@@ -408,7 +409,7 @@ public @interface Configuration {
    * name will be automatically generated.
    * <p>The custom name applies only if the {@code @Configuration} class is picked
    * up via component scanning or supplied directly to an
-   * {@link cn.taketoday.context.StandardApplicationContext}. If the {@code @Configuration} class
+   * {@link StandardApplicationContext}. If the {@code @Configuration} class
    * is registered as a traditional XML bean definition, the name/id of the bean
    * element will take precedence.
    *

@@ -404,7 +404,7 @@ public class ParameterResolvingRegistry
       super(Props.class);
       this.context = context;
       this.propsReader = new PropsReader(context.getEnvironment());
-      this.beanInstantiator = new BeanFactoryAwareBeanInstantiator(context);
+      this.beanInstantiator = BeanFactoryAwareBeanInstantiator.from(context);
     }
 
     @Override

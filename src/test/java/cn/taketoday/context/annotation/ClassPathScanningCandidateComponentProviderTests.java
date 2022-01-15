@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.gh24375.AnnotatedComponent;
 import cn.taketoday.context.loader.CandidateComponentsTestClassLoader;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;

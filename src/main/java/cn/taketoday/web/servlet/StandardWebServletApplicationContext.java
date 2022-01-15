@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.web.RequestContextHolder;

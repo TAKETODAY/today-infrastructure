@@ -32,7 +32,6 @@ import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.DefaultProps;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
@@ -89,7 +88,7 @@ public class PropsReader {
     this.beanFactory = context.getBeanFactory();
     this.propertyResolver = context.getEnvironment();
     this.expressionEvaluator = context.getExpressionEvaluator();
-    this.beanInstantiator = new BeanFactoryAwareBeanInstantiator(context);
+    this.beanInstantiator = BeanFactoryAwareBeanInstantiator.from(context);
   }
 
   public PropsReader(PropertyResolver propertyResolver) {
@@ -235,7 +234,7 @@ public class PropsReader {
   public <T> T read(Props props, Class<T> beanClass, PropertyResolver propertyResolver) {
     if (beanInstantiator == null) {
       Assert.state(beanFactory != null, "No BeanFactory set");
-      beanInstantiator = new BeanFactoryAwareBeanInstantiator(beanFactory);
+      beanInstantiator = BeanFactoryAwareBeanInstantiator.from(beanFactory);
     }
     return read(props, beanInstantiator.instantiate(beanClass), propertyResolver);
   }

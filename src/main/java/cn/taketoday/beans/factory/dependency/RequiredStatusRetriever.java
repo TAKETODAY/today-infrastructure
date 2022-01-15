@@ -48,13 +48,12 @@ public class RequiredStatusRetriever {
 
   private boolean requiredParameterValue = true;
 
-  private final LinkedHashSet<Class<? extends Annotation>> requiredSource = new LinkedHashSet<>(2);
+  private final LinkedHashSet<String> requiredAnnotationType = new LinkedHashSet<>(2);
 
-  @SuppressWarnings("unchecked")
   public RequiredStatusRetriever() {
-    requiredSource.add(Autowired.class);
-    List types = TodayStrategies.getDetector().getTypes(RequiredStatusRetriever.class);
-    requiredSource.addAll(types);
+    requiredAnnotationType.add(Autowired.class.getName());
+    List<String> types = TodayStrategies.getStrategies(RequiredStatusRetriever.class.getName());
+    requiredAnnotationType.addAll(types);
   }
 
   /**
@@ -82,8 +81,8 @@ public class RequiredStatusRetriever {
    */
   public boolean retrieve(AccessibleObject accessible) {
     MergedAnnotations annotations = MergedAnnotations.from(accessible);
-    for (Class<? extends Annotation> aClass : requiredSource) {
-      MergedAnnotation<? extends Annotation> source = annotations.get(aClass);
+    for (String annotationType : requiredAnnotationType) {
+      MergedAnnotation<? extends Annotation> source = annotations.get(annotationType);
       if (source.isPresent()) {
         Optional<Boolean> optional = source.getValue(requiredParameterName, Boolean.class);
         if (optional.isPresent()) {

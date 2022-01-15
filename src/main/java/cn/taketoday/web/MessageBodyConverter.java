@@ -29,6 +29,7 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.support.FastJSONMessageConverter;
@@ -145,7 +146,8 @@ public abstract class MessageBodyConverter {
       messageBodyConverter = new FastJSONMessageConverter();
     }
     else {
-      messageBodyConverter = TodayStrategies.getDetector().getFirst(MessageBodyConverter.class);
+      messageBodyConverter = CollectionUtils.firstElement(
+              TodayStrategies.getStrategies(MessageBodyConverter.class));
     }
     if (messageBodyConverter != null) {
       log.info("auto detected MessageConverter: [{}]", messageBodyConverter);

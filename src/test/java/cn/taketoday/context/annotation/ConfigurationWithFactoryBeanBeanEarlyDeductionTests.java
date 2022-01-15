@@ -31,8 +31,8 @@ import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.context.DefaultApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 

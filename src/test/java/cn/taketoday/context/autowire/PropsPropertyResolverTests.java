@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsDependencyResolver;
 

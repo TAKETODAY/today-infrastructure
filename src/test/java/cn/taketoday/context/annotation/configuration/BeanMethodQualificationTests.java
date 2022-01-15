@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.NestedTestBean;
 import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;

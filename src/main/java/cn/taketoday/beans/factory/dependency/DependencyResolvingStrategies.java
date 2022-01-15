@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.StrategiesDetector;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -78,15 +79,22 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
     // TODO maybe check required status?
   }
 
-  public void initStrategies(
-          @Nullable StrategiesDetector strategiesDetector, @Nullable BeanFactory beanFactory) {
+  public void initStrategies(@Nullable BeanFactory beanFactory) {
     log.debug("Initialize dependency-resolving-strategies");
 
-    if (strategiesDetector == null) {
-      strategiesDetector = TodayStrategies.getDetector();
+    List<DependencyResolvingStrategy> strategies;
+    if (beanFactory != null) {
+      ClassLoader beanClassLoader = null;
+      if (beanFactory instanceof ConfigurableBeanFactory configurable) {
+        beanClassLoader = configurable.getBeanClassLoader();
+      }
+      BeanFactoryAwareBeanInstantiator instantiator = BeanFactoryAwareBeanInstantiator.from(beanFactory);
+      strategies = TodayStrategies.getStrategies(
+              DependencyResolvingStrategy.class, beanClassLoader, instantiator::instantiate);
     }
-    List<DependencyResolvingStrategy> strategies =
-            strategiesDetector.getStrategies(DependencyResolvingStrategy.class, beanFactory);
+    else {
+      strategies = TodayStrategies.getStrategies(DependencyResolvingStrategy.class);
+    }
 
     // un-ordered
     resolvingStrategies.addAll(strategies); // @since 4.0

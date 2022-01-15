@@ -42,7 +42,7 @@ import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;

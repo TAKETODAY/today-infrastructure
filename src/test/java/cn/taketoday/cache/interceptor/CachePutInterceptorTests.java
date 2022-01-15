@@ -32,7 +32,7 @@ import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CaffeineCacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Singleton;

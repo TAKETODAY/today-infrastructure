@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import cn.taketoday.context.support.StandardApplicationContext;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 

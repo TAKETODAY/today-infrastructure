@@ -960,7 +960,7 @@ import java.util.Map;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.beans.factory.DisposableBean;
@@ -1026,7 +1026,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
 2019-07-25 23:14:37.929 DEBUG - [            main] c.t.beans.factory.AbstractBeanFactory   651 - Initializing bean named: [lifecycleBean].
 2019-07-25 23:14:37.929  INFO - [            main] test.context.LifecycleBean                 59 - setBeanName: lifecycleBean
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.beans.factory.support.StandardBeanFactory@5ce81285
-2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.StandardApplicationContext@78c03f1f
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.support.StandardApplicationContext@78c03f1f
 2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.StandardEnvironment@5ec0a365
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 79 - @PostConstruct
 2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 84 - afterPropertiesSet
@@ -1047,7 +1047,7 @@ public class LifecycleBean implements InitializingBean, DisposableBean {
 }}
 2019-07-25 23:14:37.943 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextClosedEvent]
 context is closing
-2019-07-25 23:14:37.945  INFO - [            main] c.t.c.listener.ContextCloseListener        52 - Closing: [cn.taketoday.context.StandardApplicationContext@78c03f1f] at [2019-07-25 23:14:37.943]
+2019-07-25 23:14:37.945  INFO - [            main] c.t.c.listener.ContextCloseListener        52 - Closing: [cn.taketoday.context.support.StandardApplicationContext@78c03f1f] at [2019-07-25 23:14:37.943]
 2019-07-25 23:14:37.947  INFO - [            main] test.context.LifecycleBean                 89 - preDestroy
 2019-07-25 23:14:37.947  INFO - [            main] test.context.LifecycleBean                 94 - destroy
 

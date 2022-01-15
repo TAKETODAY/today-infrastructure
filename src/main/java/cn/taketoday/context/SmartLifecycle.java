@@ -78,7 +78,7 @@ public interface SmartLifecycle extends Lifecycle, Phased {
    * shutdown phase.
    *
    * @see #getPhase()
-   * @see DefaultLifecycleProcessor#getPhase(Lifecycle)
+   * @see cn.taketoday.context.support.DefaultLifecycleProcessor#getPhase(Lifecycle)
    */
   int DEFAULT_PHASE = Integer.MAX_VALUE;
 
@@ -132,7 +132,7 @@ public interface SmartLifecycle extends Lifecycle, Phased {
    * @see #isAutoStartup()
    * @see #start()
    * @see #stop(Runnable)
-   * @see DefaultLifecycleProcessor#getPhase(Lifecycle)
+   * @see cn.taketoday.context.support.DefaultLifecycleProcessor#getPhase(Lifecycle)
    */
   @Override
   default int getPhase() {

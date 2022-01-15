@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

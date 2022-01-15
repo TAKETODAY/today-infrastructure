@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.HashMap;
 
-import cn.taketoday.context.ApplicationPropertySourcesProcessor;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
+import cn.taketoday.context.support.DefaultApplicationContext;
 
 /**
  * @author TODAY 2021/10/11 22:27

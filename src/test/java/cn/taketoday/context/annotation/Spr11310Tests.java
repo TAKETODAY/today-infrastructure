@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Order;
 import cn.taketoday.beans.factory.annotation.Autowired;
 

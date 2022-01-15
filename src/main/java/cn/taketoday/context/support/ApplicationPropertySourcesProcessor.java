@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.context.support;
 
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;

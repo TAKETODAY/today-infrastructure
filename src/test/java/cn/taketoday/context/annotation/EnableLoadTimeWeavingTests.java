@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
 import cn.taketoday.context.classloading.LoadTimeWeaver;
 

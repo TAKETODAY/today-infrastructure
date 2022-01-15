@@ -27,8 +27,8 @@ import java.io.Closeable;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.DefaultApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

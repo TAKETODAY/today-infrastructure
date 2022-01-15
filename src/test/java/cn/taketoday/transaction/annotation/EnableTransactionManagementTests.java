@@ -32,7 +32,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;

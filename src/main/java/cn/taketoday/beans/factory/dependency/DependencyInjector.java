@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
@@ -45,9 +44,6 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0 2021/12/27 21:06
  */
 public class DependencyInjector {
-
-  @Nullable
-  private StrategiesDetector strategiesDetector;
 
   @Nullable
   private DependencyResolvingStrategies resolvingStrategies;
@@ -201,20 +197,11 @@ public class DependencyInjector {
   }
 
   private void initStrategies(DependencyResolvingStrategies resolvingStrategies) {
-    resolvingStrategies.initStrategies(strategiesDetector, beanFactory);
+    resolvingStrategies.initStrategies(beanFactory);
   }
 
   public void setResolvingStrategies(@Nullable DependencyResolvingStrategies resolvingStrategies) {
     this.resolvingStrategies = resolvingStrategies;
-  }
-
-  @Nullable
-  public StrategiesDetector getStrategiesDetector() {
-    return strategiesDetector;
-  }
-
-  public void setStrategiesDetector(@Nullable StrategiesDetector strategiesDetector) {
-    this.strategiesDetector = strategiesDetector;
   }
 
   @Nullable

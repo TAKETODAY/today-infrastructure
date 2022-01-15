@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.core.StrategiesDetector;
 import cn.taketoday.core.ThrowableSupplier;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarEntryResource;
@@ -60,6 +59,7 @@ import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
  *
  * @author TODAY 2019-11-26 20:02
  */
+@Deprecated
 public class CandidateComponentScanner {
   // @since 4.0
   public static final String KEY_STRATEGIES_IGNORE_JAR_PREFIX = "ignore-jar-prefix";
@@ -97,8 +97,7 @@ public class CandidateComponentScanner {
 
     readFromMetaInfoIgnore(ignoreScanJars);
     // @since 4.0 read from strategies file
-    StrategiesDetector strategiesDetector = TodayStrategies.getDetector();
-    Collection<String> strategies = strategiesDetector.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
+    Collection<String> strategies = TodayStrategies.getStrategies(KEY_STRATEGIES_IGNORE_JAR_PREFIX);
     ignoreScanJars.addAll(strategies);
 
     return defaultIgnoreScanJarPrefixs = StringUtils.toStringArray(ignoreScanJars);

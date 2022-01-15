@@ -22,15 +22,13 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.scope.ScopedObject;
-import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.AbstractApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.AbstractApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;

@@ -21,7 +21,7 @@ package test.context.props;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * @author Today <br>

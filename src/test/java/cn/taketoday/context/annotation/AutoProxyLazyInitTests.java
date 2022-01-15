@@ -27,7 +27,7 @@ import cn.taketoday.aop.proxy.BeanNameAutoProxyCreator;
 import cn.taketoday.aop.target.AbstractBeanFactoryTargetSource;
 import cn.taketoday.aop.target.LazyInitTargetSourceCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationListener;
 import jakarta.annotation.PreDestroy;

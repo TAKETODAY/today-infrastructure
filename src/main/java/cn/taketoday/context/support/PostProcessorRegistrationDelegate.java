@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.context.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +38,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.event.ApplicationListenerDetector;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;

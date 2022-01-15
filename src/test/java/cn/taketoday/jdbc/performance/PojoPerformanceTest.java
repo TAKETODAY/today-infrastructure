@@ -52,7 +52,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;

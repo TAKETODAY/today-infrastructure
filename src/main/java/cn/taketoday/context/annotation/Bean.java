@@ -34,6 +34,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
@@ -183,7 +184,7 @@ import cn.taketoday.lang.Component;
  * <h3>Bootstrapping</h3>
  *
  * <p>See the @{@link Configuration} javadoc for further details including how to bootstrap
- * the container using {@link cn.taketoday.context.StandardApplicationContext} and friends.
+ * the container using {@link StandardApplicationContext} and friends.
  *
  * <h3>{@code BeanFactoryPostProcessor}-returning {@code @Bean} methods</h3>
  *

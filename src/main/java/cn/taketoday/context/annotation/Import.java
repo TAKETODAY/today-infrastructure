@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * Indicates one or more <em>component classes</em> to import &mdash; typically
@@ -33,7 +34,7 @@ import cn.taketoday.context.loader.ImportSelector;
  * <p>Provides functionality equivalent to the Framework' {@code <import/>} element in beans XML.
  * Allows for importing {@code @Configuration} classes, {@link ImportSelector} and
  * {@link ImportBeanDefinitionRegistrar} implementations, as well as regular component
- * classes (analogous to {@link cn.taketoday.context.StandardApplicationContext#register}).
+ * classes (analogous to {@link StandardApplicationContext#register}).
  *
  * <p>{@code @Bean} definitions declared in imported {@code @Configuration} classes should be
  * accessed by using {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}

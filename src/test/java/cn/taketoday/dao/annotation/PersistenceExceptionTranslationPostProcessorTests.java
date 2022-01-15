@@ -35,7 +35,7 @@ import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.annotation.PersistenceExceptionTranslationAdvisorTests.RepositoryInterface;

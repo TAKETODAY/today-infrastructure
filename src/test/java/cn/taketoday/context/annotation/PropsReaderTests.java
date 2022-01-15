@@ -27,7 +27,6 @@ import java.util.HashMap;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.DefaultProps;
 import cn.taketoday.core.env.MapPropertyResolver;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.lang.Singleton;

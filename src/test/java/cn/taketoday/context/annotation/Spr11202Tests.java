@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;

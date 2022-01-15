@@ -17,34 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.el;
 
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.context.expression.BeanFactoryResolver;
-import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.el.ELFieldTests.User;
+package cn.taketoday.context;
 
 /**
- * @author TODAY <br>
- * 2019-06-12 20:39
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/15 14:58
  */
-class BeanFactoryResolverTests {
-
-  @Test
-  void testIsReadOnly() {
-
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-
-      applicationContext.registerBean("user", User.class);
-
-      BeanFactoryResolver beanFactoryResolver = new BeanFactoryResolver(applicationContext);
-
-      assert beanFactoryResolver.isReadOnly("user");
-      assert beanFactoryResolver.isNameResolved("user");
-      assert beanFactoryResolver.getBean("user") != null;
-
-    }
-  }
+public enum ApplicationType {
 
 }

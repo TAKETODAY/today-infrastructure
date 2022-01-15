@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
 import cn.taketoday.core.i18n.LocaleContextHolder;

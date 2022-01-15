@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.annotation.Configuration;

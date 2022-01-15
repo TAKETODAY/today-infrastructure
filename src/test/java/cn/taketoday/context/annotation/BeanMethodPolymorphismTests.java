@@ -28,7 +28,7 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

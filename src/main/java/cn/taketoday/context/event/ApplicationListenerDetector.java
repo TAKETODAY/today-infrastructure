@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

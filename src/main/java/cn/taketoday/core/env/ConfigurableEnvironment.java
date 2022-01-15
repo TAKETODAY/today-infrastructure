@@ -22,6 +22,8 @@ package cn.taketoday.core.env;
 
 import java.util.Map;
 
+import cn.taketoday.context.support.AbstractApplicationContext;
+
 /**
  * Configuration interface to be implemented by most if not all {@link Environment} types.
  * Provides facilities for setting active and default profiles and manipulating underlying
@@ -62,7 +64,7 @@ import java.util.Map;
  * When an {@link Environment} is being used by an {@code ApplicationContext}, it is
  * important that any such {@code PropertySource} manipulations be performed
  * <em>before</em> the context's {@link
- * cn.taketoday.context.AbstractApplicationContext#refresh() refresh()}
+ * AbstractApplicationContext#refresh() refresh()}
  * method is called. This ensures that all property sources are available during the
  * container bootstrap process.
  *
@@ -158,7 +160,7 @@ public interface ConfigurableEnvironment extends Environment, ConfigurableProper
    * property sources and profile information prior to calling {@code merge}.
    *
    * @param parent the environment to merge with
-   * @see cn.taketoday.context.AbstractApplicationContext#setParent
+   * @see AbstractApplicationContext#setParent
    */
   void merge(ConfigurableEnvironment parent);
 

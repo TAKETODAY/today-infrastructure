@@ -29,7 +29,7 @@ import cn.taketoday.aop.DerivedTestBean;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.TestBean;
-import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
