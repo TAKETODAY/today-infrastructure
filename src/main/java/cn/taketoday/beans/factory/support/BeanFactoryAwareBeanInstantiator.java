@@ -23,12 +23,15 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Constructor;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -38,8 +41,8 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class BeanFactoryAwareBeanInstantiator {
+  public static final String BEAN_NAME = "beanFactoryAwareBeanInstantiator";
 
-  @Nullable
   private final BeanFactory beanFactory;
   private final DependencyInjector dependencyInjector;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
@@ -99,9 +102,28 @@ public class BeanFactoryAwareBeanInstantiator {
     return instantiatorFactory;
   }
 
-  @Nullable
   public BeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  // static factory-method
+
+  public static BeanFactoryAwareBeanInstantiator from(BeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "beanFactory is required");
+    BeanFactoryAwareBeanInstantiator instantiator = beanFactory.getBean(
+            BEAN_NAME, BeanFactoryAwareBeanInstantiator.class);
+    if (instantiator == null) {
+      instantiator = new BeanFactoryAwareBeanInstantiator(beanFactory);
+      if (beanFactory instanceof SingletonBeanRegistry singletonBeanRegistry) {
+        singletonBeanRegistry.registerSingleton(BEAN_NAME, instantiator);
+      }
+      else if (beanFactory instanceof BeanDefinitionRegistry registry) {
+        BeanDefinition definition = new BeanDefinition(BEAN_NAME, BeanFactoryAwareBeanInstantiator.class);
+        registry.registerBeanDefinition(BEAN_NAME, definition);
+        definition.setInstanceSupplier(() -> new BeanFactoryAwareBeanInstantiator(beanFactory));
+      }
+    }
+    return instantiator;
   }
 
 }
