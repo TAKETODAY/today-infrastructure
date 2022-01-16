@@ -30,7 +30,7 @@ import cn.taketoday.core.env.Environment;
  * application context being refreshed.
  * <p>
  * EnvironmentPostProcessor implementations have to be registered in
- * {@code META-INF/today.strategies}, using the fully qualified name of this class as the
+ * {@code META-INF/today.strategies.properties}, using the fully qualified name of this class as the
  * key. Implementations may implement the {@link cn.taketoday.core.Ordered Ordered}
  * interface or use an {@link cn.taketoday.core.Order @Order} annotation
  * if they wish to be invoked in specific order.
