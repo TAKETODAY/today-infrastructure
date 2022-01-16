@@ -24,19 +24,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.util.ClassUtils;
 
 /**
- * {@link Conditional} that only matches when the specified classes are on the
- * classpath.
+ * {@link Conditional @Conditional} that only matches when the specified classes are on
+ * the classpath.
+ * <p>
+ * A {@link #value()} can be safely specified on {@code @Configuration} classes as the
+ * annotation metadata is parsed by using ASM before the class is loaded. Extra care is
+ * required when placed on {@code @Bean} methods, consider isolating the condition in a
+ * separate {@code Configuration} class, in particular if the return type of the method
+ * matches the {@link #value target of the condition}.
  *
- * @author TODAY <br>
- * 2019-06-18 15:00
+ * @author TODAY
+ * @since 2019-06-18 15:00
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -44,38 +45,21 @@ import cn.taketoday.util.ClassUtils;
 public @interface ConditionalOnClass {
 
   /**
-   * The classes that must be present
+   * The classes that must be present. Since this annotation is parsed by loading class
+   * bytecode, it is safe to specify classes here that may ultimately not be on the
+   * classpath, only if this annotation is directly on the affected component and
+   * <b>not</b> if this annotation is used as a composed, meta-annotation. In order to
+   * use this annotation as a meta-annotation, only use the {@link #name} attribute.
    *
    * @return the classes that must be present
    */
-  String[] value() default {};
+  Class<?>[] value() default {};
 
-}
-
-final class OnClassCondition implements Condition {
-
-  @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    MergedAnnotation<ConditionalOnClass> conditionalOnClass = metadata.getAnnotation(ConditionalOnClass.class);
-    if (conditionalOnClass.isPresent()) {
-      String[] classArray = conditionalOnClass.getStringArray(MergedAnnotation.VALUE);
-      for (String name : classArray) {
-        if (!ClassUtils.isPresent(name)) {
-          return false;
-        }
-      }
-    }
-
-    MergedAnnotation<ConditionalOnMissingClass> onMissingClass = metadata.getAnnotation(ConditionalOnMissingClass.class);
-    if (onMissingClass.isPresent()) {
-      String[] classArray = onMissingClass.getStringArray(MergedAnnotation.VALUE);
-      for (String name : classArray) {
-        if (ClassUtils.isPresent(name)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
+  /**
+   * The classes names that must be present.
+   *
+   * @return the class names that must be present.
+   */
+  String[] name() default {};
 
 }

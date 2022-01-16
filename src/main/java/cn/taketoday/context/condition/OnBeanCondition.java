@@ -34,10 +34,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.condition.ConditionMessage.Style;
@@ -51,14 +51,10 @@ import cn.taketoday.core.annotation.MergedAnnotationCollectors;
 import cn.taketoday.core.annotation.MergedAnnotationPredicates;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -76,69 +72,15 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
  */
-class OnBeanCondition implements ConfigurationCondition, Ordered {
-  private static final Logger log = LoggerFactory.getLogger(OnBeanCondition.class);
+class OnBeanCondition extends FilteringContextCondition implements ConfigurationCondition, Ordered {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    String classOrMethodName = getClassOrMethodName(metadata);
-    try {
-      ConditionOutcome outcome = getMatchOutcome(context, metadata);
-      logOutcome(classOrMethodName, outcome);
-      return outcome.isMatch();
-    }
-    catch (NoClassDefFoundError ex) {
-      throw new IllegalStateException(
-              "Could not evaluate condition on " + classOrMethodName + " due to "
-                      + ex.getMessage() + " not found. Make sure your own configuration does not rely on "
-                      + "that class. This can also happen if you are "
-                      + "@ComponentScanning a package (e.g. if you "
-                      + "put a @ComponentScan in the default package by mistake)", ex);
-    }
-    catch (RuntimeException ex) {
-      throw new IllegalStateException("Error processing condition on " + getName(metadata), ex);
-    }
+  public ConfigurationPhase getConfigurationPhase() {
+    return ConfigurationPhase.REGISTER_BEAN;
   }
 
-  protected final void logOutcome(String classOrMethodName, ConditionOutcome outcome) {
-    if (log.isDebugEnabled()) {
-      log.debug(getLogMessage(classOrMethodName, outcome));
-    }
-  }
-
-  private StringBuilder getLogMessage(String classOrMethodName, ConditionOutcome outcome) {
-    StringBuilder message = new StringBuilder();
-    message.append("Condition ");
-    message.append(ClassUtils.getShortName(getClass()));
-    message.append(" on ");
-    message.append(classOrMethodName);
-    message.append(outcome.isMatch() ? " matched" : " did not match");
-    if (StringUtils.isNotEmpty(outcome.getMessage())) {
-      message.append(" due to ");
-      message.append(outcome.getMessage());
-    }
-    return message;
-  }
-
-  private String getName(AnnotatedTypeMetadata metadata) {
-    if (metadata instanceof AnnotationMetadata) {
-      return ((AnnotationMetadata) metadata).getClassName();
-    }
-    if (metadata instanceof MethodMetadata methodMetadata) {
-      return methodMetadata.getDeclaringClassName() + "." + methodMetadata.getMethodName();
-    }
-    return metadata.toString();
-  }
-
-  private static String getClassOrMethodName(AnnotatedTypeMetadata metadata) {
-    if (metadata instanceof ClassMetadata classMetadata) {
-      return classMetadata.getClassName();
-    }
-    MethodMetadata methodMetadata = (MethodMetadata) metadata;
-    return methodMetadata.getDeclaringClassName() + "#" + methodMetadata.getMethodName();
-  }
-
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  @Override
+  public final ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     ConditionMessage matchMessage = ConditionMessage.empty();
     MergedAnnotations annotations = metadata.getAnnotations();
     if (annotations.isPresent(ConditionalOnBean.class)) {
@@ -403,30 +345,9 @@ class OnBeanCondition implements ConfigurationCondition, Ordered {
     return result;
   }
 
-  /**
-   * Slightly faster variant of {@link ClassUtils#forName(String, ClassLoader)} that
-   * doesn't deal with primitives, arrays or inner types.
-   *
-   * @param className the class name to resolve
-   * @param classLoader the class loader to use
-   * @return a resolved class
-   * @throws ClassNotFoundException if the class cannot be found
-   */
-  protected static Class<?> resolve(String className, ClassLoader classLoader) throws ClassNotFoundException {
-    if (classLoader != null) {
-      return Class.forName(className, false, classLoader);
-    }
-    return Class.forName(className);
-  }
-
   @Override
   public int getOrder() {
     return LOWEST_PRECEDENCE;
-  }
-
-  @Override
-  public ConfigurationPhase getConfigurationPhase() {
-    return ConfigurationPhase.REGISTER_BEAN;
   }
 
   /**
@@ -593,7 +514,8 @@ class OnBeanCondition implements ConfigurationCondition, Ordered {
     }
 
     private boolean isBeanMethod(Method method) {
-      return method != null && MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+      return method != null
+              && MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
               .isPresent(Component.class);
     }
 
@@ -651,9 +573,12 @@ class OnBeanCondition implements ConfigurationCondition, Ordered {
         string.append(StringUtils.collectionToString(this.ignoredTypes));
         string.append("; ");
       }
-      string.append("SearchStrategy: ");
-      string.append(this.strategy.toString().toLowerCase(Locale.ENGLISH));
-      string.append(")");
+
+      if (strategy != null) {
+        string.append("SearchStrategy: ");
+        string.append(strategy.toString().toLowerCase(Locale.ENGLISH));
+        string.append(")");
+      }
       return string.toString();
     }
 
@@ -680,9 +605,11 @@ class OnBeanCondition implements ConfigurationCondition, Ordered {
 
     @Override
     protected void validate(BeanTypeDeductionException ex) {
-      Assert.isTrue(getTypes().size() == 1,
-              () -> getAnnotationName() + " annotations must specify only one type (got "
-                      + StringUtils.collectionToString(getTypes()) + ")");
+      if (getTypes().size() != 1) {
+        throw new IllegalArgumentException(
+                getAnnotationName() + " annotations must specify only one type (got "
+                        + StringUtils.collectionToString(getTypes()) + ")");
+      }
     }
 
   }
