@@ -25,8 +25,9 @@ import java.net.InetAddress;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Version;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -74,10 +75,8 @@ final class StartupLogging {
 
   private CharSequence getRunningMessage() {
     StringBuilder message = new StringBuilder();
-    message.append("Running with TODAY Framework");
-    appendVersion(message, getClass());
-    message.append(", TODAY");
-    appendVersion(message, ApplicationContext.class);
+    message.append("Running with today-framework");
+    append(message, null, Version::get);
     return message;
   }
 
@@ -154,7 +153,8 @@ final class StartupLogging {
     append(message, prefix, call, "");
   }
 
-  private void append(StringBuilder message, String prefix, Callable<Object> call, String defaultValue) {
+  private void append(
+          StringBuilder message, @Nullable String prefix, Callable<Object> call, String defaultValue) {
     Object result = callIfPossible(call);
     String value = (result != null) ? result.toString() : null;
     if (StringUtils.isEmpty(value)) {
@@ -162,7 +162,9 @@ final class StartupLogging {
     }
     if (StringUtils.isNotEmpty(value)) {
       message.append((message.length() > 0) ? " " : "");
-      message.append(prefix);
+      if (prefix != null) {
+        message.append(prefix);
+      }
       message.append(value);
     }
   }
