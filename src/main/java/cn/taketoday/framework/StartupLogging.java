@@ -74,9 +74,9 @@ final class StartupLogging {
 
   private CharSequence getRunningMessage() {
     StringBuilder message = new StringBuilder();
-    message.append("Running with Spring Boot");
+    message.append("Running with TODAY Framework");
     appendVersion(message, getClass());
-    message.append(", Spring");
+    message.append(", TODAY");
     appendVersion(message, ApplicationContext.class);
     return message;
   }

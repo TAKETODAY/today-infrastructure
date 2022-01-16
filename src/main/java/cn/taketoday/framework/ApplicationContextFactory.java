@@ -24,6 +24,9 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.web.framework.ServletWebServerApplicationContext;
+import cn.taketoday.web.framework.StandardWebServerApplicationContext;
 
 /**
  * Strategy interface for creating the {@link ConfigurableApplicationContext} used by a
@@ -43,9 +46,9 @@ public interface ApplicationContextFactory {
   ApplicationContextFactory DEFAULT = (webApplicationType) -> {
     try {
       return switch (webApplicationType) {
-        case SERVLET -> new AnnotationConfigServletWebServerApplicationContext();
-        case REACTIVE -> new AnnotationConfigReactiveWebServerApplicationContext();
-        default -> new AnnotationConfigApplicationContext();
+        case SERVLET_WEB -> new ServletWebServerApplicationContext();
+        case REACTIVE_WEB -> new StandardWebServerApplicationContext();
+        default -> new StandardApplicationContext();
       };
     }
     catch (Exception ex) {

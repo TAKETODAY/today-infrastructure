@@ -17,33 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web;
-
-import cn.taketoday.context.event.ApplicationEvent;
 
 /**
- * @author TODAY <br>
- * 2019-05-17 10:14
+ * Custom enhancements and support for the Jackson project.
  */
-@SuppressWarnings("serial")
-public class WebApplicationFailedEvent extends ApplicationEvent {
-
-  private final WebApplicationContext applicationContext;
-
-  private final Throwable cause;
-
-  public WebApplicationFailedEvent(WebApplicationContext applicationContext, Throwable cause) {
-    super(applicationContext);
-    this.cause = cause;
-    this.applicationContext = applicationContext;
-  }
-
-  public WebApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
-
-  public final Throwable getCause() {
-    return cause;
-  }
-
-}
+package cn.taketoday.framework.jackson;

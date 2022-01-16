@@ -20,14 +20,18 @@
 
 package cn.taketoday.framework;
 
+import org.apache.commons.logging.Log;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -35,14 +39,21 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.env.CommandLinePropertySource;
+import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.SimpleCommandLinePropertySource;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.WebApplicationFailedEvent;
-import cn.taketoday.web.framework.server.WebServer;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/10/5 23:49
@@ -53,21 +64,31 @@ public class Application {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
   private final String appBasePath = System.getProperty("user.dir");
-  private final Class<?> mainApplicationClass;
+  private Class<?> mainApplicationClass;
+  private final Class<?>[] configSources;
 
   private boolean headless = true;
 
   private List<ApplicationListener<?>> listeners;
 
-  private ConfigurableApplicationContext applicationContext;
-
   private List<ApplicationContextInitializer<?>> initializers;
 
   private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
+
   private ApplicationType applicationType;
 
-  public Application() {
+  private ConfigurableEnvironment environment;
+
+  private boolean addCommandLineProperties = true;
+
+  private boolean logStartupInfo = true;
+
+  public Application(Class<?>... configSources) {
+    this.configSources = configSources;
+
+    setListeners(TodayStrategies.getStrategies(ApplicationListener.class));
     setInitializers(TodayStrategies.getStrategies(ApplicationContextInitializer.class));
+    this.applicationType = ApplicationType.deduceFromClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
   }
 
@@ -84,6 +105,26 @@ public class Application {
       // Swallow and continue
     }
     return null;
+  }
+
+  /**
+   * Returns the main application class that has been deduced or explicitly configured.
+   *
+   * @return the main application class or {@code null}
+   */
+  public Class<?> getMainApplicationClass() {
+    return this.mainApplicationClass;
+  }
+
+  /**
+   * Set a specific main application class that will be used as a log source and to
+   * obtain version information. By default the main application class will be deduced.
+   * Can be set to {@code null} if there is no explicit application class.
+   *
+   * @param mainApplicationClass the mainApplicationClass to set or {@code null}
+   */
+  public void setMainApplicationClass(Class<?> mainApplicationClass) {
+    this.mainApplicationClass = mainApplicationClass;
   }
 
   /**
@@ -107,45 +148,98 @@ public class Application {
   }
 
   /**
-   * Run the Spring application, creating and refreshing a new
+   * Run the application, creating and refreshing a new
    * {@link ApplicationContext}.
    *
    * @param args the application arguments (usually passed from a Java main method)
    * @return a running {@link ApplicationContext}
    */
-  public ConfigurableApplicationContext run(String[] args) {
-    configureHeadlessProperty();
-    ConfigurableApplicationContext context = getApplicationContext();
-    context = createApplicationContext();
-    preRun();
+  public ConfigurableApplicationContext run(String... args) {
+    long startTime = System.nanoTime();
 
+    preStartup();
+    ConfigurableApplicationContext context = null;
+    ApplicationStartupListeners listeners = getStartupListeners(args);
+    listeners.starting(mainApplicationClass);
     try {
-      SingletonBeanRegistry registry = context.unwrapFactory(SingletonBeanRegistry.class);
-      registry.registerSingleton(this);
 
-      context.unwrap(AnnotationConfigRegistry.class)
-              .register(mainApplicationClass); // @since 1.0.2 import startup class
-      context.refresh();
+      ApplicationArguments arguments = new ApplicationArguments(args);
+      ConfigurableEnvironment environment = prepareEnvironment(listeners, arguments);
 
-      WebServer webServer = context.getWebServer();
-      Assert.state(webServer != null, "No Web server.");
-      webServer.start();
+      context = createApplicationContext();
 
-      log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-              System.currentTimeMillis() - context.getStartupDate()//
-      );
-      return context;
+      prepareContext(context, listeners, arguments, environment);
+      refreshContext(context);
+
+      afterRefresh(context, arguments);
+
+      Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);
+
+      if (this.logStartupInfo) {
+        new StartupLogging(this.mainApplicationClass).logStarted(getApplicationLog(), timeTakenToStartup);
+      }
+
+      listeners.started(context, timeTakenToStartup);
+      callRunners(context, arguments);
+
+//      log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
+//              System.currentTimeMillis() - context.getStartupDate()//
+//      );
     }
     catch (Throwable e) {
-      context.close();
-      try {
-        context.publishEvent(new WebApplicationFailedEvent(context, e));
-      }
-      catch (Throwable ex) {
-        log.warn("Exception thrown from publishEvent handling WebApplicationFailedEvent", ex);
+      handleRunFailure(context, e, listeners);
+      if (context != null) {
+        context.close();
+        try {
+          context.publishEvent(new ApplicationFailedEvent(context, e));
+        }
+        catch (Throwable ex) {
+          log.warn("Exception thrown from publishEvent handling WebApplicationFailedEvent", ex);
+        }
       }
       throw ExceptionUtils.sneakyThrow(e);
     }
+
+    try {
+      Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);
+      listeners.ready(context, timeTakenToReady);
+      return context;
+    }
+    catch (Throwable ex) {
+      handleRunFailure(context, ex, null);
+      throw new IllegalStateException(ex);
+    }
+  }
+
+  private void refreshContext(ConfigurableApplicationContext context) {
+    context.registerShutdownHook();
+    refresh(context);
+  }
+
+  /**
+   * Refresh the underlying {@link ApplicationContext}.
+   *
+   * @param context the application context to refresh
+   */
+  protected void refresh(ConfigurableApplicationContext context) {
+    context.refresh();
+  }
+
+  protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments arguments) { }
+
+  private ApplicationStartupListeners getStartupListeners(String[] args) {
+    List<ApplicationStartupListener> strategies = TodayStrategies.getStrategies(ApplicationStartupListener.class);
+    return new ApplicationStartupListeners(log, strategies);
+  }
+
+  private ConfigurableEnvironment prepareEnvironment(
+          ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
+    // Create and configure the environment
+    ConfigurableEnvironment environment = getOrCreateEnvironment();
+    configureEnvironment(environment, applicationArguments.getSourceArgs());
+
+    listeners.environmentPrepared(environment);
+    return environment;
   }
 
   /**
@@ -160,47 +254,137 @@ public class Application {
     return this.applicationContextFactory.create(this.applicationType);
   }
 
-  protected void preRun() {
-    log.info("Starting Application at [{}]", getAppBasePath());
+  protected void preStartup() {
+    configureHeadlessProperty();
   }
 
   private void prepareContext(
-          ConfigurableApplicationContext context, ConfigurableEnvironment environment) {
+          ConfigurableApplicationContext context, ApplicationStartupListeners listeners,
+          ApplicationArguments arguments, ConfigurableEnvironment environment) {
+
+    context.setEnvironment(environment);
 
     applyInitializers(context);
 
+    listeners.contextPrepared(context);
+
+    if (this.logStartupInfo) {
+      logStartupInfo(context.getParent() == null);
+      logStartupProfileInfo(context);
+    }
+
+    // Add specific singleton beans
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    beanFactory.registerSingleton(this);
+    beanFactory.registerSingleton(ApplicationArguments.BEAN_NAME, arguments);
+
+    if (context instanceof AnnotationConfigRegistry configRegistry) {
+      if (ObjectUtils.isNotEmpty(configSources)) {
+        if (mainApplicationClass != null) {
+          HashSet<Class<?>> classes = new HashSet<>(Set.of(configSources));
+          classes.add(mainApplicationClass);
+          for (Class<?> configSource : classes) {
+            configRegistry.register(configSource); // @since 1.0.2 import startup class
+          }
+        }
+        else {
+          for (Class<?> configSource : configSources) {
+            configRegistry.register(configSource); // @since 1.0.2 import startup class
+          }
+        }
+      }
+      else if (mainApplicationClass != null) {
+        configRegistry.register(mainApplicationClass); // @since 1.0.2 import startup class
+      }
+    }
+  }
+
+  private ConfigurableEnvironment getOrCreateEnvironment() {
+    if (this.environment != null) {
+      return this.environment;
+    }
+    return new StandardEnvironment();
   }
 
   /**
-   * Sets the factory that will be called to create the application context. If not set,
-   * defaults to a factory that will create
-   * {@link AnnotationConfigServletWebServerApplicationContext} for servlet web
-   * applications, {@link AnnotationConfigReactiveWebServerApplicationContext} for
-   * reactive web applications, and {@link AnnotationConfigApplicationContext} for
-   * non-web applications.
+   * Template method delegating to
+   * {@link #configurePropertySources(ConfigurableEnvironment, String[])} and
+   * {@link #configureProfiles(ConfigurableEnvironment, String[])} in that order.
+   * Override this method for complete control over Environment customization, or one of
+   * the above for fine-grained control over property sources or profiles, respectively.
+   *
+   * @param environment this application's environment
+   * @param args arguments passed to the {@code run} method
+   * @see #configureProfiles(ConfigurableEnvironment, String[])
+   * @see #configurePropertySources(ConfigurableEnvironment, String[])
+   */
+  protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
+    configurePropertySources(environment, args);
+    configureProfiles(environment, args);
+  }
+
+  /**
+   * Configure which profiles are active (or active by default) for this application
+   * environment. Additional profiles may be activated during configuration file
+   * processing via the {@code context.profiles.active} property.
+   *
+   * @param environment this application's environment
+   * @param args arguments passed to the {@code run} method
+   * @see #configureEnvironment(ConfigurableEnvironment, String[])
+   */
+  protected void configureProfiles(ConfigurableEnvironment environment, String[] args) { }
+
+  /**
+   * Add, remove or re-order any {@link PropertySource}s in this application's
+   * environment.
+   *
+   * @param environment this application's environment
+   * @param args arguments passed to the {@code run} method
+   * @see #configureEnvironment(ConfigurableEnvironment, String[])
+   */
+  protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
+    PropertySources sources = environment.getPropertySources();
+    if (this.addCommandLineProperties && args.length > 0) {
+      String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
+      if (sources.contains(name)) {
+        PropertySource<?> source = sources.get(name);
+        CompositePropertySource composite = new CompositePropertySource(name);
+        composite.addPropertySource(
+                new SimpleCommandLinePropertySource("applicationCommandLineArgs", args));
+        composite.addPropertySource(source);
+        sources.replace(name, composite);
+      }
+      else {
+        sources.addFirst(new SimpleCommandLinePropertySource(args));
+      }
+    }
+  }
+
+  /**
+   * Sets the factory that will be called to create the application context.
    *
    * @param applicationContextFactory the factory for the context
    */
   public void setApplicationContextFactory(
           ApplicationContextFactory applicationContextFactory) {
     this.applicationContextFactory =
-            (applicationContextFactory != null) ? applicationContextFactory
-                                                : ApplicationContextFactory.DEFAULT;
+            applicationContextFactory != null
+            ? applicationContextFactory : ApplicationContextFactory.DEFAULT;
   }
 
   /**
-   * Sets the {@link ApplicationContextInitializer} that will be applied to the Spring
+   * Sets the {@link ApplicationContextInitializer} that will be applied to the
    * {@link ApplicationContext}.
    *
    * @param initializers the initializers to set
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setInitializers(Collection<ApplicationContextInitializer> initializers) {
-    this.initializers = new ArrayList<>(initializers);
+    this.initializers = new ArrayList(initializers);
   }
 
   /**
-   * Add {@link ApplicationContextInitializer}s to be applied to the Spring
+   * Add {@link ApplicationContextInitializer}s to be applied to the
    * {@link ApplicationContext}.
    *
    * @param initializers the initializers to add
@@ -211,7 +395,7 @@ public class Application {
 
   /**
    * Returns read-only ordered Set of the {@link ApplicationContextInitializer}s that
-   * will be applied to the Spring {@link ApplicationContext}.
+   * will be applied to the {@link ApplicationContext}.
    *
    * @return the initializers
    */
@@ -237,17 +421,63 @@ public class Application {
   }
 
   /**
-   * Sets the {@link ApplicationListener}s that will be applied to the SpringApplication
+   * Called to log startup information, subclasses may override to add additional
+   * logging.
+   *
+   * @param isRoot true if this application is the root of a context hierarchy
+   */
+  protected void logStartupInfo(boolean isRoot) {
+    if (isRoot) {
+      new StartupLogging(this.mainApplicationClass).logStarting(getApplicationLog());
+    }
+  }
+
+  /**
+   * Called to log active profile information.
+   *
+   * @param context the application context
+   */
+  protected void logStartupProfileInfo(ConfigurableApplicationContext context) {
+    Logger log = getApplicationLog();
+    if (log.isInfoEnabled()) {
+      String[] activeProfiles = context.getEnvironment().getActiveProfiles();
+      if (ObjectUtils.isEmpty(activeProfiles)) {
+        String[] defaultProfiles = context.getEnvironment().getDefaultProfiles();
+        log.info("No active profile set, falling back to default profiles: "
+                + StringUtils.arrayToString(defaultProfiles));
+      }
+      else {
+        log.info("The following profiles are active: "
+                + StringUtils.arrayToString(activeProfiles));
+      }
+    }
+  }
+
+  /**
+   * Returns the {@link Log} for the application. By default will be deduced.
+   *
+   * @return the application log
+   */
+  protected Logger getApplicationLog() {
+    if (this.mainApplicationClass == null) {
+      return log;
+    }
+    return LoggerFactory.getLogger(this.mainApplicationClass);
+  }
+
+  /**
+   * Sets the {@link ApplicationListener}s that will be applied to the Application
    * and registered with the {@link ApplicationContext}.
    *
    * @param listeners the listeners to set
    */
-  public void setListeners(Collection<? extends ApplicationListener<?>> listeners) {
-    this.listeners = new ArrayList<>(listeners);
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void setListeners(Collection<ApplicationListener> listeners) {
+    this.listeners = new ArrayList(listeners);
   }
 
   /**
-   * Add {@link ApplicationListener}s to be applied to the SpringApplication and
+   * Add {@link ApplicationListener}s to be applied to the Application and
    * registered with the {@link ApplicationContext}.
    *
    * @param listeners the listeners to add
@@ -258,7 +488,7 @@ public class Application {
 
   /**
    * Returns read-only ordered Set of the {@link ApplicationListener}s that will be
-   * applied to the SpringApplication and registered with the {@link ApplicationContext}
+   * applied to the Application and registered with the {@link ApplicationContext}
    *
    * @return the listeners
    */
@@ -281,12 +511,184 @@ public class Application {
             SYSTEM_PROPERTY_JAVA_AWT_HEADLESS, Boolean.toString(this.headless)));
   }
 
-  public ConfigurableApplicationContext getApplicationContext() {
-    return applicationContext;
+  /**
+   * Sets the underlying environment that should be used with the created application
+   * context.
+   *
+   * @param environment the environment
+   */
+  public void setEnvironment(ConfigurableEnvironment environment) {
+    this.environment = environment;
+  }
+
+  /**
+   * Sets if a {@link CommandLinePropertySource} should be added to the application
+   * context in order to expose arguments. Defaults to {@code true}.
+   *
+   * @param addCommandLineProperties if command line arguments should be exposed
+   */
+  public void setAddCommandLineProperties(boolean addCommandLineProperties) {
+    this.addCommandLineProperties = addCommandLineProperties;
+  }
+
+  /**
+   * Sets if the application information should be logged when the application starts.
+   * Defaults to {@code true}.
+   *
+   * @param logStartupInfo if startup info should be logged.
+   */
+  public void setLogStartupInfo(boolean logStartupInfo) {
+    this.logStartupInfo = logStartupInfo;
   }
 
   public String getAppBasePath() {
     return appBasePath;
+  }
+
+  private void handleRunFailure(
+          ConfigurableApplicationContext context, Throwable exception, ApplicationStartupListeners listeners) {
+    try {
+      try {
+        handleExitCode(context, exception);
+        if (listeners != null) {
+          listeners.failed(context, exception);
+        }
+      }
+      finally {
+        if (context != null) {
+          context.close();
+        }
+      }
+    }
+    catch (Exception ex) {
+      log.warn("Unable to close ApplicationContext", ex);
+    }
+    ReflectionUtils.rethrowRuntimeException(exception);
+  }
+
+  private void handleExitCode(ConfigurableApplicationContext context, Throwable exception) {
+    int exitCode = getExitCodeFromException(context, exception);
+    if (exitCode != 0) {
+      if (context != null) {
+        context.publishEvent(new ExitCodeEvent(context, exitCode));
+      }
+    }
+  }
+
+  private int getExitCodeFromException(ConfigurableApplicationContext context, Throwable exception) {
+    int exitCode = getExitCodeFromMappedException(context, exception);
+    if (exitCode == 0) {
+      exitCode = getExitCodeFromExitCodeGeneratorException(exception);
+    }
+    return exitCode;
+  }
+
+  private int getExitCodeFromMappedException(ConfigurableApplicationContext context, Throwable exception) {
+    if (context == null || context.getState() == ApplicationContext.State.NONE) {
+      return 0;
+    }
+    ExitCodeGenerators generators = new ExitCodeGenerators();
+    List<ExitCodeExceptionMapper> beans = context.getBeans(ExitCodeExceptionMapper.class);
+    generators.addAll(exception, beans);
+    return generators.getExitCode();
+  }
+
+  private int getExitCodeFromExitCodeGeneratorException(Throwable exception) {
+    if (exception == null) {
+      return 0;
+    }
+    if (exception instanceof ExitCodeGenerator) {
+      return ((ExitCodeGenerator) exception).getExitCode();
+    }
+    return getExitCodeFromExitCodeGeneratorException(exception.getCause());
+  }
+
+  private void callRunners(ApplicationContext context, ApplicationArguments args) {
+    ArrayList<Object> runners = new ArrayList<>();
+    runners.addAll(context.getBeansOfType(ApplicationRunner.class).values());
+    runners.addAll(context.getBeansOfType(CommandLineRunner.class).values());
+    AnnotationAwareOrderComparator.sort(runners);
+    for (Object runner : new LinkedHashSet<>(runners)) {
+      if (runner instanceof ApplicationRunner) {
+        callRunner((ApplicationRunner) runner, args);
+      }
+      if (runner instanceof CommandLineRunner) {
+        callRunner((CommandLineRunner) runner, args);
+      }
+    }
+  }
+
+  private void callRunner(ApplicationRunner runner, ApplicationArguments args) {
+    try {
+      (runner).run(args);
+    }
+    catch (Exception ex) {
+      throw new IllegalStateException("Failed to execute ApplicationRunner", ex);
+    }
+  }
+
+  private void callRunner(CommandLineRunner runner, ApplicationArguments args) {
+    try {
+      (runner).run(args.getSourceArgs());
+    }
+    catch (Exception ex) {
+      throw new IllegalStateException("Failed to execute CommandLineRunner", ex);
+    }
+  }
+
+  /**
+   * Static helper that can be used to run a {@link Application} from the
+   * specified sources using default settings and user supplied arguments.
+   *
+   * @param configClass the primary sources to load
+   * @param args the application arguments (usually passed from a Java main method)
+   * @return the running {@link ApplicationContext}
+   */
+  public static ConfigurableApplicationContext run(Class<?> configClass, String... args) {
+    return new Application(configClass).run(args);
+  }
+
+  /**
+   * Static helper that can be used to exit a {@link Application} and obtain a
+   * code indicating success (0) or otherwise. Does not throw exceptions but should
+   * print stack traces of any encountered. Applies the specified
+   * {@link ExitCodeGenerator} in addition to any Spring beans that implement
+   * {@link ExitCodeGenerator}. In the case of multiple exit codes the highest value
+   * will be used (or if all values are negative, the lowest value will be used)
+   *
+   * @param context the context to close if possible
+   * @param exitCodeGenerators exit code generators
+   * @return the outcome (0 if successful)
+   */
+  public static int exit(ApplicationContext context, ExitCodeGenerator... exitCodeGenerators) {
+    Assert.notNull(context, "Context must not be null");
+    int exitCode = 0;
+    try {
+      try {
+        ExitCodeGenerators generators = new ExitCodeGenerators();
+        Collection<ExitCodeGenerator> beans = context.getBeansOfType(ExitCodeGenerator.class).values();
+        generators.addAll(exitCodeGenerators);
+        generators.addAll(beans);
+        exitCode = generators.getExitCode();
+        if (exitCode != 0) {
+          context.publishEvent(new ExitCodeEvent(context, exitCode));
+        }
+      }
+      finally {
+        close(context);
+      }
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+      exitCode = (exitCode != 0) ? exitCode : 1;
+    }
+    return exitCode;
+  }
+
+  private static void close(ApplicationContext context) {
+    if (context instanceof ConfigurableApplicationContext closable) {
+      closable.close();
+    }
   }
 
   private static <E> Set<E> asUnmodifiableOrderedSet(Collection<E> elements) {

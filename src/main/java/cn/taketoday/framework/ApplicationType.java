@@ -20,10 +20,53 @@
 
 package cn.taketoday.framework;
 
+import cn.taketoday.util.ClassUtils;
+
 /**
+ * An enumeration of possible types of application.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/15 14:58
  */
 public enum ApplicationType {
+
+  /**
+   * The application should not run as a web application and should not start an
+   * embedded web server.
+   */
+  STANDARD,
+
+  /**
+   * The application should run as a servlet-based web application and should start an
+   * embedded servlet web server.
+   */
+  SERVLET_WEB,
+
+  /**
+   * The application should run as a reactive web application and should start an
+   * embedded reactive web server.
+   */
+  REACTIVE_WEB;
+
+  private static final String[] SERVLET_INDICATOR_CLASSES = {
+          "jakarta.servlet.Servlet"
+  };
+
+  private static final String WEBMVC_INDICATOR_CLASS = "org.springframework.web.servlet.DispatcherServlet";
+
+  private static final String WEBFLUX_INDICATOR_CLASS = "";
+
+  static ApplicationType deduceFromClasspath() {
+    if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null)
+            && !ClassUtils.isPresent(WEBMVC_INDICATOR_CLASS, null)) {
+      return ApplicationType.REACTIVE_WEB;
+    }
+    for (String className : SERVLET_INDICATOR_CLASSES) {
+      if (!ClassUtils.isPresent(className, null)) {
+        return ApplicationType.STANDARD;
+      }
+    }
+    return ApplicationType.SERVLET_WEB;
+  }
 
 }
