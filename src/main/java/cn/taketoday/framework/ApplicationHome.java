@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -68,6 +69,7 @@ public class ApplicationHome {
     this.dir = findHomeDir(this.source);
   }
 
+  @Nullable
   private Class<?> getStartClass() {
     try {
       ClassLoader classLoader = getClass().getClassLoader();
@@ -78,6 +80,7 @@ public class ApplicationHome {
     }
   }
 
+  @Nullable
   private Class<?> getStartClass(Enumeration<URL> manifestResources) {
     while (manifestResources.hasMoreElements()) {
       try (InputStream inputStream = manifestResources.nextElement().openStream()) {
@@ -87,12 +90,12 @@ public class ApplicationHome {
           return ClassUtils.forName(startClass, getClass().getClassLoader());
         }
       }
-      catch (Exception ex) {
-      }
+      catch (Exception ignored) { }
     }
     return null;
   }
 
+  @Nullable
   private File findSource(Class<?> sourceClass) {
     try {
       ProtectionDomain domain = (sourceClass != null) ? sourceClass.getProtectionDomain() : null;
@@ -103,8 +106,7 @@ public class ApplicationHome {
         return source.getAbsoluteFile();
       }
     }
-    catch (Exception ex) {
-    }
+    catch (Exception ignored) { }
     return null;
   }
 
@@ -117,8 +119,7 @@ public class ApplicationHome {
         }
       }
     }
-    catch (Exception ex) {
-    }
+    catch (Exception ignored) { }
     return false;
   }
 
@@ -161,6 +162,7 @@ public class ApplicationHome {
    *
    * @return the underlying source or {@code null}
    */
+  @Nullable
   public File getSource() {
     return this.source;
   }
