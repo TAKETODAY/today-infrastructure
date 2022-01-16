@@ -57,7 +57,7 @@ class BeanValidationConfig {
 
   @MissingBean
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  @ConditionalOnClass("org.hibernate.validator.HibernateValidator")
+  @ConditionalOnClass(name = "org.hibernate.validator.HibernateValidator")
   DefaultJavaxValidator hibernateValidator(ApplicationContext context) {
     final Class<ValidationProvider> aClass = ClassUtils.load("org.hibernate.validator.HibernateValidator");
 
@@ -70,7 +70,7 @@ class BeanValidationConfig {
   }
 
   @MissingBean
-  @ConditionalOnClass("jakarta.validation.Valid")
+  @ConditionalOnClass(name = "jakarta.validation.Valid")
   ValidationParameterResolver validationParameterResolver(WebValidator validator, ParameterResolvingRegistry resolvers) {
     return new ValidationParameterResolver(validator, resolvers);
   }

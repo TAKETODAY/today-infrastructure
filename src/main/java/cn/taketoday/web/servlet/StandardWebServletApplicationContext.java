@@ -20,14 +20,16 @@
 package cn.taketoday.web.servlet;
 
 import java.io.Serializable;
-import java.util.Set;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
 import jakarta.servlet.ServletContext;
@@ -50,49 +52,66 @@ public class StandardWebServletApplicationContext
   /**
    * Default Constructor
    */
-  public StandardWebServletApplicationContext() {
-    this(new StandardEnvironment());
+  public StandardWebServletApplicationContext() { }
+
+  /**
+   * Construct with {@link StandardBeanFactory}
+   *
+   * @param beanFactory {@link StandardBeanFactory} instance
+   */
+  public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
   }
 
   /**
-   * Construct with given {@link ConfigurableEnvironment}
+   * Create a new StandardWebServletApplicationContext with the given parent.
    *
-   * @param env {@link ConfigurableEnvironment} instance
+   * @param parent the parent application context
+   * @see #registerBeanDefinition(String, BeanDefinition)
+   * @see #refresh()
    */
-  public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
-    setEnvironment(env);
+  public StandardWebServletApplicationContext(@Nullable ApplicationContext parent) {
+    setParent(parent);
   }
 
-  public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
-    super(beanFactory);
+  /**
+   * Create a new StandardWebServletApplicationContext with the given StandardBeanFactory.
+   *
+   * @param beanFactory the StandardBeanFactory instance to use for this context
+   * @param parent the parent application context
+   * @see #registerBeanDefinition(String, BeanDefinition)
+   * @see #refresh()
+   */
+  public StandardWebServletApplicationContext(StandardBeanFactory beanFactory, ApplicationContext parent) {
+    this(beanFactory);
+    setParent(parent);
+  }
+
+  /**
+   * Set given properties location
+   *
+   * @param propertiesLocation a file or a di rectory to scan
+   */
+  public StandardWebServletApplicationContext(String propertiesLocation) {
+    setPropertiesLocation(propertiesLocation);
+  }
+
+  /**
+   * Start with given class set
+   *
+   * @param components one or more component classes,
+   * e.g. {@link Configuration @Configuration} classes
+   * @see #refresh()
+   * @see #register(Class[])
+   */
+  public StandardWebServletApplicationContext(Class<?>... components) {
+    register(components);
+    refresh();
   }
 
   public StandardWebServletApplicationContext(ServletContext servletContext) {
     this();
     this.servletContext = servletContext;
-  }
-
-  /**
-   * @param classes class set
-   * @param servletContext {@link ServletContext}
-   * @since 2.3.3
-   */
-  public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
-    this(servletContext);
-    registerBean(classes);
-    refresh();
-  }
-
-  /**
-   * @param servletContext {@link ServletContext}
-   * @param propertiesLocation properties location
-   * @param locations package locations
-   * @since 2.3.3
-   */
-  public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
-    this(servletContext);
-    setPropertiesLocation(propertiesLocation);
-    scan(locations);
   }
 
   @Override
@@ -109,11 +128,11 @@ public class StandardWebServletApplicationContext
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
     beanFactory.ignoreDependencyInterface(ServletContextAware.class);
-
   }
 
   @Override
   public String getContextPath() {
+    Assert.state(servletContext != null, "servletContext is not available");
     return servletContext.getContextPath();
   }
 

@@ -190,10 +190,9 @@ public abstract class AbstractServletWebServer
   protected void prepareInitialize() {
     super.prepareInitialize();
     WebServerApplicationContext context = obtainApplicationContext();
-
-    Class<?> startupClass = context.getStartupClass();
-    if (startupClass != null) {
-      ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
+    Class<?> mainApplicationClass = getMainApplicationClass();
+    if (mainApplicationClass != null) {
+      ServletSecurity servletSecurity = mainApplicationClass.getAnnotation(ServletSecurity.class);
       if (servletSecurity != null) {
         BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
         if (registry.containsBeanDefinition(ServletSecurityElement.class)) {

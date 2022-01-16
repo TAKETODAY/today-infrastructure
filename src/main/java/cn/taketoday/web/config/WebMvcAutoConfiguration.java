@@ -102,7 +102,7 @@ public class WebMvcAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnClass("com.fasterxml.jackson.databind.ObjectMapper")
+  @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
   JacksonConfiguration jacksonConfiguration() {
     return new JacksonConfiguration();
   }

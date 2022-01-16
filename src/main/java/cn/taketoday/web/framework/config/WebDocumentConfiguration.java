@@ -28,10 +28,10 @@ import java.util.Locale;
 
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.Application;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.web.framework.WebServerApplicationContext;
 
 /**
  * @author TODAY 2019-02-05 13:09
@@ -48,8 +48,8 @@ public class WebDocumentConfiguration {
 
   private final Class<?> startupClass;
 
-  public WebDocumentConfiguration(WebServerApplicationContext context) {
-    this.startupClass = context.getStartupClass() == null ? WebDocumentConfiguration.class : context.getStartupClass();
+  public WebDocumentConfiguration(Application application) {
+    this.startupClass = application.getMainApplicationClass();
   }
 
   public Resource getDirectory() {

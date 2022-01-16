@@ -36,9 +36,4 @@ public interface WebServerApplicationContext extends WebApplicationContext {
    */
   WebServer getWebServer();
 
-  /**
-   * Get startup class
-   */
-  Class<?> getStartupClass();
-
 }

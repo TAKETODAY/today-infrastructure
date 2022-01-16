@@ -19,18 +19,10 @@
  */
 package cn.taketoday.web.framework;
 
-import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.framework.Application;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.WebApplicationFailedEvent;
-import cn.taketoday.web.framework.server.WebServer;
 
 /**
  * Web Application Runner
@@ -40,86 +32,29 @@ import cn.taketoday.web.framework.server.WebServer;
 public class WebApplication extends Application {
   private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
 
-  private final WebServerApplicationContext context;
-
-  public WebApplication() {
-    this(null);
-  }
-
-  public WebApplication(Class<?> startupClass, String... args) {
-    this.args = args;
-    context = ClassUtils.isPresent(Constant.ENV_SERVLET)
-              ? new ServletWebServerApplicationContext(startupClass, args)
-              : new StandardWebServerApplicationContext(startupClass, args);
-  }
-
-  public WebApplication(WebServerApplicationContext context) {
-    this.args = null;
-    this.context = context;
-  }
-
-  public WebServerApplicationContext getApplicationContext() {
-    return context;
+  public WebApplication(Class<?>... configSources) {
+    super(configSources);
   }
 
   /**
    * Startup Web Application
    *
-   * @param startupClass Startup class
+   * @param config Startup class
    * @param args Startup arguments
    */
-  public static WebServerApplicationContext run(Class<?> startupClass, String... args) {
-    return new WebApplication(startupClass, args).run();
+  public static WebServerApplicationContext run(Class<?> config, String... args) {
+    return (WebServerApplicationContext) new WebApplication(config).run(args);
   }
 
   /**
    * Startup Reactive Web Application
    *
-   * @param startupClass Startup class
+   * @param config config
    * @param args Startup arguments
    */
   @Experimental
-  public static WebServerApplicationContext runReactive(Class<?> startupClass, String... args) {
-    return new WebApplication(new StandardWebServerApplicationContext(startupClass, args)).run();
-  }
-
-  /**
-   * Startup Web Application
-   *
-   * @return {@link WebServerApplicationContext}
-   */
-  public WebServerApplicationContext run() {
-    log.info("Starting Web Application at [{}]", getAppBasePath());
-
-    WebServerApplicationContext context = getApplicationContext();
-    try {
-      SingletonBeanRegistry registry = context.unwrapFactory(SingletonBeanRegistry.class);
-      registry.registerSingleton(this);
-
-      Class<?> startupClass = context.getStartupClass();
-      context.unwrap(AnnotationConfigRegistry.class)
-              .register(startupClass); // @since 1.0.2 import startup class
-      context.refresh();
-
-      WebServer webServer = context.getWebServer();
-      Assert.state(webServer != null, "No Web server.");
-      webServer.start();
-
-      log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-              System.currentTimeMillis() - context.getStartupDate()//
-      );
-      return context;
-    }
-    catch (Throwable e) {
-      context.close();
-      try {
-        context.publishEvent(new WebApplicationFailedEvent(context, e));
-      }
-      catch (Throwable ex) {
-        log.warn("Exception thrown from publishEvent handling WebApplicationFailedEvent", ex);
-      }
-      throw ExceptionUtils.sneakyThrow(e);
-    }
+  public static WebServerApplicationContext runReactive(Class<?> config, String... args) {
+    return (WebServerApplicationContext) new WebApplication(config).run(args);
   }
 
 }

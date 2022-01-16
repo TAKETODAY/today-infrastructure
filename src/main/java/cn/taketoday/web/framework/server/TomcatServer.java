@@ -562,8 +562,8 @@ public class TomcatServer extends AbstractServletWebServer implements Disposable
   protected void configurePersistSession(Manager manager) {
     if (manager instanceof StandardManager) {
       try {
-        Class<?> startupClass = obtainApplicationContext().getStartupClass();
-        File storeDirectory = getStoreDirectory(startupClass);
+        Class<?> mainApplicationClass = getMainApplicationClass();
+        File storeDirectory = getStoreDirectory(mainApplicationClass);
         ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
       }
       catch (IOException e) {

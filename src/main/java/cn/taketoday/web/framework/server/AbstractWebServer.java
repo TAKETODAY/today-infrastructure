@@ -29,13 +29,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.Application;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.LoggerFactory;
@@ -44,6 +45,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
+import cn.taketoday.web.framework.WebApplicationUtils;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.web.framework.config.CompressionConfiguration;
@@ -51,7 +53,6 @@ import cn.taketoday.web.framework.config.ErrorPage;
 import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebApplicationConfiguration;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
-import cn.taketoday.web.framework.WebApplicationUtils;
 import cn.taketoday.web.session.SessionConfiguration;
 
 /**
@@ -84,6 +85,9 @@ public abstract class AbstractWebServer
   private WebDocumentConfiguration webDocumentConfiguration;
   private AtomicBoolean started = new AtomicBoolean(false);
   private WebApplicationConfiguration webApplicationConfiguration;
+
+  @Autowired
+  private Application application;
 
   @Override
   public void initialize(WebApplicationInitializer... contextInitializers) {
@@ -177,7 +181,12 @@ public abstract class AbstractWebServer
    * @return temporal directory with sub directory
    */
   protected File getTemporalDirectory(String dir) {
-    return WebApplicationUtils.getTemporalDirectory(obtainApplicationContext().getStartupClass(), dir);
+    Class<?> mainApplicationClass = getMainApplicationClass();
+    return WebApplicationUtils.getTemporalDirectory(mainApplicationClass, dir);
+  }
+
+  protected Class<?> getMainApplicationClass() {
+    return application.getMainApplicationClass();
   }
 
   @Override

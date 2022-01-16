@@ -23,8 +23,12 @@ import java.io.Serializable;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.framework.server.WebServerLifecycle;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -46,22 +50,24 @@ public class StandardWebServerApplicationContext
 
   private WebServer webServer;
 
-  @Nullable
-  private final Class<?> startupClass;
-
   private String contextPath = Constant.BLANK;
 
-  public StandardWebServerApplicationContext() {
-    this.startupClass = null;
+  public StandardWebServerApplicationContext() { }
+
+  public StandardWebServerApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
   }
 
-  public StandardWebServerApplicationContext(@Nullable Class<?> startupClass) {
-    this.startupClass = startupClass;
+  public StandardWebServerApplicationContext(@Nullable ApplicationContext parent) {
+    super(parent);
   }
 
-  public StandardWebServerApplicationContext(@Nullable Class<?> startupClass, String... args) {
-    setEnvironment(new StandardWebEnvironment(args));
-    this.startupClass = startupClass;
+  public StandardWebServerApplicationContext(StandardBeanFactory beanFactory, ApplicationContext parent) {
+    super(beanFactory, parent);
+  }
+
+  public StandardWebServerApplicationContext(Class<?>... components) {
+    super(components);
   }
 
   /**
@@ -71,7 +77,6 @@ public class StandardWebServerApplicationContext
    */
   public StandardWebServerApplicationContext(ConfigurableEnvironment env) {
     setEnvironment(env);
-    this.startupClass = null;
   }
 
   @Override
@@ -82,20 +87,24 @@ public class StandardWebServerApplicationContext
 
   @Override
   protected void onRefresh() {
-    log.info("Looking For: [{}] Bean.", WebServer.class.getName());
-
-    this.webServer = WebApplicationUtils.obtainWebServer(this);
     super.onRefresh();
+    try {
+      createWebServer();
+    }
+    catch (Throwable ex) {
+      throw new ApplicationContextException("Unable to start web server", ex);
+    }
+  }
+
+  private void createWebServer() {
+    this.webServer = WebApplicationUtils.obtainWebServer(this);
+    getBeanFactory().registerSingleton(
+            WebServerLifecycle.BEAN_NAME, new WebServerLifecycle(this.webServer));
   }
 
   @Override
   public WebServer getWebServer() {
     return webServer;
-  }
-
-  @Override
-  public Class<?> getStartupClass() {
-    return startupClass;
   }
 
   @Override

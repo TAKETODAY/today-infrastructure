@@ -19,14 +19,17 @@
  */
 package cn.taketoday.web.framework;
 
-import jakarta.servlet.Servlet;
-
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.framework.server.WebServerLifecycle;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.framework.server.WebServer;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
 
 /**
  * {@link Servlet} based Web {@link ApplicationContext}
@@ -40,36 +43,39 @@ public class ServletWebServerApplicationContext
 
   private WebServer webServer;
 
-  private Class<?> startupClass;
+  public ServletWebServerApplicationContext() { }
 
-  public ServletWebServerApplicationContext() {
-    this(new StandardWebEnvironment());
+  public ServletWebServerApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
   }
 
-  public ServletWebServerApplicationContext(Class<?> startupClass, String... args) {
-    this(new StandardWebEnvironment(args), startupClass);
+  public ServletWebServerApplicationContext(@Nullable ApplicationContext parent) {
+    super(parent);
   }
 
-  /**
-   * Construct with given {@link ConfigurableEnvironment}
-   *
-   * @param env {@link ConfigurableEnvironment} instance
-   */
-  public ServletWebServerApplicationContext(ConfigurableEnvironment env) {
-    this(env, null);
+  public ServletWebServerApplicationContext(Class<?>... components) {
+    super(components);
   }
 
-  public ServletWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
-    super(env);
-    this.startupClass = startupClass;
+  public ServletWebServerApplicationContext(ServletContext servletContext) {
+    super(servletContext);
   }
 
   @Override
   protected void onRefresh() {
-    log.info("Looking For: [{}] Bean.", WebServer.class.getName());
-
-    this.webServer = WebApplicationUtils.obtainWebServer(this);
     super.onRefresh();
+    try {
+      createWebServer();
+    }
+    catch (Throwable ex) {
+      throw new ApplicationContextException("Unable to start web server", ex);
+    }
+  }
+
+  private void createWebServer() {
+    this.webServer = WebApplicationUtils.obtainWebServer(this);
+    getBeanFactory().registerSingleton(
+            WebServerLifecycle.BEAN_NAME, new WebServerLifecycle(this.webServer));
   }
 
   @Override
@@ -77,17 +83,4 @@ public class ServletWebServerApplicationContext
     return webServer;
   }
 
-  @Override
-  public Class<?> getStartupClass() {
-    return startupClass;
-  }
-
-  /**
-   * Apply startup class
-   *
-   * @param startupClass Startup class such as Application or XXXApplication
-   */
-  public void setStartupClass(Class<?> startupClass) {
-    this.startupClass = startupClass;
-  }
 }

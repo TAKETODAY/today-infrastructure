@@ -428,8 +428,8 @@ public class JettyServer
       final DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
       final FileSessionDataStore store = new FileSessionDataStore();
       try {
-        final Class<?> startupClass = obtainApplicationContext().getStartupClass();
-        store.setStoreDir(getStoreDirectory(startupClass));
+        Class<?> mainApplicationClass = getMainApplicationClass();
+        store.setStoreDir(getStoreDirectory(mainApplicationClass));
       }
       catch (IOException e) {
         throw new ConfigurationException(e);

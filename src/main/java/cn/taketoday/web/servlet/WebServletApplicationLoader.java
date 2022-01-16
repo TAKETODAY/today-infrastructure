@@ -38,7 +38,7 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationFailedEvent;
+import cn.taketoday.framework.ApplicationFailedEvent;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
@@ -196,7 +196,7 @@ public class WebServletApplicationLoader
       onStartup(context);
     }
     catch (Throwable ex) {
-      context.publishEvent(new WebApplicationFailedEvent(context, ex));
+      context.publishEvent(new ApplicationFailedEvent(context, ex));
       throw ExceptionUtils.sneakyThrow(ex);
     }
   }

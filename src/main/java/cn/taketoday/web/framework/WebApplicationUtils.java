@@ -26,16 +26,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.config.WebApplicationLoader;
-import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.server.AbstractWebServer;
 import cn.taketoday.web.framework.server.ConfigurableWebServer;
 import cn.taketoday.web.framework.server.WebServer;
@@ -187,30 +182,6 @@ public abstract class WebApplicationUtils {
       ret = new File(".");
     }
     return ret.getAbsoluteFile();
-  }
-
-  // -------------------args
-
-  /**
-   * Parse command line arguments
-   *
-   * @param args arguments
-   * @return key-value
-   */
-  public static Map<String, String> parseCommandLineArguments(String... args) {
-    if (ObjectUtils.isEmpty(args)) {
-      return Collections.emptyMap();
-    }
-    LinkedHashMap<String, String> argsMap = new LinkedHashMap<>();
-    for (String arg : args) {
-      if (arg.startsWith("--") && arg.indexOf('=') > -1) {
-        String[] param = arg.substring(2).split("=");
-        if (param.length >= 2) {
-          argsMap.put(param[0], param[1]);
-        }
-      }
-    }
-    return argsMap;
   }
 
 }

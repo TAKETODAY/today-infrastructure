@@ -31,7 +31,7 @@ import cn.taketoday.web.handler.AbstractHandlerAdapter;
 /**
  * @author TODAY 2019-12-24 22:01
  */
-@ConditionalOnClass(Constant.ENV_SERVLET)
+@ConditionalOnClass(name = Constant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
   public ServletHandlerAdapter() { }
