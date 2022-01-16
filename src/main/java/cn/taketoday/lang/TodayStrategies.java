@@ -333,9 +333,6 @@ public final class TodayStrategies {
 
   /**
    * get none repeatable strategies by given class
-   * <p>
-   * strategies must be instance-of given strategy class
-   * use default {@link #beanFactory}
    *
    * @param strategyClass strategy class
    * @param <T> target type
