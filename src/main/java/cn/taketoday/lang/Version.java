@@ -20,6 +20,8 @@
 
 package cn.taketoday.lang;
 
+import java.util.Objects;
+
 /**
  * Class that exposes the version. Fetches the
  * "Implementation-Version" manifest attribute from the jar file.
@@ -27,7 +29,9 @@ package cn.taketoday.lang;
  * @author TODAY 2021/10/11 23:28
  * @since 4.0
  */
-public record Version(int major, int minor, int micro, String type, int step, @Nullable String extension) {
+public record Version(
+        int major, int minor, int micro, String type, int step,
+        @Nullable String extension, String implementationVersion) {
   public static final String Draft = "Draft";
   public static final String Alpha = "Alpha";
   public static final String Beta = "Beta";
@@ -42,7 +46,7 @@ public record Version(int major, int minor, int micro, String type, int step, @N
       instance = parse(implementationVersion);
     }
     else {
-      instance = new Version(0, 0, 0, "Draft", 0, null);
+      instance = new Version(0, 0, 0, "Draft", 0, null, null);
       System.err.println("cn.taketoday.lang.Version cannot get 'implementationVersion' in manifest.");
     }
   }
@@ -85,7 +89,26 @@ public record Version(int major, int minor, int micro, String type, int step, @N
     minor = Integer.parseInt(verSplit[1]);
     micro = Integer.parseInt(verSplit[2]);
 
-    return new Version(major, minor, micro, type, step, extension);
+    return new Version(major, minor, micro, type, step, extension, implementationVersion);
+  }
+
+  @Override
+  public String toString() {
+    return "v" + implementationVersion;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof Version version))
+      return false;
+    return Objects.equals(implementationVersion, version.implementationVersion);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(implementationVersion);
   }
 
   /**
@@ -94,5 +117,4 @@ public record Version(int major, int minor, int micro, String type, int step, @N
   public static Version get() {
     return instance;
   }
-
 }
