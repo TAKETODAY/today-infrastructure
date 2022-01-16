@@ -33,7 +33,7 @@ import cn.taketoday.lang.Assert;
  * @author Arjen Poutsma
  * @since 4.0
  */
-public class ClientHttpRequestFactoryDecorator implements ClientHttpRequestFactory {
+public class ClientHttpRequestFactoryWrapper implements ClientHttpRequestFactory {
 
   private final ClientHttpRequestFactory requestFactory;
 
@@ -42,7 +42,7 @@ public class ClientHttpRequestFactoryDecorator implements ClientHttpRequestFacto
    *
    * @param requestFactory the request factory to be wrapped
    */
-  protected ClientHttpRequestFactoryDecorator(ClientHttpRequestFactory requestFactory) {
+  public ClientHttpRequestFactoryWrapper(ClientHttpRequestFactory requestFactory) {
     Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
     this.requestFactory = requestFactory;
   }
@@ -50,11 +50,11 @@ public class ClientHttpRequestFactoryDecorator implements ClientHttpRequestFacto
   /**
    * This implementation simply calls {@link #createRequest(URI, HttpMethod, ClientHttpRequestFactory)}
    * with the wrapped request factory provided to the
-   * {@linkplain #ClientHttpRequestFactoryDecorator(ClientHttpRequestFactory) constructor}.
+   * {@linkplain #ClientHttpRequestFactoryWrapper(ClientHttpRequestFactory) constructor}.
    */
   @Override
   public final ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
-    return createRequest(uri, httpMethod, this.requestFactory);
+    return createRequest(uri, httpMethod, requestFactory);
   }
 
   /**

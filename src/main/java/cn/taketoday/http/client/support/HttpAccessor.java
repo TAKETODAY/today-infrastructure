@@ -57,7 +57,7 @@ public abstract class HttpAccessor {
 
   private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
-  private final ArrayList<ClientHttpRequestInitializer> httpRequestInitializers = new ArrayList<>();
+  private final ArrayList<ClientHttpRequestInitializer>  httpRequestInitializers = new ArrayList<>();
 
   /**
    * Set the request factory that this accessor uses for obtaining client request handles.

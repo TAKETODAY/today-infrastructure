@@ -36,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @see ClientHttpRequestInterceptor
  * @since 4.0
  */
-public class InterceptingClientHttpRequestFactory extends ClientHttpRequestFactoryDecorator {
+public class InterceptingClientHttpRequestFactory extends ClientHttpRequestFactoryWrapper {
 
   private final List<ClientHttpRequestInterceptor> interceptors;
 

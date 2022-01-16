@@ -35,7 +35,7 @@ import cn.taketoday.http.HttpMethod;
  * @author Arjen Poutsma
  * @since 4.0
  */
-public class BufferingClientHttpRequestFactory extends ClientHttpRequestFactoryDecorator {
+public class BufferingClientHttpRequestFactory extends ClientHttpRequestFactoryWrapper {
 
   /**
    * Create a buffering wrapper for the given {@link ClientHttpRequestFactory}.
