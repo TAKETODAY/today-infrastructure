@@ -96,7 +96,7 @@ public class StandardApplicationContext
   }
 
   /**
-   * Create a new DefaultApplicationContext with the given StandardBeanFactory.
+   * Create a new StandardApplicationContext with the given StandardBeanFactory.
    *
    * @param beanFactory the StandardBeanFactory instance to use for this context
    * @param parent the parent application context
