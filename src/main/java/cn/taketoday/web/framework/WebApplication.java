@@ -21,7 +21,7 @@ package cn.taketoday.web.framework;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.context.AnnotationConfigRegistry;
-import cn.taketoday.context.Application;
+import cn.taketoday.framework.Application;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Experimental;

@@ -33,7 +33,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.framework.server.WebServer;
-import cn.taketoday.web.framework.utils.WebApplicationUtils;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 

@@ -51,7 +51,7 @@ import cn.taketoday.web.framework.config.ErrorPage;
 import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebApplicationConfiguration;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
-import cn.taketoday.web.framework.utils.WebApplicationUtils;
+import cn.taketoday.web.framework.WebApplicationUtils;
 import cn.taketoday.web.session.SessionConfiguration;
 
 /**
