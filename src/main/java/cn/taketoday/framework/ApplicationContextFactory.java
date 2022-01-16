@@ -18,11 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.framework;
 
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
  * Strategy interface for creating the {@link ConfigurableApplicationContext} used by a

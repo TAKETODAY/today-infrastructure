@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
+package cn.taketoday.framework;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +28,10 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.context.AnnotationConfigRegistry;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
