@@ -34,13 +34,13 @@ import cn.taketoday.lang.Singleton;
 class ConditionalTests {
 
   @Singleton
-  @ConditionalOnClass("jakarta.inject.Inject")
+  @ConditionalOnClass(name = "jakarta.inject.Inject")
   public static class ConditionalClass {
 
   }
 
   @Singleton
-  @ConditionalOnClass("Inject")
+  @ConditionalOnClass(name = "Inject")
   public static class ConditionalMissingClass {
 
   }
