@@ -52,13 +52,10 @@ public enum ApplicationType {
           "jakarta.servlet.Servlet"
   };
 
-  private static final String WEBMVC_INDICATOR_CLASS = "org.springframework.web.servlet.DispatcherServlet";
-
-  private static final String WEBFLUX_INDICATOR_CLASS = "";
+  private static final String REACTIVE_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   static ApplicationType deduceFromClasspath() {
-    if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null)
-            && !ClassUtils.isPresent(WEBMVC_INDICATOR_CLASS, null)) {
+    if (ClassUtils.isPresent(REACTIVE_INDICATOR_CLASS, null)) {
       return ApplicationType.REACTIVE_WEB;
     }
     for (String className : SERVLET_INDICATOR_CLASSES) {
