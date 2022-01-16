@@ -54,6 +54,7 @@ import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
@@ -1225,14 +1226,16 @@ public class StandardBeanFactory
 
     descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
 
-    if (Optional.class == descriptor.getDependencyType()) {
+    Class<?> dependencyType = descriptor.getDependencyType();
+    if (Optional.class == dependencyType) {
       return createOptionalDependency(descriptor, requestingBeanName);
     }
-    else if (Supplier.class == descriptor.getDependencyType()
-            || ObjectSupplier.class == descriptor.getDependencyType()) {
+    else if (Supplier.class == dependencyType
+            || ObjectProvider.class == dependencyType
+            || ObjectSupplier.class == dependencyType) {
       return new DependencyObjectProvider(descriptor, requestingBeanName);
     }
-    else if (injectProviderClass == descriptor.getDependencyType()) {
+    else if (injectProviderClass == dependencyType) {
       return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
     }
     else {
@@ -1805,7 +1808,7 @@ public class StandardBeanFactory
     return result instanceof Optional ? (Optional<?>) result : Optional.ofNullable(result);
   }
 
-  private interface BeanObjectSupplier<T> extends ObjectSupplier<T>, Serializable { }
+  private interface BeanObjectSupplier<T> extends ObjectProvider<T>, Serializable { }
 
   /**
    * A dependency descriptor marker for nested elements.
