@@ -20,19 +20,18 @@
 
 package cn.taketoday.web.view.template;
 
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
-import cn.taketoday.expression.ExpressionResolverComposite;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
+import cn.taketoday.expression.ExpressionResolverComposite;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.HttpSessionModelAdapter;
 import cn.taketoday.web.servlet.ServletContextModelAdapter;
-import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestModelAdapter;
+import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author TODAY 2021/4/15 22:14
@@ -73,33 +72,31 @@ final class ServletResolversSupplier extends ResolversSupplier {
 
   @Override
   public ExpressionResolver getResolvers(ExpressionContext sharedContext, RequestContext context) {
-    if (context instanceof ServletRequestContext) {
-      final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
-      final HttpSession session = request.getSession(false);
-      final ServletContext servletContext = request.getServletContext();
+    HttpServletRequest request = ServletUtils.getServletRequest(context);
 
-      final ServletRequestModelAdapter servletRequestModelAdapter = new ServletRequestModelAdapter(request);
-      final ServletContextModelAdapter servletContextModelAdapter = new ServletContextModelAdapter(servletContext);
+    HttpSession session = request.getSession(false);
+    ServletContext servletContext = request.getServletContext();
 
-      if (session != null) {
-        final HttpSessionModelAdapter httpSessionModelAdapter = new HttpSessionModelAdapter(session);
-        return new ExpressionResolverComposite(
-                new ModelAttributeResolver(context),
-                new ModelAttributeResolver(servletRequestModelAdapter), // 1
-                new ModelAttributeResolver(httpSessionModelAdapter), // 2
-                new ModelAttributeResolver(servletContextModelAdapter), // 3
-                sharedContext.getResolver()
-        );
-      }
+    ServletRequestModelAdapter servletRequestModelAdapter = new ServletRequestModelAdapter(request);
+    ServletContextModelAdapter servletContextModelAdapter = new ServletContextModelAdapter(servletContext);
 
+    if (session != null) {
+      HttpSessionModelAdapter httpSessionModelAdapter = new HttpSessionModelAdapter(session);
       return new ExpressionResolverComposite(
               new ModelAttributeResolver(context),
               new ModelAttributeResolver(servletRequestModelAdapter), // 1
-              new ModelAttributeResolver(servletContextModelAdapter), // 2
+              new ModelAttributeResolver(httpSessionModelAdapter), // 2
+              new ModelAttributeResolver(servletContextModelAdapter), // 3
               sharedContext.getResolver()
       );
     }
-    throw new IllegalStateException("Not run in servlet");
+
+    return new ExpressionResolverComposite(
+            new ModelAttributeResolver(context),
+            new ModelAttributeResolver(servletRequestModelAdapter), // 1
+            new ModelAttributeResolver(servletContextModelAdapter), // 2
+            sharedContext.getResolver()
+    );
   }
 
 }
