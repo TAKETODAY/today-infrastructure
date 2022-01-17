@@ -28,7 +28,6 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -50,7 +49,6 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
  * @since 4.0 2022/1/16 15:10
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(HttpMessageConverter.class)
 @Import(JacksonHttpMessageConvertersConfiguration.class)
 public class HttpMessageConvertersAutoConfiguration {
 
@@ -62,26 +60,20 @@ public class HttpMessageConvertersAutoConfiguration {
     return new HttpMessageConverters(converters.orderedStream().collect(Collectors.toList()));
   }
 
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(StringHttpMessageConverter.class)
-  protected static class StringHttpMessageConverterConfiguration {
-
-    @Bean
-    @ConditionalOnMissingBean
-    public StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
-      Charset charset;
-      String encoding = environment.getProperty("server.servlet.encoding");
-      if (encoding != null) {
-        charset = Charset.forName(encoding);
-      }
-      else {
-        charset = StandardCharsets.UTF_8;
-      }
-      StringHttpMessageConverter converter = new StringHttpMessageConverter(charset);
-      converter.setWriteAcceptCharset(false);
-      return converter;
+  @Bean
+  @ConditionalOnMissingBean
+  public StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
+    Charset charset;
+    String encoding = environment.getProperty("server.encoding");
+    if (encoding != null) {
+      charset = Charset.forName(encoding);
     }
-
+    else {
+      charset = StandardCharsets.UTF_8;
+    }
+    StringHttpMessageConverter converter = new StringHttpMessageConverter(charset);
+    converter.setWriteAcceptCharset(false);
+    return converter;
   }
 
 }

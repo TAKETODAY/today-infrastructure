@@ -69,7 +69,7 @@ public class CodecsAutoConfiguration {
 
     @Component
     @Order(0)
-    CodecCustomizer defaultCodecCustomizer(@Props(prefix = "context.codec") CodecProperties codecProperties) {
+    CodecCustomizer defaultCodecCustomizer(@Props(prefix = "http.codec") CodecProperties codecProperties) {
       return (configurer) -> {
         PropertyMapper map = PropertyMapper.get();
         CodecConfigurer.DefaultCodecs defaultCodecs = configurer.defaultCodecs();

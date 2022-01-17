@@ -23,6 +23,7 @@ package cn.taketoday.web.client.config;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -35,17 +36,19 @@ import cn.taketoday.web.client.RestTemplate;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 14:40
  */
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(RestTemplate.class)
 public class RestTemplateAutoConfiguration {
 
-  @Component
   @Lazy
+  @Component
   @ConditionalOnMissingBean
   public RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
           ObjectProvider<HttpMessageConverters> messageConverters,
           ObjectProvider<RestTemplateCustomizer> restTemplateCustomizers,
           ObjectProvider<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
+
     RestTemplateBuilderConfigurer configurer = new RestTemplateBuilderConfigurer();
     configurer.setHttpMessageConverters(messageConverters.getIfUnique());
     configurer.setRestTemplateCustomizers(restTemplateCustomizers.orderedStream().collect(Collectors.toList()));
@@ -54,8 +57,8 @@ public class RestTemplateAutoConfiguration {
     return configurer;
   }
 
-  @Component
   @Lazy
+  @Component
   @ConditionalOnMissingBean
   public RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
     RestTemplateBuilder builder = new RestTemplateBuilder();

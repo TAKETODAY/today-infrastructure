@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.jackson;
+package cn.taketoday.web.config.jackson;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -85,7 +85,6 @@ public @interface JsonComponent {
    * to a subclasses of type inferred from the generic.
    *
    * @return the types that should be handled by the component
-   * @since 2.2.0
    */
   Class<?>[] type() default {};
 

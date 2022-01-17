@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.jackson;
+package cn.taketoday.web.config.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -74,8 +74,9 @@ public abstract class JsonObjectDeserializer<T> extends JsonDeserializer<T> {
    * @throws IOException on error
    * @see #deserialize(JsonParser, DeserializationContext)
    */
-  protected abstract T deserializeObject(JsonParser jsonParser, DeserializationContext context, ObjectCodec codec,
-                                         JsonNode tree) throws IOException;
+  protected abstract T deserializeObject(
+          JsonParser jsonParser, DeserializationContext context, ObjectCodec codec, JsonNode tree)
+          throws IOException;
 
   /**
    * Helper method to extract a value from the given {@code jsonNode} or return

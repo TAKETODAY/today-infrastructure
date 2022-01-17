@@ -62,7 +62,7 @@ import reactor.netty.http.client.HttpClientRequest;
  * By default the built {@link RestTemplate} will attempt to use the most suitable
  * {@link ClientHttpRequestFactory}, call {@link #detectRequestFactory(boolean)
  * detectRequestFactory(false)} if you prefer to keep the default. In a typical
- * auto-configured Spring Boot application this builder is available as a bean and can be
+ * auto-configured application this builder is available as a bean and can be
  * injected whenever a {@link RestTemplate} is needed.
  *
  * @author Stephane Nicoll
@@ -156,8 +156,7 @@ public class RestTemplateBuilder {
   public RestTemplateBuilder detectRequestFactory(boolean detectRequestFactory) {
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, customizers,
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
   }
 
   /**
@@ -173,8 +172,7 @@ public class RestTemplateBuilder {
   public RestTemplateBuilder rootUri(String rootUri) {
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, customizers,
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
   }
 
   /**
@@ -206,8 +204,7 @@ public class RestTemplateBuilder {
     Assert.notNull(messageConverters, "MessageConverters must not be null");
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
             copiedSetOf(messageConverters), interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, customizers,
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
   }
 
   /**
@@ -284,8 +281,7 @@ public class RestTemplateBuilder {
     Assert.notNull(interceptors, "interceptors must not be null");
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
             messageConverters, copiedSetOf(interceptors), requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, customizers,
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
   }
 
   /**

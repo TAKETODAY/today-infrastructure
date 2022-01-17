@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.jackson;
+package cn.taketoday.web.config.jackson;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -40,9 +40,9 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.framework.jackson.JsonComponent.Scope;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.config.jackson.JsonComponent.Scope;
 
 /**
  * Bean and Jackson {@link Module} to register {@link JsonComponent @JsonComponent}
@@ -84,8 +84,8 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
   }
 
   private void addJsonBean(Object bean) {
-    MergedAnnotation<JsonComponent> annotation = MergedAnnotations
-            .from(bean.getClass(), SearchStrategy.TYPE_HIERARCHY).get(JsonComponent.class);
+    MergedAnnotation<JsonComponent> annotation = MergedAnnotations.from(
+            bean.getClass(), SearchStrategy.TYPE_HIERARCHY).get(JsonComponent.class);
     Class<?>[] types = annotation.getClassArray("type");
     Scope scope = annotation.getEnum("scope", Scope.class);
     addJsonBean(bean, types, scope);

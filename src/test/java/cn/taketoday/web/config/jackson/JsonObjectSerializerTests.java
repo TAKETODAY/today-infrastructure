@@ -18,28 +18,30 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.jackson;
+package cn.taketoday.web.config.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Callback interface that can be implemented by beans wishing to further customize the
- * {@link ObjectMapper} via {@link Jackson2ObjectMapperBuilder} retaining its default
- * auto-configuration.
- *
- * @author Grzegorz Poznachowski
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/16 17:49
  */
-@FunctionalInterface
-public interface Jackson2ObjectMapperBuilderCustomizer {
+public class JsonObjectSerializerTests {
 
-  /**
-   * Customize the JacksonObjectMapperBuilder.
-   *
-   * @param jacksonObjectMapperBuilder the JacksonObjectMapperBuilder to customize
-   */
-  void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder);
+  @Test
+  void serializeObjectShouldWriteJson() throws Exception {
+    NameAndAgeJsonComponent.Serializer serializer = new NameAndAgeJsonComponent.Serializer();
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(NameAndAge.class, serializer);
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(module);
+    String json = mapper.writeValueAsString(new NameAndAge("spring", 100));
+    assertThat(json).isEqualToIgnoringWhitespace("{\"name\":\"spring\",\"age\":100}");
+  }
 
 }

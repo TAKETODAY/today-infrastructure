@@ -44,8 +44,8 @@ public class ClientHttpRequestFactorySupplier implements Supplier<ClientHttpRequ
 
   @Override
   public ClientHttpRequestFactory get() {
+    ClassLoader classLoader = getClass().getClassLoader();
     for (Map.Entry<String, String> candidate : REQUEST_FACTORY_CANDIDATES.entrySet()) {
-      ClassLoader classLoader = getClass().getClassLoader();
       if (ClassUtils.isPresent(candidate.getKey(), classLoader)) {
         Class<ClientHttpRequestFactory> factoryClass = ClassUtils.resolveClassName(candidate.getValue(), classLoader);
         return BeanUtils.newInstance(factoryClass);

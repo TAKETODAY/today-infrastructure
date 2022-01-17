@@ -21,4 +21,4 @@
 /**
  * Custom enhancements and support for the Jackson project.
  */
-package cn.taketoday.framework.jackson;
+package cn.taketoday.web.config.jackson;
