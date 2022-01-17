@@ -31,7 +31,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationException {
-  private final Object result;
+  private final Object returnValue;
   private final Object handler;
 
   /**
@@ -40,7 +40,7 @@ public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationE
    */
   public ReturnValueHandlerNotFoundException(Object returnValue, Object handler) {
     super("No ReturnValueHandler for return-value: [" + returnValue + ']');
-    this.result = returnValue;
+    this.returnValue = returnValue;
     this.handler = handler;
   }
 
@@ -48,7 +48,8 @@ public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationE
     return handler;
   }
 
-  public Object getResultValue() {
-    return result;
+  public Object getReturnValue() {
+    return returnValue;
   }
+
 }

@@ -54,8 +54,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   }
 
   /**
-   * {@link #NONE_RETURN_VALUE}
-   *
+   * @param returnValue if returnValue is {@link #NONE_RETURN_VALUE} match handler only
    * @return null if returnValue is {@link #NONE_RETURN_VALUE} or no one matched
    */
   @Nullable
