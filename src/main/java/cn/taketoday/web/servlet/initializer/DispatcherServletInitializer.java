@@ -75,7 +75,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
   protected void configureRegistration(Dynamic registration) {
     super.configureRegistration(registration);
     if (log.isInfoEnabled()) {
-      log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
+      log.info("Registering dispatcher-servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
     }
   }
 
@@ -90,7 +90,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
                 configuration.getMaxFileSize().toBytes(),
                 configuration.getMaxRequestSize().toBytes(),
                 (int) configuration.getFileSizeThreshold().toBytes());
-        log.info("configure DispatcherServlet multipart: {}", configuration);
+        log.info("configure dispatcher-servlet multipart: {}", configuration);
       }
     }
 
