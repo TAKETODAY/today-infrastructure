@@ -24,19 +24,14 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.core.ConfigurationException;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -47,13 +42,11 @@ import freemarker.core.Environment;
 import freemarker.ext.util.WrapperTemplateModel;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultMapAdapter;
-import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
-import freemarker.template.Version;
 import freemarker.template.utility.ObjectWrapperWithAPISupport;
 
 /**
@@ -67,7 +60,7 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
  * @see WebMvcConfiguration#configureParameterResolving(List)
  */
 public abstract class AbstractFreeMarkerTemplateRenderer
-        extends AbstractTemplateRenderer implements WebMvcConfiguration {
+        extends AbstractTemplateRenderer implements WebMvcConfiguration, InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(AbstractFreeMarkerTemplateRenderer.class);
 
   public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
@@ -84,54 +77,6 @@ public abstract class AbstractFreeMarkerTemplateRenderer
     setSuffix(".ftl");
   }
 
-  protected void configConfiguration(WebApplicationContext context) {
-    if (configuration == null) {
-      configuration = new Configuration(freemakerVersion());
-      context.unwrapFactory(SingletonBeanRegistry.class)
-              .registerSingleton(configuration);
-    }
-    log.info("Configure FreeMarker TemplateModel");
-    context.getBeansOfType(TemplateModel.class)
-            .forEach(configuration::setSharedVariable);
-
-    configuration.setLocale(locale);
-    configuration.setDefaultEncoding(encoding);
-  }
-
-  protected Version freemakerVersion() {
-    return Configuration.VERSION_2_3_28;
-  }
-
-  protected void configObjectWrapper() {
-    if (getObjectWrapper() == null) {
-      setObjectWrapper(new DefaultObjectWrapper(freemakerVersion()));
-    }
-    getConfiguration().setObjectWrapper(getObjectWrapper());
-  }
-
-  @Autowired
-  public void initFreeMarker(
-          WebApplicationContext context,
-          @Props(prefix = "freemarker.", replace = true) Properties settings) {
-
-    log.info("Initialize FreeMarker");
-    if (resourceLoader == null) {
-      resourceLoader = context;
-    }
-    configConfiguration(context);
-    configObjectWrapper();
-
-    try {
-      if (CollectionUtils.isNotEmpty(settings)) {
-        getConfiguration().setSettings(settings);
-      }
-    }
-    catch (TemplateException e) {
-      throw new ConfigurationException("Set FreeMarker's Properties Error, With: [" + e + "]", e);
-    }
-    log.info("FreeMarker template renderer init successfully.");
-  }
-
   @Override
   public void configureParameterResolving(List<ParameterResolvingStrategy> resolvers) {
     resolvers.add(new FreemarkerConfigParameterResolver());
@@ -146,6 +91,12 @@ public abstract class AbstractFreeMarkerTemplateRenderer
     if (log.isInfoEnabled()) {
       log.info("FreeMarker use [{}] to load templates, prefix: [{}], suffix: [{}]", loader, prefix, suffix);
     }
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    configuration.setLocale(locale);
+    configuration.setDefaultEncoding(encoding);
   }
 
   @SuppressWarnings("unchecked")

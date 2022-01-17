@@ -24,14 +24,27 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
+import java.util.Properties;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Component;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.ObjectWrapper;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateModel;
+import freemarker.template.Version;
 
 /**
  * @author TODAY 2021/3/24 21:50
@@ -41,18 +54,59 @@ import cn.taketoday.core.Ordered;
 @Import(FreeMarkerConfig.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface EnableFreeMarker {
+  String CONFIGURATION_BEAN_NAME = "freemarker.template.Configuration";
 
 }
 
-@Configuration(proxyBeanMethods = false)
+@cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
 class FreeMarkerConfig {
 
   @Props(prefix = "web.mvc.view.")
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
-  @MissingBean(value = AbstractFreeMarkerTemplateRenderer.class)
-  @ConditionalOnClass(name = { "freemarker.template.Configuration" })
-  FreeMarkerTemplateRenderer freeMarkerTemplateRenderer() {
-    return new FreeMarkerTemplateRenderer();
+  @MissingBean(AbstractFreeMarkerTemplateRenderer.class)
+  FreeMarkerTemplateRenderer freeMarkerTemplateRenderer(
+          ResourceLoader resourceLoader,
+          Map<String, TemplateModel> templateModels,
+          Configuration configuration, ObjectWrapper freeMarkerObjectWrapper,
+          @Props(prefix = "freemarker.", replace = true) Properties settings) {
+    Logger log = LoggerFactory.getLogger(getClass());
+
+    log.info("Initialize freemarker");
+
+    FreeMarkerTemplateRenderer renderer = new FreeMarkerTemplateRenderer();
+
+    renderer.setConfiguration(configuration);
+    renderer.setResourceLoader(resourceLoader);
+    renderer.setObjectWrapper(freeMarkerObjectWrapper);
+
+    log.info("Configure freemarker-template-model");
+    templateModels.forEach(configuration::setSharedVariable);
+
+    try {
+      if (CollectionUtils.isNotEmpty(settings)) {
+        configuration.setSettings(settings);
+      }
+    }
+    catch (TemplateException e) {
+      throw new ConfigurationException("Set FreeMarker's Properties Error, With: [" + e + "]", e);
+    }
+
+    log.info("FreeMarker template renderer init successfully.");
+    return renderer;
+  }
+
+  protected Version freemakerVersion() {
+    return Configuration.VERSION_2_3_31;
+  }
+
+  DefaultObjectWrapper freeMarkerObjectWrapper() {
+    return new DefaultObjectWrapper(freemakerVersion());
+  }
+
+  @ConditionalOnMissingBean
+  @Component(EnableFreeMarker.CONFIGURATION_BEAN_NAME)
+  Configuration configuration() {
+    return new Configuration(freemakerVersion());
   }
 
 }
