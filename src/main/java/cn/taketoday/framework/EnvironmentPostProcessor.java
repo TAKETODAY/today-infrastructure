@@ -18,9 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context;
-
-import java.io.IOException;
+package cn.taketoday.framework;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -47,9 +45,9 @@ public interface EnvironmentPostProcessor {
    * Post-process the given {@code environment}.
    *
    * @param environment the environment to post-process
-   * @param context the application-context to which the environment belongs
+   * @param application the application to which the environment belongs
    */
   void postProcessEnvironment(
-          ConfigurableEnvironment environment, ConfigurableApplicationContext context) throws IOException;
+          ConfigurableEnvironment environment, Application application);
 
 }

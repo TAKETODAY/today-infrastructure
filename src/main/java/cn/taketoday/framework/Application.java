@@ -52,7 +52,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -181,10 +180,6 @@ public class Application {
 
       listeners.started(context, timeTakenToStartup);
       callRunners(context, arguments);
-
-//      log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-//              System.currentTimeMillis() - context.getStartupDate()//
-//      );
     }
     catch (Throwable e) {
       handleRunFailure(context, e, listeners);
@@ -297,6 +292,8 @@ public class Application {
         configRegistry.register(mainApplicationClass); // @since 1.0.2 import startup class
       }
     }
+
+    listeners.contextLoaded(context);
   }
 
   private ConfigurableEnvironment getOrCreateEnvironment() {
@@ -343,6 +340,12 @@ public class Application {
    * @see #configureEnvironment(ConfigurableEnvironment, String[])
    */
   protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
+    // prepare properties
+    List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
+    for (EnvironmentPostProcessor postProcessor : postProcessors) {
+      postProcessor.postProcessEnvironment(environment, this);
+    }
+
     PropertySources sources = environment.getPropertySources();
     if (this.addCommandLineProperties && args.length > 0) {
       String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
@@ -358,6 +361,10 @@ public class Application {
         sources.addFirst(new SimpleCommandLinePropertySource(args));
       }
     }
+  }
+
+  private List<EnvironmentPostProcessor> getEnvironmentPostProcessors() {
+    return TodayStrategies.getStrategies(EnvironmentPostProcessor.class);
   }
 
   /**
@@ -541,10 +548,6 @@ public class Application {
     this.logStartupInfo = logStartupInfo;
   }
 
-  public String getAppBasePath() {
-    return appBasePath;
-  }
-
   private void handleRunFailure(
           ConfigurableApplicationContext context, Throwable exception, ApplicationStartupListeners listeners) {
     try {
@@ -563,7 +566,6 @@ public class Application {
     catch (Exception ex) {
       log.warn("Unable to close ApplicationContext", ex);
     }
-    ReflectionUtils.rethrowRuntimeException(exception);
   }
 
   private void handleExitCode(ConfigurableApplicationContext context, Throwable exception) {
@@ -608,31 +610,26 @@ public class Application {
     runners.addAll(context.getBeansOfType(ApplicationRunner.class).values());
     runners.addAll(context.getBeansOfType(CommandLineRunner.class).values());
     AnnotationAwareOrderComparator.sort(runners);
+
+    String[] sourceArgs = args.getSourceArgs();
     for (Object runner : new LinkedHashSet<>(runners)) {
-      if (runner instanceof ApplicationRunner) {
-        callRunner((ApplicationRunner) runner, args);
+      if (runner instanceof ApplicationRunner applicationRunner) {
+        try {
+          applicationRunner.run(args);
+        }
+        catch (Exception ex) {
+          throw new IllegalStateException("Failed to execute ApplicationRunner", ex);
+        }
       }
-      if (runner instanceof CommandLineRunner) {
-        callRunner((CommandLineRunner) runner, args);
+
+      if (runner instanceof CommandLineRunner commandLineRunner) {
+        try {
+          commandLineRunner.run(sourceArgs);
+        }
+        catch (Exception ex) {
+          throw new IllegalStateException("Failed to execute CommandLineRunner", ex);
+        }
       }
-    }
-  }
-
-  private void callRunner(ApplicationRunner runner, ApplicationArguments args) {
-    try {
-      (runner).run(args);
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException("Failed to execute ApplicationRunner", ex);
-    }
-  }
-
-  private void callRunner(CommandLineRunner runner, ApplicationArguments args) {
-    try {
-      (runner).run(args.getSourceArgs());
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException("Failed to execute CommandLineRunner", ex);
     }
   }
 

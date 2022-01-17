@@ -46,14 +46,14 @@ class DemoTests {
   @Test
   void testLogin() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException, IOException {
 
-    try (StandardApplicationContext context =
-            new StandardApplicationContext()) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
 
       ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
       processor.setPropertiesLocation("info.properties");
       processor.postProcessEnvironment();
-
       context.scan("test.demo.service.impl", "test.demo.repository.impl");
+
+      context.refresh();
 
       UserService userService = context.getBean(DefaultUserService.class);
 

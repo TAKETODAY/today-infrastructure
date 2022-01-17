@@ -48,11 +48,11 @@ public enum ApplicationType {
    */
   REACTIVE_WEB;
 
-  private static final String SERVLET_INDICATOR_CLASS = "jakarta.servlet.Servlet";
-  private static final String REACTIVE_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
+  public static final String SERVLET_INDICATOR_CLASS = "jakarta.servlet.Servlet";
+  public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   static ApplicationType deduceFromClasspath() {
-    if (ClassUtils.isPresent(REACTIVE_INDICATOR_CLASS, null)
+    if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, null)
             && !ClassUtils.isPresent(SERVLET_INDICATOR_CLASS, null)) {
       return ApplicationType.REACTIVE_WEB;
     }

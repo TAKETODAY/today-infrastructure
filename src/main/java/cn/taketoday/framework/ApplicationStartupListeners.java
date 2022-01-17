@@ -28,10 +28,18 @@ import java.util.function.Consumer;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
+ * dispatch events to {@link ApplicationStartupListener}
+ *
+ * @author Phillip Webb
+ * @author Stephane Nicoll
+ * @author Andy Wilkinson
+ * @author Artsiom Yudovin
+ * @author Brian Clozel
+ * @author Chris Bono
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 20:01
  */
@@ -46,7 +54,7 @@ class ApplicationStartupListeners {
   }
 
   void starting(Class<?> mainApplicationClass) {
-    doWithListeners(ApplicationStartupListener::starting);
+    doWithListeners(listener -> listener.starting(mainApplicationClass));
   }
 
   void environmentPrepared(ConfigurableEnvironment environment) {
@@ -75,21 +83,18 @@ class ApplicationStartupListeners {
 
   private void callFailedListener(
           ApplicationStartupListener listener,
-          ConfigurableApplicationContext context, Throwable exception) {
+          ConfigurableApplicationContext context, @Nullable Throwable exception) {
     try {
       listener.failed(context, exception);
     }
     catch (Throwable ex) {
-      if (exception == null) {
-        ReflectionUtils.rethrowRuntimeException(ex);
-      }
-      if (this.log.isDebugEnabled()) {
-        this.log.error("Error handling failed", ex);
+      if (log.isDebugEnabled()) {
+        log.error("Error handling failed", ex);
       }
       else {
         String message = ex.getMessage();
         message = (message != null) ? message : "no error message";
-        this.log.warn("Error handling failed ({})", message);
+        log.warn("Error handling failed ({})", message);
       }
     }
   }
