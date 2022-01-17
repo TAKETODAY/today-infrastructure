@@ -158,8 +158,8 @@ class ConditionEvaluationReportTests {
   @Test
   @SuppressWarnings("resource")
   void conditionPopulatesReport() {
-    ConditionEvaluationReport report = ConditionEvaluationReport
-            .get(new StandardApplicationContext(Config.class).getBeanFactory());
+    ConditionEvaluationReport report = ConditionEvaluationReport.get(
+            new StandardApplicationContext(Config.class).getBeanFactory());
     assertThat(report.getConditionAndOutcomesBySource().size()).isNotEqualTo(0);
   }
 

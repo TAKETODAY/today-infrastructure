@@ -119,7 +119,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   }
 
   public void addStrategies(DependencyResolvingStrategy... strategies) {
-    resolvingStrategies.set(strategies);
+    resolvingStrategies.add(strategies);
     resolvingStrategies.sort();
   }
 
