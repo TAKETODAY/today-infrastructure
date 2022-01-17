@@ -488,9 +488,12 @@ public abstract class AbstractApplicationContext
    */
   protected void prepareRefresh() {
     this.startupDate = System.currentTimeMillis();
-    log.info("Starting Application Context at [{}].", formatStartupDate());
-
+    this.closed.set(false);
     applyState(State.STARTING);
+    ApplicationContextHolder.register(this); // @since 4.0
+
+    log.info("Starting Application Context at '{}'", formatStartupDate());
+
     ConfigurableEnvironment environment = getEnvironment();
 
     // Initialize any placeholder property sources in the context environment.
@@ -518,7 +521,14 @@ public abstract class AbstractApplicationContext
     // to be published once the multicaster is available...
     this.earlyApplicationEvents = new LinkedHashSet<>();
 
-    ApplicationContextHolder.register(this); // @since 4.0
+    if (log.isDebugEnabled()) {
+      if (log.isTraceEnabled()) {
+        log.trace("Refreshing " + this);
+      }
+      else {
+        log.debug("Refreshing " + getApplicationName());
+      }
+    }
   }
 
   /**
