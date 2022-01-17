@@ -38,11 +38,11 @@ import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -89,7 +89,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -496,7 +495,7 @@ public abstract class AbstractApplicationContext
     ConfigurableEnvironment environment = getEnvironment();
 
     // Initialize any placeholder property sources in the context environment.
-    initPropertySources(environment);
+    initPropertySources();
 
     environment.validateRequiredProperties();
 
@@ -533,10 +532,8 @@ public abstract class AbstractApplicationContext
   /**
    * <p>
    * load properties files or itself strategies
-   *
-   * @param environment ConfigurableEnvironment
    */
-  protected void initPropertySources(ConfigurableEnvironment environment) throws ApplicationContextException {
+  protected void initPropertySources() throws ApplicationContextException {
     // for subclasses loading properties or prepare property-source
   }
 
@@ -1319,26 +1316,6 @@ public abstract class AbstractApplicationContext
     Set<String> listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
     for (String listenerBeanName : listenerBeanNames) {
       getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
-    }
-
-    // fixed #9 Some listener in a jar can't be load
-    log.debug("Loading META-INF/listeners");
-
-    // Load the META-INF/listeners
-    // ---------------------------------------------------
-    Set<Class<?>> listeners = ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
-    DependencyInjectorAwareInstantiator instantiator = DependencyInjectorAwareInstantiator.from(getBeanFactory());
-    for (Class<?> listener : listeners) {
-      ApplicationListener applicationListener = (ApplicationListener) instantiator.instantiate(listener);
-      addApplicationListener(applicationListener);
-    }
-
-    // load from strategy files
-
-    log.debug("Loading listeners from strategies files: {}", TodayStrategies.STRATEGIES_LOCATION);
-    for (ApplicationListener listener : TodayStrategies.getStrategies(
-            ApplicationListener.class, getClassLoader(), DependencyInjectorAwareInstantiator.forFunction(instantiator))) {
-      addApplicationListener(listener);
     }
 
     log.debug("Publish early application events");
