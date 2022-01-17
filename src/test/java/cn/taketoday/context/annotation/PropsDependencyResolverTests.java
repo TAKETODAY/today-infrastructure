@@ -81,8 +81,7 @@ class PropsDependencyResolverTests {
             .isEqualTo(21);
   }
 
-  @Props
-  void autowired(PropsBean propsBean) {
+  void autowired(@Props PropsBean propsBean) {
 
   }
 

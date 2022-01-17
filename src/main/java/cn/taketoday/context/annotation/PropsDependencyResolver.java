@@ -30,8 +30,6 @@ import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.DependencyResolvingContext;
 import cn.taketoday.beans.factory.support.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.MethodParameter;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -63,7 +61,7 @@ public class PropsDependencyResolver
   @Override
   public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
     // @Props on a bean (pojo) which has already created
-    Props annotation = getProps(descriptor);
+    Props annotation = descriptor.getAnnotation(Props.class);
     if (annotation != null) {
       Object dependency = resolvingContext.getDependency();
       DefaultProps props = new DefaultProps(annotation);
@@ -83,18 +81,6 @@ public class PropsDependencyResolver
       }
       resolvingContext.setDependencyResolved(dependency);
     }
-  }
-
-  @Nullable
-  private Props getProps(DependencyDescriptor descriptor) {
-    Props annotation = descriptor.getAnnotation(Props.class);
-    if (annotation == null) {
-      MethodParameter methodParam = descriptor.getMethodParameter();
-      if (methodParam != null) {
-        annotation = methodParam.getMethodAnnotation(Props.class);
-      }
-    }
-    return annotation;
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
