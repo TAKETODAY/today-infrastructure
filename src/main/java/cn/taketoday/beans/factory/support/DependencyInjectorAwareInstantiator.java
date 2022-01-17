@@ -42,7 +42,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class DependencyInjectorAwareInstantiator {
-  public static final String BEAN_NAME = "beanFactoryAwareBeanInstantiator";
+  public static final String BEAN_NAME = "dependencyInjectorAwareInstantiator";
 
   private final DependencyInjector dependencyInjector;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
