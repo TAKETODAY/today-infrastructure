@@ -25,10 +25,10 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.dependency.AnnotationDependencyResolvingStrategy;
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.factory.support.AnnotationDependencyResolvingStrategy;
+import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.DependencyResolvingContext;
+import cn.taketoday.beans.factory.support.DependencyResolvingStrategy;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;

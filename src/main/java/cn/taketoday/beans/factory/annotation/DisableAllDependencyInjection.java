@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategy;
+import cn.taketoday.beans.factory.support.DependencyResolvingStrategy;
 
 /**
  * Disable dependency-injection for all the factory method bean

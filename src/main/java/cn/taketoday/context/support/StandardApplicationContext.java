@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactoryAwareInstantiatorFunction;
+import cn.taketoday.beans.factory.DependencyInjectorAwareInstantiatorFunction;
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingStrategies;
-import cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor;
+import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -169,7 +169,7 @@ public class StandardApplicationContext
     super.postProcessBeanFactory(beanFactory);
 
     List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
-            BeanDefinitionLoader.class, new BeanFactoryAwareInstantiatorFunction<>(beanFactory));
+            BeanDefinitionLoader.class, new DependencyInjectorAwareInstantiatorFunction<>(beanFactory));
 
     if (strategies.isEmpty()) {
       DefinitionLoadingContext loadingContext = loadingContext();
@@ -224,7 +224,7 @@ public class StandardApplicationContext
 
       // prepare properties
       List<EnvironmentPostProcessor> postProcessors = TodayStrategies.getStrategies(
-              EnvironmentPostProcessor.class, new BeanFactoryAwareInstantiatorFunction<>(beanFactory));
+              EnvironmentPostProcessor.class, new DependencyInjectorAwareInstantiatorFunction<>(beanFactory));
       for (EnvironmentPostProcessor postProcessor : postProcessors) {
         postProcessor.postProcessEnvironment(environment, this);
       }

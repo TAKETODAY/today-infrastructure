@@ -18,26 +18,33 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.dependency;
+package cn.taketoday.beans.factory.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.util.CollectionUtils;
 
 /**
- * Supports order
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.core.Order
- * @see cn.taketoday.core.Ordered
- * @since 4.0 2022/1/1 11:56
+ * @since 4.0 2022/1/1 11:43
  */
-public abstract class AnnotationDependencyResolvingStrategy
-        extends OrderedSupport implements DependencyResolvingStrategy {
+public class AnnotationDependencyResolvingDecorator
+        extends DependencyResolvingDecorator implements DependencyResolvingStrategy {
+
+  private final Set<Class<? extends Annotation>> supportedAnnotations = new LinkedHashSet<>();
+
+  @SafeVarargs
+  public AnnotationDependencyResolvingDecorator(
+          DependencyResolvingStrategy strategy, Class<? extends Annotation>... supportedAnnotations) {
+    super(strategy);
+    CollectionUtils.addAll(this.supportedAnnotations, supportedAnnotations);
+  }
 
   @Override
   public boolean supports(Field field) {
@@ -45,13 +52,12 @@ public abstract class AnnotationDependencyResolvingStrategy
   }
 
   @Override
-  public boolean supports(Executable method) {
-    return supportsInternal(method);
+  public boolean supports(Executable executable) {
+    return supportsInternal(executable);
   }
 
   private boolean supportsInternal(AccessibleObject accessible) {
     MergedAnnotations annotations = MergedAnnotations.from(accessible);
-    Class<? extends Annotation>[] supportedAnnotations = getSupportedAnnotations();
     for (Class<? extends Annotation> supportedAnnotation : supportedAnnotations) {
       if (annotations.isPresent(supportedAnnotation)) {
         return true;
@@ -59,7 +65,5 @@ public abstract class AnnotationDependencyResolvingStrategy
     }
     return false;
   }
-
-  protected abstract Class<? extends Annotation>[] getSupportedAnnotations();
 
 }

@@ -21,7 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.dependency.InjectionPoint;
+import cn.taketoday.beans.factory.support.InjectionPoint;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 

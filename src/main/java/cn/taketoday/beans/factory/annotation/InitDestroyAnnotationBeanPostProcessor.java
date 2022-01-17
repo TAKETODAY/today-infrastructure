@@ -43,7 +43,7 @@ import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;

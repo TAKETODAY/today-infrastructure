@@ -26,7 +26,8 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
+import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
+import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 
 /**
  * Annotation used at the field or method/constructor parameter level
@@ -46,12 +47,12 @@ import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
  * <em>cannot</em> use {@code @Value} within {@link BeanPostProcessor BeanPostProcessor} or
  * {@link BeanFactoryPostProcessor BeanFactoryPostProcessor}
  * types. Please consult the javadoc for the {@link
- * cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor}
+ * StandardDependenciesBeanPostProcessor}
  * class (which, by default, checks for the presence of this annotation).
  *
  * @author TODAY 2018-08-04 15:57
  * @see Autowired
- * @see cn.taketoday.beans.factory.dependency.StandardDependenciesBeanPostProcessor
+ * @see StandardDependenciesBeanPostProcessor
  * @see AutowireCandidateResolver#getSuggestedValue
  */
 @Retention(RetentionPolicy.RUNTIME)

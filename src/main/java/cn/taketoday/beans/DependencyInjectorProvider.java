@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans;
 
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.lang.NonNull;
 
 /**

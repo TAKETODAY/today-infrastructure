@@ -33,7 +33,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.core.ConfigurationException;

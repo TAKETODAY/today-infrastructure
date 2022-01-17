@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.Data;

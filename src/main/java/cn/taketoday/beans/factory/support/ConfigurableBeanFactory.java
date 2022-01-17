@@ -45,6 +45,9 @@ import cn.taketoday.lang.Nullable;
  * is just meant to allow for framework-internal plug'n'play and for special
  * access to bean factory configuration methods.
  *
+ * <p>
+ * Like Spring's ConfigurableListableBeanFactory
+ *
  * @author TODAY 2018-11-14 19:40
  * @see BeanFactory
  */

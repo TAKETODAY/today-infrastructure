@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.dependency;
+package cn.taketoday.beans.factory.support;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -27,7 +27,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.Objects;
 
-import cn.taketoday.beans.factory.support.PropertyValueRetriever;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
-import cn.taketoday.beans.factory.dependency.DependencyResolvingContext;
+import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.DependencyResolvingContext;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.env.MapPropertyResolver;

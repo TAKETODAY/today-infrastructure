@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.dependency;
+package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -31,8 +31,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.support.BeanUtils;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

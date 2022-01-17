@@ -55,7 +55,6 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;

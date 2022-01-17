@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.dependency;
+package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -88,7 +86,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       if (beanFactory instanceof ConfigurableBeanFactory configurable) {
         beanClassLoader = configurable.getBeanClassLoader();
       }
-      BeanFactoryAwareBeanInstantiator instantiator = BeanFactoryAwareBeanInstantiator.from(beanFactory);
+      DependencyInjectorAwareInstantiator instantiator = DependencyInjectorAwareInstantiator.from(beanFactory);
       strategies = TodayStrategies.getStrategies(
               DependencyResolvingStrategy.class, beanClassLoader, instantiator::instantiate);
     }

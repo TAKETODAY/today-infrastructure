@@ -37,7 +37,6 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;

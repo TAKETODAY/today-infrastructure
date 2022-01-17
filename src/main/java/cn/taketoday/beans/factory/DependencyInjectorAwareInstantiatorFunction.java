@@ -22,21 +22,21 @@ package cn.taketoday.beans.factory;
 
 import java.util.function.Function;
 
-import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.lang.Assert;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/15 23:34
  */
-public class BeanFactoryAwareInstantiatorFunction<T> implements Function<Class<T>, T> {
-  private final BeanFactoryAwareBeanInstantiator instantiator;
+public class DependencyInjectorAwareInstantiatorFunction<T> implements Function<Class<T>, T> {
+  private final DependencyInjectorAwareInstantiator instantiator;
 
-  public BeanFactoryAwareInstantiatorFunction(BeanFactory beanFactory) {
-    this.instantiator = BeanFactoryAwareBeanInstantiator.from(beanFactory);
+  public DependencyInjectorAwareInstantiatorFunction(BeanFactory beanFactory) {
+    this.instantiator = DependencyInjectorAwareInstantiator.from(beanFactory);
   }
 
-  public BeanFactoryAwareInstantiatorFunction(BeanFactoryAwareBeanInstantiator instantiator) {
+  public DependencyInjectorAwareInstantiatorFunction(DependencyInjectorAwareInstantiator instantiator) {
     Assert.notNull(instantiator, "instantiator is required");
     this.instantiator = instantiator;
   }

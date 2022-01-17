@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.aware.EnvironmentAware;

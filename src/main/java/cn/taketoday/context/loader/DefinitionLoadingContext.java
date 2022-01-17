@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -69,7 +69,7 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   private final ApplicationContext applicationContext;
 
   private ConditionEvaluator conditionEvaluator;
-  private BeanFactoryAwareBeanInstantiator instantiator;
+  private DependencyInjectorAwareInstantiator instantiator;
   private MetadataReaderFactory metadataReaderFactory;
 
   @Nullable
@@ -224,9 +224,9 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   // BeanFactoryAwareBeanInstantiator
   //---------------------------------------------------------------------
 
-  private BeanFactoryAwareBeanInstantiator instantiator() {
+  private DependencyInjectorAwareInstantiator instantiator() {
     if (instantiator == null) {
-      this.instantiator = BeanFactoryAwareBeanInstantiator.from(applicationContext);
+      this.instantiator = DependencyInjectorAwareInstantiator.from(applicationContext);
     }
     return instantiator;
   }

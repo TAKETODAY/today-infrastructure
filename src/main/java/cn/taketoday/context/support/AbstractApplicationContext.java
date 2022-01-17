@@ -34,15 +34,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAwareInstantiatorFunction;
+import cn.taketoday.beans.factory.DependencyInjectorAwareInstantiatorFunction;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -169,7 +169,7 @@ public abstract class AbstractApplicationContext
   private String applicationName = ObjectUtils.identityToString(this);
 
   /** @since 4.0 */
-  private BeanFactoryAwareBeanInstantiator beanInstantiator;
+  private DependencyInjectorAwareInstantiator beanInstantiator;
 
   /** @since 4.0 */
   private final PathMatchingPatternResourceLoader patternResourceLoader
@@ -1328,7 +1328,7 @@ public abstract class AbstractApplicationContext
     // Load the META-INF/listeners
     // ---------------------------------------------------
     Set<Class<?>> listeners = ContextUtils.loadFromMetaInfo(Constant.META_INFO_listeners);
-    BeanFactoryAwareBeanInstantiator instantiator = BeanFactoryAwareBeanInstantiator.from(getBeanFactory());
+    DependencyInjectorAwareInstantiator instantiator = DependencyInjectorAwareInstantiator.from(getBeanFactory());
     for (Class<?> listener : listeners) {
       ApplicationListener applicationListener = (ApplicationListener) instantiator.instantiate(listener);
       addApplicationListener(applicationListener);
@@ -1338,7 +1338,7 @@ public abstract class AbstractApplicationContext
 
     log.debug("Loading listeners from strategies files: {}", TodayStrategies.STRATEGIES_LOCATION);
     for (ApplicationListener listener : TodayStrategies.getStrategies(
-            ApplicationListener.class, getClassLoader(), new BeanFactoryAwareInstantiatorFunction<>(instantiator))) {
+            ApplicationListener.class, getClassLoader(), new DependencyInjectorAwareInstantiatorFunction<>(instantiator))) {
       addApplicationListener(listener);
     }
 

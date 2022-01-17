@@ -26,7 +26,6 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
@@ -38,17 +37,20 @@ import cn.taketoday.lang.Nullable;
  * provide Bean Constructor Arguments resolving
  *
  * @author TODAY 2021/10/4 22:26
+ * @see DependencyInjector
  * @since 4.0
  */
-public class BeanFactoryAwareBeanInstantiator {
+public class DependencyInjectorAwareInstantiator {
   public static final String BEAN_NAME = "beanFactoryAwareBeanInstantiator";
 
-  private final BeanFactory beanFactory;
   private final DependencyInjector dependencyInjector;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
-  public BeanFactoryAwareBeanInstantiator(BeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
+  public DependencyInjectorAwareInstantiator(DependencyInjector dependencyInjector) {
+    this.dependencyInjector = dependencyInjector;
+  }
+
+  public DependencyInjectorAwareInstantiator(BeanFactory beanFactory) {
     this.dependencyInjector = beanFactory.getInjector();
   }
 
@@ -102,29 +104,42 @@ public class BeanFactoryAwareBeanInstantiator {
     return instantiatorFactory;
   }
 
-  public BeanFactory getBeanFactory() {
-    return beanFactory;
-  }
-
   // static factory-method
 
-  public static BeanFactoryAwareBeanInstantiator from(BeanFactory beanFactory) {
+  public static DependencyInjectorAwareInstantiator from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
-    BeanFactoryAwareBeanInstantiator instantiator = beanFactory.getBean(
-            BEAN_NAME, BeanFactoryAwareBeanInstantiator.class);
+    DependencyInjectorAwareInstantiator instantiator = getInstantiator(beanFactory);
     if (instantiator == null) {
-      instantiator = new BeanFactoryAwareBeanInstantiator(beanFactory);
-      if (beanFactory instanceof SingletonBeanRegistry singletonBeanRegistry) {
-        singletonBeanRegistry.registerSingleton(BEAN_NAME, instantiator);
-      }
-      else if (beanFactory instanceof BeanDefinitionRegistry registry) {
-        BeanDefinition definition = new BeanDefinition(BEAN_NAME, BeanFactoryAwareBeanInstantiator.class);
-        registry.registerBeanDefinition(BEAN_NAME, definition);
-        BeanFactoryAwareBeanInstantiator finalInstantiator = instantiator;
-        definition.setInstanceSupplier(() -> finalInstantiator);
+      synchronized(beanFactory) {
+        instantiator = getInstantiator(beanFactory);
+        if (instantiator == null) {
+          instantiator = new DependencyInjectorAwareInstantiator(beanFactory);
+          if (beanFactory instanceof SingletonBeanRegistry singletonBeanRegistry) {
+            singletonBeanRegistry.registerSingleton(BEAN_NAME, instantiator);
+          }
+          else if (beanFactory instanceof BeanDefinitionRegistry registry) {
+            BeanDefinition definition = new BeanDefinition(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+            registry.registerBeanDefinition(BEAN_NAME, definition);
+            DependencyInjectorAwareInstantiator finalInstantiator = instantiator;
+            definition.setInstanceSupplier(() -> finalInstantiator);
+          }
+        }
       }
     }
     return instantiator;
+  }
+
+  @Nullable
+  private static DependencyInjectorAwareInstantiator getInstantiator(BeanFactory beanFactory) {
+    if (beanFactory instanceof ConfigurableBeanFactory configurable) {
+      if (configurable.containsLocalBean(BEAN_NAME)) {
+        return configurable.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+      }
+    }
+    else {
+      return beanFactory.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+    }
+    return null;
   }
 
 }

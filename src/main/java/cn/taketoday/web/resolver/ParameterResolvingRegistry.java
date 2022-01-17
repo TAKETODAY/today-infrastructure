@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
@@ -398,13 +398,13 @@ public class ParameterResolvingRegistry
   static final class PropsParameterResolver extends AnnotationParameterResolver<Props> {
     final PropsReader propsReader;
     final WebApplicationContext context;
-    final BeanFactoryAwareBeanInstantiator beanInstantiator;
+    final DependencyInjectorAwareInstantiator beanInstantiator;
 
     PropsParameterResolver(WebApplicationContext context) {
       super(Props.class);
       this.context = context;
       this.propsReader = new PropsReader(context.getEnvironment());
-      this.beanInstantiator = BeanFactoryAwareBeanInstantiator.from(context);
+      this.beanInstantiator = DependencyInjectorAwareInstantiator.from(context);
     }
 
     @Override

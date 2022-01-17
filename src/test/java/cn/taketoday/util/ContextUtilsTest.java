@@ -38,7 +38,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.dependency.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.env.ConfigurableEnvironment;

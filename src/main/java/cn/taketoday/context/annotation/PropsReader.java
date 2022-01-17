@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareBeanInstantiator;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
@@ -69,7 +69,7 @@ public class PropsReader {
   private ExpressionEvaluator expressionEvaluator;
 
   @Nullable
-  private BeanFactoryAwareBeanInstantiator beanInstantiator;
+  private DependencyInjectorAwareInstantiator beanInstantiator;
 
   @Nullable
   private BeanFactory beanFactory;
@@ -88,7 +88,7 @@ public class PropsReader {
     this.beanFactory = context.getBeanFactory();
     this.propertyResolver = context.getEnvironment();
     this.expressionEvaluator = context.getExpressionEvaluator();
-    this.beanInstantiator = BeanFactoryAwareBeanInstantiator.from(context);
+    this.beanInstantiator = DependencyInjectorAwareInstantiator.from(context);
   }
 
   public PropsReader(PropertyResolver propertyResolver) {
@@ -234,7 +234,7 @@ public class PropsReader {
   public <T> T read(Props props, Class<T> beanClass, PropertyResolver propertyResolver) {
     if (beanInstantiator == null) {
       Assert.state(beanFactory != null, "No BeanFactory set");
-      beanInstantiator = BeanFactoryAwareBeanInstantiator.from(beanFactory);
+      beanInstantiator = DependencyInjectorAwareInstantiator.from(beanFactory);
     }
     return read(props, beanInstantiator.instantiate(beanClass), propertyResolver);
   }
@@ -306,7 +306,7 @@ public class PropsReader {
     this.expressionEvaluator = expressionEvaluator;
   }
 
-  public void setBeanInstantiator(@Nullable BeanFactoryAwareBeanInstantiator beanInstantiator) {
+  public void setBeanInstantiator(@Nullable DependencyInjectorAwareInstantiator beanInstantiator) {
     this.beanInstantiator = beanInstantiator;
   }
 
@@ -325,7 +325,7 @@ public class PropsReader {
   }
 
   @Nullable
-  public BeanFactoryAwareBeanInstantiator getBeanInstantiator() {
+  public DependencyInjectorAwareInstantiator getBeanInstantiator() {
     return beanInstantiator;
   }
 

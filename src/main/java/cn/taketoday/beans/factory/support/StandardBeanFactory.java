@@ -56,10 +56,6 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.dependency.AutowireCandidateResolver;
-import cn.taketoday.beans.factory.dependency.DependencyDescriptor;
-import cn.taketoday.beans.factory.dependency.InjectionPoint;
-import cn.taketoday.beans.factory.dependency.SimpleAutowireCandidateResolver;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
@@ -1495,8 +1491,7 @@ public class StandardBeanFactory
     for (Map.Entry<Class<?>, Object> classObjectEntry : this.objectFactories.entrySet()) {
       Class<?> autowiringType = classObjectEntry.getKey();
       if (autowiringType.isAssignableFrom(requiredType)) {
-        Object autowiringValue = classObjectEntry.getValue();
-        autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
+        Object autowiringValue = AutowireUtils.resolveAutowiringValue(classObjectEntry.getValue(), requiredType);
         if (requiredType.isInstance(autowiringValue)) {
           result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
           break;
