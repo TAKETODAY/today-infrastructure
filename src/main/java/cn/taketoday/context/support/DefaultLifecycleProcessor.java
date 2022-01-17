@@ -142,8 +142,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       Lifecycle bean = entry.getValue();
       if (!autoStartupOnly || (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup())) {
         int phase = getPhase(bean);
-        phases.computeIfAbsent(phase, p -> new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly))
-                .add(beanName, bean);
+        LifecycleGroup lifecycleGroup = phases.get(phase);
+        if (lifecycleGroup == null) {
+          lifecycleGroup = new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly);
+          phases.put(phase, lifecycleGroup);
+        }
+        lifecycleGroup.add(beanName, bean);
       }
     }
 
@@ -285,7 +289,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   private boolean matchesBeanType(Class<?> targetType, String beanName, BeanFactory beanFactory) {
     Class<?> beanType = beanFactory.getType(beanName);
-    return (beanType != null && targetType.isAssignableFrom(beanType));
+    return beanType != null && targetType.isAssignableFrom(beanType);
   }
 
   /**
