@@ -121,8 +121,11 @@ public class DependencyInjectorAwareInstantiator {
           }
           else if (beanFactory instanceof BeanDefinitionRegistry registry) {
             BeanDefinition definition = new BeanDefinition(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
-            registry.registerBeanDefinition(BEAN_NAME, definition);
+            definition.setSynthetic(true);
+            definition.setEnableDependencyInjection(false);
             definition.setInstanceSupplier(SingletonSupplier.valueOf(instantiator));
+
+            registry.registerBeanDefinition(definition);
           }
         }
       }
