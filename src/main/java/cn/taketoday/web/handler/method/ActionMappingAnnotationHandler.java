@@ -77,10 +77,6 @@ public abstract class ActionMappingAnnotationHandler
     return handlerMethod;
   }
 
-  public MethodInvoker getHandlerInvoker() {
-    return handlerInvoker;
-  }
-
   public void setReturnValueHandlers(ReturnValueHandlers resultHandlers) {
     this.resultHandlers = resultHandlers;
   }

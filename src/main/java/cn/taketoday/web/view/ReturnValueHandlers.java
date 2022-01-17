@@ -124,14 +124,14 @@ public class ReturnValueHandlers
 
   /**
    * Get correspond view resolver, If there isn't a suitable resolver will be
-   * throws {@link IllegalArgumentException}
+   * throws {@link ReturnValueHandlerNotFoundException}
    *
    * @return A suitable {@link ReturnValueHandler}
    */
-  public ReturnValueHandler obtainHandler(final Object handler) {
+  public ReturnValueHandler obtainHandler(Object handler) {
     final ReturnValueHandler returnValueHandler = getHandler(handler);
     if (returnValueHandler == null) {
-      throw new IllegalStateException("There isn't have a result resolver to resolve : [" + handler + "]");
+      throw new ReturnValueHandlerNotFoundException(handler);
     }
     return returnValueHandler;
   }
