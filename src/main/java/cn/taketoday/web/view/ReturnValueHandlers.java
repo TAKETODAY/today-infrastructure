@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
@@ -38,7 +37,6 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
-import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
@@ -163,18 +161,11 @@ public class ReturnValueHandlers
   }
 
   protected TemplateRenderer getTemplateRenderer(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    TemplateRenderer templateResolver = context.getBean(TemplateRenderer.class);
-    if (templateResolver == null) {
-      AnnotatedBeanDefinitionReader beanDefinitionReader = new AnnotatedBeanDefinitionReader(context, unwrapFactory(BeanDefinitionRegistry.class));
-      beanDefinitionReader.setEnableConditionEvaluation(false);
-      beanDefinitionReader.registerBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME, DefaultTemplateRenderer.class);
-      templateResolver = context.getBean(TemplateRenderer.class);
+    TemplateRenderer templateRenderer = BeanFactoryUtils.requiredBean(context, TemplateRenderer.class);
+    if (templateRenderer instanceof AbstractTemplateRenderer) {
+      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateRenderer) templateRenderer);
     }
-
-    if (templateResolver instanceof AbstractTemplateRenderer) {
-      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateRenderer) templateResolver);
-    }
-    return templateResolver;
+    return templateRenderer;
   }
 
   /**

@@ -25,9 +25,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.List;
 
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;

@@ -49,7 +49,6 @@ import cn.taketoday.web.RequestContext;
  */
 @Props(prefix = "web.mvc.view.")
 public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
-  public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.view.template.DefaultTemplateRenderer";
 
   private final StandardExpressionContext sharedContext;
   private ExpressionFactory expressionFactory;

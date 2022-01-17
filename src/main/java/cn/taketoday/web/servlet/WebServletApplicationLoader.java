@@ -32,13 +32,13 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.framework.ApplicationFailedEvent;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.framework.ApplicationFailedEvent;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
@@ -49,8 +49,6 @@ import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
-import cn.taketoday.web.view.template.DefaultTemplateRenderer;
-import cn.taketoday.web.view.template.TemplateRenderer;
 import jakarta.servlet.Filter;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.Servlet;
@@ -207,17 +205,6 @@ public class WebServletApplicationLoader
     // register servlet env resolvers
     ServletParameterResolvers.register(customizedStrategies, getServletContext());
     super.configureParameterResolving(customizedStrategies, mvcConfiguration);
-  }
-
-  @Override
-  protected void checkFrameworkComponents(WebApplicationContext context) {
-    BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
-    if (!registry.containsBeanDefinition(TemplateRenderer.class)) {
-      // use default view resolver
-      definitionReader().registerBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME, DefaultTemplateRenderer.class);
-      log.info("Use default view resolver: [{}].", context.getBean(DefaultTemplateRenderer.DEFAULT_BEAN_NAME));
-    }
-    super.checkFrameworkComponents(context);
   }
 
   @Override

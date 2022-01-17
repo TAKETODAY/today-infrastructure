@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -30,6 +32,8 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Component;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -41,6 +45,8 @@ import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlers;
+import cn.taketoday.web.view.template.DefaultTemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * Web MVC auto configuration
@@ -104,7 +110,7 @@ public class WebMvcAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnClass(name = "com.fasterxml.jackson.databind.ObjectMapper")
+  @ConditionalOnClass(ObjectMapper.class)
   JacksonConfiguration jacksonConfiguration() {
     return new JacksonConfiguration();
   }
@@ -131,6 +137,15 @@ public class WebMvcAutoConfiguration {
   @ConditionalOnMissingBean(HandlerExceptionHandler.class)
   DefaultExceptionHandler defaultExceptionHandler() {
     return new DefaultExceptionHandler();
+  }
+
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(TemplateRenderer.class)
+  DefaultTemplateRenderer templateRenderer(ResourceLoader resourceLoader) {
+    DefaultTemplateRenderer renderer = new DefaultTemplateRenderer(ExpressionProcessor.getSharedInstance().getManager());
+    renderer.setResourceLoader(resourceLoader);
+    return renderer;
   }
 
 }
