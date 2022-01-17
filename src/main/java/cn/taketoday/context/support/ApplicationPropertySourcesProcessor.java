@@ -172,7 +172,7 @@ public class ApplicationPropertySourcesProcessor {
     String[] defaultLocations = new String[] {
             Environment.DEFAULT_YML_FILE,
             Environment.DEFAULT_YAML_FILE,
-            Environment.PROPERTIES_SUFFIX
+            Environment.DEFAULT_PROPERTIES_FILE
     };
 
     for (String location : defaultLocations) {

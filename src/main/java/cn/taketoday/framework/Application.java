@@ -22,6 +22,7 @@ package cn.taketoday.framework;
 
 import org.apache.commons.logging.Log;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
@@ -344,6 +346,13 @@ public class Application {
     List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
     for (EnvironmentPostProcessor postProcessor : postProcessors) {
       postProcessor.postProcessEnvironment(environment, this);
+    }
+
+    try {
+      new ApplicationPropertySourcesProcessor(environment).postProcessEnvironment();
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
     }
 
     PropertySources sources = environment.getPropertySources();
