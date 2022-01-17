@@ -436,7 +436,7 @@ public final class TodayStrategies {
     if (strategies != null) {
       return strategies;
     }
-    log.info("Detecting strategies location '{}'", STRATEGIES_LOCATION);
+    log.debug("Detecting strategies location '{}'", STRATEGIES_LOCATION);
     strategies = MultiValueMap.fromLinkedHashMap();
     try {
       Enumeration<URL> urls = classLoader.getResources(STRATEGIES_LOCATION);
@@ -447,7 +447,7 @@ public final class TodayStrategies {
         try (InputStream inputStream = url.openStream()) {
           properties.load(inputStream);
         }
-        log.info("Reading strategies file '{}'", url);
+        log.debug("Reading strategies file '{}'", url);
 
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
           Object key = entry.getKey();
