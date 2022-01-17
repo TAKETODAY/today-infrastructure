@@ -255,10 +255,11 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    * @param beanName the bean name, as a candidate result for this dependency
    * @param requiredType the expected type of the bean (as an assertion)
    * @param beanFactory the associated factory
-   * @return the bean instance (never {@code null})
+   * @return the bean instance
    * @throws BeansException if the bean could not be obtained
    * @see BeanFactory#getBean(String)
    */
+  @Nullable
   public Object resolveCandidate(
           String beanName, Class<?> requiredType, BeanFactory beanFactory) throws BeansException {
     return beanFactory.getBean(beanName);
