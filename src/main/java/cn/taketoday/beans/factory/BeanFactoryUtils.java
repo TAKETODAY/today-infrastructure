@@ -172,7 +172,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#getBeansOfType(ResolvableType, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory factory, ResolvableType type) {
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Set<String> result = factory.getBeanNamesForType(type);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
@@ -209,7 +209,7 @@ public abstract class BeanFactoryUtils {
   public static Set<String> beanNamesForTypeIncludingAncestors(
           BeanFactory factory, ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Set<String> result = factory.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
@@ -236,7 +236,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#getBeanNamesForType(Class)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory factory, Class<?> type) {
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Set<String> result = factory.getBeanNamesForType(type);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
@@ -273,7 +273,7 @@ public abstract class BeanFactoryUtils {
   public static Set<String> beanNamesForTypeIncludingAncestors(
           BeanFactory factory, Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
 
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Set<String> result = factory.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
@@ -298,7 +298,7 @@ public abstract class BeanFactoryUtils {
   public static Set<String> beanNamesForAnnotationIncludingAncestors(
           BeanFactory factory, Class<? extends Annotation> annotationType) {
 
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Set<String> result = factory.getBeanNamesForAnnotation(annotationType);
     if (factory instanceof HierarchicalBeanFactory hbf) {
       if (hbf.getParentBeanFactory() != null) {
@@ -334,7 +334,7 @@ public abstract class BeanFactoryUtils {
   public static <T> Map<String, T> beansOfTypeIncludingAncestors(
           BeanFactory factory, Class<T> type) throws BeansException {
 
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
     result.putAll(factory.getBeansOfType(type));
     if (factory instanceof HierarchicalBeanFactory hbf) {
@@ -385,7 +385,7 @@ public abstract class BeanFactoryUtils {
           BeanFactory factory, @Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
           throws BeansException //
   {
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
 
     LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
     result.putAll(factory.getBeansOfType(type, includeNonSingletons, allowEagerInit));
@@ -492,7 +492,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#getBeansOfType(Class)
    */
   public static <T> T beanOfType(BeanFactory factory, Class<T> type) throws BeansException {
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Map<String, T> beansOfType = factory.getBeansOfType(type);
     return uniqueBean(type, beansOfType);
   }
@@ -526,7 +526,7 @@ public abstract class BeanFactoryUtils {
   public static <T> T beanOfType(
           BeanFactory factory, Class<T> type,
           boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
-    Assert.notNull(factory, "BeanFactory must not be null");
+    Assert.notNull(factory, "BeanFactory is required");
     Map<String, T> beansOfType = factory.getBeansOfType(type, includeNonSingletons, allowEagerInit);
     return uniqueBean(type, beansOfType);
   }
@@ -682,7 +682,7 @@ public abstract class BeanFactoryUtils {
    */
   public static <T> T qualifiedBeanOfType(
           BeanFactory beanFactory, Class<T> beanType, String qualifier) throws BeansException {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     // Full qualifier matching supported.
     Set<String> candidateBeans = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, beanType);
     String matchingBean = null;
