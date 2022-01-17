@@ -22,8 +22,10 @@ package cn.taketoday.context.condition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
 
@@ -62,11 +64,16 @@ class ConditionalTests {
   // ------------------------------
 
   @Test
-  void testConditionalOnClass() {
+  void testConditionalOnClass() throws IOException {
 
-    try (ApplicationContext applicationContext = //
-            new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
-      BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
+      context.scan("cn.taketoday.context.condition");
+      BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalClass.class));
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnMissing.class));
@@ -91,12 +98,16 @@ class ConditionalTests {
   }
 
   @Test
-  void conditionalOnExpression() {
+  void conditionalOnExpression() throws IOException {
 
-    try (ApplicationContext applicationContext = //
-            new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
 
-      BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
+      context.scan("cn.taketoday.context.condition");
+
+      BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalExpression_.class));
       Assertions.assertFalse(registry.containsBeanDefinition(ConditionalExpression__.class));
@@ -133,8 +144,11 @@ class ConditionalTests {
   @Test
   public void testConditionalOnProperty() throws Exception {
 
-    try (StandardApplicationContext context =new StandardApplicationContext()) {
-      context.setPropertiesLocation("info.properties");// FIXME properties 加载延后
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
       context.scan("cn.taketoday.context.condition");
 
       context.refresh();
@@ -177,9 +191,14 @@ class ConditionalTests {
   @Test
   public void testConditionalOnResource() throws Exception {
 
-    try (ApplicationContext applicationContext = //
-            new StandardApplicationContext("info.properties", "cn.taketoday.context.condition")) {
-      BeanDefinitionRegistry registry = applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
+      context.scan("cn.taketoday.context.condition");
+      BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
       Assertions.assertFalse(registry.containsBeanDefinition(ConditionalOnResource_.class));
 
       Assertions.assertTrue(registry.containsBeanDefinition(ConditionalOnResource__.class));

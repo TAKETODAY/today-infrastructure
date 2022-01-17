@@ -25,9 +25,9 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.classloading.InstrumentationLoadTimeWeaver;
 import cn.taketoday.context.classloading.LoadTimeWeaver;

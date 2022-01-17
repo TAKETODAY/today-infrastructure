@@ -20,8 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Condition;
-
 /**
  * A {@link Condition} that offers more fine-grained control when used with
  * {@code @Configuration}. Allows certain conditions to adapt when they match

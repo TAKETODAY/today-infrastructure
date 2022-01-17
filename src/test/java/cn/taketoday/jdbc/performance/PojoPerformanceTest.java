@@ -51,15 +51,15 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.Primary;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.utils.FeatureDetector;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.orm.hibernate5.EnableHibernate;
+import lombok.SneakyThrows;
 
 /**
  * @author aldenquimby@gmail.com
@@ -480,12 +480,16 @@ public class PojoPerformanceTest {
 
   static class HibernateTypicalSelect extends PerformanceTestBase {
     private Session session;
-    private ApplicationContext context;
+    private StandardApplicationContext context;
 
+    @SneakyThrows
     @Override
     public void init() {
       Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-      context = new StandardApplicationContext("", "cn.taketoday.jdbc.performance");
+      context = new StandardApplicationContext();
+
+      context.scan("cn.taketoday.jdbc.performance");
+
       SessionFactory sessionFactory = context.getBean(SessionFactory.class);
       session = sessionFactory.openSession();
     }

@@ -1,7 +1,5 @@
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Condition;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**

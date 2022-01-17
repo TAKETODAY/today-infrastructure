@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.beans.factory.annotation.Autowired;
 

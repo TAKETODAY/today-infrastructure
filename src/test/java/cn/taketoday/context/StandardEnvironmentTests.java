@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Properties;
 
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -41,8 +42,12 @@ import cn.taketoday.util.ResourceUtils;
 class StandardEnvironmentTests {
 
   @Test
-  void autoLoadProperties() {
-    try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
+  void autoLoadProperties() throws IOException {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
       Environment environment = context.getEnvironment();
       context.refresh();
 
@@ -67,8 +72,13 @@ class StandardEnvironmentTests {
   @Test
   void activeProfile() throws IOException {
 
-    try (ApplicationContext applicationContext
-            = new StandardApplicationContext("info.properties", "cn.taketoday.context.env")) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(applicationContext);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
+      applicationContext.scan("cn.taketoday.context.env");
+
       Environment environment = applicationContext.getEnvironment();
 
       String[] activeProfiles = environment.getActiveProfiles();
@@ -80,27 +90,21 @@ class StandardEnvironmentTests {
   }
 
   @Test
-  void addActiveProfile() {
+  void addActiveProfile() throws IOException {
 
-    try (ConfigurableApplicationContext context
-            = new StandardApplicationContext("classpath:info.properties", "cn.taketoday.context.env")) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
+      context.scan("cn.taketoday.context.env");
       ConfigurableEnvironment environment = context.getEnvironment();
 
       environment.addActiveProfile("prod");
       String[] activeProfiles = environment.getActiveProfiles();
       assert activeProfiles.length == 3;
       assert environment.acceptsProfiles("prod");
-    }
-  }
-
-  @Test
-  void test_AcceptsProfiles() throws IOException {
-
-    try (ConfigurableApplicationContext applicationContext
-            = new StandardApplicationContext("info.properties", "cn.taketoday.context.env")) {
-      ConfigurableEnvironment environment = applicationContext.getEnvironment();
-
-      assert environment.acceptsProfiles("test");
     }
   }
 

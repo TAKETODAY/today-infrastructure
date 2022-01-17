@@ -21,6 +21,9 @@ package test.context.props;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
@@ -31,9 +34,11 @@ import cn.taketoday.context.support.StandardApplicationContext;
 class PropsTests {
 
   @Test
-  void props() {
+  void props() throws IOException {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.setPropertiesLocation("info.properties");
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(applicationContext);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
       applicationContext.scan("test.context.props");
 
       applicationContext.refresh();

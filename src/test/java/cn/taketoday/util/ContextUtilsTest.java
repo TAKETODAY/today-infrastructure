@@ -39,8 +39,8 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.DependencyInjector;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.core.env.PropertySources;
@@ -85,7 +85,8 @@ public class ContextUtilsTest {
   @SuppressWarnings("unchecked")
   public void testResolveParameter() throws Exception {
 
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.util")) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext("cn.taketoday.util")) {
+
       final BeanFactory beanFactory = applicationContext.getBeanFactory();
       final ConfigurableEnvironment environment = applicationContext.getEnvironment();
       // placeHolder

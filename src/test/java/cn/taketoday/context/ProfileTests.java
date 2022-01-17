@@ -19,18 +19,20 @@
  */
 package cn.taketoday.context;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.condition.WindowsCondition;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
 import test.demo.config.User;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +73,10 @@ class ProfileTests {
 
   @Test
   void testProfile() throws IOException {
-    try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
 
       context.register(ProfileTestConfig.class);
       context.refresh();
@@ -82,9 +87,13 @@ class ProfileTests {
   }
 
   @Test
-  void testConditional() {
+  void testConditional() throws IOException {
 
-    try (StandardApplicationContext context = new StandardApplicationContext("info.properties"/*, "test.demo.config"*/)) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
       context.register(ProfileTestConfig.class);
       context.refresh();
 

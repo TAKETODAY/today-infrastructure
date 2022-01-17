@@ -21,25 +21,26 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Map;
 
-import cn.taketoday.context.support.StandardApplicationContext;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 /**
  * @author TODAY <br>
@@ -95,8 +96,12 @@ public class LifecycleBean
   }
 
   @Test
-  public void lifecycle() {
-    try (StandardApplicationContext context = new StandardApplicationContext("info.properties")) {
+  public void lifecycle() throws IOException {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
       context.register(LifecycleBean.class);
 
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);

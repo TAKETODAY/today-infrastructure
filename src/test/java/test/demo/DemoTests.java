@@ -19,20 +19,23 @@
  */
 package test.demo;
 
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Date;
+
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
-import org.junit.jupiter.api.Test;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 import test.demo.repository.impl.DefaultUserRepository;
 import test.demo.service.UserService;
 import test.demo.service.impl.DefaultUserService;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Date;
 
 /**
  * @author TODAY <br>
@@ -41,10 +44,16 @@ import java.util.Date;
 class DemoTests {
 
   @Test
-  void testLogin() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+  void testLogin() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException, IOException {
 
     try (StandardApplicationContext context =
-                 new StandardApplicationContext("info.properties", "test.demo.service.impl", "test.demo.repository.impl")) {
+            new StandardApplicationContext()) {
+
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
+      context.scan("test.demo.service.impl", "test.demo.repository.impl");
 
       UserService userService = context.getBean(DefaultUserService.class);
 
@@ -90,7 +99,7 @@ class DemoTests {
 
   }
 
-//  @Test
+  //  @Test
   void test() {
     boolean isStatic = true;
     Method[] candidates = BeanTEST.class.getDeclaredMethods();

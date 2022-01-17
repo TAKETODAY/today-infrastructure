@@ -106,7 +106,7 @@ class ProxyFactoryBeanTests {
   public void testProxyFactoryBean() {
 //    DebuggingClassWriter.setDebugLocation("D:\\dev\\temp\\debug");
 
-    try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.support")) {
+    try (StandardApplicationContext context = new StandardApplicationContext("cn.taketoday.aop.support")) {
       ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
       proxyFactoryBean.setProxyTargetClass(true);
       proxyFactoryBean.setBeanFactory(context);

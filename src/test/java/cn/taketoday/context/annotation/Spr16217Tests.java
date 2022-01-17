@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**

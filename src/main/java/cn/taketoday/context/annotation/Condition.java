@@ -17,10 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context;
+package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**

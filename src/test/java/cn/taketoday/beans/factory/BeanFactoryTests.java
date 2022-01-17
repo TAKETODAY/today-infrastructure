@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
@@ -66,8 +68,15 @@ class BeanFactoryTests {
   }
 
   @BeforeEach
-  public void beforeEach() {
-    context = new StandardApplicationContext("info.properties", "cn.taketoday.beans.factory", "test.demo.config");
+  public void beforeEach() throws IOException {
+    context = new StandardApplicationContext();
+    ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
+    processor.setPropertiesLocation("info.properties");
+    processor.postProcessEnvironment();
+
+    context.scan("cn.taketoday.beans.factory", "test.demo.config");
+    context.refresh();
+
     beanFactory = context.getBeanFactory();
   }
 

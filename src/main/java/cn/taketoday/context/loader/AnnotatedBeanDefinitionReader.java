@@ -41,6 +41,7 @@ import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
+import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DependsOn;
@@ -501,7 +502,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
    *
    * @param enableConditionEvaluation enableConditionEvaluation flag
    * @see ConditionEvaluator
-   * @see cn.taketoday.context.Condition
+   * @see Condition
    * @see Conditional
    */
   public void setEnableConditionEvaluation(boolean enableConditionEvaluation) {

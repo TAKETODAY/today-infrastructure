@@ -21,6 +21,8 @@ package cn.taketoday.context;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -29,9 +31,8 @@ import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContextTests.RequiredTest.Bean1;
 import cn.taketoday.context.support.AbstractApplicationContext;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
@@ -49,14 +50,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * 2018年7月3日 下午10:05:21
  */
 class ApplicationContextTests {
-  private static final Logger log = LoggerFactory.getLogger(ApplicationContextTests.class);
 
   /**
    * test ApplicationContext
    */
   @Test
   void applicationContext() throws NoSuchBeanDefinitionException {
-    try (StandardApplicationContext context = new StandardApplicationContext("")) {
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.scan("test.demo.repository");
 
       boolean containsBean = context.containsBeanDefinition(DefaultUserRepository.class);
@@ -78,9 +78,13 @@ class ApplicationContextTests {
    * test load FactoryBean.
    */
   @Test
-  void loadFactoryBean() throws NoSuchBeanDefinitionException {
+  void loadFactoryBean() throws NoSuchBeanDefinitionException, IOException {
 
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext("info.properties")) {
+    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(applicationContext);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
+
       applicationContext.scan("test.demo.config");
       applicationContext.refresh();
       Config config = applicationContext.getBean("FactoryBean-Config", Config.class);

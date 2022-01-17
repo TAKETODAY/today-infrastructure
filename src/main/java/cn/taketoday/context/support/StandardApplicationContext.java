@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.support;
 
-import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
@@ -32,9 +31,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.EnvironmentPostProcessor;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -52,7 +49,6 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Standard {@link ApplicationContext}
@@ -63,9 +59,6 @@ import cn.taketoday.util.StringUtils;
  */
 public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
-
-  @Nullable
-  private String propertiesLocation;
 
   private DefinitionLoadingContext loadingContext;
   private ClassPathBeanDefinitionScanner scanningReader;
@@ -109,15 +102,6 @@ public class StandardApplicationContext
   }
 
   /**
-   * Set given properties location
-   *
-   * @param propertiesLocation a file or a di rectory to scan
-   */
-  public StandardApplicationContext(String propertiesLocation) {
-    setPropertiesLocation(propertiesLocation);
-  }
-
-  /**
    * Start with given class set
    *
    * @param components one or more component classes,
@@ -133,23 +117,12 @@ public class StandardApplicationContext
   /**
    * Start context with given properties location and base scan packages
    *
-   * @param propertiesLocation a file or a directory contains
    * @param basePackages scan classes from packages
    * @see #refresh()
    */
-  public StandardApplicationContext(String propertiesLocation, String... basePackages) {
-    setPropertiesLocation(propertiesLocation);
+  public StandardApplicationContext(String... basePackages) {
     scan(basePackages);
     refresh();
-  }
-
-  public void setPropertiesLocation(@Nullable String propertiesLocation) {
-    this.propertiesLocation = propertiesLocation;
-  }
-
-  @Nullable
-  public String getPropertiesLocation() {
-    return propertiesLocation;
   }
 
   //---------------------------------------------------------------------
@@ -209,29 +182,6 @@ public class StandardApplicationContext
     PropsDependencyResolver strategy = new PropsDependencyResolver(this);
     strategy.setOrder(2);
     strategies.addStrategies(strategy);
-  }
-
-  @Override
-  protected void initPropertySources(ConfigurableEnvironment environment) {
-    super.initPropertySources(environment);
-
-    try {
-      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(this);
-      if (StringUtils.hasText(propertiesLocation)) {
-        processor.setPropertiesLocation(propertiesLocation);
-      }
-      processor.postProcessEnvironment();
-
-      // prepare properties
-      List<EnvironmentPostProcessor> postProcessors = TodayStrategies.getStrategies(
-              EnvironmentPostProcessor.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
-      for (EnvironmentPostProcessor postProcessor : postProcessors) {
-        postProcessor.postProcessEnvironment(environment, this);
-      }
-    }
-    catch (IOException e) {
-      throw new ApplicationContextException("Environment properties loading failed", e);
-    }
   }
 
   //---------------------------------------------------------------------

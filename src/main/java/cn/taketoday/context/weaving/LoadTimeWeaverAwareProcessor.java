@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.weaving;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.classloading.LoadTimeWeaver;

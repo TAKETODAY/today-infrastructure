@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;

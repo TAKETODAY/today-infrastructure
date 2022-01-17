@@ -21,9 +21,11 @@ package cn.taketoday.context.el;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Date;
 
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,15 +80,16 @@ class ELFieldTests {
   }
 
   @Test
-  void testEnv() {
+  void testEnv() throws IOException {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
 
       User user = new User();
       user.setAge(20)//
               .setBrithday(new Date())//
               .setId(1);
-
-      applicationContext.setPropertiesLocation("info.properties");
+      ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(applicationContext);
+      processor.setPropertiesLocation("info.properties");
+      processor.postProcessEnvironment();
 
       applicationContext.registerBean(user);
       applicationContext.register(ELFieldTests.class);

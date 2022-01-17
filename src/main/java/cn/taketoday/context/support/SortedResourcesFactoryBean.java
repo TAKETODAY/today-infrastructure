@@ -19,6 +19,9 @@
  */
 package cn.taketoday.context.support;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.taketoday.beans.factory.AbstractFactoryBean;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -27,10 +30,6 @@ import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link FactoryBean} implementation that takes a list of location Strings

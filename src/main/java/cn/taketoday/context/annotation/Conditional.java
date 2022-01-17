@@ -24,8 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Condition;
-
 /**
  * @author TODAY <br>
  * 2018-11-14 18:50

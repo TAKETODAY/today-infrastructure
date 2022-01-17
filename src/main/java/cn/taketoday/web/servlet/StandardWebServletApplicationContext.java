@@ -88,15 +88,6 @@ public class StandardWebServletApplicationContext
   }
 
   /**
-   * Set given properties location
-   *
-   * @param propertiesLocation a file or a di rectory to scan
-   */
-  public StandardWebServletApplicationContext(String propertiesLocation) {
-    setPropertiesLocation(propertiesLocation);
-  }
-
-  /**
    * Start with given class set
    *
    * @param components one or more component classes,

@@ -24,10 +24,10 @@ import java.io.IOException;
 import java.util.Set;
 
 import cn.taketoday.aop.AopInfrastructureBean;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.event.EventListenerFactory;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Conventions;

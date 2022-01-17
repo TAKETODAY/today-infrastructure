@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.aware.ImportAware;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;

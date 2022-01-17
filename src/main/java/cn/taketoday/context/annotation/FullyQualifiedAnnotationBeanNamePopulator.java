@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Assert;
 
 /**

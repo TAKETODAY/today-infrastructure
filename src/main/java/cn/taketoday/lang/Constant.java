@@ -45,7 +45,6 @@ public interface Constant extends Serializable {
   String QUOTATION_MARKS = "\"";
 
   String META_INFO_beans = "META-INF/beans";
-  String META_INFO_listeners = "META-INF/listeners";
 
   int DEFAULT_CAPACITY = 0; // @since 3.0
 

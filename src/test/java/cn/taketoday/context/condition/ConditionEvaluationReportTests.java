@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
@@ -38,7 +38,7 @@ import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.config.WebMvcAutoConfiguration;
