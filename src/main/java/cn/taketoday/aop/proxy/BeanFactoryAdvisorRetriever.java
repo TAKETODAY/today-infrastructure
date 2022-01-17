@@ -57,7 +57,7 @@ public class BeanFactoryAdvisorRetriever {
    * @param beanFactory the ListableBeanFactory to scan
    */
   public BeanFactoryAdvisorRetriever(ConfigurableBeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "ConfigurableBeanFactory must not be null");
+    Assert.notNull(beanFactory, "ConfigurableBeanFactory is required");
     this.beanFactory = beanFactory;
   }
 

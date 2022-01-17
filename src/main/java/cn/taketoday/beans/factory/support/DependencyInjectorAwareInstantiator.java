@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Constructor;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
@@ -47,10 +48,11 @@ public class DependencyInjectorAwareInstantiator {
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
   public DependencyInjectorAwareInstantiator(DependencyInjector dependencyInjector) {
+    Assert.notNull(dependencyInjector, "dependencyInjector is required");
     this.dependencyInjector = dependencyInjector;
   }
 
-  public DependencyInjectorAwareInstantiator(BeanFactory beanFactory) {
+  public DependencyInjectorAwareInstantiator(DependencyInjectorProvider beanFactory) {
     this.dependencyInjector = beanFactory.getInjector();
   }
 

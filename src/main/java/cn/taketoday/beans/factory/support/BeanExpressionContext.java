@@ -38,7 +38,7 @@ public class BeanExpressionContext {
   private final ConfigurableBeanFactory beanFactory;
 
   public BeanExpressionContext(ConfigurableBeanFactory beanFactory, @Nullable Scope scope) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     this.beanFactory = beanFactory;
     this.scope = scope;
   }
