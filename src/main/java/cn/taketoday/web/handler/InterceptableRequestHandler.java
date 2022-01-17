@@ -36,7 +36,7 @@ public abstract class InterceptableRequestHandler
         extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
 
   /** interceptors array */
-  private final ArrayHolder<HandlerInterceptor> interceptors = new ArrayHolder<>();
+  private final ArrayHolder<HandlerInterceptor> interceptors = ArrayHolder.forGenerator(HandlerInterceptor[]::new);
 
   public InterceptableRequestHandler() { }
 
