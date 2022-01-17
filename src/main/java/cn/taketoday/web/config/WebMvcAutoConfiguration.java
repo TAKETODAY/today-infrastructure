@@ -29,6 +29,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.condition.ConditionalOnWebApplication;
 import cn.taketoday.lang.Component;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -47,6 +48,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * config framework
  * </p>
  */
+@ConditionalOnWebApplication
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

@@ -50,7 +50,7 @@ public abstract class ActionMappingAnnotationHandler
   private final HandlerMethod handlerMethod;
 
   // handler fast invoker
-  private volatile MethodInvoker handlerInvoker;
+  private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
   private ReturnValueHandlers resultHandlers;

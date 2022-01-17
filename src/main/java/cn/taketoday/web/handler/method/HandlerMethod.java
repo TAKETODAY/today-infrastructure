@@ -169,8 +169,6 @@ public class HandlerMethod {
     return contentType;
   }
 
-  // helper
-
   /**
    * ResponseBody present?
    */

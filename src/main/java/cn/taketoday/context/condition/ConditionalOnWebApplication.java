@@ -27,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.framework.ApplicationType;
 
 /**
  * {@link Conditional @Conditional} that matches when the application is a web
@@ -43,13 +42,35 @@ import cn.taketoday.framework.ApplicationType;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Conditional(OnWebApplicationCondition.class)
-public @interface ConditionalOnApplication {
+public @interface ConditionalOnWebApplication {
 
   /**
    * The required type of the web application.
    *
    * @return the required web application type
    */
-  ApplicationType type();
+  Type type() default Type.ANY;
+
+  /**
+   * Available application types.
+   */
+  enum Type {
+
+    /**
+     * Any web application will match.
+     */
+    ANY,
+
+    /**
+     * Only servlet-based web application will match.
+     */
+    SERVLET,
+
+    /**
+     * Only reactive-based web application will match.
+     */
+    REACTIVE
+
+  }
 
 }

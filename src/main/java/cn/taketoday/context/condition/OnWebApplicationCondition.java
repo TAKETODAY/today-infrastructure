@@ -20,12 +20,12 @@
 
 package cn.taketoday.context.condition;
 
-import java.util.Map;
-
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.condition.ConditionalOnWebApplication.Type;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
@@ -39,7 +39,7 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  *
  * @author Dave Syer
  * @author Phillip Webb
- * @see ConditionalOnApplication
+ * @see ConditionalOnWebApplication
  * @see ConditionalOnNotWebApplication
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
@@ -47,7 +47,7 @@ class OnWebApplicationCondition extends FilteringContextCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    boolean required = metadata.isAnnotated(ConditionalOnApplication.class.getName());
+    boolean required = metadata.isAnnotated(ConditionalOnWebApplication.class.getName());
     ConditionOutcome outcome = isWebApplication(context, metadata, required);
     if (required && !outcome.isMatch()) {
       return ConditionOutcome.noMatch(outcome.getConditionMessage());
@@ -61,15 +61,15 @@ class OnWebApplicationCondition extends FilteringContextCondition {
   private ConditionOutcome isWebApplication(
           ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, boolean required) {
     return switch (deduceType(metadata)) {
-      case SERVLET_WEB -> isServletWebApplication(context);
-      case REACTIVE_WEB -> isReactiveWebApplication(context);
+      case SERVLET -> isServletWebApplication(context);
+      case REACTIVE -> isReactiveWebApplication(context);
       default -> isAnyApplication(context, required);
     };
   }
 
   private ConditionOutcome isAnyApplication(ConditionEvaluationContext context, boolean required) {
-    ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnApplication.class,
-            required ? "(required)" : "");
+    ConditionMessage.Builder message = ConditionMessage.forCondition(
+            ConditionalOnWebApplication.class, required ? "(required)" : "");
     ConditionOutcome servletOutcome = isServletWebApplication(context);
     if (servletOutcome.isMatch() && required) {
       return new ConditionOutcome(servletOutcome.isMatch(), message.because(servletOutcome.getMessage()));
@@ -111,12 +111,12 @@ class OnWebApplicationCondition extends FilteringContextCondition {
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));
   }
 
-  private ApplicationType deduceType(AnnotatedTypeMetadata metadata) {
-    Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnApplication.class.getName());
-    if (attributes != null) {
-      return (ApplicationType) attributes.get("type");
+  private Type deduceType(AnnotatedTypeMetadata metadata) {
+    MergedAnnotation<ConditionalOnWebApplication> annotation = metadata.getAnnotation(ConditionalOnWebApplication.class);
+    if (annotation.isPresent()) {
+      return annotation.getEnum("type", Type.class);
     }
-    return ApplicationType.STANDARD;
+    return Type.ANY;
   }
 
 }
