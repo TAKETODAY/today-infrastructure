@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.condition;
 
-import cn.taketoday.context.Condition;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.Condition;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.ClassMetadata;

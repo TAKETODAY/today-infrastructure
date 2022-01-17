@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.support.BeanUtils;
-import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.Condition;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConfigurationCondition;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;

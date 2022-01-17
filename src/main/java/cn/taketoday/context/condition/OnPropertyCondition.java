@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.Condition;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;

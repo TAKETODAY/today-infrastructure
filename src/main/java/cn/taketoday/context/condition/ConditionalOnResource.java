@@ -23,13 +23,16 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
 
-import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
-import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.context.condition.ConditionMessage.Style;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.lang.Assert;
 
 /**
  * {@link Conditional} that only matches when the specified resources are exits
@@ -51,21 +54,35 @@ public @interface ConditionalOnResource {
 
 }
 
-final class OnResourceCondition implements Condition {
+final class OnResourceCondition extends ContextCondition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    MergedAnnotation<ConditionalOnResource> conditionalOnResource
-            = metadata.getAnnotation(ConditionalOnResource.class);
-
-    String[] stringArray = conditionalOnResource.getStringArray(MergedAnnotation.VALUE);
-    ResourceLoader resourceLoader = context.getResourceLoader();
-    for (final String resource : stringArray) {
-      if (!resourceLoader.getResource(resource).exists()) {
-        return false;
+  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(ConditionalOnResource.class.getName(), true);
+    ResourceLoader loader = context.getResourceLoader();
+    List<String> locations = new ArrayList<>();
+    collectValues(locations, attributes.get("value"));
+    Assert.isTrue(!locations.isEmpty(), "@ConditionalOnResource annotations must specify at least one resource location");
+    ArrayList<String> missing = new ArrayList<>();
+    for (String location : locations) {
+      String resource = context.getEnvironment().resolvePlaceholders(location);
+      if (!loader.getResource(resource).exists()) {
+        missing.add(location);
       }
     }
-    return true;
+    if (!missing.isEmpty()) {
+      return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnResource.class)
+              .didNotFind("resource", "resources").items(Style.QUOTE, missing));
+    }
+    return ConditionOutcome.match(ConditionMessage.forCondition(ConditionalOnResource.class)
+            .found("location", "locations").items(locations));
   }
 
+  private void collectValues(List<String> names, List<Object> values) {
+    for (Object value : values) {
+      for (Object item : (Object[]) value) {
+        names.add((String) item);
+      }
+    }
+  }
 }

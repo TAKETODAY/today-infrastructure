@@ -34,8 +34,8 @@ import java.util.TreeMap;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.context.Condition;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.Condition;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

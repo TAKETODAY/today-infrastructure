@@ -24,9 +24,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Condition;
+import cn.taketoday.beans.factory.support.BeanExpressionContext;
+import cn.taketoday.beans.factory.support.BeanExpressionResolver;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.loader.ConditionEvaluationContext;
+import cn.taketoday.context.expression.StandardBeanExpressionResolver;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -51,14 +55,47 @@ public @interface ConditionalOnExpression {
   String value() default "true";
 }
 
-final class OnExpressionCondition implements Condition {
+final class OnExpressionCondition extends ContextCondition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    String expression = metadata.getAnnotations()
-            .get(ConditionalOnExpression.class)
-            .getStringValue();
-    return context.evaluateExpression(expression, boolean.class);
+  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    MergedAnnotation<ConditionalOnExpression> annotation = metadata.getAnnotation(ConditionalOnExpression.class);
+    String expression = annotation.getStringValue();
+    expression = wrapIfNecessary(expression);
+
+    ConditionMessage.Builder messageBuilder = ConditionMessage.forCondition(
+            ConditionalOnExpression.class, "(" + expression + ")");
+
+    expression = context.getEnvironment().resolvePlaceholders(expression);
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    if (beanFactory != null) {
+      boolean result = evaluateExpression(beanFactory, expression);
+      return new ConditionOutcome(result, messageBuilder.resultedIn(result));
+    }
+    return ConditionOutcome.noMatch(messageBuilder.because("no BeanFactory available."));
+  }
+
+  private Boolean evaluateExpression(ConfigurableBeanFactory beanFactory, String expression) {
+    BeanExpressionResolver resolver = beanFactory.getBeanExpressionResolver();
+    if (resolver == null) {
+      resolver = new StandardBeanExpressionResolver();
+    }
+    BeanExpressionContext expressionContext = new BeanExpressionContext(beanFactory, null);
+    Object result = resolver.evaluate(expression, expressionContext);
+    return (result != null && (boolean) result);
+  }
+
+  /**
+   * Allow user to provide bare expression with no '#{}' wrapper.
+   *
+   * @param expression source expression
+   * @return wrapped expression
+   */
+  private String wrapIfNecessary(String expression) {
+    if (!expression.startsWith("#{")) {
+      return "#{" + expression + "}";
+    }
+    return expression;
   }
 
 }

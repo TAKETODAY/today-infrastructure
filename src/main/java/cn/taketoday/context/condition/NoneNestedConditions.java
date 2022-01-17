@@ -23,7 +23,7 @@ package cn.taketoday.context.condition;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.Condition;
+import cn.taketoday.context.annotation.Condition;
 
 /**
  * {@link Condition} that will match when none of the nested class conditions match. Can
