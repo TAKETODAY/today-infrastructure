@@ -120,7 +120,7 @@ public class ApplicationPropertySourcesProcessor {
   }
 
   private void loadFromYmal(Resource yamlResource) throws IOException {
-    log.info("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
+    log.debug("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
     SnakeyamlDelegate.doMapping(properties, yamlResource);
   }
 
@@ -194,7 +194,7 @@ public class ApplicationPropertySourcesProcessor {
     // replace
     String[] activeProfiles = environment.getActiveProfiles();
     for (String profile : activeProfiles) {
-      log.info("Replace properties by profile: [{}]", profile);
+      log.debug("Replace properties by profile: [{}]", profile);
 
       for (String location : locations) {
         StringBuilder builder = new StringBuilder(location);
@@ -225,8 +225,8 @@ public class ApplicationPropertySourcesProcessor {
    * @throws IOException if the resource is not available
    */
   private void doLoad(Resource resource) throws IOException {
-    if (log.isInfoEnabled()) {
-      log.info("Found Properties Resource: [{}]", resource.getLocation());
+    if (log.isDebugEnabled()) {
+      log.debug("Found Properties Resource: [{}]", resource.getLocation());
     }
     PropertiesUtils.fillProperties(properties, resource);
   }

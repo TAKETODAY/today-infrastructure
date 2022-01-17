@@ -27,8 +27,6 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.util.ClassUtils;
-
 /**
  * @author TODAY 2018-01-16 10:56
  */
@@ -37,7 +35,6 @@ public interface Constant extends Serializable {
   String PROPERTIES_SUFFIX = ".properties";
 
   String ENV_SERVLET = "jakarta.servlet.Servlet";
-  boolean RUN_IN_SERVLET = ClassUtils.isPresent(ENV_SERVLET); // @since 3.0.3
 
   String HTTP = "http";
   String HTTPS = "https";

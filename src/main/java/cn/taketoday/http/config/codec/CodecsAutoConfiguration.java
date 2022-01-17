@@ -64,22 +64,18 @@ public class CodecsAutoConfiguration {
 
   }
 
-  @Configuration(proxyBeanMethods = false)
-  static class DefaultCodecsConfiguration {
-
-    @Component
-    @Order(0)
-    CodecCustomizer defaultCodecCustomizer(@Props(prefix = "http.codec") CodecProperties codecProperties) {
-      return (configurer) -> {
-        PropertyMapper map = PropertyMapper.get();
-        CodecConfigurer.DefaultCodecs defaultCodecs = configurer.defaultCodecs();
-        defaultCodecs.enableLoggingRequestDetails(codecProperties.isLogRequestDetails());
-        map.from(codecProperties.getMaxInMemorySize())
-                .whenNonNull().asInt(DataSize::toBytes)
-                .to(defaultCodecs::maxInMemorySize);
-      };
-    }
-
+  @Component
+  @Order(0)
+  CodecCustomizer defaultCodecCustomizer(
+          @Props(prefix = "http.codec.") CodecProperties codecProperties) {
+    return configurer -> {
+      PropertyMapper map = PropertyMapper.get();
+      CodecConfigurer.DefaultCodecs defaultCodecs = configurer.defaultCodecs();
+      defaultCodecs.enableLoggingRequestDetails(codecProperties.isLogRequestDetails());
+      map.from(codecProperties.getMaxInMemorySize())
+              .whenNonNull().asInt(DataSize::toBytes)
+              .to(defaultCodecs::maxInMemorySize);
+    };
   }
 
 }
