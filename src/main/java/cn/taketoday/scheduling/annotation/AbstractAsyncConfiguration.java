@@ -71,7 +71,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
    */
   @Autowired
   void setConfigurers(ObjectSupplier<AsyncConfigurer> configurers) {
-    Supplier<AsyncConfigurer> asyncConfigurer = SingletonSupplier.of(() -> {
+    Supplier<AsyncConfigurer> asyncConfigurer = SingletonSupplier.from(() -> {
       Object[] array = configurers.stream().toArray();
       if (ObjectUtils.isEmpty(array)) {
         return null;

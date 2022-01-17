@@ -110,7 +110,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
    * @see #DEFAULT_TASK_EXECUTOR_BEAN_NAME
    */
   public void setExecutor(Executor executor) {
-    this.executor = SingletonSupplier.of(executor);
+    this.executor = SingletonSupplier.valueOf(executor);
   }
 
   /**
@@ -118,7 +118,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
    * exceptions thrown by asynchronous method executions.
    */
   public void setExceptionHandler(AsyncUncaughtExceptionHandler exceptionHandler) {
-    this.exceptionHandler = SingletonSupplier.of(exceptionHandler);
+    this.exceptionHandler = SingletonSupplier.valueOf(exceptionHandler);
   }
 
   /**

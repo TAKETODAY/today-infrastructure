@@ -127,7 +127,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param instance the singleton instance (never {@code null})
    * @return the singleton supplier (never {@code null})
    */
-  public static <T> SingletonSupplier<T> of(T instance) {
+  public static <T> SingletonSupplier<T> valueOf(T instance) {
     return new SingletonSupplier<>(instance);
   }
 
@@ -148,7 +148,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param supplier the instance supplier (never {@code null})
    * @return the singleton supplier (never {@code null})
    */
-  public static <T> SingletonSupplier<T> of(Supplier<T> supplier) {
+  public static <T> SingletonSupplier<T> from(Supplier<T> supplier) {
     return new SingletonSupplier<>(supplier);
   }
 

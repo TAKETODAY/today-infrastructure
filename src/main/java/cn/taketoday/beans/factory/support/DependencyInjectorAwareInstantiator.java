@@ -33,6 +33,7 @@ import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.SingletonSupplier;
 
 /**
  * provide Bean Constructor Arguments resolving
@@ -101,7 +102,6 @@ public class DependencyInjectorAwareInstantiator {
     this.instantiatorFactory = instantiatorFactory;
   }
 
-  @Nullable
   public BeanInstantiatorFactory getInstantiatorFactory() {
     return instantiatorFactory;
   }
@@ -122,8 +122,7 @@ public class DependencyInjectorAwareInstantiator {
           else if (beanFactory instanceof BeanDefinitionRegistry registry) {
             BeanDefinition definition = new BeanDefinition(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
             registry.registerBeanDefinition(BEAN_NAME, definition);
-            DependencyInjectorAwareInstantiator finalInstantiator = instantiator;
-            definition.setInstanceSupplier(() -> finalInstantiator);
+            definition.setInstanceSupplier(SingletonSupplier.valueOf(instantiator));
           }
         }
       }

@@ -33,7 +33,7 @@ final class MethodAccessorBeanInstantiator
   private final Supplier<Object> obj;
 
   MethodAccessorBeanInstantiator(MethodAccessor accessor, Object obj) {
-    this(accessor, SingletonSupplier.of(obj));
+    this(accessor, SingletonSupplier.valueOf(obj));
   }
 
   MethodAccessorBeanInstantiator(MethodAccessor accessor, Supplier<Object> obj) {

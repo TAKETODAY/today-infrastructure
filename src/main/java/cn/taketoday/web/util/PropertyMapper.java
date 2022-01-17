@@ -136,7 +136,7 @@ public final class PropertyMapper {
     if (this.parent != null) {
       return this.parent.from(supplier);
     }
-    return new Source<>(SingletonSupplier.of(supplier), (Predicate<T>) ALWAYS);
+    return new Source<>(SingletonSupplier.from(supplier), (Predicate<T>) ALWAYS);
   }
 
   /**

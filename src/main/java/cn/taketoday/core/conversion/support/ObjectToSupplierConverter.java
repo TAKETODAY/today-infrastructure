@@ -62,12 +62,12 @@ final class ObjectToSupplierConverter implements TypeConverter {
     TypeDescriptor elementType = targetType.getGeneric(Optional.class);
     if (elementType != null) {
       if (elementType.isAssignableFrom(source.getClass())) {
-        return SingletonSupplier.of(source);
+        return SingletonSupplier.valueOf(source);
       }
       Object target = conversionService.convert(source, elementType);
-      return SingletonSupplier.of(target);
+      return SingletonSupplier.valueOf(target);
     }
-    return SingletonSupplier.of(source);
+    return SingletonSupplier.valueOf(source);
   }
 
 }

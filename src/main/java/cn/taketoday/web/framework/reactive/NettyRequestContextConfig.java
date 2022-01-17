@@ -58,7 +58,7 @@ public class NettyRequestContextConfig {
   private HttpDataFactory httpDataFactory;
 
   public NettyRequestContextConfig() {
-    this(SingletonSupplier.of(EmptyHttpHeaders.INSTANCE));
+    this(SingletonSupplier.valueOf(EmptyHttpHeaders.INSTANCE));
   }
 
   public NettyRequestContextConfig(Supplier<HttpHeaders> trailingHeaders) {

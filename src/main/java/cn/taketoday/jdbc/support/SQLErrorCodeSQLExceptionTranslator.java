@@ -127,7 +127,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
    */
   public SQLErrorCodeSQLExceptionTranslator(SQLErrorCodes sec) {
     this();
-    this.sqlErrorCodes = SingletonSupplier.of(sec);
+    this.sqlErrorCodes = SingletonSupplier.valueOf(sec);
   }
 
   /**
@@ -142,7 +142,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
    */
   public void setDataSource(DataSource dataSource) {
     this.sqlErrorCodes =
-            SingletonSupplier.of(() -> SQLErrorCodesFactory.getInstance().resolveErrorCodes(dataSource));
+            SingletonSupplier.from(() -> SQLErrorCodesFactory.getInstance().resolveErrorCodes(dataSource));
     this.sqlErrorCodes.get();  // try early initialization - otherwise the supplier will retry later
   }
 
@@ -156,7 +156,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
    * @see java.sql.DatabaseMetaData#getDatabaseProductName()
    */
   public void setDatabaseProductName(String dbName) {
-    this.sqlErrorCodes = SingletonSupplier.of(SQLErrorCodesFactory.getInstance().getErrorCodes(dbName));
+    this.sqlErrorCodes = SingletonSupplier.valueOf(SQLErrorCodesFactory.getInstance().getErrorCodes(dbName));
   }
 
   /**
