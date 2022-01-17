@@ -1322,7 +1322,8 @@ public class StandardBeanFactory
         }
       }
       if (!ClassUtils.isAssignableValue(type, result)) {
-        throw new BeanNotOfRequiredTypeException(autowiredBeanName, type, instanceCandidate.getClass());
+        throw new BeanNotOfRequiredTypeException(
+                autowiredBeanName, type, instanceCandidate != null ? instanceCandidate.getClass() : NullValue.class);
       }
       return result;
     }

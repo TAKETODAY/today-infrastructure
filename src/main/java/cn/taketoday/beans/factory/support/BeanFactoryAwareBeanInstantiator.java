@@ -120,7 +120,8 @@ public class BeanFactoryAwareBeanInstantiator {
       else if (beanFactory instanceof BeanDefinitionRegistry registry) {
         BeanDefinition definition = new BeanDefinition(BEAN_NAME, BeanFactoryAwareBeanInstantiator.class);
         registry.registerBeanDefinition(BEAN_NAME, definition);
-        definition.setInstanceSupplier(() -> new BeanFactoryAwareBeanInstantiator(beanFactory));
+        BeanFactoryAwareBeanInstantiator finalInstantiator = instantiator;
+        definition.setInstanceSupplier(() -> finalInstantiator);
       }
     }
     return instantiator;
