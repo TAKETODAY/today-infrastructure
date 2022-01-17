@@ -51,6 +51,7 @@ class PropsPropertyResolverTests {
   public void propsPropertyResolver() throws Throwable {
 
     try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+      applicationContext.refresh();
       PropsDependencyResolver strategy = new PropsDependencyResolver(applicationContext);
 
       BeanProperty property1 = BeanProperty.valueOf(getClass(), "properties");

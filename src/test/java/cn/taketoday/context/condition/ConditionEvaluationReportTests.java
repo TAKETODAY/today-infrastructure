@@ -39,10 +39,10 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.config.WebMvcAutoConfiguration;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -159,7 +159,7 @@ class ConditionEvaluationReportTests {
   @SuppressWarnings("resource")
   void conditionPopulatesReport() {
     ConditionEvaluationReport report = ConditionEvaluationReport.get(
-            new StandardApplicationContext(Config.class).getBeanFactory());
+            new StandardWebServletApplicationContext(Config.class).getBeanFactory());
     assertThat(report.getConditionAndOutcomesBySource().size()).isNotEqualTo(0);
   }
 
