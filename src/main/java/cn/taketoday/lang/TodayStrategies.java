@@ -391,6 +391,10 @@ public final class TodayStrategies {
       log.trace("Loaded [{}] names: {}", strategyClass.getName(), strategies);
     }
 
+    if (strategies.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     ArrayList<T> ret = new ArrayList<>(strategies.size());
     for (String strategy : strategies) {
       Class<T> strategyImpl = ClassUtils.resolveClassName(strategy, classLoader);
