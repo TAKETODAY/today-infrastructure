@@ -42,7 +42,6 @@ import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjector;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -116,7 +115,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author TODAY 2018-09-09 22:02
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public abstract class AbstractApplicationContext
         extends DefaultResourceLoader implements ConfigurableApplicationContext, Lifecycle {
   private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
@@ -165,9 +164,6 @@ public abstract class AbstractApplicationContext
 
   /** Display name. */
   private String applicationName = ObjectUtils.identityToString(this);
-
-  /** @since 4.0 */
-  private DependencyInjectorAwareInstantiator beanInstantiator;
 
   /** @since 4.0 */
   private final PathMatchingPatternResourceLoader patternResourceLoader
@@ -490,7 +486,7 @@ public abstract class AbstractApplicationContext
     applyState(State.STARTING);
     ApplicationContextHolder.register(this); // @since 4.0
 
-    log.info("Starting Application Context at '{}'", formatStartupDate());
+    log.info("Starting application context at '{}'", formatStartupDate());
 
     ConfigurableEnvironment environment = getEnvironment();
 
@@ -541,7 +537,7 @@ public abstract class AbstractApplicationContext
    * Register Framework Beans
    */
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
-    log.debug("Registering framework beans");
+    log.debug("Registering framework components");
 
     // @since 4.0 ArgumentsResolver
     beanFactory.registerSingleton(getInjector());
@@ -587,7 +583,7 @@ public abstract class AbstractApplicationContext
    * @param beanFactory the BeanFactory to configure
    */
   public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
-    log.debug("Preparing internal bean-factory");
+    log.debug("Preparing bean-factory: {}", beanFactory);
     // Tell the internal bean factory to use the context's class loader etc.
     beanFactory.setBeanClassLoader(getClassLoader());
     beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
@@ -638,7 +634,7 @@ public abstract class AbstractApplicationContext
    * <p>Must be called before singleton instantiation.
    */
   protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.debug("Invoking BeanFactoryPostProcessors");
+    log.debug("Invoking bean-factory-post-processors");
     PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
@@ -655,7 +651,7 @@ public abstract class AbstractApplicationContext
    * <p>Must be called before any instantiation of application beans.
    */
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.debug("Loading BeanPostProcessor.");
+    log.debug("Registering bean-post-processors");
     PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
   }
 
@@ -1304,7 +1300,7 @@ public abstract class AbstractApplicationContext
   }
 
   protected void registerApplicationListeners() {
-    log.debug("Loading Application Listeners.");
+    log.debug("Registering application-listeners");
 
     // Register statically specified listeners first.
     for (ApplicationListener<?> listener : getApplicationListeners()) {
@@ -1342,7 +1338,7 @@ public abstract class AbstractApplicationContext
    */
   @Override
   public void addApplicationListener(ApplicationListener<?> listener) {
-    Assert.notNull(listener, "ApplicationListener must not be null");
+    Assert.notNull(listener, "ApplicationListener is required");
     if (this.applicationEventMulticaster != null) {
       this.applicationEventMulticaster.addApplicationListener(listener);
     }
@@ -1401,7 +1397,7 @@ public abstract class AbstractApplicationContext
     publishEvent(new ContextRefreshedEvent(this));
 
     applyState(State.STARTED);
-    log.info("Application Context Startup in {}ms", System.currentTimeMillis() - getStartupDate());
+    log.info("Application context startup in {}ms", System.currentTimeMillis() - getStartupDate());
   }
 
   //---------------------------------------------------------------------
