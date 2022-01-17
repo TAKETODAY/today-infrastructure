@@ -122,7 +122,7 @@ public class JacksonAutoConfiguration {
   @Component
   StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
           ApplicationContext applicationContext,
-          @Props(prefix = "jackson") JacksonProperties jacksonProperties) {
+          @Props(prefix = "jackson.") JacksonProperties jacksonProperties) {
     return new StandardJackson2ObjectMapperBuilderCustomizer(applicationContext, jacksonProperties);
   }
 

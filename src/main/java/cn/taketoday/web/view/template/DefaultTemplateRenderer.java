@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -32,28 +31,34 @@ import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.ExpressionResolver;
+import cn.taketoday.expression.ExpressionResolverComposite;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.servlet.HttpSessionModelAdapter;
+import cn.taketoday.web.servlet.ServletContextModelAdapter;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestModelAdapter;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author TODAY <br>
  * 2019-11-24 22:28
  */
-@Props(prefix = "web.mvc.view.")
 public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
+  static final boolean isServletPresent = ClassUtils.isPresent(Constant.ENV_SERVLET);
 
   private final StandardExpressionContext sharedContext;
   private ExpressionFactory expressionFactory;
-  /** @since 3.0 */
-  private ResolversSupplier resolversSupplier;
 
   @Nullable
   private ResourceLoader resourceLoader;
@@ -64,12 +69,7 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   }
 
   public DefaultTemplateRenderer(ExpressionManager elManager) {
-    this(elManager, ResolversSupplier.getInstance());
-  }
-
-  public DefaultTemplateRenderer(ExpressionManager elManager, ResolversSupplier resolversSupplier) {
     this.sharedContext = elManager.getContext();
-    setResolversSupplier(resolversSupplier);
   }
 
   @Override
@@ -132,11 +132,6 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
     return StreamUtils.copyToString(resource.getInputStream());
   }
 
-  public void setResolversSupplier(ResolversSupplier resolversSupplier) {
-    Assert.notNull(resolversSupplier, "resolversSupplier must not be null");
-    this.resolversSupplier = resolversSupplier;
-  }
-
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = resourceLoader;
   }
@@ -155,8 +150,18 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   }
 
   protected ExpressionContext prepareContext(ExpressionContext sharedContext, RequestContext context) {
-    ExpressionResolver resolver = resolversSupplier.getResolvers(sharedContext, context);
+    ExpressionResolver resolver = getResolvers(sharedContext, context);
     return new TemplateViewResolverELContext(sharedContext, resolver);
+  }
+
+  static ExpressionResolver getResolvers(ExpressionContext sharedContext, RequestContext context) {
+    if (isServletPresent) {
+      return ServletDelegate.getResolvers(sharedContext, context);
+    }
+    return new ExpressionResolverComposite(
+            new ModelAttributeResolver(context),
+            sharedContext.getResolver()
+    );
   }
 
   private static final class TemplateViewResolverELContext extends ExpressionContext {
@@ -194,6 +199,44 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
       return Constant.BLANK;
     }
 
+  }
+
+  static class ServletDelegate {
+
+    static ExpressionResolver getResolvers(ExpressionContext sharedContext, RequestContext context) {
+
+      if (context instanceof ServletRequestContext servlet) {
+        HttpServletRequest request = servlet.getRequest();
+        HttpSession session = request.getSession(false);
+        ServletContext servletContext = request.getServletContext();
+
+        ServletRequestModelAdapter servletRequestModelAdapter = new ServletRequestModelAdapter(request);
+        ServletContextModelAdapter servletContextModelAdapter = new ServletContextModelAdapter(servletContext);
+
+        if (session != null) {
+          HttpSessionModelAdapter httpSessionModelAdapter = new HttpSessionModelAdapter(session);
+          return new ExpressionResolverComposite(
+                  new ModelAttributeResolver(context),
+                  new ModelAttributeResolver(servletRequestModelAdapter), // 1
+                  new ModelAttributeResolver(httpSessionModelAdapter), // 2
+                  new ModelAttributeResolver(servletContextModelAdapter), // 3
+                  sharedContext.getResolver()
+          );
+        }
+
+        return new ExpressionResolverComposite(
+                new ModelAttributeResolver(context),
+                new ModelAttributeResolver(servletRequestModelAdapter), // 1
+                new ModelAttributeResolver(servletContextModelAdapter), // 2
+                sharedContext.getResolver()
+        );
+      }
+
+      return new ExpressionResolverComposite(
+              new ModelAttributeResolver(context),
+              sharedContext.getResolver()
+      );
+    }
   }
 
 }

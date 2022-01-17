@@ -143,6 +143,7 @@ public class WebMvcAutoConfiguration {
   }
 
   @Component
+  @Props(prefix = "web.mvc.view.")
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(TemplateRenderer.class)
   DefaultTemplateRenderer templateRenderer(ResourceLoader resourceLoader) {
