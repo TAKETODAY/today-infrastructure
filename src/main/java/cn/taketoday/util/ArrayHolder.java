@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -24,6 +25,21 @@ import cn.taketoday.lang.Nullable;
  */
 public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomAccess {
   private E[] array;
+
+  @Nullable
+  private final Class<E> elementClass;
+
+  @Nullable
+  private final IntFunction<E[]> arrayGenerator;
+
+  public ArrayHolder() {
+    this(null, null);
+  }
+
+  public ArrayHolder(@Nullable Class<E> elementClass, @Nullable IntFunction<E[]> arrayGenerator) {
+    this.elementClass = elementClass;
+    this.arrayGenerator = arrayGenerator;
+  }
 
   @SafeVarargs
   public final void set(@Nullable E... array) {
@@ -62,8 +78,16 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
       this.array = null;
     }
     else {
-      Class<?> aClass = list.get(0).getClass();
-      set(list.toArray((E[]) Array.newInstance(aClass, list.size())));
+      if (arrayGenerator != null) {
+        set(list.toArray(arrayGenerator.apply(list.size())));
+      }
+      else {
+        Class<E> elementClass = this.elementClass;
+        if (elementClass == null) {
+          elementClass = (Class<E>) list.get(0).getClass();
+        }
+        set(list.toArray((E[]) Array.newInstance(elementClass, list.size())));
+      }
     }
   }
 
@@ -294,6 +318,20 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
       arrayHolder.set(Arrays.copyOf(holder.array, holder.array.length));
     }
     return arrayHolder;
+  }
+
+  /**
+   * @see #set(List)
+   */
+  public static <E> ArrayHolder<E> forClass(@Nullable Class<E> elementClass) {
+    return new ArrayHolder<>(elementClass, null);
+  }
+
+  /**
+   * @see #set(List)
+   */
+  public static <E> ArrayHolder<E> forGenerator(@Nullable IntFunction<E[]> arrayGenerator) {
+    return new ArrayHolder<>(null, arrayGenerator);
   }
 
 }
