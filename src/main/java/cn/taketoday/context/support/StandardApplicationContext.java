@@ -23,13 +23,13 @@ import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.DependencyInjectorAwareInstantiatorFunction;
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
+import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -169,7 +169,7 @@ public class StandardApplicationContext
     super.postProcessBeanFactory(beanFactory);
 
     List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
-            BeanDefinitionLoader.class, new DependencyInjectorAwareInstantiatorFunction<>(beanFactory));
+            BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
 
     if (strategies.isEmpty()) {
       DefinitionLoadingContext loadingContext = loadingContext();
@@ -224,7 +224,7 @@ public class StandardApplicationContext
 
       // prepare properties
       List<EnvironmentPostProcessor> postProcessors = TodayStrategies.getStrategies(
-              EnvironmentPostProcessor.class, new DependencyInjectorAwareInstantiatorFunction<>(beanFactory));
+              EnvironmentPostProcessor.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
       for (EnvironmentPostProcessor postProcessor : postProcessors) {
         postProcessor.postProcessEnvironment(environment, this);
       }

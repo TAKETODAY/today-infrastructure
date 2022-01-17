@@ -38,6 +38,7 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.loader.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -139,8 +140,8 @@ public final class ConditionEvaluationReport {
       String candidateSource = entry.getKey();
       ConditionAndOutcomes sourceOutcomes = entry.getValue();
       if (candidateSource.startsWith(prefix)) {
-        ConditionOutcome outcome = ConditionOutcome
-                .noMatch(ConditionMessage.forCondition("Ancestor " + source).because("did not match"));
+        ConditionOutcome outcome = ConditionOutcome.noMatch(
+                ConditionMessage.forCondition("Ancestor " + source).because("did not match"));
         sourceOutcomes.add(ANCESTOR_CONDITION, outcome);
       }
     }
@@ -182,8 +183,8 @@ public final class ConditionEvaluationReport {
    * @param beanFactory the bean factory (may be {@code null})
    * @return the {@link ConditionEvaluationReport} or {@code null}
    */
-  public static ConditionEvaluationReport find(BeanFactory beanFactory) {
-    if (beanFactory != null && beanFactory instanceof ConfigurableBeanFactory) {
+  public static ConditionEvaluationReport find(@Nullable BeanFactory beanFactory) {
+    if (beanFactory instanceof ConfigurableBeanFactory) {
       return ConditionEvaluationReport.get((ConfigurableBeanFactory) beanFactory);
     }
     return null;
@@ -218,13 +219,15 @@ public final class ConditionEvaluationReport {
 
   public ConditionEvaluationReport getDelta(ConditionEvaluationReport previousReport) {
     ConditionEvaluationReport delta = new ConditionEvaluationReport();
-    this.outcomes.forEach((source, sourceOutcomes) -> {
+    for (Map.Entry<String, ConditionAndOutcomes> entry : outcomes.entrySet()) {
+      String source = entry.getKey();
+      ConditionAndOutcomes sourceOutcomes = entry.getValue();
       ConditionAndOutcomes previous = previousReport.outcomes.get(source);
       if (previous == null || previous.isFullMatch() != sourceOutcomes.isFullMatch()) {
         sourceOutcomes.forEach((conditionAndOutcome) -> delta.recordConditionEvaluation(source,
                 conditionAndOutcome.getCondition(), conditionAndOutcome.getOutcome()));
       }
-    });
+    }
     List<String> newExclusions = new ArrayList<>(this.exclusions);
     newExclusions.removeAll(previousReport.getExclusions());
     delta.recordExclusions(newExclusions);

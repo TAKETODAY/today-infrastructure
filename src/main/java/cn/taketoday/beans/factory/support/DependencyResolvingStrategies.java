@@ -22,17 +22,14 @@ package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ArrayHolder;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:50</a>
@@ -41,13 +38,17 @@ import cn.taketoday.util.ObjectUtils;
 public class DependencyResolvingStrategies implements DependencyResolvingStrategy {
   private static final Logger log = LoggerFactory.getLogger(DependencyResolvingStrategies.class);
 
-  private final ArrayList<DependencyResolvingStrategy> resolvingStrategies = new ArrayList<>();
+  private final ArrayHolder<DependencyResolvingStrategy> resolvingStrategies
+          = ArrayHolder.forClass(DependencyResolvingStrategy.class);
 
   @Override
   public boolean supports(Field field) {
-    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      if (resolvingStrategy.supports(field)) {
-        return true;
+    DependencyResolvingStrategy[] strategies = resolvingStrategies.get();
+    if (strategies != null) {
+      for (DependencyResolvingStrategy resolvingStrategy : strategies) {
+        if (resolvingStrategy.supports(field)) {
+          return true;
+        }
       }
     }
     return false;
@@ -55,9 +56,12 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   @Override
   public boolean supports(Executable executable) {
-    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      if (resolvingStrategy.supports(executable)) {
-        return true;
+    DependencyResolvingStrategy[] strategies = resolvingStrategies.get();
+    if (strategies != null) {
+      for (DependencyResolvingStrategy resolvingStrategy : strategies) {
+        if (resolvingStrategy.supports(executable)) {
+          return true;
+        }
       }
     }
     return false;
@@ -68,10 +72,13 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
           DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
     resolvingContext.setDependency(null);
     resolvingContext.setDependencyResolved(false);
-    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      resolvingStrategy.resolveDependency(descriptor, resolvingContext);
-      if (resolvingContext.isDependencyResolved()) {
-        return;
+    DependencyResolvingStrategy[] strategies = resolvingStrategies.get();
+    if (strategies != null) {
+      for (DependencyResolvingStrategy resolvingStrategy : strategies) {
+        resolvingStrategy.resolveDependency(descriptor, resolvingContext);
+        if (resolvingContext.isDependencyResolved()) {
+          return;
+        }
       }
     }
     // TODO maybe check required status?
@@ -86,50 +93,39 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       if (beanFactory instanceof ConfigurableBeanFactory configurable) {
         beanClassLoader = configurable.getBeanClassLoader();
       }
-      DependencyInjectorAwareInstantiator instantiator = DependencyInjectorAwareInstantiator.from(beanFactory);
       strategies = TodayStrategies.getStrategies(
-              DependencyResolvingStrategy.class, beanClassLoader, instantiator::instantiate);
+              DependencyResolvingStrategy.class, beanClassLoader, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
     }
     else {
       strategies = TodayStrategies.getStrategies(DependencyResolvingStrategy.class);
     }
 
-    // un-ordered
-    resolvingStrategies.addAll(strategies); // @since 4.0
-    AnnotationAwareOrderComparator.sort(resolvingStrategies);
-
+    resolvingStrategies.add(strategies); // @since 4.0
     resolvingStrategies.add(new BeanFactoryDependencyResolvingStrategy());
-    resolvingStrategies.trimToSize();
   }
 
-  public ArrayList<DependencyResolvingStrategy> getStrategies() {
+  public ArrayHolder<DependencyResolvingStrategy> getStrategies() {
     return resolvingStrategies;
   }
 
   public void setStrategies(DependencyResolvingStrategy... strategies) {
-    clear();
-    addStrategies(strategies);
-    resolvingStrategies.trimToSize();
+    resolvingStrategies.set(strategies);
+    resolvingStrategies.sort();
   }
 
   public void setStrategies(List<DependencyResolvingStrategy> strategies) {
-    clear();
-    addStrategies(strategies);
-    resolvingStrategies.trimToSize();
+    resolvingStrategies.set(strategies);
+    resolvingStrategies.sort();
   }
 
   public void addStrategies(DependencyResolvingStrategy... strategies) {
-    if (ObjectUtils.isNotEmpty(strategies)) {
-      CollectionUtils.addAll(resolvingStrategies, strategies);
-      AnnotationAwareOrderComparator.sort(resolvingStrategies);
-    }
+    resolvingStrategies.set(strategies);
+    resolvingStrategies.sort();
   }
 
   public void addStrategies(List<DependencyResolvingStrategy> strategies) {
-    if (CollectionUtils.isNotEmpty(strategies)) {
-      CollectionUtils.addAll(resolvingStrategies, strategies);
-      AnnotationAwareOrderComparator.sort(resolvingStrategies);
-    }
+    resolvingStrategies.add(strategies);
+    resolvingStrategies.sort();
   }
 
   public void clear() {

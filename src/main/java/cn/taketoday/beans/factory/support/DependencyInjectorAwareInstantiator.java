@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
+import java.util.function.Function;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.DependencyInjectorProvider;
@@ -107,6 +108,21 @@ public class DependencyInjectorAwareInstantiator {
   }
 
   // static factory-method
+
+  /**
+   * for {@code Function<Class<T>, T> }
+   */
+  public static <T> Function<Class<T>, T> forFunction(BeanFactory beanFactory) {
+    return forFunction(DependencyInjectorAwareInstantiator.from(beanFactory));
+  }
+
+  /**
+   * for {@code Function<Class<T>, T> }
+   */
+  public static <T> Function<Class<T>, T> forFunction(DependencyInjectorAwareInstantiator instantiator) {
+    Assert.notNull(instantiator, "instantiator is required");
+    return instantiator::instantiate;
+  }
 
   public static DependencyInjectorAwareInstantiator from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");

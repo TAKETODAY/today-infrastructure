@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.DependencyInjectorAwareInstantiatorFunction;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -1338,7 +1337,7 @@ public abstract class AbstractApplicationContext
 
     log.debug("Loading listeners from strategies files: {}", TodayStrategies.STRATEGIES_LOCATION);
     for (ApplicationListener listener : TodayStrategies.getStrategies(
-            ApplicationListener.class, getClassLoader(), new DependencyInjectorAwareInstantiatorFunction<>(instantiator))) {
+            ApplicationListener.class, getClassLoader(), DependencyInjectorAwareInstantiator.forFunction(instantiator))) {
       addApplicationListener(listener);
     }
 
