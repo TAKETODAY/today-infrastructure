@@ -260,7 +260,7 @@
       <version>${jackson.version}</version>
       <scope>provided</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-parameter-names</artifactId>
@@ -1006,7 +1006,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.1</version>
         <configuration>
           <archive>
             <manifestEntries>
@@ -1024,8 +1024,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
         <configuration>
+          <source>${java.version}</source>
+          <release>${java.version}</release>
           <charset>UTF-8</charset>
           <encoding>UTF-8</encoding>
           <docencoding>UTF-8</docencoding>
