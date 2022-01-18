@@ -35,7 +35,6 @@ import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -60,15 +59,13 @@ import cn.taketoday.util.StringUtils;
  */
 public class Application {
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
-
   protected final Logger log = LoggerFactory.getLogger(getClass());
-  private final String appBasePath = System.getProperty("user.dir");
+
   private Class<?> mainApplicationClass;
   private final Class<?>[] configSources;
 
   private boolean headless = true;
-
-  private List<ApplicationListener<?>> listeners;
+  private boolean registerShutdownHook = true;
 
   private List<ApplicationContextInitializer<?>> initializers;
 
@@ -84,8 +81,6 @@ public class Application {
 
   public Application(Class<?>... configSources) {
     this.configSources = configSources;
-
-    setListeners(TodayStrategies.getStrategies(ApplicationListener.class));
     setInitializers(TodayStrategies.getStrategies(ApplicationContextInitializer.class));
     this.applicationType = ApplicationType.deduceFromClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
@@ -155,29 +150,28 @@ public class Application {
    */
   public ConfigurableApplicationContext run(String... args) {
     long startTime = System.nanoTime();
+    ApplicationArguments arguments = new ApplicationArguments(args);
+    // prepare startup
+    prepareStartup(arguments);
 
-    preStartup();
     ConfigurableApplicationContext context = null;
-    ApplicationStartupListeners listeners = getStartupListeners(args);
-    listeners.starting(mainApplicationClass);
+    ApplicationStartupListeners listeners = getStartupListeners();
+    listeners.starting(mainApplicationClass, arguments);
     try {
-
-      ApplicationArguments arguments = new ApplicationArguments(args);
       ConfigurableEnvironment environment = prepareEnvironment(listeners, arguments);
 
       context = createApplicationContext();
-
+      // prepare context
       prepareContext(context, listeners, arguments, environment);
+      // refresh context
       refreshContext(context);
-
+      // after refresh
       afterRefresh(context, arguments);
 
       Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);
-
       if (this.logStartupInfo) {
         new StartupLogging(this.mainApplicationClass).logStarted(getApplicationLog(), timeTakenToStartup);
       }
-
       listeners.started(context, timeTakenToStartup);
       callRunners(context, arguments);
     }
@@ -207,7 +201,9 @@ public class Application {
   }
 
   private void refreshContext(ConfigurableApplicationContext context) {
-    context.registerShutdownHook();
+    if (this.registerShutdownHook) {
+      context.registerShutdownHook();
+    }
     refresh(context);
   }
 
@@ -222,7 +218,7 @@ public class Application {
 
   protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments arguments) { }
 
-  private ApplicationStartupListeners getStartupListeners(String[] args) {
+  private ApplicationStartupListeners getStartupListeners() {
     List<ApplicationStartupListener> strategies = TodayStrategies.getStrategies(ApplicationStartupListener.class);
     return new ApplicationStartupListeners(log, strategies);
   }
@@ -249,7 +245,7 @@ public class Application {
     return this.applicationContextFactory.create(this.applicationType);
   }
 
-  protected void preStartup() {
+  protected void prepareStartup(ApplicationArguments arguments) {
     configureHeadlessProperty();
   }
 
@@ -480,37 +476,6 @@ public class Application {
   }
 
   /**
-   * Sets the {@link ApplicationListener}s that will be applied to the Application
-   * and registered with the {@link ApplicationContext}.
-   *
-   * @param listeners the listeners to set
-   */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setListeners(Collection<ApplicationListener> listeners) {
-    this.listeners = new ArrayList(listeners);
-  }
-
-  /**
-   * Add {@link ApplicationListener}s to be applied to the Application and
-   * registered with the {@link ApplicationContext}.
-   *
-   * @param listeners the listeners to add
-   */
-  public void addListeners(ApplicationListener<?>... listeners) {
-    this.listeners.addAll(Arrays.asList(listeners));
-  }
-
-  /**
-   * Returns read-only ordered Set of the {@link ApplicationListener}s that will be
-   * applied to the Application and registered with the {@link ApplicationContext}
-   *
-   * @return the listeners
-   */
-  public Set<ApplicationListener<?>> getListeners() {
-    return asUnmodifiableOrderedSet(this.listeners);
-  }
-
-  /**
    * Sets if the application is headless and should not instantiate AWT. Defaults to
    * {@code true} to prevent java icons appearing.
    *
@@ -518,6 +483,17 @@ public class Application {
    */
   public void setHeadless(boolean headless) {
     this.headless = headless;
+  }
+
+  /**
+   * Sets if the created {@link ApplicationContext} should have a shutdown hook
+   * registered. Defaults to {@code true} to ensure that JVM shutdowns are handled
+   * gracefully.
+   *
+   * @param registerShutdownHook if the shutdown hook should be registered
+   */
+  public void setRegisterShutdownHook(boolean registerShutdownHook) {
+    this.registerShutdownHook = registerShutdownHook;
   }
 
   private void configureHeadlessProperty() {
