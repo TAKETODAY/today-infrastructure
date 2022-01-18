@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import jakarta.servlet.RequestDispatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -395,7 +396,7 @@ class UrlPathHelperTests {
 
   @Test
   void getOriginatingRequestUri() {
-    request.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/path");
+    request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
     request.setRequestURI("/forwarded");
     assertThat(helper.getOriginatingRequestUri(request)).isEqualTo("/path");
   }
@@ -409,8 +410,8 @@ class UrlPathHelperTests {
   @Test
   void getOriginatingQueryString() {
     request.setQueryString("forward=on");
-    request.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/path");
-    request.setAttribute(WebUtils.FORWARD_QUERY_STRING_ATTRIBUTE, "original=on");
+    request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
+    request.setAttribute(RequestDispatcher.FORWARD_QUERY_STRING, "original=on");
     assertThat(this.helper.getOriginatingQueryString(request)).isEqualTo("original=on");
   }
 
@@ -423,7 +424,7 @@ class UrlPathHelperTests {
   @Test
   void getOriginatingQueryStringIsNull() {
     request.setQueryString("forward=true");
-    request.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/path");
+    request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
     assertThat(this.helper.getOriginatingQueryString(request)).isNull();
   }
 

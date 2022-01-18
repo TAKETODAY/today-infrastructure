@@ -396,7 +396,7 @@ public class UrlPathHelper {
    * @return the request URI
    */
   public String getRequestUri(HttpServletRequest request) {
-    String uri = (String) request.getAttribute(WebUtils.INCLUDE_REQUEST_URI_ATTRIBUTE);
+    String uri = (String) request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
     if (uri == null) {
       uri = request.getRequestURI();
     }
@@ -413,7 +413,7 @@ public class UrlPathHelper {
    * @return the context path
    */
   public String getContextPath(HttpServletRequest request) {
-    String contextPath = (String) request.getAttribute(WebUtils.INCLUDE_CONTEXT_PATH_ATTRIBUTE);
+    String contextPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_CONTEXT_PATH);
     if (contextPath == null) {
       contextPath = request.getContextPath();
     }
@@ -434,7 +434,7 @@ public class UrlPathHelper {
    * @return the servlet path
    */
   public String getServletPath(HttpServletRequest request) {
-    String servletPath = (String) request.getAttribute(WebUtils.INCLUDE_SERVLET_PATH_ATTRIBUTE);
+    String servletPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
     if (servletPath == null) {
       servletPath = request.getServletPath();
     }
@@ -446,7 +446,7 @@ public class UrlPathHelper {
    * correctly resolves to the request URI of the original request.
    */
   public String getOriginatingRequestUri(HttpServletRequest request) {
-    String uri = (String) request.getAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE);
+    String uri = (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
     if (uri == null) {
       uri = request.getRequestURI();
     }
@@ -463,7 +463,7 @@ public class UrlPathHelper {
    * @return the context path
    */
   public String getOriginatingContextPath(HttpServletRequest request) {
-    String contextPath = (String) request.getAttribute(WebUtils.FORWARD_CONTEXT_PATH_ATTRIBUTE);
+    String contextPath = (String) request.getAttribute(RequestDispatcher.FORWARD_CONTEXT_PATH);
     if (contextPath == null) {
       contextPath = request.getContextPath();
     }
@@ -478,7 +478,7 @@ public class UrlPathHelper {
    * @return the servlet path
    */
   public String getOriginatingServletPath(HttpServletRequest request) {
-    String servletPath = (String) request.getAttribute(WebUtils.FORWARD_SERVLET_PATH_ATTRIBUTE);
+    String servletPath = (String) request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH);
     if (servletPath == null) {
       servletPath = request.getServletPath();
     }
@@ -493,9 +493,9 @@ public class UrlPathHelper {
    * @return the query string
    */
   public String getOriginatingQueryString(HttpServletRequest request) {
-    if ((request.getAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE) != null) ||
-            (request.getAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE) != null)) {
-      return (String) request.getAttribute(WebUtils.FORWARD_QUERY_STRING_ATTRIBUTE);
+    if ((request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) != null) ||
+            (request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) != null)) {
+      return (String) request.getAttribute(RequestDispatcher.FORWARD_QUERY_STRING);
     }
     else {
       return request.getQueryString();
