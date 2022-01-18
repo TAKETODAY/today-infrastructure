@@ -21,8 +21,6 @@ package cn.taketoday.web.framework;
 
 import cn.taketoday.framework.Application;
 import cn.taketoday.lang.Experimental;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Web Application Runner
@@ -30,8 +28,6 @@ import cn.taketoday.logging.LoggerFactory;
  * @author TODAY 2018-10-16 15:46
  */
 public class WebApplication extends Application {
-  private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
-
   public WebApplication(Class<?>... configSources) {
     super(configSources);
   }

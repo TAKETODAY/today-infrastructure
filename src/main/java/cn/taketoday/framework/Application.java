@@ -23,7 +23,6 @@ package cn.taketoday.framework;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -46,15 +45,74 @@ import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Class that can be used to bootstrap and launch a application from a Java main
+ * method. By default, class will perform the following steps to bootstrap your
+ * application:
+ *
+ * <ul>
+ * <li>Create an appropriate {@link ApplicationContext} instance (depending on your
+ * classpath)</li>
+ * <li>Register a {@link CommandLinePropertySource} to expose command line arguments as
+ * properties</li>
+ * <li>Refresh the application context, loading all singleton beans</li>
+ * <li>Trigger any {@link CommandLineRunner} beans</li>
+ * </ul>
+ *
+ * In most circumstances the static {@link #run(Class, String[])} method can be called
+ * directly from your {@literal main} method to bootstrap your application:
+ *
+ * <pre class="code">
+ * &#064;Configuration
+ * public class MyApplication  {
+ *
+ *   // ... Bean definitions
+ *
+ *   public static void main(String[] args) {
+ *     // Application.run(MyApplication.class, args);
+ *     WebApplication.run(MyApplication.class, args);
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ * For more advanced configuration a {@link Application} instance can be created and
+ * customized before being run:
+ *
+ * <pre class="code">
+ * public static void main(String[] args) {
+ *   Application application = new Application(MyApplication.class);
+ *   // ... customize application settings here
+ *   application.run(args)
+ * }
+ * </pre>
+ *
+ * {@link Application}s can read beans from a {@code mainApplicationClass} or {@code configSources}
+ *
+ * @author Phillip Webb
+ * @author Dave Syer
+ * @author Andy Wilkinson
+ * @author Christian Dupuis
+ * @author Stephane Nicoll
+ * @author Jeremy Rickard
+ * @author Craig Burke
+ * @author Michael Simons
+ * @author Madhura Bhave
+ * @author Brian Clozel
+ * @author Ethan Rubinson
+ * @author Chris Bono
  * @author TODAY 2021/10/5 23:49
+ * @see #run(Class, String[])
+ * @see #Application(Class...)
  * @since 4.0
  */
 public class Application {
@@ -64,9 +122,6 @@ public class Application {
   private Class<?> mainApplicationClass;
   private final Class<?>[] configSources;
 
-  private boolean headless = true;
-  private boolean registerShutdownHook = true;
-
   private List<ApplicationContextInitializer<?>> initializers;
 
   private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
@@ -75,15 +130,16 @@ public class Application {
 
   private ConfigurableEnvironment environment;
 
-  private boolean addCommandLineProperties = true;
-
+  private boolean headless = true;
   private boolean logStartupInfo = true;
+  private boolean registerShutdownHook = true;
+  private boolean addCommandLineProperties = true;
 
   public Application(Class<?>... configSources) {
     this.configSources = configSources;
-    setInitializers(TodayStrategies.getStrategies(ApplicationContextInitializer.class));
-    this.applicationType = ApplicationType.deduceFromClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
+    this.applicationType = ApplicationType.deduceFromClasspath();
+    setInitializers(TodayStrategies.getStrategies(ApplicationContextInitializer.class));
   }
 
   private Class<?> deduceMainApplicationClass() {
@@ -177,14 +233,8 @@ public class Application {
     }
     catch (Throwable e) {
       handleRunFailure(context, e, listeners);
-      if (context != null) {
+      if (context != null && context.isActive()) {
         context.close();
-        try {
-          context.publishEvent(new ApplicationFailedEvent(context, e));
-        }
-        catch (Throwable ex) {
-          log.warn("Exception thrown from publishEvent handling WebApplicationFailedEvent", ex);
-        }
       }
       throw ExceptionUtils.sneakyThrow(e);
     }
@@ -252,13 +302,10 @@ public class Application {
   private void prepareContext(
           ConfigurableApplicationContext context, ApplicationStartupListeners listeners,
           ApplicationArguments arguments, ConfigurableEnvironment environment) {
-
     context.setEnvironment(environment);
-
     applyInitializers(context);
 
     listeners.contextPrepared(context);
-
     if (this.logStartupInfo) {
       logStartupInfo(context.getParent() == null);
       logStartupProfileInfo(context);
@@ -400,7 +447,7 @@ public class Application {
    * @param initializers the initializers to add
    */
   public void addInitializers(ApplicationContextInitializer<?>... initializers) {
-    this.initializers.addAll(Arrays.asList(initializers));
+    CollectionUtils.addAll(this.initializers, initializers);
   }
 
   /**
@@ -427,6 +474,13 @@ public class Application {
               ApplicationContextInitializer.class);
       Assert.isInstanceOf(requiredType, context, "Unable to call initializer.");
       initializer.initialize(context);
+
+//      try {
+//        initializer.initialize(context);
+//      }
+//      catch (ClassCastException e) {
+//        log.warn("Unable to call initializer: {}", initializer, e);
+//      }
     }
   }
 
@@ -532,7 +586,7 @@ public class Application {
   }
 
   private void handleRunFailure(
-          ConfigurableApplicationContext context, Throwable exception, ApplicationStartupListeners listeners) {
+          ConfigurableApplicationContext context, Throwable exception, @Nullable ApplicationStartupListeners listeners) {
     try {
       try {
         handleExitCode(context, exception);

@@ -260,7 +260,7 @@ public class TomcatServer extends AbstractServletWebServer implements Disposable
   @Override
   protected void initializeContext() {
     super.initializeContext();
-    log.info("Initialize Tomcat Web Server Context");
+    log.info("Initialize tomcat web server context");
 
     Tomcat tomcat = new Tomcat();
     this.tomcat = tomcat;

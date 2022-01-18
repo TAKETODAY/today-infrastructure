@@ -32,7 +32,6 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.framework.ApplicationFailedEvent;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ExceptionUtils;
@@ -194,7 +193,6 @@ public class WebServletApplicationLoader
       onStartup(context);
     }
     catch (Throwable ex) {
-      context.publishEvent(new ApplicationFailedEvent(context, ex));
       throw ExceptionUtils.sneakyThrow(ex);
     }
   }
