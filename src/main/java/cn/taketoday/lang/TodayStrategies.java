@@ -81,7 +81,7 @@ public final class TodayStrategies {
       }
     }
     catch (IOException ex) {
-      System.err.println("Could not load 'spring.properties' file from local classpath: " + ex);
+      System.err.println("Could not load 'today.properties' file from local classpath: " + ex);
     }
   }
 
@@ -318,14 +318,24 @@ public final class TodayStrategies {
   // Strategies
   //---------------------------------------------------------------------
 
+  /**
+   * get first strategy
+   *
+   * @see #getStrategies(Class)
+   */
   @Nullable
   public static String getFirst(String strategyKey) {
     return CollectionUtils.firstElement(getStrategies(strategyKey, null));
   }
 
-  public static String getFirst(String strategyKey, Supplier<String> defaultValue) {
-    String first = getFirst(strategyKey);
-    if (first == null) {
+  /**
+   * get first strategy
+   *
+   * @see #getStrategies(Class)
+   */
+  public static <T> T getFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
+    T first = CollectionUtils.firstElement(getStrategies(strategyClass, (ClassLoader) null));
+    if (first == null && defaultValue != null) {
       return defaultValue.get();
     }
     return first;
@@ -388,7 +398,7 @@ public final class TodayStrategies {
     // get class list by class full name
     List<String> strategies = getStrategies(strategyClass.getName(), classLoader);
     if (log.isTraceEnabled()) {
-      log.trace("Loaded [{}] names: {}", strategyClass.getName(), strategies);
+      log.trace("Loaded [{}] strategies: {}", strategyClass.getName(), strategies);
     }
 
     if (strategies.isEmpty()) {
@@ -414,10 +424,23 @@ public final class TodayStrategies {
     return ret;
   }
 
+  /**
+   * get all strategies by a strategyKey, use {@code TodayStrategies.class.getClassLoader()}
+   *
+   * @param strategyKey key
+   * @return list of strategies
+   */
   public static List<String> getStrategies(String strategyKey) {
     return getStrategies(strategyKey, null);
   }
 
+  /**
+   * get all strategies by a strategyKey
+   *
+   * @param strategyKey key
+   * @param classLoader classLoader to load
+   * @return list of strategies
+   */
   public static List<String> getStrategies(
           String strategyKey, @Nullable ClassLoader classLoader) {
     Assert.notNull(strategyKey, "strategy-key must not be null");
@@ -436,41 +459,46 @@ public final class TodayStrategies {
     if (strategies != null) {
       return strategies;
     }
-    log.debug("Detecting strategies location '{}'", STRATEGIES_LOCATION);
-    strategies = MultiValueMap.fromLinkedHashMap();
-    try {
-      Enumeration<URL> urls = classLoader.getResources(STRATEGIES_LOCATION);
-      while (urls.hasMoreElements()) {
-        URL url = urls.nextElement();
-        Properties properties = new Properties();
+    synchronized(strategiesCache) {
+      strategies = strategiesCache.get(classLoader);
+      if (strategies == null) {
+        log.debug("Detecting strategies location '{}'", STRATEGIES_LOCATION);
+        strategies = MultiValueMap.fromLinkedHashMap();
+        try {
+          Enumeration<URL> urls = classLoader.getResources(STRATEGIES_LOCATION);
+          while (urls.hasMoreElements()) {
+            URL url = urls.nextElement();
+            Properties properties = new Properties();
 
-        try (InputStream inputStream = url.openStream()) {
-          properties.load(inputStream);
-        }
-        log.debug("Reading strategies file '{}'", url);
+            try (InputStream inputStream = url.openStream()) {
+              properties.load(inputStream);
+            }
+            log.debug("Reading strategies file '{}'", url);
 
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-          Object key = entry.getKey();
-          Object value = entry.getValue();
-          if (key != null && value != null) {
-            String strategyKey = key.toString();
-            // split as string list
-            List<String> strategyValues = StringUtils.splitAsList(value.toString());
-            for (String strategyValue : strategyValues) {
-              strategyValue = strategyValue.trim(); // trim whitespace
-              if (StringUtils.isNotEmpty(strategyValue)) {
-                strategies.add(strategyKey, strategyValue);
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+              Object key = entry.getKey();
+              Object value = entry.getValue();
+              if (key != null && value != null) {
+                String strategyKey = key.toString();
+                // split as string list
+                List<String> strategyValues = StringUtils.splitAsList(value.toString());
+                for (String strategyValue : strategyValues) {
+                  strategyValue = strategyValue.trim(); // trim whitespace
+                  if (StringUtils.isNotEmpty(strategyValue)) {
+                    strategies.add(strategyKey, strategyValue);
+                  }
+                }
               }
             }
           }
+
+          strategiesCache.put(classLoader, strategies);
+        }
+        catch (IOException ex) {
+          throw new IllegalArgumentException(
+                  "Unable to load strategies from location [" + STRATEGIES_LOCATION + "]", ex);
         }
       }
-
-      strategiesCache.put(classLoader, strategies);
-    }
-    catch (IOException ex) {
-      throw new IllegalArgumentException(
-              "Unable to load factories from location [" + STRATEGIES_LOCATION + "]", ex);
     }
     return strategies;
   }
