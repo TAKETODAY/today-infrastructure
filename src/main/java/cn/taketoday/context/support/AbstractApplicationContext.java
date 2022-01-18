@@ -905,7 +905,7 @@ public abstract class AbstractApplicationContext
    * on an active context, i.e. in particular all bean accessor methods.
    */
   protected void assertBeanFactoryActive() {
-    if (!refreshable && !(state == State.STARTING || state == State.STARTED)) {
+    if (!refreshable && !isActive()) {
       if (this.closed.get()) {
         throw new IllegalStateException(getApplicationName() + " has been closed already");
       }

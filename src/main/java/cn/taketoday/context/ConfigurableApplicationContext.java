@@ -191,4 +191,18 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    */
   void addApplicationListener(ApplicationListener<?> listener);
 
+  /**
+   * Determine whether this application context is active, that is,
+   * whether it has been refreshed at least once and has not been closed yet.
+   *
+   * @return whether the context is still active
+   * @see #refresh()
+   * @see #close()
+   * @see #getBeanFactory()
+   */
+  default boolean isActive() {
+    State state = getState();
+    return state == State.STARTING || state == State.STARTED;
+  }
+
 }
