@@ -88,7 +88,7 @@ class RegexPathElement extends PathElement {
           String variableName = matcher.group(1);
           if (this.variableNames.contains(variableName)) {
             throw new PatternParseException(this.pos, completePattern,
-                                            PatternParseException.PatternMessage.ILLEGAL_DOUBLE_CAPTURE, variableName);
+                    PatternParseException.PatternMessage.ILLEGAL_DOUBLE_CAPTURE, variableName);
           }
           this.variableNames.add(variableName);
         }

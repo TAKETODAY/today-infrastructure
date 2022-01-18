@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.util;
+package cn.taketoday.util;
 
 import java.util.Collection;
 import java.util.Optional;

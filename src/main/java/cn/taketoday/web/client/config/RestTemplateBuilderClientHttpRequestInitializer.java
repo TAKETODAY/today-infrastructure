@@ -28,7 +28,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
-import cn.taketoday.web.util.LambdaSafe;
+import cn.taketoday.util.LambdaSafe;
 
 /**
  * {@link ClientHttpRequestFactory} to apply customizations from the

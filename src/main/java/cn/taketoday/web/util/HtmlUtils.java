@@ -35,7 +35,7 @@ import cn.taketoday.lang.Assert;
  * <a href="https://commons.apache.org/proper/commons-text/">Apache Commons Text</a>
  * and its {@code StringEscapeUtils} class. We do not use that class here in order
  * to avoid a runtime dependency on Commons Text just for HTML escaping. Furthermore,
- *  HTML escaping is more flexible and 100% HTML 4.0 compliant.
+ * HTML escaping is more flexible and 100% HTML 4.0 compliant.
  *
  * @author Juergen Hoeller
  * @author Martin Kersten

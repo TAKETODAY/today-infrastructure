@@ -20,12 +20,12 @@
 
 package cn.taketoday.web.util.pattern;
 
+import java.util.ArrayList;
+import java.util.regex.PatternSyntaxException;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.pattern.PatternParseException.PatternMessage;
-
-import java.util.ArrayList;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Parser for URI template patterns. It breaks the path pattern into a number of

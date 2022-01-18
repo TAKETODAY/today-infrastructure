@@ -240,7 +240,7 @@ final class HierarchicalUriComponents extends UriComponents {
           }
           queryBuilder.append(name);
           if (value != null) {
-            queryBuilder.append('=').append(value.toString());
+            queryBuilder.append('=').append(value);
           }
         }
       }
@@ -461,7 +461,7 @@ final class HierarchicalUriComponents extends UriComponents {
   @Override
   protected HierarchicalUriComponents expandInternal(UriTemplateVariables uriVariables) {
     Assert.state(!this.encodeState.equals(EncodeState.FULLY_ENCODED),
-                 "URI components already encoded, and could not possibly contain '{' or '}'.");
+            "URI components already encoded, and could not possibly contain '{' or '}'.");
 
     // Array-based vars rely on the order below...
     String schemeTo = expandUriComponent(getScheme(), uriVariables, this.variableEncoder);

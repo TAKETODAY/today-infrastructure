@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.util;
+package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import cn.taketoday.logging.Logger;
-import cn.taketoday.web.util.LambdaSafe.InvocationResult;
+import cn.taketoday.util.LambdaSafe.InvocationResult;
 
-import static cn.taketoday.web.util.LambdaSafe.Filter.allowAll;
+import static cn.taketoday.util.LambdaSafe.Filter.allowAll;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.fail;
