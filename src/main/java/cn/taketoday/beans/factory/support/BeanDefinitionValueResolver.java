@@ -74,8 +74,8 @@ class BeanDefinitionValueResolver {
   public BeanDefinitionValueResolver(
           AbstractAutowireCapableBeanFactory beanFactory, BeanDefinition beanDefinition) {
     this.beanFactory = beanFactory;
-    this.beanName = beanDefinition.getBeanName();
     this.beanDefinition = beanDefinition;
+    this.beanName = beanDefinition.getBeanName();
   }
 
   /**

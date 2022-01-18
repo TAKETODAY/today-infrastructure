@@ -47,7 +47,6 @@ import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
@@ -64,7 +63,6 @@ public class BeanDefinition
 
   public static final String INIT_METHODS = "initMethods";
   public static final String DESTROY_METHOD = "destroyMethod";
-  public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
   /**
    * Constant that indicates the container should attempt to infer the

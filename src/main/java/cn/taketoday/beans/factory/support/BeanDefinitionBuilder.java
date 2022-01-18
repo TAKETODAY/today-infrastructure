@@ -54,6 +54,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class BeanDefinitionBuilder {
+  public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
   /** bean name. */
   private String name;
@@ -447,10 +448,10 @@ public class BeanDefinitionBuilder {
       });
     }
     if (methods.isEmpty()) {
-      return BeanDefinition.EMPTY_METHOD;
+      return EMPTY_METHOD;
     }
     AnnotationAwareOrderComparator.sort(methods);
-    return methods.toArray(BeanDefinition.EMPTY_METHOD);
+    return methods.toArray(EMPTY_METHOD);
   }
 
   public static BeanDefinition empty() {
