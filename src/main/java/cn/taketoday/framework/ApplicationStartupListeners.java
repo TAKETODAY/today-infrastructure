@@ -23,7 +23,6 @@ package cn.taketoday.framework;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -46,15 +45,15 @@ import cn.taketoday.logging.Logger;
 class ApplicationStartupListeners {
 
   private final Logger log;
-  private final List<ApplicationStartupListener> listeners;
+  private final ArrayList<ApplicationStartupListener> listeners;
 
   ApplicationStartupListeners(Logger log, Collection<? extends ApplicationStartupListener> listeners) {
     this.log = log;
     this.listeners = new ArrayList<>(listeners);
   }
 
-  void starting(Class<?> mainApplicationClass) {
-    doWithListeners(listener -> listener.starting(mainApplicationClass));
+  void starting(Class<?> mainApplicationClass, ApplicationArguments arguments) {
+    doWithListeners(listener -> listener.starting(mainApplicationClass, arguments));
   }
 
   void environmentPrepared(ConfigurableEnvironment environment) {

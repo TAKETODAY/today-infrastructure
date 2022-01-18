@@ -47,7 +47,7 @@ public interface ApplicationStartupListener {
    * Called immediately when the run method has first started. Can be used for very
    * early initialization.
    */
-  default void starting(Class<?> mainApplicationClass) { }
+  default void starting(Class<?> mainApplicationClass, ApplicationArguments arguments) { }
 
   /**
    * Called once the environment has been prepared, but before the
