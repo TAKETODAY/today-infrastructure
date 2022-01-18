@@ -37,7 +37,7 @@ public enum Level {
 
   private final int level;
 
-  private Level(int level) {
+  Level(int level) {
     this.level = level;
   }
 

@@ -343,11 +343,11 @@ final class ConstructorResolver {
     mbd.factoryMethodToIntrospect = uniqueCandidate;
   }
 
-  private boolean isParamMismatch(Method uniqueCandidate, Method candidate) {
+  private static boolean isParamMismatch(Method uniqueCandidate, Method candidate) {
     int uniqueCandidateParameterCount = uniqueCandidate.getParameterCount();
     int candidateParameterCount = candidate.getParameterCount();
-    return (uniqueCandidateParameterCount != candidateParameterCount ||
-            !Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes()));
+    return uniqueCandidateParameterCount != candidateParameterCount
+            || !Arrays.equals(uniqueCandidate.getParameterTypes(), candidate.getParameterTypes());
   }
 
   /**
@@ -356,8 +356,9 @@ final class ConstructorResolver {
    * Called as the starting point for factory method determination.
    */
   private Method[] getCandidateMethods(Class<?> factoryClass, BeanDefinition mbd) {
-    return (mbd.isNonPublicAccessAllowed() ?
-            ReflectionUtils.getAllDeclaredMethods(factoryClass) : factoryClass.getMethods());
+    return mbd.isNonPublicAccessAllowed()
+           ? ReflectionUtils.getAllDeclaredMethods(factoryClass)
+           : factoryClass.getMethods();
   }
 
   /**
@@ -375,13 +376,12 @@ final class ConstructorResolver {
    * method, or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
-  public Object instantiateUsingFactoryMethod(
-          BeanDefinition mbd, @Nullable Object[] explicitArgs) {
+  public Object instantiateUsingFactoryMethod(BeanDefinition mbd, @Nullable Object[] explicitArgs) {
     String beanName = mbd.getBeanName();
 
+    boolean isStatic;
     Object factoryBean;
     Class<?> factoryClass;
-    boolean isStatic;
 
     String factoryBeanName = mbd.getFactoryBeanName();
     if (factoryBeanName != null) {
@@ -627,8 +627,8 @@ final class ConstructorResolver {
           BeanDefinition mbd, @Nullable Object factoryBean, Method factoryMethod, Object[] args) {
 
     try {
-      return this.beanFactory.getInstantiationStrategy().instantiate(
-              mbd, this.beanFactory, factoryBean, factoryMethod, args);
+      return beanFactory.getInstantiationStrategy().instantiate(
+              mbd, beanFactory, factoryBean, factoryMethod, args);
     }
     catch (Throwable ex) {
       throw new BeanCreationException(mbd, "Bean instantiation via factory method failed", ex);
@@ -749,7 +749,7 @@ final class ConstructorResolver {
         MethodParameter methodParam = MethodParameter.forExecutable(executable, paramIndex);
         // No explicit match found: we're either supposed to autowire or
         // have to fail creating an argument array for the given constructor.
-//        if (!autowiring) {
+//        if (!autowiring) { // FIXME delete this everything is ok
 //          throw new UnsatisfiedDependencyException(
 //                  definition.getResourceDescription(), beanName, new InjectionPoint(methodParam),
 //                  "Ambiguous argument values for parameter of type [" + paramType.getName() +
