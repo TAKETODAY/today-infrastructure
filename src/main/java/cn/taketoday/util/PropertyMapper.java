@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.util;
+package cn.taketoday.util;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -29,8 +29,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Utility that can be used to map values from a supplied source to a destination.

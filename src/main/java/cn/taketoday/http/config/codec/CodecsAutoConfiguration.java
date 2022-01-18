@@ -33,7 +33,7 @@ import cn.taketoday.http.codec.json.Jackson2JsonEncoder;
 import cn.taketoday.lang.Component;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.web.util.PropertyMapper;
+import cn.taketoday.util.PropertyMapper;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for
