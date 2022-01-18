@@ -23,7 +23,6 @@ package cn.taketoday.web.util;
 import java.net.URLDecoder;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Map;
-import java.util.Properties;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
@@ -31,7 +30,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRequest;
@@ -58,20 +56,7 @@ public class UrlPathHelper {
    */
   public static final String PATH_ATTRIBUTE = UrlPathHelper.class.getName() + ".PATH";
 
-  static final boolean servlet4Present =
-          ReflectionUtils.hasMethod(HttpServletRequest.class, "getHttpServletMapping");
-
-  /**
-   * Special WebSphere request attribute, indicating the original request URI.
-   * Preferable over the standard Servlet 2.4 forward attribute on WebSphere,
-   * simply because we need the very first URI in the request forwarding chain.
-   */
-  private static final String WEBSPHERE_URI_ATTRIBUTE = "com.ibm.websphere.servlet.uri_non_decoded";
-
   private static final Logger logger = LoggerFactory.getLogger(UrlPathHelper.class);
-
-  @Nullable
-  static volatile Boolean websphereComplianceFlag;
 
   private boolean alwaysUseFullPath = false;
 
@@ -244,10 +229,12 @@ public class UrlPathHelper {
    * or if the servlet has been mapped to root; {@code false} otherwise
    */
   private boolean skipServletPathDetermination(HttpServletRequest request) {
-    if (servlet4Present) {
-      return Servlet4Delegate.skipServletPathDetermination(request);
+    HttpServletMapping mapping = (HttpServletMapping) request.getAttribute(RequestDispatcher.INCLUDE_MAPPING);
+    if (mapping == null) {
+      mapping = request.getHttpServletMapping();
     }
-    return false;
+    MappingMatch match = mapping.getMappingMatch();
+    return match != null && (!match.equals(MappingMatch.PATH) || mapping.getPattern().equals("/*"));
   }
 
   /**
@@ -451,12 +438,6 @@ public class UrlPathHelper {
     if (servletPath == null) {
       servletPath = request.getServletPath();
     }
-    if (servletPath.length() > 1 && servletPath.endsWith("/") && shouldRemoveTrailingServletPathSlash(request)) {
-      // On WebSphere, in non-compliant mode, for a "/foo/" case that would be "/foo"
-      // on all other servlet containers: removing trailing slash, proceeding with
-      // that remaining slash as final lookup path...
-      servletPath = servletPath.substring(0, servletPath.length() - 1);
-    }
     return servletPath;
   }
 
@@ -465,12 +446,9 @@ public class UrlPathHelper {
    * correctly resolves to the request URI of the original request.
    */
   public String getOriginatingRequestUri(HttpServletRequest request) {
-    String uri = (String) request.getAttribute(WEBSPHERE_URI_ATTRIBUTE);
+    String uri = (String) request.getAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE);
     if (uri == null) {
-      uri = (String) request.getAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE);
-      if (uri == null) {
-        uri = request.getRequestURI();
-      }
+      uri = request.getRequestURI();
     }
     return decodeAndCleanUriString(request, uri);
   }
@@ -682,38 +660,6 @@ public class UrlPathHelper {
     }
   }
 
-  private boolean shouldRemoveTrailingServletPathSlash(HttpServletRequest request) {
-    if (request.getAttribute(WEBSPHERE_URI_ATTRIBUTE) == null) {
-      // Regular servlet container: behaves as expected in any case,
-      // so the trailing slash is the result of a "/" url-pattern mapping.
-      // Don't remove that slash.
-      return false;
-    }
-    Boolean flagToUse = websphereComplianceFlag;
-    if (flagToUse == null) {
-      ClassLoader classLoader = UrlPathHelper.class.getClassLoader();
-      String className = "com.ibm.ws.webcontainer.WebContainer";
-      String methodName = "getWebContainerProperties";
-      String propName = "com.ibm.ws.webcontainer.removetrailingservletpathslash";
-      boolean flag = false;
-      try {
-        Class<?> cl = classLoader.loadClass(className);
-        Properties prop = (Properties) cl.getMethod(methodName).invoke(null);
-        flag = Boolean.parseBoolean(prop.getProperty(propName));
-      }
-      catch (Throwable ex) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Could not introspect WebSphere web container properties: " + ex);
-        }
-      }
-      flagToUse = flag;
-      websphereComplianceFlag = flag;
-    }
-    // Don't bother if WebSphere is configured to be fully Servlet compliant.
-    // However, if it is not compliant, do remove the improper trailing slash!
-    return !flagToUse;
-  }
-
   /**
    * Shared, read-only instance with defaults. The following apply:
    * <ul>
@@ -751,22 +697,6 @@ public class UrlPathHelper {
     rawPathInstance.setUrlDecode(false);
     rawPathInstance.setRemoveSemicolonContent(false);
     rawPathInstance.setReadOnly();
-  }
-
-  /**
-   * Inner class to avoid a hard dependency on Servlet 4 {@link HttpServletMapping}
-   * and {@link MappingMatch} at runtime.
-   */
-  private static class Servlet4Delegate {
-
-    public static boolean skipServletPathDetermination(HttpServletRequest request) {
-      HttpServletMapping mapping = (HttpServletMapping) request.getAttribute(RequestDispatcher.INCLUDE_MAPPING);
-      if (mapping == null) {
-        mapping = request.getHttpServletMapping();
-      }
-      MappingMatch match = mapping.getMappingMatch();
-      return (match != null && (!match.equals(MappingMatch.PATH) || mapping.getPattern().equals("/*")));
-    }
   }
 
 }

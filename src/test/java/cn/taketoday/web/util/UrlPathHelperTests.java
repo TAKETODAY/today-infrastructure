@@ -37,8 +37,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class UrlPathHelperTests {
 
-  private static final String WEBSPHERE_URI_ATTRIBUTE = "com.ibm.websphere.servlet.uri_non_decoded";
-
   private final UrlPathHelper helper = new UrlPathHelper();
 
   private final MockHttpServletRequest request = new MockHttpServletRequest();
@@ -258,14 +256,12 @@ class UrlPathHelperTests {
     request.setPathInfo("/");
     request.setServletPath("");
     request.setRequestURI("/test/");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
 
   @Test
   void wasDefaultServletRootWithCompliantSetting() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/");
     tomcatDefaultServletRoot();
   }
 
@@ -275,14 +271,12 @@ class UrlPathHelperTests {
     request.setPathInfo("/foo");
     request.setServletPath("");
     request.setRequestURI("/test/foo");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo");
   }
 
   @Test
   void wasDefaultServletFileWithCompliantSetting() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo");
     tomcatDefaultServletFile();
   }
 
@@ -292,21 +286,13 @@ class UrlPathHelperTests {
     request.setPathInfo("/foo/");
     request.setServletPath("");
     request.setRequestURI("/test/foo/");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/");
   }
 
   @Test
   void wasDefaultServletFolderWithCompliantSetting() {
-    UrlPathHelper.websphereComplianceFlag = true;
-    try {
-      request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/");
-      tomcatDefaultServletFolder();
-    }
-    finally {
-      UrlPathHelper.websphereComplianceFlag = false;
-    }
+    tomcatDefaultServletFolder();
   }
 
   //
@@ -356,19 +342,7 @@ class UrlPathHelperTests {
   }
 
   @Test
-  void wasCasualServletRoot() {
-    request.setContextPath("/test");
-    request.setPathInfo(null);
-    request.setServletPath("/foo/");
-    request.setRequestURI("/test/foo/");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/");
-
-    assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
-  }
-
-  @Test
   void wasCasualServletRootWithCompliantSetting() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/");
     tomcatCasualServletRoot();
   }
 
@@ -380,15 +354,12 @@ class UrlPathHelperTests {
     request.setPathInfo(null);
     request.setServletPath("/foo");
     request.setRequestURI("/test/foo");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo");
-
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
 
   @Disabled
   @Test
   void wasCasualServletRootWithMissingSlashWithCompliantSetting() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo");
     tomcatCasualServletRootWithMissingSlash();
   }
 
@@ -398,14 +369,12 @@ class UrlPathHelperTests {
     request.setPathInfo("/foo");
     request.setServletPath("/foo");
     request.setRequestURI("/test/foo/foo");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo");
   }
 
   @Test
   void wasCasualServletFileWithCompliantSetting() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/foo");
     tomcatCasualServletFile();
   }
 
@@ -415,27 +384,18 @@ class UrlPathHelperTests {
     request.setPathInfo("/foo/");
     request.setServletPath("/foo");
     request.setRequestURI("/test/foo/foo/");
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/");
   }
 
   @Test
   void wasCasualServletFolderWithCompliantSetting() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/test/foo/foo/");
     tomcatCasualServletFolder();
   }
 
   @Test
   void getOriginatingRequestUri() {
     request.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/path");
-    request.setRequestURI("/forwarded");
-    assertThat(helper.getOriginatingRequestUri(request)).isEqualTo("/path");
-  }
-
-  @Test
-  void getOriginatingRequestUriWebsphere() {
-    request.setAttribute(WEBSPHERE_URI_ATTRIBUTE, "/path");
     request.setRequestURI("/forwarded");
     assertThat(helper.getOriginatingRequestUri(request)).isEqualTo("/path");
   }

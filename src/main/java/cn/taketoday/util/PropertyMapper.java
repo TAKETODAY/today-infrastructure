@@ -68,7 +68,7 @@ public final class PropertyMapper {
   @Nullable
   private final SourceOperator sourceOperator;
 
-  private PropertyMapper(PropertyMapper parent, @Nullable SourceOperator sourceOperator) {
+  private PropertyMapper(@Nullable PropertyMapper parent, @Nullable SourceOperator sourceOperator) {
     this.parent = parent;
     this.sourceOperator = sourceOperator;
   }
