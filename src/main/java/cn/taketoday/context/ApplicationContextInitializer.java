@@ -33,19 +33,18 @@ package cn.taketoday.context;
  * implemented or if the {@link cn.taketoday.core.Order @Order} annotation is
  * present and to sort instances accordingly if so prior to invocation.
  *
- * @param <C> the application context type
  * @author Chris Beams
  * @author TODAY 2021/11/5 10:29
  * @since 4.0
  */
 @FunctionalInterface
-public interface ApplicationContextInitializer<C extends ConfigurableApplicationContext> {
+public interface ApplicationContextInitializer {
 
   /**
    * Initialize the given application context.
    *
    * @param applicationContext the application to configure
    */
-  void initialize(C applicationContext);
+  void initialize(ConfigurableApplicationContext applicationContext);
 
 }

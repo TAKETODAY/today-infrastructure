@@ -35,7 +35,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
-import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
@@ -122,7 +121,7 @@ public class Application {
   private Class<?> mainApplicationClass;
   private final Class<?>[] configSources;
 
-  private List<ApplicationContextInitializer<?>> initializers;
+  private List<ApplicationContextInitializer> initializers;
 
   private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
 
@@ -413,7 +412,7 @@ public class Application {
     }
   }
 
-  private List<EnvironmentPostProcessor> getEnvironmentPostProcessors() {
+  protected List<EnvironmentPostProcessor> getEnvironmentPostProcessors() {
     return TodayStrategies.getStrategies(EnvironmentPostProcessor.class);
   }
 
@@ -446,7 +445,7 @@ public class Application {
    *
    * @param initializers the initializers to add
    */
-  public void addInitializers(ApplicationContextInitializer<?>... initializers) {
+  public void addInitializers(ApplicationContextInitializer... initializers) {
     CollectionUtils.addAll(this.initializers, initializers);
   }
 
@@ -456,7 +455,7 @@ public class Application {
    *
    * @return the initializers
    */
-  public Set<ApplicationContextInitializer<?>> getInitializers() {
+  public Set<ApplicationContextInitializer> getInitializers() {
     return asUnmodifiableOrderedSet(this.initializers);
   }
 
@@ -467,20 +466,9 @@ public class Application {
    * @param context the configured ApplicationContext (not refreshed yet)
    * @see ConfigurableApplicationContext#refresh()
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void applyInitializers(ConfigurableApplicationContext context) {
     for (ApplicationContextInitializer initializer : getInitializers()) {
-      Class<?> requiredType = GenericTypeResolver.resolveTypeArgument(initializer.getClass(),
-              ApplicationContextInitializer.class);
-      Assert.isInstanceOf(requiredType, context, "Unable to call initializer.");
       initializer.initialize(context);
-
-//      try {
-//        initializer.initialize(context);
-//      }
-//      catch (ClassCastException e) {
-//        log.warn("Unable to call initializer: {}", initializer, e);
-//      }
     }
   }
 
