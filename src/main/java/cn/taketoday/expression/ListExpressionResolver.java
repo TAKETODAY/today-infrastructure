@@ -105,6 +105,7 @@ public class ListExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public Class<?> getType(ExpressionContext context, Object base, Object property) {
     if (base instanceof List) {
       context.setPropertyResolved(true);
@@ -147,6 +148,7 @@ public class ListExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public Object getValue(ExpressionContext context, Object base, Object property) {
     if (base instanceof final List<?> list) {
       context.setPropertyResolved(base, property);
@@ -208,6 +210,7 @@ public class ListExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
@@ -231,7 +234,6 @@ public class ListExpressionResolver extends ExpressionResolver {
       }
     }
   }
-
 
   /**
    * If the base object is a list, returns whether a call to {@link #setValue}
@@ -276,6 +278,7 @@ public class ListExpressionResolver extends ExpressionResolver {
    * variable resolution. The thrown exception must be included as the
    * cause property of this exception, if available.
    */
+  @Override
   public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
     if (base instanceof final List<?> list) {
       context.setPropertyResolved(true);
@@ -288,12 +291,12 @@ public class ListExpressionResolver extends ExpressionResolver {
     return false;
   }
 
-  private int toInteger(Object p) {
+  private static int toInteger(Object p) {
     if (p instanceof Integer) {
-      return ((Integer) p).intValue();
+      return (Integer) p;
     }
     if (p instanceof Character) {
-      return ((Character) p).charValue();
+      return (Character) p;
     }
     if (p instanceof Number) {
       return ((Number) p).intValue();
