@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework;
 
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -48,7 +49,7 @@ public enum ApplicationType {
    */
   REACTIVE_WEB;
 
-  public static final String SERVLET_INDICATOR_CLASS = "jakarta.servlet.Servlet";
+  public static final String SERVLET_INDICATOR_CLASS = Constant.ENV_SERVLET;
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   static ApplicationType deduceFromClasspath() {
