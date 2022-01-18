@@ -20,7 +20,6 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
-import org.apache.commons.logging.LogFactory;
 import org.apache.derby.jdbc.EmbeddedDriver;
 
 import java.sql.SQLException;
@@ -29,6 +28,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * {@link EmbeddedDatabaseConfigurer} for the Apache Derby database.
@@ -81,7 +81,7 @@ final class DerbyEmbeddedDatabaseConfigurer implements EmbeddedDatabaseConfigure
     catch (SQLException ex) {
       // Error code that indicates successful shutdown
       if (!"08006".equals(ex.getSQLState())) {
-        LogFactory.getLog(getClass()).warn("Could not shut down embedded Derby database", ex);
+        LoggerFactory.getLogger(getClass()).warn("Could not shut down embedded Derby database", ex);
       }
     }
   }

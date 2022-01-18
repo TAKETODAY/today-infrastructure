@@ -20,8 +20,6 @@
 
 package cn.taketoday.framework;
 
-import org.apache.commons.logging.Log;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -470,7 +468,7 @@ public class Application {
   }
 
   /**
-   * Returns the {@link Log} for the application. By default will be deduced.
+   * Returns the {@link Logger} for the application. By default will be deduced.
    *
    * @return the application log
    */

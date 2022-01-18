@@ -20,13 +20,12 @@
 
 package cn.taketoday.logging;
 
-import org.apache.commons.logging.Log;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Implementation of {@link Log} that wraps a list of loggers and delegates
+ * Implementation of {@link Logger} that wraps a list of loggers and delegates
  * to the first one for which logging is enabled at the given level.
  *
  * @author Rossen Stoyanchev

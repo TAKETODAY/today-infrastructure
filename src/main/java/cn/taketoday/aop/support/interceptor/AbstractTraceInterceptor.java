@@ -35,11 +35,11 @@ import cn.taketoday.logging.LoggerFactory;
  * <p>By default, log messages are written to the log for the interceptor class,
  * not the class which is being intercepted. Setting the {@code useDynamicLogger}
  * bean property to {@code true} causes all log messages to be written to
- * the {@code Log} for the target class being intercepted.
+ * the {@code Logger} for the target class being intercepted.
  *
  * <p>Subclasses must implement the {@code invokeUnderTrace} method, which
  * is invoked by this class ONLY when a particular invocation SHOULD be traced.
- * Subclasses should write to the {@code Log} instance provided.
+ * Subclasses should write to the {@code Logger} instance provided.
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
@@ -69,7 +69,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
   /**
    * Set whether to use a dynamic logger or a static logger.
    * Default is a static logger for this trace interceptor.
-   * <p>Used to determine which {@code Log} instance should be used to write
+   * <p>Used to determine which {@code Logger} instance should be used to write
    * log messages for a particular method invocation: a dynamic one for the
    * {@code Class} getting called, or a static one for the {@code Class}
    * of the trace interceptor.
@@ -135,14 +135,14 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
   }
 
   /**
-   * Return the appropriate {@code Log} instance to use for the given
+   * Return the appropriate {@code Logger} instance to use for the given
    * {@code MethodInvocation}. If the {@code useDynamicLogger} flag
-   * is set, the {@code Log} instance will be for the target class of the
-   * {@code MethodInvocation}, otherwise the {@code Log} will be the
+   * is set, the {@code Logger} instance will be for the target class of the
+   * {@code MethodInvocation}, otherwise the {@code Logger} will be the
    * default static logger.
    *
    * @param invocation the {@code MethodInvocation} being traced
-   * @return the {@code Log} instance to use
+   * @return the {@code Logger} instance to use
    * @see #setUseDynamicLogger
    */
   protected Logger getLoggerForInvocation(MethodInvocation invocation) {
@@ -170,7 +170,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
   /**
    * Determine whether the interceptor should kick in, that is,
    * whether the {@code invokeUnderTrace} method should be called.
-   * <p>Default behavior is to check whether the given {@code Log}
+   * <p>Default behavior is to check whether the given {@code Logger}
    * instance is enabled. Subclasses can override this to apply the
    * interceptor in other cases as well.
    *
@@ -188,14 +188,14 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * <p>Default is {@code true} when the "trace" level is enabled.
    * Subclasses can override this to change the level under which 'tracing' occurs.
    *
-   * @param logger the {@code Log} instance to check
+   * @param logger the {@code Logger} instance to check
    */
   protected boolean isLogEnabled(Logger logger) {
     return logger.isTraceEnabled();
   }
 
   /**
-   * Write the supplied trace message to the supplied {@code Log} instance.
+   * Write the supplied trace message to the supplied {@code Logger} instance.
    * <p>To be called by {@link #invokeUnderTrace} for enter/exit messages.
    * <p>Delegates to {@link #writeToLog(Logger, String, Throwable)} as the
    * ultimate delegate that controls the underlying logger invocation.
@@ -208,7 +208,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
 
   /**
    * Write the supplied trace message and {@link Throwable} to the
-   * supplied {@code Log} instance.
+   * supplied {@code Logger} instance.
    * <p>To be called by {@link #invokeUnderTrace} for enter/exit outcomes,
    * potentially including an exception. Note that an exception's stack trace
    * won't get logged when {@link #setLogExceptionStackTrace} is "false".
@@ -233,13 +233,13 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
    * supplied {@code MethodInvocation}. Subclasses are responsible for
    * ensuring that the {@code MethodInvocation} actually executes by
    * calling {@code MethodInvocation.proceed()}.
-   * <p>By default, the passed-in {@code Log} instance will have log level
+   * <p>By default, the passed-in {@code Logger} instance will have log level
    * "trace" enabled. Subclasses do not have to check for this again, unless
    * they overwrite the {@code isInterceptorEnabled} method to modify
    * the default behavior, and may delegate to {@code writeToLog} for actual
    * messages to be written.
    *
-   * @param logger the {@code Log} to write trace messages to
+   * @param logger the {@code Logger} to write trace messages to
    * @return the result of the call to {@code MethodInvocation.proceed()}
    * @throws Throwable if the call to {@code MethodInvocation.proceed()}
    * encountered any errors

@@ -50,7 +50,7 @@ final class StartupLogging {
   }
 
   void logStarting(Logger applicationLog) {
-    Assert.notNull(applicationLog, "Log must not be null");
+    Assert.notNull(applicationLog, "Logger must not be null");
     applicationLog.info(LogMessage.from(this::getStartingMessage));
     applicationLog.debug(LogMessage.from(this::getRunningMessage));
   }

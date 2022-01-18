@@ -35,12 +35,11 @@ import cn.taketoday.lang.Nullable;
  * @see #from(Supplier)
  * @see #format(String, Object)
  * @see #format(String, Object...)
- * @see org.apache.commons.logging.Log#fatal(Object)
- * @see org.apache.commons.logging.Log#error(Object)
- * @see org.apache.commons.logging.Log#warn(Object)
- * @see org.apache.commons.logging.Log#info(Object)
- * @see org.apache.commons.logging.Log#debug(Object)
- * @see org.apache.commons.logging.Log#trace(Object)
+ * @see Logger#error(Object)
+ * @see Logger#warn(Object)
+ * @see Logger#info(Object)
+ * @see Logger#debug(Object)
+ * @see Logger#trace(Object)
  * @since 4.0
  */
 public abstract class LogMessage implements CharSequence {

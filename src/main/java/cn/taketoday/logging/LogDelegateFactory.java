@@ -67,7 +67,7 @@ public final class LogDelegateFactory {
    * too verbose or otherwise optional or unnecessary to see all the time.
    *
    * @param clazz the class for which to create a logger
-   * @return a Log with the category {@code "_" + fully-qualified class name}
+   * @return a Logger with the category {@code "_" + fully-qualified class name}
    */
   public static Logger getHiddenLog(Class<?> clazz) {
     return getHiddenLog(clazz.getName());
@@ -80,7 +80,7 @@ public final class LogDelegateFactory {
    * too verbose or otherwise optional or unnecessary to see all the time.
    *
    * @param category the log category to use
-   * @return a Log with the category {@code "_" + category}
+   * @return a Logger with the category {@code "_" + category}
    */
   public static Logger getHiddenLog(String category) {
     return LoggerFactory.getLogger("_" + category);
