@@ -29,9 +29,11 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.PlaceholderConfigurerSupport;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.StringValueResolver;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertiesPropertySource;
+import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
@@ -101,7 +103,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
    * @see #postProcessBeanFactory
    */
   @Override
-  public void setEnvironment(Environment environment) {
+  public void setEnvironment(@Nullable Environment environment) {
     this.environment = environment;
   }
 
@@ -125,12 +127,25 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
     if (this.propertySources == null) {
       this.propertySources = new PropertySources();
       if (this.environment != null) {
+        PropertyResolver propertyResolver = this.environment;
+        // If the ignoreUnresolvablePlaceholders flag is set to true, we have to create a
+        // local PropertyResolver to enforce that setting, since the Environment is most
+        // likely not configured with ignoreUnresolvablePlaceholders set to true.
+        // See https://github.com/spring-projects/spring-framework/issues/27947
+        if (this.ignoreUnresolvablePlaceholders &&
+                (this.environment instanceof ConfigurableEnvironment configurableEnvironment)) {
+          PropertySourcesPropertyResolver resolver =
+                  new PropertySourcesPropertyResolver(configurableEnvironment.getPropertySources());
+          resolver.setIgnoreUnresolvableNestedPlaceholders(true);
+          propertyResolver = resolver;
+        }
+        PropertyResolver propertyResolverToUse = propertyResolver;
         this.propertySources.addLast(
                 new PropertySource<>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
                   @Override
                   @Nullable
                   public String getProperty(String key) {
-                    return this.source.getProperty(key);
+                    return propertyResolverToUse.getProperty(key);
                   }
                 }
         );

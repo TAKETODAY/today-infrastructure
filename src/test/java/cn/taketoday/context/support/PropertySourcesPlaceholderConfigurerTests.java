@@ -25,10 +25,14 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.MockPropertySource;
 import cn.taketoday.core.env.PropertySource;
@@ -36,6 +40,7 @@ import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -160,8 +165,11 @@ class PropertySourcesPlaceholderConfigurerTests {
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     //pc.setIgnoreUnresolvablePlaceholders(false); // the default
-    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
-            ppc.postProcessBeanFactory(bf));
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> ppc.postProcessBeanFactory(bf))
+            .havingCause()
+            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .withMessage("Could not resolve placeholder 'my.name' in value \"${my.name}\"");
   }
 
   @Test
@@ -176,6 +184,39 @@ class PropertySourcesPlaceholderConfigurerTests {
     ppc.setIgnoreUnresolvablePlaceholders(true);
     ppc.postProcessBeanFactory(bf);
     assertThat(bf.getBean(TestBean.class).getName()).isEqualTo("${my.name}");
+  }
+
+  @Test
+  // https://github.com/spring-projects/spring-framework/issues/27947
+  public void ignoreUnresolvablePlaceholdersInAtValueAnnotation__falseIsDefault() {
+    MockPropertySource mockPropertySource = new MockPropertySource("test");
+    mockPropertySource.setProperty("my.key", "${enigma}");
+    @SuppressWarnings("resource")
+    StandardApplicationContext context = new StandardApplicationContext();
+    context.getEnvironment().getPropertySources().addLast(mockPropertySource);
+    context.register(IgnoreUnresolvablePlaceholdersFalseConfig.class);
+
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh)
+            .havingCause().isInstanceOf(BeanCreationException.class)
+            .havingCause()
+            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .withMessage("Could not resolve placeholder 'enigma' in value \"${enigma}\"");
+  }
+
+  @Test
+  // https://github.com/spring-projects/spring-framework/issues/27947
+  public void ignoreUnresolvablePlaceholdersInAtValueAnnotation_true() {
+    MockPropertySource mockPropertySource = new MockPropertySource("test");
+    mockPropertySource.setProperty("my.key", "${enigma}");
+    @SuppressWarnings("resource")
+    StandardApplicationContext context = new StandardApplicationContext();
+    context.getEnvironment().getPropertySources().addLast(mockPropertySource);
+    context.register(IgnoreUnresolvablePlaceholdersTrueConfig.class);
+    context.refresh();
+
+    IgnoreUnresolvablePlaceholdersTrueConfig config = context.getBean(IgnoreUnresolvablePlaceholdersTrueConfig.class);
+    assertThat(config.value).isEqualTo("${enigma}");
   }
 
   @Test
@@ -402,6 +443,32 @@ class PropertySourcesPlaceholderConfigurerTests {
     @SuppressWarnings("unused")
     public void setName(Optional<String> name) {
       this.name = name;
+    }
+  }
+
+  @Configuration
+  static class IgnoreUnresolvablePlaceholdersFalseConfig {
+
+    @Value("${my.key}")
+    String value;
+
+    @Component
+    static PropertySourcesPlaceholderConfigurer pspc() {
+      return new PropertySourcesPlaceholderConfigurer();
+    }
+  }
+
+  @Configuration
+  static class IgnoreUnresolvablePlaceholdersTrueConfig {
+
+    @Value("${my.key}")
+    String value;
+
+    @Component
+    static PropertySourcesPlaceholderConfigurer pspc() {
+      PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
+      pspc.setIgnoreUnresolvablePlaceholders(true);
+      return pspc;
     }
   }
 

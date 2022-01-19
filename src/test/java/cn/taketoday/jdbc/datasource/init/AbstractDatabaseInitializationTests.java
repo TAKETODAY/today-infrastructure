@@ -22,6 +22,8 @@ package cn.taketoday.jdbc.datasource.init;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.core.io.ClassRelativeResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -39,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
+//@Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractDatabaseInitializationTests {
 
   private final ClassRelativeResourceLoader resourceLoader = new ClassRelativeResourceLoader(getClass());

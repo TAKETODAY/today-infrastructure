@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,18 +104,6 @@ public class HandlerMethodTests {
     final HandlerMethod produceMethod = HandlerMethod.from(produce);
     assertThat(produceMethod.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 
-    final Map<String, String[]> params = new HashMap<String, String[]>() {
-      {
-        put("name", "TODAY");
-      }
-
-      public void put(String key, String value) {
-        super.put(key, new String[] { value });
-      }
-    };
-
-    final HandlerMethodRequestContext context = new HandlerMethodRequestContext(params);
-
     final StandardApplicationContext applicationContext = getApplicationContext();
 
     final ParameterResolversMethodParameterBuilder methodParameterBuilder
@@ -130,19 +117,7 @@ public class HandlerMethodTests {
 
     setResultHandlers(produceMethod, applicationContext);
 
-    final String contentType = context.getContentType();
-    assertThat(contentType).isEqualTo(produceMethod.getContentType());
-
-    //
     assertThat(produceMethod).isNotEqualTo(handlerMethod);
-
-    //
-
-    List<String> testList = new ArrayList<>();
-    assertThat(testList).hasSize(1);
-    assertThat(testList.get(0)).isEqualTo(produceMethod.getContentType());
-
-    //
     assertThat(produceMethod).hasToString("HandlerMethodTests#produce(String name)");
   }
 
