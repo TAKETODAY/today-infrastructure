@@ -69,7 +69,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-        mvn package -DskipTests=true
+        mvn package
         
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
