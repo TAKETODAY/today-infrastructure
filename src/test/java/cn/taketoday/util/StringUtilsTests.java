@@ -21,9 +21,6 @@ package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -92,16 +89,6 @@ class StringUtilsTests {
     assert StringUtils.cleanPath(null) == (null);
     assert StringUtils.cleanPath("").equals("");
     assert StringUtils.cleanPath("C:\\test\\").equals("C:/test/");
-  }
-
-  @Test
-  void testDecodeUrl() {
-    assert "四川".equals(URLDecoder.decode("%e5%9b%9b%e5%b7%9d", StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void testEncodeUrl() {
-    assert URLEncoder.encode("四川").equalsIgnoreCase("%e5%9b%9b%e5%b7%9d");
   }
 
   @Test
