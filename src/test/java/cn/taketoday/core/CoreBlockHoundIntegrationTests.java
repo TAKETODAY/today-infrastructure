@@ -20,29 +20,27 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.context.objects.TestObject;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledForJreRange;
-import reactor.blockhound.BlockHound;
-import reactor.core.scheduler.ReactorBlockHoundIntegration;
-import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import cn.taketoday.context.objects.TestObject;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
+import reactor.blockhound.BlockHound;
+import reactor.core.scheduler.ReactorBlockHoundIntegration;
+import reactor.core.scheduler.Schedulers;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.condition.JRE.JAVA_14;
 
 /**
  * Tests to verify the core BlockHound integration rules.
  *
  * @author Rossen Stoyanchev
  */
-@DisabledForJreRange(min = JAVA_14)
 class CoreBlockHoundIntegrationTests {
 
   @BeforeAll
@@ -108,7 +106,6 @@ class CoreBlockHoundIntegrationTests {
       }
     });
   }
-
 
   @FunctionalInterface
   private interface NonBlockingTask {
