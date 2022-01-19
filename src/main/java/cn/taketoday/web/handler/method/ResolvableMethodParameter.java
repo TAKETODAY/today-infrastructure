@@ -72,6 +72,9 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   // @since 4.0
   private final MethodParameter parameter;
 
+  @Nullable
+  private NamedValueInfo namedValueInfo;
+
   /**
    * @since 4.0
    */
@@ -175,6 +178,15 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
     return parameter.getParameterAnnotation(annotationClass);
+  }
+
+  public void setNamedValueInfo(@Nullable NamedValueInfo namedValueInfo) {
+    this.namedValueInfo = namedValueInfo;
+  }
+
+  @Nullable
+  public NamedValueInfo getNamedValueInfo() {
+    return namedValueInfo;
   }
 
   // ----- resolver
