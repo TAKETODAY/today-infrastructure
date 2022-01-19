@@ -20,6 +20,14 @@
 
 package cn.taketoday.http.codec.multipart;
 
+import org.reactivestreams.Subscription;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
@@ -28,17 +36,10 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import org.reactivestreams.Subscription;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.util.context.Context;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Subscribes to a buffer stream and produces a flux of {@link Token} instances.
@@ -47,12 +48,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 4.0
  */
 final class MultipartParser extends BaseSubscriber<DataBuffer> {
-  private static final Logger logger = LoggerFactory.getLogger(MultipartParser.class);
+  private static final Logger log = LoggerFactory.getLogger(MultipartParser.class);
 
   private static final byte CR = '\r';
   private static final byte LF = '\n';
 
   private static final byte[] CR_LF = { CR, LF };
+  private static final byte[] DOUBLE_CR_LF = { CR, LF, CR, LF };
   private static final byte HYPHEN = '-';
   private static final byte[] TWO_HYPHENS = { HYPHEN, HYPHEN };
   private static final String HEADER_ENTRY_SEPARATOR = "\\r\\n";
@@ -129,8 +131,8 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
   boolean changeState(State oldState, State newState, @Nullable DataBuffer remainder) {
     if (state.compareAndSet(oldState, newState)) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("Changed state: {} -> {}", oldState, newState);
+      if (log.isTraceEnabled()) {
+        log.trace("Changed state: {} -> {}", oldState, newState);
       }
       oldState.dispose();
       if (remainder != null) {
@@ -151,15 +153,15 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   }
 
   void emitHeaders(HttpHeaders headers) {
-    if (logger.isTraceEnabled()) {
-      logger.trace("Emitting headers: {}", headers);
+    if (log.isTraceEnabled()) {
+      log.trace("Emitting headers: {}", headers);
     }
     sink.next(new HeadersToken(headers));
   }
 
   void emitBody(DataBuffer buffer) {
-    if (logger.isTraceEnabled()) {
-      logger.trace("Emitting body: {}", buffer);
+    if (log.isTraceEnabled()) {
+      log.trace("Emitting body: {}", buffer);
     }
     sink.next(new BodyToken(buffer));
   }
@@ -284,8 +286,8 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     public void onNext(DataBuffer buf) {
       int endIdx = this.firstBoundary.match(buf);
       if (endIdx != -1) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("First boundary found @{} in {}", endIdx, buf);
+        if (log.isTraceEnabled()) {
+          log.trace("First boundary found @{} in {}", endIdx, buf);
         }
         DataBuffer headersBuf = MultipartUtils.sliceFrom(buf, endIdx);
         DataBufferUtils.release(buf);
@@ -319,7 +321,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
    */
   private final class HeadersState extends State {
 
-    private final DataBufferUtils.Matcher endHeaders = DataBufferUtils.matcher(MultipartUtils.concat(CR_LF, CR_LF));
+    private final DataBufferUtils.Matcher endHeaders = DataBufferUtils.matcher(DOUBLE_CR_LF);
 
     private final AtomicInteger byteCount = new AtomicInteger();
     private final ArrayList<DataBuffer> buffers = new ArrayList<>();
@@ -336,8 +338,8 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     @Override
     public void onNext(DataBuffer buf) {
       if (isLastBoundary(buf)) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Last boundary found in {}", buf);
+        if (log.isTraceEnabled()) {
+          log.trace("Last boundary found in {}", buf);
         }
 
         if (changeState(this, DisposedState.INSTANCE, buf)) {
@@ -345,10 +347,10 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
         }
         return;
       }
-      int endIdx = this.endHeaders.match(buf);
+      int endIdx = endHeaders.match(buf);
       if (endIdx != -1) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("End of headers found @{} in {}", endIdx, buf);
+        if (log.isTraceEnabled()) {
+          log.trace("End of headers found @{} in {}", endIdx, buf);
         }
         long count = this.byteCount.addAndGet(endIdx);
         if (belowMaxHeaderSize(count)) {
@@ -375,10 +377,11 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
      * If it is the second buffer, check whether it makes up {@code --} together with the first buffer.
      */
     private boolean isLastBoundary(DataBuffer buf) {
-      return (buffers.isEmpty()
-              && buf.readableByteCount() >= 2
-              && buf.getByte(0) == HYPHEN && buf.getByte(1) == HYPHEN)
-              || (
+      return (
+              buffers.isEmpty()
+                      && buf.readableByteCount() >= 2
+                      && buf.getByte(0) == HYPHEN && buf.getByte(1) == HYPHEN
+      ) || (
               buffers.size() == 1
                       && buffers.get(0).readableByteCount() == 1
                       && buffers.get(0).getByte(0) == HYPHEN
@@ -439,7 +442,9 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
     @Override
     public void dispose() {
-      buffers.forEach(DataBufferUtils::release);
+      for (DataBuffer buffer : buffers) {
+        DataBufferUtils.release(buffer);
+      }
     }
 
     @Override
@@ -476,8 +481,8 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     public void onNext(DataBuffer buffer) {
       int endIdx = boundary.match(buffer);
       if (endIdx != -1) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Boundary found @{} in {}", endIdx, buffer);
+        if (log.isTraceEnabled()) {
+          log.trace("Boundary found @{} in {}", endIdx, buffer);
         }
         int len = endIdx - buffer.readPosition() - boundary.delimiter().length + 1;
         if (len > 0) {

@@ -52,13 +52,15 @@ public class ResourceHttpMessageReader extends DecoderHttpMessageReader<Resource
   @Override
   protected Map<String, Object> getReadHints(ResolvableType elementType, ReactiveHttpInputMessage message) {
     String filename = message.getHeaders().getContentDisposition().getFilename();
-    return (StringUtils.hasText(filename) ?
-            Hints.from(ResourceDecoder.FILENAME_HINT, filename) : Hints.none());
+    return StringUtils.hasText(filename)
+           ? Hints.from(ResourceDecoder.FILENAME_HINT, filename)
+           : Hints.none();
   }
 
   @Override
-  protected Map<String, Object> getReadHints(ResolvableType actualType, ResolvableType elementType,
-                                             ServerHttpRequest request, ServerHttpResponse response) {
+  protected Map<String, Object> getReadHints(
+          ResolvableType actualType, ResolvableType elementType,
+          ServerHttpRequest request, ServerHttpResponse response) {
 
     return getReadHints(elementType, request);
   }

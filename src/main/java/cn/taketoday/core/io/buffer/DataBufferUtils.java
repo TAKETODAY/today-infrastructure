@@ -66,7 +66,7 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 public abstract class DataBufferUtils {
-  private final static Logger logger = LoggerFactory.getLogger(DataBufferUtils.class);
+  private final static Logger log = LoggerFactory.getLogger(DataBufferUtils.class);
 
   private static final Consumer<DataBuffer> RELEASE_CONSUMER = DataBufferUtils::release;
 
@@ -525,8 +525,8 @@ public abstract class DataBufferUtils {
       }
       catch (IllegalStateException ex) {
         // Avoid dependency on Netty: IllegalReferenceCountException
-        if (logger.isDebugEnabled()) {
-          logger.debug("Failed to release PooledDataBuffer: " + dataBuffer, ex);
+        if (log.isDebugEnabled()) {
+          log.debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
         }
         return false;
       }
@@ -748,19 +748,11 @@ public abstract class DataBufferUtils {
    * Base class for a {@link NestedMatcher}.
    */
   private static abstract class AbstractNestedMatcher implements NestedMatcher {
-    private int matches = 0;
-    private final byte[] delimiter;
+    public int matches = 0;
+    public final byte[] delimiter;
 
     protected AbstractNestedMatcher(byte[] delimiter) {
       this.delimiter = delimiter;
-    }
-
-    protected void setMatches(int index) {
-      this.matches = index;
-    }
-
-    protected int getMatches() {
-      return this.matches;
     }
 
     @Override
@@ -779,7 +771,7 @@ public abstract class DataBufferUtils {
     public boolean match(byte b) {
       if (b == this.delimiter[this.matches]) {
         this.matches++;
-        return (this.matches == delimiter().length);
+        return this.matches == delimiter.length;
       }
       return false;
     }
@@ -838,8 +830,8 @@ public abstract class DataBufferUtils {
 
     @Override
     public boolean match(byte b) {
-      while (getMatches() > 0 && b != delimiter()[getMatches()]) {
-        setMatches(this.table[getMatches() - 1]);
+      while (matches > 0 && b != delimiter[matches]) {
+        matches = table[matches - 1];
       }
       return super.match(b);
     }

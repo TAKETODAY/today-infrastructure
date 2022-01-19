@@ -123,7 +123,7 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
   @Nullable
   protected MediaType getContentType(HttpMessage inputMessage) {
     MediaType contentType = inputMessage.getHeaders().getContentType();
-    return (contentType != null ? contentType : MediaType.APPLICATION_OCTET_STREAM);
+    return contentType != null ? contentType : MediaType.APPLICATION_OCTET_STREAM;
   }
 
   /**
