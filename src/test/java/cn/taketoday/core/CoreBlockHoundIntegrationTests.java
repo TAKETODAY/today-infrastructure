@@ -21,6 +21,7 @@
 package cn.taketoday.core;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -41,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * @author Rossen Stoyanchev
  */
+@Disabled
+//@DisabledForJreRange(min = JAVA_14)
 class CoreBlockHoundIntegrationTests {
 
   @BeforeAll

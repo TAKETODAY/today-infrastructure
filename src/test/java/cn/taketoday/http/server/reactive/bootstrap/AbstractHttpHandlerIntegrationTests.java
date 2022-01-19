@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.stream.Stream;
 
-//@Execution(ExecutionMode.SAME_THREAD)
+@Execution(ExecutionMode.SAME_THREAD)
 public abstract class AbstractHttpHandlerIntegrationTests {
 
   /**
