@@ -1404,7 +1404,9 @@ else */
     }
     final int length = name.length();
     final StringBuilder ret = new StringBuilder();
-    for (int i = 0; i < length; i++) {
+    ret.append(Character.toLowerCase(name.charAt(0)));
+
+    for (int i = 1; i < length; i++) {
       final char c = name.charAt(i);
       if (c > 0x40 && c < 0x5b) {
         ret.append('_').append((char) (c | 0x20));

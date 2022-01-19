@@ -21,12 +21,15 @@
 package cn.taketoday.jdbc.core;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.List;
 
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.core.test.ConcretePerson;
 import cn.taketoday.jdbc.core.test.DatePerson;
+import cn.taketoday.jdbc.core.test.EmailPerson;
 import cn.taketoday.jdbc.core.test.ExtendedPerson;
 import cn.taketoday.jdbc.core.test.Person;
 import cn.taketoday.jdbc.core.test.SpacePerson;
@@ -138,5 +141,30 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     verifyPerson(result.get(0));
     mock.verifyClosed();
   }
+
+	@Test
+	void queryWithUnderscoreInColumnNameAndPersonWithMultipleAdjacentUppercaseLettersInPropertyName() throws Exception {
+		Mock mock = new Mock();
+		List<EmailPerson> result = mock.getJdbcTemplate().query(
+				"select name, age, birth_date, balance, e_mail from people",
+				new BeanPropertyRowMapper<>(EmailPerson.class));
+		assertThat(result).hasSize(1);
+		verifyPerson(result.get(0));
+		mock.verifyClosed();
+	}
+
+	@ParameterizedTest
+	@CsvSource({
+		"age, age",
+		"lastName, last_name",
+		"Name, name",
+		"FirstName, first_name",
+		"EMail, e_mail",
+		"URL, u_r_l", // likely undesirable, but that's the status quo
+	})
+	void underscoreName(String input, String expected) {
+		BeanPropertyRowMapper<?> mapper = new BeanPropertyRowMapper<>(Object.class);
+		assertThat(mapper.underscoreName(input)).isEqualTo(expected);
+	}
 
 }

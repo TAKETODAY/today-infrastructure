@@ -33,6 +33,7 @@ import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.jdbc.core.test.ConcretePerson;
 import cn.taketoday.jdbc.core.test.ConstructorPerson;
 import cn.taketoday.jdbc.core.test.DatePerson;
+import cn.taketoday.jdbc.core.test.EmailPerson;
 import cn.taketoday.jdbc.core.test.Person;
 import cn.taketoday.jdbc.core.test.SpacePerson;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
@@ -104,6 +105,14 @@ public abstract class AbstractRowMapperTests {
     assertThat(accessor.getProperty("balance")).isEqualTo(new BigDecimal("1234.56"));
   }
 
+  protected void verifyPerson(EmailPerson person) {
+    assertThat(person.getName()).isEqualTo("Bubba");
+    assertThat(person.getAge()).isEqualTo(22L);
+    assertThat(person.getBirth_date()).usingComparator(Date::compareTo).isEqualTo(new java.util.Date(1221222L));
+    assertThat(person.getBalance()).isEqualTo(new BigDecimal("1234.56"));
+    assertThat(person.getEMail()).isEqualTo("hello@world.info");
+  }
+
   protected enum MockType {
     ONE, TWO, THREE
   }
@@ -143,19 +152,22 @@ public abstract class AbstractRowMapperTests {
       given(resultSet.getDate(3)).willReturn(new java.sql.Date(1221222L));
       given(resultSet.getBigDecimal(4)).willReturn(new BigDecimal("1234.56"));
       given(resultSet.getObject(4)).willReturn(new BigDecimal("1234.56"));
+      given(resultSet.getString(5)).willReturn("hello@world.info");
       given(resultSet.wasNull()).willReturn(type == MockType.TWO);
 
-      given(resultSetMetaData.getColumnCount()).willReturn(4);
+      given(resultSetMetaData.getColumnCount()).willReturn(5);
       given(resultSetMetaData.getColumnLabel(1)).willReturn(
               type == MockType.THREE ? "Last Name" : "name");
       given(resultSetMetaData.getColumnLabel(2)).willReturn("age");
       given(resultSetMetaData.getColumnLabel(3)).willReturn("birth_date");
       given(resultSetMetaData.getColumnLabel(4)).willReturn("balance");
+      given(resultSetMetaData.getColumnLabel(5)).willReturn("e_mail");
 
       given(resultSet.findColumn("name")).willReturn(1);
       given(resultSet.findColumn("age")).willReturn(2);
       given(resultSet.findColumn("birth_date")).willReturn(3);
       given(resultSet.findColumn("balance")).willReturn(4);
+      given(resultSet.findColumn("e_mail")).willReturn(5);
 
       jdbcTemplate = new JdbcTemplate();
       jdbcTemplate.setDataSource(new SingleConnectionDataSource(connection, false));

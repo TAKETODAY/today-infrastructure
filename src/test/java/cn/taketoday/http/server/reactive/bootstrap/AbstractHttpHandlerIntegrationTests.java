@@ -26,6 +26,8 @@ import cn.taketoday.web.client.HttpServerErrorException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Flux;
@@ -37,6 +39,7 @@ import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.stream.Stream;
 
+@Execution(ExecutionMode.SAME_THREAD)
 public abstract class AbstractHttpHandlerIntegrationTests {
 
   /**
