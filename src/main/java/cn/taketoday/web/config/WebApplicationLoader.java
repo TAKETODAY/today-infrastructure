@@ -94,8 +94,8 @@ public class WebApplicationLoader
     initializerStartup(context, mvcConfiguration);
 
     context.publishEvent(new WebApplicationStartedEvent(context));
+    context.registerShutdownHook();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(context::close));
     System.gc();
 
     logStartup(context);

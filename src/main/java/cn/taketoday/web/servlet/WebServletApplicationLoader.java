@@ -97,13 +97,7 @@ public class WebServletApplicationLoader
       File dir = new File(rootPath);
       if (dir.exists()) {
         log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
-        class XmlFileFilter implements FileFilter {
-          @Override
-          public boolean accept(File path) {
-            return path.isDirectory() || path.getName().endsWith(".xml");
-          }
-        }
-        scanConfigLocation(dir, paths, new XmlFileFilter());
+        scanConfigLocation(dir, paths, pathname -> pathname.isDirectory() || pathname.getName().endsWith(".xml"));
         return StringUtils.collectionToString(paths);
       }
       return null;
@@ -150,22 +144,21 @@ public class WebServletApplicationLoader
    * @return {@link WebServletApplicationContext}
    */
   protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
-    WebServletApplicationContext ret = getWebServletApplicationContext();
-    if (ret == null) {
+    WebServletApplicationContext context = getWebServletApplicationContext();
+    if (context == null) {
       long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
-      WebServletApplicationContext context = createContext();
-      ret = context;
+      context = createContext();
       context.setServletContext(servletContext);
       setApplicationContext(context);
       context.refresh();
     }
-    else if (ret.getServletContext() == null) {
-      ret.setServletContext(servletContext);
+    else if (context.getServletContext() == null) {
+      context.setServletContext(servletContext);
       log.info("ServletContext: [{}] configure successfully.", servletContext);
     }
-    return ret;
+    return context;
   }
 
   /**

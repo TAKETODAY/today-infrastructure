@@ -44,7 +44,6 @@ import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.session.SessionConfiguration;
 import cn.taketoday.web.session.SessionCookieConfiguration;
 import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletSecurityElement;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
@@ -140,41 +139,32 @@ public abstract class AbstractServletWebServer
   @Override
   protected List<WebApplicationInitializer> getMergedInitializers() {
     List<WebApplicationInitializer> contextInitializers = getContextInitializers();
-    contextInitializers.add(new OrderedServletContextInitializer() {
-      @Override
-      public void onStartup(ServletContext servletContext) {
-        getContextInitParameters().forEach(servletContext::setInitParameter);
-      }
-    });
+    contextInitializers.add((OrderedServletContextInitializer) servletContext -> getContextInitParameters().forEach(servletContext::setInitParameter));
 
     SessionConfiguration sessionConfig = getSessionConfig();
     if (sessionConfig != null && sessionConfig.isEnableHttpSession()) {
-      contextInitializers.add(new OrderedServletContextInitializer() {
 
-        @Override
-        public void onStartup(ServletContext servletContext) {
-          SessionConfiguration sessionConfig = getSessionConfig();
-          getWebApplicationConfiguration().configureSession(sessionConfig);
-          SessionCookieConfiguration cookie = sessionConfig.getCookieConfig();
+      contextInitializers.add((OrderedServletContextInitializer) servletContext -> {
+        getWebApplicationConfiguration().configureSession(sessionConfig);
+        SessionCookieConfiguration cookie = sessionConfig.getCookieConfig();
 
-          if (cookie != null) {
-            SessionCookieConfig config = servletContext.getSessionCookieConfig();
-            config.setName(cookie.getName());
-            config.setPath(cookie.getPath());
-            config.setSecure(cookie.isSecure());
-            config.setDomain(cookie.getDomain());
-            config.setComment(cookie.getComment());
-            config.setHttpOnly(cookie.isHttpOnly());
-            config.setMaxAge((int) cookie.getMaxAge().getSeconds());
-          }
-          if (sessionConfig.getTrackingModes() != null) {
-            Set<SessionTrackingMode> collect = Arrays.stream(sessionConfig.getTrackingModes())
-                    .map(Enum::name)
-                    .map(SessionTrackingMode::valueOf)
-                    .collect(Collectors.toSet());
+        if (cookie != null) {
+          SessionCookieConfig config = servletContext.getSessionCookieConfig();
+          config.setName(cookie.getName());
+          config.setPath(cookie.getPath());
+          config.setSecure(cookie.isSecure());
+          config.setDomain(cookie.getDomain());
+          config.setComment(cookie.getComment());
+          config.setHttpOnly(cookie.isHttpOnly());
+          config.setMaxAge((int) cookie.getMaxAge().getSeconds());
+        }
+        if (sessionConfig.getTrackingModes() != null) {
+          Set<SessionTrackingMode> collect = Arrays.stream(sessionConfig.getTrackingModes())
+                  .map(Enum::name)
+                  .map(SessionTrackingMode::valueOf)
+                  .collect(Collectors.toSet());
 
-            servletContext.setSessionTrackingModes(collect);
-          }
+          servletContext.setSessionTrackingModes(collect);
         }
       });
     }

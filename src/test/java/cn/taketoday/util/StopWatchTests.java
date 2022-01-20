@@ -21,6 +21,7 @@
 package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 /**
  * @author TODAY 2021/3/6 9:34
  */
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class StopWatchTests {
 
   private static final String ID = "myId";

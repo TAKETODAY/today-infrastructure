@@ -38,6 +38,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.Application;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -71,17 +72,18 @@ public abstract class AbstractWebServer
 
   private String deployName = "deploy-web-app";
 
-  @Autowired(required = false)
+  @Nullable
   private SessionConfiguration sessionConfig;
 
-  @Autowired(required = false)
+  @Nullable
   private CompressionConfiguration compression;
+
   private Set<String> welcomePages = new LinkedHashSet<>();
   private Set<ErrorPage> errorPages = new LinkedHashSet<>();
   private List<WebApplicationInitializer> contextInitializers = new ArrayList<>();
   private final MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
 
-  @Autowired(required = false)
+  @Nullable
   private WebDocumentConfiguration webDocumentConfiguration;
   private AtomicBoolean started = new AtomicBoolean(false);
   private WebApplicationConfiguration webApplicationConfiguration;
@@ -271,19 +273,23 @@ public abstract class AbstractWebServer
     this.deployName = deployName;
   }
 
+  @Nullable
   public SessionConfiguration getSessionConfig() {
     return sessionConfig;
   }
 
-  public void setSessionConfig(SessionConfiguration sessionConfig) {
+  @Autowired(required = false)
+  public void setSessionConfig(@Nullable SessionConfiguration sessionConfig) {
     this.sessionConfig = sessionConfig;
   }
 
+  @Nullable
   public CompressionConfiguration getCompression() {
     return compression;
   }
 
-  public void setCompression(CompressionConfiguration compression) {
+  @Autowired(required = false)
+  public void setCompression(@Nullable CompressionConfiguration compression) {
     this.compression = compression;
   }
 
@@ -315,11 +321,13 @@ public abstract class AbstractWebServer
     return mimeMappings;
   }
 
+  @Nullable
   public WebDocumentConfiguration getWebDocumentConfiguration() {
     return webDocumentConfiguration;
   }
 
-  public void setWebDocumentConfiguration(WebDocumentConfiguration webDocumentConfiguration) {
+  @Autowired(required = false)
+  public void setWebDocumentConfiguration(@Nullable WebDocumentConfiguration webDocumentConfiguration) {
     this.webDocumentConfiguration = webDocumentConfiguration;
   }
 
