@@ -1184,7 +1184,7 @@
     </profile>
 
     <profile>
-      <id>ci</id>
+      <id>coverage</id>
       <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       </properties>
