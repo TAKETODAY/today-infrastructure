@@ -6,8 +6,8 @@
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![GitHub CI](https://github.com/TAKETODAY/today-framework/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-framework/actions)
-[![Build Status](https://app.travis-ci.com/TAKETODAY/today-framework.svg?branch=master)](https://app.travis-ci.com/TAKETODAY/today-framework)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/gh/TAKETODAY/today-framework/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-framework&amp;utm_campaign=Badge_Grade)
+[![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-framework/badge.svg?branch=master)](https://coveralls.io/github/TAKETODAY/today-framework?branch=master)
 
 **You ask me what the elegant code looks like? Then I have to show it!**
 
