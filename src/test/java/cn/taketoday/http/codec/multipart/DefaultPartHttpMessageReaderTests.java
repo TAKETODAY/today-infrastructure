@@ -21,6 +21,7 @@
 package cn.taketoday.http.codec.multipart;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -66,6 +67,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 /**
  * @author Arjen Poutsma
  */
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class DefaultPartHttpMessageReaderTests {
 
   private static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer iaculis metus id vestibulum nullam.";
@@ -201,19 +203,19 @@ public class DefaultPartHttpMessageReaderTests {
   @ParameterizedDefaultPartHttpMessageReaderTest
   public void firefox(String displayName, DefaultPartHttpMessageReader reader) throws InterruptedException {
     testBrowser(reader, new ClassPathResource("firefox.multipart", getClass()),
-                "---------------------------18399284482060392383840973206");
+            "---------------------------18399284482060392383840973206");
   }
 
   @ParameterizedDefaultPartHttpMessageReaderTest
   public void chrome(String displayName, DefaultPartHttpMessageReader reader) throws InterruptedException {
     testBrowser(reader, new ClassPathResource("chrome.multipart", getClass()),
-                "----WebKitFormBoundaryEveBLvRT65n21fwU");
+            "----WebKitFormBoundaryEveBLvRT65n21fwU");
   }
 
   @ParameterizedDefaultPartHttpMessageReaderTest
   public void safari(String displayName, DefaultPartHttpMessageReader reader) throws InterruptedException {
     testBrowser(reader, new ClassPathResource("safari.multipart", getClass()),
-                "----WebKitFormBoundaryG8fJ50opQOML0oGD");
+            "----WebKitFormBoundaryG8fJ50opQOML0oGD");
   }
 
   @Test
@@ -339,10 +341,10 @@ public class DefaultPartHttpMessageReaderTests {
             });
 
     content.subscribe(s -> assertThat(s).isEqualTo(expectedContents),
-                      throwable -> {
-                        throw new AssertionError(throwable.getMessage(), throwable);
-                      },
-                      latch::countDown);
+            throwable -> {
+              throw new AssertionError(throwable.getMessage(), throwable);
+            },
+            latch::countDown);
   }
 
   private static void testBrowserFormField(Part part, String name, String value) {
@@ -363,18 +365,18 @@ public class DefaultPartHttpMessageReaderTests {
 
       filePart.transferTo(tempFile)
               .subscribe(null,
-                         throwable -> {
-                           throw Exceptions.bubble(throwable);
-                         },
-                         () -> {
-                           try {
-                             verifyContents(tempFile, contents);
-                           }
-                           finally {
-                             latch.countDown();
-                           }
+                      throwable -> {
+                        throw Exceptions.bubble(throwable);
+                      },
+                      () -> {
+                        try {
+                          verifyContents(tempFile, contents);
+                        }
+                        finally {
+                          latch.countDown();
+                        }
 
-                         });
+                      });
     }
     catch (Exception ex) {
       throw new AssertionError(ex);
