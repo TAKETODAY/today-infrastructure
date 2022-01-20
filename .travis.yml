@@ -13,6 +13,6 @@ os:
 #    os: osx
 
 install:
-  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pci
+  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pcoverage
 after_success:
-  - mvn clean test jacoco:report coveralls:report -Pci
+  - mvn clean test jacoco:report coveralls:report -Pcoverage
