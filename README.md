@@ -2,7 +2,7 @@
 
 🍎 A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.
 
-![Java8](https://img.shields.io/badge/JDK-8+-success.svg)
+![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![GitHub CI](https://github.com/TAKETODAY/today-framework/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-framework/actions)
