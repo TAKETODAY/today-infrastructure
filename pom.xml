@@ -1208,6 +1208,14 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>0.8.7</version>
+            <configuration>
+              <excludes>
+                <exclude>or.aopalliance.*</exclude>
+                <exclude>cn.taketoday.logging.*</exclude>
+                <exclude>cn.taketoday.expression.*</exclude>
+              </excludes>
+            </configuration>
+
             <executions>
               <execution>
                 <id>prepare-agent</id>
@@ -1215,15 +1223,9 @@
                   <goal>prepare-agent</goal>
                 </goals>
               </execution>
-              <execution>
-                <id>report</id>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
             </executions>
-          </plugin>
 
+          </plugin>
         </plugins>
       </build>
 
@@ -1265,5 +1267,24 @@
 
   </profiles>
 
+  <reporting>
+    <plugins>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.7</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <!-- select non-aggregate reports -->
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+    </plugins>
+  </reporting>
 
 </project>
