@@ -401,7 +401,7 @@ public abstract class AbstractApplicationContext
   public void registerShutdownHook() {
     if (this.shutdownHook == null) {
       // No shutdown hook registered yet.
-      this.shutdownHook = new Thread(this::onClose, SHUTDOWN_HOOK_THREAD_NAME);
+      this.shutdownHook = new Thread(this::close, SHUTDOWN_HOOK_THREAD_NAME);
       Runtime.getRuntime().addShutdownHook(this.shutdownHook);
     }
   }
