@@ -35,5 +35,7 @@ jobs:
         with:
           java-version: 17
           distribution: adopt
+      - name: Set argLine command line option
+        run: echo 'ARG_LINE=-D"argLine=--illegal-access=permit"' >> $GITHUB_ENV
       - name: Build with Maven
-        run: mvn test
+        run: mvn test -B -D"license.skip=true" -D"jacoco.skip=true" $ARG_LINE

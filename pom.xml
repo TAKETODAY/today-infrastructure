@@ -1222,7 +1222,6 @@
               <excludes>
                 <exclude>or.aopalliance.*</exclude>
                 <exclude>cn.taketoday.logging.*</exclude>
-                <exclude>cn.taketoday.expression.*</exclude>
               </excludes>
               <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>
               <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
