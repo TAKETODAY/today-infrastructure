@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -404,7 +405,14 @@ class AnnotationMetadataTests {
   }
 
   private void doTestMethodAnnotationInfo(AnnotationMetadata classMetadata) {
-    assertThat(classMetadata.getDeclaredMethods()).hasSize(3);
+    Set<MethodMetadata> declaredMethods = classMetadata.getDeclaredMethods();
+
+    // filter jacoco
+    declaredMethods = declaredMethods.stream()
+            .filter(methodMetadata -> !methodMetadata.getMethodName().startsWith("$jacoco"))
+            .collect(Collectors.toSet());
+
+    assertThat(declaredMethods).hasSize(3);
 
     Set<MethodMetadata> methods = classMetadata.getAnnotatedMethods(TestAutowired.class.getName());
     assertThat(methods).hasSize(1);

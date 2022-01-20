@@ -20,6 +20,7 @@
 package cn.taketoday.core.bytecode.reflect;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import cn.taketoday.core.reflect.ConstructorDelegate;
 import cn.taketoday.core.reflect.MethodDelegate;
@@ -31,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 /**
  * @version $Id: TestDelegates.java,v 1.4 2004/06/24 21:15:16 herbyderby Exp $
  */
+@DisabledIfSystemProperty(
+        named = "coverage", matches = "true", disabledReason = "jacoco")
 public class TestDelegates {
 
   public interface StringMaker {
@@ -76,7 +79,7 @@ public class TestDelegates {
   }
 
   @Test
-  public void testFancyTypes() throws Throwable {
+  void testFancyTypes() throws Throwable {
     String test = "abcabcabc";
     IndexOf delegate = MethodDelegate.create(test, "indexOf", IndexOf.class);
     assertEquals(delegate.indexOf("ab", 1), test.indexOf("ab", 1));

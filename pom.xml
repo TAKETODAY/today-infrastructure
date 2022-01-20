@@ -1042,6 +1042,7 @@
         <version>2.22.2</version>
         <configuration>
           <argLine>
+            ${argLine}
             --add-opens java.base/java.lang=ALL-UNNAMED
             --add-opens java.base/java.util=ALL-UNNAMED
             --add-opens java.base/java.lang.reflect=ALL-UNNAMED
@@ -1078,9 +1079,6 @@
   <profiles>
     <profile>
       <id>docs</id>
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      </properties>
 
       <build>
         <plugins>
@@ -1185,12 +1183,24 @@
 
     <profile>
       <id>coverage</id>
-      <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      </properties>
 
       <build>
         <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <configuration>
+              <argLine>
+                ${argLine} -Dcoverage=true
+                --add-opens java.base/java.lang=ALL-UNNAMED
+                --add-opens java.base/java.util=ALL-UNNAMED
+                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+              </argLine>
+            </configuration>
+          </plugin>
+
           <plugin>
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
@@ -1214,15 +1224,27 @@
                 <exclude>cn.taketoday.logging.*</exclude>
                 <exclude>cn.taketoday.expression.*</exclude>
               </excludes>
+              <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>
+              <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+              <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+              <output>file</output>
             </configuration>
 
             <executions>
               <execution>
-                <id>prepare-agent</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
               </execution>
+
+              <execution>
+                <id>jacoco-report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+
             </executions>
 
           </plugin>
@@ -1266,25 +1288,5 @@
     </profile>
 
   </profiles>
-
-  <reporting>
-    <plugins>
-
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.7</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <!-- select non-aggregate reports -->
-              <report>report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-
-    </plugins>
-  </reporting>
 
 </project>
