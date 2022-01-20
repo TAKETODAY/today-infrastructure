@@ -1212,6 +1212,9 @@
                 <version>2.3.3</version>
               </dependency>
             </dependencies>
+            <configuration>
+              <jacocoReports>${basedir}/target/coverage-reports/jacoco.xml</jacocoReports>
+            </configuration>
           </plugin>
 
           <plugin>
@@ -1226,7 +1229,7 @@
               <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>
               <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
               <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
-              <output>file</output>
+              <formats>XML</formats>
             </configuration>
 
             <executions>
