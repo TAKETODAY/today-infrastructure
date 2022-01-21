@@ -640,7 +640,7 @@ public class Application {
       return 0;
     }
     ExitCodeGenerators generators = new ExitCodeGenerators();
-    List<ExitCodeExceptionMapper> beans = context.getBeans(ExitCodeExceptionMapper.class);
+    List<ExitCodeExceptionMapper> beans = context.getBeanFactory().getBeans(ExitCodeExceptionMapper.class);
     generators.addAll(exception, beans);
     return generators.getExitCode();
   }

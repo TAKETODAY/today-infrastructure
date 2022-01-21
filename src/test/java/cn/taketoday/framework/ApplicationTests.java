@@ -23,19 +23,14 @@ package cn.taketoday.framework;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatcher;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -44,12 +39,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.event.ApplicationEvent;
-import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
-import cn.taketoday.context.event.SmartApplicationListener;
-import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.Ordered;
@@ -60,11 +50,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.framework.availability.AvailabilityChangeEvent;
-import cn.taketoday.framework.availability.AvailabilityState;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.framework.ServletWebServerApplicationContext;
 import cn.taketoday.web.framework.StandardWebServerApplicationContext;
@@ -76,7 +61,6 @@ import jakarta.annotation.PostConstruct;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -355,7 +339,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfSystemProperty(named = "coverage", matches = "true")
+  @Disabled
   void failureResultsInSingleStackTrace(CapturedOutput output) throws Exception {
     ThreadGroup group = new ThreadGroup("main");
     Thread thread = new Thread(group, "main") {
@@ -384,12 +368,6 @@ class ApplicationTests {
     assertThat(new Application(NotLazyInitializationConfig.class)
             .run("--today.main.application-type=NONE_WEB", "--today.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
-  }
-
-  private <S extends AvailabilityState> ArgumentMatcher<ApplicationEvent> isAvailabilityChangeEventWithState(
-          S state) {
-    return (argument) -> (argument instanceof AvailabilityChangeEvent<?>)
-            && ((AvailabilityChangeEvent<?>) argument).getState().equals(state);
   }
 
   private Condition<ConfigurableEnvironment> matchingPropertySource(
@@ -421,30 +399,6 @@ class ApplicationTests {
     };
   }
 
-  static class TestEventListener<E extends ApplicationEvent> implements SmartApplicationListener<E> {
-
-    private final Class<E> eventType;
-
-    private final AtomicReference<E> reference;
-
-    TestEventListener(Class<E> eventType, AtomicReference<E> reference) {
-      this.eventType = eventType;
-      this.reference = reference;
-    }
-
-    @Override
-    public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-      return this.eventType.isAssignableFrom(eventType);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void onApplicationEvent(ApplicationEvent event) {
-      this.reference.set((E) event);
-    }
-
-  }
-
   @Configuration
   static class InaccessibleConfiguration {
 
@@ -453,45 +407,12 @@ class ApplicationTests {
 
   }
 
-  static class SpyApplicationContext extends StandardApplicationContext {
-
-    ConfigurableApplicationContext applicationContext = spy(new StandardApplicationContext());
-
-    @Override
-    public void registerShutdownHook() {
-      this.applicationContext.registerShutdownHook();
-    }
-
-    ConfigurableApplicationContext getApplicationContext() {
-      return this.applicationContext;
-    }
-
-    @Override
-    public void close() {
-      this.applicationContext.close();
-      super.close();
-    }
-
-  }
-
-  //  @EnableWebMvc
-//  @EnableTomcatHandling
   @Configuration(proxyBeanMethods = false)
   static class ExampleConfig {
 
     @Bean
     String someBean() {
       return "test";
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class OverrideConfig {
-
-    @Bean
-    String someBean() {
-      return "override";
     }
 
   }
@@ -511,26 +432,6 @@ class ApplicationTests {
         throw new IllegalStateException();
       }
 
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class ListenerConfig {
-
-    @Bean
-    ApplicationListener<?> testApplicationListener() {
-      return mock(ApplicationListener.class);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class Multicaster {
-
-    @Bean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
-    ApplicationEventMulticaster applicationEventMulticaster() {
-      return spy(new SimpleApplicationEventMulticaster());
     }
 
   }
@@ -575,40 +476,6 @@ class ApplicationTests {
     @Bean
     TestCommandLineRunner runnerA() {
       return new TestCommandLineRunner(Ordered.HIGHEST_PRECEDENCE);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class ExitCodeCommandLineRunConfig {
-
-    @Bean
-    CommandLineRunner runner() {
-      return (args) -> {
-        throw new IllegalStateException(new ExitStatusException());
-      };
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class MappedExitCodeCommandLineRunConfig {
-
-    @Bean
-    CommandLineRunner runner() {
-      return (args) -> {
-        throw new IllegalStateException();
-      };
-    }
-
-    @Bean
-    ExitCodeExceptionMapper exceptionMapper() {
-      return (exception) -> {
-        if (exception instanceof IllegalStateException) {
-          return 11;
-        }
-        return 0;
-      };
     }
 
   }
@@ -666,23 +533,6 @@ class ApplicationTests {
         counter.getAndIncrement();
       }
 
-    }
-
-  }
-
-  static class NotLazyBean {
-
-    NotLazyBean(AtomicInteger counter) {
-      counter.getAndIncrement();
-    }
-
-  }
-
-  static class ExitStatusException extends RuntimeException implements ExitCodeGenerator {
-
-    @Override
-    public int getExitCode() {
-      return 11;
     }
 
   }
@@ -771,27 +621,6 @@ class ApplicationTests {
 
   }
 
-  static class MockResourceLoader implements ResourceLoader {
-
-    private final Map<String, Resource> resources = new HashMap<>();
-
-    void addResource(String source, String path) {
-      this.resources.put(source, new ClassPathResource(path, getClass()));
-    }
-
-    @Override
-    public Resource getResource(String path) {
-      Resource resource = this.resources.get(path);
-      return (resource != null) ? resource : new ClassPathResource("doesnotexist");
-    }
-
-    @Override
-    public ClassLoader getClassLoader() {
-      return getClass().getClassLoader();
-    }
-
-  }
-
   static class Example {
 
   }
@@ -802,31 +631,4 @@ class ApplicationTests {
     void configure(Example example);
 
   }
-
-  @Configuration(proxyBeanMethods = false)
-  static class ExampleProducerConfiguration {
-
-    @Bean
-    Example example(ObjectProvider<ExampleConfigurer> configurers) {
-      Example example = new Example();
-      configurers.orderedStream().forEach((configurer) -> configurer.configure(example));
-      return example;
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class ExampleConsumerConfiguration {
-
-    @Autowired
-    Example example;
-
-    @Bean
-    ExampleConfigurer configurer() {
-      return (example) -> {
-      };
-    }
-
-  }
-
 }
