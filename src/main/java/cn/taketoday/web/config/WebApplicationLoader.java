@@ -33,7 +33,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.WebApplicationStartedEvent;
+import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -93,7 +93,7 @@ public class WebApplicationLoader
     checkFrameworkComponents(context);
     initializerStartup(context, mvcConfiguration);
 
-    context.publishEvent(new WebApplicationStartedEvent(context));
+    context.publishEvent(new ApplicationStartedEvent(context));
     context.registerShutdownHook();
 
     System.gc();

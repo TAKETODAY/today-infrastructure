@@ -26,11 +26,11 @@ import cn.taketoday.context.event.ApplicationEvent;
  * 2018-10-18 14:06
  */
 @SuppressWarnings("serial")
-public class WebApplicationStartedEvent extends ApplicationEvent {
+public class ApplicationStartedEvent extends ApplicationEvent {
 
   private final WebApplicationContext applicationContext;
 
-  public WebApplicationStartedEvent(WebApplicationContext applicationContext) {
+  public ApplicationStartedEvent(WebApplicationContext applicationContext) {
     super(applicationContext);
     this.applicationContext = applicationContext;
   }
