@@ -173,6 +173,7 @@ class ApplicationTests {
   }
 
   @Test
+  @DisabledIfSystemProperty(named = "CI", matches = "true", disabledReason = "CI")
   @DisabledIfSystemProperty(
           named = "coverage", matches = "true", disabledReason = "don't know")
   void defaultApplicationContextForReactiveWeb() {
