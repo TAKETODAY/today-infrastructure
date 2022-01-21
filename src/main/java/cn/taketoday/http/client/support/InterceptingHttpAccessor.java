@@ -20,6 +20,9 @@
 
 package cn.taketoday.http.client.support;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
@@ -27,9 +30,6 @@ import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}
@@ -116,12 +116,16 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
    */
   @Override
   public ClientHttpRequestFactory getRequestFactory() {
-    List<ClientHttpRequestInterceptor> interceptors = getInterceptors();
-    if (CollectionUtils.isNotEmpty(interceptors)) {
+    if (!interceptors.isEmpty()) {
       ClientHttpRequestFactory factory = this.interceptingRequestFactory;
       if (factory == null) {
-        factory = new InterceptingClientHttpRequestFactory(super.getRequestFactory(), interceptors);
-        this.interceptingRequestFactory = factory;
+        synchronized(this) {
+          factory = this.interceptingRequestFactory;
+          if (factory == null) {
+            factory = new InterceptingClientHttpRequestFactory(super.getRequestFactory(), interceptors);
+            this.interceptingRequestFactory = factory;
+          }
+        }
       }
       return factory;
     }

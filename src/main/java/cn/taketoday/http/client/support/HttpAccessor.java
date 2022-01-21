@@ -57,7 +57,7 @@ public abstract class HttpAccessor {
 
   private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
-  private final ArrayList<ClientHttpRequestInitializer>  httpRequestInitializers = new ArrayList<>();
+  private final ArrayList<ClientHttpRequestInitializer> httpRequestInitializers = new ArrayList<>();
 
   /**
    * Set the request factory that this accessor uses for obtaining client request handles.
@@ -122,9 +122,11 @@ public abstract class HttpAccessor {
    */
   protected ClientHttpRequest createRequest(URI url, HttpMethod method) throws IOException {
     ClientHttpRequest request = getRequestFactory().createRequest(url, method);
-
-    for (ClientHttpRequestInitializer initializer : httpRequestInitializers) {
-      initializer.initialize(request);
+    List<ClientHttpRequestInitializer> requestInitializers = getHttpRequestInitializers();
+    if (!requestInitializers.isEmpty()) {
+      for (ClientHttpRequestInitializer initializer : requestInitializers) {
+        initializer.initialize(request);
+      }
     }
 
     if (logger.isDebugEnabled()) {
