@@ -61,7 +61,7 @@ public class PropsDependenciesBeanPostProcessor implements DependenciesBeanPostP
 
       for (BeanProperty property : BeanMetadata.from(beanClass)) {
         if (!property.isReadOnly()) {
-          Object converted = propsReader.read(property, defaultProps, propertyResolver);
+          Object converted = propsReader.readProperty(property, defaultProps, propertyResolver);
           if (converted != null) {
             property.setValue(bean, converted);
           }

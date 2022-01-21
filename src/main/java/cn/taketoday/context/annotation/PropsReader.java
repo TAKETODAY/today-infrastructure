@@ -102,13 +102,13 @@ public class PropsReader {
 
   public Object read(BeanProperty property, Props props) {
     PropertyResolver propertyResolver = getResolver(props);
-    return read(property, props, propertyResolver);
+    return readProperty(property, props, propertyResolver);
   }
 
   /**
-   * resolve nestedly
+   * resolve nested-ly
    */
-  public Object read(BeanProperty property, Props props, PropertyResolver propertyResolver) {
+  public Object readProperty(BeanProperty property, Props props, PropertyResolver propertyResolver) {
     Class<?> fieldType = property.getType();
     boolean debugEnabled = log.isDebugEnabled();
 
@@ -120,13 +120,13 @@ public class PropsReader {
     }
 
     for (String prefix : prefixs) {// maybe a default value: ""
-      String key;
-      if (StringUtils.isEmpty(prefix)) {
-        key = property.getPropertyName();
+      String key = computeKey(property, prefix);
+
+      if (!propertyResolver.containsProperty(key)) {
+        // try xxx.yyy.applicationType to xxx.yyy.application-type
+        key = convert(key);
       }
-      else {
-        key = prefix.concat(property.getPropertyName());
-      }
+
       Object value;
       if (isSimpleType) {
         value = propertyResolver.getProperty(key, fieldType);
@@ -169,6 +169,43 @@ public class PropsReader {
       }
     }
     return null;
+  }
+
+  /**
+   * prefix like 'xxx.' or 'xxx.yyy'
+   */
+  private String computeKey(BeanProperty property, String prefix) {
+    String key;
+    if (StringUtils.matchesLast(prefix, '.')) {
+      key = prefix.concat(property.getPropertyName());
+    }
+    else if (StringUtils.isEmpty(prefix)) {
+      key = property.getPropertyName();
+    }
+    else {
+      key = prefix + '.' + property.getPropertyName();
+    }
+    return key;
+  }
+
+  static String convert(String name) {
+    if (StringUtils.isEmpty(name)) {
+      return Constant.BLANK;
+    }
+    final int length = name.length();
+    final StringBuilder ret = new StringBuilder();
+    ret.append(name.charAt(0));
+
+    for (int i = 1; i < length; i++) {
+      final char c = name.charAt(i);
+      if (c > 0x40 && c < 0x5b) {
+        ret.append('-').append((char) (c | 0x20));
+      }
+      else {
+        ret.append(c);
+      }
+    }
+    return ret.toString();
   }
 
   @NonNull
@@ -253,7 +290,7 @@ public class PropsReader {
   public <T> T read(Props props, T bean, PropertyResolver propertyResolver) {
     for (BeanProperty property : BeanMetadata.from(bean)) {
       if (!property.isReadOnly()) {
-        Object converted = read(property, props, propertyResolver);
+        Object converted = readProperty(property, props, propertyResolver);
         if (converted != null) {
           property.setValue(bean, converted);
         }
