@@ -38,8 +38,8 @@ import cn.taketoday.jdbc.support.ResultStatementRunnable;
 import cn.taketoday.jdbc.support.StatementRunnable;
 import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
-import cn.taketoday.jdbc.utils.FeatureDetector;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * JdbcOperations is the main class for the today-jdbc library.
@@ -345,7 +345,7 @@ public class JdbcOperations {
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void withConnection(StatementRunnable runnable, Object argument) {
+  public void withConnection(StatementRunnable runnable, @Nullable Object argument) {
     try (JdbcConnection connection = open()) {
       runnable.run(connection, argument);
     }
@@ -570,7 +570,8 @@ public class JdbcOperations {
   //
 
   public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
-    this.typeHandlerRegistry = typeHandlerRegistry;
+    this.typeHandlerRegistry =
+            typeHandlerRegistry == null ? TypeHandlerRegistry.getSharedInstance() : typeHandlerRegistry;
   }
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {

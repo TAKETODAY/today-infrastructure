@@ -42,6 +42,7 @@ import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -748,7 +749,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     assertEquals(0, rowCount);
 
     jdbcOperations.runInTransaction(new StatementRunnable() {
-      public void run(JdbcConnection connection, Object argument) throws Throwable {
+      public void run(@NonNull JdbcConnection connection, Object argument) throws Throwable {
         connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", "test").executeUpdate();
       }
@@ -760,7 +761,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     String argument = "argument test";
 
     jdbcOperations.runInTransaction(new StatementRunnable() {
-      public void run(JdbcConnection connection, Object argument) {
+      public void run(@NonNull JdbcConnection connection, Object argument) {
         Integer id = connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", argument)
                 .executeUpdate()

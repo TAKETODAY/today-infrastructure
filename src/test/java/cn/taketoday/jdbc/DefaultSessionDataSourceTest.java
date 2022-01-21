@@ -9,6 +9,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.support.StatementRunnable;
+import cn.taketoday.lang.NonNull;
 
 /**
  * Created with IntelliJ IDEA. User: lars Date: 10/5/12 Time: 10:54 PM To change
@@ -38,7 +39,7 @@ public class DefaultSessionDataSourceTest extends TestCase {
     sql2o.createQuery(sql).setName("testExecuteAndFetchWithNulls").executeUpdate();
 
     sql2o.runInTransaction(new StatementRunnable() {
-      public void run(JdbcConnection connection, Object argument) throws Throwable {
+      public void run(@NonNull JdbcConnection connection, Object argument) throws Throwable {
         Query insQuery = connection.createQuery(
                 "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
         insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
