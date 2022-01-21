@@ -33,18 +33,23 @@ import java.util.Set;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * load properties into 'application' MapPropertySource
+ *
  * @author TODAY 2021/10/8 22:47
  * @since 4.0
  */
@@ -55,32 +60,45 @@ public class ApplicationPropertySourcesProcessor {
   private final HashMap<String, Object> properties = new HashMap<>();
   private final MapPropertySource propertySource = new MapPropertySource("application", properties);
 
+  @Nullable
   private String propertiesLocation;
-  private final ConfigurableEnvironment environment;
 
   private final ResourceLoader resourceLoader;
 
+  private String[] defaultLocations = new String[] {
+          Environment.DEFAULT_YML_FILE,
+          Environment.DEFAULT_YAML_FILE,
+          Environment.DEFAULT_PROPERTIES_FILE
+  };
+
   public ApplicationPropertySourcesProcessor(ConfigurableApplicationContext context) {
-    this.environment = context.getEnvironment();
     this.resourceLoader = context;
   }
 
-  public ApplicationPropertySourcesProcessor(ConfigurableEnvironment environment) {
-    Assert.notNull(environment, "environment must not be null");
-    this.environment = environment;
+  public ApplicationPropertySourcesProcessor() {
     this.resourceLoader = new DefaultResourceLoader();
   }
 
-  public ApplicationPropertySourcesProcessor(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
-    Assert.notNull(environment, "environment must not be null");
+  public ApplicationPropertySourcesProcessor(ResourceLoader resourceLoader) {
     Assert.notNull(resourceLoader, "resourceLoader must not be null");
-    this.environment = environment;
     this.resourceLoader = resourceLoader;
   }
 
+  public void setDefaultLocations(String... defaultLocations) {
+    this.defaultLocations = defaultLocations;
+  }
+
   public void postProcessEnvironment() throws IOException {
-    loadProperties();
-    environment.getPropertySources().addFirst(propertySource);
+    if (resourceLoader instanceof EnvironmentCapable environmentCapable
+            && environmentCapable.getEnvironment() instanceof ConfigurableEnvironment environment) {
+      postProcessEnvironment(environment);
+    }
+  }
+
+  public void postProcessEnvironment(ConfigurableEnvironment environment) throws IOException {
+    loadProperties(environment);
+    environment.getPropertySources().addBefore(
+            StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, propertySource);
   }
 
   /**
@@ -120,20 +138,22 @@ public class ApplicationPropertySourcesProcessor {
   }
 
   private void loadFromYmal(Resource yamlResource) throws IOException {
-    log.debug("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
+    log.debug("Found Yaml properties resource: [{}]", yamlResource);
     SnakeyamlDelegate.doMapping(properties, yamlResource);
   }
 
   public void loadProperties(String propertiesLocation) throws IOException {
-    Assert.notNull(propertiesLocation, "Properties dir can't be null");
+    Assert.notNull(propertiesLocation, "propertiesLocation is required");
     Resource resource = resourceLoader.getResource(propertiesLocation);
     loadProperties(resource);
   }
 
   /**
    * Load properties file with given path
+   *
+   * @param environment environment
    */
-  public void loadProperties() throws IOException {
+  private void loadProperties(ConfigurableEnvironment environment) throws IOException {
     // load default properties source : application.yaml or application.properties
     LinkedHashSet<String> locations = new LinkedHashSet<>(8); // loaded locations
     loadDefaultResources(locations);
@@ -147,9 +167,9 @@ public class ApplicationPropertySourcesProcessor {
     postLoadingProperties(locations);
 
     // refresh active profiles
-    refreshActiveProfiles();
+    refreshActiveProfiles(environment);
     // load
-    replaceProperties(locations);
+    replaceProperties(environment, locations);
   }
 
   /**
@@ -169,17 +189,13 @@ public class ApplicationPropertySourcesProcessor {
    * @throws IOException If load error
    */
   protected void loadDefaultResources(Set<String> locations) throws IOException {
-    String[] defaultLocations = new String[] {
-            Environment.DEFAULT_YML_FILE,
-            Environment.DEFAULT_YAML_FILE,
-            Environment.DEFAULT_PROPERTIES_FILE
-    };
-
-    for (String location : defaultLocations) {
-      Resource propertiesResource = resourceLoader.getResource(location);
-      if (propertiesResource.exists()) {
-        loadProperties(propertiesResource); // loading
-        locations.add(location);
+    if (defaultLocations != null) {
+      for (String location : defaultLocations) {
+        Resource propertiesResource = resourceLoader.getResource(location);
+        if (propertiesResource.exists()) {
+          loadProperties(propertiesResource); // loading
+          locations.add(location);
+        }
       }
     }
   }
@@ -187,10 +203,11 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * Replace the properties from current active profiles
    *
+   * @param environment environment
    * @param locations loaded properties locations
    * @throws IOException When access to the resource if any {@link IOException} occurred
    */
-  protected void replaceProperties(Set<String> locations) throws IOException {
+  protected void replaceProperties(Environment environment, Set<String> locations) throws IOException {
     // replace
     String[] activeProfiles = environment.getActiveProfiles();
     for (String profile : activeProfiles) {
@@ -211,7 +228,7 @@ public class ApplicationPropertySourcesProcessor {
   /**
    * Set active profiles from properties
    */
-  protected void refreshActiveProfiles() {
+  protected void refreshActiveProfiles(ConfigurableEnvironment environment) {
     String profiles = environment.getProperty(Environment.KEY_ACTIVE_PROFILES);
     if (StringUtils.isNotEmpty(profiles)) {
       for (String profile : StringUtils.splitAsList(profiles)) {
@@ -226,22 +243,18 @@ public class ApplicationPropertySourcesProcessor {
    */
   private void doLoad(Resource resource) throws IOException {
     if (log.isDebugEnabled()) {
-      log.debug("Found Properties Resource: [{}]", resource.getLocation());
+      log.debug("Found properties resource: [{}]", resource);
     }
     PropertiesUtils.fillProperties(properties, resource);
   }
 
-  public void setPropertiesLocation(String propertiesLocation) {
-    Assert.hasLength(propertiesLocation, "propertiesLocation must not be null");
+  public void setPropertiesLocation(@Nullable String propertiesLocation) {
     this.propertiesLocation = propertiesLocation;
   }
 
+  @Nullable
   public String getPropertiesLocation() {
     return propertiesLocation;
-  }
-
-  public ConfigurableEnvironment getEnvironment() {
-    return environment;
   }
 
   public MapPropertySource getPropertySource() {
