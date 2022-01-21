@@ -23,6 +23,8 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationContext;
 
 /**
+ * Base class for events raised for an {@code ApplicationContext}.
+ *
  * @author TODAY 2018-09-09 23:05
  */
 @SuppressWarnings("serial")
@@ -30,10 +32,6 @@ public abstract class ApplicationContextEvent extends ApplicationEvent {
 
   public ApplicationContextEvent(ApplicationContext source) {
     super(source);
-  }
-
-  public final ApplicationContext getSource() {
-    return (ApplicationContext) super.getSource();
   }
 
   /**
@@ -51,14 +49,21 @@ public abstract class ApplicationContextEvent extends ApplicationEvent {
    * @since 4.0
    */
   public final BeanFactory getBeanFactory() {
-    return getSource().getBeanFactory();
+    return getApplicationContext().getBeanFactory();
   }
 
   /**
    * @since 4.0
    */
   public final <T> T unwrapFactory(Class<T> requiredType) {
-    return getSource().unwrapFactory(requiredType);
+    return getApplicationContext().unwrapFactory(requiredType);
+  }
+
+  /**
+   * Get the {@code ApplicationContext} that the event was raised for.
+   */
+  public final ApplicationContext getApplicationContext() {
+    return (ApplicationContext) getSource();
   }
 
 }

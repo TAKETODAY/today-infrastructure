@@ -34,6 +34,8 @@ import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.annotation.DefaultProps;
+import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
@@ -115,6 +117,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class Application {
+  public static final String PROPERTIES_BINDER_PREFIX = "today.main";
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -278,8 +281,27 @@ public class Application {
     ConfigurableEnvironment environment = getOrCreateEnvironment();
     configureEnvironment(environment, applicationArguments.getSourceArgs());
 
+    bindToApplication(environment);
+
     listeners.environmentPrepared(environment);
     return environment;
+  }
+
+  /**
+   * Bind the environment to the {@link Application}.
+   *
+   * @param environment the environment to bind
+   */
+  protected void bindToApplication(ConfigurableEnvironment environment) {
+    PropsReader propsReader = new PropsReader(environment);
+    try {
+      DefaultProps props = new DefaultProps();
+      props.setPrefix(PROPERTIES_BINDER_PREFIX);
+      propsReader.read(props, this);
+    }
+    catch (Exception ex) {
+      throw new IllegalStateException("Cannot bind to SpringApplication", ex);
+    }
   }
 
   /**
