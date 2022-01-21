@@ -24,6 +24,7 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatcher;
 
@@ -33,15 +34,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.PostConstruct;
-
-import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.support.BeanDefinitionOverrideException;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -55,7 +52,6 @@ import cn.taketoday.context.event.SmartApplicationListener;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
@@ -69,22 +65,18 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.AvailabilityState;
-import cn.taketoday.web.ApplicationStartedEvent;
+import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.framework.ServletWebServerApplicationContext;
 import cn.taketoday.web.framework.StandardWebServerApplicationContext;
+import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.framework.config.EnableTomcatHandling;
 import cn.taketoday.web.framework.reactive.EnableNettyHandling;
+import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.BDDMockito.willThrow;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -128,28 +120,16 @@ class ApplicationTests {
   }
 
   @Test
-  void sourcesMustNotBeNull() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new Application((Class<?>[]) null).run())
-            .withMessageContaining("PrimarySources must not be null");
-  }
-
-  @Test
-  void sourcesMustNotBeEmpty() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new Application().run())
-            .withMessageContaining("Sources must not be empty");
-  }
-
-  @Test
   void sourcesMustBeAccessible() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> new Application(InaccessibleConfiguration.class).run())
-            .withMessageContaining("No visible constructors");
+    assertThatThrownBy(() -> new Application(InaccessibleConfiguration.class).run())
+            .isInstanceOf(ApplicationContextException.class)
+            .hasMessageContaining("No visible constructors");
   }
 
   @Test
   void logsNoActiveProfiles(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(output).contains("No active profile set, falling back to default profiles: default");
   }
@@ -157,7 +137,7 @@ class ApplicationTests {
   @Test
   void logsActiveProfiles(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run("--context.profiles.active=myprofiles");
     assertThat(output).contains("The following profiles are active: myprofile");
   }
@@ -165,9 +145,9 @@ class ApplicationTests {
   @Test
   void customId() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
-    this.context = application.run("--spring.application.name=foo");
-    assertThat(this.context.getId()).startsWith("foo");
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    this.context = application.run("--application.name=foo");
+    assertThat(this.context.getApplicationName()).startsWith("foo");
   }
 
   @Test
@@ -182,7 +162,7 @@ class ApplicationTests {
   @Test
   void specificApplicationContextInitializer() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     final AtomicReference<ApplicationContext> reference = new AtomicReference<>();
     application.setInitializers(Collections.singletonList(reference::set));
     this.context = application.run("--foo=bar");
@@ -194,14 +174,14 @@ class ApplicationTests {
   @Test
   void defaultApplicationContext() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(this.context).isInstanceOf(StandardApplicationContext.class);
   }
 
   @Test
   void defaultApplicationContextForWeb() {
-    Application application = new Application(ExampleWebConfig.class);
+    Application application = new WebApplication(ExampleWebConfig.class);
     application.setApplicationType(ApplicationType.SERVLET_WEB);
     this.context = application.run();
     assertThat(this.context).isInstanceOf(ServletWebServerApplicationContext.class);
@@ -218,7 +198,7 @@ class ApplicationTests {
   @Test
   void commandLinePropertySource() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     ConfigurableEnvironment environment = new StandardEnvironment();
     application.setEnvironment(environment);
     this.context = application.run("--foo=bar");
@@ -228,7 +208,7 @@ class ApplicationTests {
   @Test
   void commandLinePropertySourceEnhancesEnvironment() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     ConfigurableEnvironment environment = new StandardEnvironment();
     environment.getPropertySources()
             .addFirst(new MapPropertySource("commandLineArgs", Collections.singletonMap("foo", "original")));
@@ -242,8 +222,8 @@ class ApplicationTests {
             .get("commandLineArgs");
     assertThat(composite.getPropertySources()).hasSize(2);
     assertThat(composite.getPropertySources()).first().matches(
-            (source) -> source.getName().equals("springApplicationCommandLineArgs"),
-            "is named springApplicationCommandLineArgs");
+            (source) -> source.getName().equals("applicationCommandLineArgs"),
+            "is named applicationCommandLineArgs");
     assertThat(composite.getPropertySources()).element(1)
             .matches((source) -> source.getName().equals("commandLineArgs"), "is named commandLineArgs");
   }
@@ -251,7 +231,7 @@ class ApplicationTests {
   @Test
   void propertiesFileEnhancesEnvironment() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     ConfigurableEnvironment environment = new StandardEnvironment();
     application.setEnvironment(environment);
     this.context = application.run();
@@ -261,7 +241,7 @@ class ApplicationTests {
   @Test
   void emptyCommandLinePropertySourceNotAdded() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     ConfigurableEnvironment environment = new StandardEnvironment();
     application.setEnvironment(environment);
     this.context = application.run();
@@ -271,7 +251,7 @@ class ApplicationTests {
   @Test
   void disableCommandLinePropertySource() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     application.setAddCommandLineProperties(false);
     ConfigurableEnvironment environment = new StandardEnvironment();
     application.setEnvironment(environment);
@@ -282,7 +262,7 @@ class ApplicationTests {
   @Test
   void runCommandLineRunnersAndApplicationRunners() {
     Application application = new Application(CommandLineRunConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run("arg");
     assertThat(this.context).has(runTestRunnerBean("runnerA"));
     assertThat(this.context).has(runTestRunnerBean("runnerB"));
@@ -307,36 +287,8 @@ class ApplicationTests {
         applicationRunner.run(args);
       });
     });
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
-  }
-
-  @Test
-  void applicationRunnerFailureCausesApplicationFailedEventToBePublished() throws Exception {
-    Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
-    @SuppressWarnings("unchecked")
-    ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
-    ApplicationRunner runner = mock(ApplicationRunner.class);
-    Exception failure = new Exception();
-    willThrow(failure).given(runner).run(isA(ApplicationArguments.class));
-    application.addInitializers((context) -> context.getBeanFactory().registerSingleton("runner", runner));
-    assertThatIllegalStateException().isThrownBy(application::run).withCause(failure);
-    verify(listener).onApplicationEvent(isA(ApplicationStartedEvent.class));
-  }
-
-  @Test
-  void commandLineRunnerFailureCausesApplicationFailedEventToBePublished() throws Exception {
-    Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
-    @SuppressWarnings("unchecked")
-    ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
-    CommandLineRunner runner = mock(CommandLineRunner.class);
-    Exception failure = new Exception();
-    willThrow(failure).given(runner).run();
-    application.addInitializers((context) -> context.getBeanFactory().registerSingleton("runner", runner));
-    assertThatIllegalStateException().isThrownBy(application::run).withCause(failure);
-    verify(listener).onApplicationEvent(isA(ApplicationStartedEvent.class));
   }
 
   @Test
@@ -348,7 +300,7 @@ class ApplicationTests {
   @Test
   void exit() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(this.context).isNotNull();
     assertThat(Application.exit(this.context)).isEqualTo(0);
@@ -358,7 +310,7 @@ class ApplicationTests {
   void exitWithExplicitCode() {
     Application application = new Application(ExampleConfig.class);
     ExitCodeListener listener = new ExitCodeListener();
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     context.addApplicationListener(listener);
     assertThat(this.context).isNotNull();
@@ -369,7 +321,7 @@ class ApplicationTests {
   @Test
   void headless() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(System.getProperty("java.awt.headless")).isEqualTo("true");
   }
@@ -377,7 +329,7 @@ class ApplicationTests {
   @Test
   void headlessFalse() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     application.setHeadless(false);
     this.context = application.run();
     assertThat(System.getProperty("java.awt.headless")).isEqualTo("false");
@@ -387,7 +339,7 @@ class ApplicationTests {
   void headlessSystemPropertyTakesPrecedence() {
     System.setProperty("java.awt.headless", "false");
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
+    application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(System.getProperty("java.awt.headless")).isEqualTo("false");
   }
@@ -395,14 +347,15 @@ class ApplicationTests {
   @Test
   void getApplicationArgumentsBean() {
     Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
-    this.context = application.run("--debug", "spring", "framework");
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    this.context = application.run("--debug", "today", "framework");
     ApplicationArguments args = this.context.getBean(ApplicationArguments.class);
     assertThat(args.getNonOptionArgs()).containsExactly("today", "framework");
     assertThat(args.containsOption("debug")).isTrue();
   }
 
   @Test
+  @DisabledIfSystemProperty(named = "coverage", matches = "true")
   void failureResultsInSingleStackTrace(CapturedOutput output) throws Exception {
     ThreadGroup group = new ThreadGroup("main");
     Thread thread = new Thread(group, "main") {
@@ -410,7 +363,7 @@ class ApplicationTests {
       @Override
       public void run() {
         Application application = new Application(FailingConfig.class);
-        application.setApplicationType(ApplicationType.STANDARD);
+        application.setApplicationType(ApplicationType.NONE_WEB);
         application.run();
       }
 
@@ -421,58 +374,15 @@ class ApplicationTests {
   }
 
   @Test
-  void beanDefinitionOverridingIsDisabledByDefault() {
-    assertThatExceptionOfType(BeanDefinitionOverrideException.class)
-            .isThrownBy(() -> new Application(ExampleConfig.class, OverrideConfig.class).run());
-  }
-
-  @Test
-  void beanDefinitionOverridingCanBeEnabled() {
-    assertThat(new Application(ExampleConfig.class, OverrideConfig.class)
-            .run("--today.main.allow-bean-definition-overriding=true", "--today.main.application-type=STANDARD")
-            .getBean("someBean")).isEqualTo("override");
-  }
-
-  @Test
-  void circularReferencesAreDisabledByDefault() {
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-            .isThrownBy(() -> new Application(ExampleProducerConfiguration.class,
-                    ExampleConsumerConfiguration.class).run("--today.main.application-type=STANDARD"))
-            .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
-  }
-
-  @Test
-  void circularReferencesCanBeEnabled() {
-    assertThatNoException().isThrownBy(
-            () -> new Application(ExampleProducerConfiguration.class, ExampleConsumerConfiguration.class).run(
-                    "--today.main.application-type=STANDARD", "--today.main.allow-circular-references=true"));
-  }
-
-  @Test
-  void relaxedBindingShouldWorkBeforeEnvironmentIsPrepared() {
-    Application application = new Application(ExampleConfig.class);
-    application.setApplicationType(ApplicationType.STANDARD);
-    this.context = application.run("--today.config.additionalLocation=classpath:custom-config/");
-    assertThat(this.context.getEnvironment().getProperty("hello")).isEqualTo("world");
-  }
-
-  @Test
   void lazyInitializationIsDisabledByDefault() {
-    assertThat(new Application(LazyInitializationConfig.class).run("--today.main.application-type=STANDARD")
+    assertThat(new Application(LazyInitializationConfig.class).run("--today.main.application-type=NONE_WEB")
             .getBean(AtomicInteger.class)).hasValue(1);
-  }
-
-  @Test
-  void lazyInitializationCanBeEnabled() {
-    assertThat(new Application(LazyInitializationConfig.class)
-            .run("--today.main.application-type=STANDARD", "--today.main.lazy-initialization=true")
-            .getBean(AtomicInteger.class)).hasValue(0);
   }
 
   @Test
   void lazyInitializationIgnoresBeansThatAreExplicitlyNotLazy() {
     assertThat(new Application(NotLazyInitializationConfig.class)
-            .run("--today.main.application-type=STANDARD", "--today.main.lazy-initialization=true")
+            .run("--today.main.application-type=NONE_WEB", "--today.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
@@ -564,6 +474,8 @@ class ApplicationTests {
 
   }
 
+  //  @EnableWebMvc
+//  @EnableTomcatHandling
   @Configuration(proxyBeanMethods = false)
   static class ExampleConfig {
 
@@ -624,11 +536,13 @@ class ApplicationTests {
   }
 
   @EnableTomcatHandling
+  @EnableWebMvc
   @Configuration(proxyBeanMethods = false)
   static class ExampleWebConfig {
 
   }
 
+  @EnableWebMvc
   @EnableNettyHandling
   @Configuration(proxyBeanMethods = false)
   static class ExampleReactiveWebConfig {
@@ -655,7 +569,7 @@ class ApplicationTests {
 
     @Bean
     ApplicationRunner runnerB() {
-      return new ApplicationRunner(Ordered.LOWEST_PRECEDENCE - 1, "runnerA");
+      return new TestApplicationRunner(Ordered.LOWEST_PRECEDENCE - 1, "runnerA");
     }
 
     @Bean
@@ -874,22 +788,6 @@ class ApplicationTests {
     @Override
     public ClassLoader getClassLoader() {
       return getClass().getClassLoader();
-    }
-
-  }
-
-  static class TestApplicationListener implements ApplicationListener<ApplicationEvent> {
-
-    private final MultiValueMap<Class<?>, ApplicationEvent> events = MultiValueMap.fromLinkedHashMap();
-
-    @Override
-    public void onApplicationEvent(ApplicationEvent event) {
-      this.events.add(event.getClass(), event);
-    }
-
-    @SuppressWarnings("unchecked")
-    <E extends ApplicationEvent> E getEvent(Class<E> type) {
-      return (E) this.events.get(type).get(0);
     }
 
   }

@@ -83,7 +83,7 @@ class ApplicationContextTests {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(applicationContext);
       processor.setPropertiesLocation("info.properties");
-      processor.postProcessEnvironment();
+      processor.postProcessEnvironment(applicationContext.getEnvironment());
 
       applicationContext.scan("test.demo.config");
       applicationContext.refresh();
