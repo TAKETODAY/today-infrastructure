@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.framework.reactive;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.DisposableBean;
@@ -114,7 +115,8 @@ public class NettyWebServer extends AbstractWebServer implements WebServer, Disp
    * Subclasses can override this method to perform KQueue is available logic
    */
   protected boolean kQueueIsAvailable() {
-    return kQueuePresent;
+    return kQueuePresent
+            && System.getProperty("os.name").toUpperCase(Locale.ENGLISH).contains("BSD");
   }
 
   @Override
