@@ -22,7 +22,6 @@ package cn.taketoday.web.framework.reactive;
 import java.util.Locale;
 import java.util.Objects;
 
-import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
@@ -55,7 +54,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  *
  * @author TODAY 2019-07-02 21:15
  */
-public class NettyWebServer extends AbstractWebServer implements WebServer, DisposableBean {
+public class NettyWebServer extends AbstractWebServer implements WebServer {
   static boolean epollPresent = ClassUtils.isPresent(
           "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServer.class.getClassLoader());
   static boolean kQueuePresent = ClassUtils.isPresent(
@@ -174,6 +173,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer, Disp
       channelFuture.sync();
     }
     catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       log.error("Interrupted", e);
       throw new WebServerException(e);
     }
@@ -235,11 +235,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer, Disp
       }
     }
     return serverInitializer;
-  }
-
-  @Override
-  public void destroy() throws Exception {
-    stop();
   }
 
   @Override

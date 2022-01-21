@@ -56,7 +56,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
@@ -90,7 +89,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class JettyServer
-        extends AbstractServletWebServer implements WebServer, DisposableBean {
+        extends AbstractServletWebServer implements WebServer {
 
   private Server server;
 
@@ -208,11 +207,6 @@ public class JettyServer
   private String getProtocols(Connector connector) {
     List<String> protocols = connector.getProtocols();
     return " (" + StringUtils.collectionToString(protocols) + ")";
-  }
-
-  @Override
-  public void destroy() {
-    stop();
   }
 
   @Override

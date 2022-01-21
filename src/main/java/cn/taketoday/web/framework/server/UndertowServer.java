@@ -28,12 +28,11 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.JarResource;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -69,7 +68,7 @@ import jakarta.servlet.ServletException;
  * @author TODAY 2019-01-12 17:28
  */
 public class UndertowServer
-        extends AbstractServletWebServer implements WebServer, DisposableBean {
+        extends AbstractServletWebServer implements WebServer {
 
   private boolean useForwardHeaders;
 
@@ -142,11 +141,6 @@ public class UndertowServer
   }
 
   @Override
-  public void destroy() throws Exception {
-    stop();
-  }
-
-  @Override
   public synchronized void stop() {
     if (!getStarted().get()) {
       return;
@@ -189,8 +183,8 @@ public class UndertowServer
     // 添加 ApplicationLoader
     deployment.addServletContainerInitializer(
             new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class,
-                                                new ImmediateInstanceFactory<>(starter),
-                                                Collections.emptySet()
+                    new ImmediateInstanceFactory<>(starter),
+                    Collections.emptySet()
             )
     );
 

@@ -61,7 +61,6 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
-import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;
@@ -90,7 +89,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class TomcatServer extends AbstractServletWebServer implements DisposableBean {
+public class TomcatServer extends AbstractServletWebServer {
 
   // connector
   private String protocol = "HTTP/1.1";
@@ -229,11 +228,6 @@ public class TomcatServer extends AbstractServletWebServer implements Disposable
     catch (Exception ex) {
       log.error("Cannot pause connector: ", ex);
     }
-  }
-
-  @Override
-  public void destroy() throws Exception {
-    stop();
   }
 
   @Override
