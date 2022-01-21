@@ -87,24 +87,13 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * @since 4.0
  */
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
-
-  private static final boolean romePresent;
-  private static final boolean jackson2Present;
-  private static final boolean jackson2SmilePresent;
-  private static final boolean jackson2CborPresent;
-  private static final boolean gsonPresent;
-  private static final boolean jsonbPresent;
-
-  static {
-    ClassLoader classLoader = RestTemplate.class.getClassLoader();
-    romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
-            ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
-    jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
-    jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", classLoader);
-    gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
-  }
+  private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
+  private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
+  private static final boolean romePresent = isPresent("com.rometools.rome.feed.WireFeed");
+  private static final boolean jackson2Present = isPresent("com.fasterxml.jackson.databind.ObjectMapper")
+          && isPresent("com.fasterxml.jackson.core.JsonGenerator");
+  private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
+  private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
 
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
@@ -809,6 +798,11 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   private static <T> T nonNull(@Nullable T result) {
     Assert.state(result != null, "No result");
     return result;
+  }
+
+  static boolean isPresent(String name) {
+    ClassLoader classLoader = RestTemplate.class.getClassLoader();
+    return ClassUtils.isPresent(name, classLoader);
   }
 
   /**
