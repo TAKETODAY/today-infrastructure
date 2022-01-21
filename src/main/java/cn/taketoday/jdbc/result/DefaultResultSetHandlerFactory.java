@@ -27,9 +27,9 @@ import java.sql.SQLException;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
-import cn.taketoday.jdbc.utils.JdbcUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
@@ -51,7 +51,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     int columnCount = meta.getColumnCount();
     StringBuilder builder = new StringBuilder(columnCount * 10);
     for (int i = 1; i <= columnCount; i++) {
-      builder.append(JdbcUtils.getColumnName(meta, i))
+      builder.append(JdbcUtils.lookupColumnName(meta, i))
               .append('\n');
     }
     return CACHE.get(new Key(builder.toString(), this), meta);
@@ -74,7 +74,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     }
     JdbcPropertyAccessor[] accessors = new JdbcPropertyAccessor[columnCount];
     for (int i = 1; i <= columnCount; i++) {
-      String colName = JdbcUtils.getColumnName(meta, i);
+      String colName = JdbcUtils.lookupColumnName(meta, i);
       JdbcPropertyAccessor accessor = getAccessor(colName, metadata);
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.

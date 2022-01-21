@@ -31,7 +31,7 @@ import java.util.Map;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.utils.JdbcUtils;
+import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -49,11 +49,11 @@ public final class TableResultSetIterator extends AbstractResultSetIterator<Row>
     this.isCaseSensitive = isCaseSensitive;
     this.conversionService =
             conversionService == null ? DefaultConversionService.getSharedInstance() : conversionService;
-    final ResultSetMetaData meta = JdbcUtils.getMetaData(rs);
-
-    final ArrayList<Column> columns = new ArrayList<>();
-    final HashMap<String, Integer> columnNameToIdxMap = new HashMap<>();
     try {
+      final ResultSetMetaData meta = rs.getMetaData();
+      final ArrayList<Column> columns = new ArrayList<>();
+      final HashMap<String, Integer> columnNameToIdxMap = new HashMap<>();
+
       lt.setName(meta.getTableName(1));
       lt.setColumns(columns);
 
@@ -74,8 +74,8 @@ public final class TableResultSetIterator extends AbstractResultSetIterator<Row>
     }
   }
 
-  protected String getColumnName(ResultSetMetaData meta, int colIdx) throws SQLException {
-    return JdbcUtils.getColumnName(meta, colIdx);
+  private String getColumnName(ResultSetMetaData meta, int colIdx) throws SQLException {
+    return JdbcUtils.lookupColumnName(meta, colIdx);
   }
 
   @Override

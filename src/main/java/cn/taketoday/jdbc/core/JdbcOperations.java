@@ -45,6 +45,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see JdbcTemplate
+ * @since 4.0
  */
 public interface JdbcOperations {
 
@@ -404,7 +405,6 @@ public interface JdbcOperations {
    * only the argument value but also the SQL type and optionally the scale
    * @return an arbitrary result object, as returned by the ResultSetExtractor
    * @throws DataAccessException if the query fails
-   * @since 4.0
    */
   @Nullable
   <T> T query(String sql, ResultSetExtractor<T> rse, @Nullable Object... args) throws DataAccessException;
@@ -731,7 +731,6 @@ public interface JdbcOperations {
    * @throws cn.taketoday.jdbc.IncorrectResultSetColumnCountException if the query does not return a row containing a single column
    * @throws DataAccessException if the query fails
    * @see #queryForObject(String, Class)
-   * @since 4.0
    */
   @Nullable
   <T> T queryForObject(String sql, Class<T> requiredType, @Nullable Object... args) throws DataAccessException;

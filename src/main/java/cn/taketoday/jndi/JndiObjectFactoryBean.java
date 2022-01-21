@@ -322,6 +322,7 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
    * @return the merged interface as Class
    * @see java.lang.reflect.Proxy#getProxyClass
    */
+  @SuppressWarnings("deprecation")
   protected Class<?> createCompositeInterface(Class<?>[] interfaces) {
     return ClassUtils.createCompositeInterface(interfaces, this.beanClassLoader);
   }

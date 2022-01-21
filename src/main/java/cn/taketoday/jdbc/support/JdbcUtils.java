@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.support;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Blob;
@@ -33,11 +34,11 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
+import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -53,6 +54,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  */
 public abstract class JdbcUtils {
+  private static final Logger log = LoggerFactory.getLogger(JdbcUtils.class);
 
   /**
    * Constant that indicates an unknown (or unspecified) SQL type.
@@ -61,9 +63,7 @@ public abstract class JdbcUtils {
    */
   public static final int TYPE_UNKNOWN = Integer.MIN_VALUE;
 
-  private static final Logger logger = LoggerFactory.getLogger(JdbcUtils.class);
-
-  private static final Map<Integer, String> typeNames = new HashMap<>();
+  private static final HashMap<Integer, String> typeNames = new HashMap<>();
 
   static {
     try {
@@ -88,11 +88,11 @@ public abstract class JdbcUtils {
         con.close();
       }
       catch (SQLException ex) {
-        logger.debug("Could not close JDBC Connection", ex);
+        log.debug("Could not close JDBC Connection", ex);
       }
       catch (Throwable ex) {
         // We don't trust the JDBC driver: It might throw RuntimeException or Error.
-        logger.debug("Unexpected exception on closing JDBC Connection", ex);
+        log.debug("Unexpected exception on closing JDBC Connection", ex);
       }
     }
   }
@@ -109,11 +109,11 @@ public abstract class JdbcUtils {
         stmt.close();
       }
       catch (SQLException ex) {
-        logger.trace("Could not close JDBC Statement", ex);
+        log.trace("Could not close JDBC Statement", ex);
       }
       catch (Throwable ex) {
         // We don't trust the JDBC driver: It might throw RuntimeException or Error.
-        logger.trace("Unexpected exception on closing JDBC Statement", ex);
+        log.trace("Unexpected exception on closing JDBC Statement", ex);
       }
     }
   }
@@ -130,11 +130,11 @@ public abstract class JdbcUtils {
         rs.close();
       }
       catch (SQLException ex) {
-        logger.trace("Could not close JDBC ResultSet", ex);
+        log.trace("Could not close JDBC ResultSet", ex);
       }
       catch (Throwable ex) {
         // We don't trust the JDBC driver: It might throw RuntimeException or Error.
-        logger.trace("Unexpected exception on closing JDBC ResultSet", ex);
+        log.trace("Unexpected exception on closing JDBC ResultSet", ex);
       }
     }
   }
@@ -235,13 +235,13 @@ public abstract class JdbcUtils {
         return rs.getObject(index, requiredType);
       }
       catch (AbstractMethodError err) {
-        logger.debug("JDBC driver does not implement JDBC 4.1 'getObject(int, Class)' method", err);
+        log.debug("JDBC driver does not implement JDBC 4.1 'getObject(int, Class)' method", err);
       }
       catch (SQLFeatureNotSupportedException ex) {
-        logger.debug("JDBC driver does not support JDBC 4.1 'getObject(int, Class)' method", ex);
+        log.debug("JDBC driver does not support JDBC 4.1 'getObject(int, Class)' method", ex);
       }
       catch (SQLException ex) {
-        logger.debug("JDBC driver has limited support for JDBC 4.1 'getObject(int, Class)' method", ex);
+        log.debug("JDBC driver has limited support for JDBC 4.1 'getObject(int, Class)' method", ex);
       }
 
       // Corresponding SQL types for JSR-310 / Joda-Time types, left up
@@ -332,8 +332,8 @@ public abstract class JdbcUtils {
    * @throws MetaDataAccessException if meta-data access failed
    * @see DatabaseMetaData
    */
-  public static <T> T extractDatabaseMetaData(DataSource dataSource, DatabaseMetaDataCallback<T> action)
-          throws MetaDataAccessException {
+  public static <T> T extractDatabaseMetaData(
+          DataSource dataSource, DatabaseMetaDataCallback<T> action) throws MetaDataAccessException {
 
     Connection con = null;
     try {
@@ -347,8 +347,7 @@ public abstract class JdbcUtils {
           // Probably a closed thread-bound Connection - retry against fresh Connection
           DataSourceUtils.releaseConnection(con, dataSource);
           con = null;
-          logger.debug("Failed to obtain DatabaseMetaData from transactional Connection - " +
-                  "retrying against fresh Connection", ex);
+          log.debug("Failed to obtain DatabaseMetaData from transactional Connection - retrying against fresh Connection", ex);
           con = dataSource.getConnection();
           metaData = con.getMetaData();
         }
@@ -394,16 +393,16 @@ public abstract class JdbcUtils {
       DatabaseMetaData dbmd = con.getMetaData();
       if (dbmd != null) {
         if (dbmd.supportsBatchUpdates()) {
-          logger.debug("JDBC driver supports batch updates");
+          log.debug("JDBC driver supports batch updates");
           return true;
         }
         else {
-          logger.debug("JDBC driver does not support batch updates");
+          log.debug("JDBC driver does not support batch updates");
         }
       }
     }
     catch (SQLException ex) {
-      logger.debug("JDBC driver 'supportsBatchUpdates' method threw exception", ex);
+      log.debug("JDBC driver 'supportsBatchUpdates' method threw exception", ex);
     }
     return false;
   }
@@ -424,10 +423,10 @@ public abstract class JdbcUtils {
     else if ("MariaDB".equals(source)) {
       name = "MySQL";
     }
-    else if ("Sybase SQL Server".equals(source) ||
-            "Adaptive Server Enterprise".equals(source) ||
-            "ASE".equals(source) ||
-            "sql server".equalsIgnoreCase(source)) {
+    else if ("Sybase SQL Server".equals(source)
+            || "Adaptive Server Enterprise".equals(source)
+            || "ASE".equals(source)
+            || "sql server".equalsIgnoreCase(source)) {
       name = "Sybase";
     }
     return name;
@@ -515,5 +514,234 @@ public abstract class JdbcUtils {
     }
     return result.toString();
   }
+
+  /**
+   * Close a <code>Connection</code>, avoid closing if null.
+   *
+   * @param conn Connection to close.
+   * @throws SQLException If a database access error occurs
+   */
+  public static void close(@Nullable Connection conn) throws SQLException {
+    if (conn != null) {
+      conn.close();
+    }
+  }
+
+  /**
+   * Close a <code>ResultSet</code>, avoid closing if null.
+   *
+   * @param rs ResultSet to close.
+   * @throws SQLException If a database access error occurs
+   */
+  public static void close(@Nullable ResultSet rs) throws SQLException {
+    if (rs != null) {
+      rs.close();
+    }
+  }
+
+  /**
+   * Close a <code>Statement</code>, avoid closing if null.
+   *
+   * @param stmt Statement to close.
+   * @throws SQLException If a database access error occurs
+   */
+  public static void close(@Nullable Statement stmt) throws SQLException {
+    if (stmt != null) {
+      stmt.close();
+    }
+  }
+
+  /**
+   * Close a <code>Connection</code>, avoid closing if null and hide any
+   * SQLExceptions that occur.
+   *
+   * @param conn Connection to close.
+   */
+  public static void closeQuietly(@Nullable Connection conn) {
+    try {
+      close(conn);
+    }
+    catch (SQLException e) {
+      log.warn("Could not close connection. connection: {}", conn, e);
+    }
+  }
+
+  /**
+   * Close a <code>Connection</code>, <code>Statement</code> and
+   * <code>ResultSet</code>. Avoid closing if null and hide any SQLExceptions that
+   * occur.
+   *
+   * @param conn Connection to close.
+   * @param stmt Statement to close.
+   * @param rs ResultSet to close.
+   */
+  public static void closeQuietly(@Nullable Connection conn, @Nullable Statement stmt, @Nullable ResultSet rs) {
+    try {
+      closeQuietly(rs);
+    }
+    finally {
+      try {
+        closeQuietly(stmt);
+      }
+      finally {
+        closeQuietly(conn);
+      }
+    }
+  }
+
+  /**
+   * Close a <code>ResultSet</code>, avoid closing if null and hide any
+   * SQLExceptions that occur.
+   *
+   * @param rs ResultSet to close.
+   */
+  public static void closeQuietly(@Nullable ResultSet rs) {
+    try {
+      close(rs);
+    }
+    catch (SQLException e) {
+      log.warn("Could not close ResultSet. result-set: {}", rs, e);
+    }
+  }
+
+  /**
+   * Close a <code>Statement</code>, avoid closing if null and hide any
+   * SQLExceptions that occur.
+   *
+   * @param stmt Statement to close.
+   */
+  public static void closeQuietly(@Nullable Statement stmt) {
+    try {
+      close(stmt);
+    }
+    catch (SQLException e) {
+      log.warn("Could not close statement. statement: {}", stmt, e);
+    }
+  }
+
+  /**
+   * Commits a <code>Connection</code> then closes it, avoid closing if null.
+   *
+   * @param conn Connection to close.
+   * @throws SQLException If a database access error occurs
+   */
+  public static void commitAndClose(@Nullable Connection conn) throws SQLException {
+    if (conn != null) {
+      try (conn) {
+        conn.commit();
+      }
+    }
+  }
+
+  /**
+   * Commits a <code>Connection</code> then closes it, avoid closing if null and
+   * hide any SQLExceptions that occur.
+   *
+   * @param conn Connection to close.
+   */
+  public static void commitAndCloseQuietly(@Nullable Connection conn) {
+    try {
+      commitAndClose(conn);
+    }
+    catch (SQLException e) {
+      log.warn("Could not commit and close. Connection: {}", conn, e);
+    }
+  }
+
+  /**
+   * Print the stack trace for a SQLException to STDERR.
+   *
+   * @param e SQLException to print stack trace of
+   */
+  public static void printStackTrace(SQLException e) {
+    printStackTrace(e, new PrintWriter(System.err));
+  }
+
+  /**
+   * Print the stack trace for a SQLException to a specified PrintWriter.
+   *
+   * @param e SQLException to print stack trace of
+   * @param pw PrintWriter to print to
+   */
+  public static void printStackTrace(SQLException e, PrintWriter pw) {
+
+    SQLException next = e;
+    while (next != null) {
+      next.printStackTrace(pw);
+      next = next.getNextException();
+      if (next != null) {
+        pw.println("Next SQLException:");
+      }
+    }
+  }
+
+  /**
+   * Print warnings on a Connection to STDERR.
+   *
+   * @param conn Connection to print warnings from
+   */
+  public static void printWarnings(Connection conn) {
+    printWarnings(conn, new PrintWriter(System.err));
+  }
+
+  /**
+   * Print warnings on a Connection to a specified PrintWriter.
+   *
+   * @param conn Connection to print warnings from
+   * @param pw PrintWriter to print to
+   */
+  public static void printWarnings(@Nullable Connection conn, PrintWriter pw) {
+    if (conn != null) {
+      try {
+        printStackTrace(conn.getWarnings(), pw);
+      }
+      catch (SQLException e) {
+        printStackTrace(e, pw);
+      }
+    }
+  }
+
+  /**
+   * Rollback any changes made on the given connection.
+   *
+   * @param conn Connection to rollback. A null value is legal.
+   * @throws SQLException If a database access error occurs
+   */
+  public static void rollback(@Nullable Connection conn) throws SQLException {
+    if (conn != null) {
+      conn.rollback();
+    }
+  }
+
+  /**
+   * Performs a rollback on the <code>Connection</code> then closes it, avoid
+   * closing if null.
+   *
+   * @param conn Connection to rollback. A null value is legal.
+   * @throws SQLException If a database access error occurs
+   */
+  public static void rollbackAndClose(@Nullable Connection conn) throws SQLException {
+    if (conn != null) {
+      try (conn) {
+        conn.rollback();
+      }
+    }
+  }
+
+  /**
+   * Performs a rollback on the <code>Connection</code> then closes it, avoid
+   * closing if null and hide any SQLExceptions that occur.
+   *
+   * @param conn Connection to rollback. A null value is legal.
+   */
+  public static void rollbackAndCloseQuietly(Connection conn) {
+    try {
+      rollbackAndClose(conn);
+    }
+    catch (SQLException e) {
+      log.warn("Could not rollback and close. Connection: {}", conn, e);
+    }
+  }
+
 
 }

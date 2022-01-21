@@ -23,6 +23,8 @@ package cn.taketoday.jdbc.support;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.NonNull;
+
 /**
  * A callback interface used by the JdbcUtils class. Implementations of this
  * interface perform the actual work of extracting database meta-data, but
@@ -49,6 +51,6 @@ public interface DatabaseMetaDataCallback<T> {
    * @throws MetaDataAccessException in case of other failures while
    * extracting meta-data (for example, reflection failure)
    */
-  T processMetaData(DatabaseMetaData dbmd) throws SQLException, MetaDataAccessException;
+  T processMetaData(@NonNull DatabaseMetaData dbmd) throws SQLException, MetaDataAccessException;
 
 }

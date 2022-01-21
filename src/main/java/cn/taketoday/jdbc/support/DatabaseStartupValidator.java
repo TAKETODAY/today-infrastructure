@@ -138,7 +138,7 @@ public class DatabaseStartupValidator implements InitializingBean {
           latestEx = ex;
           if (logger.isDebugEnabled()) {
             if (this.validationQuery != null) {
-              logger.debug("Validation query [" + this.validationQuery + "] threw exception", ex);
+              logger.debug("Validation query [{}] threw exception", validationQuery, ex);
             }
             else {
               logger.debug("Validation check threw exception", ex);
@@ -147,8 +147,7 @@ public class DatabaseStartupValidator implements InitializingBean {
           if (logger.isInfoEnabled()) {
             float rest = ((float) (deadLine - System.currentTimeMillis())) / 1000;
             if (rest > this.interval) {
-              logger.info("Database has not started up yet - retrying in " + this.interval +
-                      " seconds (timeout in " + rest + " seconds)");
+              logger.info("Database has not started up yet - retrying in {} seconds (timeout in {} seconds)", interval, rest);
             }
           }
         }
@@ -169,7 +168,7 @@ public class DatabaseStartupValidator implements InitializingBean {
 
       if (logger.isInfoEnabled()) {
         float duration = ((float) (System.currentTimeMillis() - beginTime)) / 1000;
-        logger.info("Database startup detected after " + duration + " seconds");
+        logger.info("Database startup detected after {} seconds", duration);
       }
     }
     catch (InterruptedException ex) {

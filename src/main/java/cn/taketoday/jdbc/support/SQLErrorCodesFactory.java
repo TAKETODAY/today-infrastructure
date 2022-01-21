@@ -28,7 +28,6 @@ import javax.sql.DataSource;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.jdbc.utils.JdbcUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -51,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  * @see java.sql.DatabaseMetaData#getDatabaseProductName()
  */
 public class SQLErrorCodesFactory {
-  private static final Logger logger = LoggerFactory.getLogger(SQLErrorCodesFactory.class);
+  private static final Logger log = LoggerFactory.getLogger(SQLErrorCodesFactory.class);
 
   /**
    * The name of custom SQL error codes file, loading from the root
@@ -276,15 +275,15 @@ public class SQLErrorCodesFactory {
     }
     if (sec != null) {
       checkCustomTranslatorRegistry(databaseName, sec);
-      if (logger.isDebugEnabled()) {
-        logger.debug("SQL error codes for '{}' found", databaseName);
+      if (log.isDebugEnabled()) {
+        log.debug("SQL error codes for '{}' found", databaseName);
       }
       return sec;
     }
 
     // Could not find the database among the defined ones.
-    if (logger.isDebugEnabled()) {
-      logger.debug("SQL error codes for '{}' not found", databaseName);
+    if (log.isDebugEnabled()) {
+      log.debug("SQL error codes for '{}' not found", databaseName);
     }
     return new SQLErrorCodes();
   }
@@ -319,8 +318,9 @@ public class SQLErrorCodesFactory {
   @Nullable
   public SQLErrorCodes resolveErrorCodes(DataSource dataSource) {
     Assert.notNull(dataSource, "DataSource must not be null");
-    if (logger.isDebugEnabled()) {
-      logger.debug("Looking up default SQLErrorCodes for DataSource [{}]", identify(dataSource));
+    boolean debugEnabled = log.isDebugEnabled();
+    if (debugEnabled) {
+      log.debug("Looking up default SQLErrorCodes for DataSource [{}]", identify(dataSource));
     }
 
     // Try efficient lock-free access for existing cache entry
@@ -339,15 +339,15 @@ public class SQLErrorCodesFactory {
             }
           }
           catch (MetaDataAccessException ex) {
-            logger.warn("Error while extracting database name", ex);
+            log.warn("Error while extracting database name", ex);
           }
           return null;
         }
       }
     }
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("SQLErrorCodes found in cache for DataSource [{}]", identify(dataSource));
+    if (debugEnabled) {
+      log.debug("SQLErrorCodes found in cache for DataSource [{}]", identify(dataSource));
     }
 
     return sec;
@@ -364,8 +364,8 @@ public class SQLErrorCodesFactory {
    */
   public SQLErrorCodes registerDatabase(DataSource dataSource, String databaseName) {
     SQLErrorCodes sec = getErrorCodes(databaseName);
-    if (logger.isDebugEnabled()) {
-      logger.debug("Caching SQL error codes for DataSource [{}]: database product name is '{}'",
+    if (log.isDebugEnabled()) {
+      log.debug("Caching SQL error codes for DataSource [{}]: database product name is '{}'",
               identify(dataSource), databaseName);
     }
     this.dataSourceCache.put(dataSource, sec);
@@ -403,14 +403,14 @@ public class SQLErrorCodesFactory {
     SQLExceptionTranslator customTranslator =
             CustomSQLExceptionTranslatorRegistry.getInstance().findTranslatorForDatabase(databaseName);
     if (customTranslator != null) {
-      if (errorCodes.getCustomSqlExceptionTranslator() != null && logger.isDebugEnabled()) {
-        logger.debug("Overriding already defined custom translator '{}' " +
+      if (errorCodes.getCustomSqlExceptionTranslator() != null && log.isDebugEnabled()) {
+        log.debug("Overriding already defined custom translator '{}' " +
                         "with '{}' found in the CustomSQLExceptionTranslatorRegistry for database '{}'",
                 errorCodes.getCustomSqlExceptionTranslator().getClass().getSimpleName(),
                 customTranslator.getClass().getSimpleName(), databaseName);
       }
-      else if (logger.isTraceEnabled()) {
-        logger.trace("Using custom translator '{}' found in the CustomSQLExceptionTranslatorRegistry for database '{}'",
+      else if (log.isTraceEnabled()) {
+        log.trace("Using custom translator '{}' found in the CustomSQLExceptionTranslatorRegistry for database '{}'",
                 customTranslator.getClass().getSimpleName(), databaseName);
       }
       errorCodes.setCustomSqlExceptionTranslator(customTranslator);

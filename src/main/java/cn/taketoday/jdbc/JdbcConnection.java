@@ -12,7 +12,7 @@ import java.util.List;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.jdbc.support.ConnectionSource;
-import cn.taketoday.jdbc.utils.JdbcUtils;
+import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -67,7 +67,7 @@ public final class JdbcConnection implements Closeable {
     this.connectionSource = ConnectionSource.join(connection);
   }
 
-  protected void onException() {
+  void onException() {
     if (isRollbackOnException()) {
       rollback(autoClose);
     }
@@ -241,7 +241,7 @@ public final class JdbcConnection implements Closeable {
   // -------------------- Keys ----------------------
   // ------------------------------------------------
 
-  protected void setKeys(@Nullable ResultSet rs) {
+  void setKeys(@Nullable ResultSet rs) {
     if (rs == null) {
       this.keys = null;
     }
