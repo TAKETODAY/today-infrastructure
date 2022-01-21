@@ -130,6 +130,7 @@ public class Application {
 
   private ApplicationType applicationType;
 
+  @Nullable
   private ConfigurableEnvironment environment;
 
   private boolean headless = true;
@@ -404,19 +405,21 @@ public class Application {
    * @see #configureEnvironment(ConfigurableEnvironment, String[])
    */
   protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
-    // prepare properties
-    List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
-    for (EnvironmentPostProcessor postProcessor : postProcessors) {
-      postProcessor.postProcessEnvironment(environment, this);
-    }
-
+    // load application.properties or application.yaml, application.yml
     try {
-      new ApplicationPropertySourcesProcessor(environment).postProcessEnvironment();
+      new ApplicationPropertySourcesProcessor().postProcessEnvironment(environment);
     }
     catch (IOException e) {
       throw ExceptionUtils.sneakyThrow(e);
     }
 
+    // load outside PropertySources
+    List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
+    for (EnvironmentPostProcessor postProcessor : postProcessors) {
+      postProcessor.postProcessEnvironment(environment, this);
+    }
+
+    // CommandLine
     PropertySources sources = environment.getPropertySources();
     if (this.addCommandLineProperties && args.length > 0) {
       String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
@@ -571,7 +574,7 @@ public class Application {
    *
    * @param environment the environment
    */
-  public void setEnvironment(ConfigurableEnvironment environment) {
+  public void setEnvironment(@Nullable ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 

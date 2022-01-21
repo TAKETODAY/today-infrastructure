@@ -28,6 +28,7 @@ import cn.taketoday.lang.Experimental;
  * @author TODAY 2018-10-16 15:46
  */
 public class WebApplication extends Application {
+
   public WebApplication(Class<?>... configSources) {
     super(configSources);
   }

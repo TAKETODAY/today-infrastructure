@@ -35,7 +35,7 @@ public enum ApplicationType {
    * The application should not run as a web application and should not start an
    * embedded web server.
    */
-  STANDARD,
+  NONE_WEB,
 
   /**
    * The application should run as a servlet-based web application and should start an
@@ -58,7 +58,7 @@ public enum ApplicationType {
       return ApplicationType.REACTIVE_WEB;
     }
     if (!ClassUtils.isPresent(SERVLET_INDICATOR_CLASS, null)) {
-      return ApplicationType.STANDARD;
+      return ApplicationType.NONE_WEB;
     }
     return ApplicationType.SERVLET_WEB;
   }
