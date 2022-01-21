@@ -26,11 +26,10 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpEntity;
@@ -702,9 +701,11 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    */
   @Nullable
-  protected <T> T doExecute(URI url, @Nullable HttpMethod method,
-                            @Nullable RequestCallback requestCallback,
-                            @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
+  protected <T> T doExecute(
+          URI url, @Nullable HttpMethod method,
+          @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException //
+  {
 
     Assert.notNull(url, "URI is required");
     Assert.notNull(method, "HttpMethod is required");
@@ -825,16 +826,19 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     @Override
     public void doWithRequest(ClientHttpRequest request) throws IOException {
       if (this.responseType != null) {
-        List<MediaType> allSupportedMediaTypes = getMessageConverters().stream()
-                .filter(converter -> canReadResponse(this.responseType, converter))
-                .flatMap((HttpMessageConverter<?> converter) -> getSupportedMediaTypes(this.responseType, converter))
-                .distinct()
-                .collect(Collectors.toList());
-        MimeTypeUtils.sortBySpecificity(allSupportedMediaTypes);
+        HashSet<MediaType> allSupportedMediaTypes = new HashSet<>();
+        for (HttpMessageConverter<?> converter : getMessageConverters()) {
+          if (canReadResponse(this.responseType, converter)) {
+            putSupportedMediaTypes(this.responseType, converter, allSupportedMediaTypes);
+          }
+        }
+
+        List<MediaType> supportedMediaTypes = new ArrayList<>(allSupportedMediaTypes);
+        MimeTypeUtils.sortBySpecificity(supportedMediaTypes);
         if (logger.isDebugEnabled()) {
           logger.debug("Accept={}", allSupportedMediaTypes);
         }
-        request.getHeaders().setAccept(allSupportedMediaTypes);
+        request.getHeaders().setAccept(supportedMediaTypes);
       }
     }
 
@@ -849,17 +853,18 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       return false;
     }
 
-    private Stream<MediaType> getSupportedMediaTypes(Type type, HttpMessageConverter<?> converter) {
-      Type rawType = (type instanceof ParameterizedType ? ((ParameterizedType) type).getRawType() : type);
-      Class<?> clazz = (rawType instanceof Class ? (Class<?>) rawType : null);
-      return (clazz != null ? converter.getSupportedMediaTypes(clazz) : converter.getSupportedMediaTypes())
-              .stream()
-              .map(mediaType -> {
-                if (mediaType.getCharset() != null) {
-                  return new MediaType(mediaType.getType(), mediaType.getSubtype());
-                }
-                return mediaType;
-              });
+    private void putSupportedMediaTypes(Type type, HttpMessageConverter<?> converter, HashSet<MediaType> allSupportedMediaTypes) {
+      Type rawType = type instanceof ParameterizedType parameterized ? parameterized.getRawType() : type;
+      Class<?> clazz = rawType instanceof Class ? (Class<?>) rawType : null;
+      List<MediaType> mediaTypes = clazz != null ? converter.getSupportedMediaTypes(clazz) : converter.getSupportedMediaTypes();
+      if (!mediaTypes.isEmpty()) {
+        for (MediaType mediaType : mediaTypes) {
+          if (mediaType.getCharset() != null) {
+            mediaType = new MediaType(mediaType.getType(), mediaType.getSubtype());
+          }
+          allSupportedMediaTypes.add(mediaType);
+        }
+      }
     }
   }
 
@@ -909,19 +914,23 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         MediaType requestContentType = requestHeaders.getContentType();
 
         // iterate messageConverter
+        boolean debugEnabled = logger.isDebugEnabled();
         for (HttpMessageConverter messageConverter : getMessageConverters()) {
           if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
             if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
               copyHttpHeaders(httpHeaders, requestHeaders);
-              logBody(requestBody, requestContentType, genericConverter);
+              if (debugEnabled) {
+                logBody(requestBody, requestContentType, genericConverter);
+              }
               genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
               return;
             }
           }
           else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
             copyHttpHeaders(httpHeaders, requestHeaders);
-            logBody(requestBody, requestContentType, messageConverter);
-
+            if (debugEnabled) {
+              logBody(requestBody, requestContentType, messageConverter);
+            }
             messageConverter.write(requestBody, requestContentType, httpRequest);
             return;
           }
@@ -936,13 +945,11 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     }
 
     private void logBody(Object body, @Nullable MediaType mediaType, HttpMessageConverter<?> converter) {
-      if (logger.isDebugEnabled()) {
-        if (mediaType != null) {
-          logger.debug("Writing [{}] as \"{}\"", body, mediaType);
-        }
-        else {
-          logger.debug("Writing [{}] with {}", body, converter.getClass().getName());
-        }
+      if (mediaType != null) {
+        logger.debug("Writing [{}] as \"{}\"", body, mediaType);
+      }
+      else {
+        logger.debug("Writing [{}] with {}", body, converter.getClass().getName());
       }
     }
   }

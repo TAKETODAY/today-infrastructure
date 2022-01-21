@@ -569,7 +569,7 @@ public abstract class HttpHeaders
    * Set the list of acceptable {@linkplain MediaType media types}, as specified
    * by the {@code Accept} header.
    */
-  public void setAccept(List<MediaType> acceptableMediaTypes) {
+  public void setAccept(Collection<MediaType> acceptableMediaTypes) {
     set(ACCEPT, MediaType.toString(acceptableMediaTypes));
   }
 
@@ -589,18 +589,14 @@ public abstract class HttpHeaders
    */
   public void setAcceptLanguage(List<Locale.LanguageRange> languages) {
     Assert.notNull(languages, "LanguageRange List must not be null");
-    final class Function0 implements Function<Locale.LanguageRange, String> {
-      @Override
-      public String apply(Locale.LanguageRange range) {
-        if (range.getWeight() == Locale.LanguageRange.MAX_WEIGHT) {
-          return range.getRange();
-        }
-        DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
-        return range.getRange() + ";q=" + decimal.format(range.getWeight());
-      }
-    }
 
-    List<String> values = languages.stream().map(new Function0()).collect(Collectors.toList());
+    List<String> values = languages.stream().map(range -> {
+      if (range.getWeight() == Locale.LanguageRange.MAX_WEIGHT) {
+        return range.getRange();
+      }
+      DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
+      return range.getRange() + ";q=" + decimal.format(range.getWeight());
+    }).collect(Collectors.toList());
     set(ACCEPT_LANGUAGE, toCommaDelimitedString(values));
   }
 
