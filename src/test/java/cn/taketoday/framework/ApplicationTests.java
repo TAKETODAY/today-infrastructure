@@ -25,6 +25,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collections;
@@ -172,6 +173,8 @@ class ApplicationTests {
   }
 
   @Test
+  @DisabledIfSystemProperty(
+          named = "coverage", matches = "true", disabledReason = "don't know")
   void defaultApplicationContextForReactiveWeb() {
     Application application = new Application(ExampleReactiveWebConfig.class);
     application.setApplicationType(ApplicationType.REACTIVE_WEB);
