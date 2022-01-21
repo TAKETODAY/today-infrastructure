@@ -71,7 +71,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
   }
 
   @SuppressWarnings("unchecked")
-  HttpMessageConverterExtractor(
+  public HttpMessageConverterExtractor(
           Type responseType, List<HttpMessageConverter<?>> messageConverters, Logger logger) {
     Assert.notNull(responseType, "'responseType' must not be null");
     Assert.notEmpty(messageConverters, "'messageConverters' must not be empty");
