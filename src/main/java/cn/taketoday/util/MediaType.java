@@ -19,10 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Assert;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +36,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 import static java.util.Collections.singletonMap;
 
@@ -558,8 +559,8 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static MediaType asMediaType(MimeType mimeType) {
     return mimeType instanceof MediaType
-            ? (MediaType) mimeType
-            : new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
+           ? (MediaType) mimeType
+           : new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
   }
 
   /**
@@ -575,7 +576,6 @@ public class MediaType extends MimeType implements Serializable {
   public static String toString(Collection<MediaType> mediaTypes) {
     return MimeTypeUtils.toString(mediaTypes);
   }
-
 
   /**
    * Indicates whether this {@code MediaType} more specific than the given type.
@@ -816,7 +816,7 @@ public class MediaType extends MimeType implements Serializable {
    */
   private static HashMap<String, MediaType> parseMimeTypes() {
     try (InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream();
-         BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
 
       HashMap<String, MediaType> result = new HashMap<>();
       String line;
@@ -845,6 +845,7 @@ public class MediaType extends MimeType implements Serializable {
    * @param resource the resource to introspect
    * @return the corresponding media type, or {@code null} if none found
    */
+  @Nullable
   public static MediaType fromResource(Resource resource) {
     return resource == null ? null : fromFileName(resource.getName());
   }
@@ -855,6 +856,7 @@ public class MediaType extends MimeType implements Serializable {
    * @param filename the file name plus extension
    * @return the corresponding media type, or {@code null} if none found
    */
+  @Nullable
   public static MediaType fromFileName(String filename) {
     String ext = StringUtils.getFilenameExtension(filename);
     if (ext == null) {
