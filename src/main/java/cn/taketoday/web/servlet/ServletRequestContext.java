@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
-import java.net.HttpCookie;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +33,9 @@ import java.util.Map;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.util.EnumerationIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
@@ -142,25 +143,16 @@ public final class ServletRequestContext extends RequestContext {
   @Override
   protected HttpCookie[] doGetCookies() {
 
-    final Cookie[] servletCookies = request.getCookies();
+    Cookie[] servletCookies = request.getCookies();
     if (ObjectUtils.isEmpty(servletCookies)) { // there is no cookies
       return EMPTY_COOKIES;
     }
-    final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
+    HttpCookie[] cookies = new HttpCookie[servletCookies.length];
 
     int i = 0;
-    for (final Cookie servletCookie : servletCookies) {
+    for (Cookie servletCookie : servletCookies) {
 
-      final HttpCookie httpCookie = new HttpCookie(servletCookie.getName(), servletCookie.getValue());
-
-      httpCookie.setPath(servletCookie.getPath());
-      httpCookie.setDomain(servletCookie.getDomain());
-      httpCookie.setMaxAge(servletCookie.getMaxAge());
-      httpCookie.setSecure(servletCookie.getSecure());
-      httpCookie.setVersion(servletCookie.getVersion());
-      httpCookie.setComment(servletCookie.getComment());
-      httpCookie.setHttpOnly(servletCookie.isHttpOnly());
-
+      HttpCookie httpCookie = new HttpCookie(servletCookie.getName(), servletCookie.getValue());
       cookies[i++] = httpCookie;
     }
     return cookies;
@@ -228,19 +220,19 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public void addCookie(final HttpCookie cookie) {
+  public void addCookie(HttpCookie cookie) {
     super.addCookie(cookie);
 
-    final Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-    servletCookie.setPath(cookie.getPath());
-    if (cookie.getDomain() != null) {
-      servletCookie.setDomain(cookie.getDomain());
+    Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
+    if (cookie instanceof ResponseCookie responseCookie) {
+      servletCookie.setPath(responseCookie.getPath());
+      if (responseCookie.getDomain() != null) {
+        servletCookie.setDomain(responseCookie.getDomain());
+      }
+      servletCookie.setSecure(responseCookie.isSecure());
+      servletCookie.setHttpOnly(responseCookie.isHttpOnly());
+      servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
     }
-    servletCookie.setSecure(cookie.getSecure());
-    servletCookie.setComment(cookie.getComment());
-    servletCookie.setVersion(cookie.getVersion());
-    servletCookie.setHttpOnly(cookie.isHttpOnly());
-    servletCookie.setMaxAge((int) cookie.getMaxAge());
 
     response.addCookie(servletCookie);
   }
@@ -256,7 +248,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public void setStatus(final int status, final String message) {
+  public void setStatus(int status, String message) {
     response.setStatus(status, message);
   }
 

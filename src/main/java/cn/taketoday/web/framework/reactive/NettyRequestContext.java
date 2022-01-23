@@ -22,7 +22,6 @@ package cn.taketoday.web.framework.reactive;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpCookie;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
@@ -35,6 +34,8 @@ import java.util.function.Supplier;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpCookie;
+import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -223,13 +224,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   private HttpCookie mapHttpCookie(Cookie cookie) {
-    HttpCookie ret = new HttpCookie(cookie.name(), cookie.value());
-    ret.setPath(cookie.path());
-    ret.setDomain(cookie.domain());
-    ret.setMaxAge(cookie.maxAge());
-    ret.setSecure(cookie.isSecure());
-    ret.setHttpOnly(cookie.isHttpOnly());
-    return ret;
+    return new HttpCookie(cookie.name(), cookie.value());
   }
 
   @Override
@@ -413,11 +408,14 @@ public class NettyRequestContext extends RequestContext {
     super.addCookie(cookie);
 
     DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
-    nettyCookie.setPath(cookie.getPath());
-    nettyCookie.setDomain(cookie.getDomain());
-    nettyCookie.setMaxAge(cookie.getMaxAge());
-    nettyCookie.setSecure(cookie.getSecure());
-    nettyCookie.setHttpOnly(cookie.isHttpOnly());
+
+    if (cookie instanceof ResponseCookie responseCookie) {
+      nettyCookie.setPath(responseCookie.getPath());
+      nettyCookie.setDomain(responseCookie.getDomain());
+      nettyCookie.setMaxAge(responseCookie.getMaxAge().toSeconds());
+      nettyCookie.setSecure(responseCookie.isSecure());
+      nettyCookie.setHttpOnly(responseCookie.isHttpOnly());
+    }
 
     originalResponseHeaders().add(
             HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(nettyCookie));
