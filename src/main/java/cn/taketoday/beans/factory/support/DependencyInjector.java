@@ -157,6 +157,7 @@ public class DependencyInjector {
   }
 
   /**
+   * @throws UnsatisfiedDependencyException No strategy supports this dependency
    * @see InjectionPoint#DO_NOT_SET
    */
   @Nullable

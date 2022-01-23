@@ -43,7 +43,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -53,6 +52,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
 
@@ -1109,6 +1109,8 @@ public abstract class HttpHeaders
    * {@code Content-Type} header.
    * <p>
    * Returns {@code null} when the content-type is unknown.
+   *
+   * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
   @Nullable
   public MediaType getContentType() {
