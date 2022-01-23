@@ -20,6 +20,10 @@
 
 package cn.taketoday.web.handler.method;
 
+import java.lang.annotation.Annotation;
+
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -27,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * including name, whether it's required and a default value.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see cn.taketoday.web.annotation.RequestParam
  * @since 4.0 2022/1/19 21:50
  */
 public class NamedValueInfo {
@@ -36,6 +41,20 @@ public class NamedValueInfo {
 
   @Nullable
   public final String defaultValue;
+
+  public boolean containsPlaceHolder;
+
+  public NamedValueInfo(MergedAnnotation<Annotation> annotation) {
+    this.required = annotation.getValue("required", boolean.class).orElse(false);
+    this.name = annotation.getValue("name", String.class).orElse("");
+    this.defaultValue = annotation.getValue("defaultValue", String.class).orElse(Constant.DEFAULT_NONE);
+  }
+
+  public NamedValueInfo(String name) {
+    this.name = name;
+    this.required = true;
+    this.defaultValue = null;
+  }
 
   public NamedValueInfo(String name, boolean required, @Nullable String defaultValue) {
     this.name = name;
