@@ -40,7 +40,7 @@ public @interface RequestParam {
    * Alias for {@link #name}.
    */
   @AliasFor("name")
-  String value() default Constant.BLANK;
+  String value() default "";
 
   /**
    * The name of the request parameter to bind to.
@@ -51,11 +51,23 @@ public @interface RequestParam {
   String name() default "";
 
   /**
+   * Whether the parameter is required.
+   * <p>Defaults to {@code false}, leading to an exception being thrown
+   * if the parameter is missing in the request. Switch this to
+   * {@code false} if you prefer a {@code null} value if the parameter is
+   * not present in the request.
+   * <p>Alternatively, provide a {@link #defaultValue}, which implicitly
+   * sets this flag to {@code false}.
    * If required == true when request parameter is null, will be throws exception
    */
   boolean required() default false;
 
-  /** When required == false, and parameter == null. use default value. */
-  String defaultValue() default Constant.BLANK;
+  /**
+   * The default value to use as a fallback when the request parameter is
+   * not provided or has an empty value.
+   * <p>Supplying a default value implicitly sets {@link #required} to
+   * {@code false}.
+   */
+  String defaultValue() default Constant.DEFAULT_NONE;
 
 }

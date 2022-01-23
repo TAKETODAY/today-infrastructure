@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
@@ -63,6 +64,8 @@ import cn.taketoday.lang.Constant;
  * default per-request resource class lifecycle. Resource classes using
  * other lifecycles should only use this annotation on resource method parameters.
  * </p>
+ * <p>
+ *   like Spring's MatrixVariable
  *
  * @author TODAY 2021/10/4 11:47
  * @see <a href="http://www.w3.org/DesignIssues/MatrixURIs.html">Matrix URIs</a>
@@ -73,15 +76,43 @@ import cn.taketoday.lang.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MatrixParam {
 
-  /** Request parameter name in path */
-  String value() default Constant.BLANK;
+  /**
+   * Alias for {@link #name}.
+   */
+  @AliasFor("name")
+  String value() default "";
 
   /**
-   * If required == true when request parameter is null, will be throws exception
+   * The name of the matrix variable.
+   *
+   * @see #value
+   * @since 4.0
    */
-  boolean required() default false;
+  @AliasFor("value")
+  String name() default "";
 
-  /** When required == false, and parameter == null. use default value. */
-  String defaultValue() default Constant.BLANK;
+  /**
+   * The name of the URI path variable where the matrix variable is located,
+   * if necessary for disambiguation (e.g. a matrix variable with the same
+   * name present in more than one path segment).
+   */
+  String pathVar() default Constant.DEFAULT_NONE;
+
+  /**
+   * Whether the matrix variable is required.
+   * <p>Default is {@code true}, leading to an exception being thrown in
+   * case the variable is missing in the request. Switch this to {@code false}
+   * if you prefer a {@code null} if the variable is missing.
+   * <p>Alternatively, provide a {@link #defaultValue}, which implicitly sets
+   * this flag to {@code false}.
+   */
+  boolean required() default true;
+
+  /**
+   * The default value to use as a fallback.
+   * <p>Supplying a default value implicitly sets {@link #required} to
+   * {@code false}.
+   */
+  String defaultValue() default Constant.DEFAULT_NONE;
 
 }
