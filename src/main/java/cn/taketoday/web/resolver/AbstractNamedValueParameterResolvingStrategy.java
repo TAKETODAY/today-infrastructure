@@ -20,15 +20,12 @@
 
 package cn.taketoday.web.resolver;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import cn.taketoday.beans.factory.support.BeanExpressionContext;
 import cn.taketoday.beans.factory.support.BeanExpressionResolver;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestBindingException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.NamedValueInfo;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -47,7 +44,7 @@ import cn.taketoday.web.scope.RequestScope;
  * <li>Optionally handle a resolved value
  * </ul>
  *
- * <p>A default value string can contain ${...} placeholders and Spring Expression
+ * <p>A default value string can contain ${...} placeholders and Expression
  * Language #{...} expressions. For this to work a
  * {@link ConfigurableBeanFactory} must be supplied to the class constructor.
  *
@@ -64,8 +61,6 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
 
   @Nullable
   private final BeanExpressionContext expressionContext;
-
-  private final Map<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
 
   public AbstractNamedValueParameterResolvingStrategy() {
     this.configurableBeanFactory = null;
@@ -88,10 +83,10 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
   @Nullable
   @Override
   public final Object resolveParameter(
-          RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
+          RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
-    MethodParameter methodParameter = parameter.getParameter();
-    NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
+    MethodParameter methodParameter = resolvable.getParameter();
+    NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
     MethodParameter nestedParameter = methodParameter.nestedIfOptional();
 
     Object resolvedName = resolveEmbeddedValuesAndExpressions(namedValueInfo.name);
@@ -100,7 +95,7 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
               "Specified name must not resolve to null: [" + namedValueInfo.name + "]");
     }
 
-    Object arg = resolveName(resolvedName.toString(), nestedParameter, context);
+    Object arg = resolveName(resolvedName.toString(), resolvable, context);
     if (arg == null) {
       if (namedValueInfo.defaultValue != null) {
         arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
@@ -117,47 +112,6 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
     handleResolvedValue(arg, namedValueInfo.name, methodParameter, context);
 
     return arg;
-  }
-
-  /**
-   * Obtain the named value for the given method parameter.
-   */
-  private NamedValueInfo getNamedValueInfo(ResolvableMethodParameter parameter) {
-    NamedValueInfo namedValueInfo = parameter.getNamedValueInfo();
-    if (namedValueInfo == null) {
-      namedValueInfo = createNamedValueInfo(parameter.getParameter());
-      namedValueInfo = updateNamedValueInfo(parameter.getParameter(), namedValueInfo);
-      parameter.setNamedValueInfo(namedValueInfo);
-    }
-    return namedValueInfo;
-  }
-
-  /**
-   * Create the {@link NamedValueInfo} object for the given
-   * method parameter. Implementations typically
-   * retrieve the method annotation by means of
-   * {@link MethodParameter#getParameterAnnotation(Class)}.
-   *
-   * @param parameter the method parameter
-   * @return the named value information
-   */
-  protected abstract NamedValueInfo createNamedValueInfo(MethodParameter parameter);
-
-  /**
-   * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
-   */
-  private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
-    String name = info.name;
-    if (info.name.isEmpty()) {
-      name = parameter.getParameterName();
-      if (name == null) {
-        throw new IllegalArgumentException(
-                "Name for argument of type [" + parameter.getNestedParameterType().getName() +
-                        "] not specified, and parameter name information not found in class file either.");
-      }
-    }
-    String defaultValue = Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue;
-    return new NamedValueInfo(name, info.required, defaultValue);
   }
 
   /**
@@ -188,12 +142,12 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
    * @throws Exception in case of errors
    */
   @Nullable
-  protected abstract Object resolveName(String name, MethodParameter parameter, RequestContext context)
+  protected abstract Object resolveName(String name, ResolvableMethodParameter parameter, RequestContext context)
           throws Exception;
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, MethodParameter, RequestContext)}
+   * {@link #resolveName(String, ResolvableMethodParameter, RequestContext)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -209,7 +163,7 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, MethodParameter, RequestContext)}
+   * {@link #resolveName(String, ResolvableMethodParameter, RequestContext)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -217,7 +171,8 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
    * @param parameter the method parameter
    */
   protected void handleMissingValue(String name, MethodParameter parameter) {
-    throw new MissingParameterException(parameter);
+    throw new RequestBindingException("Missing argument '" + name +
+            "' for method parameter of type " + parameter.getNestedParameterType().getSimpleName());
   }
 
   /**
