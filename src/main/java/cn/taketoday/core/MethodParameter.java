@@ -583,15 +583,16 @@ public class MethodParameter {
     if (paramAnns == null) {
       Annotation[][] annotationArray = this.executable.getParameterAnnotations();
       int index = this.parameterIndex;
-      if (this.executable instanceof Constructor &&
-              ClassUtils.isInnerClass(this.executable.getDeclaringClass()) &&
-              annotationArray.length == this.executable.getParameterCount() - 1) {
+      if (this.executable instanceof Constructor
+              && ClassUtils.isInnerClass(this.executable.getDeclaringClass())
+              && annotationArray.length == this.executable.getParameterCount() - 1) {
         // Bug in javac in JDK <9: annotation array excludes enclosing instance parameter
         // for inner classes, so access it with the actual parameter index lowered by 1
         index = this.parameterIndex - 1;
       }
-      paramAnns = (index >= 0 && index < annotationArray.length ?
-                   adaptAnnotationArray(annotationArray[index]) : EMPTY_ANNOTATION_ARRAY);
+      paramAnns = index >= 0 && index < annotationArray.length
+                  ? adaptAnnotationArray(annotationArray[index])
+                  : EMPTY_ANNOTATION_ARRAY;
       this.parameterAnnotations = paramAnns;
     }
     return paramAnns;
