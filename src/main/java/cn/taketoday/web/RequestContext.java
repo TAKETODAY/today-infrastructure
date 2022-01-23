@@ -26,7 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.HttpCookie;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -40,7 +41,9 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
 import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NullValue;
@@ -48,6 +51,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -63,7 +67,8 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  * @author TODAY 2019-06-22 15:48
  * @since 2.3.7
  */
-public abstract class RequestContext implements InputStreamSource, OutputStreamSource, Model, Flushable {
+public abstract class RequestContext
+        implements InputStreamSource, OutputStreamSource, Model, Flushable, HttpInputMessage {
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
@@ -98,6 +103,12 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
   /** @since 3.0 */
   protected ArrayList<HttpCookie> responseCookies;
 
+  /** @since 4.0 */
+  protected URI uri;
+
+  /** @since 4.0 */
+  private boolean requestHandled = false;
+
   // --- request
 
   /**
@@ -131,6 +142,40 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
 
   protected String doGetContextPath() {
     return Constant.BLANK;
+  }
+
+  // @since 4.0
+  public URI getURI() {
+    if (this.uri == null) {
+      String urlString = null;
+      boolean hasQuery = false;
+      try {
+        StringBuilder url = new StringBuilder(getRequestURL());
+        String query = getQueryString();
+        hasQuery = StringUtils.hasText(query);
+        if (hasQuery) {
+          url.append('?').append(query);
+        }
+        urlString = url.toString();
+        this.uri = new URI(urlString);
+      }
+      catch (URISyntaxException ex) {
+        if (!hasQuery) {
+          throw new IllegalStateException(
+                  "Could not resolve HttpServletRequest as URI: " + urlString, ex);
+        }
+        // Maybe a malformed query string... try plain request URL
+        try {
+          urlString = getRequestURL();
+          this.uri = new URI(urlString);
+        }
+        catch (URISyntaxException ex2) {
+          throw new IllegalStateException(
+                  "Could not resolve HttpServletRequest as URI: " + urlString, ex2);
+        }
+      }
+    }
+    return this.uri;
   }
 
   /**
@@ -390,6 +435,16 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
    * is not known
    */
   public abstract long getContentLength();
+
+  @Override
+  public InputStream getBody() throws IOException {
+    return getInputStream();
+  }
+
+  @Override
+  public HttpHeaders getHeaders() {
+    return requestHeaders();
+  }
 
   /**
    * Retrieves the body of the request as binary data using a {@link InputStream}.
@@ -945,4 +1000,21 @@ public abstract class RequestContext implements InputStreamSource, OutputStreamS
     return getMethod() + " " + getRequestURL();
   }
 
+  /**
+   * Whether the request has been handled fully within the handler, e.g.
+   * {@code @ResponseBody} method, and therefore view resolution is not
+   * necessary. This flag can also be set when controller methods declare an
+   * argument of type {@code ServletResponse} or {@code OutputStream}).
+   * <p>The default value is {@code false}.
+   */
+  public void setRequestHandled(boolean requestHandled) {
+    this.requestHandled = requestHandled;
+  }
+
+  /**
+   * Whether the request has been handled fully within the handler.
+   */
+  public boolean isRequestHandled() {
+    return this.requestHandled;
+  }
 }
