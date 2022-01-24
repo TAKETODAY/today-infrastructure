@@ -46,6 +46,6 @@ public @interface RequestHeader {
   /**
    * When required == false and parameter == null. use default value.
    */
-  String defaultValue() default Constant.BLANK;
+  String defaultValue() default Constant.DEFAULT_NONE;
 
 }

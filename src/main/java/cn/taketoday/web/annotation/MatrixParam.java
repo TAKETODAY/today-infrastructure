@@ -75,6 +75,7 @@ import cn.taketoday.lang.Constant;
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MatrixParam {
+  String MATRIX_PARAM_ATTRIBUTE = MatrixParam.class + "-MatrixParam";
 
   /**
    * Alias for {@link #name}.
