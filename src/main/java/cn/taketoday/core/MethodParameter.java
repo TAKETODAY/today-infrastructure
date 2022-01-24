@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -58,8 +59,6 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0
  */
 public class MethodParameter {
-
-  private static final Annotation[] EMPTY_ANNOTATION_ARRAY = new Annotation[0];
 
   private final Executable executable;
 
@@ -592,7 +591,7 @@ public class MethodParameter {
       }
       paramAnns = index >= 0 && index < annotationArray.length
                   ? adaptAnnotationArray(annotationArray[index])
-                  : EMPTY_ANNOTATION_ARRAY;
+                  : Constant.EMPTY_ANNOTATION_ARRAY;
       this.parameterAnnotations = paramAnns;
     }
     return paramAnns;
