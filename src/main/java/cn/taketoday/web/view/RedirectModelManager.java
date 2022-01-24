@@ -44,6 +44,6 @@ public interface RedirectModelManager {
    * @param context current request context
    * @param redirectModel value
    */
-  void applyModel(RequestContext context, RedirectModel redirectModel);
+  void saveRedirectModel(RequestContext context, RedirectModel redirectModel);
 
 }

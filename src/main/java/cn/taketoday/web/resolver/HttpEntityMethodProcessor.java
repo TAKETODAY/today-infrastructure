@@ -38,16 +38,14 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values
@@ -66,6 +64,9 @@ import jakarta.servlet.http.HttpServletResponse;
  * @since 4.0 2022/1/23 17:43
  */
 public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
+
+  @Nullable
+  private RedirectModelManager redirectModelManager;
 
   /**
    * Basic constructor with converters only. Suitable for resolving
@@ -204,7 +205,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       else if (returnStatus / 100 == 3) {
         String location = outputHeaders.getFirst("location");
         if (location != null) {
-          saveFlashAttributes(mavContainer, webRequest, location);
+          saveRedirectAttributes(context, location);
         }
       }
     }
@@ -250,21 +251,10 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     return WebUtils.checkNotModified(etag, lastModifiedTimestamp, context);
   }
 
-  private void saveFlashAttributes(ModelAndViewContainer mav, RequestContext request, String location) {
-    mav.setRedirectModelScenario(true);
-    ModelMap model = mav.getModel();
-    if (model instanceof RedirectAttributes redirectAttributes) {
-      Map<String, ?> flashAttributes = redirectAttributes.getFlashAttributes();
-      if (!CollectionUtils.isEmpty(flashAttributes)) {
-        HttpServletRequest req = request.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse res = request.getNativeResponse(HttpServletResponse.class);
-        if (req != null) {
-          RequestContextUtils.getOutputFlashMap(req).putAll(flashAttributes);
-          if (res != null) {
-            RequestContextUtils.saveOutputFlashMap(location, req, res);
-          }
-        }
-      }
+  private void saveRedirectAttributes(RequestContext request, String location) {
+    Object attribute = request.getAttribute(RedirectModel.KEY_REDIRECT_MODEL);
+    if (attribute instanceof RedirectModel redirectModel) {
+      redirectModelManager.saveRedirectModel(request, redirectModel);
     }
   }
 
@@ -275,7 +265,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
     else {
       Type type = getHttpEntityType(returnType);
-      type = (type != null ? type : Object.class);
+      type = type != null ? type : Object.class;
       return ResolvableType.forMethodParameter(returnType, type).toClass();
     }
   }

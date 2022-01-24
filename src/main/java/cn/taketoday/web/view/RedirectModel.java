@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.core.Conventions;
+
 /**
  * Redirect data model
  *
@@ -27,5 +29,6 @@ package cn.taketoday.web.view;
  * @since 2.3.3
  */
 public interface RedirectModel extends Model {
+  String KEY_REDIRECT_MODEL = Conventions.getQualifiedAttributeName(RedirectModel.class, ".redirect-model");
 
 }

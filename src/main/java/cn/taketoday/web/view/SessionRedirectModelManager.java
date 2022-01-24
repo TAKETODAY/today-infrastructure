@@ -51,7 +51,7 @@ public class SessionRedirectModelManager implements RedirectModelManager {
   }
 
   @Override
-  public void applyModel(final RequestContext context, final RedirectModel redirectModel) {
+  public void saveRedirectModel(final RequestContext context, final RedirectModel redirectModel) {
     if (redirectModel == null) {
       final WebSession session = sessionManager.getSession(context, false);
       if (session != null) {
