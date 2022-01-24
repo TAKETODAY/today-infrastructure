@@ -58,6 +58,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.PathVariableMethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.util.UrlPathHelper;
 
 /**
  * Store {@link HandlerMethod}
@@ -244,26 +245,7 @@ public class HandlerMethodRegistry
       path = contextPath.concat(path);
     }
     path = resolveVariables(path);
-    return sanitizedPath(path);
-  }
-
-  /**
-   * Sanitize the given path. Uses the following rules:
-   * <ul>
-   * <li>replace all "//" by "/"</li>
-   * </ul>
-   */
-  static String sanitizedPath(String path) {
-    int index = path.indexOf("//");
-    if (index >= 0) {
-      StringBuilder sanitized = new StringBuilder(path);
-      while (index != -1) {
-        sanitized.deleteCharAt(index);
-        index = sanitized.indexOf("//", index);
-      }
-      return sanitized.toString();
-    }
-    return path;
+    return UrlPathHelper.getSanitizedPath(path);
   }
 
   /**
@@ -273,7 +255,8 @@ public class HandlerMethodRegistry
    * @param handler Target {@link ActionMappingAnnotationHandler}
    * @return Transformed {@link ActionMappingAnnotationHandler}
    */
-  protected ActionMappingAnnotationHandler transformHandler(String pathPattern, ActionMappingAnnotationHandler handler) {
+  protected ActionMappingAnnotationHandler transformHandler(
+          String pathPattern, ActionMappingAnnotationHandler handler) {
     if (containsPathVariable(pathPattern)) {
       mappingPathVariable(pathPattern, handler);
       return handler;
