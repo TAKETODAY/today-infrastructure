@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import cn.taketoday.beans.PropertyValue;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -36,8 +37,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 public class DataBinderArrayParameterResolver extends DataBinderCollectionParameterResolver {
 
   @Override
-  protected boolean supportsInternal(ResolvableMethodParameter parameter) {
-    return parameter.isArray() && supportsSetProperties(parameter.getComponentType());
+  protected boolean supportsInternal(MethodParameter parameter) {
+    Class<?> nestedParameterType = parameter.getNestedParameterType();
+    return nestedParameterType.isArray() && supportsSetProperties(parameter.getGenericParameterType());
   }
 
   @Override

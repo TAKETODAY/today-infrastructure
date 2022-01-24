@@ -25,7 +25,7 @@ import java.util.Map;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.resolver.MissingPathVariableParameterException;
+import cn.taketoday.web.resolver.MissingPathVariableException;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
@@ -53,7 +53,7 @@ public class PathVariableEndpointParameterResolver implements EndpointParameterR
       final String value = ((Map<String, String>) attribute).get(resolveName(parameter));
       return conversionService.convert(value, parameter.getTypeDescriptor());
     }
-    throw new MissingPathVariableParameterException(parameter.getParameter());
+    throw new MissingPathVariableException(parameter.getParameter());
   }
 
   protected String resolveName(ResolvableMethodParameter parameter) {

@@ -281,7 +281,7 @@ public abstract class AbstractFreeMarkerTemplateRenderer
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return getConfiguration();
     }
   }

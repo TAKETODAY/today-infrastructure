@@ -118,23 +118,23 @@ public class ResolveableMethodParameterTests {
     assertThat(stringParameter.getGeneric(0)).isNull();
 
     // isGenericPresent
-    assertThat(mapParameter.isGenericPresent(int.class)).isFalse();
-    assertThat(mapParameter.isGenericPresent(Integer.class)).isTrue();
-    assertThat(listParameter.isGenericPresent(Integer.class)).isFalse();
-    assertThat(listParameter.isGenericPresent(String.class)).isTrue();
-
-    assertThat(mapParameter.isGenericPresent(int.class, 0)).isFalse();
-    assertThat(mapParameter.isGenericPresent(Integer.class, 1)).isTrue();
-    assertThat(mapParameter.isGenericPresent(Integer.class, 0)).isFalse();
-    assertThat(mapParameter.isGenericPresent(String.class, 1)).isFalse();
-    assertThat(mapParameter.isGenericPresent(String.class, 0)).isTrue();
-
-    assertThat(listParameter.isGenericPresent(Integer.class, 0)).isFalse();
-    assertThat(listParameter.isGenericPresent(String.class, 0)).isTrue();
-    assertThat(listParameter.isGenericPresent(String.class, 1)).isFalse();
-
-    assertThat(stringParameter.isGenericPresent(String.class, 1)).isFalse();
-    assertThat(stringParameter.isGenericPresent(String.class, 0)).isFalse();
+//    assertThat(mapParameter.isGenericPresent(int.class)).isFalse();
+//    assertThat(mapParameter.isGenericPresent(Integer.class)).isTrue();
+//    assertThat(listParameter.isGenericPresent(Integer.class)).isFalse();
+//    assertThat(listParameter.isGenericPresent(String.class)).isTrue();
+//
+//    assertThat(mapParameter.isGenericPresent(int.class, 0)).isFalse();
+//    assertThat(mapParameter.isGenericPresent(Integer.class, 1)).isTrue();
+//    assertThat(mapParameter.isGenericPresent(Integer.class, 0)).isFalse();
+//    assertThat(mapParameter.isGenericPresent(String.class, 1)).isFalse();
+//    assertThat(mapParameter.isGenericPresent(String.class, 0)).isTrue();
+//
+//    assertThat(listParameter.isGenericPresent(Integer.class, 0)).isFalse();
+//    assertThat(listParameter.isGenericPresent(String.class, 0)).isTrue();
+//    assertThat(listParameter.isGenericPresent(String.class, 1)).isFalse();
+//
+//    assertThat(stringParameter.isGenericPresent(String.class, 1)).isFalse();
+//    assertThat(stringParameter.isGenericPresent(String.class, 0)).isFalse();
 
   }
 

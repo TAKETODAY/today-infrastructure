@@ -73,8 +73,7 @@ public final class Conventions {
       valueClass = value.getClass().getComponentType();
       pluralize = true;
     }
-    else if (value instanceof Collection) {
-      Collection<?> collection = (Collection<?>) value;
+    else if (value instanceof Collection<?> collection) {
       if (collection.isEmpty()) {
         throw new IllegalArgumentException(
                 "Cannot generate variable name for an empty Collection");

@@ -149,8 +149,8 @@ public class DataBinderParameterResolver
    */
   @Override
   public Object resolveParameter(
-          final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    final Class<?> parameterClass = parameter.getParameterType();
+          final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
+    final Class<?> parameterClass = resolvable.getParameterType();
     final PropertyValuesBinder dataBinder = new PropertyValuesBinder(parameterClass, conversionService);
 
     final Map<String, String[]> parameters = context.getParameters();
@@ -182,7 +182,7 @@ public class DataBinderParameterResolver
       }
     }
     // #30 Support annotation-supported in the form of DataBinder
-    resolveAnnotatedProperty(context, parameter, dataBinder);
+    resolveAnnotatedProperty(context, resolvable, dataBinder);
 
     return dataBinder.bind();
   }

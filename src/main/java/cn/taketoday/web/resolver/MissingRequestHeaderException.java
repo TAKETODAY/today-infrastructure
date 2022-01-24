@@ -21,17 +21,65 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.MissingRequestValueException;
+import cn.taketoday.web.RequestBindingException;
 
 /**
+ * {@link RequestBindingException} subclass that indicates
+ * that a request header expected in the method parameters of an
+ * {@code @RequestMapping} method is not present.
+ *
  * @author TODAY 2021/3/10 20:39
  */
-public class MissingRequestHeaderException extends MissingParameterException {
+public class MissingRequestHeaderException extends MissingRequestValueException {
 
-  public MissingRequestHeaderException(MethodParameter parameter) {
-    super(parameter);
+  private final String headerName;
+
+  private final MethodParameter parameter;
+
+  /**
+   * Constructor for MissingRequestHeaderException.
+   *
+   * @param headerName the name of the missing request header
+   * @param parameter the method parameter
+   */
+  public MissingRequestHeaderException(String headerName, MethodParameter parameter) {
+    this(headerName, parameter, false);
   }
 
-  public final String getRequiredHeaderName() {
-    return getParameterName();
+  /**
+   * Constructor for use when a value was present but converted to {@code null}.
+   *
+   * @param headerName the name of the missing request header
+   * @param parameter the method parameter
+   * @param missingAfterConversion whether the value became null after conversion
+   */
+  public MissingRequestHeaderException(
+          String headerName, MethodParameter parameter, boolean missingAfterConversion) {
+    super("", missingAfterConversion);
+    this.headerName = headerName;
+    this.parameter = parameter;
   }
+
+  @Override
+  public String getMessage() {
+    String typeName = this.parameter.getNestedParameterType().getSimpleName();
+    return "Required request header '" + this.headerName + "' for method parameter type " + typeName + " is " +
+            (isMissingAfterConversion() ? "present but converted to null" : "not present");
+  }
+
+  /**
+   * Return the expected name of the request header.
+   */
+  public final String getHeaderName() {
+    return this.headerName;
+  }
+
+  /**
+   * Return the method parameter bound to the request header.
+   */
+  public final MethodParameter getParameter() {
+    return this.parameter;
+  }
+
 }

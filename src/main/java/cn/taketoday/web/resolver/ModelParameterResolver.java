@@ -21,6 +21,8 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
+import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -49,41 +51,53 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
-    return parameter.isAssignableTo(Model.class) // Model
-            || parameter.is(HttpHeaders.class) // HTTP request headers @since 3.0
-            || (
-            parameter.is(Map.class) // Map<String, Object> model;
-                    && parameter.isGenericPresent(String.class, 0)
-                    && parameter.isGenericPresent(Object.class, 1)
-    );
+  public boolean supportsParameter(MethodParameter parameter) {
+    Class<?> parameterType = parameter.getParameterType();
+    if (Model.class.isAssignableFrom(parameterType)) {
+      return true;
+    }
+    if (parameterType == HttpHeaders.class) {
+      // http request headers @since 3.0
+      return true;
+    }
+
+    if (parameterType == Map.class) {
+      // Map<String, Object> model;
+      ResolvableType mapType = ResolvableType.forMethodParameter(parameter).asMap();
+      ResolvableType keyType = mapType.getGeneric(0);
+      ResolvableType valueType = mapType.getGeneric(1);
+      return keyType.resolve() == String.class
+              && valueType.resolve() == Object.class;
+    }
+    return false;
   }
 
   /**
    * Resolve {@link Model} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext context,
-                                 final ResolvableMethodParameter parameter) throws Throwable {
-    if (parameter.isAssignableTo(RedirectModel.class)) { // RedirectModel
-      final RedirectModelAttributes redirectModel = new RedirectModelAttributes();
-      final RedirectModelManager modelManager = getModelManager();
+  public Object resolveParameter(
+          RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+
+    if (resolvable.isAssignableTo(RedirectModel.class)) { // RedirectModel
+      RedirectModelAttributes redirectModel = new RedirectModelAttributes();
+      RedirectModelManager modelManager = getModelManager();
       // @since 3.0.3 checking model manager
       if (modelManager != null) {
         modelManager.applyModel(context, redirectModel);
       }
       return redirectModel;
     }
-    if (parameter.isAssignableTo(ModelAndView.class)) {
+    if (resolvable.isAssignableTo(ModelAndView.class)) {
       return context.modelAndView();
     }
 
     // @since 3.0
-    if (parameter.is(HttpHeaders.class)) {
+    if (resolvable.is(HttpHeaders.class)) {
       return context.requestHeaders();
     }
 
-    if (parameter.is(Map.class)) {
+    if (resolvable.is(Map.class)) {
       return context.asMap(); // Model Map
     }
     return context;

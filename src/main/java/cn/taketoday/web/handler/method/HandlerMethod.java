@@ -24,7 +24,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;
@@ -56,10 +58,13 @@ public class HandlerMethod {
   /** @since 4.0 */
   private Boolean responseBody;
 
+  private final MethodParameter methodReturnType;
+
   public HandlerMethod(Method method) {
-    Assert.notNull(method, "No method");
+    Assert.notNull(method, "Method is required");
     this.method = method;
     this.returnType = method.getReturnType();
+    this.methodReturnType = new SynthesizingMethodParameter(method, -1);
     // @since 3.0
     Produce produce = getMethodAnnotation(Produce.class);
     if (produce != null) {
@@ -76,8 +81,9 @@ public class HandlerMethod {
     this.method = other.method;
     this.returnType = other.returnType;
     this.contentType = other.contentType; // @since 3.0
-    this.responseStatus = other.responseStatus;
     this.responseBody = other.responseBody; // since 4.0
+    this.responseStatus = other.responseStatus;
+    this.methodReturnType = other.methodReturnType;
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }
 
@@ -144,6 +150,10 @@ public class HandlerMethod {
 
   public void setParameters(ResolvableMethodParameter[] parameters) {
     this.parameters = parameters;
+  }
+
+  public MethodParameter getMethodReturnType() {
+    return methodReturnType;
   }
 
   public Class<?> getReturnType() {

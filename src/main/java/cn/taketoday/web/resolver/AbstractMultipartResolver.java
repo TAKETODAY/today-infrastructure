@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.util.List;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.util.DataSize;
@@ -49,9 +50,9 @@ public abstract class AbstractMultipartResolver
    * @see MultipartConfiguration#getMaxRequestSize()
    */
   @Override
-  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
+  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     if (WebUtils.isMultipart(context)) {
-      final DataSize maxRequestSize = getMultipartConfiguration().getMaxRequestSize();
+      DataSize maxRequestSize = getMultipartConfiguration().getMaxRequestSize();
       // exceed max size?
       if (maxRequestSize.toBytes() < context.getContentLength()) {
         throw new FileSizeExceededException(maxRequestSize, null)
@@ -67,11 +68,11 @@ public abstract class AbstractMultipartResolver
     throw new MissingMultipartFileException(parameter.getParameter());
   }
 
-  protected Object resolveInternal(final RequestContext context,
-                                   final ResolvableMethodParameter parameter,
-                                   final MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
+  protected Object resolveInternal(RequestContext context,
+                                   ResolvableMethodParameter parameter,
+                                   MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
 
-    final List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
+    List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
     if (resolved != null) {
       return resolveInternal(context, parameter, resolved);
     }
@@ -81,14 +82,14 @@ public abstract class AbstractMultipartResolver
   /**
    * @param multipartFiles none null multipart files
    */
-  protected Object resolveInternal(final RequestContext context,
-                                   final ResolvableMethodParameter parameter,
-                                   final List<MultipartFile> multipartFiles) throws Throwable {
+  protected Object resolveInternal(RequestContext context,
+                                   ResolvableMethodParameter parameter,
+                                   List<MultipartFile> multipartFiles) throws Throwable {
     return null;
   }
 
   @Override
-  public abstract boolean supportsParameter(final ResolvableMethodParameter parameter);
+  public abstract boolean supportsParameter(MethodParameter parameter);
 
   public MultipartConfiguration getMultipartConfiguration() {
     return multipartConfiguration;

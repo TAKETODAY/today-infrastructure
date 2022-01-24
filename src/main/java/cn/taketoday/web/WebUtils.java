@@ -121,10 +121,10 @@ public abstract class WebUtils {
 
     httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, HttpHeaders.BINARY);
     httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                    new StringBuilder(HttpHeaders.ATTACHMENT_FILE_NAME)
-                            .append(URLEncoder.encode(download.getName(), StandardCharsets.UTF_8))
-                            .append(Constant.QUOTATION_MARKS)
-                            .toString()
+            new StringBuilder(HttpHeaders.ATTACHMENT_FILE_NAME)
+                    .append(URLEncoder.encode(download.getName(), StandardCharsets.UTF_8))
+                    .append(Constant.QUOTATION_MARKS)
+                    .toString()
     );
 
     try (InputStream in = download.getInputStream()) {
@@ -221,9 +221,8 @@ public abstract class WebUtils {
     return checkNotModified(null, lastModifiedTimestamp, context);
   }
 
-  public static boolean checkNotModified(String eTag,
-                                         long lastModified,
-                                         RequestContext context) {
+  public static boolean checkNotModified(
+          String eTag, long lastModified, RequestContext context) {
 
     // Validate request headers for caching
     // ---------------------------------------------------

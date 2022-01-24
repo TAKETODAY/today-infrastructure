@@ -25,6 +25,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -173,7 +174,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfSystemProperty(named = "CI", matches = "true", disabledReason = "CI")
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "CI")
   @DisabledIfSystemProperty(
           named = "coverage", matches = "true", disabledReason = "don't know")
   void defaultApplicationContextForReactiveWeb() {

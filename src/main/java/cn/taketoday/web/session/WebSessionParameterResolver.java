@@ -44,7 +44,7 @@ public class WebSessionParameterResolver
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) {
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) {
     return getSession(context);
   }
 

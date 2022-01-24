@@ -27,6 +27,7 @@ import cn.taketoday.core.MethodParameter;
  * @author TODAY 2021/1/17 10:03
  * @since 3.0
  */
+@Deprecated
 public class MissingParameterException extends MethodParameterResolvingException {
 
   private final String type;

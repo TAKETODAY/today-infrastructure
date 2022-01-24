@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.resolver;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,9 @@ import java.util.Map;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -61,10 +62,12 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   private int maxValueIndex = 500;
 
   @Override
-  protected boolean supportsInternal(ResolvableMethodParameter parameter) {
-    if (parameter.isCollection()) {
-      final Type valueType = parameter.getGeneric(0);
-      if (valueType instanceof Class) {
+  protected boolean supportsInternal(MethodParameter parameter) {
+    Class<?> parameterType = parameter.getParameterType();
+    if (CollectionUtils.isCollection(parameterType)) {
+      ResolvableType generic = ResolvableType.forMethodParameter(parameter).asCollection().getGeneric(0);
+      final Class<?> valueType = generic.resolve();
+      if (valueType != null) {
         return supportsSetProperties(valueType);
       }
     }

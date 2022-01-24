@@ -43,8 +43,8 @@ public final class DelegatingParameterResolver implements ParameterResolvingStra
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    return resolver.resolveParameter(context, parameter);
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
+    return resolver.resolveParameter(context, resolvable);
   }
 
   public static DelegatingParameterResolver delegate(SupportsFunction supports,

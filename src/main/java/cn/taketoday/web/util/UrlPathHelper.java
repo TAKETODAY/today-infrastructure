@@ -22,6 +22,7 @@ package cn.taketoday.web.util;
 
 import java.net.URLDecoder;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
@@ -31,6 +32,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletMapping;
@@ -370,7 +372,7 @@ public class UrlPathHelper {
    * <li>replace all "//" by "/"</li>
    * </ul>
    */
-  private static String getSanitizedPath(final String path) {
+  public static String getSanitizedPath(final String path) {
     int index = path.indexOf("//");
     if (index >= 0) {
       StringBuilder sanitized = new StringBuilder(path);
@@ -439,6 +441,14 @@ public class UrlPathHelper {
       servletPath = request.getServletPath();
     }
     return servletPath;
+  }
+
+  public String getOriginatingRequestUri(RequestContext request) {
+    String uri = (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
+    if (uri == null) {
+      uri = request.getRequestPath();
+    }
+    return decodeAndCleanUriString(request, uri);
   }
 
   /**
@@ -533,6 +543,21 @@ public class UrlPathHelper {
   }
 
   @SuppressWarnings("deprecation")
+  private String decodeInternal(RequestContext request, String source) {
+    String enc = getDefaultEncoding();
+    try {
+      return UriUtils.decode(source, enc);
+    }
+    catch (UnsupportedCharsetException ex) {
+      if (logger.isWarnEnabled()) {
+        logger.warn("Could not decode request string [" + source + "] with encoding '" + enc +
+                "': falling back to platform default encoding; exception message: " + ex.getMessage());
+      }
+      return URLDecoder.decode(source);
+    }
+  }
+
+  @Deprecated
   private String decodeInternal(HttpServletRequest request, String source) {
     String enc = determineEncoding(request);
     try {
@@ -639,23 +664,24 @@ public class UrlPathHelper {
    * the URL path from which the variables were extracted is already decoded
    * through a call to {@link #getLookupPathForRequest(HttpServletRequest)}.
    *
-   * @param request current HTTP request
+   * @param request current HTTP request context
    * @param vars the URI variables extracted from the URL path
    * @return the same Map or a new Map instance
    */
   public MultiValueMap<String, String> decodeMatrixVariables(
-          HttpServletRequest request, MultiValueMap<String, String> vars) {
-
+          RequestContext request, MultiValueMap<String, String> vars) {
     if (this.urlDecode) {
       return vars;
     }
     else {
       MultiValueMap<String, String> decodedVars = MultiValueMap.fromLinkedHashMap(vars.size());
-      vars.forEach((key, values) -> {
+      for (Map.Entry<String, List<String>> entry : vars.entrySet()) {
+        String key = entry.getKey();
+        List<String> values = entry.getValue();
         for (String value : values) {
           decodedVars.add(key, decodeInternal(request, value));
         }
-      });
+      }
       return decodedVars;
     }
   }

@@ -26,7 +26,9 @@ import java.util.Map;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
@@ -38,21 +40,23 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  * @since 3.0
  */
-public abstract class AbstractDataBinderParameterResolver extends AbstractParameterResolver {
+public abstract class AbstractDataBinderParameterResolver extends AbstractNamedValueParameterResolvingStrategy {
 
-  public final boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return !parameter.isAnnotationPresent(RequestBody.class) && supportsInternal(parameter);
+  public final boolean supportsParameter(MethodParameter parameter) {
+    return !parameter.hasParameterAnnotation(RequestBody.class) && supportsInternal(parameter);
   }
 
   /**
    * @since 3.0.3 fix request body
    */
-  protected abstract boolean supportsInternal(ResolvableMethodParameter parameter);
+  protected abstract boolean supportsInternal(MethodParameter parameter);
 
+  @Nullable
   @Override
-  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
-    final String parameterName = parameter.getName();
-    final int parameterNameLength = parameterName.length();
+  protected Object resolveName(
+          String name, ResolvableMethodParameter parameter, RequestContext context) throws Exception {
+
+    final int parameterNameLength = name.length();
     // prepare property values
     final Map<String, String[]> parameters = context.getParameters();
 
@@ -62,7 +66,7 @@ public abstract class AbstractDataBinderParameterResolver extends AbstractParame
       if (ObjectUtils.isNotEmpty(paramValues)) {
         final String requestParameterName = entry.getKey();
         // users[key].userName=TODAY&users[key].age=20
-        if (requestParameterName.startsWith(parameterName)
+        if (requestParameterName.startsWith(name)
                 && requestParameterName.charAt(parameterNameLength) == '[') {
           // userList[0].name  '.' 's index
           final int separatorIndex = BeanPropertyAccessor.getNestedPropertySeparatorIndex(requestParameterName);

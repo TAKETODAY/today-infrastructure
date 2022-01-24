@@ -21,7 +21,6 @@
 package cn.taketoday.web.mock;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -49,9 +48,6 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   /** the default value */
   @Nullable
   private String defaultValue;
-
-  @Nullable
-  private Type[] generics;
 
   protected TypeDescriptor typeDescriptor;
 
@@ -90,12 +86,6 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   @Override
   public String getDefaultValue() {
     return defaultValue;
-  }
-
-  @Nullable
-  @Override
-  public Type[] getGenerics() {
-    return generics;
   }
 
   @Override

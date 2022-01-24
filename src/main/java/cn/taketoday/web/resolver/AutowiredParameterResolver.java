@@ -20,10 +20,11 @@
 
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.core.MethodParameter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -32,26 +33,22 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author TODAY 2021/4/2 23:21
  * @since 3.0
  */
-public class AutowiredParameterResolver
-        extends AbstractParameterResolver implements ParameterResolvingStrategy {
-  private final AutowireCapableBeanFactory beanFactory;
+public class AutowiredParameterResolver implements ParameterResolvingStrategy {
+  private final DependencyInjector injector;
 
   public AutowiredParameterResolver(WebApplicationContext context) {
-    this.beanFactory = context.getAutowireCapableBeanFactory();
+    this.injector = context.getInjector();
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return parameter.isAnnotationPresent(Autowired.class);
+  public boolean supportsParameter(MethodParameter parameter) {
+    return parameter.hasParameterAnnotation(Autowired.class);
   }
 
+  @Nullable
   @Override
-  protected Object missingParameter(ResolvableMethodParameter parameter) {
-    throw new NoSuchBeanDefinitionException(parameter.getParameterType());
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), true));
   }
 
-  @Override
-  protected Object resolveInternal(RequestContext ctx, ResolvableMethodParameter parameter) throws Throwable {
-    return beanFactory.resolveDependency(new DependencyDescriptor(parameter.getParameter(), true), parameter.getName());
-  }
 }

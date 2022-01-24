@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -42,7 +43,7 @@ public class ConverterParameterResolver
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(MethodParameter parameter) {
     return supports.supports(parameter);
   }
 

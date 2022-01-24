@@ -41,21 +41,21 @@ public class SimpleArrayParameterResolver implements ParameterResolvingStrategy 
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    final String name = parameter.getName();
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
+    final String name = resolvable.getName();
     // parameter value[]
     String[] values = context.getParameters(name);
 
     if (ObjectUtils.isEmpty(values)) {
       values = StringUtils.split(context.getParameter(name));
       if (ObjectUtils.isEmpty(values)) {
-        if (parameter.isRequired()) {
-          throw new MissingParameterException("Array", parameter.getParameter());
+        if (resolvable.isRequired()) {
+          throw new MissingParameterException("Array", resolvable.getParameter());
         }
         return null;
       }
     }
-    return ObjectUtils.toArrayObject(values, parameter.getParameterType());
+    return ObjectUtils.toArrayObject(values, resolvable.getParameterType());
   }
 
 }

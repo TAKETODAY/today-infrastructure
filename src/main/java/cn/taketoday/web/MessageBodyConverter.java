@@ -44,6 +44,7 @@ import cn.taketoday.web.view.JsonSequence;
  * @see RequestContext
  * @since 4.0
  */
+@Deprecated
 public abstract class MessageBodyConverter {
   private static final Logger log = LoggerFactory.getLogger(MessageBodyConverter.class);
 

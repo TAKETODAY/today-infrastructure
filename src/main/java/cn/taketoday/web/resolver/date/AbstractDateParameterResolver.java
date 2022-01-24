@@ -38,12 +38,12 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
   public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
 
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
-    final String parameterValue = getParameterValue(context, parameter);
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    final String parameterValue = getParameterValue(context, resolvable);
     if (StringUtils.isEmpty(parameterValue)) {
       return null;
     }
-    return resolveInternal(parameterValue, parameter);
+    return resolveInternal(parameterValue, resolvable);
   }
 
   protected Object resolveInternal(String parameterValue, ResolvableMethodParameter parameter) {

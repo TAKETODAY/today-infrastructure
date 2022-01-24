@@ -72,8 +72,8 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    final Object value = resolveValue(context, parameter);
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
+    final Object value = resolveValue(context, resolvable);
 
     final DefaultErrors errors = new DefaultErrors();
     context.setAttribute(Validator.KEY_VALIDATION_ERRORS, errors);
@@ -81,7 +81,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
     doValidate(getValidator(), value, errors);
 
     if (errors.hasErrors()) {
-      Method method = parameter.getParameter().getMethod();
+      Method method = resolvable.getParameter().getMethod();
       Assert.state(method != null, "No Method");
       Parameter[] parameters = method.getParameters();
       final int length = parameters.length;
@@ -90,7 +90,7 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
         throw buildException(errors);
       }
       // > 1
-      int index = parameter.getParameterIndex();
+      int index = resolvable.getParameterIndex();
       if (++index == length || !Errors.class.isAssignableFrom(parameters[index].getType())) {
         // use  @ExceptionHandler(ValidationException.class) to handle validation exception
         throw buildException(errors);

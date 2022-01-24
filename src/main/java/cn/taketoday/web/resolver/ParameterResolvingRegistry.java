@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
@@ -28,21 +31,30 @@ import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
+import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
+import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestAttribute;
+import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.web.resolver.ConverterParameterResolver.from;
@@ -63,10 +75,6 @@ public class ParameterResolvingRegistry
   /**
    * @since 3.0.1
    */
-  private MessageBodyConverter messageBodyConverter;
-  /**
-   * @since 3.0.1
-   */
   private RedirectModelManager redirectModelManager;
   /**
    * @since 3.0.1
@@ -81,6 +89,85 @@ public class ParameterResolvingRegistry
    * @since 4.0
    */
   private ConversionService conversionService;
+
+  // @since 4.0
+  private List<HttpMessageConverter<?>> messageConverters;
+
+  // @since 4.0
+  private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+
+  // @since 4.0
+  private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
+
+  private PathMatcher pathMatcher;
+  private UrlPathHelper urlPathHelper;
+
+  public void setPathMatcher(PathMatcher pathMatcher) {
+    this.pathMatcher = pathMatcher;
+  }
+
+  public void setUrlPathHelper(UrlPathHelper urlPathHelper) {
+    this.urlPathHelper = urlPathHelper;
+  }
+
+  public ParameterResolvingRegistry() {
+    this.messageConverters = new ArrayList<>(4);
+    this.messageConverters.add(new ByteArrayHttpMessageConverter());
+    this.messageConverters.add(new StringHttpMessageConverter());
+    this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
+  }
+
+  /**
+   * Set the {@link ContentNegotiationManager} to use to determine requested media types.
+   * If not set, the default constructor is used.
+   *
+   * @since 4.0
+   */
+  public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
+    this.contentNegotiationManager = contentNegotiationManager;
+  }
+
+  /**
+   * Provide the converters to use in argument resolvers and return value
+   * handlers that support reading and/or writing to the body of the
+   * request and response.
+   *
+   * @since 4.0
+   */
+  public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+    this.messageConverters = messageConverters;
+  }
+
+  /**
+   * Return the configured message body converters.
+   *
+   * @since 4.0
+   */
+  public List<HttpMessageConverter<?>> getMessageConverters() {
+    return this.messageConverters;
+  }
+
+  /**
+   * Add one or more {@code RequestBodyAdvice} instances to intercept the
+   * request before it is read and converted for {@code @RequestBody} and
+   * {@code HttpEntity} method arguments.
+   */
+  public void setRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
+    if (requestBodyAdvice != null) {
+      this.requestResponseBodyAdvice.addAll(requestBodyAdvice);
+    }
+  }
+
+  /**
+   * Add one or more {@code ResponseBodyAdvice} instances to intercept the
+   * response before {@code @ResponseBody} or {@code ResponseEntity} return
+   * values are written to the response body.
+   */
+  public void setResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
+    if (responseBodyAdvice != null) {
+      this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
+    }
+  }
 
   /**
    * get default resolving-strategies
@@ -108,8 +195,9 @@ public class ParameterResolvingRegistry
   @Nullable
   protected ParameterResolvingStrategy lookupStrategy(
           ResolvableMethodParameter parameter, Iterable<ParameterResolvingStrategy> strategies) {
+    MethodParameter methodParameter = parameter.getParameter();
     for (final ParameterResolvingStrategy resolver : strategies) {
-      if (resolver.supportsParameter(parameter)) {
+      if (resolver.supportsParameter(methodParameter)) {
         return resolver;
       }
     }
@@ -224,17 +312,8 @@ public class ParameterResolvingRegistry
 
     strategies.add(new ModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
-    MessageBodyConverter messageBodyConverter = getMessageConverter();
-    if (messageBodyConverter == null) {
-      messageBodyConverter = context.getBean(MessageBodyConverter.class);
-      // autoDetect
-      if (messageBodyConverter == null) {
-        messageBodyConverter = MessageBodyConverter.autoDetect();
-      }
-    }
-    Assert.state(messageBodyConverter != null, "No MessageConverter in this web application");
 
-    strategies.add(new RequestBodyParameterResolver(messageBodyConverter));
+    strategies.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
     strategies.add(new ThrowableHandlerParameterResolver());
 
     // Date API support @since 3.0
@@ -305,14 +384,6 @@ public class ParameterResolvingRegistry
   }
 
   //
-
-  public void setMessageConverter(MessageBodyConverter messageBodyConverter) {
-    this.messageBodyConverter = messageBodyConverter;
-  }
-
-  public MessageBodyConverter getMessageConverter() {
-    return messageBodyConverter;
-  }
 
   public void setRedirectModelManager(RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
@@ -388,8 +459,9 @@ public class ParameterResolvingRegistry
   record OR(Class<?> one, Class<?> two) implements ParameterResolvingStrategy.SupportsFunction {
 
     @Override
-    public boolean supports(ResolvableMethodParameter parameter) {
-      return parameter.is(one) || parameter.is(two);
+    public boolean supports(MethodParameter parameter) {
+      Class<?> parameterType = parameter.getParameterType();
+      return parameterType == one || parameterType == two;
     }
   }
 
@@ -435,8 +507,8 @@ public class ParameterResolvingRegistry
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
-      return context.getAttribute(parameter.getName());
+    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+      return context.getAttribute(resolvable.getName());
     }
   }
 

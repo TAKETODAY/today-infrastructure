@@ -21,18 +21,66 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.MissingRequestValueException;
+import cn.taketoday.web.RequestBindingException;
 
 /**
+ * {@link RequestBindingException} subclass that indicates
+ * that a request cookie expected in the method parameters of an
+ * {@code @RequestMapping} method is not present.
+ *
  * @author TODAY 2021/3/10 20:14
  */
-public class MissingCookieException extends MissingParameterException {
+public class MissingCookieException extends MissingRequestValueException {
 
-  public MissingCookieException(MethodParameter parameter) {
-    super("Cookie", parameter);
+  private final String cookieName;
+
+  private final MethodParameter parameter;
+
+  /**
+   * Constructor for MissingRequestCookieException.
+   *
+   * @param cookieName the name of the missing request cookie
+   * @param parameter the method parameter
+   */
+  public MissingCookieException(String cookieName, MethodParameter parameter) {
+    this(cookieName, parameter, false);
   }
 
-  public final String getRequiredCookieName() {
-    return getParameterName();
+  /**
+   * Constructor for use when a value was present but converted to {@code null}.
+   *
+   * @param cookieName the name of the missing request cookie
+   * @param parameter the method parameter
+   * @param missingAfterConversion whether the value became null after conversion
+   */
+  public MissingCookieException(
+          String cookieName, MethodParameter parameter, boolean missingAfterConversion) {
+
+    super("", missingAfterConversion);
+    this.cookieName = cookieName;
+    this.parameter = parameter;
+  }
+
+  @Override
+  public String getMessage() {
+    return "Required cookie '" + this.cookieName + "' for method parameter type " +
+            this.parameter.getNestedParameterType().getSimpleName() + " is " +
+            (isMissingAfterConversion() ? "present but converted to null" : "not present");
+  }
+
+  /**
+   * Return the expected name of the request cookie.
+   */
+  public final String getCookieName() {
+    return this.cookieName;
+  }
+
+  /**
+   * Return the method parameter bound to the request cookie.
+   */
+  public final MethodParameter getParameter() {
+    return this.parameter;
   }
 
 }

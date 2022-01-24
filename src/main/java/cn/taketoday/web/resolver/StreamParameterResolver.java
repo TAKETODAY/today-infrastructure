@@ -51,9 +51,9 @@ public class StreamParameterResolver implements ParameterResolvingStrategy {
    * Resolve {@link Model} parameter.
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
 
-    final Class<?> parameterClass = parameter.getParameterType();
+    final Class<?> parameterClass = resolvable.getParameterType();
 
     if (parameterClass == Readable.class || parameterClass == OutputStreamSource.class) {
       return context;

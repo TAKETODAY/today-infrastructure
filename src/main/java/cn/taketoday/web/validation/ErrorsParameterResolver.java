@@ -71,7 +71,7 @@ public class ErrorsParameterResolver
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
     final Object error = context.getAttribute(Validator.KEY_VALIDATION_ERRORS);
     if (error == null) {
       return EMPTY;

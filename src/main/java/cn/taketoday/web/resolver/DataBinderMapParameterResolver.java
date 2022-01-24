@@ -19,14 +19,15 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -38,33 +39,40 @@ public class DataBinderMapParameterResolver
         extends AbstractDataBinderParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsInternal(final ResolvableMethodParameter parameter) {
+  public boolean supportsInternal(final MethodParameter parameter) {
     if (isMap(parameter)) {
-      final Type valueType = parameter.getGeneric(1);
-      if (valueType instanceof Class) {
+      ResolvableType generic = ResolvableType.forMethodParameter(parameter).asMap().getGeneric(1);
+      Class<?> valueType = generic.resolve();
+      if (valueType != null) {
         return supportsSetProperties(valueType);
       }
     }
     return false;
   }
 
-  public static boolean isMap(ResolvableMethodParameter parameter) {
-    return parameter.is(Map.class);
+  public static boolean isMap(MethodParameter parameter) {
+    return parameter.getParameterType() == Map.class;
   }
 
   /**
    * Resolve {@link Map} parameter.
    */
   @Override
-  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
-    final Map<String, Object> map = CollectionUtils.createMap(parameter.getParameterType(), propertyValues.size());
+  protected Object doBind(
+          MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter resolvable) {
+    MethodParameter parameter = resolvable.getParameter();
 
-    final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
-    final Class<?> parameterClass = (Class<?>) parameter.getGeneric(1);
-    final BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
-    for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
-      final Object rootObject = parameterMetadata.newInstance();
-      final List<PropertyValue> propertyValueList = entry.getValue();
+    Map<String, Object> map = CollectionUtils.createMap(
+            parameter.getParameterType(), propertyValues.size());
+
+    PropertyValuesBinder dataBinder = new PropertyValuesBinder();
+    ResolvableType generic = resolvable.getResolvableType().asMap().getGeneric(1);
+    Class<?> parameterClass = generic.resolve();
+
+    BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
+    for (Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
+      Object rootObject = parameterMetadata.newInstance();
+      List<PropertyValue> propertyValueList = entry.getValue();
       dataBinder.bind(rootObject, parameterMetadata, propertyValueList);
 
       map.put(entry.getKey(), rootObject);

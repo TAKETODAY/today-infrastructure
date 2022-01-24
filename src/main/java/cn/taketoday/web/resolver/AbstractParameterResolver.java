@@ -31,23 +31,24 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
 
   /**
    * @param context Current request Context
-   * @param parameter parameter
+   * @param resolvable parameter
    * @return parameter value
    * @throws MissingParameterException parameter cannot be resolved
    */
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    final Object parameterValue = resolveInternal(context, parameter);
+  public Object resolveParameter(
+          final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
+    final Object parameterValue = resolveInternal(context, resolvable);
     if (parameterValue == null) {
-      if (parameter.isRequired()) {
-        return missingParameter(parameter);
+      if (resolvable.isRequired()) {
+        return missingParameter(resolvable);
       }
       else {
-        return fromDefaultValue(context, parameter.getDefaultValue());
+        return fromDefaultValue(context, resolvable.getDefaultValue());
       }
     }
     else {
-      return transformValue(context, parameter, parameterValue);
+      return transformValue(context, resolvable, parameterValue);
     }
   }
 

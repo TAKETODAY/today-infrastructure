@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,26 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+package cn.taketoday.web;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpOutputMessage;
 
 /**
- * @author TODAY <br>
- * 2019-07-17 22:41
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/23 13:22
  */
-public class ThrowableHandlerParameterResolver implements ParameterResolvingStrategy {
+public class RequestContextHttpOutputMessage implements HttpOutputMessage {
+  private final RequestContext context;
 
-  @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return parameter.isAssignableTo(Throwable.class);
+  public RequestContextHttpOutputMessage(RequestContext context) {
+    this.context = context;
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
-    return context.getAttribute(HandlerExceptionHandler.KEY_THROWABLE);
+  public HttpHeaders getHeaders() {
+    return context.responseHeaders();
+  }
+
+  @Override
+  public OutputStream getBody() throws IOException {
+    return context.getOutputStream();
   }
 
 }

@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import java.io.Serial;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.web.WebNestedRuntimeException;
+import cn.taketoday.web.MissingRequestValueException;
 
 /**
  * MethodParameter can't be resolved
@@ -30,7 +30,7 @@ import cn.taketoday.web.WebNestedRuntimeException;
  * @author TODAY 2021/1/17 10:05
  * @since 3.0
  */
-public class MethodParameterResolvingException extends WebNestedRuntimeException {
+public class MethodParameterResolvingException extends MissingRequestValueException {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -49,7 +49,7 @@ public class MethodParameterResolvingException extends WebNestedRuntimeException
   }
 
   public MethodParameterResolvingException(MethodParameter parameter, String message, Throwable cause) {
-    super(message, cause);
+    super(message, cause, false);
     this.parameter = parameter;
   }
 

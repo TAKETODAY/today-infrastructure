@@ -94,7 +94,7 @@ public class PathMatchConfigurer {
    * <p>Prefixes are used to enrich the mappings of every {@code @RequestMapping}
    * method whose controller type is matched by the corresponding
    * {@code Predicate}. The prefix for the first matching predicate is used.
-   * <p>Consider using {@link org.springframework.web.method.HandlerTypePredicate
+   * <p>Consider using {@link cn.taketoday.web.handler.method.HandlerTypePredicate
    * HandlerTypePredicate} to group controllers.
    *
    * @param prefix the prefix to apply

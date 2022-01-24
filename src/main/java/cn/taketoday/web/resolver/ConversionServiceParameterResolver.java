@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
@@ -40,7 +41,7 @@ public abstract class ConversionServiceParameterResolver
   protected ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Override
-  public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
+  public abstract boolean supportsParameter(MethodParameter parameter);
 
   @Override
   protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {
