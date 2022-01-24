@@ -23,7 +23,9 @@ package cn.taketoday.web.util;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.RequestDispatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,37 +42,38 @@ class UrlPathHelperTests {
 
   private final UrlPathHelper helper = new UrlPathHelper();
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+  final RequestContext request = new ServletRequestContext(servletRequest, null);
 
   @Test
   void getPathWithinApplication() {
-    request.setContextPath("/petclinic");
-    request.setRequestURI("/petclinic/welcome.html");
+    servletRequest.setContextPath("/petclinic");
+    servletRequest.setRequestURI("/petclinic/welcome.html");
 
     assertThat(helper.getPathWithinApplication(request)).isEqualTo("/welcome.html");
   }
 
   @Test
   void getPathWithinApplicationForRootWithNoLeadingSlash() {
-    request.setContextPath("/petclinic");
-    request.setRequestURI("/petclinic");
+    servletRequest.setContextPath("/petclinic");
+    servletRequest.setRequestURI("/petclinic");
 
     assertThat(helper.getPathWithinApplication(request)).as("Incorrect root path returned").isEqualTo("/");
   }
 
   @Test
   void getPathWithinApplicationForSlashContextPath() {
-    request.setContextPath("/");
-    request.setRequestURI("/welcome.html");
+    servletRequest.setContextPath("/");
+    servletRequest.setRequestURI("/welcome.html");
 
     assertThat(helper.getPathWithinApplication(request)).isEqualTo("/welcome.html");
   }
 
   @Test
   void getPathWithinServlet() {
-    request.setContextPath("/petclinic");
-    request.setServletPath("/main");
-    request.setRequestURI("/petclinic/main/welcome.html");
+    servletRequest.setContextPath("/petclinic");
+    servletRequest.setServletPath("/main");
+    servletRequest.setRequestURI("/petclinic/main/welcome.html");
 
     assertThat(helper.getPathWithinServletMapping(request)).isEqualTo("/welcome.html");
   }
@@ -78,9 +81,9 @@ class UrlPathHelperTests {
   @Test
   void alwaysUseFullPath() {
     helper.setAlwaysUseFullPath(true);
-    request.setContextPath("/petclinic");
-    request.setServletPath("/main");
-    request.setRequestURI("/petclinic/main/welcome.html");
+    servletRequest.setContextPath("/petclinic");
+    servletRequest.setServletPath("/main");
+    servletRequest.setRequestURI("/petclinic/main/welcome.html");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/main/welcome.html");
   }
@@ -88,9 +91,9 @@ class UrlPathHelperTests {
   @Test
     // SPR-11101
   void getPathWithinServletWithoutUrlDecoding() {
-    request.setContextPath("/SPR-11101");
-    request.setServletPath("/test_url_decoding/a/b");
-    request.setRequestURI("/test_url_decoding/a%2Fb");
+    servletRequest.setContextPath("/SPR-11101");
+    servletRequest.setServletPath("/test_url_decoding/a/b");
+    servletRequest.setRequestURI("/test_url_decoding/a%2Fb");
 
     helper.setUrlDecode(false);
     String actual = helper.getPathWithinServletMapping(request);
@@ -100,31 +103,31 @@ class UrlPathHelperTests {
 
   @Test
   void getRequestUri() {
-    request.setRequestURI("/welcome.html");
+    servletRequest.setRequestURI("/welcome.html");
     assertThat(helper.getRequestUri(request)).isEqualTo("/welcome.html");
 
-    request.setRequestURI("/foo%20bar");
+    servletRequest.setRequestURI("/foo%20bar");
     assertThat(helper.getRequestUri(request)).isEqualTo("/foo bar");
 
-    request.setRequestURI("/foo+bar");
+    servletRequest.setRequestURI("/foo+bar");
     assertThat(helper.getRequestUri(request)).isEqualTo("/foo+bar");
 
-    request.setRequestURI("/home/" + "/path");
+    servletRequest.setRequestURI("/home/" + "/path");
     assertThat(helper.getRequestUri(request)).isEqualTo("/home/path");
   }
 
   @Test
   void getRequestRemoveSemicolonContent() {
     helper.setRemoveSemicolonContent(true);
-    request.setRequestURI("/foo;f=F;o=O;o=O/bar;b=B;a=A;r=R");
+    servletRequest.setRequestURI("/foo;f=F;o=O;o=O/bar;b=B;a=A;r=R");
     assertThat(helper.getRequestUri(request)).isEqualTo("/foo/bar");
 
-    request.setRequestURI("/foo;f=F;o=O;o=O/bar;b=B;a=A;r=R/baz;test");
+    servletRequest.setRequestURI("/foo;f=F;o=O;o=O/bar;b=B;a=A;r=R/baz;test");
     assertThat(helper.getRequestUri(request)).isEqualTo("/foo/bar/baz");
 
     // SPR-13455
-    request.setRequestURI("/foo/;test/1");
-    request.setServletPath("/foo/1");
+    servletRequest.setRequestURI("/foo/;test/1");
+    servletRequest.setServletPath("/foo/1");
     assertThat(helper.getRequestUri(request)).isEqualTo("/foo/1");
   }
 
@@ -143,7 +146,7 @@ class UrlPathHelperTests {
   }
 
   private void testKeepSemicolonContent(String requestUri, String expectedPath) {
-    request.setRequestURI(requestUri);
+    servletRequest.setRequestURI(requestUri);
     assertThat(helper.getRequestUri(request)).isEqualTo(expectedPath);
   }
 
@@ -151,9 +154,9 @@ class UrlPathHelperTests {
   void getLookupPathWithSemicolonContent() {
     helper.setRemoveSemicolonContent(false);
 
-    request.setContextPath("/petclinic");
-    request.setServletPath("/main");
-    request.setRequestURI("/petclinic;a=b/main;b=c/welcome.html;c=d");
+    servletRequest.setContextPath("/petclinic");
+    servletRequest.setServletPath("/main");
+    servletRequest.setRequestURI("/petclinic;a=b/main;b=c/welcome.html;c=d");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/welcome.html;c=d");
   }
@@ -162,9 +165,9 @@ class UrlPathHelperTests {
   void getLookupPathWithSemicolonContentAndNullPathInfo() {
     helper.setRemoveSemicolonContent(false);
 
-    request.setContextPath("/petclinic");
-    request.setServletPath("/welcome.html");
-    request.setRequestURI("/petclinic;a=b/welcome.html;c=d");
+    servletRequest.setContextPath("/petclinic");
+    servletRequest.setServletPath("/welcome.html");
+    servletRequest.setRequestURI("/petclinic;a=b/welcome.html;c=d");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/welcome.html;c=d");
   }
@@ -202,29 +205,29 @@ class UrlPathHelperTests {
 
   @Test
   void tomcatDefaultServletRoot() {
-    request.setContextPath("/test");
-    request.setServletPath("/");
-    request.setPathInfo(null);
-    request.setRequestURI("/test/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setServletPath("/");
+    servletRequest.setPathInfo(null);
+    servletRequest.setRequestURI("/test/");
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
 
   @Test
   void tomcatDefaultServletFile() {
-    request.setContextPath("/test");
-    request.setServletPath("/foo");
-    request.setPathInfo(null);
-    request.setRequestURI("/test/foo");
+    servletRequest.setContextPath("/test");
+    servletRequest.setServletPath("/foo");
+    servletRequest.setPathInfo(null);
+    servletRequest.setRequestURI("/test/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo");
   }
 
   @Test
   void tomcatDefaultServletFolder() {
-    request.setContextPath("/test");
-    request.setServletPath("/foo/");
-    request.setPathInfo(null);
-    request.setRequestURI("/test/foo/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setServletPath("/foo/");
+    servletRequest.setPathInfo(null);
+    servletRequest.setRequestURI("/test/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/");
   }
@@ -232,31 +235,31 @@ class UrlPathHelperTests {
   @Test
     //SPR-12372, SPR-13455
   void removeDuplicateSlashesInPath() {
-    request.setContextPath("/SPR-12372");
-    request.setPathInfo(null);
-    request.setServletPath("/foo/bar/");
-    request.setRequestURI("/SPR-12372/foo//bar/");
+    servletRequest.setContextPath("/SPR-12372");
+    servletRequest.setPathInfo(null);
+    servletRequest.setServletPath("/foo/bar/");
+    servletRequest.setRequestURI("/SPR-12372/foo//bar/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/bar/");
 
-    request.setServletPath("/foo/bar/");
-    request.setRequestURI("/SPR-12372/foo/bar//");
+    servletRequest.setServletPath("/foo/bar/");
+    servletRequest.setRequestURI("/SPR-12372/foo/bar//");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/bar/");
 
     // "normal" case
-    request.setServletPath("/foo/bar//");
-    request.setRequestURI("/SPR-12372/foo/bar//");
+    servletRequest.setServletPath("/foo/bar//");
+    servletRequest.setRequestURI("/SPR-12372/foo/bar//");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/bar//");
   }
 
   @Test
   void wasDefaultServletRoot() {
-    request.setContextPath("/test");
-    request.setPathInfo("/");
-    request.setServletPath("");
-    request.setRequestURI("/test/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/");
+    servletRequest.setServletPath("");
+    servletRequest.setRequestURI("/test/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
@@ -268,10 +271,10 @@ class UrlPathHelperTests {
 
   @Test
   void wasDefaultServletFile() {
-    request.setContextPath("/test");
-    request.setPathInfo("/foo");
-    request.setServletPath("");
-    request.setRequestURI("/test/foo");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/foo");
+    servletRequest.setServletPath("");
+    servletRequest.setRequestURI("/test/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo");
   }
@@ -283,10 +286,10 @@ class UrlPathHelperTests {
 
   @Test
   void wasDefaultServletFolder() {
-    request.setContextPath("/test");
-    request.setPathInfo("/foo/");
-    request.setServletPath("");
-    request.setRequestURI("/test/foo/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/foo/");
+    servletRequest.setServletPath("");
+    servletRequest.setRequestURI("/test/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/");
   }
@@ -302,10 +305,10 @@ class UrlPathHelperTests {
 
   @Test
   void tomcatCasualServletRoot() {
-    request.setContextPath("/test");
-    request.setPathInfo("/");
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/");
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
@@ -314,30 +317,30 @@ class UrlPathHelperTests {
   @Test
     // test the root mapping for /foo/* w/o a trailing slash - <host>/<context>/foo
   void tomcatCasualServletRootWithMissingSlash() {
-    request.setContextPath("/test");
-    request.setPathInfo(null);
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo(null);
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
 
   @Test
   void tomcatCasualServletFile() {
-    request.setContextPath("/test");
-    request.setPathInfo("/foo");
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo/foo");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/foo");
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo");
   }
 
   @Test
   void tomcatCasualServletFolder() {
-    request.setContextPath("/test");
-    request.setPathInfo("/foo/");
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo/foo/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/foo/");
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/");
   }
@@ -351,10 +354,10 @@ class UrlPathHelperTests {
   @Test
     // test the root mapping for /foo/* w/o a trailing slash - <host>/<context>/foo
   void wasCasualServletRootWithMissingSlash() {
-    request.setContextPath("/test");
-    request.setPathInfo(null);
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo(null);
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo");
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/");
   }
 
@@ -366,10 +369,10 @@ class UrlPathHelperTests {
 
   @Test
   void wasCasualServletFile() {
-    request.setContextPath("/test");
-    request.setPathInfo("/foo");
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo/foo");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/foo");
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo/foo");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo");
   }
@@ -381,10 +384,10 @@ class UrlPathHelperTests {
 
   @Test
   void wasCasualServletFolder() {
-    request.setContextPath("/test");
-    request.setPathInfo("/foo/");
-    request.setServletPath("/foo");
-    request.setRequestURI("/test/foo/foo/");
+    servletRequest.setContextPath("/test");
+    servletRequest.setPathInfo("/foo/");
+    servletRequest.setServletPath("/foo");
+    servletRequest.setRequestURI("/test/foo/foo/");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/foo/");
   }
@@ -397,19 +400,19 @@ class UrlPathHelperTests {
   @Test
   void getOriginatingRequestUri() {
     request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
-    request.setRequestURI("/forwarded");
+    servletRequest.setRequestURI("/forwarded");
     assertThat(helper.getOriginatingRequestUri(request)).isEqualTo("/path");
   }
 
   @Test
   void getOriginatingRequestUriDefault() {
-    request.setRequestURI("/forwarded");
+    servletRequest.setRequestURI("/forwarded");
     assertThat(helper.getOriginatingRequestUri(request)).isEqualTo("/forwarded");
   }
 
   @Test
   void getOriginatingQueryString() {
-    request.setQueryString("forward=on");
+    servletRequest.setQueryString("forward=on");
     request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
     request.setAttribute(RequestDispatcher.FORWARD_QUERY_STRING, "original=on");
     assertThat(this.helper.getOriginatingQueryString(request)).isEqualTo("original=on");
@@ -417,13 +420,13 @@ class UrlPathHelperTests {
 
   @Test
   void getOriginatingQueryStringNotPresent() {
-    request.setQueryString("forward=true");
+    servletRequest.setQueryString("forward=true");
     assertThat(this.helper.getOriginatingQueryString(request)).isEqualTo("forward=true");
   }
 
   @Test
   void getOriginatingQueryStringIsNull() {
-    request.setQueryString("forward=true");
+    servletRequest.setQueryString("forward=true");
     request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
     assertThat(this.helper.getOriginatingQueryString(request)).isNull();
   }

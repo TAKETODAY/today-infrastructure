@@ -36,7 +36,6 @@ import cn.taketoday.web.RequestContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletMapping;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.MappingMatch;
 
 /**
@@ -47,7 +46,7 @@ import jakarta.servlet.http.MappingMatch;
  * @author Rob Harrop
  * @author Rossen Stoyanchev
  * @see #getLookupPathForRequest
- * @see RequestDispatcher
+ * @see jakarta.servlet.RequestDispatcher
  * @since 4.0
  */
 public class UrlPathHelper {
@@ -178,7 +177,7 @@ public class UrlPathHelper {
    * @param request the current request
    * @return the resolved path
    */
-  public String resolveAndCacheLookupPath(HttpServletRequest request) {
+  public String resolveAndCacheLookupPath(RequestContext request) {
     String lookupPath = getLookupPathForRequest(request);
     request.setAttribute(PATH_ATTRIBUTE, lookupPath);
     return lookupPath;
@@ -207,7 +206,7 @@ public class UrlPathHelper {
    * @see #getPathWithinServletMapping
    * @see #getPathWithinApplication
    */
-  public String getLookupPathForRequest(HttpServletRequest request) {
+  public String getLookupPathForRequest(RequestContext request) {
     String pathWithinApp = getPathWithinApplication(request);
     // Always use full path within current servlet context?
     if (this.alwaysUseFullPath || skipServletPathDetermination(request)) {
@@ -230,7 +229,7 @@ public class UrlPathHelper {
    * @return {@code true} if the request mapping has not been achieved using a path
    * or if the servlet has been mapped to root; {@code false} otherwise
    */
-  private boolean skipServletPathDetermination(HttpServletRequest request) {
+  private boolean skipServletPathDetermination(RequestContext request) {
     HttpServletMapping mapping = (HttpServletMapping) request.getAttribute(RequestDispatcher.INCLUDE_MAPPING);
     if (mapping == null) {
       mapping = request.getHttpServletMapping();
@@ -246,9 +245,9 @@ public class UrlPathHelper {
    *
    * @param request current HTTP request
    * @return the path within the servlet mapping, or ""
-   * @see #getPathWithinServletMapping(HttpServletRequest, String)
+   * @see #getPathWithinServletMapping(RequestContext, String)
    */
-  public String getPathWithinServletMapping(HttpServletRequest request) {
+  public String getPathWithinServletMapping(RequestContext request) {
     return getPathWithinServletMapping(request, getPathWithinApplication(request));
   }
 
@@ -268,7 +267,7 @@ public class UrlPathHelper {
    * @return the path within the servlet mapping, or ""
    * @see #getLookupPathForRequest
    */
-  protected String getPathWithinServletMapping(HttpServletRequest request, String pathWithinApp) {
+  protected String getPathWithinServletMapping(RequestContext request, String pathWithinApp) {
     String servletPath = getServletPath(request);
     String sanitizedPathWithinApp = getSanitizedPath(pathWithinApp);
     String path;
@@ -316,7 +315,7 @@ public class UrlPathHelper {
    * @return the path within the web application
    * @see #getLookupPathForRequest
    */
-  public String getPathWithinApplication(HttpServletRequest request) {
+  public String getPathWithinApplication(RequestContext request) {
     String contextPath = getContextPath(request);
     String requestUri = getRequestUri(request);
     String path = getRemainingPath(requestUri, contextPath, true);
@@ -332,7 +331,7 @@ public class UrlPathHelper {
   /**
    * Match the given "mapping" to the start of the "requestUri" and if there
    * is a match return the extra part. This method is needed because the
-   * context path and the servlet path returned by the HttpServletRequest are
+   * context path and the servlet path returned by the RequestContext are
    * stripped of semicolon content unlike the requestUri.
    */
   @Nullable
@@ -397,7 +396,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @return the request URI
    */
-  public String getRequestUri(HttpServletRequest request) {
+  public String getRequestUri(RequestContext request) {
     String uri = (String) request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
     if (uri == null) {
       uri = request.getRequestURI();
@@ -414,7 +413,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @return the context path
    */
-  public String getContextPath(HttpServletRequest request) {
+  public String getContextPath(RequestContext request) {
     String contextPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_CONTEXT_PATH);
     if (contextPath == null) {
       contextPath = request.getContextPath();
@@ -435,7 +434,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @return the servlet path
    */
-  public String getServletPath(HttpServletRequest request) {
+  public String getServletPath(RequestContext request) {
     String servletPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
     if (servletPath == null) {
       servletPath = request.getServletPath();
@@ -443,22 +442,14 @@ public class UrlPathHelper {
     return servletPath;
   }
 
-  public String getOriginatingRequestUri(RequestContext request) {
-    String uri = (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
-    if (uri == null) {
-      uri = request.getRequestPath();
-    }
-    return decodeAndCleanUriString(request, uri);
-  }
-
   /**
    * Return the request URI for the given request. If this is a forwarded request,
    * correctly resolves to the request URI of the original request.
    */
-  public String getOriginatingRequestUri(HttpServletRequest request) {
+  public String getOriginatingRequestUri(RequestContext request) {
     String uri = (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
     if (uri == null) {
-      uri = request.getRequestURI();
+      uri = request.getRequestPath();
     }
     return decodeAndCleanUriString(request, uri);
   }
@@ -472,7 +463,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @return the context path
    */
-  public String getOriginatingContextPath(HttpServletRequest request) {
+  public String getOriginatingContextPath(RequestContext request) {
     String contextPath = (String) request.getAttribute(RequestDispatcher.FORWARD_CONTEXT_PATH);
     if (contextPath == null) {
       contextPath = request.getContextPath();
@@ -487,7 +478,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @return the servlet path
    */
-  public String getOriginatingServletPath(HttpServletRequest request) {
+  public String getOriginatingServletPath(RequestContext request) {
     String servletPath = (String) request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH);
     if (servletPath == null) {
       servletPath = request.getServletPath();
@@ -502,7 +493,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @return the query string
    */
-  public String getOriginatingQueryString(HttpServletRequest request) {
+  public String getOriginatingQueryString(RequestContext request) {
     if ((request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) != null) ||
             (request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) != null)) {
       return (String) request.getAttribute(RequestDispatcher.FORWARD_QUERY_STRING);
@@ -515,7 +506,7 @@ public class UrlPathHelper {
   /**
    * Decode the supplied URI string and strips any extraneous portion after a ';'.
    */
-  private String decodeAndCleanUriString(HttpServletRequest request, String uri) {
+  private String decodeAndCleanUriString(RequestContext request, String uri) {
     uri = removeSemicolonContent(uri);
     uri = decodeRequestString(request, uri);
     uri = getSanitizedPath(uri);
@@ -535,7 +526,7 @@ public class UrlPathHelper {
    * @see URLDecoder#decode(String, String)
    * @see URLDecoder#decode(String)
    */
-  public String decodeRequestString(HttpServletRequest request, String source) {
+  public String decodeRequestString(RequestContext request, String source) {
     if (this.urlDecode) {
       return decodeInternal(request, source);
     }
@@ -545,21 +536,6 @@ public class UrlPathHelper {
   @SuppressWarnings("deprecation")
   private String decodeInternal(RequestContext request, String source) {
     String enc = getDefaultEncoding();
-    try {
-      return UriUtils.decode(source, enc);
-    }
-    catch (UnsupportedCharsetException ex) {
-      if (logger.isWarnEnabled()) {
-        logger.warn("Could not decode request string [" + source + "] with encoding '" + enc +
-                "': falling back to platform default encoding; exception message: " + ex.getMessage());
-      }
-      return URLDecoder.decode(source);
-    }
-  }
-
-  @Deprecated
-  private String decodeInternal(HttpServletRequest request, String source) {
-    String enc = determineEncoding(request);
     try {
       return UriUtils.decode(source, enc);
     }
@@ -583,7 +559,7 @@ public class UrlPathHelper {
    * @see ServletRequest#getCharacterEncoding()
    * @see #setDefaultEncoding
    */
-  protected String determineEncoding(HttpServletRequest request) {
+  protected String determineEncoding(RequestContext request) {
     String enc = request.getCharacterEncoding();
     if (enc == null) {
       enc = getDefaultEncoding();
@@ -641,13 +617,13 @@ public class UrlPathHelper {
    * Decode the given URI path variables via {@link #decodeRequestString} unless
    * {@link #setUrlDecode} is set to {@code true} in which case it is assumed
    * the URL path from which the variables were extracted is already decoded
-   * through a call to {@link #getLookupPathForRequest(HttpServletRequest)}.
+   * through a call to {@link #getLookupPathForRequest(RequestContext)}.
    *
    * @param request current HTTP request
    * @param vars the URI variables extracted from the URL path
    * @return the same Map or a new Map instance
    */
-  public Map<String, String> decodePathVariables(HttpServletRequest request, Map<String, String> vars) {
+  public Map<String, String> decodePathVariables(RequestContext request, Map<String, String> vars) {
     if (this.urlDecode) {
       return vars;
     }
@@ -662,7 +638,7 @@ public class UrlPathHelper {
    * Decode the given matrix variables via {@link #decodeRequestString} unless
    * {@link #setUrlDecode} is set to {@code true} in which case it is assumed
    * the URL path from which the variables were extracted is already decoded
-   * through a call to {@link #getLookupPathForRequest(HttpServletRequest)}.
+   * through a call to {@link #getLookupPathForRequest(RequestContext)}.
    *
    * @param request current HTTP request context
    * @param vars the URI variables extracted from the URL path

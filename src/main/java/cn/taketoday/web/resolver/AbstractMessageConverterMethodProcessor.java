@@ -416,7 +416,7 @@ public abstract class AbstractMessageConverterMethodProcessor
       // ignore
     }
 
-    String requestUri = UrlPathHelper.rawPathInstance.getOriginatingRequestUri(servletRequest);
+    String requestUri = UrlPathHelper.rawPathInstance.getOriginatingRequestUri(request);
 
     int index = requestUri.lastIndexOf('/') + 1;
     String filename = requestUri.substring(index);
@@ -428,10 +428,10 @@ public abstract class AbstractMessageConverterMethodProcessor
       filename = filename.substring(0, index);
     }
 
-    filename = UrlPathHelper.defaultInstance.decodeRequestString(servletRequest, filename);
+    filename = UrlPathHelper.defaultInstance.decodeRequestString(request, filename);
     String ext = StringUtils.getFilenameExtension(filename);
 
-    pathParams = UrlPathHelper.defaultInstance.decodeRequestString(servletRequest, pathParams);
+    pathParams = UrlPathHelper.defaultInstance.decodeRequestString(request, pathParams);
     String extInPathParams = StringUtils.getFilenameExtension(pathParams);
 
     if (!safeExtension(request, ext) || !safeExtension(request, extInPathParams)) {
