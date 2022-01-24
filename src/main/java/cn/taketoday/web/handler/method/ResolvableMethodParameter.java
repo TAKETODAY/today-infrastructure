@@ -76,10 +76,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
-  public ResolvableMethodParameter(MethodParameter parameter, String name) {
-    this(parameter);
-  }
-
   public ResolvableMethodParameter(MethodParameter parameter) {
     this.parameter = parameter;
   }
@@ -110,12 +106,59 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   // AnnotatedElement @since 3.0
 
-  public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
-    return parameter.hasParameterAnnotation(annotationClass);
+  /**
+   * Return the annotations associated with the target method itself.
+   */
+  public Annotation[] getMethodAnnotations() {
+    return parameter.getMethodAnnotations();
   }
 
-  public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-    return parameter.getParameterAnnotation(annotationClass);
+  /**
+   * Return the method annotation of the given type, if available.
+   *
+   * @param annotationType the annotation type to look for
+   * @return the annotation object, or {@code null} if not found
+   */
+  @Nullable
+  public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
+    return parameter.getMethodAnnotation(annotationType);
+  }
+
+  /**
+   * Return whether the method is annotated with the given type.
+   *
+   * @param annotationType the annotation type to look for
+   * @see #getMethodAnnotation(Class)
+   */
+  public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
+    return parameter.hasMethodAnnotation(annotationType);
+  }
+
+  /**
+   * Return the annotations associated with the specific method parameter.
+   */
+  public Annotation[] getParameterAnnotations() {
+    return parameter.getParameterAnnotations();
+  }
+
+  /**
+   * Return whether the parameter is declared with the given annotation type.
+   *
+   * @param annotationType the annotation type to look for
+   * @see #getParameterAnnotation(Class)
+   */
+  public boolean hasParameterAnnotation(Class<? extends Annotation> annotationType) {
+    return parameter.hasParameterAnnotation(annotationType);
+  }
+
+  /**
+   * Return the parameter annotation of the given type, if available.
+   *
+   * @param annotationType the annotation type to look for
+   * @return the annotation object, or {@code null} if not found
+   */
+  public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
+    return parameter.getParameterAnnotation(annotationType);
   }
 
   public ResolvableType getResolvableType() {
@@ -133,8 +176,8 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   public NamedValueInfo getNamedValueInfo() {
     NamedValueInfo namedValueInfo = this.namedValueInfo;
     if (namedValueInfo == null) {
-      namedValueInfo = createNamedValueInfo(parameter);
-      namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);
+      namedValueInfo = createNamedValueInfo();
+      namedValueInfo = updateNamedValueInfo(namedValueInfo);
       this.namedValueInfo = namedValueInfo;
     }
     return namedValueInfo;
@@ -161,13 +204,12 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    * retrieve the method annotation by means of
    * {@link MethodParameter#getParameterAnnotation(Class)}.
    *
-   * @param parameter the method parameter
    * @return the named value information
    */
-  protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+  protected NamedValueInfo createNamedValueInfo() {
     RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
     if (requestParam == null) {
-      return new NamedValueInfo(getParameterName(parameter));
+      return new NamedValueInfo(getParameterName());
     }
     return new NamedValueInfo(requestParam.name(), requestParam.required(), requestParam.defaultValue());
   }
@@ -175,18 +217,18 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   /**
    * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
    */
-  private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
+  private NamedValueInfo updateNamedValueInfo(NamedValueInfo info) {
     String name = info.name;
     if (StringUtils.isEmpty(info.name) || Constant.DEFAULT_NONE.equals(info.name)) {
       // default value
-      name = getParameterName(parameter);
+      name = getParameterName();
     }
     String defaultValue = Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue;
     return new NamedValueInfo(name, info.required, defaultValue);
   }
 
   @NonNull
-  private String getParameterName(MethodParameter parameter) {
+  public String getParameterName() {
     String name = parameter.getParameterName();
     if (name == null) {
       throw new IllegalArgumentException(
