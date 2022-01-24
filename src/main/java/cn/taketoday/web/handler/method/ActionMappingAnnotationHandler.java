@@ -46,7 +46,7 @@ import cn.taketoday.web.view.ReturnValueHandlers;
  * @since 4.0 2021/11/29 22:48
  */
 public abstract class ActionMappingAnnotationHandler
-        extends InterceptableRequestHandler implements HandlerAdapter, ReturnValueHandler {
+        extends InterceptableRequestHandler implements HandlerAdapter {
   private final HandlerMethod handlerMethod;
 
   // handler fast invoker
@@ -121,7 +121,9 @@ public abstract class ActionMappingAnnotationHandler
 
   @Override
   public Object handle(RequestContext context, Object handler) throws Throwable {
-    return handleRequest(context);
+    Object returnValue = handleRequest(context);
+    handleReturnValue(context, handler, returnValue);
+    return NONE_RETURN_VALUE;
   }
 
   // ReturnValueHandler
@@ -146,15 +148,10 @@ public abstract class ActionMappingAnnotationHandler
     }
   }
 
-  @Override
-  public boolean supportsHandler(Object handler) {
-    return handler == this;
-  }
-
-  @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws IOException {
     applyResponseStatus(context);
+
     if (returnValueHandler == null) {
       returnValueHandler = resultHandlers.obtainHandler(this);
     }
