@@ -117,6 +117,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     }
     ReturnValueHandler selected = this.returnValueHandler.selectHandler(handler, returnValue);
     if (selected == null) {
+      if (returnValue == null) {
+        throw new ReturnValueHandlerNotFoundException(handler);
+      }
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
     return selected;
