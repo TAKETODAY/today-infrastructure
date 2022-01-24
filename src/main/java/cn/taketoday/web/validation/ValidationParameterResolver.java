@@ -59,8 +59,8 @@ public class ValidationParameterResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    if (parameter.isAnnotationPresent(Validated.class)
-            || parameter.isAnnotationPresent(VALID_CLASS)) {
+    if (parameter.hasParameterAnnotation(Validated.class)
+            || parameter.hasParameterAnnotation(VALID_CLASS)) {
       for (final ParameterResolvingStrategy resolver : obtainResolvers().getDefaultStrategies()) {
         if (resolver != this && resolver.supportsParameter(parameter)) {
           resolverMap.put(parameter, resolver);

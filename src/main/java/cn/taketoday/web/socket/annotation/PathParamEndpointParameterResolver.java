@@ -36,12 +36,12 @@ public class PathParamEndpointParameterResolver extends PathVariableEndpointPara
 
   @Override
   public boolean supports(ResolvableMethodParameter parameter) {
-    return parameter.isAnnotationPresent(PathParam.class);
+    return parameter.hasParameterAnnotation(PathParam.class);
   }
 
   @Override
   protected String resolveName(ResolvableMethodParameter parameter) {
-    return parameter.getAnnotation(PathParam.class).value();
+    return parameter.getParameterAnnotation(PathParam.class).value();
   }
 
 }

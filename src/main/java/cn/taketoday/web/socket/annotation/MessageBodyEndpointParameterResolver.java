@@ -44,7 +44,7 @@ public class MessageBodyEndpointParameterResolver implements EndpointParameterRe
 
   @Override
   public boolean supports(ResolvableMethodParameter parameter) {
-    return parameter.isAnnotationPresent(MessageBody.class);
+    return parameter.hasParameterAnnotation(MessageBody.class);
   }
 
   @Override

@@ -28,14 +28,22 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
+import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.config.CompositeWebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.handler.method.RequestBodyAdvice;
+import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.resolver.HttpEntityMethodProcessor;
+import cn.taketoday.web.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
 
@@ -56,10 +64,6 @@ public class ReturnValueHandlers
   /**
    * @since 3.0.1
    */
-  private MessageBodyConverter messageBodyConverter;
-  /**
-   * @since 3.0.1
-   */
   @Nullable
   private RedirectModelManager redirectModelManager;
   /**
@@ -69,15 +73,28 @@ public class ReturnValueHandlers
   private TemplateRenderer templateRenderer;
 
   @Nullable
-  private ResponseBodyReturnValueHandler responseBodyHandler;
-
-  @Nullable
   private TemplateRendererReturnValueHandler templateRendererHandler;
 
   @Nullable
   private ObjectHandlerMethodReturnValueHandler objectHandler;
 
+  // @since 4.0
+  private List<HttpMessageConverter<?>> messageConverters;
+
+  // @since 4.0
+  private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+
+  // @since 4.0
+  private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
+
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
+
+  public ReturnValueHandlers() {
+    this.messageConverters = new ArrayList<>(4);
+    this.messageConverters.add(new ByteArrayHttpMessageConverter());
+    this.messageConverters.add(new StringHttpMessageConverter());
+    this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
+  }
 
   public void addHandlers(ReturnValueHandler... handlers) {
     Assert.notNull(handlers, "handler must not be null");
@@ -147,9 +164,6 @@ public class ReturnValueHandlers
       setDownloadFileBufferSize(bufferSize);
     }
     // @since 3.0.3
-    if (messageBodyConverter == null) {
-      setMessageConverter(context.getBean(MessageBodyConverter.class));
-    }
     if (redirectModelManager == null) {
       setRedirectModelManager(context.getBean(RedirectModelManager.class));
     }
@@ -215,11 +229,13 @@ public class ReturnValueHandlers
     handlers.add(new VoidReturnValueHandler(modelAndViewHandler));
     handlers.add(objectHandler);
     handlers.add(modelAndViewHandler);
-    handlers.add(new ResponseEntityReturnValueHandler(compositeHandler));
     handlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
     handlers.add(new HttpStatusReturnValueHandler());
 
-    handlers.add(responseBodyHandler);
+    handlers.add(new HttpEntityMethodProcessor(
+            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, redirectModelManager));
+
+    handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
     compositeHandler.trimToSize();
 
     // ordering
@@ -248,14 +264,6 @@ public class ReturnValueHandlers
   }
 
   private void applyDefaults(TemplateRenderer templateRenderer) {
-    final MessageBodyConverter messageBodyConverter = obtainMessageConverter();
-    Assert.state(messageBodyConverter != null, "No MessageConverter in this web application");
-
-    // responseBodyHandler
-    if (responseBodyHandler == null) {
-      responseBodyHandler = new ResponseBodyReturnValueHandler(messageBodyConverter);
-    }
-
     // templateRendererHandler
     if (templateRendererHandler == null) {
       TemplateRendererReturnValueHandler handler
@@ -330,25 +338,6 @@ public class ReturnValueHandlers
     return redirectModelManager;
   }
 
-  public void setMessageConverter(MessageBodyConverter messageBodyConverter) {
-    this.messageBodyConverter = messageBodyConverter;
-  }
-
-  public MessageBodyConverter getMessageConverter() {
-    return messageBodyConverter;
-  }
-
-  /**
-   * get MessageConverter or auto detect jackson and fast-json
-   */
-  private MessageBodyConverter obtainMessageConverter() {
-    MessageBodyConverter messageBodyConverter = getMessageConverter();
-    if (messageBodyConverter == null) {
-      messageBodyConverter = MessageBodyConverter.autoDetect();
-    }
-    return messageBodyConverter;
-  }
-
   public void setDownloadFileBufferSize(int downloadFileBufferSize) {
     this.downloadFileBufferSize = downloadFileBufferSize;
   }
@@ -364,15 +353,6 @@ public class ReturnValueHandlers
 
   public void setTemplateRenderer(@Nullable TemplateRenderer templateRenderer) {
     this.templateRenderer = templateRenderer;
-  }
-
-  public void setResponseBodyHandler(@Nullable ResponseBodyReturnValueHandler responseBodyHandler) {
-    this.responseBodyHandler = responseBodyHandler;
-  }
-
-  @Nullable
-  public ResponseBodyReturnValueHandler getResponseBodyHandler() {
-    return responseBodyHandler;
   }
 
   public void setTemplateRendererHandler(@Nullable TemplateRendererReturnValueHandler templateRendererHandler) {
@@ -402,4 +382,55 @@ public class ReturnValueHandlers
     return imageFormatName;
   }
 
+  /**
+   * Set the {@link ContentNegotiationManager} to use to determine requested media types.
+   * If not set, the default constructor is used.
+   *
+   * @since 4.0
+   */
+  public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
+    this.contentNegotiationManager = contentNegotiationManager;
+  }
+
+  /**
+   * Provide the converters to use in argument resolvers and return value
+   * handlers that support reading and/or writing to the body of the
+   * request and response.
+   *
+   * @since 4.0
+   */
+  public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+    this.messageConverters = messageConverters;
+  }
+
+  /**
+   * Return the configured message body converters.
+   *
+   * @since 4.0
+   */
+  public List<HttpMessageConverter<?>> getMessageConverters() {
+    return this.messageConverters;
+  }
+
+  /**
+   * Add one or more {@code RequestBodyAdvice} instances to intercept the
+   * request before it is read and converted for {@code @RequestBody} and
+   * {@code HttpEntity} method arguments.
+   */
+  public void setRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
+    if (requestBodyAdvice != null) {
+      this.requestResponseBodyAdvice.addAll(requestBodyAdvice);
+    }
+  }
+
+  /**
+   * Add one or more {@code ResponseBodyAdvice} instances to intercept the
+   * response before {@code @ResponseBody} or {@code ResponseEntity} return
+   * values are written to the response body.
+   */
+  public void setResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
+    if (responseBodyAdvice != null) {
+      this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
+    }
+  }
 }

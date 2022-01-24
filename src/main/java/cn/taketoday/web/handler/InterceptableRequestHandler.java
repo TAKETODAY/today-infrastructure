@@ -26,14 +26,14 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
+import cn.taketoday.web.interceptor.HandlerInterceptorsProvider;
 import cn.taketoday.web.interceptor.InterceptorChain;
 
 /**
  * @author TODAY 2019-12-25 16:19
  */
 public abstract class InterceptableRequestHandler
-        extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
+        extends OrderedSupport implements RequestHandler, HandlerInterceptorsProvider {
 
   /** interceptors array */
   private final ArrayHolder<HandlerInterceptor> interceptors = ArrayHolder.forGenerator(HandlerInterceptor[]::new);

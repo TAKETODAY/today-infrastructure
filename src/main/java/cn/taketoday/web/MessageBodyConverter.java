@@ -24,16 +24,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.support.FastJSONMessageConverter;
-import cn.taketoday.web.support.JacksonMessageBodyConverter;
 import cn.taketoday.web.view.JsonSequence;
 
 /**
@@ -133,27 +127,6 @@ public abstract class MessageBodyConverter {
 
   public String getContentType() {
     return contentType;
-  }
-
-  // static
-
-  @Nullable
-  public static MessageBodyConverter autoDetect() {
-    MessageBodyConverter messageBodyConverter;
-    if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper")) {
-      messageBodyConverter = new JacksonMessageBodyConverter();
-    }
-    else if (ClassUtils.isPresent("com.alibaba.fastjson.JSON")) {
-      messageBodyConverter = new FastJSONMessageConverter();
-    }
-    else {
-      messageBodyConverter = CollectionUtils.firstElement(
-              TodayStrategies.getStrategies(MessageBodyConverter.class));
-    }
-    if (messageBodyConverter != null) {
-      log.info("auto detected MessageConverter: [{}]", messageBodyConverter);
-    }
-    return messageBodyConverter;
   }
 
 }

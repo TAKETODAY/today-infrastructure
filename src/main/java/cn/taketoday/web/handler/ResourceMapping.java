@@ -32,14 +32,14 @@ import cn.taketoday.http.CacheControl;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
+import cn.taketoday.web.interceptor.HandlerInterceptorsProvider;
 
 /**
  * @author TODAY <br>
  * 2019-05-15 21:43
  * @since 2.3.7
  */
-public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsCapable {
+public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsProvider {
   @Serial
   private static final long serialVersionUID = 1L;
 

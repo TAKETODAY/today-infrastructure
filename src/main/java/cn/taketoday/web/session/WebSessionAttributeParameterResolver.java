@@ -40,7 +40,7 @@ public final class WebSessionAttributeParameterResolver extends AbstractParamete
 
   @Override
   public boolean supportsParameter(final ResolvableMethodParameter parameter) {
-    return parameter.isAnnotationPresent(SessionAttribute.class);
+    return parameter.hasParameterAnnotation(SessionAttribute.class);
   }
 
   @Override

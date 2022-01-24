@@ -41,8 +41,8 @@ public class ParameterResolversMethodParameterBuilder extends MethodParametersBu
   }
 
   @Override
-  protected ResolvableMethodParameter createParameter(String methodArgsName, MethodParameter parameter) {
-    return new ParameterResolverMethodParameter(parameter, methodArgsName, resolvingRegistry);
+  protected ResolvableMethodParameter createParameter(MethodParameter parameter) {
+    return new ParameterResolverMethodParameter(parameter, resolvingRegistry);
   }
 
   public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {

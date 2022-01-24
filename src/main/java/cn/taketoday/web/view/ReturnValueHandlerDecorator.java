@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,47 +17,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.view;
 
 import java.io.IOException;
 
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.MessageBodyConverter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
- * serialize return-value(any Object) to HTTP response-body
+ * Decorator Pattern
  *
- * @author TODAY 2019-07-14 01:19
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/24 15:00
  */
-public class ResponseBodyReturnValueHandler extends OrderedSupport implements ReturnValueHandler {
-  private final MessageBodyConverter messageBodyConverter;
+public class ReturnValueHandlerDecorator implements ReturnValueHandler {
+  private final ReturnValueHandler delegate;
 
-  public ResponseBodyReturnValueHandler(MessageBodyConverter messageBodyConverter) {
-    Assert.notNull(messageBodyConverter, "MessageBodyConverter must not be null");
-    this.messageBodyConverter = messageBodyConverter;
-    setOrder(100);
+  public ReturnValueHandlerDecorator(ReturnValueHandler delegate) {
+    Assert.notNull(delegate, "ReturnValueHandler delegate is required");
+    this.delegate = delegate;
   }
 
   @Override
   public boolean supportsHandler(Object handler) {
-    return true;
+    return delegate.supportsHandler(handler);
   }
 
   @Override
-  public boolean supportsReturnValue(Object returnValue) {
-    return true;
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return delegate.supportsReturnValue(returnValue);
   }
 
   @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
-    write(context, returnValue);
+  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
+    delegate.handleReturnValue(context, handler, returnValue);
   }
 
-  public void write(RequestContext context, Object returnValue) throws IOException {
-    messageBodyConverter.write(context, returnValue);
+  public ReturnValueHandler getDelegate() {
+    return delegate;
   }
 
 }

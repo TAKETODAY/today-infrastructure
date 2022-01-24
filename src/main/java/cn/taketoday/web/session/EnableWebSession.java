@@ -73,7 +73,7 @@ class WebSessionConfiguration {
   }
 
   /**
-   * default {@link SessionCookieConfiguration} bean
+   * default {@link SessionCookieConfig} bean
    *
    * @since 3.0
    */
@@ -81,15 +81,15 @@ class WebSessionConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Props(prefix = "server.session.cookie.")
-  SessionCookieConfiguration sessionCookieConfiguration() {
-    return new SessionCookieConfiguration();
+  SessionCookieConfig sessionCookieConfiguration() {
+    return new SessionCookieConfig();
   }
 
   @Lazy
   @Component
   @ConditionalOnMissingBean
   @Props(prefix = "server.session.")
-  SessionConfiguration sessionConfiguration(SessionCookieConfiguration sessionCookieConfig) {
+  SessionConfiguration sessionConfiguration(SessionCookieConfig sessionCookieConfig) {
     return new SessionConfiguration(sessionCookieConfig);
   }
 
@@ -100,7 +100,7 @@ class WebSessionConfiguration {
    */
   @Component
   @ConditionalOnMissingBean(TokenResolver.class)
-  CookieTokenResolver tokenResolver(SessionCookieConfiguration config) {
+  CookieTokenResolver tokenResolver(SessionCookieConfig config) {
     return new CookieTokenResolver(config);
   }
 

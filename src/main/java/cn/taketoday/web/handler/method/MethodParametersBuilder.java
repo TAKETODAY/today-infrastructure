@@ -45,18 +45,17 @@ public class MethodParametersBuilder {
       return null;
     }
     final ResolvableMethodParameter[] ret = new ResolvableMethodParameter[length];
-    final String[] methodArgsNames = parameterNameDiscoverer.getParameterNames(method);
     for (int i = 0; i < length; i++) {
       MethodParameter parameter = new SynthesizingMethodParameter(method, i);
       parameter.initParameterNameDiscovery(parameterNameDiscoverer);
-      ret[i] = createParameter(methodArgsNames[i], parameter);
+      ret[i] = createParameter(parameter);
     }
 
     return ret;
   }
 
-  protected ResolvableMethodParameter createParameter(String methodArgsName, MethodParameter parameter) {
-    return new ResolvableMethodParameter(parameter, methodArgsName);
+  protected ResolvableMethodParameter createParameter(MethodParameter parameter) {
+    return new ResolvableMethodParameter(parameter);
   }
 
   public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {

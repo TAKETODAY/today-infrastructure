@@ -41,11 +41,11 @@ public class SessionConfiguration {
   private TrackingMode[] trackingModes;
   private Duration timeout = Duration.ofMinutes(30);
 
-  private SessionCookieConfiguration cookieConfig;
+  private SessionCookieConfig cookieConfig;
 
   public SessionConfiguration() { }
 
-  public SessionConfiguration(SessionCookieConfiguration cookieConfig) {
+  public SessionConfiguration(SessionCookieConfig cookieConfig) {
     this.cookieConfig = cookieConfig;
   }
 
@@ -57,7 +57,7 @@ public class SessionConfiguration {
     return persistent;
   }
 
-  public void setCookieConfig(SessionCookieConfiguration cookieConfig) {
+  public void setCookieConfig(SessionCookieConfig cookieConfig) {
     this.cookieConfig = cookieConfig;
   }
 
@@ -89,7 +89,7 @@ public class SessionConfiguration {
     return storeDirectory;
   }
 
-  public SessionCookieConfiguration getCookieConfig() {
+  public SessionCookieConfig getCookieConfig() {
     return cookieConfig;
   }
 

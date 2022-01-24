@@ -21,7 +21,7 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
+import cn.taketoday.web.interceptor.HandlerInterceptorsProvider;
 import cn.taketoday.web.interceptor.InterceptorChain;
 
 /**
@@ -32,8 +32,8 @@ public abstract class InterceptableHandlerAdapter
 
   @Override
   public final Object handle(final RequestContext context, final Object handler) throws Throwable {
-    if (handler instanceof HandlerInterceptorsCapable) {
-      final HandlerInterceptor[] interceptors = ((HandlerInterceptorsCapable) handler).getInterceptors();
+    if (handler instanceof HandlerInterceptorsProvider) {
+      final HandlerInterceptor[] interceptors = ((HandlerInterceptorsProvider) handler).getInterceptors();
       if (interceptors != null) {
         return new InterceptorChain(interceptors) {
           @Override

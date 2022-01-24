@@ -18,11 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.servlet;
-
-import cn.taketoday.web.MissingRequestValueException;
+package cn.taketoday.web;
 
 /**
+ * {@link RequestBindingException} subclass that indicates a missing parameter.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 23:20
  */

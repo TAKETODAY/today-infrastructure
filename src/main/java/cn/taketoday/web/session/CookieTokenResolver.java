@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.session;
 
-import java.net.HttpCookie;
 import java.util.ArrayList;
 
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
@@ -33,29 +33,22 @@ import cn.taketoday.web.RequestContext;
 public class CookieTokenResolver implements TokenResolver {
 
   private final String cookieName;
-  private HttpCookie sessionCookie;
+  private final SessionCookieConfig config;
 
   public CookieTokenResolver() {
     this(HttpHeaders.AUTHORIZATION);
   }
 
   public CookieTokenResolver(String cookieName) {
-    this(new HttpCookie(cookieName, null));
-    sessionCookie.setPath("/");
-    sessionCookie.setMaxAge(3600);
-    sessionCookie.setHttpOnly(true);
+    this.config = new SessionCookieConfig();
+    this.cookieName = cookieName;
+    config.setName(cookieName);
   }
 
-  public CookieTokenResolver(HttpCookie sessionCookie) {
-    Assert.notNull(sessionCookie, "sessionCookie must not be null");
-    this.sessionCookie = sessionCookie;
-    this.cookieName = sessionCookie.getName();
-  }
-
-  public CookieTokenResolver(SessionCookieConfiguration config) {
+  public CookieTokenResolver(SessionCookieConfig config) {
     Assert.notNull(config, "cookieConfiguration must not be null");
-    setSessionCookie(config.toHttpCookie());
-    this.cookieName = sessionCookie.getName();
+    this.config = config;
+    this.cookieName = config.getName();
   }
 
   @Override
@@ -76,20 +69,16 @@ public class CookieTokenResolver implements TokenResolver {
 
   @Override
   public void saveToken(RequestContext context, WebSession session) {
-    final HttpCookie cookie = cloneSessionCookie();
-    cookie.setValue(session.getId());
+    HttpCookie cookie = buildCookie(session.getId());
     context.addCookie(cookie);
   }
 
-  public HttpCookie getSessionCookie() {
-    return sessionCookie;
+  public String getCookieName() {
+    return cookieName;
   }
 
-  public HttpCookie cloneSessionCookie() {
-    return (HttpCookie) sessionCookie.clone();
+  public HttpCookie buildCookie(String id) {
+    return config.createCookie(id);
   }
 
-  public void setSessionCookie(HttpCookie sessionCookie) {
-    this.sessionCookie = sessionCookie;
-  }
 }

@@ -26,6 +26,7 @@ import cn.taketoday.web.RequestContext;
  * 2019-09-27 20:24
  */
 public interface WebSessionManager {
+
   /**
    * create a new session
    */

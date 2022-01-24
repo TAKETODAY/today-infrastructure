@@ -188,7 +188,7 @@ class ParameterResolverRegistryTests {
 
   private void testConverterParameterResolver(ParameterResolvingRegistry registry, Class<?> type) {
     ResolvableMethodParameter test = mockParameter(type, "test");
-    assertThat(registry.findStrategy(test)).isNotNull().isInstanceOf(ConverterParameterResolver.class);
+    assertThat(registry.findStrategy(test)).isNotNull().isInstanceOf(ConverterAwareParameterResolver.class);
   }
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {

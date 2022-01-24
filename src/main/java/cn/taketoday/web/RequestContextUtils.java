@@ -21,7 +21,6 @@
 package cn.taketoday.web;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.MissingRequestParameterException;
 
 /**
  * Parameter extraction methods, for an approach distinct from data binding,

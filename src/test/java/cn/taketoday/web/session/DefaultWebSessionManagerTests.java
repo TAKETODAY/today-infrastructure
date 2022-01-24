@@ -22,10 +22,10 @@ package cn.taketoday.web.session;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.HttpCookie;
 import java.util.List;
 
 import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.web.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,9 +60,8 @@ class DefaultWebSessionManagerTests {
       // CookieTokenResolver
       CookieTokenResolver cookieTokenResolver = applicationContext.getBean(CookieTokenResolver.class);
       List<HttpCookie> responseCookies = context.responseCookies();
-      HttpCookie sessionCookie = cookieTokenResolver.cloneSessionCookie();
       String sessionId = createdSession.getId();
-      sessionCookie.setValue(sessionId);
+      HttpCookie sessionCookie = cookieTokenResolver.buildCookie(sessionId);
 
       assertThat(responseCookies).hasSize(1);
       assertThat(responseCookies.get(0)).isEqualTo(sessionCookie);

@@ -42,7 +42,7 @@ public class PathVariableEndpointParameterResolver implements EndpointParameterR
 
   @Override
   public boolean supports(ResolvableMethodParameter parameter) {
-    return parameter.isAnnotationPresent(PathVariable.class);
+    return parameter.hasParameterAnnotation(PathVariable.class);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class PathVariableEndpointParameterResolver implements EndpointParameterR
       final String value = ((Map<String, String>) attribute).get(resolveName(parameter));
       return conversionService.convert(value, parameter.getTypeDescriptor());
     }
-    throw new MissingPathVariableException(parameter.getParameter());
+    throw new MissingPathVariableException(parameter.getName(), parameter.getParameter());
   }
 
   protected String resolveName(ResolvableMethodParameter parameter) {

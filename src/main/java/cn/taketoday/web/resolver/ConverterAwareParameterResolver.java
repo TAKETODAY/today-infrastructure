@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -28,23 +27,23 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author TODAY <br>
  * 2019-07-13 12:58
  */
-public class ConverterParameterResolver
+public class ConverterAwareParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
   private final SupportsFunction supports;
   private final Converter<String, Object> converter;
 
-  public ConverterParameterResolver(Class<?> targetType, Converter<String, Object> converter) {
+  public ConverterAwareParameterResolver(Class<?> targetType, Converter<String, Object> converter) {
     this(new TargetSupportsFunction(targetType), converter);
   }
 
-  public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter) {
+  public ConverterAwareParameterResolver(SupportsFunction supports, Converter<String, Object> converter) {
     this.supports = supports;
     this.converter = converter;
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return supports.supports(parameter);
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return supports.supports(resolvable);
   }
 
   @Override
@@ -62,14 +61,14 @@ public class ConverterParameterResolver
     return converter.convert(defaultValue);
   }
 
-  public static ConverterParameterResolver from(
+  public static ConverterAwareParameterResolver from(
           Class<?> targetType, Converter<String, Object> converter) {
-    return new ConverterParameterResolver(targetType, converter);
+    return new ConverterAwareParameterResolver(targetType, converter);
   }
 
-  public static ConverterParameterResolver from(
+  public static ConverterAwareParameterResolver from(
           SupportsFunction supports, Converter<String, Object> converter) {
-    return new ConverterParameterResolver(supports, converter);
+    return new ConverterAwareParameterResolver(supports, converter);
   }
 
 }

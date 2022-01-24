@@ -39,8 +39,8 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
   }
 
   public ParameterResolverMethodParameter(
-          MethodParameter parameter, String parameterName, ParameterResolvingRegistry resolvers) {
-    super(parameter, parameterName);
+          MethodParameter parameter, ParameterResolvingRegistry resolvers) {
+    super(parameter);
     this.resolvers = resolvers;
   }
 

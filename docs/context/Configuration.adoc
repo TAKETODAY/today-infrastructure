@@ -6,7 +6,7 @@
 import cn.taketoday.web.session.TokenResolver;
 import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.session.WebSessionStorage;
-import cn.taketoday.web.session.SessionCookieConfiguration;
+import cn.taketoday.web.session.SessionCookieConfig;
 
 // Enable xxx
 @Retention(RUNTIME)
@@ -38,19 +38,19 @@ class WebSessionConfiguration {
   }
 
   /**
-   * default {@link SessionCookieConfiguration} bean
+   * default {@link SessionCookieConfig} bean
    */
   @Lazy
   @MissingBean
   @Props(prefix = "server.session.cookie.")
-  SessionCookieConfiguration sessionCookieConfiguration() {
-    return new SessionCookieConfiguration();
+  SessionCookieConfig sessionCookieConfiguration() {
+    return new SessionCookieConfig();
   }
 
   @Lazy
   @MissingBean
   @Props(prefix = "server.session.")
-  SessionConfiguration sessionConfiguration(SessionCookieConfiguration sessionCookieConfig) {
+  SessionConfiguration sessionConfiguration(SessionCookieConfig sessionCookieConfig) {
     return new SessionConfiguration(sessionCookieConfig);
   }
 
@@ -58,7 +58,7 @@ class WebSessionConfiguration {
    * 默认的 {@link TokenResolver} bean，用户没有定义就用该实例
    */
   @MissingBean(type = TokenResolver.class)
-  CookieTokenResolver tokenResolver(SessionCookieConfiguration config) {
+  CookieTokenResolver tokenResolver(SessionCookieConfig config) {
     return new CookieTokenResolver(config);
   }
 

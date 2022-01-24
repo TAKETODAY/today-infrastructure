@@ -125,7 +125,7 @@ public class TemplateRendererReturnValueHandler
       final RedirectModel redirectModel = modelManager.getModel(context);
       if (redirectModel != null) {
         context.setAttributes(redirectModel.asMap());
-        modelManager.applyModel(context, null);
+        modelManager.saveRedirectModel(context, null);
       }
     }
     templateRenderer.render(templateName, context);
