@@ -31,9 +31,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -425,6 +425,7 @@ public class WebApplicationLoader
 
   public DispatcherHandler obtainDispatcher() {
     if (dispatcher == null) {
+      // FIXME DispatcherHandler automatic registration
       WebApplicationContext context = obtainApplicationContext();
       DispatcherHandler dispatcherHandler = context.getBean(DispatcherHandler.class);
       if (dispatcherHandler == null) {
