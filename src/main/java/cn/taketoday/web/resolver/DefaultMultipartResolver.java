@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
@@ -47,8 +46,8 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return supportsMultipart(parameter.getParameterType());
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return supportsMultipart(resolvable.getParameterType());
   }
 
   protected static boolean supportsMultipart(Class<?> type) {
@@ -80,10 +79,10 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-      Class<?> parameterClass = parameter.getParameterType();
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      Class<?> parameterClass = resolvable.getParameterType();
       if (CollectionUtils.isCollection(parameterClass)) {
-        ResolvableType type = ResolvableType.forMethodParameter(parameter).asCollection();
+        ResolvableType type = resolvable.getResolvableType().asCollection();
         Class<?> elementType = type.getGeneric(0).resolve();
         return elementType == MultipartFile.class
                 || elementType == ServletPartMultipartFile.class;
@@ -120,9 +119,9 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-      if (parameter.getParameterType().isArray()) {
-        Class<?> componentType = parameter.getParameterType().getComponentType();
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      if (resolvable.getParameterType().isArray()) {
+        Class<?> componentType = resolvable.getParameterType().getComponentType();
         return DefaultMultipartResolver.supportsMultipart(componentType);
       }
       return false;
@@ -150,9 +149,9 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     }
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-      if (isMap(parameter) || parameter.getParameterType() == MultiValueMap.class) {
-        ResolvableType mapType = ResolvableType.forMethodParameter(parameter).asMap();
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      if (isMap(resolvable) || resolvable.getParameterType() == MultiValueMap.class) {
+        ResolvableType mapType = resolvable.getResolvableType().asMap();
         ResolvableType keyType = mapType.getGeneric(0);
         if (keyType.is(String.class)) {// Map<String, >
           Class<?> target;
@@ -171,10 +170,16 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Override
     protected Object resolveInternal(
-            RequestContext context, ResolvableMethodParameter parameter,
+            RequestContext context, ResolvableMethodParameter resolvable,
             MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
+
+      // MultiValueMap<String, MultipartFile>
+      if (resolvable.is(MultiValueMap.class)) {
+        return multipartFiles;
+      }
+
       // Map<String, List<MultipartFile>>
-      if (parameter.is(MultiValueMap.class) || parameter.isGenericPresent(List.class, 1)) {
+      if (resolvable.getResolvableType().asMap().getGeneric(1).resolve() == List.class) {
         return multipartFiles;
       }
 

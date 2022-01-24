@@ -26,7 +26,6 @@ import java.util.Map;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -42,19 +41,19 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  */
 public abstract class AbstractDataBinderParameterResolver extends AbstractNamedValueParameterResolvingStrategy {
 
-  public final boolean supportsParameter(MethodParameter parameter) {
-    return !parameter.hasParameterAnnotation(RequestBody.class) && supportsInternal(parameter);
+  public final boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return !resolvable.hasParameterAnnotation(RequestBody.class) && supportsInternal(resolvable);
   }
 
   /**
    * @since 3.0.3 fix request body
    */
-  protected abstract boolean supportsInternal(MethodParameter parameter);
+  protected abstract boolean supportsInternal(ResolvableMethodParameter resolvable);
 
   @Nullable
   @Override
   protected Object resolveName(
-          String name, ResolvableMethodParameter parameter, RequestContext context) throws Exception {
+          String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
 
     final int parameterNameLength = name.length();
     // prepare property values
@@ -81,7 +80,7 @@ public abstract class AbstractDataBinderParameterResolver extends AbstractNamedV
       }
     }
 
-    return doBind(propertyValues, parameter);
+    return doBind(propertyValues, resolvable);
   }
 
   /**

@@ -25,7 +25,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
@@ -34,9 +33,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.annotation.ResponseBody;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -93,19 +94,22 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return parameter.hasParameterAnnotation(RequestBody.class);
+  public boolean supportsParameter(ResolvableMethodParameter resolvable)  {
+    return resolvable.hasParameterAnnotation(RequestBody.class);
   }
 
   @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class)
-            || returnType.hasMethodAnnotation(ResponseBody.class);
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return super.supportsReturnValue(returnValue);
   }
 
   @Override
   public boolean supportsHandler(Object handler) {
-    return super.supportsHandler(handler);
+    if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      HandlerMethod method = annotationHandler.getMethod();
+      return WebUtils.isResponseBody(method.getMethod());
+    }
+    return false;
   }
 
   /**
@@ -145,10 +149,11 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue)
           throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
-
-    context.setRequestHandled(true);
-    // Try even with null return value. ResponseBodyAdvice could get involved.
-    writeWithMessageConverters(returnValue, returnType, context);
+    if (handler instanceof ActionMappingAnnotationHandler) {
+      context.setRequestHandled(true);
+      // Try even with null return value. ResponseBodyAdvice could get involved.
+      writeWithMessageConverters(returnValue, ((ActionMappingAnnotationHandler) handler).getMethod().getMethodReturnType(), context);
+    }
   }
 
 }

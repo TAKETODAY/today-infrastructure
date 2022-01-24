@@ -39,9 +39,9 @@ public class DataBinderMapParameterResolver
         extends AbstractDataBinderParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsInternal(final MethodParameter parameter) {
-    if (isMap(parameter)) {
-      ResolvableType generic = ResolvableType.forMethodParameter(parameter).asMap().getGeneric(1);
+  public boolean supportsInternal(final ResolvableMethodParameter resolvable) {
+    if (isMap(resolvable)) {
+      ResolvableType generic = resolvable.getResolvableType().asMap().getGeneric(1);
       Class<?> valueType = generic.resolve();
       if (valueType != null) {
         return supportsSetProperties(valueType);
@@ -50,7 +50,7 @@ public class DataBinderMapParameterResolver
     return false;
   }
 
-  public static boolean isMap(MethodParameter parameter) {
+  public static boolean isMap(ResolvableMethodParameter parameter) {
     return parameter.getParameterType() == Map.class;
   }
 

@@ -57,7 +57,7 @@ public abstract class AbstractDateParameterResolver implements ParameterResolvin
   protected DateTimeFormat getAnnotation(ResolvableMethodParameter parameter) {
     final Object attribute = parameter.getAttribute(FORMAT_ANNOTATION_KEY);
     if (attribute == null) {
-      DateTimeFormat ret = parameter.getAnnotation(DateTimeFormat.class);
+      DateTimeFormat ret = parameter.getParameterAnnotation(DateTimeFormat.class);
       if (ret == null) {
         ret = parameter.getParameter().getMethodAnnotation(DateTimeFormat.class);
         if (ret == null) {

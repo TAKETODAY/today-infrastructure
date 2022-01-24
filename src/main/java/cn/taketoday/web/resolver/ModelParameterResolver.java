@@ -21,7 +21,6 @@ package cn.taketoday.web.resolver;
 
 import java.util.Map;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
@@ -51,8 +50,8 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    Class<?> parameterType = parameter.getParameterType();
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    Class<?> parameterType = resolvable.getParameterType();
     if (Model.class.isAssignableFrom(parameterType)) {
       return true;
     }
@@ -63,7 +62,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
 
     if (parameterType == Map.class) {
       // Map<String, Object> model;
-      ResolvableType mapType = ResolvableType.forMethodParameter(parameter).asMap();
+      ResolvableType mapType = resolvable.getResolvableType().asMap();
       ResolvableType keyType = mapType.getGeneric(0);
       ResolvableType valueType = mapType.getGeneric(1);
       return keyType.resolve() == String.class
@@ -84,7 +83,8 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
       RedirectModelManager modelManager = getModelManager();
       // @since 3.0.3 checking model manager
       if (modelManager != null) {
-        modelManager.applyModel(context, redirectModel);
+        context.setAttribute(RedirectModel.KEY_REDIRECT_MODEL, redirectModel);
+        modelManager.saveRedirectModel(context, redirectModel);
       }
       return redirectModel;
     }

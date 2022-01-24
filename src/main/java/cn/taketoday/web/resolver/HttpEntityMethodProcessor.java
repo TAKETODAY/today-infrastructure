@@ -43,6 +43,8 @@ import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
@@ -66,15 +68,18 @@ import cn.taketoday.web.view.RedirectModelManager;
 public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
 
   @Nullable
-  private RedirectModelManager redirectModelManager;
+  private final RedirectModelManager redirectModelManager;
 
   /**
    * Basic constructor with converters only. Suitable for resolving
    * {@code HttpEntity}. For handling {@code ResponseEntity} consider also
    * providing a {@code ContentNegotiationManager}.
    */
-  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters) {
+  public HttpEntityMethodProcessor(
+          List<HttpMessageConverter<?>> converters,
+          @Nullable RedirectModelManager redirectModelManager) {
     super(converters);
+    this.redirectModelManager = redirectModelManager;
   }
 
   /**
@@ -83,8 +88,11 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
    * without {@code Request~} or {@code ResponseBodyAdvice}.
    */
   public HttpEntityMethodProcessor(
-          List<HttpMessageConverter<?>> converters, ContentNegotiationManager manager) {
+          List<HttpMessageConverter<?>> converters,
+          @Nullable ContentNegotiationManager manager,
+          @Nullable RedirectModelManager redirectModelManager) {
     super(converters, manager);
+    this.redirectModelManager = redirectModelManager;
   }
 
   /**
@@ -94,8 +102,10 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
    */
   public HttpEntityMethodProcessor(
           List<HttpMessageConverter<?>> converters,
-          List<Object> requestResponseBodyAdvice) {
+          @Nullable List<Object> requestResponseBodyAdvice,
+          @Nullable RedirectModelManager redirectModelManager) {
     super(converters, null, requestResponseBodyAdvice);
+    this.redirectModelManager = redirectModelManager;
   }
 
   /**
@@ -104,21 +114,33 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
    */
   public HttpEntityMethodProcessor(
           List<HttpMessageConverter<?>> converters,
-          @Nullable ContentNegotiationManager manager, List<Object> requestResponseBodyAdvice) {
+          @Nullable ContentNegotiationManager manager,
+          List<Object> requestResponseBodyAdvice,
+          @Nullable RedirectModelManager redirectModelManager) {
 
     super(converters, manager, requestResponseBodyAdvice);
+    this.redirectModelManager = redirectModelManager;
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return HttpEntity.class == parameter.getParameterType()
-            || RequestEntity.class == parameter.getParameterType();
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return resolvable.is(HttpEntity.class)
+            || resolvable.is(RequestEntity.class);
   }
 
   @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return (HttpEntity.class.isAssignableFrom(returnType.getParameterType())
-            && !RequestEntity.class.isAssignableFrom(returnType.getParameterType()));
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof HttpEntity && !(returnValue instanceof RequestEntity);
+  }
+
+  @Override
+  public boolean supportsHandler(Object handler) {
+    if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      MethodParameter methodReturnType = annotationHandler.getMethod().getMethodReturnType();
+      return HttpEntity.class.isAssignableFrom(methodReturnType.getParameterType())
+              && !RequestEntity.class.isAssignableFrom(methodReturnType.getParameterType());
+    }
+    return false;
   }
 
   @Nullable
@@ -167,6 +189,14 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     if (returnValue == null) {
       return;
     }
+    MethodParameter methodReturnType = null;
+    if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      HandlerMethod method = annotationHandler.getMethod();
+      methodReturnType = method.getMethodReturnType();
+    }
+    else {
+      // TODO
+    }
 
     Assert.isInstanceOf(HttpEntity.class, returnValue);
     HttpEntity<?> httpEntity = (HttpEntity<?>) returnValue;
@@ -211,7 +241,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
 
     // Try even with null body. ResponseBodyAdvice could get involved.
-    writeWithMessageConverters(httpEntity.getBody(), returnType, context);
+    writeWithMessageConverters(httpEntity.getBody(), methodReturnType, context);
 
     // Ensure headers are flushed even if no body was written.
     context.flush();
@@ -254,7 +284,9 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   private void saveRedirectAttributes(RequestContext request, String location) {
     Object attribute = request.getAttribute(RedirectModel.KEY_REDIRECT_MODEL);
     if (attribute instanceof RedirectModel redirectModel) {
-      redirectModelManager.saveRedirectModel(request, redirectModel);
+      if (redirectModelManager != null) {
+        redirectModelManager.saveRedirectModel(request, redirectModel);
+      }
     }
   }
 

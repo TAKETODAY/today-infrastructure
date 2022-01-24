@@ -38,11 +38,11 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.handler.method.NamedValueInfo;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -118,7 +118,7 @@ public class DataBinderParameterResolver
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    if (!parameter.isAnnotationPresent(RequestBody.class) // @since 3.0.3 #17
+    if (!parameter.hasParameterAnnotation(RequestBody.class) // @since 3.0.3 #17
             && !ClassUtils.isSimpleType(parameter.getParameterType())) {
       setAttribute(parameter, registry);
       return true;
@@ -256,10 +256,15 @@ public class DataBinderParameterResolver
       super(other);
       this.parameterClass = field.getType();
       this.field = field;
-//      initRequestParam(field); FIXME initRequestParam
-      if (StringUtils.isEmpty(getName())) {
-        setName(field.getName());
+    }
+
+    @Override
+    protected NamedValueInfo createNamedValueInfo() {
+      RequestParam requestParam = field.getAnnotation(RequestParam.class);
+      if (requestParam == null) {
+        return new NamedValueInfo(field.getName());
       }
+      return new NamedValueInfo(requestParam.name(), requestParam.required(), requestParam.defaultValue());
     }
 
     @Override
@@ -268,13 +273,13 @@ public class DataBinderParameterResolver
     }
 
     @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
+    public boolean hasParameterAnnotation(Class<? extends Annotation> annotationClass) {
       return field.isAnnotationPresent(annotationClass);
     }
 
     @Override
-    public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
-      return field.getAnnotation(annotationClass);
+    public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
+      return field.getAnnotation(annotationType);
     }
 
     @Override

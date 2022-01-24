@@ -31,7 +31,6 @@ import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
@@ -57,7 +56,7 @@ import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
 import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.view.RedirectModelManager;
 
-import static cn.taketoday.web.resolver.ConverterParameterResolver.from;
+import static cn.taketoday.web.resolver.ConverterAwareParameterResolver.from;
 
 /**
  * ParameterResolvingStrategy registry
@@ -188,16 +187,15 @@ public class ParameterResolvingRegistry
   /**
    * Find a suitable {@link ParameterResolvingStrategy} for given {@link ResolvableMethodParameter}
    *
-   * @param parameter MethodParameter
+   * @param resolvable resolvable MethodParameter
    * @return a suitable {@link ParameterResolvingStrategy},
    * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
    */
   @Nullable
   protected ParameterResolvingStrategy lookupStrategy(
-          ResolvableMethodParameter parameter, Iterable<ParameterResolvingStrategy> strategies) {
-    MethodParameter methodParameter = parameter.getParameter();
+          ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
     for (final ParameterResolvingStrategy resolver : strategies) {
-      if (resolver.supportsParameter(methodParameter)) {
+      if (resolver.supportsParameter(resolvable)) {
         return resolver;
       }
     }
@@ -313,7 +311,11 @@ public class ParameterResolvingRegistry
     strategies.add(new ModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
 
-    strategies.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+    strategies.add(new HttpEntityMethodProcessor(
+            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));
+
+    strategies.add(new RequestResponseBodyMethodProcessor(
+            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
     strategies.add(new ThrowableHandlerParameterResolver());
 
     // Date API support @since 3.0
@@ -459,9 +461,8 @@ public class ParameterResolvingRegistry
   record OR(Class<?> one, Class<?> two) implements ParameterResolvingStrategy.SupportsFunction {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
-      Class<?> parameterType = parameter.getParameterType();
-      return parameterType == one || parameterType == two;
+    public boolean supports(ResolvableMethodParameter parameter) {
+      return parameter.is(one) || parameter.is(two);
     }
   }
 

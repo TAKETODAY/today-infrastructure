@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
@@ -38,8 +36,8 @@ public class CookieParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(final MethodParameter parameter) {
-    return parameter.getParameterType() == HttpCookie.class;
+  public boolean supportsParameter(final ResolvableMethodParameter resolvable) {
+    return resolvable.is(HttpCookie.class);
   }
 
   @Override
@@ -69,8 +67,8 @@ public class CookieParameterResolver
   private static class CookieValueAnnotationParameterResolver extends ConversionServiceParameterResolver {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-      return parameter.hasParameterAnnotation(CookieValue.class);
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.hasParameterAnnotation(CookieValue.class);
     }
 
     @Override
@@ -91,8 +89,8 @@ public class CookieParameterResolver
   private static class AllCookieParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-      Class<?> parameterType = parameter.getNestedParameterType();
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      Class<?> parameterType = resolvable.getParameterType();
       return parameterType.isArray()
               && parameterType.getComponentType() == HttpCookie.class;
     }
@@ -107,8 +105,8 @@ public class CookieParameterResolver
           extends CollectionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    protected boolean supportsInternal(MethodParameter parameter) {
-      return ResolvableType.forMethodParameter(parameter)
+    protected boolean supportsInternal(ResolvableMethodParameter resolvable) {
+      return resolvable.getResolvableType()
               .getGeneric(0)
               .resolve() == HttpCookie.class;
     }

@@ -27,7 +27,6 @@ import java.util.Map;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
@@ -62,10 +61,10 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
   private int maxValueIndex = 500;
 
   @Override
-  protected boolean supportsInternal(MethodParameter parameter) {
-    Class<?> parameterType = parameter.getParameterType();
+  protected boolean supportsInternal(ResolvableMethodParameter resolvable) {
+    Class<?> parameterType = resolvable.getParameterType();
     if (CollectionUtils.isCollection(parameterType)) {
-      ResolvableType generic = ResolvableType.forMethodParameter(parameter).asCollection().getGeneric(0);
+      ResolvableType generic = resolvable.getResolvableType().asCollection().getGeneric(0);
       final Class<?> valueType = generic.resolve();
       if (valueType != null) {
         return supportsSetProperties(valueType);
@@ -123,8 +122,8 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     return CollectionUtils.createCollection(parameter.getParameterType(), propertyValues.size());
   }
 
-  protected Class<?> getComponentType(ResolvableMethodParameter parameter) {
-    return (Class<?>) parameter.getGeneric(0);
+  protected Class<?> getComponentType(ResolvableMethodParameter resolvable) {
+    return resolvable.getResolvableType().asCollection().getGeneric(0).resolve();
   }
 
   public void setMaxValueIndex(int maxValueIndex) {

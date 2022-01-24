@@ -21,7 +21,6 @@ package cn.taketoday.web.resolver;
 
 import java.util.List;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.util.DataSize;
@@ -65,7 +64,7 @@ public abstract class AbstractMultipartResolver
 
   @Override
   protected Object missingParameter(ResolvableMethodParameter parameter) {
-    throw new MissingMultipartFileException(parameter.getParameter());
+    throw new MissingMultipartFileException(parameter.getName(), parameter.getParameter());
   }
 
   protected Object resolveInternal(RequestContext context,
@@ -89,7 +88,7 @@ public abstract class AbstractMultipartResolver
   }
 
   @Override
-  public abstract boolean supportsParameter(MethodParameter parameter);
+  public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
 
   public MultipartConfiguration getMultipartConfiguration() {
     return multipartConfiguration;

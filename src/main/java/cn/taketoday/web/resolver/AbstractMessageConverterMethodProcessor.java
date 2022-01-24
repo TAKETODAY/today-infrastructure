@@ -58,13 +58,19 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.view.ReturnValueHandler;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
+ * Extends {@link AbstractMessageConverterParameterResolvingStrategy} with the ability to handle method
+ * return values by writing to the response with {@link HttpMessageConverter HttpMessageConverters}.
+ *
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author Brian Clozel
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 12:30
  */
@@ -162,8 +168,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     HttpHeaders responseHeaders = context.responseHeaders();
     if (isResourceType(value, returnType)) {
       responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");
-      if (value != null && requestHeaders.getFirst(HttpHeaders.RANGE) != null
-              && context.getStatus() == 200) {
+      if (value != null && requestHeaders.getFirst(HttpHeaders.RANGE) != null && context.getStatus() == 200) {
 
         Resource resource = (Resource) value;
         try {
@@ -286,7 +291,7 @@ public abstract class AbstractMessageConverterMethodProcessor
 
     if (body != null) {
       Set<MediaType> producibleMediaTypes =
-              (Set<MediaType>) context.getAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+              (Set<MediaType>) context.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
 
       if (isContentTypePreset || !CollectionUtils.isEmpty(producibleMediaTypes)) {
         throw new HttpMessageNotWritableException(
@@ -476,27 +481,6 @@ public abstract class AbstractMessageConverterMethodProcessor
   private boolean safeMediaType(MediaType mediaType) {
     return (SAFE_MEDIA_BASE_TYPES.contains(mediaType.getType()) ||
             mediaType.getSubtype().endsWith("+xml"));
-  }
-
-  @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return false;
-  }
-
-  @Nullable
-  @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    return null;
-  }
-
-  @Override
-  public boolean supportsHandler(Object handler) {
-    return false;
-  }
-
-  @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
-
   }
 
   static class ServletDelegate {

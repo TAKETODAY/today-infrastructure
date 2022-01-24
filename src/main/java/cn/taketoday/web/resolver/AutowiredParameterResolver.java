@@ -23,7 +23,6 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.DependencyInjector;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -41,8 +40,8 @@ public class AutowiredParameterResolver implements ParameterResolvingStrategy {
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    return parameter.hasParameterAnnotation(Autowired.class);
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return resolvable.hasParameterAnnotation(Autowired.class);
   }
 
   @Nullable

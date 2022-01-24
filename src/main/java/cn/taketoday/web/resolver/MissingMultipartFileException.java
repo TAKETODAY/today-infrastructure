@@ -20,7 +20,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.MissingRequestValueException;
 
 /**
  * Raised when the part of a "multipart/form-data" request identified by its
@@ -32,14 +32,56 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author TODAY 2021/1/17 10:30
  * @since 3.0
  */
-public class MissingMultipartFileException extends MissingParameterException {
+public class MissingMultipartFileException extends MissingRequestValueException {
 
-  public MissingMultipartFileException(MethodParameter parameter) {
-    super("MultipartFile", parameter);
+  private final String multipartName;
+
+  private final MethodParameter parameter;
+
+  /**
+   * Constructor for MissingMatrixVariableException.
+   *
+   * @param variableName the name of the missing matrix variable
+   * @param parameter the method parameter
+   */
+  public MissingMultipartFileException(String variableName, MethodParameter parameter) {
+    this(variableName, parameter, false);
   }
 
+  /**
+   * Constructor for use when a value was present but converted to {@code null}.
+   *
+   * @param variableName the name of the missing matrix variable
+   * @param parameter the method parameter
+   * @param missingAfterConversion whether the value became null after conversion
+   */
+  public MissingMultipartFileException(
+          String variableName, MethodParameter parameter, boolean missingAfterConversion) {
+
+    super("", missingAfterConversion);
+    this.multipartName = variableName;
+    this.parameter = parameter;
+  }
+
+  @Override
+  public String getMessage() {
+    return "Required multipart name '" + this.multipartName + "' for method parameter type " +
+            this.parameter.getNestedParameterType().getSimpleName() + " is " +
+            (isMissingAfterConversion() ? "present but converted to null" : "not present");
+  }
+
+  /**
+   * Return the method parameter bound to the matrix variable.
+   */
+  public final MethodParameter getParameter() {
+    return this.parameter;
+  }
+
+  /**
+   * Return the expected name of the multipart.
+   */
   public final String getRequiredMultipartName() {
-    return getParameterName();
+    return multipartName;
   }
 
 }

@@ -21,7 +21,6 @@ package cn.taketoday.web.resolver;
 
 import java.util.Collection;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -34,12 +33,11 @@ public abstract class CollectionParameterResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
   @Override
-  public final boolean supportsParameter(final MethodParameter parameter) {
-    Class<?> parameterType = parameter.getNestedParameterType();
-    return CollectionUtils.isCollection(parameterType) && supportsInternal(parameter);
+  public final boolean supportsParameter(final ResolvableMethodParameter parameter) {
+    return CollectionUtils.isCollection(parameter.getParameterType()) && supportsInternal(parameter);
   }
 
-  protected boolean supportsInternal(final MethodParameter parameter) {
+  protected boolean supportsInternal(final ResolvableMethodParameter resolvable) {
     return true;
   }
 
@@ -47,13 +45,13 @@ public abstract class CollectionParameterResolver
    * Resolve {@link Collection} parameter.
    */
   @Override
-  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
-    final Collection<?> collection = resolveCollection(context, parameter);
-    if (parameter.is(collection.getClass())) {
+  protected Object resolveInternal(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    final Collection<?> collection = resolveCollection(context, resolvable);
+    if (resolvable.is(collection.getClass())) {
       return collection;
     }
 
-    final Collection<Object> ret = CollectionUtils.createCollection(parameter.getParameterType(), collection.size());
+    final Collection<Object> ret = CollectionUtils.createCollection(resolvable.getParameterType(), collection.size());
     ret.addAll(collection);
     return ret;
   }

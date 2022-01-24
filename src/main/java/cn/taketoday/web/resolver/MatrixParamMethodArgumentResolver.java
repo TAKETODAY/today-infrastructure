@@ -64,12 +64,12 @@ public class MatrixParamMethodArgumentResolver extends AbstractNamedValueParamet
   }
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
-    if (!parameter.hasParameterAnnotation(MatrixParam.class)) {
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    if (!resolvable.hasParameterAnnotation(MatrixParam.class)) {
       return false;
     }
-    if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
-      MatrixParam matrixVariable = parameter.getParameterAnnotation(MatrixParam.class);
+    if (Map.class.isAssignableFrom(resolvable.getParameterType())) {
+      MatrixParam matrixVariable = resolvable.getParameterAnnotation(MatrixParam.class);
       return matrixVariable != null && StringUtils.hasText(matrixVariable.name());
     }
     return true;

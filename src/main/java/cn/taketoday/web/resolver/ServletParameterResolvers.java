@@ -103,7 +103,7 @@ public class ServletParameterResolvers {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isAnnotationPresent(SessionAttribute.class);
+      return parameter.hasParameterAnnotation(SessionAttribute.class);
     }
 
     @Override
@@ -165,13 +165,13 @@ public class ServletParameterResolvers {
           extends CollectionParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    protected boolean supportsInternal(ResolvableMethodParameter parameter) {
-      return parameter.isGenericPresent(Cookie.class, 0);
+    protected boolean supportsInternal(ResolvableMethodParameter resolvable) {
+      return resolvable.getResolvableType().asCollection().getGeneric(0).resolve() == Cookie.class;
     }
 
     @Override
     protected List<?> resolveCollection(RequestContext context, ResolvableMethodParameter parameter) {
-      Cookie[] cookies = context.unwrapRequest(HttpServletRequest.class).getCookies();
+      Cookie[] cookies = ServletUtils.getServletRequest(context).getCookies();
       ArrayList<Cookie> ret = new ArrayList<>(cookies.length);
       Collections.addAll(ret, cookies);
       return ret;
@@ -187,7 +187,7 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return context.unwrapRequest(HttpServletRequest.class).getCookies();
+      return ServletUtils.getServletRequest(context).getCookies();
     }
   }
 
@@ -200,7 +200,7 @@ public class ServletParameterResolvers {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isAnnotationPresent(ServletContextAttribute.class);
+      return parameter.hasParameterAnnotation(ServletContextAttribute.class);
     }
 
     @Override

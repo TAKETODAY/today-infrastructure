@@ -41,7 +41,7 @@ public abstract class ConversionServiceParameterResolver
   protected ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Override
-  public abstract boolean supportsParameter(MethodParameter parameter);
+  public abstract boolean supportsParameter(ResolvableMethodParameter resolvable)  ;
 
   @Override
   protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {

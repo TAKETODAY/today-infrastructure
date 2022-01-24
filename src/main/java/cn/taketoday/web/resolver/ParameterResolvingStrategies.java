@@ -106,7 +106,7 @@ public class ParameterResolvingStrategies
   }
 
   public void add(SupportsFunction supportsFunction, Converter<String, Object> converter) {
-    strategies.add(ConverterParameterResolver.from(supportsFunction, converter));
+    strategies.add(ConverterAwareParameterResolver.from(supportsFunction, converter));
   }
 
   /**

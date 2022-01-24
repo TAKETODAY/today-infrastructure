@@ -49,7 +49,8 @@ public class MethodParameterResolvingException extends MissingRequestValueExcept
   }
 
   public MethodParameterResolvingException(MethodParameter parameter, String message, Throwable cause) {
-    super(message, cause, false);
+    super(message, false);
+    initCause(cause);
     this.parameter = parameter;
   }
 

@@ -34,12 +34,12 @@ public class RequestHeaderParameterResolver extends ConversionServiceParameterRe
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return parameter.isAnnotationPresent(RequestHeader.class);
+    return parameter.hasParameterAnnotation(RequestHeader.class);
   }
 
   @Override
   protected Object missingParameter(ResolvableMethodParameter parameter) {
-    throw new MissingRequestHeaderException(parameter.getParameter());
+    throw new MissingRequestHeaderException(parameter.getName(), parameter.getParameter());
   }
 
   @Override

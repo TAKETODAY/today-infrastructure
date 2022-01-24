@@ -52,7 +52,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 public class MatrixParamMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(MethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter resolvable)  {
     MatrixParam matrixVariable = parameter.getParameterAnnotation(MatrixParam.class);
     return matrixVariable != null
             && Map.class.isAssignableFrom(parameter.getParameterType())
