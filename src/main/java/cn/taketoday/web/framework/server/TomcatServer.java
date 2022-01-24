@@ -76,7 +76,7 @@ import cn.taketoday.web.framework.config.JspServletConfiguration;
 import cn.taketoday.web.framework.config.MimeMappings;
 import cn.taketoday.web.framework.config.WebDocumentConfiguration;
 import cn.taketoday.web.session.SessionConfiguration;
-import cn.taketoday.web.session.SessionCookieConfiguration;
+import cn.taketoday.web.session.SessionCookieConfig;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContainerInitializer;
 import lombok.Getter;
@@ -515,7 +515,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
   protected void configureSession(Context context, SessionConfiguration sessionConfig) {
     context.setSessionTimeout(getSessionTimeoutInMinutes(sessionConfig));
-    SessionCookieConfiguration cookieConfig = sessionConfig.getCookieConfig();
+    SessionCookieConfig cookieConfig = sessionConfig.getCookieConfig();
     if (cookieConfig != null) {
       context.setUseHttpOnly(cookieConfig.isHttpOnly());
     }

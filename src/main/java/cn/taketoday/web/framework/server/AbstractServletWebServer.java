@@ -42,10 +42,9 @@ import cn.taketoday.web.framework.config.JspServletConfiguration;
 import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.session.SessionConfiguration;
-import cn.taketoday.web.session.SessionCookieConfiguration;
+import cn.taketoday.web.session.SessionCookieConfig;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletSecurityElement;
-import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.annotation.ServletSecurity;
 import lombok.Getter;
@@ -146,15 +145,14 @@ public abstract class AbstractServletWebServer
 
       contextInitializers.add((OrderedServletContextInitializer) servletContext -> {
         getWebApplicationConfiguration().configureSession(sessionConfig);
-        SessionCookieConfiguration cookie = sessionConfig.getCookieConfig();
+        SessionCookieConfig cookie = sessionConfig.getCookieConfig();
 
         if (cookie != null) {
-          SessionCookieConfig config = servletContext.getSessionCookieConfig();
+          jakarta.servlet.SessionCookieConfig config = servletContext.getSessionCookieConfig();
           config.setName(cookie.getName());
           config.setPath(cookie.getPath());
           config.setSecure(cookie.isSecure());
           config.setDomain(cookie.getDomain());
-          config.setComment(cookie.getComment());
           config.setHttpOnly(cookie.isHttpOnly());
           config.setMaxAge((int) cookie.getMaxAge().getSeconds());
         }
