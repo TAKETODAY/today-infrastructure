@@ -90,6 +90,9 @@ public interface HandlerAdapter {
   /**
    * Use the given handler to handle this request. The workflow that is required
    * may vary widely.
+   * <p>
+   * this result will handle by {@link cn.taketoday.web.view.ReturnValueHandler}
+   * </p>
    *
    * @param context current HTTP request context
    * @param handler handler to use. This object must have previously been passed to
@@ -99,6 +102,7 @@ public interface HandlerAdapter {
    * {@code null} if the request has been handled directly
    * @throws Throwable in case of errors
    * @see #NONE_RETURN_VALUE
+   * @see cn.taketoday.web.view.ReturnValueHandler
    */
   Object handle(RequestContext context, Object handler) throws Throwable;
 
