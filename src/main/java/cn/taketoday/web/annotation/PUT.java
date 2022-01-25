@@ -30,6 +30,12 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
 
 /**
+ * Annotation for mapping HTTP {@code PUT} requests onto specific handler
+ * methods.
+ *
+ * <p>Specifically, {@code @PUT} is a <em>composed annotation</em> that
+ * acts as a shortcut for {@code @ActionMapping(method = HttpMethod.PUT)}.
+ *
  * @author TODAY <br>
  * 2018-07-01 14:07:11 2018-08-23 10:24 change add
  * <b>@ActionMapping(method = RequestMethod.PUT)
@@ -42,6 +48,14 @@ public @interface PUT {
   /** urls */
   @AliasFor(annotation = ActionMapping.class)
   String[] value() default Constant.BLANK;
+
+  /**
+   * Alias for {@link ActionMapping#path}.
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] path() default {};
 
   /** Exclude url on class */
   @AliasFor(annotation = ActionMapping.class)

@@ -41,7 +41,40 @@ public @interface TRACE {
   @AliasFor(annotation = ActionMapping.class)
   String[] value() default Constant.BLANK;
 
+  /**
+   * Alias for {@link ActionMapping#path}.
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] path() default {};
+
   /** Exclude url on class */
   @AliasFor(annotation = ActionMapping.class)
   boolean exclude() default false;
+
+  /**
+   * Alias for {@link ActionMapping#params}.
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] params() default {};
+
+  /**
+   * Alias for {@link ActionMapping#consumes}.
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] consumes() default {};
+
+  /**
+   * Alias for {@link ActionMapping#produces}.
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] produces() default {};
+
 }

@@ -30,6 +30,12 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
 
 /**
+ * Annotation for mapping HTTP {@code GET} requests onto specific handler
+ * methods.
+ *
+ * <p>Specifically, {@code @GetMapping} is a <em>composed annotation</em> that
+ * acts as a shortcut for {@code @ActionMapping(method = HttpMethod.GET)}.
+ *
  * @author TODAY 2020/12/8 21:46
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -40,6 +46,14 @@ public @interface GetMapping {
   /** urls */
   @AliasFor(annotation = ActionMapping.class)
   String[] value() default Constant.BLANK;
+
+  /**
+   * Alias for {@link ActionMapping#path}.
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] path() default {};
 
   /** Exclude url on class */
   @AliasFor(annotation = ActionMapping.class)
