@@ -647,8 +647,7 @@ public abstract class ReflectionUtils {
    * @param mf the filter that determines the methods to apply the callback to
    * @throws IllegalStateException if introspection fails
    */
-  public static void doWithMethods(Class<?> clazz, MethodCallback mc, MethodFilter mf) {
-    // Keep backing up the inheritance hierarchy.
+  public static void doWithMethods(Class<?> clazz, MethodCallback mc, @Nullable MethodFilter mf) {
     Method[] methods = getDeclaredMethods(clazz, false);
     for (Method method : methods) {
       if (mf != null && !mf.matches(method)) {
@@ -661,6 +660,7 @@ public abstract class ReflectionUtils {
         throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
       }
     }
+    // Keep backing up the inheritance hierarchy.
     if (clazz.getSuperclass() != null
             && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
       doWithMethods(clazz.getSuperclass(), mc, mf);
@@ -770,7 +770,7 @@ public abstract class ReflectionUtils {
    * @param mf the filter that determines the methods to take into account
    * @throws IllegalStateException if introspection fails
    */
-  public static Method[] getUniqueDeclaredMethods(Class<?> leafClass, MethodFilter mf) {
+  public static Method[] getUniqueDeclaredMethods(Class<?> leafClass, @Nullable MethodFilter mf) {
     ArrayList<Method> methods = new ArrayList<>(32);
     doWithMethods(leafClass, method -> {
       boolean knownSignature = false;
@@ -1043,7 +1043,7 @@ public abstract class ReflectionUtils {
    * @param ff the filter that determines the fields to apply the callback to
    * @throws IllegalStateException if introspection fails
    */
-  public static void doWithFields(Class<?> clazz, FieldCallback fc, FieldFilter ff) {
+  public static void doWithFields(Class<?> clazz, FieldCallback fc, @Nullable FieldFilter ff) {
     // Keep backing up the inheritance hierarchy.
     Class<?> targetClass = clazz;
     do {
