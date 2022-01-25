@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.logging.Logger;
@@ -278,8 +277,8 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   private final class FreemarkerConfigParameterResolver implements ParameterResolvingStrategy {
 
     @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable)  {
-      return parameter.getParameterType() == Configuration.class;
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.is(Configuration.class);
     }
 
     @Override
