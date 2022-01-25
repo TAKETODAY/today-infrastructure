@@ -39,6 +39,7 @@ import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.reflect.GetterMethod;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.core.reflect.SetterMethod;
+import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -56,6 +57,32 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 2020-08-13 21:55
  */
 public class ReflectionUtilsTest {
+
+  @Test
+  void doWithMethodsUsingUserDeclaredMethodsFilterStartingWithObject() {
+    ListSavingMethodCallback mc = new ListSavingMethodCallback();
+    ReflectionUtils.doWithMethods(Object.class, mc, ReflectionUtils.USER_DECLARED_METHODS);
+    assertThat(mc.getMethodNames()).isEmpty();
+  }
+
+  @Test
+  void doWithMethodsUsingUserDeclaredMethodsFilterStartingWithTestObject() {
+    ListSavingMethodCallback mc = new ListSavingMethodCallback();
+    ReflectionUtils.doWithMethods(TestObject.class, mc, ReflectionUtils.USER_DECLARED_METHODS);
+    assertThat(mc.getMethodNames())
+            .as("user declared methods").contains("absquatulate", "compareTo", "getName", "setName", "getAge", "setAge", "getSpouse", "setSpouse")
+            .as("methods on Object").doesNotContain("equals", "hashCode", "toString", "clone", "finalize", "getClass", "notify", "notifyAll", "wait");
+  }
+
+  @Test
+  void doWithMethodsUsingUserDeclaredMethodsComposedFilter() {
+    ListSavingMethodCallback mc = new ListSavingMethodCallback();
+    // "q" because both absquatulate() and equals() contain "q"
+    MethodFilter isSetterMethodOrNameContainsQ = m -> m.getName().startsWith("set") || m.getName().contains("q");
+    MethodFilter methodFilter = ReflectionUtils.USER_DECLARED_METHODS.and(isSetterMethodOrNameContainsQ);
+    ReflectionUtils.doWithMethods(TestObject.class, mc, methodFilter);
+    assertThat(mc.getMethodNames()).containsExactlyInAnyOrder("setName", "setAge", "setSpouse", "absquatulate");
+  }
 
   public static class POJO1 {
 
@@ -442,6 +469,7 @@ public class ReflectionUtilsTest {
     static final short staticFinalPro = 100;
   }
 
+  @Test
   public void testNewPropertyAccessor() throws NoSuchFieldException {
     final PropertyBean propertyBean = new PropertyBean();
 
@@ -484,6 +512,7 @@ public class ReflectionUtilsTest {
 
   // ------------------------------------------------------------------------------
 
+  @Test
   public void testFindField() {
     Field field = ReflectionUtils.findField(TestObjectSubclassWithPublicField.class, "publicField", String.class);
     assertThat(field).isNotNull();
@@ -504,6 +533,7 @@ public class ReflectionUtilsTest {
     assertThat(Modifier.isPrivate(field.getModifiers())).as("Field should be private.").isTrue();
   }
 
+  @Test
   public void testSetField() {
     TestObjectSubclassWithNewField testBean = new TestObjectSubclassWithNewField();
     Field field = ReflectionUtils.findField(TestObjectSubclassWithNewField.class, "name", String.class);
@@ -518,6 +548,7 @@ public class ReflectionUtilsTest {
     assertThat((Object) testBean.getName()).isNull();
   }
 
+  @Test
   public void testInvokeMethod() throws Exception {
     String rob = "Rob Harrop";
 
@@ -535,6 +566,7 @@ public class ReflectionUtilsTest {
     assertThat(bean.getName()).as("Incorrect name set").isEqualTo(juergen);
   }
 
+  @Test
   public void testDeclaresException() throws Exception {
     Method remoteExMethod = A.class.getDeclaredMethod("foo", Integer.class);
     assertThat(ReflectionUtils.declaresException(remoteExMethod, RemoteException.class)).isTrue();
@@ -549,30 +581,35 @@ public class ReflectionUtilsTest {
     assertThat(ReflectionUtils.declaresException(illegalExMethod, Exception.class)).isFalse();
   }
 
+  @Test
   public void testCopySrcToDestinationOfIncorrectClass() {
     TestObject src = new TestObject();
     String dest = new String();
     assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
   }
 
+  @Test
   public void testRejectsNullSrc() {
     TestObject src = null;
     String dest = new String();
     assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
   }
 
+  @Test
   public void testRejectsNullDest() {
     TestObject src = new TestObject();
     String dest = null;
     assertThatIllegalArgumentException().isThrownBy(() -> ReflectionUtils.shallowCopyFieldState(src, dest));
   }
 
+  @Test
   public void testValidCopy() {
     TestObject src = new TestObject();
     TestObject dest = new TestObject();
     testValidCopy(src, dest);
   }
 
+  @Test
   public void testValidCopyOnSubTypeWithNewField() {
     TestObjectSubclassWithNewField src = new TestObjectSubclassWithNewField();
     TestObjectSubclassWithNewField dest = new TestObjectSubclassWithNewField();
@@ -586,6 +623,7 @@ public class ReflectionUtilsTest {
     assertThat(dest.prot).isEqualTo(src.prot);
   }
 
+  @Test
   public void testValidCopyToSubType() {
     TestObject src = new TestObject();
     TestObjectSubclassWithNewField dest = new TestObjectSubclassWithNewField();
@@ -595,6 +633,7 @@ public class ReflectionUtilsTest {
     assertThat(dest.magic).isEqualTo(11);
   }
 
+  @Test
   public void testValidCopyToSubTypeWithFinalField() {
     TestObjectSubclassWithFinalField src = new TestObjectSubclassWithFinalField();
     TestObjectSubclassWithFinalField dest = new TestObjectSubclassWithFinalField();
@@ -613,9 +652,10 @@ public class ReflectionUtilsTest {
     assertThat(dest.getSpouse()).isEqualTo(src.getSpouse());
   }
 
+  @Test
   public void testDoWithProtectedMethods() {
     ListSavingMethodCallback mc = new ListSavingMethodCallback();
-    ReflectionUtils.doWithMethods(TestObject.class, mc, new ReflectionUtils.MethodFilter() {
+    ReflectionUtils.doWithMethods(TestObject.class, mc, new MethodFilter() {
       @Override
       public boolean matches(Method m) {
         return Modifier.isProtected(m.getModifiers());
@@ -628,6 +668,7 @@ public class ReflectionUtilsTest {
     assertThat(mc.getMethodNames().contains("absquatulate")).as("Public, not protected").isFalse();
   }
 
+  @Test
   public void testDuplicatesFound() {
     ListSavingMethodCallback mc = new ListSavingMethodCallback();
     ReflectionUtils.doWithMethods(TestObjectSubclass.class, mc);
@@ -640,12 +681,14 @@ public class ReflectionUtilsTest {
     assertThat(absquatulateCount).as("Found 2 absquatulates").isEqualTo(2);
   }
 
+  @Test
   public void testFindMethod() throws Exception {
     assertThat(ReflectionUtils.findMethod(B.class, "bar", String.class)).isNotNull();
     assertThat(ReflectionUtils.findMethod(B.class, "foo", Integer.class)).isNotNull();
     assertThat(ReflectionUtils.findMethod(B.class, "getClass")).isNotNull();
   }
 
+  @Test
   public void testGetAllDeclaredMethods() throws Exception {
     class Foo {
       @Override
@@ -663,6 +706,7 @@ public class ReflectionUtilsTest {
     assertThat(toStringMethodCount).isEqualTo(2);
   }
 
+  @Test
   public void testGetUniqueDeclaredMethods() throws Exception {
     class Foo {
       @Override
@@ -679,6 +723,7 @@ public class ReflectionUtilsTest {
     assertThat(toStringMethodCount).isEqualTo(1);
   }
 
+  @Test
   public void testGetUniqueDeclaredMethods_withCovariantReturnType() throws Exception {
     class Parent {
       @SuppressWarnings("unused")
@@ -702,6 +747,7 @@ public class ReflectionUtilsTest {
     assertThat(m1MethodCount).isEqualTo(1);
   }
 
+  @Test
   public void testGetUniqueDeclaredMethods_isFastEnough() {
     @SuppressWarnings("unused")
     class C { //@formatter:off
@@ -731,6 +777,7 @@ public class ReflectionUtilsTest {
     assertThat(methods.length).isGreaterThan(100);
   }
 
+  @Test
   public void testGetDeclaredMethodsReturnsCopy() {
     Method[] m1 = ReflectionUtils.getDeclaredMethods(A.class);
     Method[] m2 = ReflectionUtils.getDeclaredMethods(A.class);

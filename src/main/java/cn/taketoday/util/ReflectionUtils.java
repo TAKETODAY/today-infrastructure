@@ -42,7 +42,8 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Fast reflection operation
+ * Simple utility class for working with the reflection API and handling
+ * reflection exceptions.
  *
  * @author TODAY 2020-08-13 18:45
  * @since 2.1.7
@@ -54,8 +55,8 @@ public abstract class ReflectionUtils {
    * Pre-built MethodFilter that matches all non-bridge non-synthetic methods
    * which are not declared on {@code java.lang.Object}.
    */
-  public static final MethodFilter USER_DECLARED_METHODS
-          = method -> !method.isBridge() && !method.isSynthetic();
+  public static final MethodFilter USER_DECLARED_METHODS =
+          method -> !method.isBridge() && !method.isSynthetic() && (method.getDeclaringClass() != Object.class);
 
   /**
    * Pre-built FieldFilter that matches all non-static, non-final fields.
@@ -648,6 +649,10 @@ public abstract class ReflectionUtils {
    * @throws IllegalStateException if introspection fails
    */
   public static void doWithMethods(Class<?> clazz, MethodCallback mc, @Nullable MethodFilter mf) {
+    if (mf == USER_DECLARED_METHODS && clazz == Object.class) {
+      // nothing to introspect
+      return;
+    }
     Method[] methods = getDeclaredMethods(clazz, false);
     for (Method method : methods) {
       if (mf != null && !mf.matches(method)) {
