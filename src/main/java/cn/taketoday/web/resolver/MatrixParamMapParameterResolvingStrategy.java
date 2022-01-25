@@ -35,6 +35,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.registry.HandlerRegistry;
 
 /**
  * Resolves arguments of type {@link Map} annotated with {@link MatrixParam @MatrixParam}
@@ -43,13 +44,13 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * path variable.
  *
  * <p>When a name is specified, an argument of type Map is considered to be a single attribute
- * with a Map value, and is resolved by {@link MatrixParamMethodArgumentResolver} instead.
+ * with a Map value, and is resolved by {@link MatrixParamParameterResolvingStrategy} instead.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 22:23
  */
-public class MatrixParamMapMethodArgumentResolver implements ParameterResolvingStrategy {
+public class MatrixParamMapParameterResolvingStrategy implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -66,9 +67,7 @@ public class MatrixParamMapMethodArgumentResolver implements ParameterResolvingS
 
     @SuppressWarnings("unchecked")
     Map<String, MultiValueMap<String, String>> matrixVariables =
-            (Map<String, MultiValueMap<String, String>>) context.getAttribute(MatrixParam.MATRIX_PARAM_ATTRIBUTE);
-
-//    WebUtils.parseMatrixVariables()
+            (Map<String, MultiValueMap<String, String>>) context.getAttribute(HandlerRegistry.MATRIX_VARIABLES_ATTRIBUTE);
 
     if (CollectionUtils.isEmpty(matrixVariables)) {
       return Collections.emptyMap();

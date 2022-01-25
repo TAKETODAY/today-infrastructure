@@ -20,9 +20,12 @@
 
 package cn.taketoday.web.registry;
 
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
@@ -33,17 +36,13 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-
 /**
  * @author TODAY 2021/4/21 23:57
  * @since 3.0
  */
 final class AnnotationMappingInfo implements Ordered {
 
-  private final String[] value;
+  private final String[] path;
 //  private final String[] produces;
 
   private final MediaType[] produces;
@@ -56,9 +55,9 @@ final class AnnotationMappingInfo implements Ordered {
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
-  AnnotationMappingInfo(String[] value, String[] produces, String[] consumes,
+  AnnotationMappingInfo(String[] path, String[] produces, String[] consumes,
                         String[] params, HttpMethod[] method, ActionMappingAnnotationHandler handler) {
-    this.value = value;
+    this.path = path;
     this.handler = handler;
     this.method = compute(method);
     this.produces = compute(produces, MediaType::valueOf, MediaType[]::new);
@@ -89,22 +88,22 @@ final class AnnotationMappingInfo implements Ordered {
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(ActionMapping mapping, ActionMappingAnnotationHandler handler) {
-    this(mapping.value(), mapping.produces(), mapping.consumes(),
-         mapping.params(), mapping.method(), handler);
+    this(mapping.path(), mapping.produces(), mapping.consumes(),
+            mapping.params(), mapping.method(), handler);
   }
 
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(AnnotationAttributes attributes, ActionMappingAnnotationHandler handler) {
-    this(attributes.getStringArray(MergedAnnotation.VALUE), attributes.getStringArray("produces"),
-         attributes.getStringArray("consumes"), attributes.getStringArray("params"),
-         attributes.getRequiredAttribute("method", HttpMethod[].class), handler);
+    this(attributes.getStringArray("path"), attributes.getStringArray("produces"),
+            attributes.getStringArray("consumes"), attributes.getStringArray("params"),
+            attributes.getRequiredAttribute("method", HttpMethod[].class), handler);
   }
 
   public AnnotationMappingInfo(AnnotationMappingInfo mapping, ActionMappingAnnotationHandler handler) {
     this.handler = handler;
-    this.value = mapping.value;
+    this.path = mapping.path;
     this.params = mapping.params;
     this.method = mapping.method;
     this.produces = mapping.produces;
@@ -116,7 +115,7 @@ final class AnnotationMappingInfo implements Ordered {
   }
 
   public String[] value() {
-    return value;
+    return path;
   }
 
   public HttpMethod[] method() {

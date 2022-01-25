@@ -21,13 +21,11 @@
 package cn.taketoday.web.resolver;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -37,14 +35,13 @@ import cn.taketoday.web.RequestBindingException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.util.UrlPathHelper;
-import cn.taketoday.web.util.WebUtils;
+import cn.taketoday.web.registry.HandlerRegistry;
 
 /**
  * Resolves arguments annotated with {@link MatrixParam @MatrixParam}.
  *
  * <p>If the method parameter is of type {@link Map} it will by resolved by
- * {@link MatrixParamMapMethodArgumentResolver} instead unless the annotation
+ * {@link MatrixParamMapParameterResolvingStrategy} instead unless the annotation
  * specifies a name in which case it is considered to be a single attribute of
  * type map (vs multiple attributes collected in a map).
  *
@@ -54,12 +51,9 @@ import cn.taketoday.web.util.WebUtils;
  * @see MatrixParam
  * @since 4.0 2022/1/23 22:22
  */
-public class MatrixParamMethodArgumentResolver extends AbstractNamedValueParameterResolvingStrategy {
+public class MatrixParamParameterResolvingStrategy extends AbstractNamedValueParameterResolvingStrategy {
 
-  private PathMatcher pathMatcher;
-  private UrlPathHelper urlPathHelper;
-
-  public MatrixParamMethodArgumentResolver() {
+  public MatrixParamParameterResolvingStrategy() {
     super(null);
   }
 
@@ -79,15 +73,15 @@ public class MatrixParamMethodArgumentResolver extends AbstractNamedValueParamet
   @Override
   protected Object resolveName(
           String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
-    MethodParameter parameter = resolvable.getParameter();
 
-    Map<String, String> uriVariables = pathMatcher.extractUriTemplateVariables(bestPattern, lookupPath);
-    Map<String, MultiValueMap<String, String>> pathParameters = extractMatrixVariables(request, uriVariables);
-
+    @SuppressWarnings("unchecked")
+    Map<String, MultiValueMap<String, String>> pathParameters =
+            (Map<String, MultiValueMap<String, String>>) request.getAttribute(HandlerRegistry.MATRIX_VARIABLES_ATTRIBUTE);
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;
     }
 
+    MethodParameter parameter = resolvable.getParameter();
     MatrixParam ann = parameter.getParameterAnnotation(MatrixParam.class);
     Assert.state(ann != null, "No MatrixVariable annotation");
     String pathVar = ann.pathVar();
@@ -124,36 +118,6 @@ public class MatrixParamMethodArgumentResolver extends AbstractNamedValueParamet
     else {
       return paramValues;
     }
-  }
-
-  private Map<String, MultiValueMap<String, String>> extractMatrixVariables(
-          RequestContext request, Map<String, String> uriVariables) {
-
-    Map<String, MultiValueMap<String, String>> result = new LinkedHashMap<>();
-    uriVariables.forEach((uriVarKey, uriVarValue) -> {
-
-      int equalsIndex = uriVarValue.indexOf('=');
-      if (equalsIndex == -1) {
-        return;
-      }
-
-      int semicolonIndex = uriVarValue.indexOf(';');
-      if (semicolonIndex != -1 && semicolonIndex != 0) {
-        uriVariables.put(uriVarKey, uriVarValue.substring(0, semicolonIndex));
-      }
-
-      String matrixVariables;
-      if (semicolonIndex == -1 || semicolonIndex == 0 || equalsIndex < semicolonIndex) {
-        matrixVariables = uriVarValue;
-      }
-      else {
-        matrixVariables = uriVarValue.substring(semicolonIndex + 1);
-      }
-
-      MultiValueMap<String, String> vars = WebUtils.parseMatrixVariables(matrixVariables);
-      result.put(uriVarKey, urlPathHelper.decodeMatrixVariables(request, vars));
-    });
-    return result;
   }
 
   @Override
