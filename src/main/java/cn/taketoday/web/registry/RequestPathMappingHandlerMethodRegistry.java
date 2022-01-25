@@ -38,8 +38,8 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.PatternHandler;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 
 /**
  * @author TODAY 2021/3/10 11:33
@@ -104,9 +104,9 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
   protected Object transformHandler(String handlerKey, Object handler) {
     if (handler instanceof AnnotationMappingInfo mapping) {
       ActionMappingAnnotationHandler handlerMethod = mapping.getHandler();
-      Object transformed = super.transformHandler(handlerKey, handlerMethod);
+      ActionMappingAnnotationHandler transformed = super.transformHandler(handlerKey, handlerMethod);
       if (transformed != handlerMethod) {
-        mapping = new AnnotationMappingInfo(mapping, (ActionMappingAnnotationHandler) transformed);
+        mapping = new AnnotationMappingInfo(mapping, transformed);
       }
       return mapping;
     }
