@@ -301,6 +301,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
           return false;
         }
       }
+      context.setAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, produces.clone());
     }
 
     return true;

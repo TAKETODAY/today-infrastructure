@@ -49,15 +49,16 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.view.ReturnValueHandler;
@@ -290,10 +291,10 @@ public abstract class AbstractMessageConverterMethodProcessor
     }
 
     if (body != null) {
-      Set<MediaType> producibleMediaTypes =
-              (Set<MediaType>) context.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+      MediaType[] producibleMediaTypes =
+              (MediaType[]) context.getAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
 
-      if (isContentTypePreset || !CollectionUtils.isEmpty(producibleMediaTypes)) {
+      if (isContentTypePreset || ObjectUtils.isNotEmpty(producibleMediaTypes)) {
         throw new HttpMessageNotWritableException(
                 "No converter for [" + valueType + "] with preset Content-Type '" + contentType + "'");
       }
@@ -350,14 +351,13 @@ public abstract class AbstractMessageConverterMethodProcessor
    * <li>{@link MediaType#ALL}
    * </ul>
    */
-  @SuppressWarnings("unchecked")
   protected List<MediaType> getProducibleMediaTypes(
           RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
 
-    Set<MediaType> mediaTypes =
-            (Set<MediaType>) request.getAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-    if (!CollectionUtils.isEmpty(mediaTypes)) {
-      return new ArrayList<>(mediaTypes);
+    MediaType[] mediaTypes =
+            (MediaType[]) request.getAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+    if (ObjectUtils.isNotEmpty(mediaTypes)) {
+      return Arrays.asList(mediaTypes);
     }
     List<MediaType> result = new ArrayList<>();
     for (HttpMessageConverter<?> converter : this.messageConverters) {
@@ -434,33 +434,32 @@ public abstract class AbstractMessageConverterMethodProcessor
     pathParams = UrlPathHelper.defaultInstance.decodeRequestString(request, pathParams);
     String extInPathParams = StringUtils.getFilenameExtension(pathParams);
 
-    if (!safeExtension(request, ext) || !safeExtension(request, extInPathParams)) {
+    if (notSafeExtension(request, ext) || notSafeExtension(request, extInPathParams)) {
       headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=f.txt");
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private boolean safeExtension(RequestContext request, @Nullable String extension) {
+  private boolean notSafeExtension(RequestContext request, @Nullable String extension) {
     if (!StringUtils.hasText(extension)) {
-      return true;
+      return false;
     }
     extension = extension.toLowerCase(Locale.ENGLISH);
     if (this.safeExtensions.contains(extension)) {
-      return true;
+      return false;
     }
-    String pattern = (String) request.getAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE);
+    String pattern = (String) request.getAttribute(HandlerRegistry.BEST_MATCHING_PATTERN_ATTRIBUTE);
     if (pattern != null && pattern.endsWith("." + extension)) {
-      return true;
+      return false;
     }
     if (extension.equals("html")) {
-      String name = PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE;
-      Set<MediaType> mediaTypes = (Set<MediaType>) request.getAttribute(name);
-      if (!CollectionUtils.isEmpty(mediaTypes) && mediaTypes.contains(MediaType.TEXT_HTML)) {
-        return true;
+      String name = HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE;
+      MediaType[] mediaTypes = (MediaType[]) request.getAttribute(name);
+      if (ObjectUtils.isNotEmpty(mediaTypes) && ObjectUtils.containsElement(mediaTypes, MediaType.TEXT_HTML)) {
+        return false;
       }
     }
     MediaType mediaType = resolveMediaType(request, extension);
-    return (mediaType != null && (safeMediaType(mediaType)));
+    return (mediaType == null || !safeMediaType(mediaType));
   }
 
   @Nullable
