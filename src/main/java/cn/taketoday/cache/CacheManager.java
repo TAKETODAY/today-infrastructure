@@ -22,6 +22,7 @@ package cn.taketoday.cache;
 import java.util.Collection;
 
 import cn.taketoday.cache.annotation.CacheConfig;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY <br>
@@ -36,6 +37,7 @@ public interface CacheManager {
    * @return Target {@link Cache}
    * @see CacheConfig#EMPTY_CACHE_CONFIG
    */
+  @Nullable
   default Cache getCache(String name) {
     return getCache(name, CacheConfig.EMPTY_CACHE_CONFIG);
   }
@@ -47,6 +49,7 @@ public interface CacheManager {
    * @param cacheConfig {@link CacheConfig}
    * @return Target {@link Cache}
    */
+  @Nullable
   Cache getCache(String name, CacheConfig cacheConfig);
 
   /**

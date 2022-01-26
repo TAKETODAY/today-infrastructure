@@ -22,8 +22,6 @@ package cn.taketoday.cache;
 
 import java.util.function.UnaryOperator;
 
-import cn.taketoday.util.ExceptionUtils;
-
 /**
  * @author TODAY 2021/3/8 21:22
  * @since 3.0
@@ -35,12 +33,7 @@ public abstract class AbstractMappingFunctionCache extends Cache {
     final class MappingFunction implements UnaryOperator<Object> {
       @Override
       public Object apply(Object k) {
-        try {
-          return compute(k, valueLoader);
-        }
-        catch (Throwable e) {
-          throw ExceptionUtils.sneakyThrow(e);
-        }
+        return computeValue(k, valueLoader);
       }
     }
     return computeIfAbsent(key, new MappingFunction());

@@ -29,7 +29,7 @@ import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CaffeineCacheManager;
+import cn.taketoday.cache.support.CaffeineCacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.context.support.StandardApplicationContext;

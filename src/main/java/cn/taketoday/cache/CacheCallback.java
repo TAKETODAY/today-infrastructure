@@ -19,6 +19,8 @@
  */
 package cn.taketoday.cache;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author TODAY <br>
  * 2019-03-03 20:38
@@ -26,5 +28,6 @@ package cn.taketoday.cache;
 @FunctionalInterface
 public interface CacheCallback<T> {
 
+  @Nullable
   T call() throws Throwable;
 }

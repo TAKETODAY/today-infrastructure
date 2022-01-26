@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache;
+package cn.taketoday.cache.support;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
@@ -25,6 +25,8 @@ import org.redisson.api.RMapCache;
 
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.CacheCallback;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -69,19 +71,11 @@ public class RedissonCache extends Cache {
   }
 
   @Override
-  protected <T> Object compute(Object key, CacheCallback<T> valueLoader) throws Throwable {
+  protected <T> Object computeIfAbsent(Object key, CacheCallback<T> valueLoader) {
     final RLock lock = cache.getLock(key);
     try {
       lock.lock();
-      Object value = cache.get(key);
-      if (value == null) {
-        final Object newValue = valueLoader.call();
-        put(key, newValue);
-        return newValue;
-      }
-      else {
-        return value;
-      }
+      return super.computeIfAbsent(key, valueLoader);
     }
     finally {
       lock.unlock();

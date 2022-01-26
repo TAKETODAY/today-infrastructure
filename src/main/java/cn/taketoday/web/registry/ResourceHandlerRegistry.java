@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.cache.ConcurrentMapCache;
+import cn.taketoday.cache.support.ConcurrentMapCache;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.NonNull;

@@ -19,15 +19,25 @@
  */
 package cn.taketoday.cache;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NullValue;
+import cn.taketoday.lang.Nullable;
 
 /**
+ * Abstraction for that defines common cache operations.
+ *
+ * <b>Note:</b> Due to the generic use of caching, it is recommended that
+ * implementations allow storage of <tt>null</tt> values (for example to
+ * cache methods that return {@code null}).
+ *
  * @author TODAY 2019-02-27 17:11
  */
 public abstract class Cache {
-  private String name;
+  private String name = Constant.DEFAULT;
 
   public void setName(String name) {
+    Assert.notNull(name, "Name must not be null");
     this.name = name;
   }
 
@@ -51,6 +61,7 @@ public abstract class Cache {
    * @see #get(Object, boolean)
    * @see #toRealValue(Object)
    */
+  @Nullable
   public Object get(final Object key) {
     return get(key, true);
   }
@@ -71,6 +82,7 @@ public abstract class Cache {
    * @see NullValue
    * @see #toRealValue(Object)
    */
+  @Nullable
   public Object get(final Object key, final boolean unWarp) {
     final Object userValue = doGet(key);
     return unWarp ? toRealValue(userValue) : userValue;
@@ -82,6 +94,7 @@ public abstract class Cache {
    * @param key given key
    * @return cached value maybe a warped value
    */
+  @Nullable
   protected abstract Object doGet(Object key);
 
   /**
@@ -103,6 +116,7 @@ public abstract class Cache {
    * type
    * @see #get(Object)
    */
+  @Nullable
   @SuppressWarnings("unchecked")
   public <T> T get(final Object key, final Class<T> requiredType) {
     final Object value = get(key, true);
@@ -130,8 +144,9 @@ public abstract class Cache {
    * @throws CacheValueRetrievalException If cache value failed to load
    * @see #get(Object, boolean)
    */
+  @Nullable
   @SuppressWarnings("unchecked")
-  public final <T> T get(Object key, CacheCallback<T> valueLoader) {
+  public <T> T get(Object key, CacheCallback<T> valueLoader) {
     return (T) toRealValue(computeIfAbsent(key, valueLoader));
   }
 
@@ -144,28 +159,31 @@ public abstract class Cache {
    * @return cached value maybe a warped value
    * @throws CacheValueRetrievalException If CacheCallback#call() throws Exception
    */
+  @Nullable
   protected <T> Object computeIfAbsent(Object key, CacheCallback<T> valueLoader) {
     Object ret = doGet(key);
     if (ret == null) {
-      try {
-        ret = compute(key, valueLoader);
-      }
-      catch (Throwable e) {
-        throw new CacheValueRetrievalException(key, valueLoader, e);
-      }
+      ret = computeValue(key, valueLoader);
+      doPut(key, ret);
     }
     return ret;
   }
 
   /**
-   * compute cache value with {@code valueLoader}
+   * compute cache value from {@code valueLoader}
    *
-   * @param key Cache key
    * @param valueLoader Cache value loader
    * @param <T> Value type
+   * @return a value from {@code valueLoader} maybe warp to a {@code NullValue.INSTANCE}
+   * when {@code valueLoader} returns {@code null}
    */
-  protected <T> Object compute(final Object key, final CacheCallback<T> valueLoader) throws Throwable {
-    return valueLoader.call();
+  protected final <T> Object computeValue(Object key, CacheCallback<T> valueLoader) {
+    try {
+      return toStoreValue(valueLoader.call());
+    }
+    catch (Throwable e) {
+      throw new CacheValueRetrievalException(key, valueLoader, e);
+    }
   }
 
   /**
@@ -177,8 +195,45 @@ public abstract class Cache {
    * @param key the key with which the specified value is to be associated
    * @param value the value to be associated with the specified key
    */
-  public void put(final Object key, final Object value) {
+  public void put(final Object key, @Nullable Object value) {
     doPut(key, toStoreValue(value));
+  }
+
+  /**
+   * Atomically associate the specified value with the specified key in this cache
+   * if it is not set already.
+   * <p>This is equivalent to:
+   * <pre><code>
+   * Object existingValue = doGet(key);
+   * if (existingValue == null) {
+   *     cache.put(key, value);
+   * }
+   * return toRealValue(existingValue);
+   * </code></pre>
+   * except that the action is performed atomically. While all out-of-the-box
+   * {@link CacheManager} implementations are able to perform the put atomically,
+   * the operation may also be implemented in two steps, e.g. with a check for
+   * presence and a subsequent put, in a non-atomic way. Check the documentation
+   * of the native cache implementation that you are using for more details.
+   * <p>The default implementation delegates to {@link #get(Object)} and
+   * {@link #put(Object, Object)} along the lines of the code snippet above.
+   *
+   * @param key the key with which the specified value is to be associated
+   * @param value the value to be associated with the specified key
+   * @return the value to which this cache maps the specified key (which may be
+   * {@code null} itself), or also {@code null} if the cache did not contain any
+   * mapping for that key prior to this call. Returning {@code null} is therefore
+   * an indicator that the given {@code value} has been associated with the key.
+   * @see #put(Object, Object)
+   * @since 4.0
+   */
+  @Nullable
+  public Object putIfAbsent(Object key, @Nullable Object value) {
+    Object existingValue = doGet(key);
+    if (existingValue == null) {
+      put(key, value);
+    }
+    return toRealValue(existingValue);
   }
 
   /**
@@ -220,6 +275,7 @@ public abstract class Cache {
    * @return if {@code cachedValue} is {@link NullValue#INSTANCE}
    * indicates that real value is {@code null}
    */
+  @Nullable
   public static Object toRealValue(final Object cachedValue) {
     return cachedValue == NullValue.INSTANCE ? null : cachedValue;
   }

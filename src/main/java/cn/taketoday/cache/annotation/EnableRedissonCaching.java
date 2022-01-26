@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.cache.RedissonCacheManager;
+import cn.taketoday.cache.support.RedissonCacheManager;
 import cn.taketoday.context.annotation.Import;
 
 /**

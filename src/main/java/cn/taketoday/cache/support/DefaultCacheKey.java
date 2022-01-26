@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,10 +15,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache;
+package cn.taketoday.cache.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -29,6 +30,7 @@ import cn.taketoday.lang.NullValue;
  * 2019-02-27 18:12
  */
 public class DefaultCacheKey implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public static final DefaultCacheKey EMPTY = new DefaultCacheKey(new Object[] { NullValue.INSTANCE });

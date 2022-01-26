@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,15 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache;
+package cn.taketoday.cache.support;
 
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
 
-import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.CacheManager;
+import cn.taketoday.cache.annotation.CacheConfig;
 
 /**
  * A {@link CacheManager} implementation backed by Redisson instance.

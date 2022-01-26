@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import cn.taketoday.cache.DefaultCacheKey;
+import cn.taketoday.cache.support.DefaultCacheKey;
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.expression.CachedExpressionEvaluator;

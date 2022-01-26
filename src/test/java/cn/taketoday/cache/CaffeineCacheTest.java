@@ -24,6 +24,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.cache.support.CaffeineCache;
+
 /**
  * @author TODAY 2021/3/8 21:59
  * @since 3.0

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.ConcurrentMapCache;
+import cn.taketoday.cache.support.ConcurrentMapCache;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
@@ -262,7 +262,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
   protected void logHandlerReplaced(String handlerKey, Object oldHandler, Object newHandler) {
     log.warn("Refresh Handler Registration: {} onto {} old handler: {}",
-             handlerKey, newHandler, oldHandler);
+            handlerKey, newHandler, oldHandler);
   }
 
   protected void logMapping(String handlerKey, Object handler) {

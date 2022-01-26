@@ -19,6 +19,8 @@
  */
 package cn.taketoday.cache;
 
+import cn.taketoday.cache.support.ConcurrentMapCache;
+
 /**
  * @author TODAY <br>
  * 2020-08-14 22:24

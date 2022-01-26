@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,38 +15,39 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache;
+package cn.taketoday.cache.support;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
+import cn.taketoday.cache.AbstractMappingFunctionCache;
 import cn.taketoday.lang.Constant;
 
 /**
- * @author TODAY <br>
- * 2019-02-28 18:10
+ * @author TODAY
+ * @see 2019-02-28 18:10
  */
-public class DefaultMapCache extends AbstractMappingFunctionCache {
+public class MapCache extends AbstractMappingFunctionCache {
 
   private final Map<Object, Object> store;
 
-  public DefaultMapCache() {
+  public MapCache() {
     this(Constant.DEFAULT);
   }
 
-  public DefaultMapCache(String name) {
+  public MapCache(String name) {
     this(name, 256);
   }
 
-  public DefaultMapCache(String name, int size) {
+  public MapCache(String name, int size) {
     this(name, new HashMap<>(size));
   }
 
-  protected DefaultMapCache(String name, Map<Object, Object> store) {
-    this.setName(name);
+  protected MapCache(String name, Map<Object, Object> store) {
+    setName(name);
     this.store = store;
   }
 
