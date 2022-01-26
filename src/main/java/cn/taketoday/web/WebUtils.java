@@ -86,7 +86,7 @@ public abstract class WebUtils {
   // ---
   public static boolean isMultipart(RequestContext requestContext) {
 
-    if (!"POST".equals(requestContext.getMethod())) {
+    if (!"POST".equals(requestContext.getMethodValue())) {
       return false;
     }
     String contentType = requestContext.getContentType();
@@ -101,7 +101,7 @@ public abstract class WebUtils {
   }
 
   public static boolean isHeadRequest(RequestContext requestContext) {
-    return "HEAD".equalsIgnoreCase(requestContext.getMethod());
+    return "HEAD".equalsIgnoreCase(requestContext.getMethodValue());
   }
 
   /**
@@ -195,7 +195,7 @@ public abstract class WebUtils {
    * CORS checks are not invoked here for performance reasons.
    */
   public static boolean isPreFlightRequest(RequestContext request) {
-    if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
+    if (HttpMethod.OPTIONS.name().equals(request.getMethodValue())) {
       HttpHeaders requestHeaders = request.requestHeaders();
       return requestHeaders.containsKey(HttpHeaders.ORIGIN)
               && requestHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);

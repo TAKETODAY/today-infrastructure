@@ -526,6 +526,7 @@ public class UrlPathHelper {
    * @see URLDecoder#decode(String, String)
    * @see URLDecoder#decode(String)
    */
+  @SuppressWarnings("deprecation")
   public String decodeRequestString(RequestContext request, String source) {
     if (this.urlDecode) {
       return decodeInternal(request, source);

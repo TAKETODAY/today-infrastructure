@@ -44,6 +44,8 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NullValue;
@@ -68,7 +70,7 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  * @since 2.3.7
  */
 public abstract class RequestContext
-        implements InputStreamSource, OutputStreamSource, Model, Flushable, HttpInputMessage {
+        implements InputStreamSource, OutputStreamSource, Model, Flushable, HttpInputMessage, HttpRequest {
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
@@ -108,6 +110,8 @@ public abstract class RequestContext
 
   /** @since 4.0 */
   private boolean requestHandled = false;
+
+  private HttpMethod httpMethod;
 
   // --- request
 
@@ -409,11 +413,19 @@ public abstract class RequestContext
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  public final String getMethod() {
+  public final String getMethodValue() {
     if (method == null) {
       this.method = doGetMethod();
     }
     return method;
+  }
+
+  @Override
+  public final HttpMethod getMethod() {
+    if (httpMethod == null) {
+      httpMethod = HttpMethod.from(getMethodValue());
+    }
+    return httpMethod;
   }
 
   protected abstract String doGetMethod();
@@ -997,7 +1009,7 @@ public abstract class RequestContext
 
   @Override
   public String toString() {
-    return getMethod() + " " + getRequestURL();
+    return getMethodValue() + " " + getRequestURL();
   }
 
   /**

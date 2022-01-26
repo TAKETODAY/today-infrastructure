@@ -157,7 +157,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     Object body = readWithMessageConverters(context, parameter, paramType);
     if (RequestEntity.class == parameter.getParameterType()) {
       return new RequestEntity<>(body, context.requestHeaders(),
-              HttpMethod.from(context.getMethod()), context.getURI());
+              HttpMethod.from(context.getMethodValue()), context.getURI());
     }
     else {
       return new HttpEntity<>(body, context.requestHeaders());
@@ -224,7 +224,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       int returnStatus = responseEntity.getStatusCodeValue();
       context.setStatus(returnStatus);
       if (returnStatus == 200) {
-        String method = context.getMethod();
+        String method = context.getMethodValue();
         if ((HttpMethod.GET.matches(method)
                 || HttpMethod.HEAD.matches(method))
                 && isResourceNotModified(context)) {
@@ -270,7 +270,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   private boolean isResourceNotModified(RequestContext context) {
-    String method = context.getMethod();
+    String method = context.getMethodValue();
     HttpHeaders responseHeaders = context.responseHeaders();
     String etag = responseHeaders.getETag();
     long lastModifiedTimestamp = responseHeaders.getLastModified();

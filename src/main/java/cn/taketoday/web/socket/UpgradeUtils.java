@@ -55,7 +55,7 @@ public abstract class UpgradeUtils {
    * for the WebSocket protocol, otherwise <code>false</code>
    */
   public static boolean isWebSocketUpgradeRequest(RequestContext context) {
-    return "GET".equals(context.getMethod()) && headerContainsToken(context, HttpHeaders.UPGRADE, "websocket");
+    return "GET".equals(context.getMethodValue()) && headerContainsToken(context, HttpHeaders.UPGRADE, "websocket");
   }
 
   /*

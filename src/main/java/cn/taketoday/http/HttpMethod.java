@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  */
 public enum HttpMethod {
 
-  GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
+  GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS, CONNECT;
 
   private static final HashMap<String, HttpMethod> mappings = new HashMap<>(16);
 

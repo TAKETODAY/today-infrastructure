@@ -41,7 +41,7 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
 
   @Override
   protected String computeKey(final RequestContext context) {
-    return context.getMethod().concat(context.getRequestPath());
+    return context.getMethodValue().concat(context.getRequestPath());
   }
 
   // HEAD

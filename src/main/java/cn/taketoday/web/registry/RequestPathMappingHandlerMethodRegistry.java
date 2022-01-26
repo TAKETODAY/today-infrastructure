@@ -286,7 +286,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     // test request method
     HttpMethod[] supportedMethods = mappingInfo.method();
     if (supportedMethods != null) {
-      String requestMethod = context.getMethod();
+      String requestMethod = context.getMethodValue();
       boolean matched = false;
       for (HttpMethod testMethod : supportedMethods) {
         if (testMethod.matches(requestMethod)) {
