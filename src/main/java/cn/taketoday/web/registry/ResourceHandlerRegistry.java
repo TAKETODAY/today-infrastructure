@@ -24,10 +24,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.cache.support.ConcurrentMapCache;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
@@ -70,8 +72,11 @@ public class ResourceHandlerRegistry
   }
 
   @SafeVarargs
-  public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
-    HandlerMethodRegistry registry = obtainApplicationContext().getBean(HandlerMethodRegistry.class);
+  public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(
+          Class<T>... handlerInterceptors
+  ) {
+    HandlerMethodRegistry registry = BeanFactoryUtils.requiredBean(
+            obtainApplicationContext(), HandlerMethodRegistry.class);
 
     HandlerInterceptor[] interceptors = registry.getInterceptors(handlerInterceptors);
     ResourceMapping resourceMapping = new ResourceMapping(ObjectUtils.isEmpty(interceptors) ? null : interceptors);
@@ -102,10 +107,9 @@ public class ResourceHandlerRegistry
     else if (handler instanceof ResourceRequestHandler) {
       context.setAttribute(
               ResourceMatchResult.RESOURCE_MATCH_RESULT,
-              new ResourceMatchResult(handlerKey,
-                                      handlerKey,
-                                      getPathMatcher(),
-                                      ((ResourceRequestHandler) handler)
+              new ResourceMatchResult(
+                      handlerKey, handlerKey,
+                      getPathMatcher(), ((ResourceRequestHandler) handler)
               )
       );
     }
@@ -113,13 +117,13 @@ public class ResourceHandlerRegistry
   }
 
   @Override
+  @Nullable
   protected Object lookupPatternHandler(String handlerKey, RequestContext context) {
     PatternHandler matched = matchingPatternHandler(handlerKey);
     if (matched != null) {
-      return new ResourceMatchResult(handlerKey,
-                                     matched.getPattern(),
-                                     getPathMatcher(),
-                                     (ResourceRequestHandler) matched.getHandler()
+      return new ResourceMatchResult(
+              handlerKey, matched.getPattern(),
+              getPathMatcher(), (ResourceRequestHandler) matched.getHandler()
       );
     }
     return null;

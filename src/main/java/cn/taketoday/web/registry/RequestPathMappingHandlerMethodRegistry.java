@@ -121,7 +121,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       String pathPattern = getRequestPathPattern(path);
       // transform
       handler = transformHandler(pathPattern, handler);
-      AnnotationMappingInfo mappingInfo = new AnnotationMappingInfo(mapping, handler);
+      AnnotationMappingInfo mappingInfo = new AnnotationMappingInfo(pathPattern, mapping, handler);
       registerMappingInfo(pathPattern, mappingInfo);
     }
     mapping.clear(); // for next mapping
@@ -263,7 +263,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     Object handler = super.lookupHandler(requestPath, context);
     if (handler != null) {
       if (handler instanceof AnnotationMappingInfo mappingInfo) {  // single MappingInfo
-        if (testMapping(mappingInfo, context)) {
+        if (testMapping(requestPath, mappingInfo, context)) {
           return mappingInfo.getHandler();
         }
         // cannot pass the condition
@@ -271,7 +271,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       }
       else if (handler instanceof List) { // list of MappingInfo
         for (AnnotationMappingInfo mappingInfo : ((List<AnnotationMappingInfo>) handler)) {
-          if (testMapping(mappingInfo, context)) {
+          if (testMapping(requestPath, mappingInfo, context)) {
             return mappingInfo.getHandler();
           }
         }
@@ -282,7 +282,7 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
     return handler;
   }
 
-  protected boolean testMapping(AnnotationMappingInfo mappingInfo, RequestContext context) {
+  protected boolean testMapping(String requestPath, AnnotationMappingInfo mappingInfo, RequestContext context) {
     // test request method
     HttpMethod[] supportedMethods = mappingInfo.method();
     if (supportedMethods != null) {
@@ -331,10 +331,17 @@ public class RequestPathMappingHandlerMethodRegistry extends HandlerMethodRegist
       context.setAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, produces.clone());
     }
 
-    Map<String, String> uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);
+    // MATRIX_VARIABLES_ATTRIBUTE
+    Map<String, String> uriVariables = getPathMatcher().extractUriTemplateVariables(
+            mappingInfo.getPathPattern(), requestPath);
+
     if (!getUrlPathHelper().shouldRemoveSemicolonContent()) {
       context.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, extractMatrixVariables(context, uriVariables));
     }
+
+    // URI_TEMPLATE_VARIABLES_ATTRIBUTE
+    uriVariables = getUrlPathHelper().decodePathVariables(context, uriVariables);
+    context.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriVariables);
     return true;
   }
 

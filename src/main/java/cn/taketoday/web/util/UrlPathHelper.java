@@ -35,8 +35,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletMapping;
-import jakarta.servlet.http.MappingMatch;
 
 /**
  * Helper class for URL path matching. Provides support for URL paths in
@@ -95,7 +93,6 @@ public class UrlPathHelper {
    * not compatible with a prefix-based Servlet mapping and likewise implies
    * also setting {@code alwaysUseFullPath=true}.
    *
-   * @see #getServletPath
    * @see #getContextPath
    * @see #getRequestUri
    * @see WebUtils#DEFAULT_CHARACTER_ENCODING
@@ -141,7 +138,6 @@ public class UrlPathHelper {
    * {@code ServletRequest.setCharacterEncoding} method.
    *
    * @param defaultEncoding the character encoding to use
-   * @see #determineEncoding
    * @see ServletRequest#getCharacterEncoding()
    * @see ServletRequest#setCharacterEncoding(String)
    * @see WebUtils#DEFAULT_CHARACTER_ENCODING
@@ -203,109 +199,11 @@ public class UrlPathHelper {
    *
    * @param request current HTTP request
    * @return the lookup path
-   * @see #getPathWithinServletMapping
    * @see #getPathWithinApplication
    */
   public String getLookupPathForRequest(RequestContext request) {
-    String pathWithinApp = getPathWithinApplication(request);
     // Always use full path within current servlet context?
-    if (this.alwaysUseFullPath || skipServletPathDetermination(request)) {
-      return pathWithinApp;
-    }
-    // Else, use path within current servlet mapping if applicable
-    String rest = getPathWithinServletMapping(request, pathWithinApp);
-    if (StringUtils.isNotEmpty(rest)) {
-      return rest;
-    }
-    else {
-      return pathWithinApp;
-    }
-  }
-
-  /**
-   * Check whether servlet path determination can be skipped for the given request.
-   *
-   * @param request current HTTP request
-   * @return {@code true} if the request mapping has not been achieved using a path
-   * or if the servlet has been mapped to root; {@code false} otherwise
-   */
-  private boolean skipServletPathDetermination(RequestContext request) {
-    HttpServletMapping mapping = (HttpServletMapping) request.getAttribute(RequestDispatcher.INCLUDE_MAPPING);
-    if (mapping == null) {
-      mapping = request.getHttpServletMapping();
-    }
-    MappingMatch match = mapping.getMappingMatch();
-    return match != null
-            && !match.equals(MappingMatch.PATH) || mapping.getPattern().equals("/*");
-  }
-
-  /**
-   * Return the path within the servlet mapping for the given request,
-   * i.e. the part of the request's URL beyond the part that called the servlet,
-   * or "" if the whole URL has been used to identify the servlet.
-   *
-   * @param request current HTTP request
-   * @return the path within the servlet mapping, or ""
-   * @see #getPathWithinServletMapping(RequestContext, String)
-   */
-  public String getPathWithinServletMapping(RequestContext request) {
-    return getPathWithinServletMapping(request, getPathWithinApplication(request));
-  }
-
-  /**
-   * Return the path within the servlet mapping for the given request,
-   * i.e. the part of the request's URL beyond the part that called the servlet,
-   * or "" if the whole URL has been used to identify the servlet.
-   * <p>Detects include request URL if called within a RequestDispatcher include.
-   * <p>E.g.: servlet mapping = "/*"; request URI = "/test/a" &rarr; "/test/a".
-   * <p>E.g.: servlet mapping = "/"; request URI = "/test/a" &rarr; "/test/a".
-   * <p>E.g.: servlet mapping = "/test/*"; request URI = "/test/a" &rarr; "/a".
-   * <p>E.g.: servlet mapping = "/test"; request URI = "/test" &rarr; "".
-   * <p>E.g.: servlet mapping = "/*.test"; request URI = "/a.test" &rarr; "".
-   *
-   * @param request current HTTP request
-   * @param pathWithinApp a precomputed path within the application
-   * @return the path within the servlet mapping, or ""
-   * @see #getLookupPathForRequest
-   */
-  protected String getPathWithinServletMapping(RequestContext request, String pathWithinApp) {
-    String servletPath = getServletPath(request);
-    String sanitizedPathWithinApp = getSanitizedPath(pathWithinApp);
-    String path;
-
-    // If the app container sanitized the servletPath, check against the sanitized version
-    if (servletPath.contains(sanitizedPathWithinApp)) {
-      path = getRemainingPath(sanitizedPathWithinApp, servletPath, false);
-    }
-    else {
-      path = getRemainingPath(pathWithinApp, servletPath, false);
-    }
-
-    if (path != null) {
-      // Normal case: URI contains servlet path.
-      return path;
-    }
-    else {
-      // Special case: URI is different from servlet path.
-      String pathInfo = request.getPathInfo();
-      if (pathInfo != null) {
-        // Use path info if available. Indicates index page within a servlet mapping?
-        // e.g. with index page: URI="/", servletPath="/index.html"
-        return pathInfo;
-      }
-      if (!this.urlDecode) {
-        // No path info... (not mapped by prefix, nor by extension, nor "/*")
-        // For the default servlet mapping (i.e. "/"), urlDecode=false can
-        // cause issues since getServletPath() returns a decoded path.
-        // If decoding pathWithinApp yields a match just use pathWithinApp.
-        path = getRemainingPath(decodeInternal(request, pathWithinApp), servletPath, false);
-        if (path != null) {
-          return pathWithinApp;
-        }
-      }
-      // Otherwise, use the full servlet path.
-      return servletPath;
-    }
+    return getPathWithinApplication(request);
   }
 
   /**
@@ -400,7 +298,7 @@ public class UrlPathHelper {
   public String getRequestUri(RequestContext request) {
     String uri = (String) request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
     if (uri == null) {
-      uri = request.getRequestURI();
+      uri = request.getRequestPath();
     }
     return decodeAndCleanUriString(request, uri);
   }
@@ -427,81 +325,12 @@ public class UrlPathHelper {
   }
 
   /**
-   * Return the servlet path for the given request, regarding an include request
-   * URL if called within a RequestDispatcher include.
-   * <p>As the value returned by {@code request.getServletPath()} is already
-   * decoded by the servlet container, this method will not attempt to decode it.
-   *
-   * @param request current HTTP request
-   * @return the servlet path
-   */
-  public String getServletPath(RequestContext request) {
-    String servletPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
-    if (servletPath == null) {
-      servletPath = request.getServletPath();
-    }
-    return servletPath;
-  }
-
-  /**
    * Return the request URI for the given request. If this is a forwarded request,
    * correctly resolves to the request URI of the original request.
    */
   public String getOriginatingRequestUri(RequestContext request) {
-    String uri = (String) request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
-    if (uri == null) {
-      uri = request.getRequestPath();
-    }
+    String uri = request.getRequestPath();
     return decodeAndCleanUriString(request, uri);
-  }
-
-  /**
-   * Return the context path for the given request, detecting an include request
-   * URL if called within a RequestDispatcher include.
-   * <p>As the value returned by {@code request.getContextPath()} is <i>not</i>
-   * decoded by the servlet container, this method will decode it.
-   *
-   * @param request current HTTP request
-   * @return the context path
-   */
-  public String getOriginatingContextPath(RequestContext request) {
-    String contextPath = (String) request.getAttribute(RequestDispatcher.FORWARD_CONTEXT_PATH);
-    if (contextPath == null) {
-      contextPath = request.getContextPath();
-    }
-    return decodeRequestString(request, contextPath);
-  }
-
-  /**
-   * Return the servlet path for the given request, detecting an include request
-   * URL if called within a RequestDispatcher include.
-   *
-   * @param request current HTTP request
-   * @return the servlet path
-   */
-  public String getOriginatingServletPath(RequestContext request) {
-    String servletPath = (String) request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH);
-    if (servletPath == null) {
-      servletPath = request.getServletPath();
-    }
-    return servletPath;
-  }
-
-  /**
-   * Return the query string part of the given request's URL. If this is a forwarded request,
-   * correctly resolves to the query string of the original request.
-   *
-   * @param request current HTTP request
-   * @return the query string
-   */
-  public String getOriginatingQueryString(RequestContext request) {
-    if ((request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI) != null) ||
-            (request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) != null)) {
-      return (String) request.getAttribute(RequestDispatcher.FORWARD_QUERY_STRING);
-    }
-    else {
-      return request.getQueryString();
-    }
   }
 
   /**
@@ -548,25 +377,6 @@ public class UrlPathHelper {
       }
       return URLDecoder.decode(source);
     }
-  }
-
-  /**
-   * Determine the encoding for the given request.
-   * Can be overridden in subclasses.
-   * <p>The default implementation checks the request encoding,
-   * falling back to the default encoding specified for this resolver.
-   *
-   * @param request current HTTP request
-   * @return the encoding for the request (never {@code null})
-   * @see ServletRequest#getCharacterEncoding()
-   * @see #setDefaultEncoding
-   */
-  protected String determineEncoding(RequestContext request) {
-    String enc = request.getCharacterEncoding();
-    if (enc == null) {
-      enc = getDefaultEncoding();
-    }
-    return enc;
   }
 
   /**
@@ -631,7 +441,11 @@ public class UrlPathHelper {
     }
     else {
       Map<String, String> decodedVars = CollectionUtils.newLinkedHashMap(vars.size());
-      vars.forEach((key, value) -> decodedVars.put(key, decodeInternal(request, value)));
+      for (Map.Entry<String, String> entry : vars.entrySet()) {
+        String key = entry.getKey();
+        String value = entry.getValue();
+        decodedVars.put(key, decodeInternal(request, value));
+      }
       return decodedVars;
     }
   }

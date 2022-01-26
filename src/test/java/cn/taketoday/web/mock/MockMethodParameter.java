@@ -21,7 +21,6 @@
 package cn.taketoday.web.mock;
 
 import java.lang.reflect.AnnotatedElement;
-import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.core.MethodParameter;
@@ -102,7 +101,7 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   public int hashCode() {
     int result = Objects.hash(super.hashCode(), parameterIndex,
             parameterClass, name, required, defaultValue, typeDescriptor, annotatedElement);
-    result = 31 * result + Arrays.hashCode(generics);
+    result = 31 * result;
     return result;
   }
 
@@ -115,13 +114,11 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof MockMethodParameter))
+    if (!(o instanceof final MockMethodParameter parameter))
       return false;
-    final MockMethodParameter parameter = (MockMethodParameter) o;
     return parameterIndex == parameter.parameterIndex
             && required == parameter.required
             && Objects.equals(name, parameter.name)
-            && Arrays.equals(generics, parameter.generics)
             && Objects.equals(defaultValue, parameter.defaultValue)
             && Objects.equals(parameterClass, parameter.parameterClass)
             && Objects.equals(typeDescriptor, parameter.typeDescriptor)

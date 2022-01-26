@@ -91,51 +91,7 @@ public class ResolveableMethodParameterTests {
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new ResolvableMethodParameter(parameter, name);
-  }
-
-  @Test
-  public void getGenerics() throws NoSuchMethodException {
-    final Method getGenerics = ResolveableMethodParameterTests.class.getDeclaredMethod("getGenerics", List.class, Map.class, String.class);
-    final ResolvableMethodParameter listParameter = createParameter(0, getGenerics, "names");
-    final ResolvableMethodParameter mapParameter = createParameter(1, getGenerics, "map");
-    final ResolvableMethodParameter stringParameter = createParameter(2, getGenerics, "name");
-
-    assertThat(listParameter.getParameterType()).isInterface().isEqualTo(List.class);
-    assertThat(mapParameter.getParameterType()).isInterface().isEqualTo(Map.class);
-
-    // getGenerics
-    assertThat(listParameter.getGenerics()).hasSize(1);
-    assertThat(mapParameter.getGenerics()).hasSize(2);
-    assertThat(stringParameter.getGenerics()).isEmpty();
-
-    // getGeneric
-    assertThat(listParameter.getGeneric(0)).isEqualTo(String.class);
-    assertThat(mapParameter.getGeneric(0)).isEqualTo(String.class);
-    assertThat(mapParameter.getGeneric(1)).isEqualTo(Integer.class);
-
-    assertThat(stringParameter.getGeneric(1)).isNull();
-    assertThat(stringParameter.getGeneric(0)).isNull();
-
-    // isGenericPresent
-//    assertThat(mapParameter.isGenericPresent(int.class)).isFalse();
-//    assertThat(mapParameter.isGenericPresent(Integer.class)).isTrue();
-//    assertThat(listParameter.isGenericPresent(Integer.class)).isFalse();
-//    assertThat(listParameter.isGenericPresent(String.class)).isTrue();
-//
-//    assertThat(mapParameter.isGenericPresent(int.class, 0)).isFalse();
-//    assertThat(mapParameter.isGenericPresent(Integer.class, 1)).isTrue();
-//    assertThat(mapParameter.isGenericPresent(Integer.class, 0)).isFalse();
-//    assertThat(mapParameter.isGenericPresent(String.class, 1)).isFalse();
-//    assertThat(mapParameter.isGenericPresent(String.class, 0)).isTrue();
-//
-//    assertThat(listParameter.isGenericPresent(Integer.class, 0)).isFalse();
-//    assertThat(listParameter.isGenericPresent(String.class, 0)).isTrue();
-//    assertThat(listParameter.isGenericPresent(String.class, 1)).isFalse();
-//
-//    assertThat(stringParameter.isGenericPresent(String.class, 1)).isFalse();
-//    assertThat(stringParameter.isGenericPresent(String.class, 0)).isFalse();
-
+    return new ResolvableMethodParameter(parameter);
   }
 
 }

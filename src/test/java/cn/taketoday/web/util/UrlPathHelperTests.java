@@ -70,15 +70,6 @@ class UrlPathHelperTests {
   }
 
   @Test
-  void getPathWithinServlet() {
-    servletRequest.setContextPath("/petclinic");
-    servletRequest.setServletPath("/main");
-    servletRequest.setRequestURI("/petclinic/main/welcome.html");
-
-    assertThat(helper.getPathWithinServletMapping(request)).isEqualTo("/welcome.html");
-  }
-
-  @Test
   void alwaysUseFullPath() {
     helper.setAlwaysUseFullPath(true);
     servletRequest.setContextPath("/petclinic");
@@ -86,19 +77,6 @@ class UrlPathHelperTests {
     servletRequest.setRequestURI("/petclinic/main/welcome.html");
 
     assertThat(helper.getLookupPathForRequest(request)).isEqualTo("/main/welcome.html");
-  }
-
-  @Test
-    // SPR-11101
-  void getPathWithinServletWithoutUrlDecoding() {
-    servletRequest.setContextPath("/SPR-11101");
-    servletRequest.setServletPath("/test_url_decoding/a/b");
-    servletRequest.setRequestURI("/test_url_decoding/a%2Fb");
-
-    helper.setUrlDecode(false);
-    String actual = helper.getPathWithinServletMapping(request);
-
-    assertThat(actual).isEqualTo("/test_url_decoding/a%2Fb");
   }
 
   @Test
@@ -408,27 +386,6 @@ class UrlPathHelperTests {
   void getOriginatingRequestUriDefault() {
     servletRequest.setRequestURI("/forwarded");
     assertThat(helper.getOriginatingRequestUri(request)).isEqualTo("/forwarded");
-  }
-
-  @Test
-  void getOriginatingQueryString() {
-    servletRequest.setQueryString("forward=on");
-    request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
-    request.setAttribute(RequestDispatcher.FORWARD_QUERY_STRING, "original=on");
-    assertThat(this.helper.getOriginatingQueryString(request)).isEqualTo("original=on");
-  }
-
-  @Test
-  void getOriginatingQueryStringNotPresent() {
-    servletRequest.setQueryString("forward=true");
-    assertThat(this.helper.getOriginatingQueryString(request)).isEqualTo("forward=true");
-  }
-
-  @Test
-  void getOriginatingQueryStringIsNull() {
-    servletRequest.setQueryString("forward=true");
-    request.setAttribute(RequestDispatcher.FORWARD_REQUEST_URI, "/path");
-    assertThat(this.helper.getOriginatingQueryString(request)).isNull();
   }
 
 }

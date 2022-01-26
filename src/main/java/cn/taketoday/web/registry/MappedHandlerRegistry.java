@@ -117,6 +117,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
       Cache matchingCache = getPatternMatchingCache();
       handler = matchingCache.get(handlerKey, false);
       if (handler == null) {
+        // null -> NullValue.INSTANCE
         handler = lookupPatternHandler(handlerKey, context);
         matchingCache.put(handlerKey, handler);
       }
@@ -134,6 +135,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param context current request context
    * @return Matched pattern handler. If returns {@code null} indicates no handler
    */
+  @Nullable
   protected Object lookupPatternHandler(String handlerKey, RequestContext context) {
     PatternHandler matched = matchingPatternHandler(handlerKey);
     if (matched == null) {
@@ -170,6 +172,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     this.patternMatchingCache = patternMatchingCache;
   }
 
+  @Nullable
   protected PatternHandler matchingPatternHandler(String handlerKey) {
     // pattern
     HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();

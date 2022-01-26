@@ -579,7 +579,7 @@ public class DataBinderParameterResolverTests {
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new ResolvableMethodParameter(parameter, name);
+    return new ResolvableMethodParameter(parameter);
   }
 
 }

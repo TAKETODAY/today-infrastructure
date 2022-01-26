@@ -35,7 +35,6 @@ import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockMethodParameter;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
-import cn.taketoday.web.support.JacksonMessageBodyConverter;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -136,7 +135,6 @@ class ParameterResolverRegistryTests {
 
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);
-      registry.setMessageConverter(new JacksonMessageBodyConverter());
       ParameterResolvingStrategies defaultStrategies = registry.getDefaultStrategies();
 
       assertThat(defaultStrategies).isEmpty();
@@ -161,7 +159,6 @@ class ParameterResolverRegistryTests {
       context.refresh();
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);
-      registry.setMessageConverter(new JacksonMessageBodyConverter());
       registry.registerDefaultParameterResolvers(); // register defaults
 
       ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
@@ -193,7 +190,7 @@ class ParameterResolverRegistryTests {
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new ResolvableMethodParameter(parameter, name);
+    return new ResolvableMethodParameter(parameter);
   }
 
 }

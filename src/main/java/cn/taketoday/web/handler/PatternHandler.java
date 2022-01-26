@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -32,6 +33,7 @@ import cn.taketoday.lang.Assert;
  * @author TODAY 2019-12-25 14:51
  */
 public final class PatternHandler implements Serializable, Ordered {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final String pattern; // path pattern
@@ -67,8 +69,7 @@ public final class PatternHandler implements Serializable, Ordered {
     if (obj == this) {
       return true;
     }
-    if (obj instanceof PatternHandler) {
-      final PatternHandler other = (PatternHandler) obj;
+    if (obj instanceof final PatternHandler other) {
       return Objects.equals(other.pattern, pattern)
               && Objects.equals(other.handler, handler);
     }

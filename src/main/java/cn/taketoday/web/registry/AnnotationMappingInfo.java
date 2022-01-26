@@ -43,7 +43,6 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 final class AnnotationMappingInfo implements Ordered {
 
   private final String[] path;
-//  private final String[] produces;
 
   private final MediaType[] produces;
   private final MediaType[] consumes;
@@ -52,13 +51,18 @@ final class AnnotationMappingInfo implements Ordered {
 
   private final ActionMappingAnnotationHandler handler;
 
+  // it's pathPattern
+  private final String pathPattern;
+
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
   AnnotationMappingInfo(String[] path, String[] produces, String[] consumes,
-                        String[] params, HttpMethod[] method, ActionMappingAnnotationHandler handler) {
+                        String[] params, HttpMethod[] method, ActionMappingAnnotationHandler handler,
+                        String pathPattern) {
     this.path = path;
     this.handler = handler;
+    this.pathPattern = pathPattern;
     this.method = compute(method);
     this.produces = compute(produces, MediaType::valueOf, MediaType[]::new);
     this.consumes = compute(consumes, MediaType::valueOf, MediaType[]::new);
@@ -89,16 +93,16 @@ final class AnnotationMappingInfo implements Ordered {
    */
   AnnotationMappingInfo(ActionMapping mapping, ActionMappingAnnotationHandler handler) {
     this(mapping.path(), mapping.produces(), mapping.consumes(),
-            mapping.params(), mapping.method(), handler);
+            mapping.params(), mapping.method(), handler, null);
   }
 
   /**
    * @throws InvalidMediaTypeException if the media type (consumes) value cannot be parsed
    */
-  AnnotationMappingInfo(AnnotationAttributes attributes, ActionMappingAnnotationHandler handler) {
+  AnnotationMappingInfo(String pathPattern, AnnotationAttributes attributes, ActionMappingAnnotationHandler handler) {
     this(attributes.getStringArray("path"), attributes.getStringArray("produces"),
             attributes.getStringArray("consumes"), attributes.getStringArray("params"),
-            attributes.getRequiredAttribute("method", HttpMethod[].class), handler);
+            attributes.getRequiredAttribute("method", HttpMethod[].class), handler, pathPattern);
   }
 
   public AnnotationMappingInfo(AnnotationMappingInfo mapping, ActionMappingAnnotationHandler handler) {
@@ -108,13 +112,18 @@ final class AnnotationMappingInfo implements Ordered {
     this.method = mapping.method;
     this.produces = mapping.produces;
     this.consumes = mapping.consumes;
+    this.pathPattern = mapping.pathPattern;
   }
 
   public ActionMappingAnnotationHandler getHandler() {
     return handler;
   }
 
-  public String[] value() {
+  public String getPathPattern() {
+    return pathPattern;
+  }
+
+  public String[] path() {
     return path;
   }
 
