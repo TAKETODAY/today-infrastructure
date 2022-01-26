@@ -239,7 +239,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
     for (Iterator<Map.Entry<String, String[]>> entryIterator = form.entrySet().iterator(); entryIterator.hasNext(); ) {
       Map.Entry<String, String[]> entry = entryIterator.next();
       String name = entry.getKey();
-      ArrayIterator<String> valueIterator = new ArrayIterator<>(entry.getValue())
+      ArrayIterator<String> valueIterator = new ArrayIterator<>(entry.getValue());
       while (valueIterator.hasNext()) {
         String value = valueIterator.next();
         writer.write(URLEncoder.encode(name, FORM_CHARSET));

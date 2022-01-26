@@ -149,6 +149,7 @@ public abstract class RequestContext
   }
 
   // @since 4.0
+  @Override
   public URI getURI() {
     if (this.uri == null) {
       String urlString = null;

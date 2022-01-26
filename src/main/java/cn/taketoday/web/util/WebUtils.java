@@ -161,6 +161,9 @@ public abstract class WebUtils {
     String scheme;
     String host;
     int port;
+    if (request instanceof RequestContext context) {
+      String scheme1 = context.getScheme();
+    }
     if (request instanceof ServletServerHttpRequest servletServerHttpRequest) {
       // Build more efficiently if we can: we only need scheme, host, port for origin comparison
       HttpServletRequest servletRequest = servletServerHttpRequest.getServletRequest();
@@ -176,9 +179,9 @@ public abstract class WebUtils {
     }
 
     UriComponents originUrl = UriComponentsBuilder.fromOriginHeader(origin).build();
-    return (ObjectUtils.nullSafeEquals(scheme, originUrl.getScheme()) &&
-            ObjectUtils.nullSafeEquals(host, originUrl.getHost()) &&
-            getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort()));
+    return ObjectUtils.nullSafeEquals(scheme, originUrl.getScheme())
+            && ObjectUtils.nullSafeEquals(host, originUrl.getHost())
+            && getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort());
   }
 
   private static int getPort(@Nullable String scheme, int port) {

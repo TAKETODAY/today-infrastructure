@@ -56,7 +56,6 @@ public class NettyServerInitializer
    */
   private boolean closeOnExpectationFailed = false;
 
-  //
   /**
    * @see HttpObjectDecoder#maxChunkSize
    */

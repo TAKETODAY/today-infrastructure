@@ -112,8 +112,8 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public String getScheme() {
     SocketAddress socketAddress = channelContext.channel().localAddress();
-    if (socketAddress instanceof InetSocketAddress) {
-      int port = ((InetSocketAddress) socketAddress).getPort();
+    if (socketAddress instanceof InetSocketAddress address) {
+      int port = address.getPort();
       if (port == 443) {
         return Constant.HTTPS;
       }
