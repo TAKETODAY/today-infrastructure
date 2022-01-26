@@ -235,7 +235,8 @@ public class UrlPathHelper {
       mapping = request.getHttpServletMapping();
     }
     MappingMatch match = mapping.getMappingMatch();
-    return match != null && (!match.equals(MappingMatch.PATH) || mapping.getPattern().equals("/*"));
+    return match != null
+            && !match.equals(MappingMatch.PATH) || mapping.getPattern().equals("/*");
   }
 
   /**

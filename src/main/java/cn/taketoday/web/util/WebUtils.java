@@ -22,6 +22,7 @@ package cn.taketoday.web.util;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import cn.taketoday.core.MultiValueMap;
@@ -33,9 +34,11 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -161,10 +164,14 @@ public abstract class WebUtils {
     String scheme;
     String host;
     int port;
-    if (request instanceof RequestContext context) {
-      String scheme1 = context.getScheme();
+
+    if (request instanceof ServletRequestContext servletContext) {
+      HttpServletRequest servletRequest = ServletUtils.getServletRequest(servletContext);
+      scheme = servletRequest.getScheme();
+      host = servletRequest.getServerName();
+      port = servletRequest.getServerPort();
     }
-    if (request instanceof ServletServerHttpRequest servletServerHttpRequest) {
+    else if (request instanceof ServletServerHttpRequest servletServerHttpRequest) {
       // Build more efficiently if we can: we only need scheme, host, port for origin comparison
       HttpServletRequest servletRequest = servletServerHttpRequest.getServletRequest();
       scheme = servletRequest.getScheme();
@@ -179,8 +186,8 @@ public abstract class WebUtils {
     }
 
     UriComponents originUrl = UriComponentsBuilder.fromOriginHeader(origin).build();
-    return ObjectUtils.nullSafeEquals(scheme, originUrl.getScheme())
-            && ObjectUtils.nullSafeEquals(host, originUrl.getHost())
+    return Objects.equals(scheme, originUrl.getScheme())
+            && Objects.equals(host, originUrl.getHost())
             && getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort());
   }
 
