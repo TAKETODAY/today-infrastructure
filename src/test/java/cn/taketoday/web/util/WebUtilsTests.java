@@ -23,9 +23,7 @@ package cn.taketoday.web.util;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
@@ -42,21 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sebastien Deleuze
  */
 public class WebUtilsTests {
-
-  @Test
-  public void findParameterValue() {
-    Map<String, Object> params = new HashMap<>();
-    params.put("myKey1", "myValue1");
-    params.put("myKey2_myValue2", "xxx");
-    params.put("myKey3_myValue3.x", "xxx");
-    params.put("myKey4_myValue4.y", new String[] { "yyy" });
-
-    assertThat(WebUtils.findParameterValue(params, "myKey0")).isNull();
-    assertThat(WebUtils.findParameterValue(params, "myKey1")).isEqualTo("myValue1");
-    assertThat(WebUtils.findParameterValue(params, "myKey2")).isEqualTo("myValue2");
-    assertThat(WebUtils.findParameterValue(params, "myKey3")).isEqualTo("myValue3");
-    assertThat(WebUtils.findParameterValue(params, "myKey4")).isEqualTo("myValue4");
-  }
 
   @Test
   public void parseMatrixVariablesString() {
@@ -144,14 +127,14 @@ public class WebUtilsTests {
     assertThat(checkSameOrigin("http", "[::1]", -1, "http://[::1]")).isTrue();
     assertThat(checkSameOrigin("http", "[::1]", 8080, "http://[::1]:8080")).isTrue();
     assertThat(checkSameOrigin("http",
-                               "[2001:0db8:0000:85a3:0000:0000:ac1f:8001]", -1,
-                               "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]")).isTrue();
+            "[2001:0db8:0000:85a3:0000:0000:ac1f:8001]", -1,
+            "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]")).isTrue();
     assertThat(checkSameOrigin("http",
-                               "[2001:0db8:0000:85a3:0000:0000:ac1f:8001]", 8080,
-                               "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080")).isTrue();
+            "[2001:0db8:0000:85a3:0000:0000:ac1f:8001]", 8080,
+            "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080")).isTrue();
     assertThat(checkSameOrigin("http", "[::1]", -1, "http://[::1]:8080")).isFalse();
     assertThat(checkSameOrigin("http", "[::1]", 8080,
-                               "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080")).isFalse();
+            "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080")).isFalse();
   }
 
   @Test  // SPR-16262
@@ -239,12 +222,5 @@ public class WebUtilsTests {
 //    ServerHttpRequest httpRequest = new ServletServerHttpRequest(requestToUse);
 
   }
-
-  // SPR-16668
-//  private HttpServletRequest adaptFromForwardedHeaders(HttpServletRequest request) throws Exception {
-//    MockFilterChain chain = new MockFilterChain();
-//    new ForwardedHeaderFilter().doFilter(request, new MockHttpServletResponse(), chain);
-//    return (HttpServletRequest) chain.getRequest();
-//  }
 
 }

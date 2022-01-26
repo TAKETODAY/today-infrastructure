@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,16 +32,15 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MediaType;
@@ -235,19 +233,19 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
    */
   private static InputStream getBodyFromServletRequestParameters(HttpServletRequest request) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-    Writer writer = new OutputStreamWriter(bos, FORM_CHARSET);
+    OutputStreamWriter writer = new OutputStreamWriter(bos, FORM_CHARSET);
 
     Map<String, String[]> form = request.getParameterMap();
     for (Iterator<Map.Entry<String, String[]>> entryIterator = form.entrySet().iterator(); entryIterator.hasNext(); ) {
       Map.Entry<String, String[]> entry = entryIterator.next();
       String name = entry.getKey();
-      List<String> values = Arrays.asList(entry.getValue());
-      for (Iterator<String> valueIterator = values.iterator(); valueIterator.hasNext(); ) {
+      ArrayIterator<String> valueIterator = new ArrayIterator<>(entry.getValue())
+      while (valueIterator.hasNext()) {
         String value = valueIterator.next();
-        writer.write(URLEncoder.encode(name, FORM_CHARSET.name()));
+        writer.write(URLEncoder.encode(name, FORM_CHARSET));
         if (value != null) {
           writer.write('=');
-          writer.write(URLEncoder.encode(value, FORM_CHARSET.name()));
+          writer.write(URLEncoder.encode(value, FORM_CHARSET));
           if (valueIterator.hasNext()) {
             writer.write('&');
           }
