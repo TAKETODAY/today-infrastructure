@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @see AnnotationUtils#getAnnotationAttributes
  * @see AnnotatedElementUtils
- * @since 4.01
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends LinkedHashMap<String, Object> {
@@ -154,7 +154,8 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
 
   @SuppressWarnings("unchecked")
   @Nullable
-  private static Class<? extends Annotation> getAnnotationType(String annotationType, @Nullable ClassLoader classLoader) {
+  private static Class<? extends Annotation> getAnnotationType(
+          String annotationType, @Nullable ClassLoader classLoader) {
     if (classLoader != null) {
       try {
         return (Class<? extends Annotation>) classLoader.loadClass(annotationType);
@@ -381,9 +382,11 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
   }
 
   private void assertAttributePresence(String attributeName, Object attributeValue) {
-    Assert.notNull(attributeValue, () -> String.format(
-            "Attribute '%s' not found in attributes for annotation [%s]",
-            attributeName, this.displayName));
+    if (attributeValue == null) {
+      throw new IllegalArgumentException(
+              String.format("Attribute '%s' not found in attributes for annotation [%s]",
+                      attributeName, this.displayName));
+    }
   }
 
   private void assertNotException(String attributeName, Object attributeValue) {
