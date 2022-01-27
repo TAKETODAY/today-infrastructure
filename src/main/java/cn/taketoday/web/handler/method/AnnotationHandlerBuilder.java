@@ -27,6 +27,7 @@ import java.util.function.BiFunction;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.view.ReturnValueHandlers;
@@ -104,7 +105,8 @@ public class AnnotationHandlerBuilder<T extends ActionMappingAnnotationHandler> 
     return handlerMethod;
   }
 
-  public T build(BeanSupplier<Object> handlerBean, Method method, List<HandlerInterceptor> interceptors) {
+  public T build(
+          BeanSupplier<Object> handlerBean, Method method, @Nullable List<HandlerInterceptor> interceptors) {
     Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parametersBuilder != null, "No MethodParametersBuilder set");
     ResolvableMethodParameter[] parameters = parametersBuilder.build(method);

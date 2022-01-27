@@ -155,7 +155,7 @@ public class DefaultExceptionHandler
           for (var exceptionClass : getCatchThrowableClasses(method)) {
             // @since 3.0
             BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
-            ExceptionHandlerMappingHandler handler = handlerBuilder.build(handlerBean, method);
+            ExceptionHandlerMappingHandler handler = handlerBuilder.build(handlerBean, method, null);
             exceptionHandlers.put(exceptionClass, handler);
           }
         }
