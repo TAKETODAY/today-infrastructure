@@ -286,6 +286,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
       case PATCH -> new HttpPatch(uri);
       case DELETE -> new HttpDelete(uri);
       case OPTIONS -> new HttpOptions(uri);
+      default -> throw new UnsupportedOperationException("Unsupported httpMethod '" + httpMethod + "'");
     };
   }
 
@@ -340,7 +341,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
     @Override
     public String getMethod() {
-      return "DELETE";
+      return HttpMethod.DELETE.name();
     }
   }
 
