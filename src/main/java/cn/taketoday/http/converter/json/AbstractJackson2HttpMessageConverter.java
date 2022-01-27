@@ -322,7 +322,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
         logger.warn(msg, cause);
       }
       else {
-        logger.warn(msg + ": " + cause);
+        logger.warn("{}: {}", msg, cause.toString());
       }
     }
   }

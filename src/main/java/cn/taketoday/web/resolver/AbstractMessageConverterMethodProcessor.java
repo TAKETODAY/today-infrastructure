@@ -216,7 +216,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         throw new HttpMessageNotWritableException(
                 "No converter found for return value of type: " + valueType);
       }
-      List<MediaType> mediaTypesToUse = new ArrayList<>();
+      ArrayList<MediaType> mediaTypesToUse = new ArrayList<>();
       for (MediaType requestedType : acceptableTypes) {
         for (MediaType producibleType : producibleTypes) {
           if (requestedType.isCompatibleWith(producibleType)) {

@@ -58,7 +58,7 @@ import cn.taketoday.web.view.template.TemplateRenderer;
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Import(JacksonAutoConfiguration.class)
-public class WebMvcAutoConfiguration {
+public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   /**
    * default {@link MultipartConfiguration} bean
@@ -104,6 +104,7 @@ public class WebMvcAutoConfiguration {
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
     registry.setMultipartConfig(multipartConfig);
+    registry.setMessageConverters(getMessageConverters());
     // @since 3.0
     registry.registerDefaultParameterResolvers();
     return registry;
@@ -118,6 +119,7 @@ public class WebMvcAutoConfiguration {
   ReturnValueHandlers returnValueHandlers(WebApplicationContext context) {
     ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
     resultHandlers.setApplicationContext(context);
+    resultHandlers.setMessageConverters(getMessageConverters());
     resultHandlers.initHandlers();
     resultHandlers.registerDefaultHandlers();
     return resultHandlers;
@@ -143,5 +145,4 @@ public class WebMvcAutoConfiguration {
     renderer.setResourceLoader(resourceLoader);
     return renderer;
   }
-
 }
