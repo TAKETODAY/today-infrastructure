@@ -50,6 +50,7 @@ public @interface ActionMapping {
    * <p><strong>NOTE</strong>: A handler method that is not mapped to any path
    * explicitly is effectively mapped to an empty path.
    */
+  @AliasFor("path")
   String[] value() default Constant.BLANK;
 
   /**
