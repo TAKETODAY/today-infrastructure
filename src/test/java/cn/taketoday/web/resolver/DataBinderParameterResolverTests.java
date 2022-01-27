@@ -40,6 +40,7 @@ import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.web.MockMultipartFile;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.WebNestedRuntimeException;
+import cn.taketoday.web.handler.MockResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import lombok.Data;
@@ -579,7 +580,7 @@ public class DataBinderParameterResolverTests {
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new ResolvableMethodParameter(parameter);
+    return new MockResolvableMethodParameter(parameter, name);
   }
 
 }

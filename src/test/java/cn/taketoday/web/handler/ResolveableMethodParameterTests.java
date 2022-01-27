@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
-import cn.taketoday.lang.Required;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -39,11 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ResolveableMethodParameterTests {
 
-  public void method(String name) {
+  public void method(@Nullable String name) {
 
   }
 
-  public void isRequired(@Required String name, @RequestParam(value = "myAge", required = true) int age) {
+  public void isRequired(String name, @RequestParam(name = "myAge") int age) {
 
   }
 
@@ -85,13 +85,13 @@ public class ResolveableMethodParameterTests {
     assertThat(ageMethodParameter.isArray()).isFalse();
     assertThat(ageMethodParameter.isCollection()).isFalse();
     assertThat(ageMethodParameter.isInterface()).isFalse();
-    assertThat(ageMethodParameter.getDefaultValue()).isEqualTo("0");
+    assertThat(ageMethodParameter.getDefaultValue()).isNull();
 
   }
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {
     SynthesizingMethodParameter parameter = SynthesizingMethodParameter.forExecutable(method, idx);
-    return new ResolvableMethodParameter(parameter);
+    return new MockResolvableMethodParameter(parameter, name);
   }
 
 }

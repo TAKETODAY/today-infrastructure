@@ -22,6 +22,8 @@ package cn.taketoday.http.codec.multipart;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -67,6 +69,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 /**
  * @author Arjen Poutsma
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class DefaultPartHttpMessageReaderTests {
 

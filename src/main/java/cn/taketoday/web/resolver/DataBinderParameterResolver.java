@@ -42,7 +42,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
-import cn.taketoday.web.handler.method.NamedValueInfo;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -256,15 +255,6 @@ public class DataBinderParameterResolver
       super(other);
       this.parameterClass = field.getType();
       this.field = field;
-    }
-
-    @Override
-    protected NamedValueInfo createNamedValueInfo() {
-      RequestParam requestParam = field.getAnnotation(RequestParam.class);
-      if (requestParam == null) {
-        return new NamedValueInfo(field.getName());
-      }
-      return new NamedValueInfo(requestParam.name(), requestParam.required(), requestParam.defaultValue());
     }
 
     @Override
