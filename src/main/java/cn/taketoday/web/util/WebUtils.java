@@ -31,7 +31,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;

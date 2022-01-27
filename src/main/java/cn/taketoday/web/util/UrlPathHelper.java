@@ -34,8 +34,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletRequest;
 
 /**
  * Helper class for URL path matching. Provides support for URL paths in
@@ -97,7 +95,6 @@ public class UrlPathHelper {
    * @see #getContextPath
    * @see #getRequestUri
    * @see Constant#DEFAULT_ENCODING
-   * @see ServletRequest#getCharacterEncoding()
    * @see URLDecoder#decode(String, String)
    */
   public void setUrlDecode(boolean urlDecode) {
@@ -139,8 +136,6 @@ public class UrlPathHelper {
    * {@code ServletRequest.setCharacterEncoding} method.
    *
    * @param defaultEncoding the character encoding to use
-   * @see ServletRequest#getCharacterEncoding()
-   * @see ServletRequest#setCharacterEncoding(String)
    * @see Constant#DEFAULT_ENCODING
    */
   public void setDefaultEncoding(String defaultEncoding) {
@@ -169,7 +164,7 @@ public class UrlPathHelper {
   /**
    * {@link #getLookupPathForRequest Resolve} the lookupPath and cache it in a
    * request attribute with the key {@link #PATH_ATTRIBUTE} for subsequent
-   * access via {@link #getResolvedLookupPath(ServletRequest)}.
+   * access via {@link #getResolvedLookupPath(RequestContext)}.
    *
    * @param request the current request
    * @return the resolved path
@@ -187,10 +182,12 @@ public class UrlPathHelper {
    * @return the previously resolved lookupPath
    * @throws IllegalArgumentException if the not found
    */
-  public static String getResolvedLookupPath(ServletRequest request) {
-    String lookupPath = (String) request.getAttribute(PATH_ATTRIBUTE);
-    Assert.notNull(lookupPath, "Expected lookupPath in request attribute \"" + PATH_ATTRIBUTE + "\".");
-    return lookupPath;
+  public static String getResolvedLookupPath(RequestContext request) {
+    Object attribute = request.getAttribute(PATH_ATTRIBUTE);
+    if (attribute instanceof String lookupPath) {
+      return lookupPath;
+    }
+    throw new IllegalArgumentException("Expected lookupPath in request attribute \"" + PATH_ATTRIBUTE + "\".");
   }
 
   /**
@@ -297,10 +294,7 @@ public class UrlPathHelper {
    * @return the request URI
    */
   public String getRequestUri(RequestContext request) {
-    String uri = (String) request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
-    if (uri == null) {
-      uri = request.getRequestPath();
-    }
+    String uri = request.getRequestPath();
     return decodeAndCleanUriString(request, uri);
   }
 
@@ -314,10 +308,7 @@ public class UrlPathHelper {
    * @return the context path
    */
   public String getContextPath(RequestContext request) {
-    String contextPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_CONTEXT_PATH);
-    if (contextPath == null) {
-      contextPath = request.getContextPath();
-    }
+    String contextPath = request.getContextPath();
     if (StringUtils.matchesCharacter(contextPath, '/')) {
       // Invalid case, but happens for includes on Jetty: silently adapt it.
       contextPath = "";
@@ -353,7 +344,6 @@ public class UrlPathHelper {
    * @param source the String to decode
    * @return the decoded String
    * @see Constant#DEFAULT_ENCODING
-   * @see ServletRequest#getCharacterEncoding
    * @see URLDecoder#decode(String, String)
    * @see URLDecoder#decode(String)
    */
