@@ -121,6 +121,7 @@ public class Application {
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
+  @Nullable
   private Class<?> mainApplicationClass;
   private final Class<?>[] configSources;
 
@@ -165,6 +166,7 @@ public class Application {
    *
    * @return the main application class or {@code null}
    */
+  @Nullable
   public Class<?> getMainApplicationClass() {
     return this.mainApplicationClass;
   }
@@ -176,7 +178,7 @@ public class Application {
    *
    * @param mainApplicationClass the mainApplicationClass to set or {@code null}
    */
-  public void setMainApplicationClass(Class<?> mainApplicationClass) {
+  public void setMainApplicationClass(@Nullable Class<?> mainApplicationClass) {
     this.mainApplicationClass = mainApplicationClass;
   }
 
@@ -338,6 +340,7 @@ public class Application {
     beanFactory.registerSingleton(this);
     beanFactory.registerSingleton(ApplicationArguments.BEAN_NAME, arguments);
 
+    // loading context from config classes
     if (context instanceof AnnotationConfigRegistry configRegistry) {
       if (ObjectUtils.isNotEmpty(configSources)) {
         if (mainApplicationClass != null) {

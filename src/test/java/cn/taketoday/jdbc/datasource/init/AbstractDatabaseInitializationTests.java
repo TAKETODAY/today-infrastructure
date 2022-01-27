@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-//@Execution(ExecutionMode.SAME_THREAD)
+@Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractDatabaseInitializationTests {
 
   private final ClassRelativeResourceLoader resourceLoader = new ClassRelativeResourceLoader(getClass());
