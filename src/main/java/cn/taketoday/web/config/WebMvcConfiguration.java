@@ -21,7 +21,6 @@ package cn.taketoday.web.config;
 
 import java.util.List;
 
-import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -80,9 +79,9 @@ public interface WebMvcConfiguration {
   /**
    * Configure {@link TemplateRenderer}
    *
-   * @param viewResolver {@link TemplateRenderer} instance
+   * @param renderer {@link TemplateRenderer} instance
    */
-  default void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) { }
+  default void configureTemplateRenderer(AbstractTemplateRenderer renderer) { }
 
   /**
    * Configure static {@link Resource}
@@ -94,16 +93,9 @@ public interface WebMvcConfiguration {
   /**
    * Configure {@link Multipart}
    *
-   * @param multipartConfiguration {@link MultipartConfiguration}
+   * @param config {@link MultipartConfiguration}
    */
-  default void configureMultipart(MultipartConfiguration multipartConfiguration) { }
-
-  /**
-   * Use {@link TypeConverter}s to convert request parameters
-   *
-   * @param typeConverters {@link TypeConverter} registry
-   */
-  default void configureConversionService(List<TypeConverter> typeConverters) { }
+  default void configureMultipart(MultipartConfiguration config) { }
 
   /**
    * Configure WebApplicationInitializer

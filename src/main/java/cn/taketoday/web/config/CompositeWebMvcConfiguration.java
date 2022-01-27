@@ -22,7 +22,6 @@ package cn.taketoday.web.config;
 import java.util.List;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -50,9 +49,9 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureTemplateViewResolver(AbstractTemplateRenderer viewResolver) {
+  public void configureTemplateRenderer(AbstractTemplateRenderer renderer) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureTemplateViewResolver(viewResolver);
+      webMvcConfiguration.configureTemplateRenderer(renderer);
     }
   }
 
@@ -86,16 +85,9 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureMultipart(MultipartConfiguration multipartConfiguration) {
+  public void configureMultipart(MultipartConfiguration config) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureMultipart(multipartConfiguration);
-    }
-  }
-
-  @Override
-  public void configureConversionService(List<TypeConverter> typeConverters) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureConversionService(typeConverters);
+      webMvcConfiguration.configureMultipart(config);
     }
   }
 

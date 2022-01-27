@@ -26,7 +26,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.conversion.TypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
@@ -81,7 +80,6 @@ public class WebApplicationLoader
     configureViewControllerHandler(context, mvcConfiguration);
     configureExceptionHandler(context, mvcConfiguration);
     configureReturnValueHandler(context, mvcConfiguration);
-    configureConversionService(context, mvcConfiguration);
     configureHandlerAdapter(context, mvcConfiguration);
     configureParameterResolving(context, mvcConfiguration);
     configureHandlerRegistry(context, mvcConfiguration);
@@ -245,21 +243,6 @@ public class WebApplicationLoader
     }
   }
 
-  private void configureConversionService(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureConversionService(context.getBeans(TypeConverter.class), mvcConfiguration);
-  }
-
-  /**
-   * Configure {@link TypeConverter} to resolve convert request parameters
-   *
-   * @param typeConverters Type converters
-   * @param mvcConfiguration All {@link WebMvcConfiguration} object
-   */
-  protected void configureConversionService(
-          List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
-    mvcConfiguration.configureConversionService(typeConverters);
-  }
-
   private void configureReturnValueHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     configureReturnValueHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
   }
@@ -307,7 +290,7 @@ public class WebApplicationLoader
           List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
     WebApplicationContext context = obtainApplicationContext();
     ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
-    Assert.state(registry != null, "No ParameterResolvers");
+    Assert.state(registry != null, "No ParameterResolvingRegistry in context");
 
     // user customize multipartConfig
     MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);

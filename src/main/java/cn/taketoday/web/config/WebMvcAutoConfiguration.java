@@ -102,12 +102,14 @@ public class WebMvcAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ParameterResolvingRegistry parameterResolvers(WebApplicationContext context) {
-    final ParameterResolvingRegistry resolversRegistry = new ParameterResolvingRegistry();
-    resolversRegistry.setApplicationContext(context);
+  ParameterResolvingRegistry parameterResolvingRegistry(
+          WebApplicationContext context, MultipartConfiguration multipartConfig) {
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    registry.setApplicationContext(context);
+    registry.setMultipartConfig(multipartConfig);
     // @since 3.0
-    resolversRegistry.registerDefaultParameterResolvers();
-    return resolversRegistry;
+    registry.registerDefaultParameterResolvers();
+    return registry;
   }
 
   @Component
