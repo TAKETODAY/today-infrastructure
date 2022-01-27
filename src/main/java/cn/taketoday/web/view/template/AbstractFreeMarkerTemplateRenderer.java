@@ -36,6 +36,8 @@ import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.AnnotationParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
@@ -78,9 +80,11 @@ public abstract class AbstractFreeMarkerTemplateRenderer
   }
 
   @Override
-  public void configureParameterResolving(List<ParameterResolvingStrategy> resolvers) {
-    resolvers.add(new FreemarkerConfigParameterResolver());
-    resolvers.add(new SharedVariableParameterResolver());
+  public void configureParameterResolving(
+          ParameterResolvingRegistry registry, List<ParameterResolvingStrategy> customizedStrategies) {
+    ParameterResolvingStrategies defaultStrategies = registry.getDefaultStrategies();
+    defaultStrategies.add(new FreemarkerConfigParameterResolver());
+    defaultStrategies.add(new SharedVariableParameterResolver());
   }
 
   @Override

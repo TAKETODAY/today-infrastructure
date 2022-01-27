@@ -177,7 +177,7 @@ public class ReturnValueHandlers
   protected TemplateRenderer getTemplateRenderer(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     TemplateRenderer templateRenderer = BeanFactoryUtils.requiredBean(context, TemplateRenderer.class);
     if (templateRenderer instanceof AbstractTemplateRenderer) {
-      mvcConfiguration.configureTemplateViewResolver((AbstractTemplateRenderer) templateRenderer);
+      mvcConfiguration.configureTemplateRenderer((AbstractTemplateRenderer) templateRenderer);
     }
     return templateRenderer;
   }
