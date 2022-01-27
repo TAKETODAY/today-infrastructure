@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -48,6 +49,7 @@ import cn.taketoday.web.annotation.RequestParam;
  * @author TODAY
  * @see MethodParameter
  * @see #resolveParameter(RequestContext)
+ * @see Nullable
  * @since 2.3.7
  */
 public class ResolvableMethodParameter extends AttributeAccessorSupport {
@@ -72,7 +74,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     this.parameter = other.parameter;
     this.resolvableType = other.resolvableType;
     this.namedValueInfo = other.namedValueInfo;
-
     this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
@@ -207,7 +208,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    * @return the named value information
    */
   protected NamedValueInfo createNamedValueInfo() {
-    RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
+    RequestParam requestParam = getParameterAnnotation(RequestParam.class);
     if (requestParam == null) {
       return new NamedValueInfo(getParameterName());
     }
@@ -216,15 +217,21 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   /**
    * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
+   *
+   * @see Nullable
    */
   private NamedValueInfo updateNamedValueInfo(NamedValueInfo info) {
     String name = info.name;
-    if (StringUtils.isEmpty(info.name) || Constant.DEFAULT_NONE.equals(info.name)) {
+    if (StringUtils.isEmpty(name) || Constant.DEFAULT_NONE.equals(name)) {
       // default value
       name = getParameterName();
     }
+    boolean required = info.required;
+    if (required) {
+      required = !parameter.isNullable();
+    }
     String defaultValue = Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue;
-    return new NamedValueInfo(name, info.required, defaultValue);
+    return new NamedValueInfo(name, required, defaultValue);
   }
 
   @NonNull
@@ -238,7 +245,20 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return name;
   }
 
-  // ----- resolver
+  public int getParameterIndex() {
+    return parameter.getParameterIndex();
+  }
+
+  /**
+   * Return the wrapped Method, if any.
+   *
+   * @return the Method
+   */
+  public Method getMethod() {
+    return parameter.getMethod();
+  }
+
+  // resolver
 
   /**
    * simple impl
@@ -248,10 +268,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    */
   protected Object resolveParameter(RequestContext request) throws Throwable {
     return request.getParameter(getName());
-  }
-
-  public int getParameterIndex() {
-    return parameter.getParameterIndex();
   }
 
   @Override
