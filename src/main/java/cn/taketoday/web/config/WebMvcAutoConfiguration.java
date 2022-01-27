@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -30,7 +28,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
 import cn.taketoday.core.io.ResourceLoader;
@@ -90,8 +87,8 @@ public class WebMvcAutoConfiguration {
    * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
    */
   @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   HandlerMethodRegistry handlerMethodRegistry() {
     return new HandlerMethodRegistry();
   }
@@ -110,14 +107,6 @@ public class WebMvcAutoConfiguration {
     // @since 3.0
     registry.registerDefaultParameterResolvers();
     return registry;
-  }
-
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnClass(ObjectMapper.class)
-  JacksonConfiguration jacksonConfiguration() {
-    return new JacksonConfiguration();
   }
 
   /**
@@ -149,7 +138,8 @@ public class WebMvcAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(TemplateRenderer.class)
   DefaultTemplateRenderer templateRenderer(ResourceLoader resourceLoader) {
-    DefaultTemplateRenderer renderer = new DefaultTemplateRenderer(ExpressionProcessor.getSharedInstance().getManager());
+    DefaultTemplateRenderer renderer = new DefaultTemplateRenderer(
+            ExpressionProcessor.getSharedInstance().getManager());
     renderer.setResourceLoader(resourceLoader);
     return renderer;
   }
