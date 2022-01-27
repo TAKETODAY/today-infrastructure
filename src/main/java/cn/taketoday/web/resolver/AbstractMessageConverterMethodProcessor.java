@@ -81,13 +81,17 @@ public abstract class AbstractMessageConverterMethodProcessor
   static final boolean isServletPresent = ClassUtils.isPresent(Constant.ENV_SERVLET);
 
   /* Extensions associated with the built-in message converters */
-  private static final Set<String> SAFE_EXTENSIONS = new HashSet<>(Arrays.asList(
-          "txt", "text", "yml", "properties", "csv",
-          "json", "xml", "atom", "rss",
-          "png", "jpe", "jpeg", "jpg", "gif", "wbmp", "bmp"));
+  private static final Set<String> SAFE_EXTENSIONS = new HashSet<>(
+          Arrays.asList(
+                  "txt", "text", "yml", "properties", "csv",
+                  "json", "xml", "atom", "rss",
+                  "png", "jpe", "jpeg", "jpg", "gif", "wbmp", "bmp"
+          )
+  );
 
   private static final Set<String> SAFE_MEDIA_BASE_TYPES = new HashSet<>(
-          Arrays.asList("audio", "image", "video"));
+          Arrays.asList("audio", "image", "video")
+  );
 
   private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES
           = Arrays.asList(MediaType.ALL, new MediaType("application"));
@@ -97,7 +101,7 @@ public abstract class AbstractMessageConverterMethodProcessor
 
   private final ContentNegotiationManager contentNegotiationManager;
 
-  private final Set<String> safeExtensions = new HashSet<>();
+  private final HashSet<String> safeExtensions = new HashSet<>();
 
   /**
    * Constructor with list of converters only.
@@ -112,7 +116,6 @@ public abstract class AbstractMessageConverterMethodProcessor
   protected AbstractMessageConverterMethodProcessor(
           List<HttpMessageConverter<?>> converters,
           @Nullable ContentNegotiationManager contentNegotiationManager) {
-
     this(converters, contentNegotiationManager, null);
   }
 
@@ -124,9 +127,7 @@ public abstract class AbstractMessageConverterMethodProcessor
           List<HttpMessageConverter<?>> converters,
           @Nullable ContentNegotiationManager manager,
           @Nullable List<Object> requestResponseBodyAdvice) {
-
     super(converters, requestResponseBodyAdvice);
-
     this.contentNegotiationManager = manager != null ? manager : new ContentNegotiationManager();
     this.safeExtensions.addAll(this.contentNegotiationManager.getAllFileExtensions());
     this.safeExtensions.addAll(SAFE_EXTENSIONS);
@@ -170,11 +171,9 @@ public abstract class AbstractMessageConverterMethodProcessor
     if (isResourceType(value, returnType)) {
       responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");
       if (value != null && requestHeaders.getFirst(HttpHeaders.RANGE) != null && context.getStatus() == 200) {
-
         Resource resource = (Resource) value;
         try {
           List<HttpRange> httpRanges = requestHeaders.getRange();
-
           context.setStatus(HttpStatus.PARTIAL_CONTENT.value());
           body = HttpRange.toResourceRegions(httpRanges, resource);
           valueType = body.getClass();
@@ -269,11 +268,12 @@ public abstract class AbstractMessageConverterMethodProcessor
                   (Class<? extends HttpMessageConverter<?>>) converter.getClass(), context);
           if (body != null) {
             Object theBody = body;
-            LogFormatUtils.traceDebug(log, traceOn ->
-                    "Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
+            LogFormatUtils.traceDebug(
+                    log, traceOn -> "Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
             addContentDispositionHeader(context);
             if (genericConverter != null) {
-              genericConverter.write(body, targetType, selectedMediaType, new RequestContextHttpOutputMessage(context));
+              genericConverter.write(
+                      body, targetType, selectedMediaType, new RequestContextHttpOutputMessage(context));
             }
             else {
               ((HttpMessageConverter) converter).write(
@@ -309,7 +309,7 @@ public abstract class AbstractMessageConverterMethodProcessor
    * (e.g. {@code ResponseEntity<T>}).
    */
   protected Class<?> getReturnValueType(@Nullable Object value, MethodParameter returnType) {
-    return (value != null ? value.getClass() : returnType.getParameterType());
+    return value != null ? value.getClass() : returnType.getParameterType();
   }
 
   /**
@@ -359,7 +359,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     if (ObjectUtils.isNotEmpty(mediaTypes)) {
       return Arrays.asList(mediaTypes);
     }
-    List<MediaType> result = new ArrayList<>();
+    ArrayList<MediaType> result = new ArrayList<>();
     for (HttpMessageConverter<?> converter : this.messageConverters) {
       if (converter instanceof GenericHttpMessageConverter && targetType != null) {
         if (((GenericHttpMessageConverter<?>) converter).canWrite(targetType, valueClass, null)) {
@@ -370,7 +370,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         result.addAll(converter.getSupportedMediaTypes(valueClass));
       }
     }
-    return (result.isEmpty() ? Collections.singletonList(MediaType.ALL) : result);
+    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : result;
   }
 
   private List<MediaType> getAcceptableMediaTypes(RequestContext request)

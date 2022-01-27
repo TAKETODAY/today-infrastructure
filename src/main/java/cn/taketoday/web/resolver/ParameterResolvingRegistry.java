@@ -34,6 +34,7 @@ import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -74,10 +75,12 @@ public class ParameterResolvingRegistry
   /**
    * @since 3.0.1
    */
+  @Nullable
   private RedirectModelManager redirectModelManager;
   /**
    * @since 3.0.1
    */
+  @Nullable
   private MultipartConfiguration multipartConfig;
   /**
    * @since 3.0.1
@@ -284,14 +287,11 @@ public class ParameterResolvingRegistry
     // For multipart
     // -------------------------------------------
     MultipartConfiguration multipartConfig = getMultipartConfig();
-    if (multipartConfig == null) {
-      multipartConfig = context.getBean(MultipartConfiguration.class);
-      if (multipartConfig == null) { // @since 4.0
-        multipartConfig = createMultipartConfig();
-        setMultipartConfig(multipartConfig);
-      }
+    if (multipartConfig == null) { // @since 4.0
+      multipartConfig = createMultipartConfig();
+      setMultipartConfig(multipartConfig);
     }
-    Assert.state(multipartConfig != null, "MultipartConfiguration Can't be null");
+    Assert.state(multipartConfig != null, "MultipartConfiguration is required");
 
     DefaultMultipartResolver.register(strategies, multipartConfig);
 
@@ -305,24 +305,27 @@ public class ParameterResolvingRegistry
     if (modelManager == null) {
       log.info("RedirectModel disabled");
     }
-    // @since 3.0
-    configureDataBinder(strategies);
 
+    // type-based argument resolution
     strategies.add(new ModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
+    strategies.add(new ThrowableHandlerParameterResolver());
 
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));
 
+    // Annotation-based argument resolution
     strategies.add(new RequestResponseBodyMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
-    strategies.add(new ThrowableHandlerParameterResolver());
 
     // Date API support @since 3.0
     strategies.add(new DateParameterResolver());
     strategies.add(new LocalDateParameterResolver());
     strategies.add(new LocalTimeParameterResolver());
     strategies.add(new LocalDateTimeParameterResolver());
+
+    // @since 3.0
+    configureDataBinder(strategies);
 
     strategies.add(new SimpleArrayParameterResolver());
 
@@ -387,18 +390,20 @@ public class ParameterResolvingRegistry
 
   //
 
-  public void setRedirectModelManager(RedirectModelManager redirectModelManager) {
+  public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
   }
 
+  @Nullable
   public RedirectModelManager getRedirectModelManager() {
     return redirectModelManager;
   }
 
-  public void setMultipartConfig(MultipartConfiguration multipartConfig) {
+  public void setMultipartConfig(@Nullable MultipartConfiguration multipartConfig) {
     this.multipartConfig = multipartConfig;
   }
 
+  @Nullable
   public MultipartConfiguration getMultipartConfig() {
     return multipartConfig;
   }
@@ -454,6 +459,14 @@ public class ParameterResolvingRegistry
   @Override
   public void trimToSize() {
     defaultStrategies.trimToSize();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.valueOf(this)
+            .append("defaultStrategies", defaultStrategies.size())
+            .append("customizedStrategies", customizedStrategies.size())
+            .toString();
   }
 
   // ParameterResolver
