@@ -19,17 +19,8 @@
  */
 package cn.taketoday.web.framework;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
-
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.framework.server.AbstractWebServer;
 import cn.taketoday.web.framework.server.ConfigurableWebServer;
@@ -63,125 +54,6 @@ public abstract class WebApplicationUtils {
       ((ConfigurableWebServer) webServer).initialize();
     }
     return webServer;
-  }
-
-  public static File getTemporalDirectory(Class<?> startupClass, String subdir) {
-    if (StringUtils.isEmpty(subdir)) {
-      return getBaseTemporalDirectory(startupClass);
-    }
-    File dir = new File(getBaseTemporalDirectory(startupClass), subdir);
-    dir.mkdirs();
-    return dir;
-  }
-
-  /**
-   * Return the directory to be used for application specific temp files.
-   *
-   * @return the application temp directory
-   */
-  public static File getBaseTemporalDirectory(Class<?> startupClass) {
-    String property = System.getProperty("java.io.tmpdir");
-    if (StringUtils.isEmpty(property)) {
-      throw new IllegalStateException("There is no 'java.io.tmpdir' property set");
-    }
-
-    File baseTempDir = new File(property);
-    if (!baseTempDir.exists()) {
-      throw new IllegalStateException("Temp directory " + baseTempDir + " does not exist");
-    }
-    if (!baseTempDir.isDirectory()) {
-      throw new IllegalStateException("Temp location " + baseTempDir + " is not a directory");
-    }
-    File directory = new File(baseTempDir, startupClass.getName());
-    if (!directory.exists()) {
-      directory.mkdirs();
-      if (!directory.exists()) {
-        throw new IllegalStateException("Unable to create temp directory " + directory);
-      }
-    }
-    return directory;
-  }
-
-  /**
-   * Returns the application home directory.
-   *
-   * @return the home directory (never {@code null})
-   */
-  public File getApplicationDirectory(Class<?> startupClass) {
-    return findHomeDir(getApplicationSource(startupClass));
-  }
-
-  /**
-   * Returns the underlying source used to find the home directory. This is
-   * usually the jar file or a directory. Can return {@code null} if the source
-   * cannot be determined.
-   *
-   * @return the underlying source or {@code null}
-   */
-  public File getApplicationSource(Class<?> startupClass) {
-    return findSource(startupClass);
-  }
-
-  public static File findSource(Class<?> startupClass) {
-    try {
-      if (startupClass == null) {
-        return null;
-      }
-      ProtectionDomain domain = startupClass.getProtectionDomain();
-      if (domain == null) {
-        return null;
-      }
-
-      CodeSource codeSource = domain.getCodeSource();
-      if (codeSource == null) {
-        return null;
-      }
-      File source = findSource(codeSource.getLocation());
-
-      if (source != null && source.exists()) {
-        return source.getAbsoluteFile();
-      }
-      return null;
-    }
-    catch (Exception ex) {
-      return null;
-    }
-  }
-
-  private static File findSource(URL location) throws IOException {
-    if (location == null) {
-      return null;
-    }
-    URLConnection connection = location.openConnection();
-    if (connection instanceof JarURLConnection) {
-
-      String name = ((JarURLConnection) connection).getJarFile().getName();
-      int separator = name.indexOf("!/");
-      if (separator > 0) {
-        name = name.substring(0, separator);
-      }
-      return new File(name);
-    }
-    return new File(location.getPath());
-  }
-
-  /**
-   * @param homeDir source dir
-   */
-  private static File findHomeDir(File homeDir) {
-
-    File ret = homeDir;
-    if (ret == null) {
-      String userDir = System.getProperty("user.dir");
-      ret = new File(StringUtils.isNotEmpty(userDir) ? userDir : ".");
-    }
-    if (ret.isFile()) {
-      ret = ret.getParentFile();
-    }
-    if (!ret.exists()) {
-      ret = new File(".");
-    }
-    return ret.getAbsoluteFile();
   }
 
 }
