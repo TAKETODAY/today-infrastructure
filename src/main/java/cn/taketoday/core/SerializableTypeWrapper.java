@@ -144,13 +144,14 @@ final class SerializableTypeWrapper {
     /**
      * Return the (possibly non {@link Serializable}) {@link Type}.
      */
-
+    @Nullable
     Type getType();
 
     /**
      * Return the source of the type, or {@code null} if not known.
      * <p>The default implementations returns {@code null}.
      */
+    @Nullable
     default Object getSource() {
       return null;
     }
@@ -376,7 +377,7 @@ final class SerializableTypeWrapper {
         // Cache the result for further calls to getType()
         this.result = result;
       }
-      return (result instanceof Type[] ? ((Type[]) result)[this.index] : (Type) result);
+      return result instanceof Type[] ? ((Type[]) result)[this.index] : (Type) result;
     }
 
     @Override

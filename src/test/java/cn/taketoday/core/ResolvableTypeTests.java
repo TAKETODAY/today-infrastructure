@@ -300,7 +300,8 @@ public class ResolvableTypeTests {
     assertThat(type.isAssignableFrom(String.class)).isTrue();
   }
 
-  @Test  // gh-23321
+  @Test
+    // gh-23321
   void forRawClassAssignableFromTypeVariable() throws Exception {
     ResolvableType typeVariable = ResolvableType.fromClass(ExtendsList.class).as(List.class).getGeneric();
     ResolvableType raw = ResolvableType.fromRawClass(CharSequence.class);
@@ -369,7 +370,7 @@ public class ResolvableTypeTests {
   void forFieldMustNotBeNull() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.fromField(null))
-            .withMessageContaining("Field must not be null");
+            .withMessageContaining("Field is required");
   }
 
   @Test
@@ -516,7 +517,7 @@ public class ResolvableTypeTests {
     }
     assertThat(interfaces.toString())
             .isEqualTo("[java.io.Serializable, java.lang.Cloneable, " +
-                               "java.util.List<java.lang.CharSequence>, java.util.RandomAccess]");
+                    "java.util.List<java.lang.CharSequence>, java.util.RandomAccess]");
   }
 
   @Test
