@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
@@ -53,9 +52,8 @@ import cn.taketoday.web.RequestContext;
  */
 public class ContentNegotiationManager implements ContentNegotiationStrategy, MediaTypeFileExtensionResolver {
 
-  private final List<ContentNegotiationStrategy> strategies = new ArrayList<>();
-
-  private final Set<MediaTypeFileExtensionResolver> resolvers = new LinkedHashSet<>();
+  private final ArrayList<ContentNegotiationStrategy> strategies = new ArrayList<>();
+  private final LinkedHashSet<MediaTypeFileExtensionResolver> resolvers = new LinkedHashSet<>();
 
   /**
    * Create an instance with the given list of
@@ -154,20 +152,20 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
   }
 
   private List<String> doResolveExtensions(Function<MediaTypeFileExtensionResolver, List<String>> extractor) {
-    List<String> result = null;
+    ArrayList<String> result = null;
     for (MediaTypeFileExtensionResolver resolver : this.resolvers) {
       List<String> extensions = extractor.apply(resolver);
       if (CollectionUtils.isEmpty(extensions)) {
         continue;
       }
-      result = (result != null ? result : new ArrayList<>(4));
+      result = result != null ? result : new ArrayList<>(4);
       for (String extension : extensions) {
         if (!result.contains(extension)) {
           result.add(extension);
         }
       }
     }
-    return (result != null ? result : Collections.emptyList());
+    return result != null ? result : Collections.emptyList();
   }
 
   /**
@@ -175,18 +173,18 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
    * {@link MediaTypeFileExtensionResolver}s.
    */
   public Map<String, MediaType> getMediaTypeMappings() {
-    Map<String, MediaType> result = null;
+    HashMap<String, MediaType> result = null;
     for (MediaTypeFileExtensionResolver resolver : this.resolvers) {
-      if (resolver instanceof MappingMediaTypeFileExtensionResolver) {
-        Map<String, MediaType> map = ((MappingMediaTypeFileExtensionResolver) resolver).getMediaTypes();
+      if (resolver instanceof MappingMediaTypeFileExtensionResolver mediaTypeMappings) {
+        Map<String, MediaType> map = mediaTypeMappings.getMediaTypes();
         if (CollectionUtils.isEmpty(map)) {
           continue;
         }
-        result = (result != null ? result : new HashMap<>(4));
+        result = result != null ? result : new HashMap<>(4);
         result.putAll(map);
       }
     }
-    return (result != null ? result : Collections.emptyMap());
+    return result != null ? result : Collections.emptyMap();
   }
 
 }

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.FactoryBean;
@@ -33,8 +34,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.ServletContextAware;
-import jakarta.servlet.ServletContext;
 
 /**
  * Factory to create a {@code ContentNegotiationManager} and configure it with
@@ -81,21 +80,12 @@ import jakarta.servlet.ServletContext;
  * methods and set the exact strategies to use via
  * {@link #setStrategies(List)}.
  *
- * <p><strong>Deprecation Note:</strong> As of 5.2.4,
- * {@link #setFavorPathExtension(boolean) favorPathExtension} and
- * {@link #setIgnoreUnknownPathExtensions(boolean) ignoreUnknownPathExtensions}
- * are deprecated in order to discourage using path extensions for content
- * negotiation and for request mapping with similar deprecations on
- * {@link cn.taketoday.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
- * RequestMappingHandlerMapping}. For further context, please read issue
- * <a href="https://github.com/spring-projects/spring-framework/issues/24179">#24719</a>.
- *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @since 4.0
  */
 public class ContentNegotiationManagerFactoryBean
-        implements FactoryBean<ContentNegotiationManager>, ServletContextAware, InitializingBean {
+        implements FactoryBean<ContentNegotiationManager>, InitializingBean {
 
   @Nullable
   private List<ContentNegotiationStrategy> strategies;
@@ -105,8 +95,6 @@ public class ContentNegotiationManagerFactoryBean
   private String parameterName = "format";
 
   private final Map<String, MediaType> mediaTypes = new HashMap<>();
-
-  private boolean ignoreUnknownPathExtensions = true;
 
   @Nullable
   private Boolean useRegisteredExtensionsOnly;
@@ -119,9 +107,6 @@ public class ContentNegotiationManagerFactoryBean
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
 
-  @Nullable
-  private ServletContext servletContext;
-
   /**
    * Set the exact list of strategies to use.
    * <p><strong>Note:</strong> use of this method is mutually exclusive with
@@ -131,7 +116,7 @@ public class ContentNegotiationManagerFactoryBean
    * @param strategies the strategies to use
    */
   public void setStrategies(@Nullable List<ContentNegotiationStrategy> strategies) {
-    this.strategies = (strategies != null ? new ArrayList<>(strategies) : null);
+    this.strategies = strategies != null ? new ArrayList<>(strategies) : null;
   }
 
   /**
@@ -160,24 +145,11 @@ public class ContentNegotiationManagerFactoryBean
    * lowercase and may have been extracted from a path extension, a filename
    * extension, or passed as a query parameter.
    * <p>The {@link #setFavorParameter(boolean) parameter strategy} requires
-   * such mappings in order to work while the {@link #setFavorPathExtension(boolean)
-   * path extension strategy} can fall back on lookups via
-   * {@link ServletContext#getMimeType} and
-   * {@link cn.taketoday.http.MediaTypeFactory}.
+   * such mappings in order to work while the path extension strategy can fall
+   * back on lookups via and {@link cn.taketoday.util.MediaType}.
    * <p><strong>Note:</strong> Mappings registered here may be accessed via
    * {@link ContentNegotiationManager#getMediaTypeMappings()} and may be used
-   * not only in the parameter and path extension strategies. For example,
-   * with the Spring MVC config, e.g. {@code @EnableWebMvc} or
-   * {@code <mvc:annotation-driven>}, the media type mappings are also plugged
-   * in to:
-   * <ul>
-   * <li>Determine the media type of static resources served with
-   * {@code ResourceHttpRequestHandler}.
-   * <li>Determine the media type of views rendered with
-   * {@code ContentNegotiatingViewResolver}.
-   * <li>List safe extensions for RFD attack detection (check the Spring
-   * Framework reference docs for details).
-   * </ul>
+   * not only in the parameter and path extension strategies.
    *
    * @param mediaTypes media type mappings
    * @see #addMediaType(String, MediaType)
@@ -185,8 +157,11 @@ public class ContentNegotiationManagerFactoryBean
    */
   public void setMediaTypes(Properties mediaTypes) {
     if (!CollectionUtils.isEmpty(mediaTypes)) {
-      mediaTypes.forEach((key, value) ->
-              addMediaType((String) key, MediaType.valueOf((String) value)));
+      for (Map.Entry<Object, Object> entry : mediaTypes.entrySet()) {
+        Object key = entry.getKey();
+        Object value = entry.getValue();
+        addMediaType((String) key, MediaType.valueOf((String) value));
+      }
     }
   }
 
@@ -202,29 +177,18 @@ public class ContentNegotiationManagerFactoryBean
    */
   public void addMediaTypes(@Nullable Map<String, MediaType> mediaTypes) {
     if (mediaTypes != null) {
-      mediaTypes.forEach(this::addMediaType);
+      for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
+        String key = entry.getKey();
+        MediaType value = entry.getValue();
+        addMediaType(key, value);
+      }
     }
   }
 
   /**
-   * Whether to ignore requests with path extension that cannot be resolved
-   * to any media type. Setting this to {@code false} will result in an
-   * {@code HttpMediaTypeNotAcceptableException} if there is no match.
-   * <p>By default this is set to {@code true}.
-   *
-   * @deprecated as of 5.2.4. See class-level note on the deprecation of path
-   * extension config options.
-   */
-  @Deprecated
-  public void setIgnoreUnknownPathExtensions(boolean ignore) {
-    this.ignoreUnknownPathExtensions = ignore;
-  }
-
-  /**
-   * When {@link #setFavorPathExtension favorPathExtension} or
-   * {@link #setFavorParameter(boolean)} is set, this property determines
+   * When {@link #setFavorParameter(boolean)} is set, this property determines
    * whether to use only registered {@code MediaType} mappings or to allow
-   * dynamic resolution, e.g. via {@link MediaTypeFactory}.
+   * dynamic resolution, e.g. via {@link MediaType#fromFileName(String)}  MediaTypeFactory}.
    * <p>By default this is not set in which case dynamic resolution is on.
    */
   public void setUseRegisteredExtensionsOnly(boolean useRegisteredExtensionsOnly) {
@@ -274,14 +238,6 @@ public class ContentNegotiationManagerFactoryBean
     this.defaultNegotiationStrategy = strategy;
   }
 
-  /**
-   * Invoked by Spring to inject the ServletContext.
-   */
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
-  }
-
   @Override
   public void afterPropertiesSet() {
     build();
@@ -300,12 +256,8 @@ public class ContentNegotiationManagerFactoryBean
       if (this.favorParameter) {
         ParameterContentNegotiationStrategy strategy = new ParameterContentNegotiationStrategy(this.mediaTypes);
         strategy.setParameterName(this.parameterName);
-        if (this.useRegisteredExtensionsOnly != null) {
-          strategy.setUseRegisteredExtensionsOnly(this.useRegisteredExtensionsOnly);
-        }
-        else {
-          strategy.setUseRegisteredExtensionsOnly(true);  // backwards compatibility
-        }
+        // backwards compatibility
+        strategy.setUseRegisteredExtensionsOnly(Objects.requireNonNullElse(this.useRegisteredExtensionsOnly, true));
         strategies.add(strategy);
       }
       if (!this.ignoreAcceptHeader) {

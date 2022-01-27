@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
@@ -52,8 +50,6 @@ import cn.taketoday.web.RequestContext;
  */
 public abstract class AbstractMappingContentNegotiationStrategy
         extends MappingMediaTypeFileExtensionResolver implements ContentNegotiationStrategy {
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private boolean useRegisteredExtensionsOnly = false;
 

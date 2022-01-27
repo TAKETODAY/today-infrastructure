@@ -26,9 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cn.taketoday.lang.Nullable;
@@ -47,24 +45,24 @@ import cn.taketoday.util.MediaType;
  */
 public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExtensionResolver {
 
-  private final ConcurrentMap<String, MediaType> mediaTypes = new ConcurrentHashMap<>(64);
-
-  private final ConcurrentMap<MediaType, List<String>> fileExtensions = new ConcurrentHashMap<>(64);
-
-  private final List<String> allFileExtensions = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<String> allFileExtensions = new CopyOnWriteArrayList<>();
+  private final ConcurrentHashMap<String, MediaType> mediaTypes = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<MediaType, List<String>> fileExtensions = new ConcurrentHashMap<>(64);
 
   /**
    * Create an instance with the given map of file extensions and media types.
    */
   public MappingMediaTypeFileExtensionResolver(@Nullable Map<String, MediaType> mediaTypes) {
     if (mediaTypes != null) {
-      Set<String> allFileExtensions = new HashSet<>(mediaTypes.size());
-      mediaTypes.forEach((extension, mediaType) -> {
+      HashSet<String> allFileExtensions = new HashSet<>(mediaTypes.size());
+      for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
+        String extension = entry.getKey();
+        MediaType mediaType = entry.getValue();
         String lowerCaseExtension = extension.toLowerCase(Locale.ENGLISH);
         this.mediaTypes.put(lowerCaseExtension, mediaType);
         addFileExtension(mediaType, lowerCaseExtension);
         allFileExtensions.add(lowerCaseExtension);
-      });
+      }
       this.allFileExtensions.addAll(allFileExtensions);
     }
   }
