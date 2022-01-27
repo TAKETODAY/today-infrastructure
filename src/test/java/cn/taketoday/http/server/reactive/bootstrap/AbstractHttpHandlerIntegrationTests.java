@@ -120,8 +120,8 @@ public abstract class AbstractHttpHandlerIntegrationTests {
 
   static Stream<HttpServer> httpServers() {
     return Stream.of(
-            new JettyHttpServer(),
             new ReactorHttpServer(),
+            new JettyHttpServer(),
             new TomcatHttpServer(),
             new UndertowHttpServer()
     );
