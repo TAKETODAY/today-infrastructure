@@ -64,7 +64,7 @@ public class ApplicationHome {
    *
    * @param sourceClass the source class or {@code null}
    */
-  public ApplicationHome(Class<?> sourceClass) {
+  public ApplicationHome(@Nullable Class<?> sourceClass) {
     this.source = findSource((sourceClass != null) ? sourceClass : getStartClass());
     this.dir = findHomeDir(this.source);
   }
@@ -96,7 +96,7 @@ public class ApplicationHome {
   }
 
   @Nullable
-  private File findSource(Class<?> sourceClass) {
+  private File findSource(@Nullable Class<?> sourceClass) {
     try {
       ProtectionDomain domain = (sourceClass != null) ? sourceClass.getProtectionDomain() : null;
       CodeSource codeSource = (domain != null) ? domain.getCodeSource() : null;

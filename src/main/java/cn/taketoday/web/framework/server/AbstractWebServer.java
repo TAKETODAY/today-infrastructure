@@ -36,6 +36,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -46,7 +47,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
-import cn.taketoday.web.framework.WebApplicationUtils;
 import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.web.framework.config.CompressionConfiguration;
@@ -184,9 +184,10 @@ public abstract class AbstractWebServer
    */
   protected File getTemporalDirectory(String dir) {
     Class<?> mainApplicationClass = getMainApplicationClass();
-    return WebApplicationUtils.getTemporalDirectory(mainApplicationClass, dir);
+    return ApplicationUtils.getTemporalDirectory(mainApplicationClass, dir);
   }
 
+  @Nullable
   protected Class<?> getMainApplicationClass() {
     return application.getMainApplicationClass();
   }
@@ -199,11 +200,11 @@ public abstract class AbstractWebServer
   /**
    * get session store directory
    */
-  public File getStoreDirectory(Class<?> startupClass) throws IOException {
+  public File getStoreDirectory(@Nullable Class<?> startupClass) throws IOException {
     Assert.state(sessionConfig != null, "Please enable web session");
     Resource storeDirectory = sessionConfig.getStoreDirectory();
     if (storeDirectory == null || !storeDirectory.exists()) {
-      return WebApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
+      return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
     }
 
     if (storeDirectory.isDirectory()) {

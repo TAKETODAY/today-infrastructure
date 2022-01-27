@@ -22,14 +22,16 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.aop.proxy.BeanNameAutoProxyCreator;
 import cn.taketoday.aop.target.AbstractBeanFactoryTargetSource;
 import cn.taketoday.aop.target.LazyInitTargetSourceCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.support.StandardApplicationContext;
 import jakarta.annotation.PreDestroy;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Arrault Fabien
  * @author Sam Brannen
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class AutoProxyLazyInitTests {
 
   @BeforeEach

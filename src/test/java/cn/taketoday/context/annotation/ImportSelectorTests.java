@@ -22,6 +22,8 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.InOrder;
 
 import java.lang.annotation.ElementType;
@@ -39,15 +41,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -69,6 +71,7 @@ import static org.mockito.Mockito.spy;
  * @author Stephane Nicoll
  */
 @SuppressWarnings("resource")
+@Execution(ExecutionMode.SAME_THREAD)
 public class ImportSelectorTests {
 
   static Map<Class<?>, String> importFrom = new HashMap<>();

@@ -24,6 +24,8 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,12 +40,12 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.concurrent.ListenableFuture;
 
@@ -55,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Chris Beams
  */
 @SuppressWarnings("resource")
+@Execution(ExecutionMode.SAME_THREAD)
 public class AsyncExecutionTests {
 
   private static String originalThreadName;
