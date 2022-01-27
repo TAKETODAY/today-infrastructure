@@ -371,15 +371,16 @@ public class MethodParameter {
    * declaration or {@code Continuation} parameter in Kotlin.
    */
   public boolean isOptional() {
-    return getParameterType() == Optional.class || hasNullableAnnotation();
+    return getParameterType() == Optional.class || isNullable();
   }
 
   /**
-   * Check whether this method parameter is annotated with any variant of a
-   * {@code Nullable} annotation, e.g. {@code jakarta.annotation.Nullable} or
-   * {@code edu.umd.cs.findbugs.annotations.Nullable}.
+   * Return whether this method indicates a parameter which can be {@code null}:
+   * either in the form of any variant of a parameter-level {@code Nullable}
+   * annotation (such as from JSR-305 or the FindBugs set of annotations),
+   * or a language-level nullable type declaration
    */
-  private boolean hasNullableAnnotation() {
+  public boolean isNullable() {
     for (Annotation ann : getParameterAnnotations()) {
       if ("Nullable".equals(ann.annotationType().getSimpleName())) {
         return true;
