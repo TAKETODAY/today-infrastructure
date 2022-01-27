@@ -67,7 +67,7 @@ public @interface RequestMapping {
    * @since 4.0
    */
   @AliasFor("value")
-  String[] path() default {};
+  String[] path() default Constant.BLANK;
 
   /** Exclude url on class */
   boolean exclude() default false;

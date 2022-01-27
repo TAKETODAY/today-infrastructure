@@ -47,7 +47,7 @@ public @interface OPTIONS {
    * @since 4.0
    */
   @AliasFor(annotation = ActionMapping.class)
-  String[] path() default {};
+  String[] path() default Constant.BLANK;
 
   /** Exclude url on class */
   @AliasFor(annotation = ActionMapping.class)
