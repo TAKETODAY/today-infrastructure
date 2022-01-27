@@ -46,6 +46,6 @@ public @interface RequestBody {
    * @see cn.taketoday.web.resolver.MissingRequestBodyException
    * @since 3.0
    */
-  boolean required() default false;
+  boolean required() default true;
 
 }

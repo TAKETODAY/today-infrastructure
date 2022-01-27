@@ -39,7 +39,7 @@ import cn.taketoday.lang.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CookieValue {
 
-  boolean required() default false;
+  boolean required() default true;
 
   /**
    * The name of cookie.

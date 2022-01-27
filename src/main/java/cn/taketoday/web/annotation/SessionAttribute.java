@@ -42,6 +42,6 @@ public @interface SessionAttribute {
   /**
    * If required == true when request parameter is null, will be throws exception
    */
-  boolean required() default false;
+  boolean required() default true;
 
 }

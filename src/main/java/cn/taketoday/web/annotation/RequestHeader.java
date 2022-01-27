@@ -38,7 +38,7 @@ import cn.taketoday.lang.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestHeader {
 
-  boolean required() default false;
+  boolean required() default true;
 
   /** Header name */
   String value() default Constant.BLANK;

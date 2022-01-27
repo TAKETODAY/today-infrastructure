@@ -29,8 +29,11 @@ import cn.taketoday.lang.Constant;
 
 /**
  * Annotation which indicates that a method parameter should be bound to a web request parameter.
+ * <p>
+ * this Annotation provides {@code NamedValueInfo}
  *
  * @author TODAY <br>
+ * @see cn.taketoday.web.handler.method.NamedValueInfo
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
@@ -60,7 +63,7 @@ public @interface RequestParam {
    * sets this flag to {@code false}.
    * If required == true when request parameter is null, will be throws exception
    */
-  boolean required() default false;
+  boolean required() default true;
 
   /**
    * The default value to use as a fallback when the request parameter is
