@@ -165,7 +165,7 @@ public class ClientHttpConnectorTests {
     prepareResponse(response -> response.setBody(responseBody));
 
     ClientHttpResponse response = connector.connect(HttpMethod.POST, this.server.url("/").uri(),
-                                                    ReactiveHttpOutputMessage::setComplete).block();
+            ReactiveHttpOutputMessage::setComplete).block();
     assertThat(response).isNotNull();
 
     StepVerifier.create(response.getBody(), 1)
@@ -223,7 +223,9 @@ public class ClientHttpConnectorTests {
     ArrayList<Arguments> result = new ArrayList<>();
     for (ClientHttpConnector connector : connectors()) {
       for (HttpMethod method : HttpMethod.values()) {
-        result.add(Arguments.of(connector, method));
+        if (method != HttpMethod.CONNECT) {
+          result.add(Arguments.of(connector, method));
+        }
       }
     }
     return result;
