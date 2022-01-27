@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
@@ -82,8 +83,10 @@ public class ParameterResolvingStrategies
     return null;
   }
 
-  public void add(ParameterResolvingStrategy resolver) {
-    strategies.add(resolver);
+  public void add(@Nullable ParameterResolvingStrategy resolver) {
+    if (resolver != null) {
+      strategies.add(resolver);
+    }
   }
 
   /**
@@ -91,7 +94,7 @@ public class ParameterResolvingStrategies
    *
    * @param resolver resolvers or resolving-strategies
    */
-  public void add(ParameterResolvingStrategy... resolver) {
+  public void add(@Nullable ParameterResolvingStrategy... resolver) {
     Collections.addAll(strategies, resolver);
   }
 
@@ -100,9 +103,11 @@ public class ParameterResolvingStrategies
    *
    * @param resolvers resolvers or resolving-strategies
    */
-  public void add(List<ParameterResolvingStrategy> resolvers) {
-    this.strategies.addAll(resolvers);
-    trimToSize();
+  public void add(@Nullable List<ParameterResolvingStrategy> resolvers) {
+    if (CollectionUtils.isNotEmpty(resolvers)) {
+      this.strategies.addAll(resolvers);
+      trimToSize();
+    }
   }
 
   public void add(SupportsFunction supportsFunction, Converter<String, Object> converter) {
@@ -194,6 +199,17 @@ public class ParameterResolvingStrategies
   @Override
   public Spliterator<ParameterResolvingStrategy> spliterator() {
     return strategies.spliterator();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.valueOf(this)
+            .append("strategies", strategies.size())
+            .toString();
+  }
+
+  public int size() {
+    return strategies.size();
   }
 
 }

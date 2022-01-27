@@ -22,7 +22,6 @@ package cn.taketoday.web.resolver;
 import java.util.Collection;
 import java.util.List;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
@@ -40,7 +39,6 @@ import static cn.taketoday.web.resolver.DataBinderMapParameterResolver.isMap;
  */
 public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
-  @Autowired
   public DefaultMultipartResolver(MultipartConfiguration multipartConfiguration) {
     super(multipartConfiguration);
   }
@@ -113,7 +111,6 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    */
   static class ArrayMultipartResolver extends AbstractMultipartResolver {
 
-    @Autowired
     public ArrayMultipartResolver(MultipartConfiguration configuration) {
       super(configuration);
     }
@@ -143,7 +140,6 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   static class MapMultipartParameterResolver
           extends AbstractMultipartResolver implements ParameterResolvingStrategy {
 
-    @Autowired
     public MapMultipartParameterResolver(MultipartConfiguration multipartConfig) {
       super(multipartConfig);
     }

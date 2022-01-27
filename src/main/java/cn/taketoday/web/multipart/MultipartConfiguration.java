@@ -21,6 +21,7 @@ package cn.taketoday.web.multipart;
 
 import java.util.Objects;
 
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.DataSize;
 
@@ -83,29 +84,30 @@ public class MultipartConfiguration {
 
   @Override
   public String toString() {
-    return new StringBuilder()
-            .append("MultipartConfiguration [location=").append(location)
-            .append(", encoding=").append(encoding)
-            .append(", maxFileSize=").append(maxFileSize)
-            .append(", maxRequestSize=").append(maxRequestSize)
-            .append(", fileSizeThreshold=").append(fileSizeThreshold)
-            .append("]").toString();
+    return ToStringBuilder.valueOf(this)
+            .append("encoding", encoding)
+            .append("maxFileSize", maxFileSize)
+            .append("maxRequestSize", maxRequestSize)
+            .append("fileSizeThreshold", fileSizeThreshold)
+            .toString();
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof MultipartConfiguration))
+    if (!(o instanceof final MultipartConfiguration that))
       return false;
-    final MultipartConfiguration that = (MultipartConfiguration) o;
-    return Objects.equals(location, that.location) && Objects.equals(encoding, that.encoding) && Objects
-            .equals(maxFileSize, that.maxFileSize) && Objects.equals(maxRequestSize, that.maxRequestSize) && Objects
-            .equals(fileSizeThreshold, that.fileSizeThreshold);
+    return Objects.equals(location, that.location)
+            && Objects.equals(encoding, that.encoding)
+            && Objects.equals(maxFileSize, that.maxFileSize)
+            && Objects.equals(maxRequestSize, that.maxRequestSize)
+            && Objects.equals(fileSizeThreshold, that.fileSizeThreshold);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(location, encoding, maxFileSize, maxRequestSize, fileSizeThreshold);
   }
+
 }
