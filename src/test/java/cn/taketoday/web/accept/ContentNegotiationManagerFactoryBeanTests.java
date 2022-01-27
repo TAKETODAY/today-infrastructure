@@ -33,10 +33,9 @@ import java.util.Properties;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockServletContext;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.MockServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -52,7 +51,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   private MockHttpServletRequest servletRequest;
 
-  RequestContext webRequest;
+  MockServletRequestContext webRequest;
 
   @BeforeEach
   void setup() {
@@ -60,9 +59,8 @@ class ContentNegotiationManagerFactoryBeanTests {
     servletContext.getMimeTypes().put("foo", "application/foo");
 
     this.servletRequest = new MockHttpServletRequest(servletContext);
-    webRequest = new ServletRequestContext(servletRequest, null);
+    webRequest = new MockServletRequestContext(servletRequest, null);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
-    this.factoryBean.setServletContext(this.servletRequest.getServletContext());
   }
 
   @Test
@@ -92,6 +90,7 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.servletRequest.setRequestURI("/flower");
     this.servletRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
 
+    webRequest.setRequestHeaders(null);
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should resolve Accept header by default")
             .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
@@ -114,40 +113,6 @@ class ContentNegotiationManagerFactoryBeanTests {
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
 
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  void favorPath() throws Exception {
-    this.factoryBean.addMediaType("bar", new MediaType("application", "bar"));
-    this.factoryBean.afterPropertiesSet();
-    ContentNegotiationManager manager = this.factoryBean.getObject();
-
-    this.servletRequest.setRequestURI("/flower.foo");
-    assertThat(manager.resolveMediaTypes(this.webRequest))
-            .isEqualTo(Collections.singletonList(new MediaType("application", "foo")));
-
-    this.servletRequest.setRequestURI("/flower.bar");
-    assertThat(manager.resolveMediaTypes(this.webRequest))
-            .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
-
-    this.servletRequest.setRequestURI("/flower.gif");
-    assertThat(manager.resolveMediaTypes(this.webRequest))
-            .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
-  }
-
-  @Test // SPR-10170
-  @SuppressWarnings("deprecation")
-  void favorPathWithIgnoreUnknownPathExtensionTurnedOff() {
-    this.factoryBean.setIgnoreUnknownPathExtensions(false);
-    this.factoryBean.afterPropertiesSet();
-    ContentNegotiationManager manager = this.factoryBean.getObject();
-
-    this.servletRequest.setRequestURI("/flower.foobarbaz");
-    this.servletRequest.addParameter("format", "json");
-
-    assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class).isThrownBy(() ->
-            manager.resolveMediaTypes(this.webRequest));
   }
 
   @Test
