@@ -27,6 +27,7 @@ import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -63,7 +64,7 @@ public class UrlPathHelper {
 
   private boolean removeSemicolonContent = true;
 
-  private String defaultEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
+  private String defaultEncoding = Constant.DEFAULT_ENCODING;
 
   private boolean readOnly = false;
 
@@ -95,7 +96,7 @@ public class UrlPathHelper {
    *
    * @see #getContextPath
    * @see #getRequestUri
-   * @see WebUtils#DEFAULT_CHARACTER_ENCODING
+   * @see Constant#DEFAULT_ENCODING
    * @see ServletRequest#getCharacterEncoding()
    * @see URLDecoder#decode(String, String)
    */
@@ -140,7 +141,7 @@ public class UrlPathHelper {
    * @param defaultEncoding the character encoding to use
    * @see ServletRequest#getCharacterEncoding()
    * @see ServletRequest#setCharacterEncoding(String)
-   * @see WebUtils#DEFAULT_CHARACTER_ENCODING
+   * @see Constant#DEFAULT_ENCODING
    */
   public void setDefaultEncoding(String defaultEncoding) {
     checkReadOnly();
@@ -351,7 +352,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @param source the String to decode
    * @return the decoded String
-   * @see WebUtils#DEFAULT_CHARACTER_ENCODING
+   * @see Constant#DEFAULT_ENCODING
    * @see ServletRequest#getCharacterEncoding
    * @see URLDecoder#decode(String, String)
    * @see URLDecoder#decode(String)
@@ -484,7 +485,7 @@ public class UrlPathHelper {
    * <li>{@code alwaysUseFullPath=false}
    * <li>{@code urlDecode=true}
    * <li>{@code removeSemicolon=true}
-   * <li>{@code defaultEncoding=}{@link WebUtils#DEFAULT_CHARACTER_ENCODING}
+   * <li>{@code defaultEncoding=}{@link Constant#DEFAULT_ENCODING}
    * </ul>
    */
   public static final UrlPathHelper defaultInstance = new UrlPathHelper();
@@ -499,7 +500,7 @@ public class UrlPathHelper {
    * <li>{@code alwaysUseFullPath=true}
    * <li>{@code urlDecode=false}
    * <li>{@code removeSemicolon=false}
-   * <li>{@code defaultEncoding=}{@link WebUtils#DEFAULT_CHARACTER_ENCODING}
+   * <li>{@code defaultEncoding=}{@link Constant#DEFAULT_ENCODING}
    * </ul>
    */
   public static final UrlPathHelper rawPathInstance = new UrlPathHelper() {

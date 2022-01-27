@@ -280,7 +280,7 @@ public enum HttpStatus {
    *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.5.11">
    * HTTP/1.1: Semantics and Content, section 6.5.11</a>
-   * @since 4.1
+   * @since 4.0
    */
   PAYLOAD_TOO_LARGE(413, Series.CLIENT_ERROR, "Payload Too Large"),
   /**
@@ -297,7 +297,7 @@ public enum HttpStatus {
    *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.5.12">
    * HTTP/1.1: Semantics and Content, section 6.5.12</a>
-   * @since 4.1
+   * @since 4.0
    */
   URI_TOO_LONG(414, Series.CLIENT_ERROR, "URI Too Long"),
   /**

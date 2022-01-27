@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.lang.Constant;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -106,7 +107,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
   @Override
   public String getCharacterEncoding() {
     String enc = super.getCharacterEncoding();
-    return (enc != null ? enc : WebUtils.DEFAULT_CHARACTER_ENCODING);
+    return (enc != null ? enc : Constant.DEFAULT_ENCODING);
   }
 
   @Override

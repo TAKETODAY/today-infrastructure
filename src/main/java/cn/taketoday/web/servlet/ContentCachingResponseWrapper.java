@@ -27,9 +27,9 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FastByteArrayOutputStream;
-import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
@@ -110,7 +110,7 @@ public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
     if (this.writer == null) {
       String characterEncoding = getCharacterEncoding();
       this.writer = (characterEncoding != null ? new ResponsePrintWriter(characterEncoding) :
-                     new ResponsePrintWriter(WebUtils.DEFAULT_CHARACTER_ENCODING));
+                     new ResponsePrintWriter(Constant.DEFAULT_ENCODING));
     }
     return this.writer;
   }

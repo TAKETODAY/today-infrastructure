@@ -52,12 +52,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public abstract class WebUtils {
 
   /**
-   * Default character encoding to use when {@code request.getCharacterEncoding}
-   * returns {@code null}, according to the Servlet spec.
-   */
-  public static final String DEFAULT_CHARACTER_ENCODING = Constant.DEFAULT_ENCODING;
-
-  /**
    * Retrieve the first cookie with the given name. Note that multiple
    * cookies can have the same name but different paths or domains.
    *

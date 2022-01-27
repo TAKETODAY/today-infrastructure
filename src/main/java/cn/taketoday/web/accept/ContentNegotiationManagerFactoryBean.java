@@ -129,7 +129,6 @@ public class ContentNegotiationManagerFactoryBean
    * set of strategies. See class level doc for more details.
    *
    * @param strategies the strategies to use
-   * @since 5.0
    */
   public void setStrategies(@Nullable List<ContentNegotiationStrategy> strategies) {
     this.strategies = (strategies != null ? new ArrayList<>(strategies) : null);

@@ -43,6 +43,7 @@ import cn.taketoday.lang.Assert;
  * @since 4.0
  */
 public abstract class HtmlUtils {
+  static final String CHARACTER_ENCODING = "ISO-8859-1";
 
   /**
    * Shared instance of pre-parsed HTML character entity references.
@@ -64,7 +65,7 @@ public abstract class HtmlUtils {
    * @return the escaped string
    */
   public static String htmlEscape(String input) {
-    return htmlEscape(input, WebUtils.DEFAULT_CHARACTER_ENCODING);
+    return htmlEscape(input, CHARACTER_ENCODING);
   }
 
   /**
@@ -114,7 +115,7 @@ public abstract class HtmlUtils {
    * @return the escaped string
    */
   public static String htmlEscapeDecimal(String input) {
-    return htmlEscapeDecimal(input, WebUtils.DEFAULT_CHARACTER_ENCODING);
+    return htmlEscapeDecimal(input, CHARACTER_ENCODING);
   }
 
   /**
@@ -165,7 +166,7 @@ public abstract class HtmlUtils {
    * @return the escaped string
    */
   public static String htmlEscapeHex(String input) {
-    return htmlEscapeHex(input, WebUtils.DEFAULT_CHARACTER_ENCODING);
+    return htmlEscapeHex(input, CHARACTER_ENCODING);
   }
 
   /**

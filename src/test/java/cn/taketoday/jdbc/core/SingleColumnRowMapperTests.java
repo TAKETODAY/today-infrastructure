@@ -41,7 +41,6 @@ import static org.mockito.Mockito.mock;
  * Tests for {@link SingleColumnRowMapper}.
  *
  * @author Kazuki Shimizu
- * @since 5.0.4
  */
 public class SingleColumnRowMapperTests {
 

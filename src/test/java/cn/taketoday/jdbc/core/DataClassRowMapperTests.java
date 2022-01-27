@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Juergen Hoeller
- * @since 5.3
  */
 public class DataClassRowMapperTests extends AbstractRowMapperTests {
 

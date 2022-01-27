@@ -49,8 +49,6 @@ public class GenericSqlQuery<T> extends SqlQuery<T> {
 
   /**
    * Set a specific {@link RowMapper} instance to use for this query.
-   *
-   * @since 4.3.2
    */
   public void setRowMapper(RowMapper<T> rowMapper) {
     this.rowMapper = rowMapper;

@@ -74,7 +74,6 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.datasource.DataSourceTransactionManagerTests
- * @since 5.3
  */
 public class JdbcTransactionManagerTests {
 
