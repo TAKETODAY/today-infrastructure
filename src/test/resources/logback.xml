@@ -30,13 +30,21 @@
     </encoder>
   </appender>
 
-  <logger name="cn.taketoday.logging" level="TRACE">
-    <appender-ref ref="STDOUT" />
-  </logger>
+  <!--
+    <logger name="cn.taketoday.logging" level="TRACE">
+      <appender-ref ref="STDOUT" />
+    </logger>
+  -->
+
+  <!--
+    <logger name="cn.taketoday.web" level="TRACE">
+      <appender-ref ref="STDOUT" />
+    </logger>
+  -->
 
   <!--  <root level="TRACE">-->
+<!--    <root level="DEBUG">-->
   <root level="INFO">
-<!--  <root level="DEBUG">-->
     <appender-ref ref="STDOUT" />
   </root>
 

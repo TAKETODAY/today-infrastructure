@@ -20,12 +20,25 @@
 
 package cn.taketoday.web.demo.controller;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import cn.taketoday.http.converter.HttpMessageNotReadableException;
+import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
+import cn.taketoday.web.annotation.ControllerAdvice;
+import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.POST;
+import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RestController;
+import lombok.Data;
 
 /**
  * @author TODAY 2021/8/29 22:20
  */
+@ControllerAdvice
 @RestController
 public class DemoController {
 
@@ -34,4 +47,70 @@ public class DemoController {
 
   }
 
+  @GET("hello")
+  public String string() {
+    return "hello";
+  }
+
+  @GET("/body")
+  Body test(Body body) {
+    return body;
+  }
+
+  @POST("/body")
+  Body postBody(@RequestBody Body body) {
+    return body;
+  }
+
+  @ExceptionHandler(Throwable.class)
+  public void throwable(Throwable throwable) {
+    throwable.printStackTrace();
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public HttpMessageNotReadableException throwable(HttpMessageNotReadableException throwable) {
+    return throwable;
+  }
+
+  @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+  public HttpMediaTypeNotAcceptableException throwable(HttpMediaTypeNotAcceptableException throwable) {
+    return throwable;
+  }
+
+  @Data
+  static class Body {
+    List<UserForm> userList;
+    UserForm[] userArray;
+    Set<UserForm> userSet;
+    Map<String, UserForm> mapUser;
+
+  }
+
+  @Data
+  public static class UserForm {
+    int age;
+    String name;
+    String[] arr;
+    List<String> stringList;
+    Map<String, Integer> map;
+
+    UserForm nested;
+    List<UserForm> nestedList;
+    Map<String, UserForm> nestedMap;
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof UserForm userForm))
+        return false;
+      return age == userForm.age && Objects.equals(name, userForm.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(age, name);
+    }
+
+  }
 }

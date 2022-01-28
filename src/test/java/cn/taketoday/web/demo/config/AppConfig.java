@@ -20,9 +20,8 @@
 
 package cn.taketoday.web.demo.config;
 
-import java.util.List;
-
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.interceptor.InterceptorRegistry;
@@ -30,14 +29,11 @@ import cn.taketoday.web.interceptor.InterceptorRegistry;
 /**
  * @author TODAY 2021/8/29 22:20
  */
+@Configuration
+@ComponentScan("cn.taketoday.web.demo")
 public class AppConfig implements WebMvcConfiguration {
 
   HandlerInterceptor interceptor;
-
-  @Override
-  public void configureConversionService(List<TypeConverter> typeConverters) {
-
-  }
 
   public void configureInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(interceptor)
