@@ -78,7 +78,7 @@ public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMes
    *
    * @see #setPrefixJson
    */
-  public void setJsonPrefix(String jsonPrefix) {
+  public void setJsonPrefix(@Nullable String jsonPrefix) {
     this.jsonPrefix = jsonPrefix;
   }
 
