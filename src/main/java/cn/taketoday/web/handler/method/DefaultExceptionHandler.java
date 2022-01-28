@@ -152,11 +152,16 @@ public class DefaultExceptionHandler
       Class<?> errorHandlerType = beanFactory.getType(errorHandler);
       for (Method method : ReflectionUtils.getDeclaredMethods(errorHandlerType)) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
-          for (var exceptionClass : getCatchThrowableClasses(method)) {
+          for (var exceptionType : getCatchThrowableClasses(method)) {
             // @since 3.0
             BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
             ExceptionHandlerMappingHandler handler = handlerBuilder.build(handlerBean, method, null);
-            exceptionHandlers.put(exceptionClass, handler);
+
+            ExceptionHandlerMappingHandler oldHandler = exceptionHandlers.put(exceptionType, handler);
+            if (oldHandler != null && !method.equals(oldHandler.getJavaMethod())) {
+              throw new IllegalStateException("Ambiguous @ExceptionHandler method mapped for [" +
+                      exceptionType + "]: {" + oldHandler.getJavaMethod() + ", " + method + "}");
+            }
           }
         }
       }

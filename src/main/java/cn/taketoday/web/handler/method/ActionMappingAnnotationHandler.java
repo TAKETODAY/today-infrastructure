@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.method;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -71,6 +72,10 @@ public abstract class ActionMappingAnnotationHandler
     this.handlerInvoker = handler.handlerInvoker;
     this.resultHandlers = handler.resultHandlers;
     this.returnValueHandler = handler.returnValueHandler;
+  }
+
+  public Method getJavaMethod() {
+    return handlerMethod.getMethod();
   }
 
   public HandlerMethod getMethod() {
@@ -170,6 +175,20 @@ public abstract class ActionMappingAnnotationHandler
   @Override
   public String toString() {
     return handlerMethod.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof ActionMappingAnnotationHandler that))
+      return false;
+    return Objects.equals(handlerMethod, that.handlerMethod);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(handlerMethod);
   }
 
   //---------------------------------------------------------------------
