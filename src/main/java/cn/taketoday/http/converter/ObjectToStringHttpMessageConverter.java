@@ -27,6 +27,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 
@@ -62,12 +63,12 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
   /**
    * A constructor accepting a {@code ConversionService} to use to convert the
    * (String) message body to/from the target class type. This constructor uses
-   * {@link StringHttpMessageConverter#DEFAULT_CHARSET} as the default charset.
+   * {@link Constant#DEFAULT_CHARSET} as the default charset.
    *
    * @param conversionService the conversion service
    */
   public ObjectToStringHttpMessageConverter(ConversionService conversionService) {
-    this(conversionService, StringHttpMessageConverter.DEFAULT_CHARSET);
+    this(conversionService, Constant.DEFAULT_CHARSET);
   }
 
   /**

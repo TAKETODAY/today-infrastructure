@@ -29,11 +29,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Locale;
 
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpResponse;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
@@ -98,7 +98,7 @@ public class ObjectToStringHttpMessageConverterTests {
   public void defaultCharset() throws IOException {
     this.converter.write(5, null, response);
 
-    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 
   @Test
@@ -132,7 +132,7 @@ public class ObjectToStringHttpMessageConverterTests {
     Short shortValue = (short) 781;
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
-    request.setContent(shortValue.toString().getBytes(StringHttpMessageConverter.DEFAULT_CHARSET));
+    request.setContent(shortValue.toString().getBytes(Constant.DEFAULT_CHARSET));
     assertThat(this.converter.read(Short.class, new ServletServerHttpRequest(request))).isEqualTo(shortValue);
 
     Float floatValue = 123F;
@@ -154,7 +154,7 @@ public class ObjectToStringHttpMessageConverterTests {
   public void write() throws IOException {
     this.converter.write((byte) -8, null, this.response);
 
-    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
     assertThat(this.servletResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
     assertThat(this.servletResponse.getContentLength()).isEqualTo(2);
     assertThat(this.servletResponse.getContentAsByteArray()).isEqualTo(new byte[] { '-', '8' });

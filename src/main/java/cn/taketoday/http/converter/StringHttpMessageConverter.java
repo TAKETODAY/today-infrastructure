@@ -30,6 +30,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StreamUtils;
@@ -49,11 +50,6 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 
   private static final MediaType APPLICATION_PLUS_JSON = new MediaType("application", "*+json");
 
-  /**
-   * The default charset used by the converter.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
-
   @Nullable
   private volatile List<Charset> availableCharsets;
 
@@ -65,7 +61,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
    * @see #StringHttpMessageConverter(Charset)
    */
   public StringHttpMessageConverter() {
-    this(DEFAULT_CHARSET);
+    this(Constant.DEFAULT_CHARSET);
   }
 
   /**
