@@ -31,6 +31,7 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.POST;
+import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RestController;
 import lombok.Data;
@@ -60,6 +61,11 @@ public class DemoController {
   @POST("/body")
   Body postBody(@RequestBody Body body) {
     return body;
+  }
+
+  @GET("/path/{var}")
+  String pathVariable(@PathVariable String var) {
+    return var;
   }
 
   @ExceptionHandler(Throwable.class)

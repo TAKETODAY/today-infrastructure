@@ -22,16 +22,16 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -88,7 +88,7 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
         }
       }
       for (Class<? extends Annotation> annotationClass : this.annotations) {
-        if (AnnotationUtils.findAnnotation(controllerType, annotationClass) != null) {
+        if (AnnotatedElementUtils.hasAnnotation(controllerType, annotationClass)) {
           return true;
         }
       }
@@ -97,7 +97,7 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
   }
 
   private boolean hasSelectors() {
-    return (!this.basePackages.isEmpty() || !this.assignableTypes.isEmpty() || !this.annotations.isEmpty());
+    return !this.basePackages.isEmpty() || !this.assignableTypes.isEmpty() || !this.annotations.isEmpty();
   }
 
   // Static factory methods
@@ -160,11 +160,11 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
    */
   public static class Builder {
 
-    private final Set<String> basePackages = new LinkedHashSet<>();
+    private final LinkedHashSet<String> basePackages = new LinkedHashSet<>();
 
-    private final List<Class<?>> assignableTypes = new ArrayList<>();
+    private final ArrayList<Class<?>> assignableTypes = new ArrayList<>();
 
-    private final List<Class<? extends Annotation>> annotations = new ArrayList<>();
+    private final ArrayList<Class<? extends Annotation>> annotations = new ArrayList<>();
 
     /**
      * Match handlers declared under a base package, e.g. "org.example".
@@ -172,7 +172,11 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      * @param packages one or more base package classes
      */
     public Builder basePackage(String... packages) {
-      Arrays.stream(packages).filter(StringUtils::hasText).forEach(this::addBasePackage);
+      for (String aPackage : packages) {
+        if (StringUtils.hasText(aPackage)) {
+          addBasePackage(aPackage);
+        }
+      }
       return this;
     }
 
@@ -183,7 +187,9 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      * @param packageClasses one or more base package names
      */
     public Builder basePackageClass(Class<?>... packageClasses) {
-      Arrays.stream(packageClasses).forEach(clazz -> addBasePackage(ClassUtils.getPackageName(clazz)));
+      for (Class<?> packageClass : packageClasses) {
+        addBasePackage(ClassUtils.getPackageName(packageClass));
+      }
       return this;
     }
 
@@ -196,8 +202,8 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      *
      * @param types one or more handler super types
      */
-    public Builder assignableType(Class<?>... types) {
-      this.assignableTypes.addAll(Arrays.asList(types));
+    public Builder assignableType(@Nullable Class<?>... types) {
+      CollectionUtils.addAll(this.assignableTypes, types);
       return this;
     }
 
@@ -207,8 +213,8 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      * @param annotations one or more annotations to check for
      */
     @SuppressWarnings("unchecked")
-    public final Builder annotation(Class<? extends Annotation>... annotations) {
-      this.annotations.addAll(Arrays.asList(annotations));
+    public final Builder annotation(@Nullable Class<? extends Annotation>... annotations) {
+      CollectionUtils.addAll(this.annotations, annotations);
       return this;
     }
 

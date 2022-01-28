@@ -38,6 +38,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.ControllerAdvice;
@@ -90,7 +91,7 @@ public class ControllerAdviceBean implements Ordered {
    *
    * @param bean the bean instance
    */
-  public ControllerAdviceBean(Object bean) {
+  public ControllerAdviceBean(@NonNull Object bean) {
     Assert.notNull(bean, "Bean must not be null");
     this.beanOrName = bean;
     this.isSingleton = true;
@@ -124,18 +125,20 @@ public class ControllerAdviceBean implements Ordered {
    * bean, or {@code null} if not yet retrieved
    */
   public ControllerAdviceBean(
-          String beanName, BeanFactory beanFactory,
-          @Nullable ControllerAdvice controllerAdvice) {
+          String beanName, @NonNull BeanFactory beanFactory, @Nullable ControllerAdvice controllerAdvice) {
     Assert.hasText(beanName, "Bean name must contain text");
     Assert.notNull(beanFactory, "BeanFactory must not be null");
-    Assert.isTrue(beanFactory.containsBean(beanName), () -> "BeanFactory [" + beanFactory +
-            "] does not contain specified controller advice bean '" + beanName + "'");
+    if (!beanFactory.containsBean(beanName)) {
+      throw new IllegalArgumentException(
+              "BeanFactory [" + beanFactory + "] does not contain specified controller advice bean '" + beanName + "'");
+    }
 
     this.beanOrName = beanName;
     this.isSingleton = beanFactory.isSingleton(beanName);
     this.beanType = getBeanType(beanName, beanFactory);
-    this.beanTypePredicate = (controllerAdvice != null ? createBeanTypePredicate(controllerAdvice) :
-                              createBeanTypePredicate(this.beanType));
+    this.beanTypePredicate = controllerAdvice != null
+                             ? createBeanTypePredicate(controllerAdvice)
+                             : createBeanTypePredicate(this.beanType);
     this.beanFactory = beanFactory;
   }
 
@@ -287,7 +290,7 @@ public class ControllerAdviceBean implements Ordered {
       // Use internal BeanFactory for potential downcast to ConfigurableBeanFactory above
       beanFactory = cac.getBeanFactory();
     }
-    List<ControllerAdviceBean> adviceBeans = new ArrayList<>();
+    ArrayList<ControllerAdviceBean> adviceBeans = new ArrayList<>();
     for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Object.class)) {
       MergedAnnotation<ControllerAdvice> controllerAdvice = beanFactory.findAnnotationOnBean(name, ControllerAdvice.class);
       if (controllerAdvice.isPresent()) {
@@ -303,7 +306,7 @@ public class ControllerAdviceBean implements Ordered {
   @Nullable
   private static Class<?> getBeanType(String beanName, BeanFactory beanFactory) {
     Class<?> beanType = beanFactory.getType(beanName);
-    return (beanType != null ? ClassUtils.getUserClass(beanType) : null);
+    return beanType != null ? ClassUtils.getUserClass(beanType) : null;
   }
 
   private static HandlerTypePredicate createBeanTypePredicate(@Nullable Class<?> beanType) {
