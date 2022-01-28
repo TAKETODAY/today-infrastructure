@@ -90,6 +90,10 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   HandlerMethodRegistry handlerMethodRegistry() {
+    PathMatchConfigurer pathMatchConfigurer = getPathMatchConfigurer();
+
+    pathMatchConfigurer.isUseTrailingSlashMatch()
+
     return new HandlerMethodRegistry();
   }
 
