@@ -19,6 +19,7 @@
  */
 package cn.taketoday.http;
 
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -50,7 +51,6 @@ import java.util.stream.Collectors;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.MediaType;
@@ -83,7 +83,7 @@ import static java.util.Locale.US;
  * @since 3.0
  */
 public abstract class HttpHeaders
-        implements  /*Iterable<String>,*/ MultiValueMap<String, String>, Constant {
+        implements /*Iterable<String>,*/ MultiValueMap<String, String>, Serializable {
 
   /**
    * The HTTP {@code Accept} header field name.
@@ -887,10 +887,8 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
   public void setBasicAuth(String encodedCredentials) {
-    if (StringUtils.isEmpty(encodedCredentials)) {
-      throw new IllegalArgumentException("'encodedCredentials' must not be null or blank");
-    }
-    set(AUTHORIZATION, "Basic ".concat(encodedCredentials));
+    Assert.hasText(encodedCredentials, "'encodedCredentials' must not be null or blank");
+    set(AUTHORIZATION, "Basic " + encodedCredentials);
   }
 
   /**
@@ -932,15 +930,14 @@ public abstract class HttpHeaders
   }
 
   /**
-   * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to the
-   * given Bearer token.
+   * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to
+   * the given Bearer token.
    *
    * @param token the Base64 encoded token
    * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750</a>
    */
   public void setBearerAuth(String token) {
-    Assert.notNull(token, "The base64 encoded token must not be null");
-    set(AUTHORIZATION, "Bearer ".concat(token));
+    set(AUTHORIZATION, "Bearer " + token);
   }
 
   /**
