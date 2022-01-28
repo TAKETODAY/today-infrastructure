@@ -21,7 +21,9 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
@@ -38,11 +40,14 @@ import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
@@ -78,6 +83,9 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
   }
 
   private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
+
+  @Nullable
+  private ContentNegotiationManager contentNegotiationManager;
 
   @Nullable
   private List<HttpMessageConverter<?>> messageConverters;
@@ -176,6 +184,48 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
       messageConverters.add(new MappingJackson2CborHttpMessageConverter(builder.build()));
     }
   }
+
+  //---------------------------------------------------------------------
+  // ContentNegotiation
+  //---------------------------------------------------------------------
+
+  /**
+   * Return a {@link ContentNegotiationManager} instance to use to determine
+   * requested {@linkplain MediaType media types} in a given request.
+   */
+  @Component
+  public ContentNegotiationManager contentNegotiationManager() {
+    if (this.contentNegotiationManager == null) {
+      ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+      configurer.mediaTypes(getDefaultMediaTypes());
+      configureContentNegotiation(configurer);
+      this.contentNegotiationManager = configurer.buildContentNegotiationManager();
+    }
+    return this.contentNegotiationManager;
+  }
+
+  protected Map<String, MediaType> getDefaultMediaTypes() {
+    Map<String, MediaType> map = new HashMap<>(4);
+    if (romePresent) {
+      map.put("atom", MediaType.APPLICATION_ATOM_XML);
+      map.put("rss", MediaType.APPLICATION_RSS_XML);
+    }
+    if (jackson2Present || gsonPresent || jsonbPresent) {
+      map.put("json", MediaType.APPLICATION_JSON);
+    }
+    if (jackson2SmilePresent) {
+      map.put("smile", MediaType.valueOf("application/x-jackson-smile"));
+    }
+    if (jackson2CborPresent) {
+      map.put("cbor", MediaType.APPLICATION_CBOR);
+    }
+    return map;
+  }
+
+  /**
+   * Override this method to configure content negotiation.
+   */
+  protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) { }
 
   // ControllerAdvice
 

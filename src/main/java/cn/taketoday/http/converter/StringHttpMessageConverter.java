@@ -56,7 +56,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
   private boolean writeAcceptCharset = false;
 
   /**
-   * A default constructor that uses {@code "ISO-8859-1"} as the default charset.
+   * A default constructor that uses {@code "UTF-8"} as the default charset.
    *
    * @see #StringHttpMessageConverter(Charset)
    */

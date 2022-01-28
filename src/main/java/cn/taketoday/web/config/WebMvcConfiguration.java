@@ -161,4 +161,10 @@ public interface WebMvcConfiguration {
    */
   default void configureValidators(WebValidator validator) { }
 
+  /**
+   * Configure content negotiation options.
+   *
+   * @since 4.0
+   */
+  default void configureContentNegotiation(ContentNegotiationConfigurer configurer) { }
 }

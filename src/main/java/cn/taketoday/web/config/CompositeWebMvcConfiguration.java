@@ -147,6 +147,13 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
     }
   }
 
+  @Override
+  public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureContentNegotiation(configurer);
+    }
+  }
+
   /**
    * Get all {@link WebMvcConfiguration} beans
    */
