@@ -170,7 +170,7 @@ public class WebSocketHandlerRegistry
    * apply {@link cn.taketoday.core.PathMatcher}
    */
   @Override
-  protected Object lookupInternal(RequestContext context) {
+  protected Object lookupInternal(RequestContext context) throws Exception {
     Object handler = super.lookupInternal(context);
     if (handler != null) {
       context.setAttribute(WebSocketSession.PATH_MATCHER, getPathMatcher());

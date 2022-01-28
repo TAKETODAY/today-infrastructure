@@ -64,7 +64,7 @@ public class DefaultExceptionHandler
   private ExceptionHandlerMappingHandler globalHandler;
 
   @Override
-  public Object handleException(RequestContext context, Throwable target, Object handler) throws Throwable {
+  public Object handleException(RequestContext context, Throwable target, Object handler) {
     // prepare context throwable
     context.setAttribute(KEY_THROWABLE, target);
     // catch all handlers
@@ -75,11 +75,15 @@ public class DefaultExceptionHandler
 
     logCatchThrowable(target);
     try {
+      if (log.isDebugEnabled()) {
+        log.debug("Using @ExceptionHandler {}", exHandler);
+      }
       return handleException(context, exHandler);
     }
     catch (Throwable handlerEx) {
       logResultedInException(target, handlerEx);
-      throw target;
+      // next handler
+      return null;
     }
   }
 

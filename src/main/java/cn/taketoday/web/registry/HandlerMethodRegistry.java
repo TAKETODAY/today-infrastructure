@@ -67,7 +67,7 @@ import cn.taketoday.web.util.UrlPathHelper;
  * 2018-07-1 20:47:06
  */
 public class HandlerMethodRegistry
-        extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
+        extends MappedHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
   private ConfigurableBeanFactory beanFactory;
 

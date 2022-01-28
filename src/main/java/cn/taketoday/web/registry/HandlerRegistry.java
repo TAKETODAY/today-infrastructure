@@ -22,6 +22,7 @@ package cn.taketoday.web.registry;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * For registering handler
@@ -32,6 +33,14 @@ import cn.taketoday.web.RequestContext;
 public interface HandlerRegistry {
 
   /**
+   * Name of the {@link HttpServletRequest} attribute that contains the mapped
+   * handler for the best matching pattern.
+   *
+   * @since 4.0
+   */
+  String BEST_MATCHING_HANDLER_ATTRIBUTE = HandlerRegistry.class.getName() + ".bestMatchingHandler";
+
+  /**
    * Name of the {@link RequestContext} attribute that contains the path
    * within the handler , in case of a pattern match, or the full
    * relevant URI (typically within the DispatcherHandler's mapping) else.
@@ -39,6 +48,8 @@ public interface HandlerRegistry {
    * HandlerRegistry implementations. URL-based HandlerRegistries will
    * typically support it, but handlers should not necessarily expect
    * this request attribute to be present in all scenarios.
+   *
+   * @since 4.0
    */
   String PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           HandlerRegistry.class, ".pathWithinHandlerMapping");
@@ -50,6 +61,8 @@ public interface HandlerRegistry {
    * HandlerRegistry implementations. URL-based HandlerRegistries will
    * typically support it, but handlers should not necessarily expect
    * this request attribute to be present in all scenarios.
+   *
+   * @since 4.0
    */
   String BEST_MATCHING_PATTERN_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           HandlerRegistry.class, ".bestMatchingPattern");
@@ -59,6 +72,8 @@ public interface HandlerRegistry {
    * whether type-level mappings should be inspected.
    * <p>Note: This attribute is not required to be supported by all
    * HandlerRegistry implementations.
+   *
+   * @since 4.0
    */
   String INTROSPECT_TYPE_LEVEL_MAPPING = Conventions.getQualifiedAttributeName(
           HandlerRegistry.class, ".introspectTypeLevelMapping");
@@ -70,6 +85,8 @@ public interface HandlerRegistry {
    * HandlerRegistry implementations. URL-based HandlerRegistries will
    * typically support it, but handlers should not necessarily expect
    * this request attribute to be present in all scenarios.
+   *
+   * @since 4.0
    */
   String URI_TEMPLATE_VARIABLES_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           HandlerRegistry.class, ".uriTemplateVariables");
@@ -81,6 +98,8 @@ public interface HandlerRegistry {
    * <p>Note: This attribute is not required to be supported by all
    * HandlerRegistry implementations and may also not be present depending on
    * whether the HandlerRegistry is configured to keep matrix variable content
+   *
+   * @since 4.0
    */
   String MATRIX_VARIABLES_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           HandlerRegistry.class, ".matrixVariables");
@@ -91,6 +110,8 @@ public interface HandlerRegistry {
    * <p>Note: This attribute is not required to be supported by all
    * HandlerRegistry implementations. Handlers should not necessarily expect
    * this request attribute to be present in all scenarios.
+   *
+   * @since 4.0
    */
   String PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           HandlerRegistry.class, ".producibleMediaTypes");
@@ -103,7 +124,8 @@ public interface HandlerRegistry {
    *
    * @param context Current request context
    * @return Target handler. If returns {@code null} indicates no handler
+   * @throws Exception if there is an internal error
    */
   @Nullable
-  Object lookup(RequestContext context);
+  Object lookup(RequestContext context) throws Exception;
 }

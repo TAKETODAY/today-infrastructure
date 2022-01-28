@@ -59,7 +59,8 @@ class DefaultRequestPath implements RequestPath {
     int counter = 0;
 
     List<Element> elements = path.elements();
-    for (int i = 0; i < elements.size(); i++) {
+    int size = elements.size();
+    for (int i = 0; i < size; i++) {
       Element element = elements.get(i);
       counter += element.value().length();
       if (length == counter) {

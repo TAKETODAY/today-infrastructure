@@ -52,7 +52,7 @@ public class SimpleExceptionHandler
 
   @Override
   public Object handleException(
-          RequestContext context, Throwable target, Object handler) throws Throwable {
+          RequestContext context, Throwable target, Object handler) {
     logCatchThrowable(target);
     try {
       if (handler instanceof HandlerMethod) {
@@ -68,7 +68,8 @@ public class SimpleExceptionHandler
     }
     catch (Throwable handlerEx) {
       logResultedInException(target, handlerEx);
-      throw handlerEx;
+      // next in the chain
+      return null;
     }
   }
 
@@ -91,8 +92,8 @@ public class SimpleExceptionHandler
    */
   protected void logResultedInException(Throwable target, Throwable handlerException) {
     log.error("Handling of [{}] resulted in Exception: [{}]",
-              target.getClass().getName(),
-              handlerException.getClass().getName(), handlerException);
+            target.getClass().getName(),
+            handlerException.getClass().getName(), handlerException);
   }
 
   /**

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -42,9 +43,8 @@ public interface HandlerExceptionHandler {
    * @param exception The exception occurred
    * @param handler Current handler
    * @return Exception view
-   * @throws Throwable If any {@link Exception} occurred
    */
-  Object handleException(RequestContext context, Throwable exception, Object handler)
-          throws Throwable;
+  @Nullable
+  Object handleException(RequestContext context, Throwable exception, @Nullable Object handler);
 
 }
