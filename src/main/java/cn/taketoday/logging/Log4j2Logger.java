@@ -81,7 +81,8 @@ final class Log4j2Logger extends Logger {
       case INFO -> org.apache.logging.log4j.Level.INFO;
       case WARN -> org.apache.logging.log4j.Level.WARN;
       case DEBUG -> org.apache.logging.log4j.Level.DEBUG;
-      case ERROR, TRACE -> org.apache.logging.log4j.Level.ERROR;
+      case TRACE -> org.apache.logging.log4j.Level.TRACE;
+      case ERROR -> org.apache.logging.log4j.Level.ERROR;
     };
   }
 
