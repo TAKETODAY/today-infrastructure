@@ -89,7 +89,7 @@ public abstract class LogMessage implements CharSequence {
   /**
    * Build a lazily formatted message from the given format string and argument.
    *
-   * @param format the format string (following {@link String#format} rules)
+   * @param format the format string (following {@link MessageFormatter#format(String, Object[])} rules)
    * @param arg1 the argument
    * @see MessageFormatter#format(String, Object...)
    */
@@ -100,10 +100,10 @@ public abstract class LogMessage implements CharSequence {
   /**
    * Build a lazily formatted message from the given format string and arguments.
    *
-   * @param format the format string (following {@link String#format} rules)
+   * @param format the format string (following {@link MessageFormatter#format(String, Object[])} rules)
    * @param arg1 the first argument
    * @param arg2 the second argument
-   * @see MessageFormatter#format(String, Object...)
+   * @see MessageFormatter#format(String, Object[])
    */
   public static LogMessage format(String format, Object arg1, Object arg2) {
     return new FormatMessage2(format, arg1, arg2);
@@ -112,7 +112,7 @@ public abstract class LogMessage implements CharSequence {
   /**
    * Build a lazily formatted message from the given format string and arguments.
    *
-   * @param format the format string (following {@link String#format} rules)
+   * @param format the format string (following {@link MessageFormatter#format(String, Object[])} rules)
    * @param arg1 the first argument
    * @param arg2 the second argument
    * @param arg3 the third argument
@@ -125,7 +125,7 @@ public abstract class LogMessage implements CharSequence {
   /**
    * Build a lazily formatted message from the given format string and arguments.
    *
-   * @param format the format string (following {@link String#format} rules)
+   * @param format the format string (following {@link MessageFormatter#format(String, Object[])} rules)
    * @param arg1 the first argument
    * @param arg2 the second argument
    * @param arg3 the third argument
@@ -139,7 +139,7 @@ public abstract class LogMessage implements CharSequence {
   /**
    * Build a lazily formatted message from the given format string and varargs.
    *
-   * @param format the format string (following {@link String#format} rules)
+   * @param format the format string (following {@link MessageFormatter#format(String, Object[])} rules)
    * @param args the varargs array (costly, prefer individual arguments)
    * @see MessageFormatter#format(String, Object...)
    */

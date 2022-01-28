@@ -22,6 +22,7 @@ package cn.taketoday.logging;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,6 +52,15 @@ public class LoggerTest {
     logger.error("testSlf4jLogger");
     logger.debug("testSlf4jLogger");
     logger.trace("testSlf4jLogger");
+    logger.logInternal(Level.INFO, LogMessage.format("hello {}", "World"), null);
+
+    // LocationAwareSlf4jLogger
+    Logger today = Slf4jLoggerFactory.createLog("today");
+
+    assertThat(today).isInstanceOf(LocationAwareSlf4jLogger.class);
+    LocationAwareSlf4jLogger locationAwareSlf4jLogger = (LocationAwareSlf4jLogger) today;
+
+    locationAwareSlf4jLogger.logInternal(Level.INFO, LogMessage.format("hello {}", "World"), null);
   }
 
   @Test
@@ -94,8 +104,72 @@ public class LoggerTest {
     logger.trace("testLog4jLogger");
   }
 
+  @Test
+  void noOpLogger() {
+    NoOpLogger logger = new NoOpLogger();
+    assertThat(logger.getName()).isEqualTo("NoOpLogger");
+
+    assertFalse(logger.isWarnEnabled());
+    assertFalse(logger.isInfoEnabled());
+    assertFalse(logger.isErrorEnabled());
+    assertFalse(logger.isDebugEnabled());
+    assertFalse(logger.isTraceEnabled());
+
+    logger.info("NoOpLogger");
+    logger.warn("NoOpLogger");
+    logger.error("NoOpLogger");
+    logger.debug("NoOpLogger");
+    logger.trace("NoOpLogger");
+  }
+
   Logger createLogger(LoggerFactory loggerFactory) {
     return loggerFactory.createLogger(getClass().getName());
   }
 
+  @Test
+  void logMessageWithSupplier() {
+    LogMessage msg = LogMessage.from(() -> new StringBuilder("a").append(" b"));
+    assertThat(msg.toString()).isEqualTo("a b");
+    assertThat(msg.toString()).isSameAs(msg.toString());
+
+    assertThat(msg.charAt(1)).isEqualTo(' ');
+    assertThat(msg.length()).isEqualTo(3);
+    assertThat(msg.subSequence(0, 1)).isEqualTo("a");
+
+  }
+
+  @Test
+  void logMessageWithFormat1() {
+    LogMessage msg = LogMessage.format("a {}", "b");
+    assertThat(msg.toString()).isEqualTo("a b");
+    assertThat(msg.toString()).isSameAs(msg.toString());
+  }
+
+  @Test
+  void logMessageWithFormat2() {
+    LogMessage msg = LogMessage.format("a {} {}", "b", "c");
+    assertThat(msg.toString()).isEqualTo("a b c");
+    assertThat(msg.toString()).isSameAs(msg.toString());
+  }
+
+  @Test
+  void logMessageWithFormat3() {
+    LogMessage msg = LogMessage.format("a {} {} {}", "b", "c", "d");
+    assertThat(msg.toString()).isEqualTo("a b c d");
+    assertThat(msg.toString()).isSameAs(msg.toString());
+  }
+
+  @Test
+  void logMessageWithFormat4() {
+    LogMessage msg = LogMessage.format("a {} {} {} {}", "b", "c", "d", "e");
+    assertThat(msg.toString()).isEqualTo("a b c d e");
+    assertThat(msg.toString()).isSameAs(msg.toString());
+  }
+
+  @Test
+  void logMessageWithFormatX() {
+    LogMessage msg = LogMessage.format("a {} {} {} {} {}", "b", "c", "d", "e", "f");
+    assertThat(msg.toString()).isEqualTo("a b c d e f");
+    assertThat(msg.toString()).isSameAs(msg.toString());
+  }
 }
