@@ -88,9 +88,14 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
   private ContentNegotiationManager contentNegotiationManager;
 
   @Nullable
+  private PathMatchConfigurer pathMatchConfigurer;
+
+  @Nullable
   private List<HttpMessageConverter<?>> messageConverters;
 
+  //---------------------------------------------------------------------
   // HttpMessageConverter
+  //---------------------------------------------------------------------
 
   /**
    * Provides access to the shared {@link HttpMessageConverter HttpMessageConverters}
@@ -226,6 +231,29 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
    * Override this method to configure content negotiation.
    */
   protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) { }
+
+  //---------------------------------------------------------------------
+  // PathMatchConfigurer
+  //---------------------------------------------------------------------
+
+  /**
+   * Callback for building the {@link PathMatchConfigurer}.
+   * Delegates to {@link #configurePathMatch}.
+   */
+  protected PathMatchConfigurer getPathMatchConfigurer() {
+    if (this.pathMatchConfigurer == null) {
+      this.pathMatchConfigurer = new PathMatchConfigurer();
+      configurePathMatch(this.pathMatchConfigurer);
+    }
+    return this.pathMatchConfigurer;
+  }
+
+  /**
+   * Override this method to configure path matching options.
+   *
+   * @see PathMatchConfigurer
+   */
+  protected void configurePathMatch(PathMatchConfigurer configurer) { }
 
   // ControllerAdvice
 
