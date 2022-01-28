@@ -929,8 +929,8 @@ public class StandardBeanFactory
           // Probably a placeholder: let's ignore it for type matching purposes.
           LogMessage message =
                   (ex instanceof BeanClassLoadFailedException
-                   ? LogMessage.format("Ignoring bean class loading failure for bean '%s'", beanName)
-                   : LogMessage.format("Ignoring unresolvable metadata in bean definition '%s'", beanName));
+                   ? LogMessage.format("Ignoring bean class loading failure for bean '{}'", beanName)
+                   : LogMessage.format("Ignoring unresolvable metadata in bean definition '{}'", beanName));
           log.trace(message, ex);
           // Register exception, in case the bean was accidentally unresolvable.
           onSuppressedException(ex);
