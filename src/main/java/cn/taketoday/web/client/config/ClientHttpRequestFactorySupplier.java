@@ -20,11 +20,11 @@
 
 package cn.taketoday.web.client.config;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
+import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.util.ClassUtils;
 
@@ -37,19 +37,15 @@ import cn.taketoday.util.ClassUtils;
  */
 public class ClientHttpRequestFactorySupplier implements Supplier<ClientHttpRequestFactory> {
 
-  private static final Map<String, String> REQUEST_FACTORY_CANDIDATES = Map.of(
-          "org.apache.http.client.HttpClient", "cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory",
-          "okhttp3.OkHttpClient", "cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory"
-  );
-
   @Override
   public ClientHttpRequestFactory get() {
     ClassLoader classLoader = getClass().getClassLoader();
-    for (Map.Entry<String, String> candidate : REQUEST_FACTORY_CANDIDATES.entrySet()) {
-      if (ClassUtils.isPresent(candidate.getKey(), classLoader)) {
-        Class<ClientHttpRequestFactory> factoryClass = ClassUtils.resolveClassName(candidate.getValue(), classLoader);
-        return BeanUtils.newInstance(factoryClass);
-      }
+    if (ClassUtils.isPresent("org.apache.http.client.HttpClient", classLoader)) {
+      return new HttpComponentsClientHttpRequestFactory();
+    }
+
+    if (ClassUtils.isPresent("okhttp3.OkHttpClient", classLoader)) {
+      return new OkHttp3ClientHttpRequestFactory();
     }
     return new SimpleClientHttpRequestFactory();
   }
