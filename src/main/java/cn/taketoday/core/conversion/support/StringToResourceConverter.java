@@ -33,7 +33,7 @@ import cn.taketoday.util.ResourceUtils;
  * @author TODAY 2021/3/22 17:43
  * @since 2.1.6
  */
-final class StringToResourceConverter extends StringSourceTypeConverter {
+final class StringToResourceConverter extends StringSourceMatchingConverter {
 
   @Override
   public boolean supportsInternal(final TypeDescriptor targetType, final Class<?> source) {

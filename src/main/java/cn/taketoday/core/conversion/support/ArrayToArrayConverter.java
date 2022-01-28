@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * Converts an array to another array.
@@ -33,7 +33,7 @@ import cn.taketoday.core.conversion.TypeConverter;
  * @author TODAY
  * @since 3.0
  */
-final class ArrayToArrayConverter extends ArraySourceConverter implements TypeConverter {
+final class ArrayToArrayConverter extends ArraySourceConverter implements MatchingConverter {
 
   private final ConversionService conversionService;
 

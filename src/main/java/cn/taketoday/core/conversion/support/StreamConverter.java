@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -40,7 +40,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY
  * @since 3.o
  */
-final class StreamConverter implements TypeConverter {
+final class StreamConverter implements MatchingConverter {
   private final ConversionService conversionService;
 
   public StreamConverter(ConversionService conversionService) {

@@ -23,14 +23,14 @@ package cn.taketoday.core.conversion.support;
 import java.util.Collection;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author TODAY 2021/3/22 13:04
  * @since 3.0
  */
-public abstract class CollectionSourceConverter implements TypeConverter {
+public abstract class CollectionSourceConverter implements MatchingConverter {
 
   @Override
   public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {

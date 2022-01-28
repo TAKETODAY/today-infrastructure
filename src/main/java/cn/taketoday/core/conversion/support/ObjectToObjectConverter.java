@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -62,7 +62,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @see FallbackConverter
  * @since 3.0
  */
-final class ObjectToObjectConverter implements TypeConverter {
+final class ObjectToObjectConverter implements MatchingConverter {
   // Cache for the latest to-method resolved on a given Class
   private static final Map<Class<?>, Member> conversionMemberCache = new ConcurrentHashMap<>(32);
 

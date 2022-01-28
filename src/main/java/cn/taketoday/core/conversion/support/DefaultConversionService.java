@@ -45,7 +45,7 @@ import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.TypeCapable;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -64,7 +64,7 @@ import cn.taketoday.util.ObjectUtils;
 @SuppressWarnings("unchecked")
 public class DefaultConversionService implements ConfigurableConversionService, ArraySizeTrimmer {
 
-  private static final NopTypeConverter NO_MATCH = new NopTypeConverter();
+  private static final NopMatchingConverter NO_MATCH = new NopMatchingConverter();
 
   private static final DefaultConversionService sharedInstance = new DefaultConversionService();
 
@@ -73,7 +73,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     sharedInstance.trimToSize();
   }
 
-  private final ArrayList<TypeConverter> converters = new ArrayList<>();
+  private final ArrayList<MatchingConverter> converters = new ArrayList<>();
   private final ConverterMapCache converterMappings = new ConverterMapCache();
   /** @since 3.0.4 */
   private final HashMap<Class<?>, Object> nullMappings = new HashMap<>();
@@ -101,12 +101,12 @@ public class DefaultConversionService implements ConfigurableConversionService, 
       return convertNull(targetType);
     }
     Assert.notNull(targetType, "targetType must not be null");
-    TypeConverter typeConverter = getConverter(source.getClass(), targetType);
-    if (typeConverter == null) {
+    MatchingConverter matchingConverter = getConverter(source.getClass(), targetType);
+    if (matchingConverter == null) {
       return handleConverterNotFound(source, targetType);
     }
     try {
-      return (T) typeConverter.convert(targetType, source);
+      return (T) matchingConverter.convert(targetType, source);
     }
     catch (ConversionFailedException ex) {
       throw ex;
@@ -148,29 +148,29 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   /**
-   * Get Target {@link TypeConverter}
+   * Get Target {@link MatchingConverter}
    *
    * @param sourceType input sourceType
    * @param targetType convert to target class
    * @return TypeConverter
    */
   @Override
-  public TypeConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
+  public MatchingConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
     ConverterKey key = new ConverterKey(targetType, sourceType);
-    TypeConverter typeConverter = converterMappings.get(key, targetType);
-    if (typeConverter != NO_MATCH) {
-      return typeConverter;
+    MatchingConverter matchingConverter = converterMappings.get(key, targetType);
+    if (matchingConverter != NO_MATCH) {
+      return matchingConverter;
     }
     return null;
   }
 
-  class ConverterMapCache extends MapCache<ConverterKey, TypeConverter, TypeDescriptor> {
+  class ConverterMapCache extends MapCache<ConverterKey, MatchingConverter, TypeDescriptor> {
 
     @Override
-    protected TypeConverter createValue(ConverterKey key, TypeDescriptor targetType) {
+    protected MatchingConverter createValue(ConverterKey key, TypeDescriptor targetType) {
       Class<?> sourceType = key.sourceType;
 
-      for (TypeConverter converter : converters) {
+      for (MatchingConverter converter : converters) {
         if (converter.supports(targetType, sourceType)) {
           return converter;
         }
@@ -208,13 +208,13 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   /**
-   * Add {@link TypeConverter} to {@link #converters}
+   * Add {@link MatchingConverter} to {@link #converters}
    *
-   * @param converters {@link TypeConverter} object
+   * @param converters {@link MatchingConverter} object
    * @since 2.1.6
    */
   @Override
-  public void addConverters(@Nullable TypeConverter... converters) {
+  public void addConverters(@Nullable MatchingConverter... converters) {
     if (ObjectUtils.isNotEmpty(converters)) {
       Collections.addAll(this.converters, converters);
       sort();
@@ -223,7 +223,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @Override
-  public void addConverter(@Nullable TypeConverter converter) {
+  public void addConverter(@Nullable MatchingConverter converter) {
     if (converter != null) {
       this.converters.add(converter);
       sort();
@@ -232,13 +232,13 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   /**
-   * Add a list of {@link TypeConverter} to {@link #converters}
+   * Add a list of {@link MatchingConverter} to {@link #converters}
    *
-   * @param converters {@link TypeConverter} object
+   * @param converters {@link MatchingConverter} object
    * @since 2.1.6
    */
   @Override
-  public void addConverters(@Nullable List<TypeConverter> converters) {
+  public void addConverters(@Nullable List<MatchingConverter> converters) {
     if (CollectionUtils.isNotEmpty(converters)) {
       this.converters.addAll(converters);
       invalidateCache();
@@ -246,12 +246,12 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     }
   }
 
-  public List<TypeConverter> getConverters() {
+  public List<MatchingConverter> getConverters() {
     return converters;
   }
 
   @Override
-  public void setConverters(@Nullable TypeConverter... converters) {
+  public void setConverters(@Nullable MatchingConverter... converters) {
     this.converters.clear();
     invalidateCache();
 
@@ -307,7 +307,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
       addConverter(targetType, converter);
     }
     else {
-      addConverter(new TypeConverterAdapter(targetType, converter, sourceTypes));
+      addConverter(new MatchingConverterAdapter(targetType, converter, sourceTypes));
     }
   }
 
@@ -480,7 +480,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
    * @author TODAY <br>
    * 2019-06-19 12:28
    */
-  static class PrimitiveClassConverter implements TypeConverter {
+  static class PrimitiveClassConverter implements MatchingConverter {
 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> source) {
@@ -509,7 +509,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
     }
   }
 
-  static class NopTypeConverter implements TypeConverter {
+  static class NopMatchingConverter implements MatchingConverter {
 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
@@ -523,8 +523,8 @@ public class DefaultConversionService implements ConfigurableConversionService, 
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  record TypeConverterAdapter(Class<?> targetType, Converter converter, Class<?>[] sourceTypes)
-          implements TypeConverter {
+  record MatchingConverterAdapter(Class<?> targetType, Converter converter, Class<?>[] sourceTypes)
+          implements MatchingConverter {
 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
@@ -547,7 +547,7 @@ public class DefaultConversionService implements ConfigurableConversionService, 
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   record GenericConverter(Class<?> targetType, Class<?> sourceType, Converter converter)
-          implements TypeConverter, Ordered {
+          implements MatchingConverter, Ordered {
 
     @Override
     public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {

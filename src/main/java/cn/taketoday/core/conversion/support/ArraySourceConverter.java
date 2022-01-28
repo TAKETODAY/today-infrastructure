@@ -21,13 +21,13 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * @author TODAY 2021/3/22 12:50
  * @since 3.0
  */
-public abstract class ArraySourceConverter implements TypeConverter {
+public abstract class ArraySourceConverter implements MatchingConverter {
 
   @Override
   public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {

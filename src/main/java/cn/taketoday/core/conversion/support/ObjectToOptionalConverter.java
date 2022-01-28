@@ -25,7 +25,7 @@ import java.util.Optional;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * Convert an Object to {@code java.util.Optional<T>} if necessary using the
@@ -37,7 +37,7 @@ import cn.taketoday.core.conversion.TypeConverter;
  * @author Juergen Hoeller
  * @since 3.0
  */
-final class ObjectToOptionalConverter implements TypeConverter {
+final class ObjectToOptionalConverter implements MatchingConverter {
   private final ConversionService conversionService;
 
   public ObjectToOptionalConverter(ConversionService conversionService) {

@@ -28,23 +28,23 @@ import java.util.List;
  */
 public interface ConverterRegistry {
 
-  void setConverters(TypeConverter... cts);
+  void setConverters(MatchingConverter... cts);
 
   /**
-   * Add {@link TypeConverter}s
+   * Add {@link MatchingConverter}s
    *
-   * @param converters {@link TypeConverter} object
+   * @param converters {@link MatchingConverter} object
    */
-  void addConverters(TypeConverter... converters);
+  void addConverters(MatchingConverter... converters);
 
-  void addConverter(TypeConverter converter);
+  void addConverter(MatchingConverter converter);
 
   /**
-   * Add a list of {@link TypeConverter}
+   * Add a list of {@link MatchingConverter}
    *
-   * @param converters {@link TypeConverter} object
+   * @param converters {@link MatchingConverter} object
    */
-  void addConverters(List<TypeConverter> converters);
+  void addConverters(List<MatchingConverter> converters);
 
   // Converter
 

@@ -26,7 +26,7 @@ import java.util.Collection;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.AbstractTypeCapable;
 import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * Support source is String, Number, Character, Enum, Collection, Array to
@@ -36,7 +36,7 @@ import cn.taketoday.core.conversion.TypeConverter;
  * @since 3.0
  */
 public class NumberConverter
-        extends AbstractTypeCapable implements TypeConverter {
+        extends AbstractTypeCapable implements MatchingConverter {
 
   private final boolean primitive;
 

@@ -17,37 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.conversion;
+package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
- * Type converter
- *
- * @author TODAY 2019-06-06 14:17
+ * @author TODAY <br>
+ * 2019-06-06 15:31
  * @since 2.1.6
  */
-public interface TypeConverter {
+public abstract class StringSourceMatchingConverter implements MatchingConverter {
 
-  /**
-   * whether this {@link TypeConverter} supports to convert source object to
-   * target class object
-   *
-   * @param targetType target class
-   * @param sourceType source object never be null
-   * @return whether this {@link TypeConverter} supports to convert source object
-   * to target class object
-   */
-  boolean supports(TypeDescriptor targetType, Class<?> sourceType);
+  @Override
+  public final boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
+    return sourceType == String.class
+            && supportsInternal(targetType, sourceType);
+  }
 
-  /**
-   * Convert source object to target object
-   *
-   * @param targetType target type
-   * @param source source object never be null
-   * @return a converted object
-   * @throws ConversionException if can't convert to target object
-   */
-  Object convert(TypeDescriptor targetType, Object source);
+  public boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
+    return true;
+  }
 
+  @Override
+  public final Object convert(TypeDescriptor targetType, Object source) {
+    return convertInternal(targetType, (String) source);
+  }
+
+  protected abstract Object convertInternal(TypeDescriptor targetClass, String source);
 }

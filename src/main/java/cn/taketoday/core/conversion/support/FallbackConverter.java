@@ -23,7 +23,7 @@ import java.io.StringWriter;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object
@@ -43,7 +43,7 @@ import cn.taketoday.core.conversion.TypeConverter;
  * @see ObjectToObjectConverter
  * @since 3.0
  */
-final class FallbackConverter implements TypeConverter, Ordered {
+final class FallbackConverter implements MatchingConverter, Ordered {
 
   // Object.class -> String.class
 

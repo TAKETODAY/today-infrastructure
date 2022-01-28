@@ -22,7 +22,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.HashSet;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * Converts String to a Boolean.
@@ -32,7 +32,7 @@ import cn.taketoday.core.conversion.TypeConverter;
  * @author TODAY
  * @since 3.0
  */
-public final class StringToBooleanConverter extends StringSourceTypeConverter implements TypeConverter {
+public final class StringToBooleanConverter extends StringSourceMatchingConverter implements MatchingConverter {
   public static final HashSet<String> trueValues = new HashSet<>(8);
   public static final HashSet<String> falseValues = new HashSet<>(8);
 

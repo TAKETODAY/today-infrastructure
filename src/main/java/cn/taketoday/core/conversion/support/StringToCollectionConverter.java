@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
  * @see StringUtils#splitAsList(String)
  * @since 3.0
  */
-final class StringToCollectionConverter extends StringSourceTypeConverter {
+final class StringToCollectionConverter extends StringSourceMatchingConverter {
   private final ConversionService conversionService;
 
   public StringToCollectionConverter(ConversionService conversionService) {

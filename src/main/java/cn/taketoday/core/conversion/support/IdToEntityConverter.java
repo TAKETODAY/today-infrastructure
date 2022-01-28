@@ -24,7 +24,7 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -41,7 +41,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author TODAY
  * @since 3.0
  */
-final class IdToEntityConverter implements TypeConverter {
+final class IdToEntityConverter implements MatchingConverter {
   private final ConversionService conversionService;
 
   public IdToEntityConverter(ConversionService conversionService) {

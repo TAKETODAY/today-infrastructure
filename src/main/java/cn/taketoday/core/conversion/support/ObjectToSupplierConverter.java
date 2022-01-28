@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.util.SingletonSupplier;
 
 /**
@@ -35,7 +35,7 @@ import cn.taketoday.util.SingletonSupplier;
  * @author TODAY
  * @since 4.0
  */
-final class ObjectToSupplierConverter implements TypeConverter {
+final class ObjectToSupplierConverter implements MatchingConverter {
   private final ConversionService conversionService;
 
   public ObjectToSupplierConverter(ConversionService conversionService) {

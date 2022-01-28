@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -39,7 +39,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author Juergen Hoeller
  * @since 3.0
  */
-final class ArrayToCollectionConverter extends ArraySourceConverter implements TypeConverter {
+final class ArrayToCollectionConverter extends ArraySourceConverter implements MatchingConverter {
   private final ConversionService conversionService;
 
   public ArrayToCollectionConverter(ConversionService conversionService) {

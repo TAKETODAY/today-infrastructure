@@ -21,14 +21,14 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY 2021/3/22 16:43
  * @since 3.0
  */
-final class IntegerToEnumConverter implements TypeConverter {
+final class IntegerToEnumConverter implements MatchingConverter {
 
   @Override
   public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {

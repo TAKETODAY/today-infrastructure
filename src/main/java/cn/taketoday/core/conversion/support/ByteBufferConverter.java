@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer}
@@ -35,7 +35,7 @@ import cn.taketoday.core.conversion.TypeConverter;
  * @author TODAY
  * @since 3.0
  */
-final class ByteBufferConverter implements TypeConverter {
+final class ByteBufferConverter implements MatchingConverter {
   private final ConversionService conversionService;
 
   public ByteBufferConverter(ConversionService conversionService) {

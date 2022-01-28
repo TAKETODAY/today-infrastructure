@@ -83,25 +83,25 @@ public interface ConversionService {
    */
   <T> T convert(Object source, TypeDescriptor targetType);
 
-  TypeConverter getConverter(Class<?> sourceType, TypeDescriptor targetType);
+  MatchingConverter getConverter(Class<?> sourceType, TypeDescriptor targetType);
 
-  default TypeConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
+  default MatchingConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
     Assert.notNull(sourceObject, "source object must not be null");
     return getConverter(sourceObject.getClass(), targetType);
   }
 
   /**
-   * Get Target {@link TypeConverter}
+   * Get Target {@link MatchingConverter}
    *
    * @param source input source
    * @param targetType convert to target class
    * @return TypeConverter
    */
-  default TypeConverter getConverter(Object source, Class<?> targetType) {
+  default MatchingConverter getConverter(Object source, Class<?> targetType) {
     return getConverter(source.getClass(), targetType);
   }
 
-  default TypeConverter getConverter(Class<?> sourceType, Class<?> targetType) {
+  default MatchingConverter getConverter(Class<?> sourceType, Class<?> targetType) {
     return getConverter(sourceType, TypeDescriptor.valueOf(targetType));
   }
 

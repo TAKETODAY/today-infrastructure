@@ -21,13 +21,13 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
  * @author TODAY 2021/3/22 16:45
  * @since 3.0
  */
-public class StringToEnumConverter extends StringSourceTypeConverter implements TypeConverter {
+public class StringToEnumConverter extends StringSourceMatchingConverter implements MatchingConverter {
 
   @Override
   public boolean supportsInternal(TypeDescriptor targetClass, Class<?> sourceType) {
