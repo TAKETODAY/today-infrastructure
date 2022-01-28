@@ -46,6 +46,7 @@ import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.client.ResponseErrorHandler;
@@ -81,18 +82,24 @@ public class RestTemplateBuilder {
 
   private final boolean detectRequestFactory;
 
+  @Nullable
   private final String rootUri;
 
+  @Nullable
   private final Set<HttpMessageConverter<?>> messageConverters;
 
   private final Set<ClientHttpRequestInterceptor> interceptors;
 
+  @Nullable
   private final Supplier<ClientHttpRequestFactory> requestFactory;
 
+  @Nullable
   private final UriTemplateHandler uriTemplateHandler;
 
+  @Nullable
   private final ResponseErrorHandler errorHandler;
 
+  @Nullable
   private final BasicAuthentication basicAuthentication;
 
   private final Map<String, List<String>> defaultHeaders;
@@ -124,12 +131,18 @@ public class RestTemplateBuilder {
   }
 
   private RestTemplateBuilder(
-          RequestFactoryCustomizer requestFactoryCustomizer, boolean detectRequestFactory,
-          String rootUri, Set<HttpMessageConverter<?>> messageConverters,
-          Set<ClientHttpRequestInterceptor> interceptors, Supplier<ClientHttpRequestFactory> requestFactorySupplier,
-          UriTemplateHandler uriTemplateHandler, ResponseErrorHandler errorHandler,
-          BasicAuthentication basicAuthentication, Map<String, List<String>> defaultHeaders,
-          Set<RestTemplateCustomizer> customizers, Set<RestTemplateRequestCustomizer<?>> requestCustomizers
+          RequestFactoryCustomizer requestFactoryCustomizer,
+          boolean detectRequestFactory,
+          @Nullable String rootUri,
+          @Nullable Set<HttpMessageConverter<?>> messageConverters,
+          Set<ClientHttpRequestInterceptor> interceptors,
+          @Nullable Supplier<ClientHttpRequestFactory> requestFactorySupplier,
+          @Nullable UriTemplateHandler uriTemplateHandler,
+          @Nullable ResponseErrorHandler errorHandler,
+          @Nullable BasicAuthentication basicAuthentication,
+          Map<String, List<String>> defaultHeaders,
+          Set<RestTemplateCustomizer> customizers,
+          Set<RestTemplateRequestCustomizer<?>> requestCustomizers
   ) {
     this.requestFactoryCustomizer = requestFactoryCustomizer;
     this.detectRequestFactory = detectRequestFactory;
@@ -234,7 +247,7 @@ public class RestTemplateBuilder {
           Collection<? extends HttpMessageConverter<?>> messageConverters) {
     Assert.notNull(messageConverters, "MessageConverters must not be null");
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
-            append(messageConverters, messageConverters), interceptors, requestFactory,
+            append(this.messageConverters, messageConverters), interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
             customizers, requestCustomizers);
   }
@@ -308,7 +321,7 @@ public class RestTemplateBuilder {
   public RestTemplateBuilder additionalInterceptors(Collection<? extends ClientHttpRequestInterceptor> interceptors) {
     Assert.notNull(interceptors, "interceptors must not be null");
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
-            messageConverters, append(interceptors, interceptors), requestFactory,
+            messageConverters, append(this.interceptors, interceptors), requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
             customizers, requestCustomizers);
   }
@@ -664,6 +677,7 @@ public class RestTemplateBuilder {
    *
    * @return a {@link ClientHttpRequestFactory} or {@code null}
    */
+  @Nullable
   public ClientHttpRequestFactory buildRequestFactory() {
     ClientHttpRequestFactory requestFactory = null;
     if (this.requestFactory != null) {
@@ -723,16 +737,21 @@ public class RestTemplateBuilder {
    * Internal customizer used to apply {@link ClientHttpRequestFactory} settings.
    */
   private static class RequestFactoryCustomizer implements Consumer<ClientHttpRequestFactory> {
-
+    @Nullable
     private final Duration readTimeout;
+
+    @Nullable
     private final Duration connectTimeout;
+
+    @Nullable
     private final Boolean bufferRequestBody;
 
     RequestFactoryCustomizer() {
       this(null, null, null);
     }
 
-    private RequestFactoryCustomizer(Duration connectTimeout, Duration readTimeout, Boolean bufferRequestBody) {
+    private RequestFactoryCustomizer(
+            @Nullable Duration connectTimeout, @Nullable Duration readTimeout, @Nullable Boolean bufferRequestBody) {
       this.readTimeout = readTimeout;
       this.connectTimeout = connectTimeout;
       this.bufferRequestBody = bufferRequestBody;
@@ -754,10 +773,10 @@ public class RestTemplateBuilder {
     public void accept(ClientHttpRequestFactory requestFactory) {
       ClientHttpRequestFactory unwrappedRequestFactory = unwrapRequestFactoryIfNecessary(requestFactory);
       if (connectTimeout != null) {
-        setConnectTimeout(unwrappedRequestFactory);
+        setConnectTimeout(unwrappedRequestFactory, connectTimeout);
       }
       if (readTimeout != null) {
-        setReadTimeout(unwrappedRequestFactory);
+        setReadTimeout(unwrappedRequestFactory, readTimeout);
       }
       if (bufferRequestBody != null) {
         setBufferRequestBody(unwrappedRequestFactory);
@@ -778,13 +797,13 @@ public class RestTemplateBuilder {
       return requestFactory;
     }
 
-    private void setConnectTimeout(ClientHttpRequestFactory factory) {
+    private void setConnectTimeout(ClientHttpRequestFactory factory, Duration connectTimeout) {
       Method method = findMethod(factory, "setConnectTimeout", int.class);
       int timeout = Math.toIntExact(connectTimeout.toMillis());
       invoke(factory, method, timeout);
     }
 
-    private void setReadTimeout(ClientHttpRequestFactory factory) {
+    private void setReadTimeout(ClientHttpRequestFactory factory, Duration readTimeout) {
       Method method = findMethod(factory, "setReadTimeout", int.class);
       int timeout = Math.toIntExact(readTimeout.toMillis());
       invoke(factory, method, timeout);
