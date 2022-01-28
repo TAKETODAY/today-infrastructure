@@ -62,6 +62,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ReflectiveMethodInvoker;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -928,8 +929,8 @@ final class ConstructorResolver {
       // Try type difference weight on both the converted arguments and
       // the raw arguments. If the raw weight is better, use it.
       // Decrease raw weight by 1024 to prefer it over equal converted weight.
-      int typeDiffWeight = computeTypeDifferenceWeight(paramTypes, arguments);
-      int rawTypeDiffWeight = computeTypeDifferenceWeight(paramTypes, rawArguments) - 1024;
+      int typeDiffWeight = ReflectiveMethodInvoker.getTypeDifferenceWeight(paramTypes, arguments);
+      int rawTypeDiffWeight = ReflectiveMethodInvoker.getTypeDifferenceWeight(paramTypes, rawArguments) - 1024;
       return Math.min(rawTypeDiffWeight, typeDiffWeight);
     }
 
@@ -959,57 +960,6 @@ final class ConstructorResolver {
         }
       }
     }
-  }
-
-  /**
-   * Algorithm that judges the match between the declared parameter types of a candidate method
-   * and a specific list of arguments that this method is supposed to be invoked with.
-   * <p>Determines a weight that represents the class hierarchy difference between types and
-   * arguments. A direct match, i.e. type Integer &rarr; arg of class Integer, does not increase
-   * the result - all direct matches means weight 0. A match between type Object and arg of
-   * class Integer would increase the weight by 2, due to the superclass 2 steps up in the
-   * hierarchy (i.e. Object) being the last one that still matches the required type Object.
-   * Type Number and class Integer would increase the weight by 1 accordingly, due to the
-   * superclass 1 step up the hierarchy (i.e. Number) still matching the required type Number.
-   * Therefore, with an arg of type Integer, a constructor (Integer) would be preferred to a
-   * constructor (Number) which would in turn be preferred to a constructor (Object).
-   * All argument weights get accumulated.
-   * <p>Note: This is the algorithm used by MethodInvoker itself and also the algorithm
-   * used for constructor and factory method selection in Framework's bean container (in case
-   * of lenient constructor resolution which is the default for regular bean definitions).
-   *
-   * @param paramTypes the parameter types to match
-   * @param args the arguments to match
-   * @return the accumulated weight for all arguments
-   */
-  public static int computeTypeDifferenceWeight(Class<?>[] paramTypes, Object[] args) {
-    int result = 0;
-    for (int i = 0; i < paramTypes.length; i++) {
-      if (!ClassUtils.isAssignableValue(paramTypes[i], args[i])) {
-        return Integer.MAX_VALUE;
-      }
-      if (args[i] != null) {
-        Class<?> paramType = paramTypes[i];
-        Class<?> superClass = args[i].getClass().getSuperclass();
-        while (superClass != null) {
-          if (paramType.equals(superClass)) {
-            result = result + 2;
-            superClass = null;
-          }
-          else if (ClassUtils.isAssignable(paramType, superClass)) {
-            result = result + 2;
-            superClass = superClass.getSuperclass();
-          }
-          else {
-            superClass = null;
-          }
-        }
-        if (paramType.isInterface()) {
-          result = result + 1;
-        }
-      }
-    }
-    return result;
   }
 
   /**

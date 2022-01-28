@@ -22,7 +22,7 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.TypeConverter;
+import cn.taketoday.core.conversion.MatchingConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -40,13 +40,13 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
   private ConversionService conversionService;
 
   @Nullable
-  private TypeConverter converter;
+  private MatchingConverter converter;
 
   public MessageEndpointParameterResolver(Class<?> supportParameterType) {
     this(supportParameterType, (ConversionService) null);
   }
 
-  public MessageEndpointParameterResolver(Class<?> supportParameterType, TypeConverter converter) {
+  public MessageEndpointParameterResolver(Class<?> supportParameterType, MatchingConverter converter) {
     this(supportParameterType);
     this.converter = converter;
   }
@@ -70,7 +70,7 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
       return payload;
     }
 
-    TypeConverter converter = getConverter();
+    MatchingConverter converter = getConverter();
     TypeDescriptor targetType = parameter.getTypeDescriptor();
     if (converter != null && converter.supports(targetType, payload.getClass())) {
       return converter.convert(targetType, payload);
@@ -88,12 +88,12 @@ public class MessageEndpointParameterResolver implements EndpointParameterResolv
     this.conversionService = conversionService;
   }
 
-  public void setConverter(@Nullable TypeConverter converter) {
+  public void setConverter(@Nullable MatchingConverter converter) {
     this.converter = converter;
   }
 
   @Nullable
-  public TypeConverter getConverter() {
+  public MatchingConverter getConverter() {
     return converter;
   }
 }

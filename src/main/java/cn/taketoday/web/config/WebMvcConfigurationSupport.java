@@ -39,14 +39,20 @@ import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.handler.method.ControllerAdviceBean;
+import cn.taketoday.web.handler.method.RequestBodyAdvice;
+import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 23:43
  */
 public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   private static final boolean romePresent;
 
@@ -70,6 +76,8 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
   }
+
+  private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
 
   @Nullable
   private List<HttpMessageConverter<?>> messageConverters;
@@ -97,8 +105,8 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
 
   /**
    * Override this method to add custom {@link HttpMessageConverter HttpMessageConverters}
-   * to use with the {@link RequestMappingHandlerAdapter} and the
-   * {@link ExceptionHandlerExceptionResolver}.
+   * to use with the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
+   * {@link cn.taketoday.web.view.ReturnValueHandlers}.
    * <p>Adding converters to the list turns off the default converters that would
    * otherwise be registered by default. Also see {@link #addDefaultHttpMessageConverters}
    * for adding default message converters.
@@ -167,6 +175,31 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
       }
       messageConverters.add(new MappingJackson2CborHttpMessageConverter(builder.build()));
     }
+  }
+
+  // ControllerAdvice
+
+  private void initControllerAdviceCache() {
+    if (getApplicationContext() == null) {
+      return;
+    }
+
+    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
+    ArrayList<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
+    for (ControllerAdviceBean adviceBean : adviceBeans) {
+      Class<?> beanType = adviceBean.getBeanType();
+      if (beanType == null) {
+        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
+      }
+      if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
+        requestResponseBodyAdviceBeans.add(adviceBean);
+      }
+    }
+
+    if (!requestResponseBodyAdviceBeans.isEmpty()) {
+      this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
+    }
+
   }
 
 }

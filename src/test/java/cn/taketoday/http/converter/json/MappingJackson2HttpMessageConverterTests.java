@@ -262,7 +262,7 @@ public class MappingJackson2HttpMessageConverterTests {
             "\"string\":\"Foo\"," +
             "\"bool\":true," +
             "\"fraction\":42.0}]";
-    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes("UTF-8"));
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
 
     List<MyBean> results = (List<MyBean>) converter.read(List.class, inputMessage);
@@ -292,7 +292,7 @@ public class MappingJackson2HttpMessageConverterTests {
             "\"string\":\"Foo\"," +
             "\"bool\":true," +
             "\"fraction\":42.0}]";
-    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes("UTF-8"));
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
 
     MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
@@ -324,7 +324,7 @@ public class MappingJackson2HttpMessageConverterTests {
             "\"string\":\"Foo\"," +
             "\"bool\":true," +
             "\"fraction\":42.0}]";
-    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes("UTF-8"));
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
 
     MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
@@ -486,8 +486,8 @@ public class MappingJackson2HttpMessageConverterTests {
     String body = "{\"property1\":\"foo\",\"property2\":\"bar\"}";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
-    assertThatExceptionOfType(HttpMessageConversionException.class).isThrownBy(() ->
-                                                                                       converter.read(BeanWithNoDefaultConstructor.class, inputMessage))
+    assertThatExceptionOfType(HttpMessageConversionException.class)
+            .isThrownBy(() -> converter.read(BeanWithNoDefaultConstructor.class, inputMessage))
             .withMessageStartingWith("Type definition error:");
   }
 
