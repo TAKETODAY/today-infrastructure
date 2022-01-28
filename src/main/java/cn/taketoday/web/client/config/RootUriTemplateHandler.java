@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
@@ -71,13 +72,15 @@ public class RootUriTemplateHandler implements UriTemplateHandler {
     this.handler = handler;
   }
 
+  @NonNull
   @Override
-  public URI expand(String uriTemplate, Map<String, ?> uriVariables) {
+  public URI expand(@NonNull String uriTemplate, @NonNull Map<String, ?> uriVariables) {
     return this.handler.expand(apply(uriTemplate), uriVariables);
   }
 
+  @NonNull
   @Override
-  public URI expand(String uriTemplate, Object... uriVariables) {
+  public URI expand(@NonNull String uriTemplate, @NonNull Object... uriVariables) {
     return this.handler.expand(apply(uriTemplate), uriVariables);
   }
 

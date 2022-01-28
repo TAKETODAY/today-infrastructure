@@ -526,7 +526,7 @@ public class RestTemplateBuilder {
     Assert.notNull(customizers, "RestTemplateCustomizers must not be null");
     return new RestTemplateBuilder(requestFactoryCustomizer, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, append(customizers, customizers),
+            errorHandler, basicAuthentication, defaultHeaders, append(this.customizers, customizers),
             requestCustomizers);
   }
 
@@ -594,7 +594,7 @@ public class RestTemplateBuilder {
             requestFactoryCustomizer, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication,
-            defaultHeaders, customizers, append(requestCustomizers, requestCustomizers));
+            defaultHeaders, customizers, append(this.requestCustomizers, requestCustomizers));
   }
 
   /**

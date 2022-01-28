@@ -301,7 +301,7 @@ class RestTemplateBuilderTests {
   void basicAuthenticationShouldApply() {
     RestTemplate template = this.builder.basicAuthentication("spring", "boot", StandardCharsets.UTF_8).build();
     ClientHttpRequest request = createRequest(template);
-    assertThat(request.getHeaders()).containsOnlyKeys(HttpHeaders.AUTHORIZATION);
+    assertThat(request.getHeaders()).containsKey(HttpHeaders.AUTHORIZATION).hasSize(1);
     assertThat(request.getHeaders().get(HttpHeaders.AUTHORIZATION)).containsExactly("Basic c3ByaW5nOmJvb3Q=");
   }
 
@@ -340,9 +340,9 @@ class RestTemplateBuilderTests {
 
   @Test
   void additionalRequestCustomizersAddsCustomizers() {
-    RestTemplate template = this.builder
-            .requestCustomizers((request) -> request.getHeaders().add("spring", "framework"))
-            .additionalRequestCustomizers((request) -> request.getHeaders().add("for", "java")).build();
+    RestTemplate template = this.builder.requestCustomizers((request) -> request.getHeaders().add("spring", "framework"))
+            .additionalRequestCustomizers((request) -> request.getHeaders().add("for", "java"))
+            .build();
     ClientHttpRequest request = createRequest(template);
     assertThat(request.getHeaders()).contains(entry("spring", Collections.singletonList("framework")))
             .contains(entry("for", Collections.singletonList("java")));
