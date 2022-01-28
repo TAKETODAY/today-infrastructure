@@ -212,8 +212,7 @@ public class ReturnValueHandlers
     internalHandlers.add(modelAndViewHandler);
     internalHandlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
     internalHandlers.add(new HttpStatusReturnValueHandler());
-
-    sort(internalHandlers);
+    internalHandlers.add(new HttpHeadersReturnValueHandler());
 
     // Iterate ReturnValueHandler in runtime
     SelectableReturnValueHandler compositeHandler = new SelectableReturnValueHandler(internalHandlers);
@@ -237,9 +236,6 @@ public class ReturnValueHandlers
 
     handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
     compositeHandler.trimToSize();
-
-    // ordering
-    sort();
   }
 
   @NonNull
