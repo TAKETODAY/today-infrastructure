@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -393,8 +393,9 @@ public class PathPattern implements Comparable<PathPattern> {
     // However:
     // /usr + /user => /usr/user
     // /{foo} + /bar => /{foo}/bar
-    if (!this.patternString.equals(pattern2string.patternString) && this.capturedVariableCount == 0 &&
-            matches(PathContainer.parsePath(pattern2string.patternString))) {
+    if (!this.patternString.equals(pattern2string.patternString)
+            && this.capturedVariableCount == 0
+            && matches(PathContainer.parsePath(pattern2string.patternString))) {
       return pattern2string;
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,10 +63,10 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
   private boolean lazyInitHandlers = false;
 
   // @since 4.0
-  private final Map<String, Object> handlerMap = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> handlerMap = new LinkedHashMap<>();
 
   // @since 4.0
-  private final Map<PathPattern, Object> pathPatternHandlerMap = new LinkedHashMap<>();
+  private final LinkedHashMap<PathPattern, Object> pathPatternHandlerMap = new LinkedHashMap<>();
 
   @Override
   public void setPatternParser(PathPatternParser patternParser) {
@@ -101,9 +101,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
    */
   public void setUseTrailingSlashMatch(boolean useTrailingSlashMatch) {
     this.useTrailingSlashMatch = useTrailingSlashMatch;
-    if (getPatternParser() != null) {
-      getPatternParser().setMatchOptionalTrailingSeparator(useTrailingSlashMatch);
-    }
+    getPatternParser().setMatchOptionalTrailingSeparator(useTrailingSlashMatch);
   }
 
   /**
@@ -353,9 +351,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
       }
       else {
         this.handlerMap.put(urlPath, resolvedHandler);
-        if (getPatternParser() != null) {
-          this.pathPatternHandlerMap.put(getPatternParser().parse(urlPath), resolvedHandler);
-        }
+        this.pathPatternHandlerMap.put(getPatternParser().parse(urlPath), resolvedHandler);
         if (log.isTraceEnabled()) {
           log.trace("Mapped [{}] onto {}", urlPath, getHandlerDescription(handler));
         }
