@@ -101,7 +101,7 @@ public abstract class AbstractResourceBasedMessageSource extends AbstractMessage
    * @see java.util.ResourceBundle
    */
   public void addBasenames(String... basenames) {
-    if (!ObjectUtils.isEmpty(basenames)) {
+    if (ObjectUtils.isNotEmpty(basenames)) {
       for (String basename : basenames) {
         Assert.hasText(basename, "Basename must not be empty");
         this.basenameSet.add(basename.trim());

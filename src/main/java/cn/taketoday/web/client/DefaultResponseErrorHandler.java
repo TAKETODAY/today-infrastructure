@@ -31,7 +31,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Default implementation of the {@link ResponseErrorHandler} interface.
@@ -141,7 +140,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
           @Nullable byte[] responseBody, @Nullable Charset charset) {
 
     String preface = rawStatusCode + " " + statusText + ": ";
-    if (ObjectUtils.isEmpty(responseBody)) {
+    if (responseBody == null || responseBody.length == 0) {
       return preface + "[no body]";
     }
 

@@ -58,7 +58,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    */
   public HttpServerErrorException(
           HttpStatus statusCode, String statusText, @Nullable byte[] body, @Nullable Charset charset) {
-
     super(statusCode, statusText, body, charset);
   }
 
@@ -67,7 +66,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    */
   public HttpServerErrorException(HttpStatus statusCode, String statusText,
                                   @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset) {
-
     super(statusCode, statusText, headers, body, charset);
   }
 
@@ -77,16 +75,14 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    */
   public HttpServerErrorException(String message, HttpStatus statusCode, String statusText,
                                   @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset) {
-
     super(message, statusCode, statusText, headers, body, charset);
   }
 
   /**
    * Create an {@code HttpServerErrorException} or an HTTP status specific sub-class.
    */
-  public static HttpServerErrorException create(HttpStatus statusCode,
-                                                String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
-
+  public static HttpServerErrorException create(
+          HttpStatus statusCode, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
     return create(null, statusCode, statusText, headers, body, charset);
   }
 
@@ -94,9 +90,9 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * Variant of {@link #create(String, HttpStatus, String, HttpHeaders, byte[], Charset)}
    * with an optional prepared message.
    */
-  public static HttpServerErrorException create(@Nullable String message, HttpStatus statusCode,
-                                                String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
-
+  public static HttpServerErrorException create(
+          @Nullable String message, HttpStatus statusCode,
+          String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
     return switch (statusCode) {
       case INTERNAL_SERVER_ERROR -> message != null ?
               new InternalServerError(message, statusText, headers, body, charset) :

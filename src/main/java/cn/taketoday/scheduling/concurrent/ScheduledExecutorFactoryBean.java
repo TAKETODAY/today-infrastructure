@@ -167,7 +167,7 @@ public class ScheduledExecutorFactoryBean
     }
 
     // Register specified ScheduledExecutorTasks, if necessary.
-    if (!ObjectUtils.isEmpty(this.scheduledExecutorTasks)) {
+    if (ObjectUtils.isNotEmpty(this.scheduledExecutorTasks)) {
       registerTasks(this.scheduledExecutorTasks, executor);
     }
 

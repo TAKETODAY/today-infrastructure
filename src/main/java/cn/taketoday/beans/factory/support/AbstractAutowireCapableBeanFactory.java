@@ -653,7 +653,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (constructors != null
             || definition.getAutowireMode() == AUTOWIRE_CONSTRUCTOR
             || definition.hasConstructorArgumentValues()
-            || !ObjectUtils.isEmpty(args)) {
+            || ObjectUtils.isNotEmpty(args)) {
       return autowireConstructor(definition, constructors, args);
     }
 

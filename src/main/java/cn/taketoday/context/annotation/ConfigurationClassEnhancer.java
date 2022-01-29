@@ -250,10 +250,10 @@ class ConfigurationClassEnhancer {
     }
 
     public static boolean isSetBeanFactory(Method candidateMethod) {
-      return (candidateMethod.getName().equals("setBeanFactory")
+      return candidateMethod.getName().equals("setBeanFactory")
               && candidateMethod.getParameterCount() == 1
               && BeanFactory.class == candidateMethod.getParameterTypes()[0]
-              && BeanFactoryAware.class.isAssignableFrom(candidateMethod.getDeclaringClass()));
+              && BeanFactoryAware.class.isAssignableFrom(candidateMethod.getDeclaringClass());
     }
   }
 
@@ -331,7 +331,7 @@ class ConfigurationClassEnhancer {
         if (alreadyInCreation) {
           beanFactory.setCurrentlyInCreation(beanName, false);
         }
-        boolean useArgs = !ObjectUtils.isEmpty(beanMethodArgs);
+        boolean useArgs = ObjectUtils.isNotEmpty(beanMethodArgs);
         if (useArgs && beanFactory.isSingleton(beanName)) {
           // Stubbed null arguments just for reference purposes,
           // expecting them to be autowired for regular singleton references?
@@ -343,7 +343,7 @@ class ConfigurationClassEnhancer {
             }
           }
         }
-        Object beanInstance = (useArgs ? beanFactory.getBean(beanName, beanMethodArgs) : beanFactory.getBean(beanName));
+        Object beanInstance = useArgs ? beanFactory.getBean(beanName, beanMethodArgs) : beanFactory.getBean(beanName);
         if (!ClassUtils.isAssignableValue(beanMethod.getReturnType(), beanInstance)) {
           if (beanInstance == null) {
             if (log.isDebugEnabled()) {
@@ -382,9 +382,9 @@ class ConfigurationClassEnhancer {
 
     @Override
     public boolean isMatch(Method candidateMethod) {
-      return (candidateMethod.getDeclaringClass() != Object.class &&
-              !BeanFactoryAwareMethodInterceptor.isSetBeanFactory(candidateMethod) &&
-              BeanAnnotationHelper.isBeanAnnotated(candidateMethod));
+      return candidateMethod.getDeclaringClass() != Object.class
+              && !BeanFactoryAwareMethodInterceptor.isSetBeanFactory(candidateMethod)
+              && BeanAnnotationHelper.isBeanAnnotated(candidateMethod);
     }
 
     private ConfigurableBeanFactory getBeanFactory(Object enhancedConfigInstance) {

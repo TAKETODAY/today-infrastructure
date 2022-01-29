@@ -181,7 +181,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
     if (defaultMessage != null) {
       return defaultMessage;
     }
-    throw new NoSuchMessageException(!ObjectUtils.isEmpty(codes) ? codes[codes.length - 1] : "", locale);
+    throw new NoSuchMessageException(ObjectUtils.isNotEmpty(codes) ? codes[codes.length - 1] : "", locale);
   }
 
   /**
@@ -293,19 +293,19 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
     String defaultMessage = resolvable.getDefaultMessage();
     String[] codes = resolvable.getCodes();
     if (defaultMessage != null) {
-      if (resolvable instanceof DefaultMessageSourceResolvable &&
-              !((DefaultMessageSourceResolvable) resolvable).shouldRenderDefaultMessage()) {
+      if (resolvable instanceof DefaultMessageSourceResolvable defaultResolvable
+              && !defaultResolvable.shouldRenderDefaultMessage()) {
         // Given default message does not contain any argument placeholders
         // (and isn't escaped for alwaysUseMessageFormat either) -> return as-is.
         return defaultMessage;
       }
-      if (!ObjectUtils.isEmpty(codes) && defaultMessage.equals(codes[0])) {
+      if (ObjectUtils.isNotEmpty(codes) && defaultMessage.equals(codes[0])) {
         // Never format a code-as-default-message, even with alwaysUseMessageFormat=true
         return defaultMessage;
       }
       return renderDefaultMessage(defaultMessage, resolvable.getArguments(), locale);
     }
-    return (!ObjectUtils.isEmpty(codes) ? getDefaultMessage(codes[0]) : null);
+    return ObjectUtils.isNotEmpty(codes) ? getDefaultMessage(codes[0]) : null;
   }
 
   /**

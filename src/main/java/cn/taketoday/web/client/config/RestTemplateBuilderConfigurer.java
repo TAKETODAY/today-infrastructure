@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import cn.taketoday.http.config.HttpMessageConverters;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Configure {@link RestTemplateBuilder} with sensible defaults.
@@ -73,7 +73,7 @@ public final class RestTemplateBuilderConfigurer {
   private <T> RestTemplateBuilder addCustomizers(
           RestTemplateBuilder builder, List<T> customizers,
           BiFunction<RestTemplateBuilder, Collection<T>, RestTemplateBuilder> method) {
-    if (!ObjectUtils.isEmpty(customizers)) {
+    if (CollectionUtils.isNotEmpty(customizers)) {
       return method.apply(builder, customizers);
     }
     return builder;
