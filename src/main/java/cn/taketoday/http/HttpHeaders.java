@@ -587,7 +587,7 @@ public abstract class HttpHeaders
    * Set the acceptable language ranges, as specified by the
    * {@literal Accept-Language} header.
    */
-  public void setAcceptLanguage(List<Locale.LanguageRange> languages) {
+  public void setAcceptLanguage(Collection<Locale.LanguageRange> languages) {
     Assert.notNull(languages, "LanguageRange List must not be null");
 
     List<String> values = languages.stream().map(range -> {
@@ -616,9 +616,9 @@ public abstract class HttpHeaders
   }
 
   /**
-   * Variant of {@link #setAcceptLanguage(List)} using {@link Locale}'s.
+   * Variant of {@link #setAcceptLanguage(Collection)} using {@link Locale}'s.
    */
-  public void setAcceptLanguageAsLocales(List<Locale> locales) {
+  public void setAcceptLanguageAsLocales(Collection<Locale> locales) {
     setAcceptLanguage(locales.stream()
             .map(locale -> new Locale.LanguageRange(locale.toLanguageTag()))
             .collect(Collectors.toList()));
@@ -648,7 +648,7 @@ public abstract class HttpHeaders
    *
    * @since 4.0
    */
-  public void setAcceptPatch(List<MediaType> mediaTypes) {
+  public void setAcceptPatch(Collection<MediaType> mediaTypes) {
     set(ACCEPT_PATCH, MediaType.toString(mediaTypes));
   }
 
@@ -683,7 +683,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Allow-Headers} response
    * header.
    */
-  public void setAccessControlAllowHeaders(List<String> allowedHeaders) {
+  public void setAccessControlAllowHeaders(Collection<String> allowedHeaders) {
     set(ACCESS_CONTROL_ALLOW_HEADERS, toCommaDelimitedString(allowedHeaders));
   }
 
@@ -698,7 +698,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Allow-Methods} response
    * header.
    */
-  public void setAccessControlAllowMethods(List<?> allowedMethods) {
+  public void setAccessControlAllowMethods(Collection<?> allowedMethods) {
     set(ACCESS_CONTROL_ALLOW_METHODS, toCommaDelimitedString(allowedMethods));
   }
 
@@ -736,7 +736,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Expose-Headers} response
    * header.
    */
-  public void setAccessControlExposeHeaders(List<String> exposedHeaders) {
+  public void setAccessControlExposeHeaders(Collection<String> exposedHeaders) {
     set(ACCESS_CONTROL_EXPOSE_HEADERS, toCommaDelimitedString(exposedHeaders));
   }
 
@@ -776,7 +776,7 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Request-Headers} request
    * header.
    */
-  public void setAccessControlRequestHeaders(List<String> requestHeaders) {
+  public void setAccessControlRequestHeaders(Collection<String> requestHeaders) {
     set(ACCESS_CONTROL_REQUEST_HEADERS, toCommaDelimitedString(requestHeaders));
   }
 
@@ -812,7 +812,7 @@ public abstract class HttpHeaders
    * Set the list of acceptable {@linkplain Charset charsets}, as specified by the
    * {@code Accept-Charset} header.
    */
-  public void setAcceptCharset(List<Charset> acceptableCharsets) {
+  public void setAcceptCharset(Collection<Charset> acceptableCharsets) {
     StringJoiner joiner = new StringJoiner(", ");
     for (Charset charset : acceptableCharsets) {
       joiner.add(charset.name().toLowerCase(Locale.ENGLISH));
@@ -853,7 +853,7 @@ public abstract class HttpHeaders
    * Set the set of allowed {@link HttpMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    */
-  public void setAllow(Set<HttpMethod> allowedMethods) {
+  public void setAllow(Collection<HttpMethod> allowedMethods) {
     set(ALLOW, StringUtils.collectionToString(allowedMethods)); // special case
   }
 
@@ -972,7 +972,7 @@ public abstract class HttpHeaders
   /**
    * Set the (new) value of the {@code Connection} header.
    */
-  public void setConnection(List<String> connection) {
+  public void setConnection(Collection<String> connection) {
     set(CONNECTION, toCommaDelimitedString(connection));
   }
 
@@ -1285,7 +1285,7 @@ public abstract class HttpHeaders
   /**
    * Set the (new) value of the {@code If-Match} header.
    */
-  public void setIfMatch(List<String> ifMatchList) {
+  public void setIfMatch(Collection<String> ifMatchList) {
     set(IF_MATCH, toCommaDelimitedString(ifMatchList));
   }
 
@@ -1344,7 +1344,7 @@ public abstract class HttpHeaders
   /**
    * Set the (new) values of the {@code If-None-Match} header.
    */
-  public void setIfNoneMatch(List<String> ifNoneMatchList) {
+  public void setIfNoneMatch(Collection<String> ifNoneMatchList) {
     set(IF_NONE_MATCH, toCommaDelimitedString(ifNoneMatchList));
   }
 
@@ -1486,7 +1486,7 @@ public abstract class HttpHeaders
   /**
    * Sets the (new) value of the {@code Range} header.
    */
-  public void setRange(List<HttpRange> ranges) {
+  public void setRange(Collection<HttpRange> ranges) {
     String value = HttpRange.toString(ranges);
     set(RANGE, value);
   }
@@ -1522,7 +1522,7 @@ public abstract class HttpHeaders
    *
    * @param requestHeaders the request header names
    */
-  public void setVary(List<String> requestHeaders) {
+  public void setVary(Collection<String> requestHeaders) {
     set(VARY, StringUtils.collectionToString(requestHeaders, ", "));
   }
 
