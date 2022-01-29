@@ -30,6 +30,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
+import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Component;
@@ -88,13 +89,23 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
    */
   @Component
   @ConditionalOnMissingBean
+  @SuppressWarnings("deprecation")
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   HandlerMethodRegistry handlerMethodRegistry() {
+    HandlerMethodRegistry registry = new HandlerMethodRegistry();
     PathMatchConfigurer pathMatchConfigurer = getPathMatchConfigurer();
 
-    pathMatchConfigurer.isUseTrailingSlashMatch()
+    Boolean useTrailingSlashMatch = pathMatchConfigurer.isUseTrailingSlashMatch();
+    if (useTrailingSlashMatch != null) {
+      registry.setUseTrailingSlashMatch(useTrailingSlashMatch);
+    }
 
-    return new HandlerMethodRegistry();
+    PathMatcher pathMatcher = pathMatchConfigurer.getPathMatcher();
+    if (pathMatcher != null) {
+      registry.setPathMatcher(pathMatcher);
+    }
+
+    return registry;
   }
 
   /**
