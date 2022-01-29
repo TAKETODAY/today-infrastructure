@@ -28,7 +28,8 @@ import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -38,6 +39,7 @@ import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandlerProvider;
 import cn.taketoday.web.view.SelectableReturnValueHandler;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -48,6 +50,12 @@ import cn.taketoday.web.view.SelectableReturnValueHandler;
 public class DispatcherHandler extends WebApplicationContextSupport {
   public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
+  /** Log category to use when no mapped handler is found for a request. */
+  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = "cn.taketoday.web.handler.PageNotFound";
+
+  /** Additional logger to use when no mapped handler is found for a request. */
+  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
+
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
   private HandlerAdapter[] handlerAdapters;
@@ -55,6 +63,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   private HandlerExceptionHandler exceptionHandler;
   /** @since 4.0 */
   private SelectableReturnValueHandler returnValueHandler;
+
+  /** Throw a NoHandlerFoundException if no Handler was found to process this request? @since 4.0 */
+  private boolean throwExceptionIfNoHandlerFound = false;
 
   public DispatcherHandler() { }
 
@@ -74,7 +85,12 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    */
   @Nullable
   public Object lookupHandler(final RequestContext context) {
-    return handlerRegistry.lookup(context);
+    try {
+      return handlerRegistry.lookup(context);
+    }
+    catch (Throwable e) {
+      handleException(null, e, context);
+    }
   }
 
   /**
@@ -165,21 +181,62 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @param handler HTTP handler
    * @param exception {@link Throwable} occurred in target handler
    * @param context Current HTTP request context
-   * @throws Throwable If {@link Throwable} occurred in
-   * {@link HandlerExceptionHandler} cannot handled
+   * @throws Throwable If {@link Throwable} cannot be handled
    * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
    * @throws IOException throws when write data to response
    */
-  public void handleException(final Object handler,
-                              final Throwable exception,
-                              final RequestContext context) throws Throwable {
+  public void handleException(
+          @Nullable Object handler, Throwable exception, RequestContext context) throws Throwable {
     // clear context
     context.reset();
+
     // handle exception
-    final Throwable realException = ExceptionUtils.unwrapThrowable(exception);
-    final Object returnValue = exceptionHandler.handleException(context, realException, handler);
-    if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+    Object returnValue = exceptionHandler.handleException(context, exception, handler);
+    if (returnValue == null) {
+      throw exception;
+    }
+    else if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
       returnValueHandler.handleReturnValue(context, null, returnValue);
+    }
+  }
+
+  /**
+   * Set whether to throw a NoHandlerFoundException when no Handler was found for this request.
+   * This exception can then be caught with a HandlerExceptionResolver or an
+   * {@code @ExceptionHandler} controller method.
+   *
+   * @since 4.0
+   */
+  public void setThrowExceptionIfNoHandlerFound(boolean throwExceptionIfNoHandlerFound) {
+    this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
+  }
+
+  /**
+   * Process the actual dispatching to the handler.
+   *
+   * @param context current HTTP request and HTTP response
+   * @throws Exception in case of any kind of processing failure
+   */
+  public void dispatch(RequestContext context) throws Throwable {
+
+  }
+
+  /**
+   * No handler found &rarr; set appropriate HTTP response status.
+   *
+   * @param request current HTTP request
+   * @throws Exception if preparing the response failed
+   */
+  protected void noHandlerFound(RequestContext request) throws Exception {
+    if (pageNotFoundLogger.isWarnEnabled()) {
+      pageNotFoundLogger.warn("No mapping for {} {}", request.getMethodValue(), request.getRequestPath());
+    }
+    if (this.throwExceptionIfNoHandlerFound) {
+      throw new NoHandlerFoundException(
+              request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
+    }
+    else {
+      request.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
   }
 
