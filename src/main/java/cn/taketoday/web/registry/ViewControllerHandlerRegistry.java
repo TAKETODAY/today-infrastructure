@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
@@ -52,7 +53,7 @@ import static cn.taketoday.core.ConfigurationException.nonNull;
  * @author TODAY <br>
  * 2019-12-23 22:10
  */
-public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
+public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry implements BeanClassLoaderAware {
   public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.registry.ViewControllerHandlerRegistry";
 
   // the dtd
@@ -80,6 +81,13 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
   public static final String ELEMENT_ACTION = "action";
   public static final String ELEMENT_CONTROLLER = "controller";
   public static final String ROOT_ELEMENT = "Web-Configuration";
+
+  private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+
+  @Override
+  public void setBeanClassLoader(ClassLoader beanClassLoader) {
+    this.classLoader = beanClassLoader;
+  }
 
   // @since 4.0
   private AnnotatedBeanDefinitionReader definitionReader;
@@ -278,7 +286,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry {
         return bean;
       }
       else {
-        Class<?> beanClass = ClassUtils.load(className);
+        Class<?> beanClass = ClassUtils.resolveClassName(className, classLoader);
         if ((controllerBean = context.getBean(name, beanClass)) == null) {
           definitionReader().registerBean(name, beanClass);
           controllerBean = context.getBean(name, beanClass);
