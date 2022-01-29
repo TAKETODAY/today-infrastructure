@@ -36,6 +36,7 @@ import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
@@ -45,6 +46,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
+import cn.taketoday.web.util.RequestPathUtils;
 import cn.taketoday.web.view.ReturnValueHandler;
 
 import static cn.taketoday.core.ConfigurationException.nonNull;
@@ -100,12 +102,14 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
     return definitionReader;
   }
 
-  public final ViewController getViewController(String key) {
+  public final ViewController getViewController(String key) throws Exception {
     return getViewController(key, RequestContextHolder.currentContext());
   }
 
-  public final ViewController getViewController(String key, RequestContext context) {
-    Object obj = lookupHandler(key, context);
+  public final ViewController getViewController(String key, RequestContext context) throws Exception {
+    String lookupPath = initLookupPath(context);
+    RequestPath path = RequestPathUtils.getParsedRequestPath(context);
+    Object obj = lookupHandler(path, lookupPath, context);
     if (obj instanceof ViewController) {
       return (ViewController) obj;
     }

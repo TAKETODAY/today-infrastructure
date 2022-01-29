@@ -22,7 +22,6 @@ package cn.taketoday.web;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +67,7 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
 //        registry.addViewController("/view/controller/text").setResource("text");
   }
 
-  public void testViewController(ViewControllerHandlerRegistry registry) {
+  public void testViewController(ViewControllerHandlerRegistry registry) throws Exception {
     Object defaultHandler = registry.getDefaultHandler();
     assertNull(defaultHandler);
     ViewController viewController = registry.getViewController("/view/controller/null");
@@ -84,7 +83,7 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
   }
 
   @Test
-  public void testRestController() throws IOException {
+  public void testRestController() throws Exception {
     assertEquals(httpGetText("http://localhost:81/index/123"), "123");
     assertEquals(httpGetText("http://localhost:81/index/query?q=123"), "123");
     assertEquals(httpGetText("http://localhost:81/view/controller/text"), "text");

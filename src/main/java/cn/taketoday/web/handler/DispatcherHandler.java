@@ -34,11 +34,13 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandlerProvider;
 import cn.taketoday.web.view.SelectableReturnValueHandler;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -219,6 +221,85 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    */
   public void dispatch(RequestContext context) throws Throwable {
 
+    try {
+      // Determine handler for the current request.
+      Object handler = lookupHandler(context);
+      if (handler == null) {
+        noHandlerFound(context);
+        return;
+      }
+
+      // Determine handler adapter for the current request.
+      HandlerAdapter ha = lookupHandlerAdapter(handler);
+
+      // Actually invoke the handler.
+      Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+      if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+        lookupReturnValueHandler(handler, returnValue)
+                .handleReturnValue(context, handler, returnValue);
+      }
+
+      if (asyncManager.isConcurrentHandlingStarted()) {
+        return;
+      }
+
+    }
+    catch (Exception ex) {
+      dispatchException = ex;
+    }
+    catch (Throwable err) {
+      // As of 4.3, we're processing Errors thrown from handler methods as well,
+      // making them available for @ExceptionHandler methods and other scenarios.
+    }
+    processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
+
+  }
+
+  /**
+   * Handle the result of handler selection and handler invocation, which is
+   * either a ModelAndView or an Exception to be resolved to a ModelAndView.
+   */
+  private void processDispatchResult(
+          HttpServletRequest request, HttpServletResponse response,
+          @Nullable HandlerExecutionChain mappedHandler, @Nullable ModelAndView mv,
+          @Nullable Exception exception) throws Exception {
+
+    boolean errorView = false;
+
+    if (exception != null) {
+      if (exception instanceof ModelAndViewDefiningException) {
+        logger.debug("ModelAndViewDefiningException encountered", exception);
+        mv = ((ModelAndViewDefiningException) exception).getModelAndView();
+      }
+      else {
+        Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
+        mv = processHandlerException(request, response, handler, exception);
+        errorView = (mv != null);
+      }
+    }
+
+    // Did the handler return a view to render?
+    if (mv != null && !mv.wasCleared()) {
+      render(mv, request, response);
+      if (errorView) {
+        WebUtils.clearErrorRequestAttributes(request);
+      }
+    }
+    else {
+      if (log.isTraceEnabled()) {
+        log.trace("No view rendering, null ModelAndView returned.");
+      }
+    }
+
+    if (WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
+      // Concurrent handling started during a forward
+      return;
+    }
+
+    if (mappedHandler != null) {
+      // Exception (if any) is already handled..
+      mappedHandler.triggerAfterCompletion(request, response, null);
+    }
   }
 
   /**
