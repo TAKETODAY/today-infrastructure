@@ -650,7 +650,7 @@ public class RestTemplateBuilder {
       restTemplate.setRequestFactory(requestFactory);
     }
     addClientHttpRequestInitializer(restTemplate);
-    if (!CollectionUtils.isEmpty(messageConverters)) {
+    if (CollectionUtils.isNotEmpty(messageConverters)) {
       restTemplate.setMessageConverters(new ArrayList<>(messageConverters));
     }
     if (uriTemplateHandler != null) {
@@ -663,7 +663,7 @@ public class RestTemplateBuilder {
       RootUriTemplateHandler.addTo(restTemplate, rootUri);
     }
     restTemplate.getInterceptors().addAll(interceptors);
-    if (!CollectionUtils.isEmpty(customizers)) {
+    if (CollectionUtils.isNotEmpty(customizers)) {
       for (RestTemplateCustomizer customizer : customizers) {
         customizer.customize(restTemplate);
       }

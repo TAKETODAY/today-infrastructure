@@ -74,6 +74,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -823,7 +824,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     if (propertyValues != null) {
       Map<String, Object> map = propertyValues.asMap();
-      if (ObjectUtils.isNotEmpty(map)) {
+      if (CollectionUtils.isNotEmpty(map)) {
         if (binder == null) {
           metadata = getMetadata(bean, definition);
           binder = new PropertyValuesBinder(metadata, bean);

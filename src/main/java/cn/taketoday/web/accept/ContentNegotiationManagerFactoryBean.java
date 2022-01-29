@@ -156,7 +156,7 @@ public class ContentNegotiationManagerFactoryBean
    * @see #addMediaTypes(Map)
    */
   public void setMediaTypes(Properties mediaTypes) {
-    if (!CollectionUtils.isEmpty(mediaTypes)) {
+    if (CollectionUtils.isNotEmpty(mediaTypes)) {
       for (Map.Entry<Object, Object> entry : mediaTypes.entrySet()) {
         Object key = entry.getKey();
         Object value = entry.getValue();
@@ -273,7 +273,7 @@ public class ContentNegotiationManagerFactoryBean
     // Ensure media type mappings are available via ContentNegotiationManager#getMediaTypeMappings()
     // independent of path extension or parameter strategies.
 
-    if (!CollectionUtils.isEmpty(this.mediaTypes) && !this.favorParameter) {
+    if (CollectionUtils.isNotEmpty(this.mediaTypes) && !this.favorParameter) {
       this.contentNegotiationManager.addFileExtensionResolvers(
               new MappingMediaTypeFileExtensionResolver(this.mediaTypes));
     }

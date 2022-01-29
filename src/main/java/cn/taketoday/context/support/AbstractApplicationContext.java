@@ -1318,7 +1318,7 @@ public abstract class AbstractApplicationContext
     // Publish early application events now that we finally have a multicaster...
     Set<Object> earlyEventsToProcess = this.earlyApplicationEvents;
     this.earlyApplicationEvents = null;
-    if (!CollectionUtils.isEmpty(earlyEventsToProcess)) {
+    if (CollectionUtils.isNotEmpty(earlyEventsToProcess)) {
       for (Object earlyEvent : earlyEventsToProcess) {
         getApplicationEventMulticaster().multicastEvent(earlyEvent);
       }

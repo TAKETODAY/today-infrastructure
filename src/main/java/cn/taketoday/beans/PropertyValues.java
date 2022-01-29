@@ -281,7 +281,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public PropertyValues set(PropertyValues other) {
     if (this.propertyValues == null) {
-      if (other != null && ObjectUtils.isNotEmpty(other.propertyValues)) {
+      if (other != null && CollectionUtils.isNotEmpty(other.propertyValues)) {
         this.propertyValues = new LinkedHashMap<>();
         add(other);
       }
