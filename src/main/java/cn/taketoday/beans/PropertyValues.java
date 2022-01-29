@@ -374,7 +374,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
    * Return the underlying List of PropertyValue objects in its raw form.
    */
   public List<PropertyValue> asList() {
-    if (ObjectUtils.isEmpty(propertyValues)) {
+    if (CollectionUtils.isEmpty(propertyValues)) {
       return Collections.emptyList();
     }
     return propertyValues.entrySet().stream()
@@ -398,7 +398,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
 
   @Override
   public String toString() {
-    if (ObjectUtils.isEmpty(propertyValues)) {
+    if (CollectionUtils.isEmpty(propertyValues)) {
       return "PropertyValues: length=0";
     }
     return "PropertyValues: length=" + propertyValues.size() + "; "
