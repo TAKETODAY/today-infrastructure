@@ -400,7 +400,7 @@ public class HTTPServer {
         }
         else {
           final LightRequestContext context = new LightRequestContext(req, resp, config);
-          httpHandler.handle(context);
+          httpHandler.dispatch(context);
           context.sendIfNotCommitted();
         }
       }

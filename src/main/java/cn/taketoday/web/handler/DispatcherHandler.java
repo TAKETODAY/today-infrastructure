@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -34,14 +35,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.HandlerAdapterNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandler;
 import cn.taketoday.web.view.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.view.ReturnValueHandlerProvider;
 import cn.taketoday.web.view.SelectableReturnValueHandler;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -50,7 +48,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @since 3.0
  */
 public class DispatcherHandler extends WebApplicationContextSupport {
-  public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
+  public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   /** Log category to use when no mapped handler is found for a request. */
   public static final String PAGE_NOT_FOUND_LOG_CATEGORY = "cn.taketoday.web.handler.PageNotFound";
@@ -87,12 +85,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    */
   @Nullable
   public Object lookupHandler(final RequestContext context) {
-    try {
-      return handlerRegistry.lookup(context);
-    }
-    catch (Throwable e) {
-      handleException(null, e, context);
-    }
+    return handlerRegistry.lookup(context);
   }
 
   /**
@@ -102,7 +95,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @return A {@link HandlerAdapter}
    * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
    */
-  private HandlerAdapter lookupHandlerAdapter(final Object handler) {
+  public HandlerAdapter lookupHandlerAdapter(final Object handler) {
     if (handler instanceof HandlerAdapter) {
       return (HandlerAdapter) handler;
     }
@@ -146,23 +139,13 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /**
    * Handle HTTP request
    *
-   * @param context Current HTTP request context
-   * @throws Throwable If {@link Throwable} cannot handle
-   */
-  public void handle(final RequestContext context) throws Throwable {
-    handle(lookupHandler(context), context);
-  }
-
-  /**
-   * Handle HTTP request
-   *
    * @param handler HTTP handler
    * @param context Current HTTP request context
    * @throws Throwable If {@link Throwable} cannot handle
    */
-  public void handle(@Nullable final Object handler, final RequestContext context) throws Throwable {
+  public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
     try {
-      final Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+      Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
       if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
         lookupReturnValueHandler(handler, returnValue)
                 .handleReturnValue(context, handler, returnValue);
@@ -220,39 +203,27 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * @throws Exception in case of any kind of processing failure
    */
   public void dispatch(RequestContext context) throws Throwable {
-
+    Object handler = null;
+    Object returnValue = null;
+    Throwable throwable = null;
     try {
       // Determine handler for the current request.
-      Object handler = lookupHandler(context);
+      handler = lookupHandler(context);
       if (handler == null) {
         noHandlerFound(context);
         return;
       }
-
-      // Determine handler adapter for the current request.
-      HandlerAdapter ha = lookupHandlerAdapter(handler);
-
       // Actually invoke the handler.
-      Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
-      if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
-        lookupReturnValueHandler(handler, returnValue)
-                .handleReturnValue(context, handler, returnValue);
-      }
-
-      if (asyncManager.isConcurrentHandlingStarted()) {
-        return;
-      }
-
+      returnValue = lookupHandlerAdapter(handler).handle(context, handler);
     }
-    catch (Exception ex) {
-      dispatchException = ex;
+    catch (Throwable ex) {
+      throwable = ex;
     }
-    catch (Throwable err) {
-      // As of 4.3, we're processing Errors thrown from handler methods as well,
-      // making them available for @ExceptionHandler methods and other scenarios.
+    finally {
+      processDispatchResult(context, handler, returnValue, throwable);
+      // @since 3.0 cleanup MultipartFiles
+      context.cleanupMultipartFiles();
     }
-    processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
-
   }
 
   /**
@@ -260,46 +231,46 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * either a ModelAndView or an Exception to be resolved to a ModelAndView.
    */
   private void processDispatchResult(
-          HttpServletRequest request, HttpServletResponse response,
-          @Nullable HandlerExecutionChain mappedHandler, @Nullable ModelAndView mv,
-          @Nullable Exception exception) throws Exception {
-
-    boolean errorView = false;
+          RequestContext request, @Nullable Object handler,
+          @Nullable Object returnValue, @Nullable Throwable exception) throws Throwable {
 
     if (exception != null) {
-      if (exception instanceof ModelAndViewDefiningException) {
-        logger.debug("ModelAndViewDefiningException encountered", exception);
-        mv = ((ModelAndViewDefiningException) exception).getModelAndView();
-      }
-      else {
-        Object handler = (mappedHandler != null ? mappedHandler.getHandler() : null);
-        mv = processHandlerException(request, response, handler, exception);
-        errorView = (mv != null);
-      }
+      returnValue = processHandlerException(request, handler, exception);
     }
 
     // Did the handler return a view to render?
-    if (mv != null && !mv.wasCleared()) {
-      render(mv, request, response);
-      if (errorView) {
-        WebUtils.clearErrorRequestAttributes(request);
-      }
+    if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+      lookupReturnValueHandler(handler, returnValue)
+              .handleReturnValue(request, handler, returnValue);
     }
-    else {
+  }
+
+  /**
+   * Determine an error view via the registered HandlerExceptionHandlers.
+   *
+   * @param request current HTTP request
+   * @param handler the executed handler, or {@code null} if none chosen at the time of the exception
+   * @param ex the exception that got thrown during handler execution
+   * @return a corresponding view to forward to
+   * @throws Exception if no error view found
+   */
+  @Nullable
+  protected Object processHandlerException(
+          RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+    // Check registered HandlerExceptionResolvers...
+    Object returnValue = exceptionHandler.handleException(request, ex, handler);
+    if (returnValue == null) {
+      throw ex;
+    }
+    else if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
       if (log.isTraceEnabled()) {
-        log.trace("No view rendering, null ModelAndView returned.");
+        log.trace("Using resolved error view: {}", returnValue, ex);
+      }
+      else if (log.isDebugEnabled()) {
+        log.debug("Using resolved error view: {}", returnValue);
       }
     }
-
-    if (WebAsyncUtils.getAsyncManager(request).isConcurrentHandlingStarted()) {
-      // Concurrent handling started during a forward
-      return;
-    }
-
-    if (mappedHandler != null) {
-      // Exception (if any) is already handled..
-      mappedHandler.triggerAfterCompletion(request, response, null);
-    }
+    return returnValue;
   }
 
   /**
@@ -317,7 +288,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
               request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
     }
     else {
-      request.sendError(HttpServletResponse.SC_NOT_FOUND);
+      request.sendError(HttpStatus.NOT_FOUND.value());
     }
   }
 

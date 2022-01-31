@@ -35,7 +35,7 @@ public class NettyDispatcher {
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
     RequestContextHolder.prepareContext(nettyContext);
     try {
-      dispatcherHandler.handle(nettyContext); // handling HTTP request
+      dispatcherHandler.dispatch(nettyContext); // handling HTTP request
       nettyContext.sendIfNotCommitted();
     }
     finally {

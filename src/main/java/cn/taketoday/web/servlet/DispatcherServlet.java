@@ -22,16 +22,15 @@ package cn.taketoday.web.servlet;
 import java.io.Serial;
 import java.io.Serializable;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.handler.DispatcherHandler;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.handler.DispatcherHandler;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers in Servlet
@@ -56,11 +55,9 @@ public class DispatcherServlet
   @Override
   public void service(final ServletRequest request,
                       final ServletResponse response) throws ServletException {
-    final RequestContext context = ServletUtils.getRequestContext(request, response);
-    // Lookup handler
-    final Object handler = lookupHandler(context);
+    RequestContext context = ServletUtils.getRequestContext(request, response);
     try {
-      handle(handler, context);
+      dispatch(context);
     }
     catch (final Throwable e) {
       throw new ServletException(e);
