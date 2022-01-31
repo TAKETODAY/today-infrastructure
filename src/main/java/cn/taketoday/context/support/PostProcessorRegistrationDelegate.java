@@ -351,10 +351,8 @@ final class PostProcessorRegistrationDelegate {
       if (!(bean instanceof BeanPostProcessor)
               && !isInfrastructureBean(beanName)
               && beanFactory.getBeanPostProcessorCount() < this.beanPostProcessorTargetCount) {
-        if (log.isInfoEnabled()) {
-          log.info("Bean '{}' of type [{}] is not eligible for getting processed by all BeanPostProcessors " +
-                  "(for example: not eligible for auto-proxying)", beanName, bean.getClass().getName());
-        }
+        log.info("Bean '{}' of type [{}] is not eligible for getting processed by all BeanPostProcessors " +
+                "(for example: not eligible for auto-proxying)", beanName, bean.getClass().getName());
       }
       return bean;
     }
