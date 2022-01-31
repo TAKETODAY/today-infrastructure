@@ -70,6 +70,9 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
   public void testViewController(ViewControllerHandlerRegistry registry) throws Exception {
     Object defaultHandler = registry.getDefaultHandler();
     assertNull(defaultHandler);
+
+
+
     ViewController viewController = registry.getViewController("/view/controller/null");
     assertNotNull(viewController);
     assertNull(viewController.getStatus());

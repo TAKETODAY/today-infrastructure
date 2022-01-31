@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.registry;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -156,14 +155,15 @@ public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
    * @param urlMap a Map with URL paths as keys and handler beans or bean names as values
    * @throws BeansException if a handler couldn't be registered
    * @throws IllegalStateException if there is a conflicting handler registered
-   * @since 4.0
    */
   protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
     if (urlMap.isEmpty()) {
       log.trace("No patterns in {}", formatMappingName());
     }
     else {
-      urlMap.forEach((url, handler) -> {
+      for (Map.Entry<String, Object> entry : urlMap.entrySet()) {
+        String url = entry.getKey();
+        Object handler = entry.getValue();
         // Prepend with slash if not already present.
         if (!url.startsWith("/")) {
           url = "/" + url;
@@ -173,32 +173,17 @@ public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
           handler = ((String) handler).trim();
         }
         registerHandler(url, handler);
-      });
+      }
       logMappings();
     }
   }
 
   private void logMappings() {
     if (mappingsLogger.isDebugEnabled()) {
-      Map<String, Object> map = new LinkedHashMap<>(getHandlerMap());
-      if (getRootHandler() != null) {
-        map.put("/", getRootHandler());
-      }
-      if (getDefaultHandler() != null) {
-        map.put("/**", getDefaultHandler());
-      }
-      mappingsLogger.debug("{}  {}", formatMappingName(), map);
+      mappingsLogger.debug("{}  {}", formatMappingName(), getHandlerMap());
     }
     else if (log.isDebugEnabled()) {
-      ArrayList<String> patterns = new ArrayList<>();
-      if (getRootHandler() != null) {
-        patterns.add("/");
-      }
-      if (getDefaultHandler() != null) {
-        patterns.add("/**");
-      }
-      patterns.addAll(getHandlerMap().keySet());
-      log.debug("Patterns {} in {}", patterns, formatMappingName());
+      log.debug("Patterns {} in {}", getHandlerMap().keySet(), formatMappingName());
     }
   }
 

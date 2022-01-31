@@ -31,7 +31,6 @@ import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
-import cn.taketoday.web.util.RequestPathUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPattern.PathMatchInfo;
 
@@ -63,7 +62,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     if (socketHandler.containsPathVariable) {
       // for path variables handling
       PathPattern pathPattern = socketHandler.pathPattern;
-      RequestPath parsedRequestPath = RequestPathUtils.getParsedRequestPath(context);
+      RequestPath parsedRequestPath = context.getLookupPath();
       PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(parsedRequestPath);
       Assert.state(pathMatchInfo != null, "Path match error");
       Map<String, String> uriVariables = pathMatchInfo.getUriVariables();

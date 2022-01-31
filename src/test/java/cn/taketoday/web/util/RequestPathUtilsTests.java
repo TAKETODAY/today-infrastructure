@@ -55,7 +55,7 @@ class RequestPathUtilsTests {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
     request.setContextPath(contextPath);
     MockServletRequestContext context = new MockServletRequestContext(request, null);
-    RequestPath requestPath = RequestPathUtils.parseAndCache(context);
+    RequestPath requestPath = context.getLookupPath();
 
     assertThat(requestPath.contextPath().value()).isEqualTo(contextPath);
     assertThat(requestPath.pathWithinApplication().value()).isEqualTo(pathWithinApplication);

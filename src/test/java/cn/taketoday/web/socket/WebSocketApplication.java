@@ -76,7 +76,7 @@ public class WebSocketApplication {
 
     @Override
     public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
-      registry.registerHandler(new WebSocket0(), "/endpoint");
+      registry.registerHandler("/endpoint", new WebSocket0());
     }
 
 //    @Singleton

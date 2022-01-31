@@ -22,19 +22,15 @@ package cn.taketoday.web.registry;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
-import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogDelegateFactory;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.util.RequestPathUtils;
 import cn.taketoday.web.util.UrlPathHelper;
-import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
@@ -65,7 +61,7 @@ public abstract class AbstractHandlerRegistry
   /** @since 4.0 */
   private StringValueResolver embeddedValueResolver;
 
-  private PathPatternParser patternParser = new PathPatternParser();
+  private final PathPatternParser patternParser = new PathPatternParser();
 
   /**
    * Look up a handler for the given request, falling back to the default
@@ -104,7 +100,7 @@ public abstract class AbstractHandlerRegistry
    * @since 4.0
    */
   protected String initLookupPath(RequestContext request) {
-    RequestPath requestPath = RequestPathUtils.getParsedRequestPath(request);
+    RequestPath requestPath = request.getLookupPath();
     String lookupPath = requestPath.pathWithinApplication().value();
     return UrlPathHelper.defaultInstance.removeSemicolonContent(lookupPath);
   }
@@ -127,27 +123,39 @@ public abstract class AbstractHandlerRegistry
   }
 
   /**
-   * Enable use of pre-parsed {@link PathPattern}s as an alternative to
-   * String pattern matching with {@link AntPathMatcher}. The syntax is
-   * largely the same but the {@code PathPattern} syntax is more tailored for
-   * web applications, and its implementation is more efficient.
-   *
-   * @param patternParser the parser to use
-   * @since 4.0
-   */
-  public void setPatternParser(PathPatternParser patternParser) {
-    Assert.notNull(patternParser, "patternParser is required");
-    this.patternParser = patternParser;
-  }
-
-  /**
-   * Return the {@link #setPatternParser(PathPatternParser) configured}
-   * {@code PathPatternParser}
+   * Return the {@link PathPatternParser}
    *
    * @since 4.0
    */
   public PathPatternParser getPatternParser() {
     return this.patternParser;
+  }
+
+  /**
+   * Shortcut method for setting the same property on the underlying pattern
+   * parser in use. For more details see:
+   * <ul>
+   * <li>{@link #getPatternParser()} -- the underlying pattern parser
+   * <li>{@link PathPatternParser#setCaseSensitive(boolean)} -- the case
+   * sensitive slash option, including its default value.
+   * </ul>
+   * <p><strong>Note:</strong> aside from
+   */
+  public void setUseCaseSensitiveMatch(boolean caseSensitiveMatch) {
+    this.patternParser.setCaseSensitive(caseSensitiveMatch);
+  }
+
+  /**
+   * Shortcut method for setting the same property on the underlying pattern
+   * parser in use. For more details see:
+   * <ul>
+   * <li>{@link #getPatternParser()} -- the underlying pattern parser
+   * <li>{@link PathPatternParser#setMatchOptionalTrailingSeparator(boolean)} --
+   * the trailing slash option, including its default value.
+   * </ul>
+   */
+  public void setUseTrailingSlashMatch(boolean trailingSlashMatch) {
+    this.patternParser.setMatchOptionalTrailingSeparator(trailingSlashMatch);
   }
 
   public void setOrder(int order) {

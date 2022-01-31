@@ -12,8 +12,7 @@ import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.framework.reactive.EnableNettyHandling;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.web.RequestContext;
@@ -22,7 +21,8 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.web.framework.WebApplication;
+import cn.taketoday.web.framework.reactive.EnableNettyHandling;
 import cn.taketoday.web.registry.EnableRequestPathMapping;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -124,7 +124,7 @@ public class NettyApplication {
 
     @Override
     public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
-      registry.registerHandler(new WebSocket0(), "/endpoint");
+      registry.registerHandler("/endpoint", new WebSocket0());
     }
 
     @EventListener(MyEvent.class)

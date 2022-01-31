@@ -47,6 +47,7 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
@@ -112,6 +113,8 @@ public abstract class RequestContext
   private boolean requestHandled = false;
 
   private HttpMethod httpMethod;
+
+  RequestPath lookupPath;
 
   // --- request
 
@@ -214,6 +217,16 @@ public abstract class RequestContext
       this.requestPath = doGetRequestPath();
     }
     return requestPath;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public final RequestPath getLookupPath() {
+    if (lookupPath == null) {
+      lookupPath = RequestPath.parse(getRequestPath(), getContextPath());
+    }
+    return lookupPath;
   }
 
   protected abstract String doGetRequestPath();
