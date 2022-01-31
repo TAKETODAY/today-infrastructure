@@ -3,6 +3,7 @@ package cn.taketoday.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
@@ -65,7 +67,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     set(objects);
   }
 
-  public void add(List<E> list) {
+  public void addAll(Collection<E> list) {
     ArrayList<E> objects = new ArrayList<>(list.size());
     CollectionUtils.addAll(objects, this.array);
     CollectionUtils.addAll(objects, list);
@@ -73,7 +75,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   }
 
   @SuppressWarnings("unchecked")
-  public void set(@Nullable List<E> list) {
+  public void set(@Nullable Collection<E> list) {
     if (CollectionUtils.isEmpty(list)) {
       this.array = null;
     }
@@ -84,7 +86,9 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
       else {
         Class<E> elementClass = this.elementClass;
         if (elementClass == null) {
-          elementClass = (Class<E>) list.get(0).getClass();
+          E firstElement = CollectionUtils.firstElement(list);
+          Assert.state(firstElement != null, "list is empty");
+          elementClass = (Class<E>) firstElement.getClass();
         }
         set(list.toArray((E[]) Array.newInstance(elementClass, list.size())));
       }
@@ -321,14 +325,14 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   }
 
   /**
-   * @see #set(List)
+   * @see #set(Collection)
    */
   public static <E> ArrayHolder<E> forClass(@Nullable Class<E> elementClass) {
     return new ArrayHolder<>(elementClass, null);
   }
 
   /**
-   * @see #set(List)
+   * @see #set(Collection)
    */
   public static <E> ArrayHolder<E> forGenerator(@Nullable IntFunction<E[]> arrayGenerator) {
     return new ArrayHolder<>(null, arrayGenerator);
