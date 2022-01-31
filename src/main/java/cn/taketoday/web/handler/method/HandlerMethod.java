@@ -58,6 +58,7 @@ public class HandlerMethod {
   private final Class<?> returnType;
 
   /** parameter list **/
+  @Nullable
   private final MethodParameter[] parameters;
 
   /** @since 3.0 */
@@ -103,8 +104,12 @@ public class HandlerMethod {
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }
 
+  @Nullable
   private MethodParameter[] initMethodParameters() {
     int count = method.getParameterCount();
+    if (count == 0) {
+      return null;
+    }
     MethodParameter[] result = new MethodParameter[count];
     for (int i = 0; i < count; i++) {
       result[i] = new HandlerMethodParameter(i);
@@ -165,6 +170,7 @@ public class HandlerMethod {
     return method;
   }
 
+  @Nullable
   public MethodParameter[] getParameters() {
     return parameters;
   }

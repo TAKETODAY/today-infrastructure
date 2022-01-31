@@ -85,7 +85,6 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
           BeanSupplier<Object> handlerBean, Method method, @Nullable List<HandlerInterceptor> interceptors) {
     Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
-
     T handler = (T) ActionMappingAnnotationHandler.from(handlerBean, method, parameterFactory);
     handler.setInterceptors(interceptors);
     handler.setReturnValueHandlers(returnValueHandlers);

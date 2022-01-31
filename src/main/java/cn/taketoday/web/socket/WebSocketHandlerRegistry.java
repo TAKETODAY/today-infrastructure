@@ -68,12 +68,13 @@ public class WebSocketHandlerRegistry
     if (annotationHandlerBuilder == null) {
       annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
     }
+    var factory = new AnnotationHandlerFactory<>(context);
 
     Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
     for (Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
       BeanDefinition definition = entry.getValue();
       if (isEndpoint(context, definition)) {
-        registerEndpoint(definition, context);
+        registerEndpoint(definition, context, factory);
       }
     }
   }
@@ -95,7 +96,9 @@ public class WebSocketHandlerRegistry
             definition.getBeanName(), EndpointMapping.class) != null;
   }
 
-  protected void registerEndpoint(BeanDefinition definition, WebApplicationContext context) {
+  protected void registerEndpoint(
+          BeanDefinition definition, WebApplicationContext context,
+          AnnotationHandlerFactory<ActionMappingAnnotationHandler> factory) {
     Object handlerBean = createHandler(definition, context);
 
     Class<?> endpointClass = definition.getBeanClass();
@@ -111,7 +114,6 @@ public class WebSocketHandlerRegistry
     WebSocketHandlerMethod onMessage = null;
 
     ResolvableParameterFactory parameterBuilder = new ResolvableParameterFactory();
-    var factory = new AnnotationHandlerFactory<>(context);
     for (Method declaredMethod : declaredMethods) {
       if (isOnOpenHandler(declaredMethod, definition)) {
         onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
