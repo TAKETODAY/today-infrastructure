@@ -100,7 +100,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       strategies = TodayStrategies.getStrategies(DependencyResolvingStrategy.class);
     }
 
-    resolvingStrategies.add(strategies); // @since 4.0
+    resolvingStrategies.addAll(strategies); // @since 4.0
     resolvingStrategies.add(new BeanFactoryDependencyResolvingStrategy());
   }
 
@@ -124,7 +124,7 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   }
 
   public void addStrategies(List<DependencyResolvingStrategy> strategies) {
-    resolvingStrategies.add(strategies);
+    resolvingStrategies.addAll(strategies);
     resolvingStrategies.sort();
   }
 

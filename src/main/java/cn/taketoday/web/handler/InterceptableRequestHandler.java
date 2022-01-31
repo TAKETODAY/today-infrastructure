@@ -95,7 +95,7 @@ public abstract class InterceptableRequestHandler
    * @since 3.0.1
    */
   public void addInterceptors(List<HandlerInterceptor> interceptors) {
-    this.interceptors.add(interceptors);
+    this.interceptors.addAll(interceptors);
   }
 
   public void setInterceptors(@Nullable List<HandlerInterceptor> interceptors) {

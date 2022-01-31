@@ -22,7 +22,7 @@ class ArrayHolderTests {
 
     assertThat(valueOf.get()).hasSize(1).contains("123");
 
-    valueOf.add(List.of("456"));
+    valueOf.addAll(List.of("456"));
     assertThat(valueOf.getRequired().getClass()).isEqualTo(String[].class);
   }
 
@@ -91,7 +91,7 @@ class ArrayHolderTests {
     for (int i = 0; i < 100000; i++) {
       list.add(i);
     }
-    arrayHolder.add(list);
+    arrayHolder.addAll(list);
 
     // 测试阶段
     int runCounts = 1000; // 执行次s数

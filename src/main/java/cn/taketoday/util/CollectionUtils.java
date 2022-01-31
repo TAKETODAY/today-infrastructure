@@ -708,6 +708,26 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * @since 4.0
+   */
+  @SuppressWarnings("all")
+  public static void addAll(ArrayHolder c, @Nullable Object[] elements) {
+    if (elements != null) {
+      c.add(elements);
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  @SuppressWarnings("all")
+  public static void addAll(ArrayHolder c, @Nullable Collection elements) {
+    if (elements != null) {
+      c.addAll(elements);
+    }
+  }
+
+  /**
    * Copies all of the mappings from the specified map to target map
    * (optional operation).  The effect of this call is equivalent to that
    * of calling {@link Map#put(Object, Object) put(k, v)} on this map once

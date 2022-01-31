@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
@@ -101,6 +102,7 @@ public class HandlerMethod {
     this.responseBody = other.responseBody; // since 4.0
     this.responseStatus = other.responseStatus;
     this.methodReturnType = other.methodReturnType;
+    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }
 
@@ -115,6 +117,16 @@ public class HandlerMethod {
       result[i] = new HandlerMethodParameter(i);
     }
     return result;
+  }
+
+  // for testing
+  public void initParameterNameDiscovery(ParameterNameDiscoverer discoverer) {
+    MethodParameter[] parameters = getParameters();
+    if (parameters != null) {
+      for (MethodParameter parameter : parameters) {
+        parameter.initParameterNameDiscovery(discoverer);
+      }
+    }
   }
 
   // ---- useful methods
@@ -387,6 +399,12 @@ public class HandlerMethod {
     public HandlerMethodParameter clone() {
       return new HandlerMethodParameter(this);
     }
+
+    @Override
+    public String toString() {
+      return getParameterType().getSimpleName() + " " + getParameterName();
+    }
+
   }
 
   // static
