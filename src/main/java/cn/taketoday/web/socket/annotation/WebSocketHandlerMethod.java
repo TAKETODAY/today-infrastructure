@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.handler.method.MethodParametersBuilder;
+import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 
 /**
  * @author TODAY 2021/5/7 15:32
@@ -39,11 +39,11 @@ public class WebSocketHandlerMethod {
 
   private final ResolvableMethodParameter[] parameters;
 
-  public WebSocketHandlerMethod(Object bean, Method method, MethodParametersBuilder parameterBuilder) {
+  public WebSocketHandlerMethod(Object bean, Method method, ResolvableParameterFactory parameterBuilder) {
     this.bean = bean;
     this.method = method;
     this.handlerInvoker = MethodInvoker.fromMethod(method);
-    this.parameters = parameterBuilder.build(method);
+    this.parameters = parameterBuilder.createArray(method);
   }
 
   public void invoke(Object[] args) {

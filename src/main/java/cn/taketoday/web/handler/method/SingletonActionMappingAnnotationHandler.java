@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Method;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/13 20:10
@@ -29,8 +27,9 @@ import java.lang.reflect.Method;
 class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
   private final Object handlerBean;
 
-  SingletonActionMappingAnnotationHandler(Object handlerBean, Method handlerMethod) {
-    super(handlerMethod);
+  SingletonActionMappingAnnotationHandler(
+          Object handlerBean, HandlerMethod handlerMethod, ResolvableMethodParameter[] parameters) {
+    super(handlerMethod, parameters);
     this.handlerBean = handlerBean;
   }
 

@@ -147,8 +147,8 @@ public class DefaultExceptionHandler
 
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
-    var handlerBuilder = new AnnotationHandlerBuilder<ExceptionHandlerMappingHandler>(beanFactory);
-    handlerBuilder.setHandlerSupplier(ExceptionHandlerMappingHandler::new);
+    var factory = new AnnotationHandlerFactory<ExceptionHandlerMappingHandler>(beanFactory);
+    factory.setHandlerSupplier(ExceptionHandlerMappingHandler::new);
 
     Set<String> errorHandlers = beanFactory.getBeanNamesForAnnotation(ControllerAdvice.class);
     // get all error handlers
@@ -159,7 +159,7 @@ public class DefaultExceptionHandler
           for (var exceptionType : getCatchThrowableClasses(method)) {
             // @since 3.0
             BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
-            ExceptionHandlerMappingHandler handler = handlerBuilder.build(handlerBean, method, null);
+            ExceptionHandlerMappingHandler handler = factory.create(handlerBean, method, null);
 
             ExceptionHandlerMappingHandler oldHandler = exceptionHandlers.put(exceptionType, handler);
             if (oldHandler != null && !method.equals(oldHandler.getJavaMethod())) {

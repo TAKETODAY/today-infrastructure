@@ -22,13 +22,22 @@ package cn.taketoday.web.handler.method;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebUtils;
@@ -41,13 +50,15 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY 2018-06-25 20:03:11
  */
 public class HandlerMethod {
+
   /** action **/
   private final Method method;
+
   /** @since 2.3.7 */
   private final Class<?> returnType;
 
   /** parameter list **/
-  private ResolvableMethodParameter[] parameters;
+  private final MethodParameter[] parameters;
 
   /** @since 3.0 */
   private ResponseStatus responseStatus;
@@ -60,9 +71,14 @@ public class HandlerMethod {
 
   private final MethodParameter methodReturnType;
 
+  /** @since 4.0 */
+  @Nullable
+  private volatile List<Annotation[][]> interfaceParameterAnnotations;
+
   public HandlerMethod(Method method) {
     Assert.notNull(method, "Method is required");
     this.method = method;
+    this.parameters = initMethodParameters();
     this.returnType = method.getReturnType();
     this.methodReturnType = new SynthesizingMethodParameter(method, -1);
     // @since 3.0
@@ -85,6 +101,15 @@ public class HandlerMethod {
     this.responseStatus = other.responseStatus;
     this.methodReturnType = other.methodReturnType;
     this.parameters = other.parameters != null ? other.parameters.clone() : null;
+  }
+
+  private MethodParameter[] initMethodParameters() {
+    int count = method.getParameterCount();
+    MethodParameter[] result = new MethodParameter[count];
+    for (int i = 0; i < count; i++) {
+      result[i] = new HandlerMethodParameter(i);
+    }
+    return result;
   }
 
   // ---- useful methods
@@ -126,10 +151,6 @@ public class HandlerMethod {
     return getAnnotation(method.getDeclaringClass(), annotation);
   }
 
-  public <A extends Annotation> A getMethodAnnotation(Class<A> annotation) {
-    return getAnnotation(method, annotation);
-  }
-
   public <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotation) {
     return AnnotationUtils.getAnnotation(element, annotation);
   }
@@ -144,12 +165,8 @@ public class HandlerMethod {
     return method;
   }
 
-  public ResolvableMethodParameter[] getParameters() {
+  public MethodParameter[] getParameters() {
     return parameters;
-  }
-
-  public void setParameters(ResolvableMethodParameter[] parameters) {
-    this.parameters = parameters;
   }
 
   public MethodParameter getMethodReturnType() {
@@ -189,6 +206,73 @@ public class HandlerMethod {
     return responseBody;
   }
 
+  /**
+   * Return {@code true} if the method return type is void, {@code false} otherwise.
+   */
+  public boolean isVoid() {
+    return Void.TYPE.equals(getReturnType());
+  }
+
+  /**
+   * Return a single annotation on the underlying method traversing its super methods
+   * if no annotation can be found on the given method itself.
+   * <p>Also supports <em>merged</em> composed annotations with attribute
+   * overrides
+   *
+   * @param annotationType the type of annotation to introspect the method for
+   * @return the annotation, or {@code null} if none found
+   * @see AnnotatedElementUtils#findMergedAnnotation
+   */
+  @Nullable
+  public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
+    return AnnotatedElementUtils.findMergedAnnotation(this.method, annotationType);
+  }
+
+  /**
+   * Return whether the parameter is declared with the given annotation type.
+   *
+   * @param annotationType the annotation type to look for
+   * @see AnnotatedElementUtils#hasAnnotation
+   * @since 4.0
+   */
+  public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
+    return AnnotatedElementUtils.hasAnnotation(this.method, annotationType);
+  }
+
+  private List<Annotation[][]> getInterfaceParameterAnnotations() {
+    List<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
+    if (parameterAnnotations == null) {
+      parameterAnnotations = new ArrayList<>();
+      for (Class<?> ifc : ClassUtils.getAllInterfacesForClassAsSet(this.method.getDeclaringClass())) {
+        for (Method candidate : ifc.getMethods()) {
+          if (isOverrideFor(candidate)) {
+            parameterAnnotations.add(candidate.getParameterAnnotations());
+          }
+        }
+      }
+      this.interfaceParameterAnnotations = parameterAnnotations;
+    }
+    return parameterAnnotations;
+  }
+
+  private boolean isOverrideFor(Method candidate) {
+    if (!candidate.getName().equals(this.method.getName()) ||
+            candidate.getParameterCount() != this.method.getParameterCount()) {
+      return false;
+    }
+    Class<?>[] paramTypes = this.method.getParameterTypes();
+    if (Arrays.equals(candidate.getParameterTypes(), paramTypes)) {
+      return true;
+    }
+    for (int i = 0; i < paramTypes.length; i++) {
+      if (paramTypes[i] !=
+              ResolvableType.forParameter(candidate, i, this.method.getDeclaringClass()).resolve()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // Object
 
   @Override
@@ -224,6 +308,79 @@ public class HandlerMethod {
 
     builder.append(')');
     return builder.toString();
+  }
+
+  /**
+   * A MethodParameter with HandlerMethod-specific behavior.
+   */
+  protected class HandlerMethodParameter extends SynthesizingMethodParameter {
+
+    @Nullable
+    private volatile Annotation[] combinedAnnotations;
+
+    public HandlerMethodParameter(int index) {
+      super(method, index);
+    }
+
+    protected HandlerMethodParameter(HandlerMethodParameter original) {
+      super(original);
+    }
+
+    @Override
+    @NonNull
+    public Method getMethod() {
+      return method;
+    }
+
+    @Override
+    public <T extends Annotation> T getMethodAnnotation(Class<T> annotationType) {
+      return HandlerMethod.this.getMethodAnnotation(annotationType);
+    }
+
+    @Override
+    public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
+      return HandlerMethod.this.hasMethodAnnotation(annotationType);
+    }
+
+    @Override
+    public Annotation[] getParameterAnnotations() {
+      Annotation[] anns = this.combinedAnnotations;
+      if (anns == null) {
+        anns = super.getParameterAnnotations();
+        int index = getParameterIndex();
+        if (index >= 0) {
+          for (Annotation[][] ifcAnns : getInterfaceParameterAnnotations()) {
+            if (index < ifcAnns.length) {
+              Annotation[] paramAnns = ifcAnns[index];
+              if (paramAnns.length > 0) {
+                ArrayList<Annotation> merged = new ArrayList<>(anns.length + paramAnns.length);
+                CollectionUtils.addAll(merged, anns);
+                for (Annotation paramAnn : paramAnns) {
+                  boolean existingType = false;
+                  for (Annotation ann : anns) {
+                    if (ann.annotationType() == paramAnn.annotationType()) {
+                      existingType = true;
+                      break;
+                    }
+                  }
+                  if (!existingType) {
+                    merged.add(adaptAnnotation(paramAnn));
+                  }
+                }
+                anns = merged.toArray(Constant.EMPTY_ANNOTATION_ARRAY);
+              }
+            }
+          }
+        }
+        this.combinedAnnotations = anns;
+      }
+      return anns;
+    }
+
+    @Override
+    public HandlerMethodParameter clone() {
+      return new HandlerMethodParameter(this);
+    }
   }
 
   // static

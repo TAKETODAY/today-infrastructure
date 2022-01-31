@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Method;
-
 import cn.taketoday.beans.factory.BeanSupplier;
 
 /**
@@ -31,8 +29,9 @@ import cn.taketoday.beans.factory.BeanSupplier;
 class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
   private final BeanSupplier<Object> beanSupplier;
 
-  SuppliedActionMappingAnnotationHandler(BeanSupplier<Object> beanSupplier, Method method) {
-    super(method);
+  SuppliedActionMappingAnnotationHandler(
+          BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod, ResolvableMethodParameter[] parameters) {
+    super(handlerMethod, parameters);
     this.beanSupplier = beanSupplier;
   }
 

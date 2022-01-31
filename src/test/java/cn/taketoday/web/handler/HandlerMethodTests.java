@@ -23,7 +23,6 @@ package cn.taketoday.web.handler;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.method.ParameterResolversMethodParameterBuilder;
+import cn.taketoday.web.handler.method.ParameterResolvingRegistryResolvableParameterFactory;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
@@ -106,13 +105,13 @@ public class HandlerMethodTests {
 
     final StandardApplicationContext applicationContext = getApplicationContext();
 
-    final ParameterResolversMethodParameterBuilder methodParameterBuilder
-            = new ParameterResolversMethodParameterBuilder();
+    final ParameterResolvingRegistryResolvableParameterFactory methodParameterBuilder
+            = new ParameterResolvingRegistryResolvableParameterFactory();
     final ParameterResolvingRegistry resolversRegistry = methodParameterBuilder.getResolvingRegistry();
     resolversRegistry.setApplicationContext(applicationContext);
 
     resolversRegistry.registerDefaultParameterResolvers();
-    final ResolvableMethodParameter[] parameters = methodParameterBuilder.build(produce);
+    final ResolvableMethodParameter[] parameters = methodParameterBuilder.createArray(produce);
     produceMethod.setParameters(parameters);
 
     setResultHandlers(produceMethod, applicationContext);

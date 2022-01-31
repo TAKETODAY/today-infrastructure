@@ -28,6 +28,7 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Build {@link ResolvableMethodParameter} array
@@ -35,11 +36,10 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2021/3/21 13:58
  * @since 3.0
  */
-public class MethodParametersBuilder {
+public class ResolvableParameterFactory {
   private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-  @Nullable
-  public ResolvableMethodParameter[] build(Method method) {
+  public ResolvableMethodParameter[] createArray(Method method) {
     final int length = method.getParameterCount();
     if (length == 0) {
       return null;
@@ -51,6 +51,22 @@ public class MethodParametersBuilder {
       ret[i] = createParameter(parameter);
     }
 
+    return ret;
+  }
+
+  @Nullable
+  public ResolvableMethodParameter[] createArray(HandlerMethod handlerMethod) {
+    MethodParameter[] parameters = handlerMethod.getParameters();
+    if (ObjectUtils.isEmpty(parameters)) {
+      return null;
+    }
+    int i = 0;
+    ResolvableMethodParameter[] ret = new ResolvableMethodParameter[parameters.length];
+    for (MethodParameter parameter : parameters) {
+      parameter.initParameterNameDiscovery(parameterNameDiscoverer);
+      ret[i] = createParameter(parameter);
+      i++;
+    }
     return ret;
   }
 

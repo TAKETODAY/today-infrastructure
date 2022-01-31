@@ -47,9 +47,8 @@ import cn.taketoday.web.handler.PatternHandler;
  *
  * @author TODAY <br>
  * 2019-12-24 15:46
- * @see #computeKey(RequestContext)
  */
-public class MappedHandlerRegistry extends AbstractHandlerRegistry {
+public class MappedHandlerRegistry extends AbstractUrlHandlerRegistry {
   /** @since 3.0 */
   static final String CACHE_NAME = MappedHandlerRegistry.class.getName() + "-pattern-matching";
 

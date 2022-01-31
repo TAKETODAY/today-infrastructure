@@ -22,10 +22,10 @@ package cn.taketoday.web.registry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
@@ -53,13 +53,14 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
   private Object rootHandler;
 
-  private boolean useTrailingSlashMatch = true;
-
   // @since 4.0
   private boolean lazyInitHandlers = false;
 
   // @since 4.0
-  private final LinkedHashMap<PathPattern, Object> handlerMap = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> handlerMap = new LinkedHashMap<>();
+
+  // @since 4.0
+  private final LinkedHashMap<PathPattern, Object> pathPatternHandlerMap = new LinkedHashMap<>();
 
   /**
    * Set the root handler for this handler mapping, that is,
@@ -77,23 +78,6 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
   @Nullable
   public Object getRootHandler() {
     return this.rootHandler;
-  }
-
-  /**
-   * Whether to match to URLs irrespective of the presence of a trailing slash.
-   * If enabled a URL pattern such as "/users" also matches to "/users/".
-   * <p>The default value is {@code false}.
-   */
-  public void setUseTrailingSlashMatch(boolean useTrailingSlashMatch) {
-    this.useTrailingSlashMatch = useTrailingSlashMatch;
-    getPatternParser().setMatchOptionalTrailingSeparator(useTrailingSlashMatch);
-  }
-
-  /**
-   * Whether to match to URLs irrespective of the presence of a trailing slash.
-   */
-  public boolean useTrailingSlashMatch() {
-    return this.useTrailingSlashMatch;
   }
 
   /**
@@ -122,10 +106,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
   @Nullable
   @Override
   protected Object lookupInternal(RequestContext request) {
-
-    Object handler;
-    RequestPath path = request.getLookupPath();
-    handler = lookupHandler(path, request);
+    Object handler = lookupHandler(request);
 
     if (handler == null) {
       // We need to care for the default handler directly, since we need to
@@ -153,17 +134,23 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
   /**
    * Look up a handler instance for the given URL path.
    *
-   * @param lookupPath the String lookupPath for checking direct hits
    * @param request current HTTP request
    * @return a matching handler, or {@code null} if not found
    * @since 4.0
    */
   @Nullable
-  protected Object lookupHandler(RequestPath lookupPath, RequestContext request) {
-    List<PathPattern> matches = null;
-    for (PathPattern pattern : this.handlerMap.keySet()) {
+  protected Object lookupHandler(RequestContext request) {
+    String requestPath = request.getRequestPath();
+    Object handler = getDirectMatch(requestPath, request);
+    if (handler != null) {
+      return handler;
+    }
+    RequestPath lookupPath = request.getLookupPath();
+
+    ArrayList<PathPattern> matches = null;
+    for (PathPattern pattern : pathPatternHandlerMap.keySet()) {
       if (pattern.matches(lookupPath)) {
-        matches = (matches != null ? matches : new ArrayList<>());
+        matches = matches != null ? matches : new ArrayList<>();
         matches.add(pattern);
       }
     }
@@ -178,11 +165,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     }
 
     PathPattern pattern = matches.get(0);
-    PathContainer pathWithinMapping = pattern.extractPathWithinPattern(lookupPath);
-    PathPattern.PathMatchInfo matchInfo = pattern.matchAndExtract(lookupPath);
-    Assert.notNull(matchInfo, "Expected a match");
-
-    Object handler = this.handlerMap.get(pattern);
+    handler = this.pathPatternHandlerMap.get(pattern);
 
     // Bean name or resolved handler?
     if (handler instanceof String handlerName) {
@@ -191,12 +174,30 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
     validateHandler(handler, request);
 
+    PathContainer pathWithinMapping = pattern.extractPathWithinPattern(lookupPath);
+    PathPattern.PathMatchInfo matchInfo = pattern.matchAndExtract(lookupPath);
+    Assert.state(matchInfo != null, "Expected a match");
+
     request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, handler);
     request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, pattern);
     request.setAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, pathWithinMapping);
     request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, matchInfo.getUriVariables());
 
     return handler;
+  }
+
+  @Nullable
+  private Object getDirectMatch(String urlPath, RequestContext request) {
+    Object handler = this.handlerMap.get(urlPath);
+    if (handler != null) {
+      // Bean name or resolved handler?
+      if (handler instanceof String handlerName) {
+        handler = obtainApplicationContext().getBean(handlerName);
+      }
+      validateHandler(handler, request);
+      return handler;
+    }
+    return null;
   }
 
   /**
@@ -240,29 +241,42 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     Assert.notNull(handler, "Handler object must not be null");
     Object resolvedHandler = handler;
 
-    // Parse path pattern
-    urlPath = prependLeadingSlash(urlPath);
-    PathPattern pattern = getPatternParser().parse(urlPath);
-    if (this.handlerMap.containsKey(pattern)) {
-      Object existingHandler = this.handlerMap.get(pattern);
-      if (existingHandler != null && existingHandler != resolvedHandler) {
-        throw new IllegalStateException(
-                "Cannot map " + getHandlerDescription(handler) + " to [" + urlPath + "]: " +
-                        "there is already " + getHandlerDescription(existingHandler) + " mapped.");
-      }
-    }
-
     // Eagerly resolve handler if referencing singleton via name.
     if (!this.lazyInitHandlers && handler instanceof String handlerName) {
-      if (obtainApplicationContext().isSingleton(handlerName)) {
-        resolvedHandler = obtainApplicationContext().getBean(handlerName);
+      ApplicationContext applicationContext = obtainApplicationContext();
+      if (applicationContext.isSingleton(handlerName)) {
+        resolvedHandler = applicationContext.getBean(handlerName);
       }
     }
 
-    // Register resolved handler
-    this.handlerMap.put(pattern, resolvedHandler);
-    if (log.isTraceEnabled()) {
-      log.trace("Mapped [{}] onto {}", urlPath, getHandlerDescription(handler));
+    Object mappedHandler = handlerMap.get(urlPath);
+    if (mappedHandler != null) {
+      if (mappedHandler != resolvedHandler) {
+        throw new IllegalStateException(
+                "Cannot map " + getHandlerDescription(handler) + " to URL path [" + urlPath +
+                        "]: There is already " + getHandlerDescription(mappedHandler) + " mapped.");
+      }
+    }
+    else {
+      if (urlPath.equals("/")) {
+        if (log.isTraceEnabled()) {
+          log.trace("Root mapping to {}", getHandlerDescription(handler));
+        }
+        setRootHandler(resolvedHandler);
+      }
+      else if (urlPath.equals("/*")) {
+        if (log.isTraceEnabled()) {
+          log.trace("Default mapping to {}", getHandlerDescription(handler));
+        }
+        setDefaultHandler(resolvedHandler);
+      }
+      else {
+        handlerMap.put(urlPath, resolvedHandler);
+        pathPatternHandlerMap.put(getPatternParser().parse(urlPath), resolvedHandler);
+        if (log.isTraceEnabled()) {
+          log.trace("Mapped [{}] onto {}", urlPath, getHandlerDescription(handler));
+        }
+      }
     }
   }
 
@@ -270,22 +284,23 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     return handler instanceof String ? "'" + handler + "'" : handler.toString();
   }
 
-  private static String prependLeadingSlash(String pattern) {
-    if (StringUtils.isNotEmpty(pattern) && !pattern.startsWith("/")) {
-      return "/" + pattern;
-    }
-    else {
-      return pattern;
-    }
+  /**
+   * Return the handler mappings as a read-only Map, with the registered path
+   * or pattern as key and the handler object (or handler bean name in case of
+   * a lazy-init handler), as value.
+   *
+   * @see #getDefaultHandler()
+   */
+  public final Map<String, Object> getHandlerMap() {
+    return Collections.unmodifiableMap(this.handlerMap);
   }
 
   /**
-   * Return a read-only view of registered path patterns and handlers which may
-   * may be an actual handler instance or the bean name of lazily initialized
-   * handler.
+   * Identical to {@link #getHandlerMap()} but populated
    */
-  public final Map<PathPattern, Object> getHandlerMap() {
-    return Collections.unmodifiableMap(this.handlerMap);
+  public final Map<PathPattern, Object> getPathPatternHandlerMap() {
+    return this.pathPatternHandlerMap.isEmpty()
+           ? Collections.emptyMap() : Collections.unmodifiableMap(this.pathPatternHandlerMap);
   }
 
 }

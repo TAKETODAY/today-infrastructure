@@ -1086,7 +1086,7 @@ public class ResolvableType implements Serializable {
    * @see #forParameter(Executable, int)
    * @since 4.0
    */
-  static ResolvableType forMethodParameter(
+  public static ResolvableType forMethodParameter(
           MethodParameter methodParameter, @Nullable Type targetType, int nestingLevel) {
     ResolvableType owner = fromType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
     return valueOf(targetType, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver()).

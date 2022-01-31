@@ -24,19 +24,19 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 
 /**
- * ParameterResolvers MethodParametersBuilder
+ * ParameterResolvingRegistry ResolvableParameterFactory
  *
  * @author TODAY 2021/5/9 23:28
  * @since 3.0.1
  */
-public class ParameterResolversMethodParameterBuilder extends MethodParametersBuilder {
+public class ParameterResolvingRegistryResolvableParameterFactory extends ResolvableParameterFactory {
   private ParameterResolvingRegistry resolvingRegistry;
 
-  public ParameterResolversMethodParameterBuilder() {
+  public ParameterResolvingRegistryResolvableParameterFactory() {
     this(new ParameterResolvingRegistry());
   }
 
-  public ParameterResolversMethodParameterBuilder(ParameterResolvingRegistry resolvingRegistry) {
+  public ParameterResolvingRegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
   }
 

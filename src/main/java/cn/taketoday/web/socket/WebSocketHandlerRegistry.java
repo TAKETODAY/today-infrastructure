@@ -31,8 +31,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.handler.method.AnnotationHandlerBuilder;
-import cn.taketoday.web.handler.method.MethodParametersBuilder;
+import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
+import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
@@ -110,8 +110,8 @@ public class WebSocketHandlerRegistry
     WebSocketHandlerMethod onError = null;
     WebSocketHandlerMethod onMessage = null;
 
-    MethodParametersBuilder parameterBuilder = new MethodParametersBuilder();
-    var handlerMethodBuilder = new AnnotationHandlerBuilder<>(context);
+    ResolvableParameterFactory parameterBuilder = new ResolvableParameterFactory();
+    var factory = new AnnotationHandlerFactory<>(context);
     for (Method declaredMethod : declaredMethods) {
       if (isOnOpenHandler(declaredMethod, definition)) {
         onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
@@ -120,7 +120,7 @@ public class WebSocketHandlerRegistry
         onClose = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
       }
       else if (isAfterHandshakeHandler(declaredMethod, definition)) {
-        afterHandshake = handlerMethodBuilder.build(handlerBean, declaredMethod);
+        afterHandshake = factory.create(handlerBean, declaredMethod);
       }
       else if (isOnErrorHandler(declaredMethod, definition)) {
         onError = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);

@@ -29,6 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -53,7 +54,7 @@ import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.handler.method.AnnotationHandlerBuilder;
+import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.PathVariableMethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -72,12 +73,14 @@ public class HandlerMethodRegistry
   private ConfigurableBeanFactory beanFactory;
 
   /** @since 3.0 */
-  private AnnotationHandlerBuilder<ActionMappingAnnotationHandler> handlerBuilder;
+  private AnnotationHandlerFactory<ActionMappingAnnotationHandler> annotationHandlerFactory;
 
   // @since 4.0
   private AnnotatedBeanDefinitionReader definitionReader;
 
   private BeanDefinitionRegistry registry;
+
+  private boolean detectHandlerMethodsInAncestorContexts = false;
 
   public HandlerMethodRegistry() {
     setOrder(HIGHEST_PRECEDENCE);
@@ -98,24 +101,24 @@ public class HandlerMethodRegistry
   public void onStartup(WebApplicationContext context) {
     log.info("Initializing Annotation Controllers");
     this.registry = context.unwrapFactory(BeanDefinitionRegistry.class);
-    startConfiguration();
+    initActions();
     CollectionUtils.trimToSize(patternHandlers); // @since 4.0 trimToSize
   }
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
     setBeanFactory(context.unwrapFactory(ConfigurableBeanFactory.class));
-    setHandlerBuilder(new AnnotationHandlerBuilder<>(context));
+    setAnnotationHandlerFactory(new AnnotationHandlerFactory<>(context));
     super.initApplicationContext(context);
   }
 
   /**
-   * Start config
+   * Scan beans in the ApplicationContext, detect and register ActionMappings.
+   *
+   * @see #getCandidateBeanNames()
    */
-  public void startConfiguration() {
-    // @since 2.3.3
-    String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
-    for (String beanName : beanDefinitionNames) {
+  protected void initActions() {
+    for (String beanName : getCandidateBeanNames()) {
       // ActionMapping on the class is ok
       MergedAnnotation<Controller> rootController = beanFactory.findAnnotationOnBean(beanName, Controller.class);
       MergedAnnotation<ActionMapping> actionMapping = beanFactory.findAnnotationOnBean(beanName, ActionMapping.class);
@@ -129,6 +132,27 @@ public class HandlerMethodRegistry
         buildHandlerMethod(beanName, type, controllerMapping);
       }
     }
+  }
+
+  /**
+   * Determine the names of candidate beans in the application context.
+   *
+   * @see #setDetectHandlerMethodsInAncestorContexts
+   * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors
+   * @since 4.0
+   */
+  protected Set<String> getCandidateBeanNames() {
+    return this.detectHandlerMethodsInAncestorContexts
+           ? BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class)
+           : obtainApplicationContext().getBeanNamesForType(Object.class);
+  }
+
+  /**
+   * Start config
+   */
+  public void startConfiguration() {
+    // @since 2.3.3
+    initActions();
   }
 
   private void buildHandlerMethod(
@@ -169,10 +193,9 @@ public class HandlerMethodRegistry
    * @return A new {@link ActionMappingAnnotationHandler}
    */
   protected ActionMappingAnnotationHandler createHandler(String beanName, Class<?> beanClass, Method method) {
-    List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
     BeanSupplier<Object> beanSupplier = BeanSupplier.from(beanFactory, beanName);
-
-    return handlerBuilder.build(beanSupplier, method, interceptors);
+    List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
+    return annotationHandlerFactory.create(beanSupplier, method, interceptors);
   }
 
   /**
@@ -279,9 +302,8 @@ public class HandlerMethodRegistry
    */
   protected void mappingPathVariable(String pathPattern, ActionMappingAnnotationHandler handler) {
     HashMap<String, ResolvableMethodParameter> parameterMapping = new HashMap<>();
-    HandlerMethod method = handler.getMethod();
-    ResolvableMethodParameter[] methodParameters = method.getParameters();
-    for (ResolvableMethodParameter methodParameter : methodParameters) {
+    ResolvableMethodParameter[] resolvableParameters = handler.getResolvableParameters();
+    for (ResolvableMethodParameter methodParameter : resolvableParameters) {
       parameterMapping.put(methodParameter.getName(), methodParameter);
     }
 
@@ -294,7 +316,7 @@ public class HandlerMethodRegistry
                 "There isn't a variable named: [" + variable +
                         "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
-      methodParameters[parameter.getParameterIndex()] =
+      resolvableParameters[parameter.getParameterIndex()] =
               new PathVariableMethodParameter(i++, pathPattern, parameter, pathMatcher);
     }
   }
@@ -377,12 +399,12 @@ public class HandlerMethodRegistry
     return beanFactory;
   }
 
-  public void setHandlerBuilder(AnnotationHandlerBuilder<ActionMappingAnnotationHandler> handlerBuilder) {
-    this.handlerBuilder = handlerBuilder;
+  public void setAnnotationHandlerFactory(AnnotationHandlerFactory<ActionMappingAnnotationHandler> annotationHandlerFactory) {
+    this.annotationHandlerFactory = annotationHandlerFactory;
   }
 
-  public AnnotationHandlerBuilder<ActionMappingAnnotationHandler> getHandlerBuilder() {
-    return handlerBuilder;
+  public AnnotationHandlerFactory<ActionMappingAnnotationHandler> getAnnotationHandlerFactory() {
+    return annotationHandlerFactory;
   }
 
   protected final AnnotatedBeanDefinitionReader definitionReader() {
@@ -391,5 +413,20 @@ public class HandlerMethodRegistry
       definitionReader.setEnableConditionEvaluation(false);
     }
     return definitionReader;
+  }
+
+  /**
+   * Whether to detect handler methods in beans in ancestor ApplicationContexts.
+   * <p>Default is "false": Only beans in the current ApplicationContext are
+   * considered, i.e. only in the context that this HandlerMapping itself
+   * is defined in (typically the current DispatcherServlet's context).
+   * <p>Switch this flag on to detect handler beans in ancestor contexts
+   * (typically the Spring root WebApplicationContext) as well.
+   *
+   * @see #getCandidateBeanNames()
+   * @since 4.0
+   */
+  public void setDetectHandlerMethodsInAncestorContexts(boolean detectHandlerMethodsInAncestorContexts) {
+    this.detectHandlerMethodsInAncestorContexts = detectHandlerMethodsInAncestorContexts;
   }
 }
