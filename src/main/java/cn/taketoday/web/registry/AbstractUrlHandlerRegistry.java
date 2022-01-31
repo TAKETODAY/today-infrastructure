@@ -136,7 +136,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
    */
   @Nullable
   @Override
-  protected Object lookupInternal(RequestContext request) throws Exception {
+  protected Object lookupInternal(RequestContext request) {
     String lookupPath = initLookupPath(request);
     Object handler;
     RequestPath path = RequestPathUtils.getParsedRequestPath(request);
@@ -175,7 +175,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
    */
   @Nullable
   protected Object lookupHandler(
-          RequestPath path, String lookupPath, RequestContext request) throws Exception {
+          RequestPath path, String lookupPath, RequestContext request) {
 
     Object handler = getDirectMatch(lookupPath, request);
     if (handler != null) {
@@ -211,7 +211,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
   // @since 4.0
   @Nullable
-  private Object getDirectMatch(String urlPath, RequestContext request) throws Exception {
+  private Object getDirectMatch(String urlPath, RequestContext request) {
     Object handler = this.handlerMap.get(urlPath);
     if (handler != null) {
       // Bean name or resolved handler?
@@ -231,9 +231,8 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
    *
    * @param handler the handler object to validate
    * @param request current HTTP request
-   * @throws Exception if validation failed
    */
-  protected void validateHandler(Object handler, RequestContext request) throws Exception { }
+  protected void validateHandler(Object handler, RequestContext request) { }
 
   /**
    * Build a handler object for the given raw handler, exposing the actual

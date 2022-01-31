@@ -45,7 +45,7 @@ public class CompositeHandlerRegistry implements HandlerRegistry {
   }
 
   @Override
-  public Object lookup(final RequestContext context) throws Exception {
+  public Object lookup(final RequestContext context) {
     for (final HandlerRegistry registry : handlerRegistries) {
       final Object ret = registry.lookup(context);
       if (ret != null) {

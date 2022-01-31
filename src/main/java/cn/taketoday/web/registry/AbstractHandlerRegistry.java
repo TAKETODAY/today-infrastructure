@@ -65,7 +65,7 @@ public abstract class AbstractHandlerRegistry
   /** @since 4.0 */
   private StringValueResolver embeddedValueResolver;
 
-  private PathPatternParser patternParser = PathPatternParser.defaultInstance;
+  private PathPatternParser patternParser = new PathPatternParser();
 
   /**
    * Look up a handler for the given request, falling back to the default
@@ -76,7 +76,7 @@ public abstract class AbstractHandlerRegistry
    * @see #lookupInternal
    */
   @Override
-  public final Object lookup(final RequestContext context) throws Exception {
+  public final Object lookup(final RequestContext context) {
     Object handler = lookupInternal(context);
     if (handler == null) {
       handler = getDefaultHandler();
@@ -96,7 +96,7 @@ public abstract class AbstractHandlerRegistry
    * @return the corresponding handler instance, or {@code null} if none found
    */
   @Nullable
-  protected abstract Object lookupInternal(RequestContext context) throws Exception;
+  protected abstract Object lookupInternal(RequestContext context);
 
   /**
    * Initialize the path to use for request mapping.

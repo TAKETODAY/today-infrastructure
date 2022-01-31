@@ -124,8 +124,7 @@ public interface HandlerRegistry {
    *
    * @param context Current request context
    * @return Target handler. If returns {@code null} indicates no handler
-   * @throws Exception if there is an internal error
    */
   @Nullable
-  Object lookup(RequestContext context) throws Exception;
+  Object lookup(RequestContext context);
 }
