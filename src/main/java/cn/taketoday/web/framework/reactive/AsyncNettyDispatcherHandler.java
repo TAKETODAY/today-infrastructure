@@ -1,5 +1,6 @@
 package cn.taketoday.web.framework.reactive;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -8,8 +9,6 @@ import java.util.function.UnaryOperator;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
-
-import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
  * Async Netty {@link cn.taketoday.web.handler.DispatcherHandler}
@@ -58,8 +57,8 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
       }
     }
 
-    final Executor executor = ctx.executor();
-    completedFuture(nettyContext)
+    Executor executor = ctx.executor();
+    CompletableFuture.completedFuture(nettyContext)
             .thenApplyAsync(new HandlerDetector(), executor)
             .thenApplyAsync(new AsyncHandler(), executor)
             .thenAcceptAsync(new AsyncSender(), executor);
