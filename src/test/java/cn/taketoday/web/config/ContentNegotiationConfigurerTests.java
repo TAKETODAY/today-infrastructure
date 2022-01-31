@@ -73,7 +73,8 @@ class ContentNegotiationConfigurerTests {
             .isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
 
     this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
+
+    webRequest.requestHeaders().add("Accept", MediaType.IMAGE_GIF_VALUE);
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should resolve Accept header by default")
