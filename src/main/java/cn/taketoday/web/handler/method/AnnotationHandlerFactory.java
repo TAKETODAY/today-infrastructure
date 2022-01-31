@@ -22,7 +22,6 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanSupplier;
@@ -42,7 +41,6 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
 
   private ReturnValueHandlers returnValueHandlers;
   private ResolvableParameterFactory parameterFactory;
-  private BiFunction<BeanSupplier<Object>, Method, T> handlerSupplier;
 
   public AnnotationHandlerFactory() { }
 
@@ -59,10 +57,6 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
     setParameterFactory(new ParameterResolvingRegistryResolvableParameterFactory(registry));
   }
 
-  public void setHandlerSupplier(BiFunction<BeanSupplier<Object>, Method, T> handlerSupplier) {
-    this.handlerSupplier = handlerSupplier;
-  }
-
   /**
    * @see ActionMappingAnnotationHandler#ActionMappingAnnotationHandler(HandlerMethod, ResolvableMethodParameter[])
    */
@@ -71,11 +65,10 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
     Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
 
-    ActionMappingAnnotationHandler annotationHandler = ActionMappingAnnotationHandler.from(
+    ActionMappingAnnotationHandler handler = ActionMappingAnnotationHandler.from(
             handlerBean, method, parameterFactory);
-
-    annotationHandler.setReturnValueHandlers(returnValueHandlers);
-    return (T) annotationHandler;
+    handler.setReturnValueHandlers(returnValueHandlers);
+    return (T) handler;
   }
 
   /**
@@ -93,13 +86,7 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
     Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
 
-    T handler;
-    if (handlerSupplier != null) {
-      handler = handlerSupplier.apply(handlerBean, method);
-    }
-    else {
-      handler = (T) ActionMappingAnnotationHandler.from(handlerBean, method, parameterFactory);
-    }
+    T handler = (T) ActionMappingAnnotationHandler.from(handlerBean, method, parameterFactory);
     handler.setInterceptors(interceptors);
     handler.setReturnValueHandlers(returnValueHandlers);
     return handler;

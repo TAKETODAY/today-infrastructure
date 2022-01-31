@@ -44,6 +44,7 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
+import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.ReturnValueHandler;
@@ -85,6 +86,13 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
 
   private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
+  private final ResolvableParameterFactory parameterFactory;
+
+  public ViewControllerHandlerRegistry(ResolvableParameterFactory parameterFactory) {
+    Assert.notNull(parameterFactory, "parameterFactory is required");
+    this.parameterFactory = parameterFactory;
+  }
+
   @Override
   public void setBeanClassLoader(ClassLoader beanClassLoader) {
     this.classLoader = beanClassLoader;
@@ -103,7 +111,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
 
   public final ViewController getViewController(String pattern) {
     PathPatternParser parser = getPatternParser();
-    Map<PathPattern, Object> handlerMap = getHandlerMap();
+    Map<PathPattern, Object> handlerMap = getPathPatternHandlerMap();
     PathPattern pathPattern = parser.parse(pattern);
     Object obj = handlerMap.get(pathPattern);
     if (obj instanceof ViewController) {
@@ -340,7 +348,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
       }
     }
 
-    ViewController mapping = new ViewController(controller, handlerMethod);
+    ViewController mapping = new ViewController(controller, handlerMethod, parameterFactory);
 
     if (StringUtils.isNotEmpty(status)) {
       mapping.setStatus(Integer.valueOf(status));

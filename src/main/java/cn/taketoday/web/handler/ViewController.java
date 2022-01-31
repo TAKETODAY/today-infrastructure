@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 
 /**
  * Views request mapping
@@ -44,7 +45,7 @@ public class ViewController extends OrderedSupport {
   private final ActionMappingAnnotationHandler handlerMethod;
 
   public ViewController() {
-    this(null, null);
+    this(null, null, null);
   }
 
   public ViewController(int order) {
@@ -52,8 +53,8 @@ public class ViewController extends OrderedSupport {
     this.handlerMethod = null;
   }
 
-  public ViewController(Object bean, Method method) { // FIXME
-    this.handlerMethod = (method == null) ? null : ActionMappingAnnotationHandler.from(bean, method);
+  public ViewController(Object bean, Method method, ResolvableParameterFactory parameterFactory) { // FIXME
+    this.handlerMethod = (method == null) ? null : ActionMappingAnnotationHandler.from(bean, method, parameterFactory);
   }
 
   public boolean hasAction() {

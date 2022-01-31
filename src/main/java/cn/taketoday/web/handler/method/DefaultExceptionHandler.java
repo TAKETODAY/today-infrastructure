@@ -148,7 +148,6 @@ public class DefaultExceptionHandler
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
 
     var factory = new AnnotationHandlerFactory<ExceptionHandlerMappingHandler>(beanFactory);
-    factory.setHandlerSupplier(ExceptionHandlerMappingHandler::new);
 
     Set<String> errorHandlers = beanFactory.getBeanNamesForAnnotation(ControllerAdvice.class);
     // get all error handlers
@@ -208,8 +207,9 @@ public class DefaultExceptionHandler
 
   protected static class ExceptionHandlerMappingHandler extends SuppliedActionMappingAnnotationHandler {
 
-    ExceptionHandlerMappingHandler(BeanSupplier<Object> beanSupplier, Method method) {
-      super(beanSupplier, method);
+    ExceptionHandlerMappingHandler(
+            BeanSupplier<Object> beanSupplier, HandlerMethod method, ResolvableMethodParameter[] parameters) {
+      super(beanSupplier, method, parameters);
     }
 
     @Override

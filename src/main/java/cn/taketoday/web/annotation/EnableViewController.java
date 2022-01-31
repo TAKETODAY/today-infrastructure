@@ -29,7 +29,9 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
+import cn.taketoday.web.handler.method.ParameterResolvingRegistryResolvableParameterFactory;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 
 /**
  * @author TODAY 2020-03-30 21:38
@@ -48,8 +50,8 @@ public @interface EnableViewController {
 class ViewControllerConfig {
 
   @MissingBean
-  ViewControllerHandlerRegistry viewControllerHandlerRegistry() {
-    return new ViewControllerHandlerRegistry();
+  ViewControllerHandlerRegistry viewControllerHandlerRegistry(ParameterResolvingRegistry registry) {
+    return new ViewControllerHandlerRegistry(new ParameterResolvingRegistryResolvableParameterFactory(registry));
   }
 
   @MissingBean
