@@ -187,7 +187,7 @@ public class PathPattern implements Comparable<PathPattern> {
    * could be compared directly to others.
    */
   public boolean hasPatternSyntax() {
-    return (this.score > 0 || this.catchAll || this.patternString.indexOf('?') != -1);
+    return this.score > 0 || this.catchAll || this.patternString.indexOf('?') != -1;
   }
 
   /**
@@ -198,8 +198,8 @@ public class PathPattern implements Comparable<PathPattern> {
    */
   public boolean matches(PathContainer pathContainer) {
     if (this.head == null) {
-      return !hasLength(pathContainer) ||
-              (this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer));
+      return !hasLength(pathContainer)
+              || (this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer));
     }
     else if (!hasLength(pathContainer)) {
       if (this.head instanceof WildcardTheRestPathElement || this.head instanceof CaptureTheRestPathElement) {
@@ -334,7 +334,7 @@ public class PathPattern implements Comparable<PathPattern> {
       }
     }
 
-    PathContainer resultPath = null;
+    PathContainer resultPath;
     if (multipleAdjacentSeparators) {
       // Need to rebuild the path without the duplicate adjacent separators
       StringBuilder sb = new StringBuilder();

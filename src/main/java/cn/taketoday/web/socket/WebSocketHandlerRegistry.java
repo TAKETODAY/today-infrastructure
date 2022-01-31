@@ -28,13 +28,13 @@ import cn.taketoday.beans.factory.Prototypes;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerBuilder;
 import cn.taketoday.web.handler.method.MethodParametersBuilder;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
+import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.AnnotationHandlerDelegate;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
@@ -44,6 +44,8 @@ import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
+import cn.taketoday.web.util.pattern.PathPattern;
+import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
  * {@link WebSocketHandler} registry
@@ -129,11 +131,14 @@ public class WebSocketHandlerRegistry
     }
     AnnotationWebSocketHandlerBuilder handlerBuilder = getAnnotationHandlerBuilder();
     Assert.state(handlerBuilder != null, "No annotationHandlerBuilder in this registry");
-    for (String pathPattern : path) {
-      AnnotationHandlerDelegate annotationHandler
-              = new AnnotationHandlerDelegate(pathPattern, onOpen, onClose, onError, onMessage, afterHandshake);
+    PathPatternParser patternParser = getPatternParser();
+    for (String pattern : path) {
+      PathPattern pathPattern = patternParser.parse(pattern);
+      boolean containsPathVariable = HandlerMethodRegistry.containsPathVariable(pattern);
+      AnnotationHandlerDelegate annotationHandler = new AnnotationHandlerDelegate(
+              pathPattern, containsPathVariable, onOpen, onClose, onError, onMessage, afterHandshake);
       WebSocketHandler handler = handlerBuilder.build(definition, context, annotationHandler);
-      registerHandler(pathPattern, handler);
+      registerHandler(pattern, handler);
     }
   }
 
@@ -165,18 +170,6 @@ public class WebSocketHandlerRegistry
   }
 
   //
-
-  /**
-   * apply {@link cn.taketoday.core.PathMatcher}
-   */
-  @Override
-  protected Object lookupInternal(RequestContext context) throws Exception {
-    Object handler = super.lookupInternal(context);
-    if (handler != null) {
-      context.setAttribute(WebSocketSession.PATH_MATCHER, getPathMatcher());
-    }
-    return handler;
-  }
 
   public void setAnnotationHandlerBuilder(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
     this.annotationHandlerBuilder = annotationHandlerBuilder;

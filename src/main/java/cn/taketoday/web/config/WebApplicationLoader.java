@@ -414,7 +414,7 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        definitionReader().registerBean(DispatcherHandler.DEFAULT_BEAN_NAME, dispatcherHandler);
+        definitionReader().registerBean(DispatcherHandler.BEAN_NAME, dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;
     }

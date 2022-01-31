@@ -23,13 +23,17 @@ package cn.taketoday.web.socket.annotation;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.PathMatcher;
+import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.util.RequestPathUtils;
+import cn.taketoday.web.util.pattern.PathPattern;
+import cn.taketoday.web.util.pattern.PathPattern.PathMatchInfo;
 
 /**
  * @author TODAY 2021/4/5 12:29
@@ -56,13 +60,14 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     context.setAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY, session);
     // invoke after handshake callback
     socketHandler.afterHandshake(context);
-
     if (socketHandler.containsPathVariable) {
       // for path variables handling
-      final PathMatcher pathMatcher = (PathMatcher) context.getAttribute(WebSocketSession.PATH_MATCHER);
-      final String requestPath = context.getRequestPath();
-      final Map<String, String> variables = pathMatcher.extractUriTemplateVariables(socketHandler.pathPattern, requestPath);
-      session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, variables);
+      PathPattern pathPattern = socketHandler.pathPattern;
+      RequestPath parsedRequestPath = RequestPathUtils.getParsedRequestPath(context);
+      PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(parsedRequestPath);
+      Assert.state(pathMatchInfo != null, "Path match error");
+      Map<String, String> uriVariables = pathMatchInfo.getUriVariables();
+      session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, uriVariables);
     }
   }
 

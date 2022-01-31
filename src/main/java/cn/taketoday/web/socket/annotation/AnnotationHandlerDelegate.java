@@ -23,8 +23,8 @@ package cn.taketoday.web.socket.annotation;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
  * Annotation {@link WebSocketHandler} Delegate
@@ -34,7 +34,8 @@ import cn.taketoday.web.socket.WebSocketHandler;
  */
 public class AnnotationHandlerDelegate {
 
-  protected final String pathPattern;
+  // @since 4.0 more efficient
+  protected final PathPattern pathPattern;
   @Nullable
   protected final WebSocketHandlerMethod onOpen;
   @Nullable
@@ -48,7 +49,8 @@ public class AnnotationHandlerDelegate {
 
   protected final boolean containsPathVariable;
 
-  public AnnotationHandlerDelegate(String pathPattern,
+  public AnnotationHandlerDelegate(PathPattern pathPattern,
+                                   boolean containsPathVariable,
                                    @Nullable WebSocketHandlerMethod onOpen,
                                    @Nullable WebSocketHandlerMethod onClose,
                                    @Nullable WebSocketHandlerMethod onError,
@@ -60,7 +62,7 @@ public class AnnotationHandlerDelegate {
     this.onMessage = onMessage;
     this.pathPattern = pathPattern;
     this.afterHandshake = afterHandshake;
-    this.containsPathVariable = HandlerMethodRegistry.containsPathVariable(pathPattern);
+    this.containsPathVariable = containsPathVariable;
   }
 
   public void afterHandshake(RequestContext context) throws Throwable {

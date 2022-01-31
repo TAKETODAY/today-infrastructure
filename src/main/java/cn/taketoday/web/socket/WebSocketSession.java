@@ -20,18 +20,17 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.AttributeAccessorSupport;
-import cn.taketoday.core.PathMatcher;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.AlternativeJdkIdGenerator;
-
 import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+
+import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.AlternativeJdkIdGenerator;
 
 /**
  * @author TODAY 2021/4/5 14:16
@@ -42,7 +41,6 @@ public abstract class WebSocketSession
   @Serial
   private static final long serialVersionUID = 1L;
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
-  public static final String PATH_MATCHER = PathMatcher.class + "-PathMatcher";
   public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
   public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
