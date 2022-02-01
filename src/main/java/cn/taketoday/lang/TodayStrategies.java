@@ -454,6 +454,19 @@ public final class TodayStrategies {
     return strategies;
   }
 
+  /**
+   * get all strategies by a strategyClass
+   *
+   * @param strategyClass strategy-class
+   * @param classLoader classLoader to load
+   * @return list of strategies
+   */
+  public static List<String> getStrategiesNames(
+          Class<?> strategyClass, @Nullable ClassLoader classLoader) {
+    Assert.notNull(strategyClass, "strategy-class must not be null");
+    return getStrategies(strategyClass.getName(), classLoader);
+  }
+
   private static MultiValueMap<String, String> loadStrategies(ClassLoader classLoader) {
     MultiValueMap<String, String> strategies = strategiesCache.get(classLoader);
     if (strategies != null) {
