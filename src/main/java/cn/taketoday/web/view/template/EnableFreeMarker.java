@@ -99,6 +99,8 @@ class FreeMarkerConfig {
     return Configuration.VERSION_2_3_31;
   }
 
+  @Component
+  @ConditionalOnMissingBean
   DefaultObjectWrapper freeMarkerObjectWrapper() {
     return new DefaultObjectWrapper(freemakerVersion());
   }
