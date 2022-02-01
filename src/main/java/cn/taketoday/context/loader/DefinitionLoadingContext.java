@@ -28,9 +28,11 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
@@ -54,16 +56,21 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 
 /**
+ * Startup Context
+ *
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
  */
+@Experimental
 public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
+  public static final String BEAN_NAME = "definitionLoadingContext";
 
   private final BeanDefinitionRegistry registry;
   private final ApplicationContext applicationContext;
@@ -415,5 +422,51 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   public ClassLoader getClassLoader() {
     return getResourceLoader().getClassLoader();
+  }
+
+  // static
+
+  // this method mainly for internal use
+  public static DefinitionLoadingContext from(BeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "beanFactory is required");
+    DefinitionLoadingContext context = getContext(beanFactory);
+    if (context == null) {
+      synchronized(beanFactory) {
+        context = getContext(beanFactory);
+        if (context == null) {
+          context = new DefinitionLoadingContext(deduceRegistry(beanFactory), deduceContext(beanFactory));
+          context.unwrapFactory(SingletonBeanRegistry.class)
+                  .registerSingleton(BEAN_NAME, context);
+        }
+      }
+    }
+    return context;
+  }
+
+  static BeanDefinitionRegistry deduceRegistry(BeanFactory beanFactory) {
+    if (beanFactory instanceof BeanDefinitionRegistry registry) {
+      return registry;
+    }
+    throw new IllegalArgumentException("Expect a BeanDefinitionRegistry");
+  }
+
+  static ApplicationContext deduceContext(BeanFactory beanFactory) {
+    if (beanFactory instanceof ApplicationContext context) {
+      return context;
+    }
+    throw new IllegalArgumentException("Expect a ApplicationContext");
+  }
+
+  @Nullable
+  private static DefinitionLoadingContext getContext(BeanFactory beanFactory) {
+    if (beanFactory instanceof ConfigurableBeanFactory configurable) {
+      if (configurable.containsLocalBean(BEAN_NAME)) {
+        return configurable.getBean(BEAN_NAME, DefinitionLoadingContext.class);
+      }
+    }
+    else {
+      return beanFactory.getBean(BEAN_NAME, DefinitionLoadingContext.class);
+    }
+    return null;
   }
 }

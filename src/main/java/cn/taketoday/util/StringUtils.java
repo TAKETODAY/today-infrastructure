@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -440,6 +441,21 @@ public abstract class StringUtils {
     }
 
     return builder.toString();
+  }
+
+  /**
+   * Convert a comma delimited list (e.g., a row from a CSV file) into a set.
+   * <p>Note that this will suppress duplicates, and as of 4.2, the elements in
+   * the returned set will preserve the original order in a {@link LinkedHashSet}.
+   *
+   * @param str the input {@code String} (potentially {@code null} or empty)
+   * @return a set of {@code String} entries in the list
+   * @see #removeDuplicateStrings(String[])
+   * @since 4.0
+   */
+  public static Set<String> commaDelimitedListToSet(@Nullable String str) {
+    String[] tokens = commaDelimitedListToStringArray(str);
+    return new LinkedHashSet<>(Arrays.asList(tokens));
   }
 
   /**

@@ -569,8 +569,8 @@ class ConfigurationClassParser {
             if (selectorFilter != null) {
               exclusionFilter = exclusionFilter.or(selectorFilter);
             }
-            if (selector instanceof DeferredImportSelector) {
-              this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
+            if (selector instanceof DeferredImportSelector deferredSelector) {
+              this.deferredImportSelectorHandler.handle(configClass, deferredSelector);
             }
             else {
               String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
@@ -891,7 +891,7 @@ class ConfigurationClassParser {
     @Override
     public void process(AnnotationMetadata metadata, DeferredImportSelector selector) {
       for (String importClassName : selector.selectImports(metadata)) {
-        this.imports.add(new Entry(metadata, importClassName));
+        imports.add(new Entry(metadata, importClassName));
       }
     }
 

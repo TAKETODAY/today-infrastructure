@@ -75,7 +75,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 
   private int systemPropertiesMode = SYSTEM_PROPERTIES_MODE_FALLBACK;
 
-  private boolean searchSystemEnvironment = !TodayStrategies.getFlag("spring.getenv.ignore");
+  private boolean searchSystemEnvironment = !TodayStrategies.getFlag("context.getenv.ignore");
 
   /**
    * Set the system property mode by the name of the corresponding constant,

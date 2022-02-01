@@ -60,8 +60,8 @@ import cn.taketoday.lang.TodayStrategies;
 public class StandardApplicationContext
         extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
-  private DefinitionLoadingContext loadingContext;
   private ClassPathBeanDefinitionScanner scanningReader;
+  private final DefinitionLoadingContext loadingContext = createLoadingContext();
 
   /**
    * Default Constructor
@@ -144,8 +144,7 @@ public class StandardApplicationContext
     List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
             BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
 
-    if (strategies.isEmpty()) {
-      DefinitionLoadingContext loadingContext = loadingContext();
+    if (!strategies.isEmpty()) {
       for (BeanDefinitionLoader loader : strategies) {
         loader.loadBeanDefinitions(loadingContext);
       }
@@ -234,7 +233,7 @@ public class StandardApplicationContext
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator is required");
 
-    loadingContext().setBeanNamePopulator(beanNamePopulator);
+    loadingContext.setBeanNamePopulator(beanNamePopulator);
     scanningReader().setBeanNamePopulator(beanNamePopulator);
     getBeanDefinitionReader().setBeanNamePopulator(beanNamePopulator);
 
@@ -249,7 +248,7 @@ public class StandardApplicationContext
    * and/or {@link #scan(String...)}.
    */
   public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
-    loadingContext().setScopeMetadataResolver(scopeMetadataResolver);
+    loadingContext.setScopeMetadataResolver(scopeMetadataResolver);
     scanningReader().setScopeMetadataResolver(scopeMetadataResolver);
     getBeanDefinitionReader().setScopeMetadataResolver(scopeMetadataResolver);
   }
@@ -271,10 +270,10 @@ public class StandardApplicationContext
     return scanningReader;
   }
 
-  private DefinitionLoadingContext loadingContext() {
-    if (loadingContext == null) {
-      loadingContext = new DefinitionLoadingContext(beanFactory, this);
-    }
+  private DefinitionLoadingContext createLoadingContext() {
+    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, this);
+    getBeanFactory().registerSingleton(DefinitionLoadingContext.BEAN_NAME, loadingContext);
     return loadingContext;
   }
+
 }
