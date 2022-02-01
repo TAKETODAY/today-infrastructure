@@ -63,7 +63,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test for the MapperScannerRegistrar.
  * <p>
- * This test works fine with Spring 3.1 and 3.2 but with 3.1 the registrar is called twice.
  */
 class MapperScanTest {
   private StandardApplicationContext applicationContext;
