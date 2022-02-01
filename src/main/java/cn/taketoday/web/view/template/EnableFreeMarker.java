@@ -105,7 +105,7 @@ class FreeMarkerConfig {
 
   @ConditionalOnMissingBean
   @Component(EnableFreeMarker.CONFIGURATION_BEAN_NAME)
-  Configuration configuration() {
+  Configuration freemakerConfiguration() {
     return new Configuration(freemakerVersion());
   }
 

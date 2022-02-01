@@ -96,9 +96,9 @@ public class ApplicationPropertySourcesProcessor {
   }
 
   public void postProcessEnvironment(ConfigurableEnvironment environment) throws IOException {
-    loadProperties(environment);
     environment.getPropertySources().addBefore(
             StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, propertySource);
+    loadProperties(environment);
   }
 
   /**
@@ -166,8 +166,6 @@ public class ApplicationPropertySourcesProcessor {
     // load other files
     postLoadingProperties(locations);
 
-    // refresh active profiles
-    refreshActiveProfiles(environment);
     // load
     replaceProperties(environment, locations);
   }
@@ -221,18 +219,6 @@ public class ApplicationPropertySourcesProcessor {
           loadProperties(builder.toString());
         }
         catch (FileNotFoundException ignored) { }
-      }
-    }
-  }
-
-  /**
-   * Set active profiles from properties
-   */
-  protected void refreshActiveProfiles(ConfigurableEnvironment environment) {
-    String profiles = environment.getProperty(Environment.KEY_ACTIVE_PROFILES);
-    if (StringUtils.isNotEmpty(profiles)) {
-      for (String profile : StringUtils.splitAsList(profiles)) {
-        environment.addActiveProfile(profile);
       }
     }
   }
