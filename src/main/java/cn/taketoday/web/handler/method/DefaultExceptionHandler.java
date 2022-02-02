@@ -41,6 +41,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.SimpleExceptionHandler;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -148,6 +149,7 @@ public class DefaultExceptionHandler
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     ParameterResolvingRegistry registry = beanFactory.getBean(ParameterResolvingRegistry.class);
     var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(registry);
+    ReturnValueHandlers returnValueHandlers = beanFactory.getBean(ReturnValueHandlers.class);
 
     Set<String> errorHandlers = beanFactory.getBeanNamesForAnnotation(ControllerAdvice.class);
     // get all error handlers
@@ -158,7 +160,8 @@ public class DefaultExceptionHandler
           for (var exceptionType : getCatchThrowableClasses(method)) {
             // @since 3.0
             BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
-            ExceptionHandlerMappingHandler handler = getHandler(handlerBean, parameterFactory, method);
+            ExceptionHandlerMappingHandler handler = getHandler(
+                    handlerBean, parameterFactory, method, returnValueHandlers);
 
             ExceptionHandlerMappingHandler oldHandler = exceptionHandlers.put(exceptionType, handler);
             if (oldHandler != null && !method.equals(oldHandler.getJavaMethod())) {
@@ -179,9 +182,12 @@ public class DefaultExceptionHandler
   }
 
   private ExceptionHandlerMappingHandler getHandler(
-          BeanSupplier<Object> handlerBean, ResolvableParameterFactory parameterFactory, Method method) {
+          BeanSupplier<Object> handlerBean, ResolvableParameterFactory parameterFactory,
+          Method method, ReturnValueHandlers returnValueHandlers) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
-    return new ExceptionHandlerMappingHandler(handlerBean, handlerMethod, parameterFactory.createArray(method));
+    ExceptionHandlerMappingHandler handler = new ExceptionHandlerMappingHandler(handlerBean, handlerMethod, parameterFactory.createArray(method));
+    handler.setReturnValueHandlers(returnValueHandlers);
+    return handler;
   }
 
   /**
