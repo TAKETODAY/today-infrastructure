@@ -65,12 +65,13 @@ class FreeMarkerConfig {
   @Order(Ordered.LOWEST_PRECEDENCE - 100)
   @MissingBean(AbstractFreeMarkerTemplateRenderer.class)
   FreeMarkerTemplateRenderer freeMarkerTemplateRenderer(
+          Configuration configuration,
           ResourceLoader resourceLoader,
+          ObjectWrapper freeMarkerObjectWrapper,
           Map<String, TemplateModel> templateModels,
-          Configuration configuration, ObjectWrapper freeMarkerObjectWrapper,
-          @Props(prefix = "freemarker.", replace = true) Properties settings) {
+          @Props(prefix = "freemarker.", replace = true) Properties settings
+  ) {
     Logger log = LoggerFactory.getLogger(getClass());
-
     log.info("Initialize freemarker");
 
     FreeMarkerTemplateRenderer renderer = new FreeMarkerTemplateRenderer();
@@ -88,7 +89,7 @@ class FreeMarkerConfig {
       }
     }
     catch (TemplateException e) {
-      throw new ConfigurationException("Set FreeMarker's Properties Error, With: [" + e + "]", e);
+      throw new ConfigurationException("Set FreeMarker's Properties Error: [" + e + "]", e);
     }
 
     log.info("FreeMarker template renderer init successfully.");
