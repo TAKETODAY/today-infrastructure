@@ -85,7 +85,7 @@ public class PathPatternRouteMatcher implements RouteMatcher {
   @Override
   @Nullable
   public Map<String, String> matchAndExtract(String pattern, Route route) {
-    PathPattern.PathMatchInfo info = getPathPattern(pattern).matchAndExtract(getPathContainer(route));
+    PathMatchInfo info = getPathPattern(pattern).matchAndExtract(getPathContainer(route));
     return info != null ? info.getUriVariables() : null;
   }
 

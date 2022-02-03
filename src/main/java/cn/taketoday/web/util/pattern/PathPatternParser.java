@@ -24,7 +24,7 @@ import cn.taketoday.http.server.PathContainer;
 
 /**
  * Parser for URI path patterns producing {@link PathPattern} instances that can
- * then be matched to requests.
+ * then be matched to request.
  *
  * <p>The {@link PathPatternParser} and {@link PathPattern} are specifically
  * designed for use with HTTP URL paths in web applications where a large number
@@ -113,7 +113,7 @@ public class PathPatternParser {
    * Shared, read-only instance of {@code PathPatternParser}. Uses default settings:
    * <ul>
    * <li>{@code matchOptionalTrailingSeparator=true}
-   * <li>{@code caseSensitivetrue}
+   * <li>{@code caseSensitive=true}
    * <li>{@code pathOptions=PathContainer.Options.HTTP_PATH}
    * </ul>
    */

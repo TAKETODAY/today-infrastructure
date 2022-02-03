@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.util.pattern;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.pattern.PathPattern.MatchingContext;
 
@@ -35,8 +34,6 @@ abstract class PathElement {
   // Score related
   protected static final int WILDCARD_WEIGHT = 100;
   protected static final int CAPTURE_VARIABLE_WEIGHT = 1;
-
-  protected static final DefaultMultiValueMap<String, String> NO_PARAMETERS = new DefaultMultiValueMap<>();
 
   // Position in the pattern where this path element starts
   protected final int pos;

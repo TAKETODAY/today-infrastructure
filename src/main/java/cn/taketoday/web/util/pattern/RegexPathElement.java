@@ -51,7 +51,7 @@ class RegexPathElement extends PathElement {
 
   private int wildcardCount;
 
-  private final List<String> variableNames = new ArrayList<>();
+  private final ArrayList<String> variableNames = new ArrayList<>();
 
   RegexPathElement(int pos, char[] regex, boolean caseSensitive, char[] completePattern, char separator) {
     super(pos, separator);
@@ -171,11 +171,11 @@ class RegexPathElement extends PathElement {
       for (int i = 1; i <= matcher.groupCount(); i++) {
         String name = this.variableNames.get(i - 1);
         String value = matcher.group(i);
-        matchingContext.set(
-                name, value,
-                (i == this.variableNames.size()) ?
-                ((PathSegment) matchingContext.pathElements.get(pathIndex)).parameters() :
-                NO_PARAMETERS);
+        matchingContext.set(name, value,
+                (i == this.variableNames.size())
+                ? ((PathSegment) matchingContext.pathElements.get(pathIndex)).parameters()
+                : null
+        );
       }
     }
     return matches;

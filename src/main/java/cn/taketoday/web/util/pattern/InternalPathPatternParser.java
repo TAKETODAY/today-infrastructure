@@ -169,15 +169,14 @@ class InternalPathPatternParser {
 
         // Check that the characters used for captured variable names are like java identifiers
         if (this.insideVariableCapture) {
-          if ((this.variableCaptureStart + 1 + (this.isCaptureTheRestVariable ? 1 : 0)) == this.pos &&
-                  !Character.isJavaIdentifierStart(ch)) {
+          if ((this.variableCaptureStart + 1 + (this.isCaptureTheRestVariable ? 1 : 0)) == this.pos
+                  && !Character.isJavaIdentifierStart(ch)) {
             throw new PatternParseException(
                     this.pos, this.pathPatternData,
                     PatternMessage.ILLEGAL_CHARACTER_AT_START_OF_CAPTURE_DESCRIPTOR, Character.toString(ch));
-
           }
-          else if ((this.pos > (this.variableCaptureStart + 1 + (this.isCaptureTheRestVariable ? 1 : 0)) &&
-                  !Character.isJavaIdentifierPart(ch) && ch != '-')) {
+          else if ((this.pos > (this.variableCaptureStart + 1 + (this.isCaptureTheRestVariable ? 1 : 0))
+                  && !Character.isJavaIdentifierPart(ch) && ch != '-')) {
             throw new PatternParseException(
                     this.pos, this.pathPatternData,
                     PatternMessage.ILLEGAL_CHARACTER_IN_CAPTURE_DESCRIPTOR, Character.toString(ch));
@@ -206,8 +205,8 @@ class InternalPathPatternParser {
     int curlyBracketDepth = 0; // how deep in nested {...} pairs
     boolean previousBackslash = false;
 
-    while (this.pos < this.pathPatternLength) {
-      char ch = this.pathPatternData[this.pos];
+    while (pos < pathPatternLength) {
+      char ch = pathPatternData[pos];
       if (ch == '\\' && !previousBackslash) {
         this.pos++;
         previousBackslash = true;
@@ -218,7 +217,7 @@ class InternalPathPatternParser {
       }
       else if (ch == '}' && !previousBackslash) {
         if (curlyBracketDepth == 0) {
-          if (regexStart == this.pos) {
+          if (regexStart == pos) {
             throw new PatternParseException(
                     regexStart, this.pathPatternData, PatternMessage.MISSING_REGEX_CONSTRAINT);
           }
@@ -323,8 +322,8 @@ class InternalPathPatternParser {
     char separator = this.parser.getPathOptions().separator();
 
     if (this.variableCaptureCount > 0) {
-      if (this.variableCaptureCount == 1 && this.pathElementStart == this.variableCaptureStart &&
-              this.pathPatternData[this.pos - 1] == '}') {
+      if (this.variableCaptureCount == 1 && this.pathElementStart == this.variableCaptureStart
+              && this.pathPatternData[this.pos - 1] == '}') {
         if (this.isCaptureTheRestVariable) {
           // It is {*....}
           newPE = new CaptureTheRestPathElement(

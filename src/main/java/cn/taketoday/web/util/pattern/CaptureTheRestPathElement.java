@@ -34,7 +34,7 @@ import cn.taketoday.web.util.pattern.PathPattern.MatchingContext;
  * @author Andy Clement
  * @since 4.0
  */
-class CaptureTheRestPathElement extends PathElement {
+class CaptureTheRestPathElement extends PathElement implements VariableNameProvider {
 
   private final String variableName;
 
@@ -78,8 +78,8 @@ class CaptureTheRestPathElement extends PathElement {
           }
         }
       }
-      matchingContext.set(this.variableName, pathToString(pathIndex, matchingContext.pathElements),
-              parametersCollector == null ? NO_PARAMETERS : parametersCollector);
+      matchingContext.set(variableName, pathToString(pathIndex, matchingContext.pathElements),
+              parametersCollector);
     }
     return true;
   }
@@ -96,6 +96,11 @@ class CaptureTheRestPathElement extends PathElement {
       }
     }
     return sb.toString();
+  }
+
+  @Override
+  public String getVariableName() {
+    return variableName;
   }
 
   @Override

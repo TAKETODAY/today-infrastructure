@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  * @author Andy Clement
  * @since 4.0
  */
-class CaptureVariablePathElement extends PathElement {
+class CaptureVariablePathElement extends PathElement implements VariableNameProvider {
 
   private final String variableName;
 
@@ -84,13 +84,13 @@ class CaptureVariablePathElement extends PathElement {
       return false;
     }
 
-    if (this.constraintPattern != null) {
+    if (constraintPattern != null) {
       // TODO possible optimization - only regex match if rest of pattern matches?
       // Benefit likely to vary pattern to pattern
-      Matcher matcher = this.constraintPattern.matcher(candidateCapture);
+      Matcher matcher = constraintPattern.matcher(candidateCapture);
       if (matcher.groupCount() != 0) {
         throw new IllegalArgumentException(
-                "No capture groups allowed in the constraint regex: " + this.constraintPattern.pattern());
+                "No capture groups allowed in the constraint regex: " + constraintPattern.pattern());
       }
       if (!matcher.matches()) {
         return false;
@@ -109,8 +109,7 @@ class CaptureVariablePathElement extends PathElement {
         match = (pathIndex == matchingContext.pathLength);
         if (!match && matchingContext.isMatchOptionalTrailingSeparator()) {
           match = //(nextPos > candidateIndex) &&
-                  (pathIndex + 1) == matchingContext.pathLength &&
-                          matchingContext.isSeparator(pathIndex);
+                  (pathIndex + 1) == matchingContext.pathLength && matchingContext.isSeparator(pathIndex);
         }
       }
     }
@@ -121,13 +120,13 @@ class CaptureVariablePathElement extends PathElement {
     }
 
     if (match && matchingContext.extractingVariables) {
-      matchingContext.set(
-              this.variableName, candidateCapture,
+      matchingContext.set(variableName, candidateCapture,
               ((PathSegment) matchingContext.pathElements.get(pathIndex - 1)).parameters());
     }
     return match;
   }
 
+  @Override
   public String getVariableName() {
     return this.variableName;
   }
