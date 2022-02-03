@@ -301,6 +301,10 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return parameter;
   }
 
+  public MethodParameter nestedIfOptional() {
+    return parameter.nestedIfOptional();
+  }
+
   //
 
   /**
