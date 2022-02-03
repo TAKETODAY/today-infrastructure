@@ -48,6 +48,7 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -196,6 +197,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
   }
 
   private ImageInputStream createImageInputStream(InputStream is) throws IOException {
+    is = StreamUtils.nonClosing(is);
     if (this.cacheDir != null) {
       return new FileCacheImageInputStream(is, this.cacheDir);
     }

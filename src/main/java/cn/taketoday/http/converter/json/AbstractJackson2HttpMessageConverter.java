@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -355,24 +356,25 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
             || "UTF-16".equals(charset.name())
             || "UTF-32".equals(charset.name());
     try {
+      InputStream inputStream = StreamUtils.nonClosing(inputMessage.getBody());
       if (inputMessage instanceof MappingJacksonInputMessage mappingJacksonInputMessage) {
         Class<?> deserializationView = mappingJacksonInputMessage.getDeserializationView();
         if (deserializationView != null) {
           ObjectReader objectReader = objectMapper.readerWithView(deserializationView).forType(javaType);
           if (isUnicode) {
-            return objectReader.readValue(inputMessage.getBody());
+            return objectReader.readValue(inputStream);
           }
           else {
-            Reader reader = new InputStreamReader(inputMessage.getBody(), charset);
+            Reader reader = new InputStreamReader(inputStream, charset);
             return objectReader.readValue(reader);
           }
         }
       }
       if (isUnicode) {
-        return objectMapper.readValue(inputMessage.getBody(), javaType);
+        return objectMapper.readValue(inputStream, javaType);
       }
       else {
-        Reader reader = new InputStreamReader(inputMessage.getBody(), charset);
+        Reader reader = new InputStreamReader(inputStream, charset);
         return objectMapper.readValue(reader, javaType);
       }
     }

@@ -26,6 +26,7 @@ import com.rometools.rome.io.WireFeedInput;
 import com.rometools.rome.io.WireFeedOutput;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -39,6 +40,7 @@ import cn.taketoday.http.converter.AbstractHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -70,10 +72,11 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed>
 
     WireFeedInput feedInput = new WireFeedInput();
     MediaType contentType = inputMessage.getHeaders().getContentType();
-    Charset charset = (contentType != null && contentType.getCharset() != null ?
-                       contentType.getCharset() : DEFAULT_CHARSET);
+    Charset charset = contentType != null && contentType.getCharset() != null
+                      ? contentType.getCharset() : DEFAULT_CHARSET;
     try {
-      Reader reader = new InputStreamReader(inputMessage.getBody(), charset);
+      InputStream inputStream = StreamUtils.nonClosing(inputMessage.getBody());
+      Reader reader = new InputStreamReader(inputStream, charset);
       return (T) feedInput.build(reader);
     }
     catch (FeedException ex) {
