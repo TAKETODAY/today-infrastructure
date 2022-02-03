@@ -24,6 +24,8 @@ import cn.taketoday.beans.factory.support.BeanExpressionContext;
 import cn.taketoday.beans.factory.support.BeanExpressionResolver;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestBindingException;
 import cn.taketoday.web.RequestContext;
@@ -108,9 +110,23 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
     else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
     }
-
-    handleResolvedValue(arg, namedValueInfo.name, methodParameter, context);
-
+    if (configurableBeanFactory != null) {
+      ConversionService conversionService = configurableBeanFactory.getConversionService();
+      if (conversionService != null) {
+        try {
+          arg = conversionService.convert(arg, resolvable.getTypeDescriptor());
+        }
+        catch (ConversionException e) {
+          throw new ParameterConversionException(methodParameter, arg, e);
+        }
+        // Check for null value after conversion of incoming argument value
+        if (arg == null && namedValueInfo.defaultValue == null
+                && namedValueInfo.required && !nestedParameter.isOptional()) {
+          handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
+        }
+      }
+    }
+    handleResolvedValue(arg, namedValueInfo.name, resolvable, context);
     return arg;
   }
 
@@ -135,14 +151,14 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
    * Resolve the given parameter type and value name into an argument value.
    *
    * @param name the name of the value being resolved
-   * @param parameter the method parameter to resolve to an argument value
+   * @param resolvable the method parameter to resolve to an argument value
    * (pre-nested in case of a {@link java.util.Optional} declaration)
    * @param context the current request context
    * @return the resolved argument (may be {@code null})
    * @throws Exception in case of errors
    */
   @Nullable
-  protected abstract Object resolveName(String name, ResolvableMethodParameter parameter, RequestContext context)
+  protected abstract Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context)
           throws Exception;
 
   /**
@@ -212,11 +228,11 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
    *
    * @param arg the resolved argument value
    * @param name the argument name
-   * @param parameter the argument parameter type
-   * @param webRequest the current request
+   * @param resolvable the argument parameter type
+   * @param context the current request
    */
   protected void handleResolvedValue(
-          @Nullable Object arg, String name, MethodParameter parameter, RequestContext webRequest) {
+          @Nullable Object arg, String name, ResolvableMethodParameter resolvable, RequestContext context) {
 
   }
 

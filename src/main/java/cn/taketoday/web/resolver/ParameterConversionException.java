@@ -33,14 +33,14 @@ public class ParameterConversionException extends MethodParameterResolvingExcept
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private final String value;
+  private final Object value;
 
-  public ParameterConversionException(MethodParameter parameter, String value, Throwable cause) {
+  public ParameterConversionException(MethodParameter parameter, Object value, Throwable cause) {
     super(parameter, "Cannot convert '" + value + "' to " + parameter.getParameterType(), cause);
     this.value = value;
   }
 
-  public String getValue() {
+  public Object getValue() {
     return value;
   }
 }

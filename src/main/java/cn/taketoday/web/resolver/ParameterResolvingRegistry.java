@@ -318,6 +318,10 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestResponseBodyMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
 
+    // @since 4.0
+    strategies.add(new PathVariableParameterResolvingStrategy());
+    strategies.add(new PathVariableMapParameterResolvingStrategy());
+
     // Date API support @since 3.0
     strategies.add(new DateParameterResolver());
     strategies.add(new LocalDateParameterResolver());
