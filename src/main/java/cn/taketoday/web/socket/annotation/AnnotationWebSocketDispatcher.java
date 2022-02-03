@@ -31,8 +31,8 @@ import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
-import cn.taketoday.web.util.pattern.PathPattern.PathMatchInfo;
 
 /**
  * @author TODAY 2021/4/5 12:29

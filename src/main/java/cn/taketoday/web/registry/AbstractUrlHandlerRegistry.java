@@ -20,7 +20,6 @@
 package cn.taketoday.web.registry;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,6 +31,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
@@ -165,7 +165,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     }
 
     PathPattern pattern = matches.get(0);
-    handler = this.pathPatternHandlerMap.get(pattern);
+    handler = pathPatternHandlerMap.get(pattern);
 
     // Bean name or resolved handler?
     if (handler instanceof String handlerName) {
@@ -174,13 +174,15 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
     validateHandler(handler, request);
 
+    // TODO 优化
     PathContainer pathWithinMapping = pattern.extractPathWithinPattern(lookupPath);
-    PathPattern.PathMatchInfo matchInfo = pattern.matchAndExtract(lookupPath);
+    PathMatchInfo matchInfo = pattern.matchAndExtract(lookupPath);
     Assert.state(matchInfo != null, "Expected a match");
 
     request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, handler);
     request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, pattern);
     request.setAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, pathWithinMapping);
+    request.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, matchInfo.getMatrixVariables());
     request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, matchInfo.getUriVariables());
 
     return handler;
@@ -188,7 +190,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
   @Nullable
   private Object getDirectMatch(String urlPath, RequestContext request) {
-    Object handler = this.handlerMap.get(urlPath);
+    Object handler = handlerMap.get(urlPath);
     if (handler != null) {
       // Bean name or resolved handler?
       if (handler instanceof String handlerName) {
@@ -243,9 +245,9 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
     // Eagerly resolve handler if referencing singleton via name.
     if (!this.lazyInitHandlers && handler instanceof String handlerName) {
-      ApplicationContext applicationContext = obtainApplicationContext();
-      if (applicationContext.isSingleton(handlerName)) {
-        resolvedHandler = applicationContext.getBean(handlerName);
+      ApplicationContext beanFactory = obtainApplicationContext();
+      if (beanFactory.isSingleton(handlerName)) {
+        resolvedHandler = beanFactory.getBean(handlerName);
       }
     }
 
@@ -271,8 +273,9 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
         setDefaultHandler(resolvedHandler);
       }
       else {
-        handlerMap.put(urlPath, resolvedHandler);
-        pathPatternHandlerMap.put(getPatternParser().parse(urlPath), resolvedHandler);
+        PathPattern pathPattern = getPatternParser().parse(urlPath);
+        duPutHandler(urlPath, resolvedHandler);
+        doPutPathPattern(pathPattern, resolvedHandler);
         if (log.isTraceEnabled()) {
           log.trace("Mapped [{}] onto {}", urlPath, getHandlerDescription(handler));
         }
@@ -280,27 +283,34 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     }
   }
 
+  protected void doPutPathPattern(PathPattern pathPattern, Object resolvedHandler) {
+    pathPatternHandlerMap.put(pathPattern, resolvedHandler);
+  }
+
+  protected void duPutHandler(String urlPath, Object resolvedHandler) {
+    handlerMap.put(urlPath, resolvedHandler);
+  }
+
   private String getHandlerDescription(Object handler) {
     return handler instanceof String ? "'" + handler + "'" : handler.toString();
   }
 
   /**
-   * Return the handler mappings as a read-only Map, with the registered path
-   * or pattern as key and the handler object (or handler bean name in case of
+   * Return the handler mappings, with the registered path or pattern
+   * as key and the handler object (or handler bean name in case of
    * a lazy-init handler), as value.
    *
    * @see #getDefaultHandler()
    */
   public final Map<String, Object> getHandlerMap() {
-    return Collections.unmodifiableMap(this.handlerMap);
+    return handlerMap;
   }
 
   /**
    * Identical to {@link #getHandlerMap()} but populated
    */
   public final Map<PathPattern, Object> getPathPatternHandlerMap() {
-    return this.pathPatternHandlerMap.isEmpty()
-           ? Collections.emptyMap() : Collections.unmodifiableMap(this.pathPatternHandlerMap);
+    return pathPatternHandlerMap;
   }
 
 }

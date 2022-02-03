@@ -23,7 +23,7 @@ import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.framework.reactive.EnableNettyHandling;
-import cn.taketoday.web.registry.EnableRequestPathMapping;
+import cn.taketoday.web.registry.annotation.EnableRequestPathMapping;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.EnableWebSocket;

@@ -146,7 +146,7 @@ public class PathPatternParserTests {
     pathPattern = checkStructure("/{var:[^\\/]*}");
     next = pathPattern.getHeadSection().next;
     assertThat(next.getClass().getName()).isEqualTo(CaptureVariablePathElement.class.getName());
-    PathPattern.PathMatchInfo result = matchAndExtract(pathPattern, "/foo");
+    PathMatchInfo result = matchAndExtract(pathPattern, "/foo");
     assertThat(result.getUriVariables().get("var")).isEqualTo("foo");
 
     pathPattern = checkStructure("/{var:\\[*}");
@@ -503,7 +503,7 @@ public class PathPatternParserTests {
     assertThat(pp.matches(PathPatternTests.toPathContainer(path))).isFalse();
   }
 
-  private PathPattern.PathMatchInfo matchAndExtract(PathPattern pp, String path) {
+  private PathMatchInfo matchAndExtract(PathPattern pp, String path) {
     return pp.matchAndExtract(PathPatternTests.toPathContainer(path));
   }
 

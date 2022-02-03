@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.registry.annotation.HandlerMethodRegistry;
 
 /**
  * Implementation of the {@link HandlerRegistry} interface that maps from URLs

@@ -39,7 +39,7 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.registry.HandlerMethodRegistry;
+import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.view.ReturnValueHandler;
@@ -89,8 +89,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  HandlerMethodRegistry handlerMethodRegistry() {
-    HandlerMethodRegistry registry = new HandlerMethodRegistry();
+  RequestPathMappingHandlerRegistry requestPathMappingHandlerRegistry() {
+    RequestPathMappingHandlerRegistry registry = new RequestPathMappingHandlerRegistry();
     PathMatchConfigurer configurer = getPathMatchConfigurer();
 
     Boolean useTrailingSlashMatch = configurer.isUseTrailingSlashMatch();

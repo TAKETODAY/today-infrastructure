@@ -230,8 +230,9 @@ final class DefaultPathContainer implements PathContainer {
      * Factory for segments without decoding and parsing.
      */
     static DefaultPathSegment from(String value, DefaultSeparator separator) {
-      String valueToMatch = value.contains(separator.encodedSequence()) ?
-                            value.replaceAll(separator.encodedSequence(), separator.value()) : value;
+      String valueToMatch = value.contains(separator.encodedSequence())
+                            ? value.replaceAll(separator.encodedSequence(), separator.value())
+                            : value;
       return from(value, valueToMatch);
     }
 

@@ -34,7 +34,7 @@ import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
-import cn.taketoday.web.registry.HandlerMethodRegistry;
+import cn.taketoday.web.registry.annotation.HandlerMethodRegistry;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.AnnotationHandlerDelegate;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;

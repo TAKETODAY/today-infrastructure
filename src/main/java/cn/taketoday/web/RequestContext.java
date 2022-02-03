@@ -58,6 +58,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.ModelAttributes;
@@ -112,9 +113,14 @@ public abstract class RequestContext
   /** @since 4.0 */
   private boolean requestHandled = false;
 
-  private HttpMethod httpMethod;
+  /** @since 4.0 */
+  protected HttpMethod httpMethod;
 
-  RequestPath lookupPath;
+  /** @since 4.0 */
+  protected RequestPath lookupPath;
+
+  /** @since 4.0 */
+  protected PathMatchInfo pathMatchInfo;
 
   // --- request
 
@@ -907,6 +913,10 @@ public abstract class RequestContext
    */
   public void setRequestBody(Object body) {
     this.requestBody = body != null ? body : NullValue.INSTANCE;
+  }
+
+  public PathMatchInfo pathMatchInfo() {
+    return pathMatchInfo;
   }
 
   public String[] pathVariables() {
