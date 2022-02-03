@@ -152,7 +152,9 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
           String requestContentType = this.servletRequest.getContentType();
           if (StringUtils.isNotEmpty(requestContentType)) {
             contentType = MediaType.parseMediaType(requestContentType);
-            this.headers.setContentType(contentType);
+            if (contentType.isConcrete()) {
+              this.headers.setContentType(contentType);
+            }
           }
         }
         if (contentType != null && contentType.getCharset() == null) {

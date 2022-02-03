@@ -107,7 +107,7 @@ public class ServletServerHttpRequestTests {
     // SPR-13876
   void getUriWithEncoding() throws URISyntaxException {
     URI uri = new URI("https://example.com/%E4%B8%AD%E6%96%87" +
-                              "?redirect=https%3A%2F%2Fgithub.com%2Fspring-projects%2Fspring-framework");
+            "?redirect=https%3A%2F%2Fgithub.com%2Fspring-projects%2Fspring-framework");
     mockRequest.setScheme(uri.getScheme());
     mockRequest.setServerName(uri.getHost());
     mockRequest.setServerPort(uri.getPort());
@@ -155,6 +155,13 @@ public class ServletServerHttpRequestTests {
     assertThat(headerValues.contains(headerValue1)).as("Invalid header values returned").isTrue();
     assertThat(headerValues.contains(headerValue2)).as("Invalid header values returned").isTrue();
     assertThat(headers.getContentType()).isNull();
+  }
+
+  @Test
+  void getHeadersWithWildcardContentType() {
+    mockRequest.setContentType("*/*");
+    mockRequest.removeHeader("Content-Type");
+    assertThat(request.getHeaders()).as("Invalid content-type should not raise exception").hasSize(0);
   }
 
   @Test
