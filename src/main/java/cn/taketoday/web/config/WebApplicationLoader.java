@@ -49,9 +49,9 @@ import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.ReturnValueHandler;
-import cn.taketoday.web.view.ReturnValueHandlers;
-import cn.taketoday.web.view.SelectableReturnValueHandler;
+import cn.taketoday.web.handler.ReturnValueHandler;
+import cn.taketoday.web.handler.ReturnValueHandlers;
+import cn.taketoday.web.handler.SelectableReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-10 23:12

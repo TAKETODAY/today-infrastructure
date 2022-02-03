@@ -34,7 +34,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.ReturnValueHandler;
+import cn.taketoday.web.handler.ReturnValueHandler;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
 

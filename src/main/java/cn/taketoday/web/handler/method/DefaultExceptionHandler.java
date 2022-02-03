@@ -39,9 +39,9 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.SimpleExceptionHandler;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.view.ReturnValueHandlers;
 
 /**
  * Handle {@link ExceptionHandler} annotated method

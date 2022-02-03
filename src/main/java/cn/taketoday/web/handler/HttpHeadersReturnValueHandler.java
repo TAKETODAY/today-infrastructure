@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,45 +17,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+
+package cn.taketoday.web.handler;
 
 import java.io.IOException;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
- * for {@link Void} or void type
- *
- * @author TODAY 2019-07-14 00:53
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/28 11:00
  */
-public class VoidReturnValueHandler
+public class HttpHeadersReturnValueHandler
         extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
-  private final ModelAndViewReturnValueHandler returnValueHandler;
 
-  public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {
-    Assert.notNull(returnValueHandler, "ModelAndViewReturnValueHandler must not be null");
-    this.returnValueHandler = returnValueHandler;
+  @Override
+  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isReturn(HttpHeaders.class);
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isReturn(void.class)
-            || handlerMethod.isReturn(Void.class);
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof HttpHeaders;
   }
 
   @Override
-  public boolean supportsReturnValue(Object returnValue) {
-    return returnValue == null;
-  }
+  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
+    context.setRequestHandled(true);
+    Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
+    HttpHeaders headers = (HttpHeaders) returnValue;
 
-  @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
-    if (context.hasModelAndView()) {
-      // user constructed a ModelAndView hold in context
-      returnValueHandler.handleModelAndView(context, null, context.modelAndView());
+    if (!headers.isEmpty()) {
+      context.responseHeaders().putAll(headers);
     }
   }
 

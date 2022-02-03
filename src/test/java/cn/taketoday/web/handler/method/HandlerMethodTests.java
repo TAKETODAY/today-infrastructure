@@ -38,7 +38,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
-import cn.taketoday.web.view.ReturnValueHandlers;
+import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 
 import static org.assertj.core.api.Assertions.assertThat;

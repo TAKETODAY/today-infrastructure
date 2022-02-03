@@ -21,7 +21,7 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.web.view.FrameworkConfigurationException;
+import cn.taketoday.web.FrameworkConfigurationException;
 
 /**
  * By default when the DispatcherHandler can't find a handler for a request it

@@ -18,42 +18,45 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view;
+package cn.taketoday.web.handler;
 
 import java.io.IOException;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
+ * Decorator Pattern
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/1/28 11:00
+ * @since 4.0 2022/1/24 15:00
  */
-public class HttpHeadersReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class ReturnValueHandlerDecorator implements ReturnValueHandler {
+  private final ReturnValueHandler delegate;
+
+  public ReturnValueHandlerDecorator(ReturnValueHandler delegate) {
+    Assert.notNull(delegate, "ReturnValueHandler delegate is required");
+    this.delegate = delegate;
+  }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturn(HttpHeaders.class);
+  public boolean supportsHandler(Object handler) {
+    return delegate.supportsHandler(handler);
   }
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof HttpHeaders;
+    return delegate.supportsReturnValue(returnValue);
   }
 
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
-    context.setRequestHandled(true);
-    Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
-    HttpHeaders headers = (HttpHeaders) returnValue;
+    delegate.handleReturnValue(context, handler, returnValue);
+  }
 
-    if (!headers.isEmpty()) {
-      context.responseHeaders().putAll(headers);
-    }
+  public ReturnValueHandler getDelegate() {
+    return delegate;
   }
 
 }

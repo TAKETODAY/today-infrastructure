@@ -48,6 +48,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
@@ -100,7 +101,7 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
   /**
    * Provides access to the shared {@link HttpMessageConverter HttpMessageConverters}
    * used by the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
-   * {@link cn.taketoday.web.view.ReturnValueHandlers}.
+   * {@link ReturnValueHandlers}.
    * <p>This method cannot be overridden; use {@link #configureMessageConverters} instead.
    * Also see {@link #addDefaultHttpMessageConverters} for adding default message converters.
    */
@@ -119,7 +120,7 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
   /**
    * Override this method to add custom {@link HttpMessageConverter HttpMessageConverters}
    * to use with the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
-   * {@link cn.taketoday.web.view.ReturnValueHandlers}.
+   * {@link ReturnValueHandlers}.
    * <p>Adding converters to the list turns off the default converters that would
    * otherwise be registered by default. Also see {@link #addDefaultHttpMessageConverters}
    * for adding default message converters.

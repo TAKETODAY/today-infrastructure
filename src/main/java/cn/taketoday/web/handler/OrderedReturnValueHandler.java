@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,29 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.handler;
 
-import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.core.Ordered;
 
 /**
- * for HandlerMethod return-value
- *
- * @author TODAY 2019-12-13 13:52
+ * @author TODAY <br>
+ * 2019-07-14 19:39
  */
-public abstract class HandlerMethodReturnValueHandler
-        extends OrderedSupport implements ReturnValueHandler {
+public interface OrderedReturnValueHandler extends ReturnValueHandler, Ordered {
 
   @Override
-  public final boolean supportsHandler(final Object handler) {
-    return handler instanceof HandlerMethod && supportsHandlerMethod((HandlerMethod) handler);
+  default int getOrder() {
+    return LOWEST_PRECEDENCE;
   }
-
-  /**
-   * match function for {@link HandlerMethod}
-   *
-   * @see HandlerMethod
-   */
-  protected abstract boolean supportsHandlerMethod(HandlerMethod handler);
 
 }

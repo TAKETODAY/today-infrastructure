@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,21 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.handler;
+
+import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
- * request-handler can implement this interface to provide
- * a ReturnValueHandler to handle its execution result
+ * for HandlerMethod return-value
  *
- * @author TODAY 2019-12-28 14:15
+ * @author TODAY 2019-12-13 13:52
  */
-@FunctionalInterface
-public interface ReturnValueHandlerProvider {
+public abstract class HandlerMethodReturnValueHandler
+        extends OrderedSupport implements ReturnValueHandler {
+
+  @Override
+  public final boolean supportsHandler(final Object handler) {
+    return handler instanceof HandlerMethod && supportsHandlerMethod((HandlerMethod) handler);
+  }
 
   /**
-   * Get {@link ReturnValueHandler}
+   * match function for {@link HandlerMethod}
    *
-   * @return must not be null
+   * @see HandlerMethod
    */
-  ReturnValueHandler getReturnValueHandler();
+  protected abstract boolean supportsHandlerMethod(HandlerMethod handler);
+
 }

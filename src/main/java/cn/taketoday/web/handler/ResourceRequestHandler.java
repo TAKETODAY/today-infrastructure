@@ -19,6 +19,10 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPOutputStream;
+
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
@@ -33,10 +37,6 @@ import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * @author TODAY 2019-12-25 16:12

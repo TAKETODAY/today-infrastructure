@@ -23,7 +23,7 @@ package cn.taketoday.web.resolver;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.view.FrameworkConfigurationException;
+import cn.taketoday.web.FrameworkConfigurationException;
 
 /**
  * For {@link ParameterResolvingStrategy} NotFound Exception

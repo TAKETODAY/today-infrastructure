@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,53 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view;
+package cn.taketoday.web.handler;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.FrameworkConfigurationException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
- * For {@link ReturnValueHandler} not found
+ * For {@link cn.taketoday.web.handler.HandlerAdapter} not found
  *
- * @author TODAY 2021/4/26 22:18
+ * @author TODAY 2021/4/26 22:26
  * @since 3.0
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationException {
-
+public class HandlerAdapterNotFoundException extends FrameworkConfigurationException {
   private final Object handler;
 
-  @Nullable
-  private final Object returnValue;
-
-  /**
-   * @param handler target handler
-   */
-  public ReturnValueHandlerNotFoundException(Object handler) {
-    super("No ReturnValueHandler for handler: [" + handler + ']');
-    this.returnValue = null;
-    this.handler = handler;
-  }
-
-  /**
-   * @param returnValue handler's return value or execution result
-   * @param handler target handler
-   */
-  public ReturnValueHandlerNotFoundException(@NonNull Object returnValue, Object handler) {
-    super("No ReturnValueHandler for return-value: [" + returnValue + ']');
-    this.returnValue = returnValue;
+  public HandlerAdapterNotFoundException(Object handler) {
+    super("No HandlerAdapter for handler: [" + handler + ']');
     this.handler = handler;
   }
 
   public Object getHandler() {
     return handler;
   }
-
-  @Nullable
-  public Object getReturnValue() {
-    return returnValue;
-  }
-
 }
