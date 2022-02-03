@@ -230,7 +230,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         // our purposes here. TaskExecutor is more clearly designed for it.
         Executor executor = beanFactory.getBean(TaskExecutor.class);
         if (executor == null) {
-          log.debug("Could not find default TaskExecutor bean");
+          log.debug("Could not find unique TaskExecutor bean. " +
+                  "Continuing search for an Executor bean named 'taskExecutor'");
           executor = beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
           if (executor == null) {
             log.info("No task executor bean found for async processing: " +
@@ -241,7 +242,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         return executor;
       }
       catch (NoUniqueBeanDefinitionException ex) {
-        log.debug("Could not find unique TaskExecutor bean", ex);
+        log.debug("Could not find default TaskExecutor bean. " +
+                "Continuing search for an Executor bean named 'taskExecutor'", ex);
         Executor executor = beanFactory.getBean(DEFAULT_TASK_EXECUTOR_BEAN_NAME, Executor.class);
         if (executor == null) {
           log.info("More than one TaskExecutor bean found within the context, and none is named " +
