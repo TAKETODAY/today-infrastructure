@@ -33,6 +33,7 @@ import cn.taketoday.lang.Assert;
  * @since 3.0
  */
 public interface ConversionService {
+
   /**
    * use {@link TypeDescriptor} to resolve generic info
    */
@@ -67,6 +68,7 @@ public interface ConversionService {
    * @param source source object
    * @param targetClass targetClass
    * @return converted object
+   * @throws ConversionException conversion exception
    */
   default <T> T convert(Object source, Class<T> targetClass) {
     return convert(source, TypeDescriptor.valueOf(targetClass));
@@ -80,6 +82,7 @@ public interface ConversionService {
    *
    * @param source source object
    * @param targetType target class and generics info
+   * @throws ConversionException conversion exception
    */
   <T> T convert(Object source, TypeDescriptor targetType);
 
