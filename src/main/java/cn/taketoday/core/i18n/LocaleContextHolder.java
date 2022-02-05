@@ -61,8 +61,7 @@ public final class LocaleContextHolder {
   @Nullable
   private static TimeZone defaultTimeZone;
 
-  private LocaleContextHolder() {
-  }
+  private LocaleContextHolder() { }
 
   /**
    * Reset the LocaleContext for the current thread.
@@ -185,7 +184,6 @@ public final class LocaleContextHolder {
    * letting lookups fall back to {@link Locale#getDefault()})
    * @see #getLocale()
    * @see Locale#getDefault()
-   * @since 4.0
    */
   public static void setDefaultLocale(@Nullable Locale locale) {
     LocaleContextHolder.defaultLocale = locale;
@@ -226,7 +224,6 @@ public final class LocaleContextHolder {
    * @see LocaleContext#getLocale()
    * @see #setDefaultLocale(Locale)
    * @see Locale#getDefault()
-   * @since 4.0
    */
   public static Locale getLocale(@Nullable LocaleContext localeContext) {
     if (localeContext != null) {
@@ -235,7 +232,7 @@ public final class LocaleContextHolder {
         return locale;
       }
     }
-    return (defaultLocale != null ? defaultLocale : Locale.getDefault());
+    return defaultLocale != null ? defaultLocale : Locale.getDefault();
   }
 
   /**
@@ -293,7 +290,6 @@ public final class LocaleContextHolder {
    * letting lookups fall back to {@link TimeZone#getDefault()})
    * @see #getTimeZone()
    * @see TimeZone#getDefault()
-   * @since 4.0
    */
   public static void setDefaultTimeZone(@Nullable TimeZone timeZone) {
     defaultTimeZone = timeZone;
@@ -335,7 +331,6 @@ public final class LocaleContextHolder {
    * @see TimeZoneAwareLocaleContext#getTimeZone()
    * @see #setDefaultTimeZone(TimeZone)
    * @see TimeZone#getDefault()
-   * @since 4.0
    */
   public static TimeZone getTimeZone(@Nullable LocaleContext localeContext) {
     if (localeContext instanceof TimeZoneAwareLocaleContext) {
@@ -344,7 +339,7 @@ public final class LocaleContextHolder {
         return timeZone;
       }
     }
-    return (defaultTimeZone != null ? defaultTimeZone : TimeZone.getDefault());
+    return defaultTimeZone != null ? defaultTimeZone : TimeZone.getDefault();
   }
 
 }

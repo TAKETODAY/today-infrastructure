@@ -79,7 +79,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Example usage with MappingJackson2JsonView:
  *
  * <pre class="code">
- * &lt;bean class="cn.taketoday.web.servlet.view.json.MappingJackson2JsonView"&gt;
+ * &lt;bean class="cn.taketoday.web.view.json.MappingJackson2JsonView"&gt;
  *   &lt;property name="objectMapper"&gt;
  *     &lt;bean class="cn.taketoday.http.converter.json.Jackson2ObjectMapperFactoryBean"
  *       p:failOnEmptyBeans="false"

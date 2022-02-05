@@ -612,7 +612,8 @@ public abstract class HttpHeaders
    */
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
-    return (StringUtils.isNotEmpty(value) ? Locale.LanguageRange.parse(value) : Collections.emptyList());
+    return StringUtils.isNotEmpty(value)
+           ? Locale.LanguageRange.parse(value) : Collections.emptyList();
   }
 
   /**
@@ -1764,7 +1765,7 @@ public abstract class HttpHeaders
    * @param headerName the header name
    * @param headerValue the header value, or {@code null} for none
    */
-  public void setOrRemove(String headerName, String headerValue) {
+  public void setOrRemove(String headerName, @Nullable String headerValue) {
     if (headerValue != null) {
       set(headerName, headerValue);
     }
@@ -1817,7 +1818,7 @@ public abstract class HttpHeaders
   }
 
   @Override
-  public abstract void set(String headerName, String headerValue);
+  public abstract void set(String headerName, @Nullable String headerValue);
 
   @Override
   public void setAll(Map<String, String> values) {
