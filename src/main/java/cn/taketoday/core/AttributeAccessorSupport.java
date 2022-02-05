@@ -20,7 +20,9 @@
 package cn.taketoday.core;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -96,11 +98,19 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   }
 
   @Override
-  public String[] attributeNames() {
+  public String[] getAttributeNames() {
     if (attributes != null) {
       return StringUtils.toStringArray(attributes.keySet());
     }
     return Constant.EMPTY_STRING_ARRAY;
+  }
+
+  @Override
+  public Iterator<String> attributeNames() {
+    if (attributes != null) {
+      return attributes.keySet().iterator();
+    }
+    return Collections.emptyIterator();
   }
 
   /**

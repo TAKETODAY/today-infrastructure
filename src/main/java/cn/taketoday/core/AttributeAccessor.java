@@ -19,11 +19,14 @@
  */
 package cn.taketoday.core;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata
@@ -81,7 +84,16 @@ public interface AttributeAccessor {
   /**
    * Return the names of all attributes.
    */
-  String[] attributeNames();
+  default String[] getAttributeNames() {
+    return CollectionUtils.toArray(attributeNames(), Constant.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Return the names Iterator.
+   *
+   * @since 4.0
+   */
+  Iterator<String> attributeNames();
 
   /**
    * Return attributes map
