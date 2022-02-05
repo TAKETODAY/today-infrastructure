@@ -38,6 +38,8 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -325,17 +327,40 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static boolean isSimpleValueType(Class<?> type) {
-    return (Void.class != type && void.class != type &&
-            (ClassUtils.isPrimitiveOrWrapper(type) ||
-                    Enum.class.isAssignableFrom(type) ||
-                    CharSequence.class.isAssignableFrom(type) ||
-                    Number.class.isAssignableFrom(type) ||
-                    Date.class.isAssignableFrom(type) ||
-                    Temporal.class.isAssignableFrom(type) ||
-                    URI.class == type ||
-                    URL.class == type ||
-                    Locale.class == type ||
-                    Class.class == type));
+    return Void.class != type && void.class != type
+            && (
+            ClassUtils.isPrimitiveOrWrapper(type)
+                    || URI.class == type
+                    || URL.class == type
+                    || Class.class == type
+                    || Locale.class == type
+                    || Date.class.isAssignableFrom(type)
+                    || Enum.class.isAssignableFrom(type)
+                    || Number.class.isAssignableFrom(type)
+                    || Temporal.class.isAssignableFrom(type)
+                    || CharSequence.class.isAssignableFrom(type)
+    );
+  }
+
+  /**
+   * Determine the bean property type for the given property from the
+   * given classes/interfaces, if possible.
+   *
+   * @param propertyName the name of the bean property
+   * @param beanClasses the classes to check against
+   * @return the property type, or {@code Object.class} as fallback
+   * @since 4.0
+   */
+  public static Class<?> findPropertyType(String propertyName, @Nullable Class<?>... beanClasses) {
+    if (beanClasses != null) {
+      for (Class<?> beanClass : beanClasses) {
+        BeanProperty beanProperty = BeanMetadata.from(beanClass).getBeanProperty(propertyName);
+        if (beanProperty != null) {
+          return beanProperty.getType();
+        }
+      }
+    }
+    return Object.class;
   }
 
 }

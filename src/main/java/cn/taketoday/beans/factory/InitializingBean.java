@@ -20,10 +20,19 @@
 package cn.taketoday.beans.factory;
 
 /**
- * Invoke after all the properties has been set
+ * Interface to be implemented by beans that need to react once all their properties
+ * have been set by a {@link BeanFactory}: e.g. to perform custom initialization,
+ * or merely to check that all mandatory properties have been set.
  *
+ * <p>An alternative to implementing {@code InitializingBean} is specifying a custom
+ * init method, for example in an XML bean definition. For a list of all bean
+ * lifecycle methods, see the {@link BeanFactory BeanFactory javadocs}.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @author TODAY <br>
- * 2018-7-17 22:24:03
+ * @see DisposableBean
+ * @since 2018-7-17 22:24:03
  */
 public interface InitializingBean {
 
