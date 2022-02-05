@@ -44,7 +44,7 @@ class UrlPathHelperTests {
   private final UrlPathHelper helper = new UrlPathHelper();
 
   private final MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-  final RequestContext request = new ServletRequestContext(servletRequest, null);
+  final RequestContext request = new ServletRequestContext(null, servletRequest, null);
 
   @Test
   void getPathWithinApplication() {

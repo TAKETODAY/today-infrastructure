@@ -48,7 +48,7 @@ public abstract class AbstractDetectingUrlHandlerRegistry extends AbstractUrlHan
    * will be detected, i.e. only in the context that this HandlerMapping itself
    * is defined in (typically the current DispatcherServlet's context).
    * <p>Switch this flag on to detect handler beans in ancestor contexts
-   * (typically the Spring root WebApplicationContext) as well.
+   * (typically the root WebApplicationContext) as well.
    */
   public void setDetectHandlersInAncestorContexts(boolean detectHandlersInAncestorContexts) {
     this.detectHandlersInAncestorContexts = detectHandlersInAncestorContexts;

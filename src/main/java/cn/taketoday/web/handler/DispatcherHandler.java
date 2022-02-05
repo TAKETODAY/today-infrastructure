@@ -32,8 +32,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.HandlerRegistry;
 
 /**
@@ -42,7 +42,8 @@ import cn.taketoday.web.registry.HandlerRegistry;
  * @author TODAY 2019-11-16 19:05
  * @since 3.0
  */
-public class DispatcherHandler extends WebApplicationContextSupport {
+public class DispatcherHandler {
+  private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   /** Log category to use when no mapped handler is found for a request. */
@@ -62,10 +63,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   /** Throw a NoHandlerFoundException if no Handler was found to process this request? @since 4.0 */
   private boolean throwExceptionIfNoHandlerFound = false;
 
-  public DispatcherHandler() { }
+  private final WebApplicationContext webApplicationContext;
 
   public DispatcherHandler(WebApplicationContext context) {
-    setApplicationContext(context);
+    this.webApplicationContext = context;
   }
 
   // Handler
@@ -287,11 +288,16 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     }
   }
 
+  // @since 4.0
+  public WebApplicationContext getWebApplicationContext() {
+    return webApplicationContext;
+  }
+
   /**
    * Destroy Application
    */
   public void destroy() {
-    final ApplicationContext context = getApplicationContext();
+    final ApplicationContext context = getWebApplicationContext();
     if (context != null) {
       final State state = context.getState();
       if (state != State.CLOSING && state != State.CLOSED) {

@@ -36,7 +36,7 @@ public class ThrowableHandlerParameterResolver implements ParameterResolvingStra
 
   @Override
   public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
-    return context.getAttribute(HandlerExceptionHandler.KEY_THROWABLE);
+    return context.getAttribute(HandlerExceptionHandler.ERROR_EXCEPTION_ATTRIBUTE);
   }
 
 }

@@ -21,9 +21,11 @@ package cn.taketoday.scripting.support;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.core.type.EnabledForTestGroups;
 import cn.taketoday.scripting.Messenger;
 import cn.taketoday.scripting.ScriptCompilationException;
@@ -93,7 +95,7 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(true);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
 
-    GenericApplicationContext ctx = new GenericApplicationContext();
+    DefaultApplicationContext ctx = new DefaultApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     ctx.refresh();
@@ -114,7 +116,7 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(false);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
 
-    GenericApplicationContext ctx = new GenericApplicationContext();
+    DefaultApplicationContext ctx = new DefaultApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     ctx.refresh();
@@ -133,14 +135,14 @@ class ScriptFactoryPostProcessorTests {
   void testRefreshedScriptReferencePropagatesToCollaborators() throws Exception {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(true);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
-    BeanDefinitionBuilder collaboratorBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultMessengerService.class);
-    collaboratorBuilder.addPropertyReference(MESSENGER_BEAN_NAME, MESSENGER_BEAN_NAME);
+    BeanDefinition collaboratorBuilder = new BeanDefinition(DefaultMessengerService.class);
+    collaboratorBuilder.addPropertyValue(MESSENGER_BEAN_NAME, new RuntimeBeanReference(MESSENGER_BEAN_NAME));
 
-    GenericApplicationContext ctx = new GenericApplicationContext();
+    DefaultApplicationContext ctx = new DefaultApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     final String collaboratorBeanName = "collaborator";
-    ctx.registerBeanDefinition(collaboratorBeanName, collaboratorBuilder.getBeanDefinition());
+    ctx.registerBeanDefinition(collaboratorBeanName, collaboratorBuilder);
     ctx.refresh();
 
     Messenger messenger = (Messenger) ctx.getBean(MESSENGER_BEAN_NAME);
@@ -159,38 +161,34 @@ class ScriptFactoryPostProcessorTests {
 
   @Test
   void testReferencesAcrossAContainerHierarchy() throws Exception {
-    GenericApplicationContext businessContext = new GenericApplicationContext();
-    businessContext.registerBeanDefinition("messenger", BeanDefinitionBuilder.rootBeanDefinition(StubMessenger.class).getBeanDefinition());
+    DefaultApplicationContext businessContext = new DefaultApplicationContext();
+    businessContext.registerBeanDefinition("messenger", new BeanDefinition(StubMessenger.class));
+
     businessContext.refresh();
 
-    BeanDefinitionBuilder scriptedBeanBuilder = BeanDefinitionBuilder.rootBeanDefinition(GroovyScriptFactory.class);
-    scriptedBeanBuilder.addConstructorArgValue(DELEGATING_SCRIPT);
-    scriptedBeanBuilder.addPropertyReference("messenger", "messenger");
+    BeanDefinition scriptedBeanBuilder = new BeanDefinition(GroovyScriptFactory.class);
+    scriptedBeanBuilder.getConstructorArgumentValues().addGenericArgumentValue(DELEGATING_SCRIPT);
+    scriptedBeanBuilder.addPropertyValue("messenger", new RuntimeBeanReference("messenger"));
 
-    GenericApplicationContext presentationCtx = new GenericApplicationContext(businessContext);
-    presentationCtx.registerBeanDefinition("needsMessenger", scriptedBeanBuilder.getBeanDefinition());
+    DefaultApplicationContext presentationCtx = new DefaultApplicationContext(businessContext);
+    presentationCtx.registerBeanDefinition("needsMessenger", scriptedBeanBuilder);
     presentationCtx.registerBeanDefinition("scriptProcessor", createScriptFactoryPostProcessor(true));
     presentationCtx.refresh();
-  }
-
-  @Test
-  void testScriptHavingAReferenceToAnotherBean() throws Exception {
-    // just tests that the (singleton) script-backed bean is able to be instantiated with references to its collaborators
-    new ClassPathXmlApplicationContext("org/springframework/scripting/support/groovyReferences.xml");
   }
 
   @Test
   void testForRefreshedScriptHavingErrorPickedUpOnFirstCall() throws Exception {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(true);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
-    BeanDefinitionBuilder collaboratorBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultMessengerService.class);
-    collaboratorBuilder.addPropertyReference(MESSENGER_BEAN_NAME, MESSENGER_BEAN_NAME);
+    BeanDefinition collaboratorBuilder = new BeanDefinition(DefaultMessengerService.class);
+    collaboratorBuilder.getConstructorArgumentValues().addGenericArgumentValue(DELEGATING_SCRIPT);
+    collaboratorBuilder.addPropertyValue(MESSENGER_BEAN_NAME, new RuntimeBeanReference(MESSENGER_BEAN_NAME));
 
-    GenericApplicationContext ctx = new GenericApplicationContext();
+    DefaultApplicationContext ctx = new DefaultApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     final String collaboratorBeanName = "collaborator";
-    ctx.registerBeanDefinition(collaboratorBeanName, collaboratorBuilder.getBeanDefinition());
+    ctx.registerBeanDefinition(collaboratorBeanName, collaboratorBuilder);
     ctx.refresh();
 
     Messenger messenger = (Messenger) ctx.getBean(MESSENGER_BEAN_NAME);
@@ -201,22 +199,23 @@ class ScriptFactoryPostProcessorTests {
     // needs The Sundays compiler; must NOT throw any exception here...
     source.setScript("I keep hoping you are the same as me, and I'll send you letters and come to your house for tea");
     Messenger refreshedMessenger = (Messenger) ctx.getBean(MESSENGER_BEAN_NAME);
-    assertThatExceptionOfType(FatalBeanException.class).isThrownBy(refreshedMessenger::getMessage)
+    assertThatExceptionOfType(BeansException.class)
+            .isThrownBy(refreshedMessenger::getMessage)
             .matches(ex -> ex.contains(ScriptCompilationException.class));
   }
 
   @Test
   void testPrototypeScriptedBean() throws Exception {
-    GenericApplicationContext ctx = new GenericApplicationContext();
-    ctx.registerBeanDefinition("messenger", BeanDefinitionBuilder.rootBeanDefinition(StubMessenger.class).getBeanDefinition());
+    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    ctx.registerBeanDefinition("messenger", new BeanDefinition(StubMessenger.class));
 
-    BeanDefinitionBuilder scriptedBeanBuilder = BeanDefinitionBuilder.rootBeanDefinition(GroovyScriptFactory.class);
+    BeanDefinition scriptedBeanBuilder = new BeanDefinition(GroovyScriptFactory.class);
     scriptedBeanBuilder.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    scriptedBeanBuilder.addConstructorArgValue(DELEGATING_SCRIPT);
-    scriptedBeanBuilder.addPropertyReference("messenger", "messenger");
+    scriptedBeanBuilder.getConstructorArgumentValues().addGenericArgumentValue(DELEGATING_SCRIPT);
+    scriptedBeanBuilder.addPropertyValue("messenger", new RuntimeBeanReference("messenger"));
 
     final String BEAN_WITH_DEPENDENCY_NAME = "needsMessenger";
-    ctx.registerBeanDefinition(BEAN_WITH_DEPENDENCY_NAME, scriptedBeanBuilder.getBeanDefinition());
+    ctx.registerBeanDefinition(BEAN_WITH_DEPENDENCY_NAME, scriptedBeanBuilder);
     ctx.registerBeanDefinition("scriptProcessor", createScriptFactoryPostProcessor(true));
     ctx.refresh();
 
@@ -225,23 +224,23 @@ class ScriptFactoryPostProcessorTests {
     assertThat(messenger2).isNotSameAs(messenger1);
   }
 
-  private static StaticScriptSource getScriptSource(GenericApplicationContext ctx) throws Exception {
+  private static StaticScriptSource getScriptSource(DefaultApplicationContext ctx) throws Exception {
     ScriptFactoryPostProcessor processor = (ScriptFactoryPostProcessor) ctx.getBean(PROCESSOR_BEAN_NAME);
     BeanDefinition bd = processor.scriptBeanFactory.getBeanDefinition("scriptedObject.messenger");
     return (StaticScriptSource) bd.getConstructorArgumentValues().getIndexedArgumentValue(0, StaticScriptSource.class).getValue();
   }
 
   private static BeanDefinition createScriptFactoryPostProcessor(boolean isRefreshable) {
-    BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ScriptFactoryPostProcessor.class);
+    BeanDefinition builder = new BeanDefinition(ScriptFactoryPostProcessor.class);
     if (isRefreshable) {
       builder.addPropertyValue("defaultRefreshCheckDelay", 1L);
     }
-    return builder.getBeanDefinition();
+    return builder;
   }
 
   private static BeanDefinition createScriptedGroovyBean() {
-    BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(GroovyScriptFactory.class);
-    builder.addConstructorArgValue("inline:package cn.taketoday.scripting;\n" +
+    BeanDefinition builder = new BeanDefinition(GroovyScriptFactory.class);
+    builder.getConstructorArgumentValues().addGenericArgumentValue("inline:package cn.taketoday.scripting;\n" +
             "class GroovyMessenger implements Messenger {\n" +
             "  private String message = \"Bingo\"\n" +
             "  public String getMessage() {\n" +
@@ -252,7 +251,7 @@ class ScriptFactoryPostProcessorTests {
             "  }\n" +
             "}");
     builder.addPropertyValue("message", MESSAGE_TEXT);
-    return builder.getBeanDefinition();
+    return builder;
   }
 
   private static void pauseToLetRefreshDelayKickIn(int secondsToPause) {

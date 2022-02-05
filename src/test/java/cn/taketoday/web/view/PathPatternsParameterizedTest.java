@@ -18,17 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.gh24375;
+package cn.taketoday.web.view;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.ANNOTATION_TYPE)
+import cn.taketoday.core.PathMatcher;
+import cn.taketoday.web.util.pattern.PathPatternParser;
+
+/**
+ * Annotation for tests parameterized to use either
+ * {@link PathPatternParser} or
+ * {@link PathMatcher} for URL pattern matching.
+ *
+ * @author Rossen Stoyanchev
+ */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NestedAnnotation {
-
-  String name() default "";
-
+@Target(ElementType.METHOD)
+// Do not auto-close arguments since ConfigurableWebApplicationContext implements
+// AutoCloseable and is shared between parameterized test invocations.
+@org.junit.jupiter.params.ParameterizedTest(autoCloseArguments = false)
+@org.junit.jupiter.params.provider.MethodSource("pathPatternsArguments")
+public @interface PathPatternsParameterizedTest {
 }

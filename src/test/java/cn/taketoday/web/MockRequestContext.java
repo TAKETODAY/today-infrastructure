@@ -39,6 +39,12 @@ import cn.taketoday.web.multipart.MultipartFile;
  */
 public class MockRequestContext extends RequestContext {
 
+  public MockRequestContext() {
+    super(null);
+  }
+
+  public MockRequestContext(WebApplicationContext context) { super(context); }
+
   @Override
   public String getScheme() {
     return null;

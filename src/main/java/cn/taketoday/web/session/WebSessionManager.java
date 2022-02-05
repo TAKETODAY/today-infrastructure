@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.session;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -26,6 +27,8 @@ import cn.taketoday.web.RequestContext;
  * 2019-09-27 20:24
  */
 public interface WebSessionManager {
+
+  String BEAN_NAME = "cn.taketoday.web.session.internalSessionManager";
 
   /**
    * create a new session
@@ -79,6 +82,7 @@ public interface WebSessionManager {
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
+  @Nullable
   WebSession getSession(RequestContext context, boolean create);
 
 }

@@ -45,7 +45,7 @@ public class HeaderContentNegotiationStrategyTests {
 
   private final MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 
-  final RequestContext context = new ServletRequestContext(servletRequest, null);
+  final RequestContext context = new ServletRequestContext(null, servletRequest, null);
 
   @Test
   public void resolveMediaTypes() throws Exception {

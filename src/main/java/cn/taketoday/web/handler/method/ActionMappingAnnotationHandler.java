@@ -34,7 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
-import cn.taketoday.web.handler.ReturnValueHandler;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 
 /**

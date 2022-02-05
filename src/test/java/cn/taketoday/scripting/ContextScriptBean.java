@@ -19,12 +19,11 @@
  */
 package cn.taketoday.scripting;
 
-import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.context.ApplicationContext;
 
 /**
  * @author Juergen Hoeller
- * @since 08.08.2006
  */
 public interface ContextScriptBean extends ScriptBean {
 

@@ -45,7 +45,7 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 
 /**
  * Encapsulates information about an {@link ControllerAdvice @ControllerAdvice}
- * Spring-managed bean without necessarily requiring it to be instantiated.
+ * Framework-managed bean without necessarily requiring it to be instantiated.
  *
  * <p>The {@link #findAnnotatedBeans(ApplicationContext)} method can be used to
  * discover such beans. However, a {@code ControllerAdviceBean} may be created
@@ -218,9 +218,8 @@ public class ControllerAdviceBean implements Ordered {
   /**
    * Get the bean instance for this {@code ControllerAdviceBean}, if necessary
    * resolving the bean name through the {@link BeanFactory}.
-   * <p>As of Spring Framework 5.2, once the bean instance has been resolved it
-   * will be cached if it is a singleton, thereby avoiding repeated lookups in
-   * the {@code BeanFactory}.
+   * <p> the bean instance has been resolved it will be cached if it is a
+   * singleton, thereby avoiding repeated lookups in the {@code BeanFactory}.
    */
   public Object resolveBean() {
     if (this.resolvedBean == null) {

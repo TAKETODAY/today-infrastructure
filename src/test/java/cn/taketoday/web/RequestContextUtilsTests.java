@@ -36,7 +36,7 @@ class RequestContextUtilsTests {
 
   private final MockHttpServletRequest request = new MockHttpServletRequest();
 
-  RequestContext context = new ServletRequestContext(request, null);
+  RequestContext context = new ServletRequestContext(null, request, null);
 
   @Test
   void testIntParameter() throws RequestBindingException {

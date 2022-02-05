@@ -47,7 +47,7 @@ import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
-import cn.taketoday.web.handler.ReturnValueHandler;
+import cn.taketoday.web.ReturnValueHandler;
 
 import static cn.taketoday.core.ConfigurationException.nonNull;
 

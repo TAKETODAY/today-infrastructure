@@ -35,6 +35,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +50,12 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Sam Brannen
  */
 public abstract class WebUtils {
+  public static final String ERROR_EXCEPTION_ATTRIBUTE = HandlerExceptionHandler.class.getName() + "-context-throwable";
+
+  /**
+   * Prefix of the charset clause in a content type String: ";charset=".
+   */
+  public static final String CONTENT_TYPE_CHARSET_PREFIX = ";charset=";
 
   /**
    * Retrieve the first cookie with the given name. Note that multiple

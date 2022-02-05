@@ -26,18 +26,17 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Arrays;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.http.CorsConfiguration;
 import cn.taketoday.http.CorsFilter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.UrlBasedCorsConfigurationSource;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

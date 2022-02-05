@@ -61,7 +61,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UrlPathHelper;
-import cn.taketoday.web.handler.ReturnValueHandler;
+import cn.taketoday.web.ReturnValueHandler;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**

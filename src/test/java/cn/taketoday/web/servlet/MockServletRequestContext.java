@@ -37,9 +37,9 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.util.EnumerationIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.resolver.MultipartParsingException;
@@ -62,6 +62,12 @@ public class MockServletRequestContext extends RequestContext {
   private final HttpServletResponse response;
 
   public MockServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
+    this(null, request, response);
+  }
+
+  public MockServletRequestContext(
+          WebApplicationContext webApplicationContext, HttpServletRequest request, HttpServletResponse response) {
+    super(webApplicationContext);
     this.request = request;
     this.response = response;
   }
@@ -164,7 +170,7 @@ public class MockServletRequestContext extends RequestContext {
 
   @Override
   public Iterator<String> getParameterNames() {
-    return new EnumerationIterator<>(request.getParameterNames());
+    return request.getParameterNames().asIterator();
   }
 
   @Override

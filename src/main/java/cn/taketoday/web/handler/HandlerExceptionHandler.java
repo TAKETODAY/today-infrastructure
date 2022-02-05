@@ -21,6 +21,7 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Handle Exception from handler
@@ -29,7 +30,7 @@ import cn.taketoday.web.RequestContext;
  * 2020-03-29 20:52
  */
 public interface HandlerExceptionHandler {
-  String KEY_THROWABLE = HandlerExceptionHandler.class.getName() + "-context-throwable";
+  String ERROR_EXCEPTION_ATTRIBUTE = WebUtils.ERROR_EXCEPTION_ATTRIBUTE;
 
   /**
    * This value indicates that the handler did not return a value, or the result

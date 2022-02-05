@@ -366,7 +366,7 @@ final class HierarchicalUriComponents extends UriComponents {
    * @throws IllegalArgumentException when the given value is not a valid URI component
    */
   static String encodeUriComponent(String source, Charset charset, Type type) {
-    if (!StringUtils.isNotEmpty(source)) {
+    if (StringUtils.isEmpty(source)) {
       return source;
     }
     Assert.notNull(charset, "Charset must not be null");
@@ -384,20 +384,20 @@ final class HierarchicalUriComponents extends UriComponents {
       return source;
     }
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(bytes.length);
+    ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
     for (byte b : bytes) {
       if (type.isAllowed(b)) {
-        baos.write(b);
+        out.write(b);
       }
       else {
-        baos.write('%');
+        out.write('%');
         char hex1 = Character.toUpperCase(Character.forDigit((b >> 4) & 0xF, 16));
         char hex2 = Character.toUpperCase(Character.forDigit(b & 0xF, 16));
-        baos.write(hex1);
-        baos.write(hex2);
+        out.write(hex1);
+        out.write(hex2);
       }
     }
-    return StreamUtils.copyToString(baos, charset);
+    return StreamUtils.copyToString(out, charset);
   }
 
   private Type getHostType() {
@@ -715,7 +715,7 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isAlpha(int c) {
-      return (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
+      return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
     }
 
     /**
@@ -724,7 +724,7 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isDigit(int c) {
-      return (c >= '0' && c <= '9');
+      return c >= '0' && c <= '9';
     }
 
     /**
@@ -733,7 +733,7 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isGenericDelimiter(int c) {
-      return (':' == c || '/' == c || '?' == c || '#' == c || '[' == c || ']' == c || '@' == c);
+      return ':' == c || '/' == c || '?' == c || '#' == c || '[' == c || ']' == c || '@' == c;
     }
 
     /**
@@ -742,8 +742,10 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isSubDelimiter(int c) {
-      return ('!' == c || '$' == c || '&' == c || '\'' == c || '(' == c || ')' == c || '*' == c || '+' == c ||
-              ',' == c || ';' == c || '=' == c);
+      return '!' == c || '$' == c || '&' == c
+              || '\'' == c || '(' == c || ')' == c
+              || '*' == c || '+' == c || ',' == c
+              || ';' == c || '=' == c;
     }
 
     /**
@@ -752,7 +754,7 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isReserved(int c) {
-      return (isGenericDelimiter(c) || isSubDelimiter(c));
+      return isGenericDelimiter(c) || isSubDelimiter(c);
     }
 
     /**
@@ -761,7 +763,7 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isUnreserved(int c) {
-      return (isAlpha(c) || isDigit(c) || '-' == c || '.' == c || '_' == c || '~' == c);
+      return isAlpha(c) || isDigit(c) || '-' == c || '.' == c || '_' == c || '~' == c;
     }
 
     /**
@@ -770,7 +772,7 @@ final class HierarchicalUriComponents extends UriComponents {
      * @see <a href="https://www.ietf.org/rfc/rfc3986.txt">RFC 3986, appendix A</a>
      */
     protected boolean isPchar(int c) {
-      return (isUnreserved(c) || isSubDelimiter(c) || ':' == c || '@' == c);
+      return isUnreserved(c) || isSubDelimiter(c) || ':' == c || '@' == c;
     }
   }
 
@@ -869,11 +871,12 @@ final class HierarchicalUriComponents extends UriComponents {
      * e.g. {@code "/{year:\d{1,4}}"}.
      */
     private boolean isUriVariable(CharSequence source) {
-      if (source.length() < 2 || source.charAt(0) != '{' || source.charAt(source.length() - 1) != '}') {
+      int length = source.length();
+      if (length < 2 || source.charAt(0) != '{' || source.charAt(length - 1) != '}') {
         return false;
       }
       boolean hasText = false;
-      for (int i = 1; i < source.length() - 1; i++) {
+      for (int i = 1; i < length - 1; i++) {
         char c = source.charAt(i);
         if (c == ':' && i > 1) {
           return true;
@@ -881,7 +884,7 @@ final class HierarchicalUriComponents extends UriComponents {
         if (c == '{' || c == '}') {
           return false;
         }
-        hasText = (hasText || !Character.isWhitespace(c));
+        hasText = hasText || !Character.isWhitespace(c);
       }
       return hasText;
     }
@@ -1059,7 +1062,7 @@ final class HierarchicalUriComponents extends UriComponents {
     @Override
     public String getPath() {
       StringBuilder pathBuilder = new StringBuilder();
-      for (PathComponent pathComponent : this.pathComponents) {
+      for (PathComponent pathComponent : pathComponents) {
         pathBuilder.append(pathComponent.getPath());
       }
       return pathBuilder.toString();
@@ -1068,7 +1071,7 @@ final class HierarchicalUriComponents extends UriComponents {
     @Override
     public List<String> getPathSegments() {
       ArrayList<String> result = new ArrayList<>();
-      for (PathComponent pathComponent : this.pathComponents) {
+      for (PathComponent pathComponent : pathComponents) {
         result.addAll(pathComponent.getPathSegments());
       }
       return result;
@@ -1076,8 +1079,8 @@ final class HierarchicalUriComponents extends UriComponents {
 
     @Override
     public PathComponent encode(BiFunction<String, Type, String> encoder) {
-      ArrayList<PathComponent> encodedComponents = new ArrayList<>(this.pathComponents.size());
-      for (PathComponent pathComponent : this.pathComponents) {
+      ArrayList<PathComponent> encodedComponents = new ArrayList<>(pathComponents.size());
+      for (PathComponent pathComponent : pathComponents) {
         encodedComponents.add(pathComponent.encode(encoder));
       }
       return new PathComponentComposite(encodedComponents);
@@ -1085,15 +1088,15 @@ final class HierarchicalUriComponents extends UriComponents {
 
     @Override
     public void verify() {
-      for (PathComponent pathComponent : this.pathComponents) {
+      for (PathComponent pathComponent : pathComponents) {
         pathComponent.verify();
       }
     }
 
     @Override
     public PathComponent expand(UriTemplateVariables uriVariables, @Nullable UnaryOperator<String> encoder) {
-      ArrayList<PathComponent> expandedComponents = new ArrayList<>(this.pathComponents.size());
-      for (PathComponent pathComponent : this.pathComponents) {
+      ArrayList<PathComponent> expandedComponents = new ArrayList<>(pathComponents.size());
+      for (PathComponent pathComponent : pathComponents) {
         expandedComponents.add(pathComponent.expand(uriVariables, encoder));
       }
       return new PathComponentComposite(expandedComponents);
@@ -1101,7 +1104,7 @@ final class HierarchicalUriComponents extends UriComponents {
 
     @Override
     public void copyToUriComponentsBuilder(UriComponentsBuilder builder) {
-      for (PathComponent pathComponent : this.pathComponents) {
+      for (PathComponent pathComponent : pathComponents) {
         pathComponent.copyToUriComponentsBuilder(builder);
       }
     }
@@ -1111,7 +1114,7 @@ final class HierarchicalUriComponents extends UriComponents {
 
     @Override
     public Object getValue(@Nullable String name) {
-      Object value = this.delegate.getValue(name);
+      Object value = delegate.getValue(name);
       if (ObjectUtils.isArray(value)) {
         value = StringUtils.arrayToString(ObjectUtils.toObjectArray(value));
       }
