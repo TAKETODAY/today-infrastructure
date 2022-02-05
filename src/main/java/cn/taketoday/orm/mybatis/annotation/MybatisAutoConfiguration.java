@@ -193,7 +193,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
     if (configuration == null && !StringUtils.hasText(this.properties.getConfigLocation())) {
       configuration = new Configuration();
     }
-    if (configuration != null && !CollectionUtils.isEmpty(this.configurationCustomizers)) {
+    if (configuration != null && CollectionUtils.isNotEmpty(this.configurationCustomizers)) {
       for (ConfigurationCustomizer customizer : this.configurationCustomizers) {
         customizer.customize(configuration);
       }
@@ -202,7 +202,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
   }
 
   private void applySqlSessionFactoryBeanCustomizers(SqlSessionFactoryBean factory) {
-    if (!CollectionUtils.isEmpty(this.sqlSessionFactoryBeanCustomizers)) {
+    if (CollectionUtils.isNotEmpty(this.sqlSessionFactoryBeanCustomizers)) {
       for (SqlSessionFactoryBeanCustomizer customizer : this.sqlSessionFactoryBeanCustomizers) {
         customizer.customize(factory);
       }

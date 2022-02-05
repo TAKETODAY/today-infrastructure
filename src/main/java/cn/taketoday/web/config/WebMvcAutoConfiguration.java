@@ -42,7 +42,7 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
-import cn.taketoday.web.handler.ReturnValueHandler;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.view.template.DefaultTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;

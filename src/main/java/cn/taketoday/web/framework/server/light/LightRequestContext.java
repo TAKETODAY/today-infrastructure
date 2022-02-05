@@ -37,6 +37,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.MultipartParsingException;
@@ -54,7 +55,8 @@ public class LightRequestContext extends RequestContext {
   private final LightHttpConfig config;
   private List<RequestPart> requestParts;
 
-  public LightRequestContext(HttpRequest request, HttpResponse response, LightHttpConfig config) {
+  public LightRequestContext(WebApplicationContext webApplicationContext, HttpRequest request, HttpResponse response, LightHttpConfig config) {
+//    super(webApplicationContext);
     this.config = config;
     this.request = request;
     this.response = response;

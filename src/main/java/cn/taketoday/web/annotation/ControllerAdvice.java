@@ -35,7 +35,7 @@ import cn.taketoday.lang.Component;
  * multiple {@code @Controller} classes.
  *
  * <p>Classes annotated with {@code @ControllerAdvice} can be declared explicitly
- * as Spring beans or auto-detected via classpath scanning. All such beans are
+ * as Framework beans or auto-detected via classpath scanning. All such beans are
  * sorted based on {@link cn.taketoday.core.Ordered Ordered} semantics or
  * {@link cn.taketoday.core.Order @Order} /
  * {@link jakarta.annotation.Priority @Priority} declarations, with {@code Ordered}

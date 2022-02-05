@@ -45,6 +45,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
 
 import static cn.taketoday.web.framework.server.light.Utils.splitElements;
@@ -399,7 +400,8 @@ public class HTTPServer {
           handleTrace(req, resp);
         }
         else {
-          final LightRequestContext context = new LightRequestContext(req, resp, config);
+          WebApplicationContext webApplicationContext = httpHandler.getWebApplicationContext();
+          final LightRequestContext context = new LightRequestContext(webApplicationContext, req, resp, config);
           httpHandler.dispatch(context);
           context.sendIfNotCommitted();
         }

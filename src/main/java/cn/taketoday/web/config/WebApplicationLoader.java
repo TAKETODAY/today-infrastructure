@@ -49,7 +49,7 @@ import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.handler.ReturnValueHandler;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 
