@@ -20,7 +20,14 @@
 
 package cn.taketoday.web;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
+import cn.taketoday.core.i18n.LocaleContext;
+import cn.taketoday.core.i18n.LocaleContextHolder;
+import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.session.WebSessionManager;
 
 /**
  * Parameter extraction methods, for an approach distinct from data binding,
@@ -40,6 +47,93 @@ public class RequestContextUtils {
   private static final DoubleParser DOUBLE_PARSER = new DoubleParser();
   private static final BooleanParser BOOLEAN_PARSER = new BooleanParser();
   private static final StringParser STRING_PARSER = new StringParser();
+
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public static <T> T getBean(RequestContext request, String beanName) {
+    return (T) request.getWebApplicationContext().getBean(beanName);
+  }
+
+  @Nullable
+  public static <T> T getBean(RequestContext request, String beanName, Class<T> requiredType) {
+    return request.getWebApplicationContext().getBean(beanName, requiredType);
+  }
+
+  /**
+   * Return the WebSessionManager
+   *
+   * @param request current HTTP request
+   * @return the current LocaleResolver, or {@code null} if not found
+   */
+  @Nullable
+  public static WebSessionManager getSessionManager(RequestContext request) {
+    return getBean(request, WebSessionManager.BEAN_NAME, WebSessionManager.class);
+  }
+
+  /**
+   * Return the LocaleResolver that has been bound to the request by the
+   * RequestContext.
+   *
+   * @param request current HTTP request
+   * @return the current LocaleResolver, or {@code null} if not found
+   */
+  @Nullable
+  public static LocaleResolver getLocaleResolver(RequestContext request) {
+    return getBean(request, LocaleResolver.BEAN_NAME, LocaleResolver.class);
+  }
+
+  /**
+   * Retrieve the current locale from the given request, using the
+   * LocaleResolver bound to the request by the DispatcherServlet
+   * (if available), falling back to the request's accept-header Locale.
+   * <p>This method serves as a straightforward alternative to the standard
+   * Servlet {@link jakarta.servlet.http.HttpServletRequest#getLocale()} method,
+   * falling back to the latter if no more specific locale has been found.
+   * <p>Consider using {@link LocaleContextHolder#getLocale()}
+   * which will normally be populated with the same Locale.
+   *
+   * @param request current HTTP request
+   * @return the current locale for the given request, either from the
+   * LocaleResolver or from the plain request itself
+   * @see #getLocaleResolver
+   * @see LocaleContextHolder#getLocale()
+   */
+  public static Locale getLocale(RequestContext request) {
+    LocaleResolver localeResolver = getLocaleResolver(request);
+    return localeResolver != null ? localeResolver.resolveLocale(request) : request.getLocale();
+  }
+
+  /**
+   * Retrieve the current time zone from the given request, using the
+   * TimeZoneAwareLocaleResolver bound to the request by the DispatcherServlet
+   * (if available), falling back to the system's default time zone.
+   * <p>Note: This method returns {@code null} if no specific time zone can be
+   * resolved for the given request. This is in contrast to {@link #getLocale}
+   * where there is always the request's accept-header locale to fall back to.
+   * <p>Consider using {@link LocaleContextHolder#getTimeZone()}
+   * which will normally be populated with the same TimeZone: That method only
+   * differs in terms of its fallback to the system time zone if the LocaleResolver
+   * hasn't provided a specific time zone (instead of this method's {@code null}).
+   *
+   * @param request current HTTP request
+   * @return the current time zone for the given request, either from the
+   * TimeZoneAwareLocaleResolver or {@code null} if none associated
+   * @see #getLocaleResolver
+   * @see LocaleContextHolder#getTimeZone()
+   */
+  @Nullable
+  public static TimeZone getTimeZone(RequestContext request) {
+    LocaleResolver localeResolver = getLocaleResolver(request);
+    if (localeResolver instanceof LocaleContextResolver) {
+      LocaleContext localeContext = ((LocaleContextResolver) localeResolver).resolveLocaleContext(request);
+      if (localeContext instanceof TimeZoneAwareLocaleContext) {
+        return ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
+      }
+    }
+    return null;
+  }
+
+  // parameters
 
   /**
    * Get an Integer parameter, or {@code null} if not present.

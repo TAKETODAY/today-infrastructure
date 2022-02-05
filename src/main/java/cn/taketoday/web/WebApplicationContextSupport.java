@@ -21,12 +21,29 @@ package cn.taketoday.web;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.lang.Nullable;
 
 /**
+ * Convenient superclass for application objects running in a {@link WebApplicationContext}.
+ * Provides {@code getWebApplicationContext()}
+ *
  * @author TODAY <br>
- * 2019-12-27 09:36
+ * @since 2019-12-27 09:36
  */
 public class WebApplicationContextSupport extends ApplicationContextSupport {
+
+  /**
+   * Overrides the base class behavior to enforce running in an ApplicationContext.
+   * All accessors will throw IllegalStateException if not running in a context.
+   *
+   * @see #getApplicationContext()
+   * @see #getMessageSourceAccessor()
+   * @see #getWebApplicationContext()
+   */
+  @Override
+  protected boolean isContextRequired() {
+    return true;
+  }
 
   public String getContextPath() {
     return obtainApplicationContext().getContextPath();
@@ -38,12 +55,19 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
    * @throws IllegalStateException if not running in a WebApplicationContext
    * @see #getApplicationContext()
    */
+  @Nullable
   public final WebApplicationContext getWebApplicationContext() {
-    final ApplicationContext ctx = getApplicationContext();
+    ApplicationContext ctx = getApplicationContext();
     if (ctx instanceof WebApplicationContext) {
       return (WebApplicationContext) ctx;
     }
-    throw new IllegalStateException("ApplicationContext must be a WebApplicationContext");
+    else if (isContextRequired()) {
+      throw new IllegalStateException("WebApplicationContextSupport instance [" + this +
+              "] does not run in a WebApplicationContext but in: " + ctx);
+    }
+    else {
+      return null;
+    }
   }
 
   @Override

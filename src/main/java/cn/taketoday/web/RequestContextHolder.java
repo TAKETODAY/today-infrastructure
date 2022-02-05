@@ -28,6 +28,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
@@ -46,21 +47,30 @@ public abstract class RequestContextHolder {
   public static final RequestContext ApplicationNotStartedContext = new ApplicationNotStartedContext();
   private static RequestThreadLocal contextHolder = new DefaultRequestThreadLocal();
 
-  public static void resetContext() {
+  public static void remove() {
     contextHolder.remove();
   }
 
-  public static void prepareContext(RequestContext requestContext) {
+  public static void set(RequestContext requestContext) {
     contextHolder.set(requestContext);
   }
 
   public static RequestContext currentContext() {
-    final RequestContext ret = getContext();
+    final RequestContext ret = get();
     return ret == null ? ApplicationNotStartedContext : ret;
   }
 
-  public static RequestContext getContext() {
+  @Nullable
+  public static RequestContext get() {
     return contextHolder.get();
+  }
+
+  public static RequestContext getRequired() {
+    RequestContext context = contextHolder.get();
+    if (context == null) {
+      throw new IllegalStateException("No RequestContext set");
+    }
+    return context;
   }
 
   public static <T> T currentRequest() {
@@ -91,6 +101,8 @@ public abstract class RequestContextHolder {
 
   @SuppressWarnings("serial")
   static class ApplicationNotStartedContext extends RequestContext implements Serializable {
+
+    ApplicationNotStartedContext() { super(null); }
 
     @Override
     public String getScheme() {
@@ -207,5 +219,9 @@ public abstract class RequestContextHolder {
       return "Application has not been started";
     }
 
+    @Override
+    public String[] getAttributeNames() {
+      return new String[0];
+    }
   }
 }
