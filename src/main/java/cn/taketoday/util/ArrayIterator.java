@@ -20,6 +20,7 @@
 package cn.taketoday.util;
 
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -28,7 +29,7 @@ import java.util.NoSuchElementException;
  *
  * @author TODAY 2021/10/21 14:32
  */
-public class ArrayIterator<E> implements Iterator<E>, Serializable {
+public class ArrayIterator<E> implements Iterator<E>, Enumeration<E>, Serializable {
   private int ndx;
   private final E[] array;
   private final int endNdx;
@@ -62,6 +63,21 @@ public class ArrayIterator<E> implements Iterator<E>, Serializable {
   @Override
   public void remove() throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean hasMoreElements() {
+    return ndx < endNdx;
+  }
+
+  @Override
+  public E nextElement() {
+    return next();
+  }
+
+  @Override
+  public Iterator<E> asIterator() {
+    return this;
   }
 
 }

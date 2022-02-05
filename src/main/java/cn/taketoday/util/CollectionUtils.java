@@ -915,15 +915,35 @@ public abstract class CollectionUtils {
    * Enumeration elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.
    *
-   * @throws NullPointerException if the specified array or enumeration is null
    * @since 4.0
    */
-  public static <A, E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
-    ArrayList<A> elements = new ArrayList<>();
-    while (enumeration.hasMoreElements()) {
-      elements.add(enumeration.nextElement());
+  public static <A, E extends A> A[] toArray(@Nullable Enumeration<E> enumeration, A[] array) {
+    if (enumeration != null) {
+      ArrayList<A> elements = new ArrayList<>();
+      while (enumeration.hasMoreElements()) {
+        elements.add(enumeration.nextElement());
+      }
+      return elements.toArray(array);
     }
-    return elements.toArray(array);
+    return array;
+  }
+
+  /**
+   * Marshal the elements from the given iterator into an array of the given type.
+   * Iterator elements must be assignable to the type of the given array. The array
+   * returned will be a different instance than the array given.
+   *
+   * @since 4.0
+   */
+  public static <A, E extends A> A[] toArray(@Nullable Iterator<E> iterator, A[] array) {
+    if (iterator != null) {
+      ArrayList<A> elements = new ArrayList<>();
+      while (iterator.hasNext()) {
+        elements.add(iterator.next());
+      }
+      return elements.toArray(array);
+    }
+    return array;
   }
 
   /**
@@ -934,7 +954,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static <E> Iterator<E> toIterator(@Nullable Enumeration<E> enumeration) {
-    return (enumeration != null ? new EnumerationIterator<>(enumeration) : Collections.emptyIterator());
+    return enumeration != null ? enumeration.asIterator() : Collections.emptyIterator();
   }
 
   /**
