@@ -33,13 +33,13 @@ public class NettyDispatcher {
    * @param nettyContext netty request context
    */
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
-    RequestContextHolder.prepareContext(nettyContext);
+    RequestContextHolder.set(nettyContext);
     try {
       dispatcherHandler.dispatch(nettyContext); // handling HTTP request
       nettyContext.sendIfNotCommitted();
     }
     finally {
-      RequestContextHolder.resetContext();
+      RequestContextHolder.remove();
     }
   }
 }

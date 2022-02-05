@@ -29,7 +29,7 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
     final class AsyncHandler implements UnaryOperator<Object> {
       @Override
       public Object apply(final Object handler) {
-        RequestContextHolder.prepareContext(nettyContext);
+        RequestContextHolder.set(nettyContext);
         try {
           dispatcherHandler.handle(handler, nettyContext);
         }
@@ -37,7 +37,7 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
           ctx.fireExceptionCaught(e);
         }
         finally {
-          RequestContextHolder.resetContext();
+          RequestContextHolder.remove();
         }
         return handler;
       }

@@ -57,13 +57,13 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
    */
   @Override
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
-    RequestContextHolder.prepareContext(nettyContext);
+    RequestContextHolder.set(nettyContext);
     try {
       doDispatch(nettyContext);
       nettyContext.sendIfNotCommitted();
     }
     finally {
-      RequestContextHolder.resetContext();
+      RequestContextHolder.remove();
     }
   }
 

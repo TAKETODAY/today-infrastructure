@@ -20,6 +20,7 @@
 package cn.taketoday.web.framework.reactive;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.web.WebApplicationContext;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -38,11 +39,16 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   private NettyDispatcher nettyDispatcher;
   private NettyRequestContextConfig contextConfig;
 
-  public ReactiveChannelHandler(NettyDispatcher nettyDispatcher) {
-    this(nettyDispatcher, new NettyRequestContextConfig());
+  private final WebApplicationContext context;
+
+  public ReactiveChannelHandler(NettyDispatcher nettyDispatcher, WebApplicationContext context) {
+    this(nettyDispatcher, new NettyRequestContextConfig(), context);
   }
 
-  public ReactiveChannelHandler(NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
+  public ReactiveChannelHandler(
+          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig, WebApplicationContext context) {
+    Assert.notNull(context, "WebApplicationContext is required");
+    this.context = context;
     setContextConfig(contextConfig);
     setNettyDispatcher(nettyDispatcher);
   }
@@ -55,7 +61,7 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest) {
-      NettyRequestContext nettyContext = new NettyRequestContext(ctx, (FullHttpRequest) msg, contextConfig);
+      NettyRequestContext nettyContext = new NettyRequestContext(context, ctx, (FullHttpRequest) msg, contextConfig);
       try {
         nettyDispatcher.dispatch(ctx, nettyContext);
       }

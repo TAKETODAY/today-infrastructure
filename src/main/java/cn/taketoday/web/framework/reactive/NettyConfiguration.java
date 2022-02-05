@@ -9,6 +9,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.lang.Singleton;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 
@@ -24,13 +25,14 @@ public class NettyConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @MissingBean(value = ReactiveChannelHandler.class)
   ReactiveChannelHandler reactiveChannelHandler(
+          WebApplicationContext context,
           NettyDispatcher nettyDispatcher,
           NettyRequestContextConfig contextConfig,
           @Autowired(required = false) WebSocketHandlerRegistry registry) {
     if (registry != null) {
-      return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig);
+      return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
     }
-    return new ReactiveChannelHandler(nettyDispatcher, contextConfig);
+    return new ReactiveChannelHandler(nettyDispatcher, contextConfig, context);
   }
 
   @Singleton
@@ -41,8 +43,8 @@ public class NettyConfiguration {
 
   @MissingBean(value = DispatcherHandler.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  DispatcherHandler dispatcherHandler() {
-    return new DispatcherHandler();
+  DispatcherHandler dispatcherHandler(WebApplicationContext webApplicationContext) {
+    return new DispatcherHandler(webApplicationContext);
   }
 
   /**

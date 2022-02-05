@@ -40,6 +40,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 import io.netty.buffer.ByteBuf;
@@ -100,7 +101,8 @@ public class NettyRequestContext extends RequestContext {
   private final int queryStringIndex; // for optimize
 
   public NettyRequestContext(
-          ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
+          WebApplicationContext context, ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
+    super(context);
     this.config = config;
     this.request = request;
     this.channelContext = ctx;

@@ -3,6 +3,7 @@ package cn.taketoday.web.framework.reactive;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
@@ -30,13 +31,13 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
  */
 public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
 
-  public WebSocketReactiveChannelHandler(NettyDispatcher nettyDispatcher) {
-    super(nettyDispatcher);
+  public WebSocketReactiveChannelHandler(NettyDispatcher nettyDispatcher, WebApplicationContext context) {
+    super(nettyDispatcher, context);
   }
 
   public WebSocketReactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig) {
-    super(nettyDispatcher, contextConfig);
+          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig, WebApplicationContext context) {
+    super(nettyDispatcher, contextConfig, context);
   }
 
   @Override
