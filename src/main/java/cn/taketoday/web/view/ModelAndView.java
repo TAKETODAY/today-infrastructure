@@ -21,6 +21,7 @@ package cn.taketoday.web.view;
 
 import java.util.Map;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 
@@ -30,14 +31,16 @@ import cn.taketoday.web.RequestContextHolder;
  */
 public class ModelAndView implements Model {
 
+  @Nullable
   private Object view;
+
   private final RequestContext dataModel;
 
   public ModelAndView() {
-    this(null);
+    this((Object) null);
   }
 
-  public ModelAndView(Object view) {
+  public ModelAndView(@Nullable Object view) {
     this(view, RequestContextHolder.currentContext());
   }
 
@@ -45,8 +48,8 @@ public class ModelAndView implements Model {
     this(null, dataModel);
   }
 
-  public ModelAndView(Object view, RequestContext dataModel) {
-    this.setView(view);
+  public ModelAndView(@Nullable Object view, RequestContext dataModel) {
+    setView(view);
     this.dataModel = dataModel;
   }
 
@@ -70,7 +73,7 @@ public class ModelAndView implements Model {
    * @param view View object
    * @return Current {@link ModelAndView}
    */
-  public ModelAndView setView(Object view) {
+  public ModelAndView setView(@Nullable Object view) {
     this.view = view;
     return this;
   }
@@ -79,6 +82,7 @@ public class ModelAndView implements Model {
     return view != null;
   }
 
+  @Nullable
   public Object getView() {
     return view;
   }
@@ -111,6 +115,11 @@ public class ModelAndView implements Model {
   @Override
   public void clear() {
     dataModel.clear();
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    return dataModel.getAttributeNames();
   }
 
 }

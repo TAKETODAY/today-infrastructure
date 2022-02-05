@@ -21,13 +21,15 @@ package cn.taketoday.web.view;
 
 import java.util.Map;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Model that defines a holder for model attributes.
  * Primarily designed for adding attributes to the model.
  * Allows for accessing the overall model as a {@code java.util.Map}.
  *
  * @author TODAY <br>
- * 2018-10-14 20:30
+ * @since 2018-10-14 20:30
  */
 public interface Model {
 
@@ -47,7 +49,9 @@ public interface Model {
    * @param attributes The attributes
    */
   default void setAttributes(Map<String, Object> attributes) {
-    attributes.forEach(this::setAttribute);
+    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+      setAttribute(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -58,6 +62,7 @@ public interface Model {
    * @return an <code>Object</code> containing the value of the attribute, or
    * <code>null</code> if the attribute does not exist
    */
+  @Nullable
   Object getAttribute(String name);
 
   /**
@@ -66,7 +71,7 @@ public interface Model {
    * @param name a <code>String</code> specifying the name of the attribute
    * @param value the <code>Object</code> to be stored
    */
-  void setAttribute(String name, Object value);
+  void setAttribute(String name, @Nullable Object value);
 
   /**
    * Removes an attribute from this request. This method is not generally needed
@@ -87,5 +92,12 @@ public interface Model {
    * Clear all attributes
    */
   void clear();
+
+  /**
+   * Return the names of all attributes.
+   *
+   * @since 4.0
+   */
+  String[] getAttributeNames();
 
 }
