@@ -23,6 +23,7 @@ package cn.taketoday.web.view;
 import java.util.Locale;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 
 /**
  * Interface to be implemented by objects that can resolve views by name.

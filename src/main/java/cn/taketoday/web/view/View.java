@@ -22,13 +22,14 @@ package cn.taketoday.web.view;
 
 import java.util.Map;
 
+import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ReturnValueHandler;
 
 /**
- * MVC View for a web interaction. Implementations are responsible for rendering
+ * View for a web interaction. Implementations are responsible for rendering
  * content, and exposing the model. A single view exposes multiple model attributes.
  *
  * <p>This class and the MVC approach associated with it is discussed in Chapter 12 of
@@ -51,31 +52,24 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractView
- * @see InternalResourceView
+ * @see ReturnValueHandler
+ * @see cn.taketoday.web.servlet.view.InternalResourceView
  * @since 4.0 2022/1/29 11:07
  */
 public interface View {
 
   /**
-   * Name of the {@link HttpServletRequest} attribute that contains the response status code.
+   * Name of the {@link RequestContext} attribute that contains the response status code.
    * <p>Note: This attribute is not required to be supported by all View implementations.
    */
-  String RESPONSE_STATUS_ATTRIBUTE = View.class.getName() + ".responseStatus";
-
-  /**
-   * Name of the {@link HttpServletRequest} attribute that contains a Map with path variables.
-   * The map consists of String-based URI template variable names as keys and their corresponding
-   * Object-based values -- extracted from segments of the URL and type converted.
-   * <p>Note: This attribute is not required to be supported by all View implementations.
-   */
-  String PATH_VARIABLES = View.class.getName() + ".pathVariables";
+  String RESPONSE_STATUS_ATTRIBUTE = Conventions.getQualifiedAttributeName(View.class, "responseStatus");
 
   /**
    * The {@link MediaType} selected during content negotiation,
    * which may be more specific than the one the View is configured with. For example:
    * "application/vnd.example-v1+xml" vs "application/*+xml".
    */
-  String SELECTED_CONTENT_TYPE = View.class.getName() + ".selectedContentType";
+  String SELECTED_CONTENT_TYPE = Conventions.getQualifiedAttributeName(View.class, "selectedContentType");
 
   /**
    * Return the content type of the view, if predetermined.
@@ -98,11 +92,10 @@ public interface View {
    *
    * @param model a Map with name Strings as keys and corresponding model
    * objects as values (Map can also be {@code null} in case of empty model)
-   * @param request current HTTP request
-   * @param response he HTTP response we are building
+   * @param context current HTTP request and response context
    * @throws Exception if rendering failed
    */
-  void render(@Nullable Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
+  void render(@Nullable Map<String, ?> model, RequestContext context)
           throws Exception;
 
 }

@@ -19,9 +19,12 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Iterator;
 import java.util.Map;
 
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Model that defines a holder for model attributes.
@@ -98,6 +101,15 @@ public interface Model {
    *
    * @since 4.0
    */
-  String[] getAttributeNames();
+  default String[] getAttributeNames() {
+    return CollectionUtils.toArray(attributeNames(), Constant.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Return the names Iterator.
+   *
+   * @since 4.0
+   */
+  Iterator<String> attributeNames();
 
 }

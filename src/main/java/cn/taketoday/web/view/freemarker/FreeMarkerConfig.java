@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,32 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.util;
+package cn.taketoday.web.view.freemarker;
 
-import java.util.Enumeration;
-import java.util.Iterator;
-
-import cn.taketoday.lang.Assert;
+import freemarker.template.Configuration;
 
 /**
- * @author TODAY 2021/4/13 12:17
- * @since 3.0
+ * Interface to be implemented by objects that configure and manage a
+ * FreeMarker Configuration object in a web environment. Detected and
+ * used by {@link FreeMarkerView}.
+ *
+ * @author Darren Davison
+ * @author Rob Harrop
+ * @see FreeMarkerConfigurer
+ * @see FreeMarkerView
+ * @since 4.0
  */
-public final class EnumerationIterator<T> implements Iterator<T> {
-  private final Enumeration<T> enumeration;
+public interface FreeMarkerConfig {
 
-  public EnumerationIterator(Enumeration<T> enumeration) {
-    Assert.notNull(enumeration, "enumeration must not be null");
-    this.enumeration = enumeration;
-  }
+  /**
+   * Return the FreeMarker {@link Configuration} object for the current
+   * web application context.
+   * <p>A FreeMarker Configuration object may be used to set FreeMarker
+   * properties and shared objects, and allows to retrieve templates.
+   *
+   * @return the FreeMarker Configuration
+   */
+  Configuration getConfiguration();
 
-  @Override
-  public boolean hasNext() {
-    return enumeration.hasMoreElements();
-  }
-
-  @Override
-  public T next() {
-    return enumeration.nextElement();
-  }
 }

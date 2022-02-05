@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
@@ -120,6 +121,11 @@ public class ModelAndView implements Model {
   @Override
   public String[] getAttributeNames() {
     return dataModel.getAttributeNames();
+  }
+
+  @Override
+  public Iterator<String> attributeNames() {
+    return dataModel.attributeNames();
   }
 
 }
