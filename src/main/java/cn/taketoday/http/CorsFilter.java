@@ -21,18 +21,21 @@ package cn.taketoday.http;
 
 import java.io.IOException;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebUtils;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.GenericFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-
-import cn.taketoday.lang.Assert;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.WebUtils;
-import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * {@link jakarta.servlet.Filter} that handles CORS preflight requests and intercepts
@@ -72,11 +75,15 @@ public class CorsFilter extends GenericFilter implements Filter {
   }
 
   @Override
-  public void doFilter(final ServletRequest request,
-                       final ServletResponse response, final FilterChain chain)
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
           throws IOException, ServletException {
-
-    final RequestContext context = ServletUtils.getRequestContext(request, response);
+    RequestContext context = RequestContextHolder.get();
+    if (context == null) {
+      HttpServletRequest servletRequest = (HttpServletRequest) request;
+      WebApplicationContext webApplicationContext = ServletUtils.findWebApplicationContext(servletRequest);
+      context = new ServletRequestContext(webApplicationContext, servletRequest, (HttpServletResponse) response);
+      RequestContextHolder.set(context);
+    }
     try {
       CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(context);
       if (!this.processor.process(corsConfiguration, context)
@@ -87,7 +94,7 @@ public class CorsFilter extends GenericFilter implements Filter {
       chain.doFilter(request, response);
     }
     finally {
-      RequestContextHolder.resetContext();
+      RequestContextHolder.remove();
     }
   }
 

@@ -25,12 +25,15 @@ import java.io.Serializable;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers in Servlet
@@ -46,16 +49,23 @@ public class DispatcherServlet
 
   private transient ServletConfig servletConfig;
 
-  public DispatcherServlet() { }
-
   public DispatcherServlet(WebServletApplicationContext context) {
     super(context);
   }
 
   @Override
-  public void service(final ServletRequest request,
-                      final ServletResponse response) throws ServletException {
-    RequestContext context = ServletUtils.getRequestContext(request, response);
+  public void service(ServletRequest request, ServletResponse response) throws ServletException {
+    RequestContext context = RequestContextHolder.get();
+
+    boolean reset = false;
+    if (context == null) {
+      WebApplicationContext webApplicationContext = getWebApplicationContext();
+      HttpServletRequest servletRequest = (HttpServletRequest) request;
+      context = new ServletRequestContext(webApplicationContext, servletRequest, (HttpServletResponse) response);
+      RequestContextHolder.set(context);
+      reset = true;
+    }
+
     try {
       dispatch(context);
     }
@@ -63,7 +73,9 @@ public class DispatcherServlet
       throw new ServletException(e);
     }
     finally {
-      RequestContextHolder.resetContext();
+      if (reset) {
+        RequestContextHolder.remove();
+      }
     }
   }
 

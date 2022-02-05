@@ -19,11 +19,10 @@
  */
 package cn.taketoday.web.servlet;
 
-import jakarta.servlet.ServletContext;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.WebApplicationContextSupport;
+import jakarta.servlet.ServletContext;
 
 /**
  * @author TODAY <br>
@@ -81,8 +80,9 @@ public class WebServletApplicationContextSupport
     final WebServletApplicationContext context = getWebServletApplicationContext();
     ServletContext servletContext = context.getServletContext();
     if (servletContext == null) {
-      throw new IllegalStateException("WebServletApplicationContextSupport instance [" + this +
-                                              "] does not run within a ServletContext. Make sure the object is fully configured!");
+      throw new IllegalStateException(
+              "WebServletApplicationContextSupport instance [" + this +
+                      "] does not run within a ServletContext. Make sure the object is fully configured!");
     }
     return servletContext;
   }

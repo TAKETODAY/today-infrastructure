@@ -21,18 +21,16 @@
 package cn.taketoday.web.servlet;
 
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import cn.taketoday.web.view.Model;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author TODAY 2021/4/15 21:03
  * @since 3.0
  */
-public final class ServletRequestModelAdapter implements Model {
+public final class ServletRequestModelAdapter
+        extends AbstractEnumerableModel implements Model {
   private final HttpServletRequest request;
 
   public ServletRequestModelAdapter(HttpServletRequest request) {
@@ -56,24 +54,8 @@ public final class ServletRequestModelAdapter implements Model {
   }
 
   @Override
-  public Map<String, Object> asMap() {
-    final LinkedHashMap<String, Object> ret = new LinkedHashMap<>();
-    final HttpServletRequest session = this.request;
-    final Enumeration<String> attributeNames = session.getAttributeNames();
-    while (attributeNames.hasMoreElements()) {
-      final String name = attributeNames.nextElement();
-      ret.put(name, session.getAttribute(name));
-    }
-    return ret;
+  protected Enumeration<String> getAttributes() {
+    return request.getAttributeNames();
   }
 
-  @Override
-  public void clear() {
-    final HttpServletRequest session = this.request;
-    final Enumeration<String> attributeNames = session.getAttributeNames();
-    while (attributeNames.hasMoreElements()) {
-      final String name = attributeNames.nextElement();
-      session.removeAttribute(name);
-    }
-  }
 }

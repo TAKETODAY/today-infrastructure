@@ -20,13 +20,13 @@
 
 package cn.taketoday.web.servlet;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-
+import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.ResponseCookie.ResponseCookieBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Helper class for cookie generation, carrying cookie descriptor settings
@@ -64,7 +64,7 @@ public class CookieGenerator {
   /**
    * Use the given name for cookies created by this generator.
    *
-   * @see Cookie#getName()
+   * @see ResponseCookieBuilder#getName()
    */
   public void setCookieName(@Nullable String cookieName) {
     this.cookieName = cookieName;
@@ -82,7 +82,7 @@ public class CookieGenerator {
    * Use the given domain for cookies created by this generator.
    * The cookie is only visible to servers in this domain.
    *
-   * @see Cookie#setDomain
+   * @see ResponseCookieBuilder#domain
    */
   public void setCookieDomain(@Nullable String cookieDomain) {
     this.cookieDomain = cookieDomain;
@@ -100,7 +100,7 @@ public class CookieGenerator {
    * Use the given path for cookies created by this generator.
    * The cookie is only visible to URLs in this path and below.
    *
-   * @see Cookie#setPath
+   * @see ResponseCookieBuilder#path
    */
   public void setCookiePath(String cookiePath) {
     this.cookiePath = cookiePath;
@@ -119,7 +119,7 @@ public class CookieGenerator {
    * <p>Default is no specific maximum age at all, using the Servlet container's
    * default.
    *
-   * @see Cookie#setMaxAge
+   * @see ResponseCookieBuilder#maxAge
    */
   public void setCookieMaxAge(@Nullable Integer cookieMaxAge) {
     this.cookieMaxAge = cookieMaxAge;
@@ -139,7 +139,7 @@ public class CookieGenerator {
    * not processed by the HTTP server itself.
    * <p>Default is "false".
    *
-   * @see Cookie#setSecure
+   * @see ResponseCookieBuilder#secure
    */
   public void setCookieSecure(boolean cookieSecure) {
     this.cookieSecure = cookieSecure;
@@ -157,7 +157,7 @@ public class CookieGenerator {
    * Set whether the cookie is supposed to be marked with the "HttpOnly" attribute.
    * <p>Default is "false".
    *
-   * @see Cookie#setHttpOnly
+   * @see ResponseCookieBuilder#httpOnly
    */
   public void setCookieHttpOnly(boolean cookieHttpOnly) {
     this.cookieHttpOnly = cookieHttpOnly;
@@ -182,20 +182,20 @@ public class CookieGenerator {
    * @see #setCookiePath
    * @see #setCookieMaxAge
    */
-  public void addCookie(HttpServletResponse response, String cookieValue) {
+  public void addCookie(RequestContext response, String cookieValue) {
     Assert.notNull(response, "HttpServletResponse must not be null");
-    Cookie cookie = createCookie(cookieValue);
+    ResponseCookieBuilder cookie = createCookie(cookieValue);
     Integer maxAge = getCookieMaxAge();
     if (maxAge != null) {
-      cookie.setMaxAge(maxAge);
+      cookie.maxAge(maxAge);
     }
     if (isCookieSecure()) {
-      cookie.setSecure(true);
+      cookie.secure(true);
     }
     if (isCookieHttpOnly()) {
-      cookie.setHttpOnly(true);
+      cookie.httpOnly(true);
     }
-    response.addCookie(cookie);
+    response.addCookie(cookie.build());
     if (logger.isTraceEnabled()) {
       logger.trace("Added cookie [{}={}]", getCookieName(), cookieValue);
     }
@@ -211,17 +211,17 @@ public class CookieGenerator {
    * @see #setCookieDomain
    * @see #setCookiePath
    */
-  public void removeCookie(HttpServletResponse response) {
+  public void removeCookie(RequestContext response) {
     Assert.notNull(response, "HttpServletResponse must not be null");
-    Cookie cookie = createCookie("");
-    cookie.setMaxAge(0);
+    ResponseCookieBuilder cookie = createCookie("");
+    cookie.maxAge(0);
     if (isCookieSecure()) {
-      cookie.setSecure(true);
+      cookie.secure(true);
     }
     if (isCookieHttpOnly()) {
-      cookie.setHttpOnly(true);
+      cookie.httpOnly(true);
     }
-    response.addCookie(cookie);
+    response.addCookie(cookie.build());
     if (logger.isTraceEnabled()) {
       logger.trace("Removed cookie '{}'", getCookieName());
     }
@@ -237,13 +237,13 @@ public class CookieGenerator {
    * @see #setCookieDomain
    * @see #setCookiePath
    */
-  protected Cookie createCookie(String cookieValue) {
-    Cookie cookie = new Cookie(getCookieName(), cookieValue);
+  protected ResponseCookieBuilder createCookie(String cookieValue) {
+    ResponseCookieBuilder cookieBuilder = ResponseCookie.from(getCookieName(), cookieValue);
     if (getCookieDomain() != null) {
-      cookie.setDomain(getCookieDomain());
+      cookieBuilder.domain(getCookieDomain());
     }
-    cookie.setPath(getCookiePath());
-    return cookie;
+    cookieBuilder.path(getCookiePath());
+    return cookieBuilder;
   }
 
 }

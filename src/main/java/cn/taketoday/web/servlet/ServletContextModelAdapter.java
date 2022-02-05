@@ -21,18 +21,16 @@
 package cn.taketoday.web.servlet;
 
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import jakarta.servlet.ServletContext;
 
 import cn.taketoday.web.view.Model;
+import jakarta.servlet.ServletContext;
 
 /**
  * @author TODAY 2021/4/15 21:01
  * @since 3.0
  */
-public final class ServletContextModelAdapter implements Model {
+public final class ServletContextModelAdapter
+        extends AbstractEnumerableModel implements Model {
   private final ServletContext context;
 
   public ServletContextModelAdapter(ServletContext context) {
@@ -56,24 +54,8 @@ public final class ServletContextModelAdapter implements Model {
   }
 
   @Override
-  public Map<String, Object> asMap() {
-    final LinkedHashMap<String, Object> ret = new LinkedHashMap<>();
-    final ServletContext session = this.context;
-    final Enumeration<String> attributeNames = session.getAttributeNames();
-    while (attributeNames.hasMoreElements()) {
-      final String name = attributeNames.nextElement();
-      ret.put(name, session.getAttribute(name));
-    }
-    return ret;
+  protected Enumeration<String> getAttributes() {
+    return context.getAttributeNames();
   }
 
-  @Override
-  public void clear() {
-    final ServletContext session = this.context;
-    final Enumeration<String> attributeNames = session.getAttributeNames();
-    while (attributeNames.hasMoreElements()) {
-      final String name = attributeNames.nextElement();
-      session.removeAttribute(name);
-    }
-  }
 }

@@ -32,7 +32,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.util.WebUtils;
+import cn.taketoday.web.WebApplicationContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
@@ -44,7 +44,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import static cn.taketoday.web.RequestContextHolder.prepareContext;
+import static cn.taketoday.web.RequestContextHolder.set;
 
 /**
  * @author TODAY 2020/12/8 23:07
@@ -54,7 +54,14 @@ public abstract class ServletUtils {
 
   /** Key for the mutex session attribute. */
   public static final String SESSION_MUTEX_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          WebUtils.class, ".MUTEX");
+          ServletUtils.class, "MUTEX");
+
+  /**
+   * Request attribute to hold the current web application context.
+   * Otherwise only the global web app context is obtainable by tags etc.
+   */
+  public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          ServletUtils.class, "CONTEXT");
 
   /** Name suffixes in case of image buttons.  @since 4.0 */
   public static final String[] SUBMIT_IMAGE_SUFFIXES = { ".x", ".y" };
@@ -101,14 +108,16 @@ public abstract class ServletUtils {
   // context
 
   public static RequestContext getRequestContext(ServletRequest request, ServletResponse response) {
-    return getRequestContext((HttpServletRequest) request, (HttpServletResponse) response);
+    HttpServletRequest servletRequest = (HttpServletRequest) request;
+    return getRequestContext(findWebApplicationContext(servletRequest), servletRequest, (HttpServletResponse) response);
   }
 
-  public static RequestContext getRequestContext(HttpServletRequest request, HttpServletResponse response) {
-    RequestContext context = RequestContextHolder.getContext();
+  public static RequestContext getRequestContext(
+          WebApplicationContext webApplicationContext, HttpServletRequest request, HttpServletResponse response) {
+    RequestContext context = RequestContextHolder.get();
     if (context == null) {
-      context = new ServletRequestContext(request, response);
-      prepareContext(context);
+      context = new ServletRequestContext(webApplicationContext, request, response);
+      set(context);
     }
     return context;
   }
@@ -215,6 +224,100 @@ public abstract class ServletUtils {
       return ((ServletRequestContext) context).getResponse();
     }
     throw new IllegalStateException("Not run in servlet");
+  }
+
+  /**
+   * Look for the WebApplicationContext associated with the DispatcherServlet
+   * that has initiated request processing, and for the global context if none
+   * was found associated with the current request. The global context will
+   * be found via the ServletContext or via ContextLoader's current context.
+   *
+   * @param request current HTTP request
+   * @return the request-specific WebApplicationContext, or the global one
+   * if no request-specific context has been found, or {@code null} if none
+   * @see #findWebApplicationContext(HttpServletRequest, ServletContext)
+   * @see ServletRequest#getServletContext()
+   * @since 4.0
+   */
+  @Nullable
+  public static WebApplicationContext findWebApplicationContext(HttpServletRequest request) {
+    return findWebApplicationContext(request, request.getServletContext());
+  }
+
+  /**
+   * Look for the WebApplicationContext associated with the DispatcherServlet
+   * that has initiated request processing, and for the global context if none
+   * was found associated with the current request. The global context will
+   * be found via the ServletContext or via ContextLoader's current context.
+   * <p>NOTE: This variant remains compatible with Servlet 2.5, explicitly
+   * checking a given ServletContext instead of deriving it from the request.
+   *
+   * @param request current HTTP request
+   * @param servletContext current servlet context
+   * @return the request-specific WebApplicationContext, or the global one
+   * if no request-specific context has been found, or {@code null} if none
+   * @see #WEB_APPLICATION_CONTEXT_ATTRIBUTE
+   * @see #getWebApplicationContext(ServletContext)
+   * @since 4.0
+   */
+  @Nullable
+  public static WebApplicationContext findWebApplicationContext(
+          HttpServletRequest request, @Nullable ServletContext servletContext) {
+    WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(
+            WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    if (webApplicationContext == null) {
+      if (servletContext != null) {
+        webApplicationContext = findWebApplicationContext(servletContext);
+      }
+    }
+    return webApplicationContext;
+  }
+
+  /**
+   * Find a unique {@code WebApplicationContext} for this web app: either the
+   * root web app context (preferred) or a unique {@code WebApplicationContext}
+   * among the registered {@code ServletContext} attributes (typically coming
+   * from a single {@code DispatcherServlet} in the current web application).
+   * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
+   * controlled through its {@code publishContext} property, which is {@code true}
+   * by default but can be selectively switched to only publish a single context
+   * despite multiple {@code DispatcherServlet} registrations in the web app.
+   *
+   * @param sc the ServletContext to find the web application context for
+   * @return the desired WebApplicationContext for this web app, or {@code null} if none
+   * @see #getWebApplicationContext(ServletContext)
+   * @see ServletContext#getAttributeNames()
+   * @since 4.0
+   */
+  @Nullable
+  public static WebApplicationContext findWebApplicationContext(ServletContext sc) {
+    WebApplicationContext wac = getWebApplicationContext(sc);
+    if (wac == null) {
+      Enumeration<String> attrNames = sc.getAttributeNames();
+      while (attrNames.hasMoreElements()) {
+        String attrName = attrNames.nextElement();
+        Object attrValue = sc.getAttribute(attrName);
+        if (attrValue instanceof WebApplicationContext) {
+          if (wac != null) {
+            throw new IllegalStateException("No unique WebApplicationContext found: more than one " +
+                    "DispatcherServlet registered with publishContext=true?");
+          }
+          wac = (WebApplicationContext) attrValue;
+        }
+      }
+    }
+    return wac;
+  }
+
+  /**
+   * Find the root {@code WebApplicationContext} for this web app,
+   *
+   * @param sc the ServletContext to find the web application context for
+   * @since 4.0
+   */
+  @Nullable
+  public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
+    return (WebApplicationContext) sc.getAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE);
   }
 
   //---------------------------------------------------------------------

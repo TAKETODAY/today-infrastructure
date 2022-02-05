@@ -28,6 +28,7 @@ import java.io.Serial;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -36,9 +37,9 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.util.EnumerationIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.resolver.MultipartParsingException;
@@ -62,7 +63,9 @@ public final class ServletRequestContext extends RequestContext {
   private final HttpServletRequest request;
   private final HttpServletResponse response;
 
-  public ServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
+  public ServletRequestContext(
+          WebApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
+    super(context);
     this.request = request;
     this.response = response;
   }
@@ -165,7 +168,7 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   public Iterator<String> getParameterNames() {
-    return new EnumerationIterator<>(request.getParameterNames());
+    return request.getParameterNames().asIterator();
   }
 
   @Override
@@ -204,6 +207,11 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  public String getResponseContentType() {
+    return response.getContentType();
+  }
+
+  @Override
   public void setContentLength(long length) {
     response.setContentLengthLong(length);
   }
@@ -211,6 +219,11 @@ public final class ServletRequestContext extends RequestContext {
   @Override
   public boolean isCommitted() {
     return response.isCommitted();
+  }
+
+  @Override
+  protected Locale doGetLocale() {
+    return request.getLocale();
   }
 
   @Override

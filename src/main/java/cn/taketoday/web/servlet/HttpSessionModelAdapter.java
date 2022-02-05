@@ -21,18 +21,15 @@
 package cn.taketoday.web.servlet;
 
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import jakarta.servlet.http.HttpSession;
 
 import cn.taketoday.web.view.Model;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author TODAY 2021/4/15 20:46
  * @since 3.0
  */
-public final class HttpSessionModelAdapter implements Model {
+public final class HttpSessionModelAdapter extends AbstractEnumerableModel implements Model {
   private final HttpSession session;
 
   public HttpSessionModelAdapter(HttpSession session) {
@@ -56,24 +53,8 @@ public final class HttpSessionModelAdapter implements Model {
   }
 
   @Override
-  public Map<String, Object> asMap() {
-    final LinkedHashMap<String, Object> ret = new LinkedHashMap<>();
-    final HttpSession session = this.session;
-    final Enumeration<String> attributeNames = session.getAttributeNames();
-    while (attributeNames.hasMoreElements()) {
-      final String name = attributeNames.nextElement();
-      ret.put(name, session.getAttribute(name));
-    }
-    return ret;
+  protected Enumeration<String> getAttributes() {
+    return session.getAttributeNames();
   }
 
-  @Override
-  public void clear() {
-    final HttpSession session = this.session;
-    final Enumeration<String> attributeNames = session.getAttributeNames();
-    while (attributeNames.hasMoreElements()) {
-      final String name = attributeNames.nextElement();
-      session.removeAttribute(name);
-    }
-  }
 }
