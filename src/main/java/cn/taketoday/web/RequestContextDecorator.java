@@ -57,9 +57,10 @@ import cn.taketoday.web.view.ModelAndView;
 public class RequestContextDecorator extends RequestContext {
   private final RequestContext delegate;
 
-  public RequestContextDecorator(RequestContext d) {
-    Assert.notNull(d, "RequestContext is required");
-    this.delegate = d;
+  public RequestContextDecorator(RequestContext delegate) {
+    super(delegate.getWebApplicationContext());
+    Assert.notNull(delegate, "RequestContext delegate is required");
+    this.delegate = delegate;
   }
 
   public RequestContext getDelegate() {
@@ -67,6 +68,11 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   // delegate
+
+  @Override
+  public WebApplicationContext getWebApplicationContext() {
+    return delegate.getWebApplicationContext();
+  }
 
   @Override
   public Reader getReader(String encoding) throws IOException { return delegate.getReader(encoding); }
@@ -237,7 +243,15 @@ public class RequestContextDecorator extends RequestContext {
   public PrintWriter doGetWriter() throws IOException { return delegate.doGetWriter(); }
 
   @Override
-  public void setContentType(String contentType) { delegate.setContentType(contentType); }
+  public void setContentType(String contentType) {
+    delegate.setContentType(contentType);
+  }
+
+  @Nullable
+  @Override
+  public String getResponseContentType() {
+    return delegate.getResponseContentType();
+  }
 
   @Override
   public HttpHeaders responseHeaders() { return delegate.responseHeaders(); }
@@ -278,19 +292,34 @@ public class RequestContextDecorator extends RequestContext {
   public String[] pathVariables(String[] variables) { return delegate.pathVariables(variables); }
 
   @Override
-  public Model createModel() { return delegate.createModel(); }
+  public Model getModel() {
+    return delegate.getModel();
+  }
 
   @Override
-  public boolean containsAttribute(String name) { return delegate.containsAttribute(name); }
+  public Model createModel() {
+    return delegate.createModel();
+  }
 
   @Override
-  public void setAttributes(Map<String, Object> attributes) { delegate.setAttributes(attributes); }
+  public boolean containsAttribute(String name) {
+    return delegate.containsAttribute(name);
+  }
 
   @Override
-  public Object getAttribute(String name) { return delegate.getAttribute(name); }
+  public void setAttributes(Map<String, Object> attributes) {
+    delegate.setAttributes(attributes);
+  }
 
   @Override
-  public void setAttribute(String name, Object value) { delegate.setAttribute(name, value); }
+  public Object getAttribute(String name) {
+    return delegate.getAttribute(name);
+  }
+
+  @Override
+  public void setAttribute(String name, Object value) {
+    delegate.setAttribute(name, value);
+  }
 
   @Override
   public Object removeAttribute(String name) { return delegate.removeAttribute(name); }
@@ -300,6 +329,11 @@ public class RequestContextDecorator extends RequestContext {
 
   @Override
   public void clear() { delegate.clear(); }
+
+  @Override
+  public String[] getAttributeNames() {
+    return delegate.getAttributeNames();
+  }
 
   @Override
   public void resetResponseHeader() { delegate.resetResponseHeader(); }

@@ -56,7 +56,7 @@ public class LightRequestContext extends RequestContext {
   private List<RequestPart> requestParts;
 
   public LightRequestContext(WebApplicationContext webApplicationContext, HttpRequest request, HttpResponse response, LightHttpConfig config) {
-//    super(webApplicationContext);
+    super(webApplicationContext);
     this.config = config;
     this.request = request;
     this.response = response;
@@ -312,4 +312,5 @@ public class LightRequestContext extends RequestContext {
   public String toString() {
     return "Light HTTP: " + super.toString();
   }
+
 }

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -49,6 +50,7 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -121,6 +123,27 @@ public abstract class RequestContext
 
   /** @since 4.0 */
   protected PathMatchInfo pathMatchInfo;
+
+  /** @since 4.0 */
+  protected Locale locale;
+
+  /** @since 4.0 */
+  protected String responseContentType;
+
+  /** @since 4.0 */
+  private final WebApplicationContext webApplicationContext;
+
+  protected RequestContext(WebApplicationContext context) {
+    this.webApplicationContext = context;
+  }
+
+  /**
+   * Return the WebApplicationContext that this request runs in.
+   */
+  @NonNull
+  public WebApplicationContext getWebApplicationContext() {
+    return this.webApplicationContext;
+  }
 
   // --- request
 
@@ -573,6 +596,32 @@ public abstract class RequestContext
    */
   protected abstract HttpHeaders createRequestHeaders();
 
+  /**
+   * Returns the preferred <code>Locale</code> that the client will
+   * accept content in, based on the Accept-Language header. If the
+   * client request doesn't provide an Accept-Language header, this
+   * method returns the default locale for the server.
+   *
+   * @return the preferred <code>Locale</code> for the client
+   * @since 4.0
+   */
+  public Locale getLocale() {
+    if (locale == null) {
+      locale = doGetLocale();
+    }
+    return locale;
+  }
+
+  // @since 4.0
+  protected Locale doGetLocale() {
+    List<Locale> locales = requestHeaders().getAcceptLanguageAsLocales();
+    Locale locale = CollectionUtils.firstElement(locales);
+    if (locale == null) {
+      return Locale.getDefault();
+    }
+    return locale;
+  }
+
   // ---------------- response
 
   /**
@@ -835,7 +884,25 @@ public abstract class RequestContext
    * @param contentType a <code>String</code> specifying the MIME type of the content
    */
   public void setContentType(String contentType) {
+    this.responseContentType = contentType;
     responseHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
+  }
+
+  /**
+   * Returns the content type used for the MIME body sent in this response.
+   * The content type proper must have been specified using {@link #setContentType}
+   * before the response is committed. If no content type has been specified, this
+   * method returns null.
+   *
+   * @return a <code>String</code> specifying the content type, for example,
+   * <code>text/html; charset=UTF-8</code>, or
+   * null
+   * @see #getContentType()
+   * @see jakarta.servlet.http.HttpServletResponse#getContentType()
+   */
+  @Nullable
+  public String getResponseContentType() {
+    return responseContentType;
   }
 
   /**
@@ -936,11 +1003,13 @@ public abstract class RequestContext
   // Model
 
   /**
-   * @since 3.0
+   * @since 4.0
    */
-  private Model obtainModel() {
+  public Model getModel() {
+    Model model = this.model;
     if (model == null) {
-      this.model = createModel();
+      model = createModel();
+      this.model = model;
     }
     return model;
   }
@@ -951,37 +1020,47 @@ public abstract class RequestContext
 
   @Override
   public boolean containsAttribute(String name) {
-    return obtainModel().containsAttribute(name);
+    return getModel().containsAttribute(name);
   }
 
   @Override
   public void setAttributes(Map<String, Object> attributes) {
-    obtainModel().setAttributes(attributes);
+    getModel().setAttributes(attributes);
   }
 
   @Override
   public Object getAttribute(String name) {
-    return obtainModel().getAttribute(name);
+    return getModel().getAttribute(name);
   }
 
   @Override
   public void setAttribute(String name, Object value) {
-    obtainModel().setAttribute(name, value);
+    getModel().setAttribute(name, value);
   }
 
   @Override
   public Object removeAttribute(String name) {
-    return obtainModel().removeAttribute(name);
+    return getModel().removeAttribute(name);
   }
 
   @Override
   public Map<String, Object> asMap() {
-    return obtainModel().asMap();
+    return getModel().asMap();
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    return getModel().getAttributeNames();
+  }
+
+  @Override
+  public Iterator<String> attributeNames() {
+    return getModel().attributeNames();
   }
 
   @Override
   public void clear() {
-    obtainModel().clear();
+    getModel().clear();
   }
 
   protected void resetResponseHeader() {
