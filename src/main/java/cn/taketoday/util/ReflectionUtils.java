@@ -1167,6 +1167,11 @@ public abstract class ReflectionUtils {
 
   // Constructor handling
 
+  /**
+   * @throws ConstructorNotFoundException not found
+   * @see Class#getDeclaredConstructor
+   * @since 4.0
+   */
   public static <T> Constructor<T> accessibleConstructor(
           Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
