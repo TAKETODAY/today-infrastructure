@@ -20,14 +20,13 @@
 
 package cn.taketoday.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -39,10 +38,10 @@ public class ReflectionTestUtils {
 
   private static final String GETTER_PREFIX = "get";
 
-  private static final Log logger = LogFactory.getLog(ReflectionTestUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ReflectionTestUtils.class);
 
   private static final boolean springAopPresent = ClassUtils.isPresent(
-          "org.springframework.aop.framework.Advised", ReflectionTestUtils.class.getClassLoader());
+          "cn.taketoday.aop.proxy.Advised", ReflectionTestUtils.class.getClassLoader());
 
   /**
    * Set the {@linkplain Field field} with the given {@code name} on the
@@ -416,7 +415,7 @@ public class ReflectionTestUtils {
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
-   * @since 5.2
+   * @since 4.0
    */
   @Nullable
   public static <T> T invokeMethod(Class<?> targetClass, String name, Object... args) {
@@ -445,7 +444,7 @@ public class ReflectionTestUtils {
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
-   * @since 5.2
+   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   @Nullable
