@@ -29,8 +29,14 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
+ * Convenient superclass for application objects that want to be aware of
+ * the application context, e.g. for custom lookup of collaborating beans
+ * or for context-specific resource access. It saves the application
+ * context reference and provides an initialization callback method.
+ * Furthermore, it offers numerous convenience methods for message lookup.
+ *
  * @author TODAY <br>
- * 2019-12-21 15:45
+ * @since 2019-12-21 15:45
  */
 public abstract class ApplicationContextSupport implements ApplicationContextAware {
   protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -98,8 +104,19 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    */
   protected void initApplicationContext() { }
 
-  public final ApplicationContext getApplicationContext() {
-    return applicationContext;
+  /**
+   * Return the ApplicationContext that this object is associated with.
+   *
+   * @throws IllegalStateException if not running in an ApplicationContext
+   */
+  @Nullable
+  public final ApplicationContext getApplicationContext() throws IllegalStateException {
+    ApplicationContext context = this.applicationContext;
+    if (context == null && isContextRequired()) {
+      throw new IllegalStateException(
+              "ApplicationContextSupport instance [" + this + "] does not run in an ApplicationContext");
+    }
+    return context;
   }
 
   /**
@@ -143,11 +160,12 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    */
   @Nullable
   protected final MessageSourceAccessor getMessageSourceAccessor() throws IllegalStateException {
-    if (this.messageSourceAccessor == null && isContextRequired()) {
+    MessageSourceAccessor accessor = this.messageSourceAccessor;
+    if (accessor == null && isContextRequired()) {
       throw new IllegalStateException(
               "ApplicationObjectSupport instance [" + this + "] does not run in an ApplicationContext");
     }
-    return this.messageSourceAccessor;
+    return accessor;
   }
 
   /**
