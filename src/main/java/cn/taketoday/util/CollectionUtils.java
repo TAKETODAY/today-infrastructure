@@ -1182,4 +1182,57 @@ public abstract class CollectionUtils {
     return true;
   }
 
+  /**
+   * Find a single value of the given type in the given Collection.
+   *
+   * @param collection the Collection to search
+   * @param type the type to look for
+   * @return a value of the given type found if there is a clear match,
+   * or {@code null} if none or more than one such value found
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  @Nullable
+  public static <T> T findValueOfType(Collection<?> collection, @Nullable Class<T> type) {
+    if (isEmpty(collection)) {
+      return null;
+    }
+    T value = null;
+    for (Object element : collection) {
+      if (type == null || type.isInstance(element)) {
+        if (value != null) {
+          // More than one value found... no clear single value.
+          return null;
+        }
+        value = (T) element;
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Find a single value of one of the given types in the given Collection:
+   * searching the Collection for a value of the first type, then
+   * searching for a value of the second type, etc.
+   *
+   * @param collection the collection to search
+   * @param types the types to look for, in prioritized order
+   * @return a value of one of the given types found if there is a clear match,
+   * or {@code null} if none or more than one such value found
+   * @since 4.0
+   */
+  @Nullable
+  public static Object findValueOfType(Collection<?> collection, Class<?>[] types) {
+    if (isEmpty(collection) || ObjectUtils.isEmpty(types)) {
+      return null;
+    }
+    for (Class<?> type : types) {
+      Object value = findValueOfType(collection, type);
+      if (value != null) {
+        return value;
+      }
+    }
+    return null;
+  }
+
 }
