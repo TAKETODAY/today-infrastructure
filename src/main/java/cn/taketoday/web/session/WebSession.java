@@ -22,8 +22,32 @@ package cn.taketoday.web.session;
 import cn.taketoday.core.AttributeAccessor;
 
 /**
+ * Provides a way to identify a user across more than one-page request
+ * or visit to a Website and to store information about that user.
+ *
+ * <p>
+ * The container uses this interface to create a session between an
+ * HTTP client and an HTTP server. The session persists for a specified
+ * time period, across more than one connection or page request from the user.
+ * A session usually corresponds to one user, who may visit a site many times.
+ * The server can maintain a session in many ways such as using cookies or rewriting URLs.
+ *
+ * <p>
+ * This interface allows to
+ * <ul>
+ * <li>View and manipulate information about a session, such as the
+ * session identifier, creation time, and last accessed
+ * time
+ * <li>Bind objects to sessions, allowing user information to persist
+ * across multiple user connections
+ * </ul>
+ *
+ * <p>
+ * Session information is scoped only to the current web application
+ * so information stored in one context will not be directly visible in another.
+ *
  * @author TODAY <br>
- * 2019-09-27 20:16
+ * @since 2019-09-27 20:16
  */
 public interface WebSession extends AttributeAccessor {
 

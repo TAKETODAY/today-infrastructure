@@ -32,8 +32,8 @@ public abstract class AbstractWebSessionStorage implements WebSessionStorage {
 
   @Override
   public WebSession get(String id) {
-    final String computeId = computeId(id);
-    final WebSession ret = getInternal(computeId);
+    String computeId = computeId(id);
+    WebSession ret = getInternal(computeId);
     if (ret != null && System.currentTimeMillis() - ret.getCreationTime() > expire) {
       removeInternal(computeId);
       return null;

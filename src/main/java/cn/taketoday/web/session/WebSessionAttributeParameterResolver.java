@@ -19,38 +19,47 @@
  */
 package cn.taketoday.web.session;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.resolver.AbstractParameterResolver;
+import cn.taketoday.web.resolver.AbstractNamedValueResolvingStrategy;
 
 /**
  * @author TODAY <br>
- * 2019-09-27 22:42
+ * @see SessionAttribute
+ * @since 2019-09-27 22:42
  */
-public final class WebSessionAttributeParameterResolver extends AbstractParameterResolver {
+public class WebSessionAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
 
   private final WebSessionManager sessionManager;
 
   public WebSessionAttributeParameterResolver(WebSessionManager sessionManager) {
+    this(sessionManager, null);
+  }
+
+  public WebSessionAttributeParameterResolver(WebSessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
+    super(beanFactory);
     Assert.notNull(sessionManager, "sessionManager must not be null");
     this.sessionManager = sessionManager;
   }
 
   @Override
-  public boolean supportsParameter(final ResolvableMethodParameter parameter) {
+  public boolean supportsParameter(ResolvableMethodParameter parameter) {
     return parameter.hasParameterAnnotation(SessionAttribute.class);
   }
 
+  @Nullable
   @Override
-  protected Object resolveInternal(
-          final RequestContext context, final ResolvableMethodParameter parameter) throws Throwable {
-    final WebSession session = sessionManager.getSession(context, false);
+  protected Object resolveName(
+          String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+    WebSession session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;
     }
-    return session.getAttribute(parameter.getName());
+    return session.getAttribute(name);
   }
 
 }

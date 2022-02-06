@@ -21,6 +21,7 @@ package cn.taketoday.web.session;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
@@ -43,9 +44,14 @@ public class WebSessionParameterResolver
     return parameter.isAssignableTo(WebSession.class);
   }
 
+  @Nullable
   @Override
   public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) {
-    return getSession(context);
+    if (resolvable.isRequired()) {
+      return getSession(context);
+    }
+    // Nullable
+    return getSession(context, false);
   }
 
   @Override

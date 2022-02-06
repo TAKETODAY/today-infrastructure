@@ -23,10 +23,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
 import cn.taketoday.web.view.RedirectModelManager;
@@ -41,24 +44,44 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
-@Import(WebSessionConfiguration.class)
+@Import(WebSessionConfig.class)
 public @interface EnableWebSession {
 
 }
 
 @Configuration(proxyBeanMethods = false)
 @DisableAllDependencyInjection
-class WebSessionConfiguration {
+class WebSessionConfig {
 
   /**
    * default {@link WebSessionManager} bean
    */
-  @Component
+  @Component(WebSessionManager.BEAN_NAME)
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(WebSessionManager.class)
-  @Import({ WebSessionParameterResolver.class, WebSessionAttributeParameterResolver.class })
   DefaultWebSessionManager webSessionManager(
           TokenResolver tokenResolver, WebSessionStorage sessionStorage) {
     return new DefaultWebSessionManager(tokenResolver, sessionStorage);
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  WebSessionAttributeParameterResolver webSessionAttributeParameterResolver(
+          WebSessionManager webSessionManager, ConfigurableBeanFactory beanFactory) {
+    return new WebSessionAttributeParameterResolver(webSessionManager, beanFactory);
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  WebSessionParameterResolver webSessionParameterResolver(
+          WebSessionManager webSessionManager) {
+    return new WebSessionParameterResolver(webSessionManager);
   }
 
   /**
@@ -67,8 +90,9 @@ class WebSessionConfiguration {
    * @since 3.0
    */
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(WebSessionStorage.class)
-  MemWebSessionStorage sessionStorage() {
+  MemWebSessionStorage webSessionStorage() {
     return new MemWebSessionStorage();
   }
 
@@ -80,8 +104,9 @@ class WebSessionConfiguration {
   @Lazy
   @Component
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Props(prefix = "server.session.cookie.")
-  SessionCookieConfig sessionCookieConfiguration() {
+  SessionCookieConfig webSessionCookieConfig() {
     return new SessionCookieConfig();
   }
 
@@ -89,7 +114,8 @@ class WebSessionConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Props(prefix = "server.session.")
-  SessionConfiguration sessionConfiguration(SessionCookieConfig sessionCookieConfig) {
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  SessionConfiguration webSessionConfig(SessionCookieConfig sessionCookieConfig) {
     return new SessionConfiguration(sessionCookieConfig);
   }
 
@@ -99,12 +125,14 @@ class WebSessionConfiguration {
    * @since 3.0
    */
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(TokenResolver.class)
-  CookieTokenResolver tokenResolver(SessionCookieConfig config) {
+  CookieTokenResolver webTokenResolver(SessionCookieConfig config) {
     return new CookieTokenResolver(config);
   }
 
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RedirectModelManager.class)
   SessionRedirectModelManager sessionRedirectModelManager(WebSessionManager sessionManager) {
     return new SessionRedirectModelManager(sessionManager);

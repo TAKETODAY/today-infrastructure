@@ -19,12 +19,15 @@
  */
 package cn.taketoday.web.session;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author TODAY <br>
  * 2019-09-28 10:26
  */
 public interface WebSessionStorage {
 
+  @Nullable
   WebSession get(String id);
 
   WebSession remove(String id);
