@@ -21,6 +21,7 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
@@ -38,11 +39,12 @@ public class SessionRedirectModelManager implements RedirectModelManager {
     this.sessionManager = sessionManager;
   }
 
+  @Nullable
   @Override
-  public RedirectModel getModel(final RequestContext context) {
-    final WebSession session = sessionManager.getSession(context, false);
+  public RedirectModel getModel(RequestContext context) {
+    WebSession session = sessionManager.getSession(context, false);
     if (session != null) {
-      final Object attribute = session.getAttribute(KEY_REDIRECT_MODEL);
+      Object attribute = session.getAttribute(KEY_REDIRECT_MODEL);
       if (attribute instanceof RedirectModel) {
         return (RedirectModel) attribute;
       }
@@ -51,15 +53,15 @@ public class SessionRedirectModelManager implements RedirectModelManager {
   }
 
   @Override
-  public void saveRedirectModel(final RequestContext context, final RedirectModel redirectModel) {
+  public void saveRedirectModel(RequestContext context, @Nullable RedirectModel redirectModel) {
     if (redirectModel == null) {
-      final WebSession session = sessionManager.getSession(context, false);
+      WebSession session = sessionManager.getSession(context, false);
       if (session != null) {
         session.removeAttribute(KEY_REDIRECT_MODEL);
       }
     }
     else {
-      final WebSession session = sessionManager.getSession(context);
+      WebSession session = sessionManager.getSession(context);
       Assert.state(session != null, "WebSession not found in current request");
       session.setAttribute(KEY_REDIRECT_MODEL, redirectModel);
     }

@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.view;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -36,6 +37,7 @@ public interface RedirectModelManager {
    *
    * @param context Current request context
    */
+  @Nullable
   RedirectModel getModel(RequestContext context);
 
   /**
@@ -44,6 +46,6 @@ public interface RedirectModelManager {
    * @param context current request context
    * @param redirectModel value
    */
-  void saveRedirectModel(RequestContext context, RedirectModel redirectModel);
+  void saveRedirectModel(RequestContext context, @Nullable RedirectModel redirectModel);
 
 }
