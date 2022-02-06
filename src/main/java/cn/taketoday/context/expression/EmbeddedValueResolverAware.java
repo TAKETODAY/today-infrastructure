@@ -28,7 +28,6 @@ import cn.taketoday.core.StringValueResolver;
  * {@code StringValueResolver} for the resolution of embedded definition values.
  *
  * @author Harry Yang
- * @see EmbeddedValueResolver
  * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#resolveEmbeddedValue(String)
  * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#getBeanExpressionResolver()
  * @see EmbeddedValueResolver

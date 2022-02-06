@@ -65,4 +65,13 @@ public class EmbeddedValueResolver implements StringValueResolver {
     return value;
   }
 
+  /**
+   * contains placeholder or EL expressions
+   *
+   * @param expr expression
+   */
+  public static boolean isEmbedded(@Nullable String expr) {
+    return expr != null && ((expr.startsWith("#{") || expr.startsWith("${")) && expr.endsWith("}"));
+  }
+
 }
