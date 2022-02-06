@@ -24,8 +24,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.framework.server.WebServerLifecycle;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.framework.server.WebServer;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import jakarta.servlet.Servlet;
@@ -39,7 +37,6 @@ import jakarta.servlet.ServletContext;
  */
 public class ServletWebServerApplicationContext
         extends StandardWebServletApplicationContext implements WebServerApplicationContext {
-  private static final Logger log = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
 
   private WebServer webServer;
 

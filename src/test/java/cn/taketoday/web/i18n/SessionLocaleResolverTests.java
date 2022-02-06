@@ -24,10 +24,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
+import cn.taketoday.web.session.EnableWebSession;
 import jakarta.servlet.http.HttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,11 +42,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SessionLocaleResolverTests {
 
+  StandardWebServletApplicationContext webApplicationContext = new StandardWebServletApplicationContext();
+
+  {
+    webApplicationContext.register(SessionConfig.class);
+    webApplicationContext.refresh();
+  }
+
+  @EnableWebSession
+  @Configuration
+  static class SessionConfig {
+
+  }
+
   @Test
   public void testResolveLocale() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    RequestContext context = new ServletRequestContext(null, request, null);
-    request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
+    RequestContext context = new ServletRequestContext(webApplicationContext, request, null);
+    RequestContextUtils.getRequiredSession(context)
+            .setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.GERMAN);
@@ -52,7 +70,7 @@ public class SessionLocaleResolverTests {
   public void testSetAndResolveLocale() {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
-    RequestContext context = new ServletRequestContext(null, request, response);
+    RequestContext context = new ServletRequestContext(webApplicationContext, request, response);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     resolver.setLocale(context, Locale.GERMAN);
@@ -70,7 +88,7 @@ public class SessionLocaleResolverTests {
   public void testResolveLocaleWithoutSession() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addPreferredLocale(Locale.TAIWAN);
-    RequestContext context = new ServletRequestContext(null, request, null);
+    RequestContext context = new ServletRequestContext(webApplicationContext, request, null);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
 
@@ -81,7 +99,7 @@ public class SessionLocaleResolverTests {
   public void testResolveLocaleWithoutSessionAndDefaultLocale() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addPreferredLocale(Locale.TAIWAN);
-    RequestContext context = new ServletRequestContext(null, request, null);
+    RequestContext context = new ServletRequestContext(webApplicationContext, request, null);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     resolver.setDefaultLocale(Locale.GERMAN);
@@ -92,10 +110,11 @@ public class SessionLocaleResolverTests {
   @Test
   public void testSetLocaleToNullLocale() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    RequestContext context = new ServletRequestContext(null, request, null);
+    RequestContext context = new ServletRequestContext(webApplicationContext, request, null);
 
     request.addPreferredLocale(Locale.TAIWAN);
-    request.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
+    RequestContextUtils.getRequiredSession(context)
+            .setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();

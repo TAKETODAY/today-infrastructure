@@ -30,6 +30,7 @@ import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 
 /**
@@ -65,6 +66,73 @@ public class RequestContextUtils {
   @Nullable
   public static <T> T getBean(RequestContext request, String beanName, Class<T> requiredType) {
     return request.getWebApplicationContext().getBean(beanName, requiredType);
+  }
+
+  /**
+   * Returns the current session associated with this request, or if the request
+   * does not have a session, creates one.
+   *
+   * @param request Current request
+   * @return the <code>WebSession</code> associated with this request
+   * @see #getSession(RequestContext, boolean)
+   */
+  @Nullable
+  public static WebSession getSession(RequestContext request) {
+    WebSessionManager sessionManager = getSessionManager(request);
+    if (sessionManager != null) {
+      return sessionManager.getSession(request);
+    }
+    return null;
+  }
+
+  /**
+   * Returns the current session associated with this request, or if the request
+   * does not have a session, creates one.
+   *
+   * @param request Current request
+   * @return the <code>WebSession</code> associated with this request
+   * @see #getSession(RequestContext, boolean)
+   * @see IllegalStateException
+   */
+  public static WebSession getRequiredSession(RequestContext request) {
+    WebSession session = getSession(request);
+    if (session == null) {
+      throw new IllegalStateException("Cannot get WebSession");
+    }
+    return session;
+  }
+
+  /**
+   * Returns the current <code>WebSession</code> associated with this request or,
+   * if there is no current session and <code>create</code> is true, returns a new
+   * session.
+   *
+   * <p>
+   * If <code>create</code> is <code>false</code> and the request has no valid
+   * <code>WebSession</code>, this method returns <code>null</code>.
+   *
+   * <p>
+   * To make sure the session is properly maintained, you must call this method
+   * before the response is committed. If the container is using cookies to
+   * maintain session integrity and is asked to create a new session when the
+   * response is committed, an IllegalStateException is thrown.
+   *
+   * @param request Current request
+   * @param create <code>true</code> to create a new session for this request if
+   * necessary; <code>false</code> to return <code>null</code> if
+   * there's no current session
+   * @return the <code>WebSession</code> associated with this request or
+   * <code>null</code> if <code>create</code> is <code>false</code> and
+   * the request has no valid session
+   * @see #getSession(RequestContext)
+   */
+  @Nullable
+  public static WebSession getSession(RequestContext request, boolean create) {
+    WebSessionManager sessionManager = getSessionManager(request);
+    if (sessionManager != null) {
+      return sessionManager.getSession(request, create);
+    }
+    return null;
   }
 
   /**
