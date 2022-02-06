@@ -35,6 +35,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -253,6 +254,8 @@ public class DispatcherHandler {
   @Nullable
   protected Object processHandlerException(
           RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+    // prepare context throwable
+    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     // Check registered HandlerExceptionResolvers...
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {

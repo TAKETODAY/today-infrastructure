@@ -33,10 +33,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * @author TODAY 2019-12-25 16:12
@@ -116,7 +116,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     ResourceMapping resourceMapping = getMapping();
     applyHeaders(context.responseHeaders(), lastModified, eTag, resourceMapping);
 
-    if (WebUtils.isHeadRequest(context)) {
+    if (isHeadRequest(context)) {
       return;
     }
 
@@ -215,4 +215,9 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   public String toString() {
     return mapping.toString();
   }
+
+  static boolean isHeadRequest(RequestContext requestContext) {
+    return "HEAD".equalsIgnoreCase(requestContext.getMethodValue());
+  }
+
 }

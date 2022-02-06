@@ -21,16 +21,14 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * Handle Exception from handler
  *
  * @author TODAY <br>
- * 2020-03-29 20:52
+ * @since 2020-03-29 20:52
  */
 public interface HandlerExceptionHandler {
-  String ERROR_EXCEPTION_ATTRIBUTE = WebUtils.ERROR_EXCEPTION_ATTRIBUTE;
 
   /**
    * This value indicates that the handler did not return a value, or the result

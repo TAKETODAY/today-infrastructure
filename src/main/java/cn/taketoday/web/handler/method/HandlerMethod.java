@@ -32,7 +32,11 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -41,9 +45,10 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.Produce;
+import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.handler.DefaultResponseStatus;
 
 /**
  * Annotation handler metadata
@@ -89,7 +94,7 @@ public class HandlerMethod {
       setContentType(produce.value());
     }
 
-    setResponseStatus(WebUtils.getResponseStatus(this));
+    setResponseStatus(getResponseStatus(this));
   }
 
   /**
@@ -219,7 +224,7 @@ public class HandlerMethod {
    */
   public boolean isResponseBody() {
     if (responseBody == null) {
-      responseBody = WebUtils.isResponseBody(method);
+      responseBody = isResponseBody(method);
     }
     return responseBody;
   }
@@ -411,6 +416,65 @@ public class HandlerMethod {
 
   public static HandlerMethod from(Method method) {
     return new HandlerMethod(method);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static boolean isResponseBody(Method method) {
+    MergedAnnotation<ResponseBody> annotation = MergedAnnotations.from(method).get(ResponseBody.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean(MergedAnnotation.VALUE);
+    }
+    annotation = MergedAnnotations.from(method.getDeclaringClass()).get(ResponseBody.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean(MergedAnnotation.VALUE);
+    }
+    return false;
+  }
+
+  // ResponseStatus
+
+  public static int getStatusValue(Throwable ex) {
+    return getResponseStatus(ex).value().value();
+  }
+
+  public static ResponseStatus getResponseStatus(Throwable ex) {
+    return getResponseStatus(ex.getClass());
+  }
+
+  public static ResponseStatus getResponseStatus(Class<? extends Throwable> exceptionClass) {
+    if (ConversionException.class.isAssignableFrom(exceptionClass)) {
+      return new DefaultResponseStatus(HttpStatus.BAD_REQUEST);
+    }
+    ResponseStatus status = AnnotationUtils.getAnnotation(exceptionClass, ResponseStatus.class);
+    if (status != null) {
+      return new DefaultResponseStatus(status);
+    }
+    return new DefaultResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  public static ResponseStatus getResponseStatus(HandlerMethod handler) {
+    Assert.notNull(handler, "handler method must not be null");
+    ResponseStatus status = handler.getMethodAnnotation(ResponseStatus.class);
+    if (status == null) {
+      status = handler.getDeclaringClassAnnotation(ResponseStatus.class);
+    }
+    return wrapStatus(status);
+  }
+
+  private static DefaultResponseStatus wrapStatus(ResponseStatus status) {
+    return status != null ? new DefaultResponseStatus(status) : null;
+  }
+
+  public static ResponseStatus getResponseStatus(AnnotatedElement handler) {
+    Assert.notNull(handler, "AnnotatedElement must not be null");
+    ResponseStatus status = handler.getDeclaredAnnotation(ResponseStatus.class);
+    if (status == null && handler instanceof Method) {
+      Class<?> declaringClass = ((Method) handler).getDeclaringClass();
+      status = declaringClass.getDeclaredAnnotation(ResponseStatus.class);
+    }
+    return wrapStatus(status);
   }
 
 }

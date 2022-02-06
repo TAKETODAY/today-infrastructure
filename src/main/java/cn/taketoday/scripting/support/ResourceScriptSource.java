@@ -49,9 +49,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class ResourceScriptSource implements ScriptSource {
-
-  /** Logger available to subclasses. */
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(ResourceScriptSource.class);
 
   private EncodedResource resource;
 
@@ -122,8 +120,8 @@ public class ResourceScriptSource implements ScriptSource {
       return getResource().lastModified();
     }
     catch (IOException ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug(getResource() + " could not be resolved in the file system - " +
+      if (log.isDebugEnabled()) {
+        log.debug(getResource() + " could not be resolved in the file system - " +
                 "current timestamp not available for script modification check", ex);
       }
       return 0;

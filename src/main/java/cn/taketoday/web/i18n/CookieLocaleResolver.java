@@ -227,14 +227,14 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
             timeZonePart = value.substring(separatorIndex + 1);
           }
           try {
-            locale = (!"-".equals(localePart) ? parseLocaleValue(localePart) : null);
+            locale = !"-".equals(localePart) ? parseLocaleValue(localePart) : null;
             if (timeZonePart != null) {
               timeZone = StringUtils.parseTimeZoneString(timeZonePart);
             }
           }
           catch (IllegalArgumentException ex) {
-            if (isRejectInvalidCookies() &&
-                    request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE) == null) {
+            if (isRejectInvalidCookies()
+                    && request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE) == null) {
               throw new IllegalStateException("Encountered invalid locale cookie '" +
                       cookieName + "': [" + value + "] due to: " + ex.getMessage());
             }

@@ -30,7 +30,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
@@ -85,7 +84,7 @@ public class TemplateRendererReturnValueHandler
           if (implClass != null) {
             Method declaredMethod = ReflectionUtils.findMethod(implClass, lambda.getImplMethodName(), RequestContext.class);
             if (declaredMethod != null) {
-              return WebUtils.isResponseBody(declaredMethod);
+              return HandlerMethod.isResponseBody(declaredMethod);
             }
           }
         }

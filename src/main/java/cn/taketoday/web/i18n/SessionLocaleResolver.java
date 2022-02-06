@@ -27,9 +27,9 @@ import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * {@link cn.taketoday.web.LocaleResolver} implementation that
@@ -42,11 +42,6 @@ import jakarta.servlet.http.HttpServletRequest;
  * the user's locale. The session may optionally contain an associated time zone
  * attribute as well; alternatively, you may specify a default time zone.
  *
- * <p>Custom controllers can override the user's locale and time zone by calling
- * {@code #setLocale(Context)} on the resolver, e.g. responding to a locale change
- * request. As a more convenient alternative, consider using
- * {@link cn.taketoday.web.RequestContext#changeLocale}.
- *
  * <p>In contrast to {@link CookieLocaleResolver}, this strategy stores locally
  * chosen locale settings in the Servlet container's {@code HttpSession}. As a
  * consequence, those settings are just temporary for each session and therefore
@@ -55,7 +50,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * <p>Note that there is no direct relationship with external session management
  * mechanisms such as the "Session" project. This {@code LocaleResolver}
  * will simply evaluate and modify corresponding {@code HttpSession} attributes
- * against the current {@code HttpServletRequest}.
+ * against the current {@code RequestContext}.
  *
  * @author Juergen Hoeller
  * @see #setDefaultLocale
@@ -81,7 +76,6 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * <p>Use {@code RequestContext(Utils).getTimeZone()}
    * to retrieve the current time zone in controllers or views.
    *
-   * @see cn.taketoday.web.RequestContext#getTimeZone
    * @see cn.taketoday.web.RequestContextUtils#getTimeZone
    */
   public static final String TIME_ZONE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".TIME_ZONE";
@@ -111,10 +105,11 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     this.timeZoneAttributeName = timeZoneAttributeName;
   }
 
-  public void setSessionManager(WebSessionManager sessionManager) {
+  public void setSessionManager(@Nullable WebSessionManager sessionManager) {
     this.sessionManager = sessionManager;
   }
 
+  @Nullable
   public WebSessionManager getSessionManager() {
     return sessionManager;
   }
@@ -169,6 +164,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> T getSessionAttribute(RequestContext request, String attributeName) {
+    WebSessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       WebSession session = sessionManager.getSession(request, false);
       if (session != null) {
@@ -180,7 +176,20 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   private void setSessionAttribute(
           RequestContext request, String attributeName, @Nullable Object attribute) {
+    WebSessionManager sessionManager = getSessionManager(request);
+    if (sessionManager != null) {
+      WebSession session = sessionManager.getSession(request);
+      session.setAttribute(attributeName, attribute);
+    }
+  }
 
+  @Nullable
+  private WebSessionManager getSessionManager(RequestContext request) {
+    WebSessionManager sessionManager = getSessionManager();
+    if (sessionManager == null) {
+      sessionManager = RequestContextUtils.getSessionManager(request);
+    }
+    return sessionManager;
   }
 
   /**
@@ -192,7 +201,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
    * @see #setDefaultLocale
-   * @see HttpServletRequest#getLocale()
+   * @see RequestContext#getLocale()
    */
   protected Locale determineDefaultLocale(RequestContext request) {
     Locale defaultLocale = getDefaultLocale();

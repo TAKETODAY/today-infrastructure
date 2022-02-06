@@ -363,7 +363,7 @@ public abstract class RequestContext
 
   protected Map<String, String[]> doGetParameters() {
     String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
-    MultiValueMap<String, String> parameters = WebUtils.parseParameters(queryString);
+    MultiValueMap<String, String> parameters = RequestContextUtils.parseParameters(queryString);
     postGetParameters(parameters);
     if (!parameters.isEmpty()) {
       return parameters.toArrayMap(String[]::new);
@@ -1132,4 +1132,5 @@ public abstract class RequestContext
   public boolean isRequestHandled() {
     return this.requestHandled;
   }
+
 }

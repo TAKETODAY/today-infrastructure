@@ -33,7 +33,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
@@ -94,7 +93,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public boolean supportsParameter(ResolvableMethodParameter resolvable)  {
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     return resolvable.hasParameterAnnotation(RequestBody.class);
   }
 
@@ -107,7 +106,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   public boolean supportsHandler(Object handler) {
     if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
       HandlerMethod method = annotationHandler.getMethod();
-      return WebUtils.isResponseBody(method.getMethod());
+      return HandlerMethod.isResponseBody(method.getMethod());
     }
     return false;
   }

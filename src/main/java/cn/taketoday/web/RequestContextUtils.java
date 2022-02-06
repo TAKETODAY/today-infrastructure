@@ -23,10 +23,13 @@ package cn.taketoday.web;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.session.WebSessionManager;
 
 /**
@@ -47,6 +50,11 @@ public class RequestContextUtils {
   private static final DoubleParser DOUBLE_PARSER = new DoubleParser();
   private static final BooleanParser BOOLEAN_PARSER = new BooleanParser();
   private static final StringParser STRING_PARSER = new StringParser();
+
+  @Nullable
+  public static <T> T getBean(RequestContext request, Class<T> requiredType) {
+    return request.getWebApplicationContext().getBean(requiredType);
+  }
 
   @Nullable
   @SuppressWarnings("unchecked")
@@ -134,6 +142,64 @@ public class RequestContextUtils {
   }
 
   // parameters
+
+  // static
+  public static void parseParameters(MultiValueMap<String, String> parameterMap, String s) {
+    if (StringUtils.isNotEmpty(s)) {
+      int nameStart = 0;
+      int valueStart = -1;
+      int i;
+      int len = s.length();
+      loop:
+      for (i = 0; i < len; i++) {
+        switch (s.charAt(i)) {
+          case '=':
+            if (nameStart == i) {
+              nameStart = i + 1;
+            }
+            else if (valueStart < nameStart) {
+              valueStart = i + 1;
+            }
+            break;
+          case '&':
+          case ';':
+            addParam(s, nameStart, valueStart, i, parameterMap);
+            nameStart = i + 1;
+            break;
+          case '#':
+            break loop;
+          default:
+            // continue
+        }
+      }
+      addParam(s, nameStart, valueStart, i, parameterMap);
+    }
+  }
+
+  /**
+   * Parse Parameters
+   *
+   * @param s decoded {@link String}
+   * @return Map of list parameters
+   */
+  public static MultiValueMap<String, String> parseParameters(String s) {
+    DefaultMultiValueMap<String, String> params = MultiValueMap.fromLinkedHashMap();
+    parseParameters(params, s);
+    return params;
+  }
+
+  private static void addParam(
+          String s, int nameStart, int valueStart, int valueEnd, MultiValueMap<String, String> params
+  ) {
+    if (nameStart < valueEnd) {
+      if (valueStart <= nameStart) {
+        valueStart = valueEnd + 1;
+      }
+      String name = s.substring(nameStart, valueStart - 1);
+      String value = s.substring(valueStart, valueEnd);
+      params.add(name, value);
+    }
+  }
 
   /**
    * Get an Integer parameter, or {@code null} if not present.

@@ -28,7 +28,10 @@ import cn.taketoday.web.RequestContext;
  */
 public interface WebSessionManager {
 
-  String BEAN_NAME = "cn.taketoday.web.session.internalSessionManager";
+  /**
+   * default bean name
+   */
+  String BEAN_NAME = "webSessionManager";
 
   /**
    * create a new session

@@ -20,8 +20,8 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -36,7 +36,7 @@ public class ThrowableHandlerParameterResolver implements ParameterResolvingStra
 
   @Override
   public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
-    return context.getAttribute(HandlerExceptionHandler.ERROR_EXCEPTION_ATTRIBUTE);
+    return context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
   }
 
 }

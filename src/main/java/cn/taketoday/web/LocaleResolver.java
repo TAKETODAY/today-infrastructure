@@ -55,6 +55,9 @@ import cn.taketoday.lang.Nullable;
  */
 public interface LocaleResolver {
 
+  /**
+   * default bean name
+   */
   String BEAN_NAME = "webLocaleResolver";
 
   /**

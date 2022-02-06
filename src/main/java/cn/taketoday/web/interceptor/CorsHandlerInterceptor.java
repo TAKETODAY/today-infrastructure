@@ -28,7 +28,7 @@ import cn.taketoday.http.CorsConfigurationSource;
 import cn.taketoday.http.CorsProcessor;
 import cn.taketoday.http.DefaultCorsProcessor;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebUtils;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * @author TODAY 2020/12/10 22:49

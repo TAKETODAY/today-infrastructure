@@ -25,10 +25,10 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * For Multipart {@link MultipartFile}

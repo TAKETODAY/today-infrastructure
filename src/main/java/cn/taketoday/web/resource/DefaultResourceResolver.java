@@ -38,8 +38,8 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.ResourceMatchResult;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * @author TODAY <br>

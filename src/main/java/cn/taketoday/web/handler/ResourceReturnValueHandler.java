@@ -21,13 +21,18 @@ package cn.taketoday.web.handler;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -78,7 +83,7 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Return
    * @since 2.1.x
    */
   public void downloadFile(Resource resource, RequestContext context) throws IOException {
-    WebUtils.downloadFile(context, resource, downloadFileBuf);
+    downloadFile(context, resource, downloadFileBuf);
   }
 
   /**
@@ -88,7 +93,34 @@ public class ResourceReturnValueHandler extends OrderedSupport implements Return
    * @since 2.1.x
    */
   public void downloadFile(File file, RequestContext context) throws IOException {
-    WebUtils.downloadFile(context, ResourceUtils.getResource(file), downloadFileBuf);
+    downloadFile(context, ResourceUtils.getResource(file), downloadFileBuf);
   }
 
+  /**
+   * Download file to client.
+   *
+   * @param context Current request context
+   * @param download {@link Resource} to download
+   * @param bufferSize Download buffer size
+   * @since 2.1.x
+   */
+  public static void downloadFile(
+          RequestContext context, Resource download, int bufferSize) throws IOException //
+  {
+    context.setContentLength(download.contentLength());
+    context.setContentType(HttpHeaders.APPLICATION_FORCE_DOWNLOAD);
+    HttpHeaders httpHeaders = context.responseHeaders();
+
+    httpHeaders.set(HttpHeaders.CONTENT_TRANSFER_ENCODING, HttpHeaders.BINARY);
+    httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
+            new StringBuilder(HttpHeaders.ATTACHMENT_FILE_NAME)
+                    .append(URLEncoder.encode(download.getName(), StandardCharsets.UTF_8))
+                    .append(Constant.QUOTATION_MARKS)
+                    .toString()
+    );
+
+    try (InputStream in = download.getInputStream()) {
+      StreamUtils.copy(in, context.getOutputStream(), bufferSize);
+    }
+  }
 }

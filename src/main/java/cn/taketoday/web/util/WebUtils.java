@@ -28,14 +28,17 @@ import java.util.StringTokenizer;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,7 +53,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Sam Brannen
  */
 public abstract class WebUtils {
-  public static final String ERROR_EXCEPTION_ATTRIBUTE = HandlerExceptionHandler.class.getName() + "-context-throwable";
+  public static final String ERROR_EXCEPTION_ATTRIBUTE = WebUtils.class.getName() + "-context-throwable";
 
   /**
    * Prefix of the charset clause in a content type String: ";charset=".
@@ -110,6 +113,144 @@ public abstract class WebUtils {
       }
     }
     return result;
+  }
+
+  /**
+   * Resolves the content type of the file.
+   *
+   * @param filename name of file or path
+   * @return file content type
+   * @since 2.3.7
+   */
+  @Nullable
+  public static String resolveFileContentType(String filename) {
+    MediaType mediaType = MediaType.fromFileName(filename);
+    if (mediaType == null) {
+      return null;
+    }
+    return mediaType.toString();
+  }
+
+  public static String getEtag(String name, long size, long lastModified) {
+    return new StringBuilder()
+            .append("W/\"")
+            .append(name)
+            .append(Constant.PATH_SEPARATOR)
+            .append(size)
+            .append(Constant.PATH_SEPARATOR)
+            .append(lastModified)
+            .append('\"')
+            .toString();
+  }
+
+  // ---
+  public static boolean isMultipart(RequestContext requestContext) {
+
+    if (!"POST".equals(requestContext.getMethodValue())) {
+      return false;
+    }
+    String contentType = requestContext.getContentType();
+    return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
+  }
+
+  /**
+   * Is ajax request
+   */
+  public static boolean isAjax(HttpHeaders request) {
+    return HttpHeaders.XML_HTTP_REQUEST.equals(request.getFirst(HttpHeaders.X_REQUESTED_WITH));
+  }
+
+  // Utility class for CORS request handling based on the
+  // CORS W3C recommendation: https://www.w3.org/TR/cors
+  // -----------------------------------------------------
+
+  /**
+   * Returns {@code true} if the request is a valid CORS one by checking
+   * {@code Origin} header presence and ensuring that origins are different.
+   */
+  public static boolean isCorsRequest(RequestContext request) {
+    HttpHeaders httpHeaders = request.requestHeaders();
+    return httpHeaders.getOrigin() != null;
+  }
+
+  /**
+   * Returns {@code true} if the request is a valid CORS pre-flight one. To be
+   * used in combination with {@link #isCorsRequest(RequestContext)} since regular
+   * CORS checks are not invoked here for performance reasons.
+   */
+  public static boolean isPreFlightRequest(RequestContext request) {
+    if (HttpMethod.OPTIONS.name().equals(request.getMethodValue())) {
+      HttpHeaders requestHeaders = request.requestHeaders();
+      return requestHeaders.containsKey(HttpHeaders.ORIGIN)
+              && requestHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+    }
+    return false;
+  }
+
+  // checkNotModified
+  // ---------------------------------------------
+
+  protected static boolean matches(String matchHeader, String etag) {
+    if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
+      return "*".equals(etag) || matchHeader.equals(etag);
+    }
+    return false;
+  }
+
+  public static boolean checkNotModified(String etag, RequestContext context) {
+    return checkNotModified(etag, -1, context);
+  }
+
+  public static boolean checkNotModified(long lastModifiedTimestamp, RequestContext context) {
+    return checkNotModified(null, lastModifiedTimestamp, context);
+  }
+
+  public static boolean checkNotModified(
+          String eTag, long lastModified, RequestContext context) {
+
+    // Validate request headers for caching
+    // ---------------------------------------------------
+
+    // If-None-Match header should contain "*" or ETag. If so, then return 304
+    HttpHeaders requestHeaders = context.requestHeaders();
+    String ifNoneMatch = requestHeaders.getFirst(HttpHeaders.IF_NONE_MATCH);
+    if (matches(ifNoneMatch, eTag)) {
+      context.responseHeaders().setETag(eTag); // 304.
+      context.setStatus(HttpStatus.NOT_MODIFIED);
+      return true;
+    }
+
+    // If-Modified-Since header should be greater than LastModified
+    // If so, then return 304
+    // This header is ignored if any If-None-Match header is specified
+
+    long ifModifiedSince = requestHeaders.getIfModifiedSince();// If-Modified-Since
+    if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
+      // if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
+      context.responseHeaders().setLastModified(lastModified); // 304
+      context.setStatus(HttpStatus.NOT_MODIFIED);
+      return true;
+    }
+
+    // Validate request headers for resume
+    // ----------------------------------------------------
+
+    // If-Match header should contain "*" or ETag. If not, then return 412
+    String ifMatch = requestHeaders.getFirst(HttpHeaders.IF_MATCH);
+    if (ifMatch != null && !matches(ifMatch, eTag)) {
+//      context.status(412);
+      context.setStatus(HttpStatus.PRECONDITION_FAILED);
+      return true;
+    }
+
+    // If-Unmodified-Since header should be greater than LastModified.
+    // If not, then return 412.
+    long ifUnmodifiedSince = requestHeaders.getIfUnmodifiedSince();// "If-Unmodified-Since"
+    if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
+      context.setStatus(HttpStatus.PRECONDITION_FAILED);
+      return true;
+    }
+    return false;
   }
 
   /**

@@ -33,7 +33,7 @@ import java.util.Locale;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.web.WebUtils;
+import cn.taketoday.web.RequestContextUtils;
 
 import static cn.taketoday.web.framework.server.light.Utils.detectLocalHostName;
 import static cn.taketoday.web.framework.server.light.Utils.parseRange;
@@ -170,7 +170,7 @@ public final class HttpRequest {
   public void setPath(String path) {
     try {
       uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                    trimDuplicates(path, '/'), uri.getQuery(), uri.getFragment());
+              trimDuplicates(path, '/'), uri.getQuery(), uri.getFragment());
     }
     catch (URISyntaxException use) {
       throw new IllegalArgumentException("error setting path", use);
@@ -223,11 +223,11 @@ public final class HttpRequest {
    * @see Utils#parseParamsList(String)
    */
   public MultiValueMap<String, String> parseParameters() throws IOException {
-    final MultiValueMap<String, String> parameters = WebUtils.parseParameters(uri.getRawQuery());
-    final String ct = requestHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+    MultiValueMap<String, String> parameters = RequestContextUtils.parseParameters(uri.getRawQuery());
+    String ct = requestHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
     if (ct != null && ct.toLowerCase(Locale.US).startsWith(HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED)) {
-      final String bodyString = readToken(body, -1, StandardCharsets.UTF_8, 2097152); // 2MB limit
-      WebUtils.parseParameters(parameters, bodyString);
+      String bodyString = readToken(body, -1, StandardCharsets.UTF_8, 2097152); // 2MB limit
+      RequestContextUtils.parseParameters(parameters, bodyString);
     }
     return parameters;
   }

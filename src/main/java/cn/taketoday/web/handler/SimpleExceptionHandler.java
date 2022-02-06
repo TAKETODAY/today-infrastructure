@@ -35,7 +35,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -182,7 +181,7 @@ public class SimpleExceptionHandler
       HttpStatus httpStatus = ((HttpStatusCapable) ex).getHttpStatus();
       return httpStatus.value();
     }
-    return WebUtils.getStatusValue(ex);
+    return HandlerMethod.getStatusValue(ex);
   }
 
   /**

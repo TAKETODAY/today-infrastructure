@@ -34,7 +34,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -42,6 +41,7 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.SimpleExceptionHandler;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -67,8 +67,6 @@ public class DefaultExceptionHandler
 
   @Override
   public Object handleException(RequestContext context, Throwable target, Object handler) {
-    // prepare context throwable
-    context.setAttribute(ERROR_EXCEPTION_ATTRIBUTE, target);
     // catch all handlers
     ExceptionHandlerMappingHandler exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
@@ -228,13 +226,13 @@ public class DefaultExceptionHandler
     protected void applyResponseStatus(RequestContext context) {
       ResponseStatus status = getMethod().getResponseStatus();
       if (status == null) {
-        Object attribute = context.getAttribute(ERROR_EXCEPTION_ATTRIBUTE);
+        Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
           HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
           context.setStatus(httpStatus);
         }
         else if (attribute instanceof Throwable) {
-          ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
+          ResponseStatus runtimeErrorStatus = HandlerMethod.getResponseStatus((Throwable) attribute);
           applyResponseStatus(context, runtimeErrorStatus);
         }
       }

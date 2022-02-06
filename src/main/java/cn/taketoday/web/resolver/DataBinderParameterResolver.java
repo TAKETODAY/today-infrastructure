@@ -39,11 +39,11 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebUtils;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Resolve Bean
