@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.SimpleLocaleContext;
 import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
@@ -32,6 +33,8 @@ import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
+import cn.taketoday.web.session.EnableWebSession;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -44,6 +47,19 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @since 4.0 2022/2/3 23:52
  */
 public class CookieLocaleResolverTests {
+
+  StandardWebServletApplicationContext webApplicationContext = new StandardWebServletApplicationContext();
+
+  {
+    webApplicationContext.register(SessionLocaleResolverTests.SessionConfig.class);
+    webApplicationContext.refresh();
+  }
+
+  @EnableWebSession
+  @Configuration
+  static class SessionConfig {
+
+  }
 
   @Test
   public void testResolveLocale() {
@@ -240,6 +256,8 @@ public class CookieLocaleResolverTests {
     request.addPreferredLocale(Locale.GERMANY);
     request.setCookies(cookie);
 
+    requestContext = new MockServletRequestContext(request, response);
+
     resolver = new CookieLocaleResolver();
     LocaleContext loc = resolver.resolveLocaleContext(requestContext);
     assertThat(loc.getLocale()).isEqualTo(Locale.GERMANY);
@@ -423,12 +441,13 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetLocaleToNull() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    MockServletRequestContext requestContext = new MockServletRequestContext(request, null);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    MockServletRequestContext requestContext = new MockServletRequestContext(request, response);
 
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
-    MockHttpServletResponse response = new MockHttpServletResponse();
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocale(requestContext, null);
@@ -446,11 +465,12 @@ public class CookieLocaleResolverTests {
   public void testSetLocaleContextToNull() {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addPreferredLocale(Locale.TAIWAN);
-    MockServletRequestContext requestContext = new MockServletRequestContext(request, null);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    MockServletRequestContext requestContext = new MockServletRequestContext(request, response);
 
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
-    MockHttpServletResponse response = new MockHttpServletResponse();
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocaleContext(requestContext, null);
@@ -473,7 +493,7 @@ public class CookieLocaleResolverTests {
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
     MockHttpServletResponse response = new MockHttpServletResponse();
-    MockServletRequestContext requestContext = new MockServletRequestContext(request, null);
+    MockServletRequestContext requestContext = new MockServletRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setDefaultLocale(Locale.CANADA_FRENCH);
@@ -491,12 +511,13 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetLocaleContextToNullWithDefault() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    MockServletRequestContext requestContext = new MockServletRequestContext(request, null);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    MockServletRequestContext requestContext = new MockServletRequestContext(request, response);
 
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
-    MockHttpServletResponse response = new MockHttpServletResponse();
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setDefaultLocale(Locale.CANADA_FRENCH);

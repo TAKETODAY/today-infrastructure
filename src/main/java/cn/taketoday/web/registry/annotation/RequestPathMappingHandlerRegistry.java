@@ -33,7 +33,6 @@ import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
@@ -43,7 +42,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -56,28 +54,6 @@ import cn.taketoday.web.util.pattern.PathPattern;
  * @since 3.0
  */
 public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
-
-  // @since 4.0
-  private UrlPathHelper urlPathHelper = new UrlPathHelper();
-
-  /**
-   * Configure the UrlPathHelper to use for resolution of lookup paths.
-   *
-   * @since 4.0
-   */
-  public void setUrlPathHelper(UrlPathHelper urlPathHelper) {
-    Assert.notNull(urlPathHelper, "UrlPathHelper must not be null");
-    this.urlPathHelper = urlPathHelper;
-  }
-
-  /**
-   * Return the {@link #setUrlPathHelper configured} {@code UrlPathHelper}.
-   *
-   * @since 4.0
-   */
-  public UrlPathHelper getUrlPathHelper() {
-    return this.urlPathHelper;
-  }
 
   @Override
   protected void mappingHandlerMethod(
@@ -300,15 +276,14 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
       context.setAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, produces.clone());
     }
 
-    // VARIABLES_ATTRIBUTE
-    PathMatchInfo extract = mappingInfo.getPathPattern().matchAndExtract(context.getLookupPath());
+    // PathMatchInfo
+    PathMatchInfo extract = mappingInfo.matches(context.getLookupPath());
     if (extract != null) {
+      context.setPathMatchInfo(extract);
       Map<String, String> uriVariables = extract.getUriVariables();
-      if (!getUrlPathHelper().shouldRemoveSemicolonContent()) {
-        context.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, extractMatrixVariables(context, uriVariables));
-      }
+      context.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, extractMatrixVariables(uriVariables));
       // URI_TEMPLATE_VARIABLES_ATTRIBUTE
-      uriVariables = getUrlPathHelper().decodePathVariables(context, uriVariables);
+      uriVariables = WebUtils.decodePathVariables(uriVariables);
       context.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriVariables);
     }
     return true;
@@ -334,33 +309,31 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
     return true;
   }
 
-  private Map<String, MultiValueMap<String, String>> extractMatrixVariables(
-          RequestContext request, Map<String, String> uriVariables) {
-
-    Map<String, MultiValueMap<String, String>> result = new LinkedHashMap<>();
-    uriVariables.forEach((uriVarKey, uriVarValue) -> {
+  private Map<String, MultiValueMap<String, String>> extractMatrixVariables(Map<String, String> uriVariables) {
+    LinkedHashMap<String, MultiValueMap<String, String>> result = new LinkedHashMap<>();
+    for (Map.Entry<String, String> entry : uriVariables.entrySet()) {
+      String uriVarKey = entry.getKey();
+      String uriVarValue = entry.getValue();
 
       int equalsIndex = uriVarValue.indexOf('=');
-      if (equalsIndex == -1) {
-        return;
-      }
+      if (equalsIndex != -1) {
+        int semicolonIndex = uriVarValue.indexOf(';');
+        if (semicolonIndex != -1 && semicolonIndex != 0) {
+          uriVariables.put(uriVarKey, uriVarValue.substring(0, semicolonIndex));
+        }
 
-      int semicolonIndex = uriVarValue.indexOf(';');
-      if (semicolonIndex != -1 && semicolonIndex != 0) {
-        uriVariables.put(uriVarKey, uriVarValue.substring(0, semicolonIndex));
-      }
+        String matrixVariables;
+        if (semicolonIndex == -1 || semicolonIndex == 0 || equalsIndex < semicolonIndex) {
+          matrixVariables = uriVarValue;
+        }
+        else {
+          matrixVariables = uriVarValue.substring(semicolonIndex + 1);
+        }
 
-      String matrixVariables;
-      if (semicolonIndex == -1 || semicolonIndex == 0 || equalsIndex < semicolonIndex) {
-        matrixVariables = uriVarValue;
+        MultiValueMap<String, String> vars = WebUtils.parseMatrixVariables(matrixVariables);
+        result.put(uriVarKey, WebUtils.decodeMatrixVariables(vars));
       }
-      else {
-        matrixVariables = uriVarValue.substring(semicolonIndex + 1);
-      }
-
-      MultiValueMap<String, String> vars = WebUtils.parseMatrixVariables(matrixVariables);
-      result.put(uriVarKey, urlPathHelper.decodeMatrixVariables(request, vars));
-    });
+    }
     return result;
   }
 

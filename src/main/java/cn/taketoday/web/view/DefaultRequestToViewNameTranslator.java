@@ -24,7 +24,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestToViewNameTranslator;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * {@link RequestToViewNameTranslator} that simply transforms the URI of
@@ -124,7 +123,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   }
 
   /**
-   * Translates the request URI of the incoming {@link HttpServletRequest}
+   * Translates the request URI of the incoming {@link RequestContext}
    * into the view name based on the configured parameters.
    *
    * @throws IllegalArgumentException if neither a parsed RequestPath, nor a

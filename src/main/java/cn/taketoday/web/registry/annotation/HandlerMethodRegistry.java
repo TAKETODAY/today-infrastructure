@@ -58,7 +58,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.util.UrlPathHelper;
+import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
@@ -264,7 +264,7 @@ public class HandlerMethodRegistry
       path = contextPath.concat(path);
     }
     path = resolveVariables(path);
-    path = UrlPathHelper.getSanitizedPath(path);
+    path = WebUtils.getSanitizedPath(path);
     PathPatternParser patternParser = getPatternParser();
     return patternParser.parse(path);
   }

@@ -122,7 +122,7 @@ public abstract class RequestContext
   protected RequestPath lookupPath;
 
   /** @since 4.0 */
-  protected PathMatchInfo pathMatchInfo;
+  protected PathMatchInfo pathMatchInfo = PathMatchInfo.EMPTY;
 
   /** @since 4.0 */
   protected Locale locale;
@@ -980,6 +980,10 @@ public abstract class RequestContext
    */
   public void setRequestBody(Object body) {
     this.requestBody = body != null ? body : NullValue.INSTANCE;
+  }
+
+  public void setPathMatchInfo(PathMatchInfo pathMatchInfo) {
+    this.pathMatchInfo = pathMatchInfo;
   }
 
   public PathMatchInfo pathMatchInfo() {

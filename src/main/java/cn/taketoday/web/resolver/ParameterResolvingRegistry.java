@@ -31,7 +31,6 @@ import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.core.style.ToStringBuilder;
@@ -54,7 +53,6 @@ import cn.taketoday.web.resolver.date.DateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.resolver.date.LocalTimeParameterResolver;
-import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.web.resolver.ConverterAwareParameterResolver.from;
@@ -100,17 +98,6 @@ public class ParameterResolvingRegistry
 
   // @since 4.0
   private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
-
-  private PathMatcher pathMatcher;
-  private UrlPathHelper urlPathHelper;
-
-  public void setPathMatcher(PathMatcher pathMatcher) {
-    this.pathMatcher = pathMatcher;
-  }
-
-  public void setUrlPathHelper(UrlPathHelper urlPathHelper) {
-    this.urlPathHelper = urlPathHelper;
-  }
 
   public ParameterResolvingRegistry() {
     this.messageConverters = new ArrayList<>(4);

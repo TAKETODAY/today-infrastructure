@@ -65,6 +65,14 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.MediaType;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
@@ -79,15 +87,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
 import jakarta.servlet.http.Part;
-
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.MediaType;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.http.HttpHeaders;
 
 /**
  * Mock implementation of the {@link jakarta.servlet.http.HttpServletRequest} interface.
@@ -293,11 +292,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Create a new {@code MockHttpServletRequest} with a default
    * {@link MockServletContext}.
    *
-   * @param method
-   *         the request method (may be {@code null})
-   * @param requestURI
-   *         the request URI (may be {@code null})
-   *
+   * @param method the request method (may be {@code null})
+   * @param requestURI the request URI (may be {@code null})
    * @see #setMethod
    * @see #setRequestURI
    * @see #MockHttpServletRequest(ServletContext, String, String)
@@ -309,10 +305,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /**
    * Create a new {@code MockHttpServletRequest} with the supplied {@link ServletContext}.
    *
-   * @param servletContext
-   *         the ServletContext that the request runs in
-   *         (may be {@code null} to use a default {@link MockServletContext})
-   *
+   * @param servletContext the ServletContext that the request runs in
+   * (may be {@code null} to use a default {@link MockServletContext})
    * @see #MockHttpServletRequest(ServletContext, String, String)
    */
   public MockHttpServletRequest(ServletContext servletContext) {
@@ -324,14 +318,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * {@code method}, and {@code requestURI}.
    * <p>The preferred locale will be set to {@link Locale#ENGLISH}.
    *
-   * @param servletContext
-   *         the ServletContext that the request runs in (may be
-   *         {@code null} to use a default {@link MockServletContext})
-   * @param method
-   *         the request method (may be {@code null})
-   * @param requestURI
-   *         the request URI (may be {@code null})
-   *
+   * @param servletContext the ServletContext that the request runs in (may be
+   * {@code null} to use a default {@link MockServletContext})
+   * @param method the request method (may be {@code null})
+   * @param requestURI the request URI (may be {@code null})
    * @see #setMethod
    * @see #setRequestURI
    * @see #setPreferredLocales
@@ -445,7 +435,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Get the content of the request body as a byte array.
    *
    * @return the content as a byte array (potentially {@code null})
-   *
    * @see #setContent(byte[])
    * @see #getContentAsString()
    * @since 4.0
@@ -460,11 +449,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * {@linkplain #getCharacterEncoding character encoding}.
    *
    * @return the content as a {@code String}, potentially {@code null}
-   *
-   * @throws IllegalStateException
-   *         if the character encoding has not been set
-   * @throws UnsupportedEncodingException
-   *         if the character encoding is not supported
+   * @throws IllegalStateException if the character encoding has not been set
+   * @throws UnsupportedEncodingException if the character encoding is not supported
    * @see #setContent(byte[])
    * @see #setCharacterEncoding(String)
    * @see #getContentAsByteArray()
@@ -472,8 +458,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   public String getContentAsString() throws IllegalStateException, UnsupportedEncodingException {
     Assert.state(this.characterEncoding != null,
-                 "Cannot get content as a String for a null character encoding. " +
-                         "Consider setting the characterEncoding in the request.");
+            "Cannot get content as a String for a null character encoding. " +
+                    "Consider setting the characterEncoding in the request.");
 
     if (this.content == null) {
       return null;
@@ -617,7 +603,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
       }
       else {
         throw new IllegalArgumentException("Parameter map value must be single value " +
-                                                   " or array of type [" + String.class.getName() + "]");
+                " or array of type [" + String.class.getName() + "]");
       }
     });
   }
@@ -638,7 +624,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
   public String getParameter(String name) {
     Assert.notNull(name, "Parameter name must not be null");
     String[] arr = this.parameters.get(name);
@@ -997,7 +982,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
   public String getAuthType() {
     return this.authType;
   }
@@ -1104,9 +1088,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * <li>"EEE MMM dd HH:mm:ss yyyy"</li>
    * </ul>
    *
-   * @param name
-   *         the header name
-   *
+   * @param name the header name
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section 7.1.1.1 of RFC 7231</a>
    */
   @Override

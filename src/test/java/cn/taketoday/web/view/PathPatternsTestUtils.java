@@ -27,7 +27,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.util.UrlPathHelper;
 
 public abstract class PathPatternsTestUtils {
 

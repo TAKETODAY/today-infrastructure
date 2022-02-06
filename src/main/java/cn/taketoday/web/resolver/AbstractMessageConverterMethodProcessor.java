@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,11 +58,11 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.util.UrlPathHelper;
-import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -415,8 +416,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     catch (Throwable ex) {
       // ignore
     }
-
-    String requestUri = UrlPathHelper.rawPathInstance.getOriginatingRequestUri(request);
+    String requestUri = request.getRequestPath();
 
     int index = requestUri.lastIndexOf('/') + 1;
     String filename = requestUri.substring(index);
@@ -428,10 +428,10 @@ public abstract class AbstractMessageConverterMethodProcessor
       filename = filename.substring(0, index);
     }
 
-    filename = UrlPathHelper.defaultInstance.decodeRequestString(request, filename);
+    filename = UriUtils.decode(filename, StandardCharsets.UTF_8);
     String ext = StringUtils.getFilenameExtension(filename);
 
-    pathParams = UrlPathHelper.defaultInstance.decodeRequestString(request, pathParams);
+    pathParams = UriUtils.decode(pathParams, StandardCharsets.UTF_8);
     String extInPathParams = StringUtils.getFilenameExtension(pathParams);
 
     if (notSafeExtension(request, ext) || notSafeExtension(request, extInPathParams)) {

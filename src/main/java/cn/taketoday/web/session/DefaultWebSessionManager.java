@@ -33,6 +33,8 @@ public class DefaultWebSessionManager implements WebSessionManager {
   private TokenResolver tokenResolver;
   private WebSessionStorage sessionStorage;
 
+  public DefaultWebSessionManager() { }
+
   public DefaultWebSessionManager(@Nullable TokenResolver tokenResolver) {
     this(tokenResolver, new MemWebSessionStorage());
   }

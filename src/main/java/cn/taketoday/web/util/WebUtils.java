@@ -21,7 +21,10 @@
 package cn.taketoday.web.util;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
@@ -190,7 +193,7 @@ public abstract class WebUtils {
   // checkNotModified
   // ---------------------------------------------
 
-  protected static boolean matches(String matchHeader, String etag) {
+  protected static boolean matches(@Nullable String matchHeader, @Nullable String etag) {
     if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
       return "*".equals(etag) || matchHeader.equals(etag);
     }
@@ -206,7 +209,7 @@ public abstract class WebUtils {
   }
 
   public static boolean checkNotModified(
-          String eTag, long lastModified, RequestContext context) {
+          @Nullable String eTag, long lastModified, RequestContext context) {
 
     // Validate request headers for caching
     // ---------------------------------------------------
@@ -251,6 +254,59 @@ public abstract class WebUtils {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Sanitize the given path. Uses the following rules:
+   * <ul>
+   * <li>replace all "//" by "/"</li>
+   * </ul>
+   */
+  public static String getSanitizedPath(final String path) {
+    int index = path.indexOf("//");
+    if (index >= 0) {
+      StringBuilder sanitized = new StringBuilder(path);
+      while (index != -1) {
+        sanitized.deleteCharAt(index);
+        index = sanitized.indexOf("//", index);
+      }
+      return sanitized.toString();
+    }
+    return path;
+  }
+
+  /**
+   * Decode the given URI path variables
+   *
+   * @param vars the URI variables extracted from the URL path
+   * @return the same Map or a new Map instance
+   */
+  public static Map<String, String> decodePathVariables(Map<String, String> vars) {
+    Map<String, String> decodedVars = CollectionUtils.newLinkedHashMap(vars.size());
+    for (Map.Entry<String, String> entry : vars.entrySet()) {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      decodedVars.put(key, UriUtils.decode(value, StandardCharsets.UTF_8));
+    }
+    return decodedVars;
+  }
+
+  /**
+   * Decode the given matrix variables
+   *
+   * @param vars the URI variables extracted from the URL path
+   * @return the same Map or a new Map instance
+   */
+  public static MultiValueMap<String, String> decodeMatrixVariables(MultiValueMap<String, String> vars) {
+    MultiValueMap<String, String> decodedVars = MultiValueMap.fromLinkedHashMap(vars.size());
+    for (Map.Entry<String, List<String>> entry : vars.entrySet()) {
+      String key = entry.getKey();
+      List<String> values = entry.getValue();
+      for (String value : values) {
+        decodedVars.add(key, UriUtils.decode(value, StandardCharsets.UTF_8));
+      }
+    }
+    return decodedVars;
   }
 
   /**
