@@ -35,7 +35,7 @@ public abstract class AbstractRequestAttributesScope implements Scope {
 
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
-    RequestContext context = RequestContextHolder.currentContext();
+    RequestContext context = RequestContextHolder.getRequired();
     Object scopedObject = getAttribute(beanName, context);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();

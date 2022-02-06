@@ -78,8 +78,8 @@ public class GroovyScriptEvaluatorTests {
     ImportCustomizer importCustomizer = new ImportCustomizer();
     importCustomizer.addStarImports("cn.taketoday.util");
     evaluator.setCompilationCustomizers(importCustomizer);
-    Object result = evaluator.evaluate(new StaticScriptSource("return ResourceUtils.CLASSPATH_URL_PREFIX"));
-    assertThat(result).isEqualTo("classpath:");
+    Object result = evaluator.evaluate(new StaticScriptSource("return ResourceUtils.JAR_ENTRY_URL_PREFIX"));
+    assertThat(result).isEqualTo("jar:file:");
   }
 
   @Test

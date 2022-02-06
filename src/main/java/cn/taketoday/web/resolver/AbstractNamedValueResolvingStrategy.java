@@ -56,7 +56,7 @@ import cn.taketoday.web.scope.RequestScope;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:26
  */
-public abstract class AbstractNamedValueParameterResolvingStrategy implements ParameterResolvingStrategy {
+public abstract class AbstractNamedValueResolvingStrategy implements ParameterResolvingStrategy {
 
   @Nullable
   private final ConfigurableBeanFactory configurableBeanFactory;
@@ -64,19 +64,19 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
   @Nullable
   private final BeanExpressionContext expressionContext;
 
-  public AbstractNamedValueParameterResolvingStrategy() {
+  public AbstractNamedValueResolvingStrategy() {
     this.configurableBeanFactory = null;
     this.expressionContext = null;
   }
 
   /**
-   * Create a new {@link AbstractNamedValueParameterResolvingStrategy} instance.
+   * Create a new {@link AbstractNamedValueResolvingStrategy} instance.
    *
    * @param beanFactory a bean factory to use for resolving ${...} placeholder
    * and #{...} EL expressions in default values, or {@code null} if default
    * values are not expected to contain expressions
    */
-  public AbstractNamedValueParameterResolvingStrategy(@Nullable ConfigurableBeanFactory beanFactory) {
+  public AbstractNamedValueResolvingStrategy(@Nullable ConfigurableBeanFactory beanFactory) {
     this.configurableBeanFactory = beanFactory;
     this.expressionContext =
             beanFactory != null ? new BeanExpressionContext(beanFactory, new RequestScope()) : null;
@@ -91,13 +91,19 @@ public abstract class AbstractNamedValueParameterResolvingStrategy implements Pa
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
     MethodParameter nestedParameter = methodParameter.nestedIfOptional();
 
-    Object resolvedName = resolveEmbeddedValuesAndExpressions(namedValueInfo.name);
-    if (resolvedName == null) {
-      throw new IllegalArgumentException(
-              "Specified name must not resolve to null: [" + namedValueInfo.name + "]");
+    Object arg;
+    if (namedValueInfo.nameEmbedded) {
+      Object resolvedName = resolveEmbeddedValuesAndExpressions(namedValueInfo.name);
+      if (resolvedName == null) {
+        throw new IllegalArgumentException(
+                "Specified name must not resolve to null: [" + namedValueInfo.name + "]");
+      }
+      arg = resolveName(resolvedName.toString(), resolvable, context);
+    }
+    else {
+      arg = resolveName(namedValueInfo.name, resolvable, context);
     }
 
-    Object arg = resolveName(resolvedName.toString(), resolvable, context);
     if (arg == null) {
       if (namedValueInfo.defaultValue != null) {
         arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);

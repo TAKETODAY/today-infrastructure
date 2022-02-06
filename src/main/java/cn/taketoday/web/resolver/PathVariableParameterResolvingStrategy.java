@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  *
  * <p>An @{@link PathVariable} is a named value that gets resolved from a URI template variable.
  * It is always required and does not have a default value to fall back on. See the base class
- * {@link AbstractNamedValueParameterResolvingStrategy}
+ * {@link AbstractNamedValueResolvingStrategy}
  * for more information on how named values are processed.
  *
  * <p>If the method parameter type is {@link Map}, the name specified in the annotation is used
@@ -45,7 +45,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/3 16:32
  */
-public class PathVariableParameterResolvingStrategy extends AbstractNamedValueParameterResolvingStrategy {
+public class PathVariableParameterResolvingStrategy extends AbstractNamedValueResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {

@@ -39,7 +39,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  * @since 3.0
  */
-public abstract class AbstractDataBinderParameterResolver extends AbstractNamedValueParameterResolvingStrategy {
+public abstract class AbstractDataBinderParameterResolver extends AbstractNamedValueResolvingStrategy {
 
   public final boolean supportsParameter(ResolvableMethodParameter resolvable) {
     return !resolvable.hasParameterAnnotation(RequestBody.class) && supportsInternal(resolvable);

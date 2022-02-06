@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import java.io.Serial;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.web.MissingRequestValueException;
+import cn.taketoday.web.RequestBindingException;
 
 /**
  * MethodParameter can't be resolved
@@ -30,7 +30,7 @@ import cn.taketoday.web.MissingRequestValueException;
  * @author TODAY 2021/1/17 10:05
  * @since 3.0
  */
-public class MethodParameterResolvingException extends MissingRequestValueException {
+public class MethodParameterResolvingException extends RequestBindingException {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -49,8 +49,7 @@ public class MethodParameterResolvingException extends MissingRequestValueExcept
   }
 
   public MethodParameterResolvingException(MethodParameter parameter, String message, Throwable cause) {
-    super(message, false);
-    initCause(cause);
+    super(message, cause);
     this.parameter = parameter;
   }
 

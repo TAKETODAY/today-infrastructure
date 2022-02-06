@@ -51,7 +51,7 @@ import cn.taketoday.web.registry.HandlerRegistry;
  * @see MatrixParam
  * @since 4.0 2022/1/23 22:22
  */
-public class MatrixParamParameterResolvingStrategy extends AbstractNamedValueParameterResolvingStrategy {
+public class MatrixParamParameterResolvingStrategy extends AbstractNamedValueResolvingStrategy {
 
   public MatrixParamParameterResolvingStrategy() {
     super(null);
