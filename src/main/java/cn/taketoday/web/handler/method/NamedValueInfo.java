@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler.method;
 
+import cn.taketoday.context.expression.EmbeddedValueResolver;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -40,18 +41,19 @@ public final class NamedValueInfo {
   @Nullable
   public final String defaultValue;
 
-  public boolean containsPlaceHolder; // TODO optimize
+  public final boolean nameEmbedded;
+  public final boolean defaultValueEmbedded;
 
   public NamedValueInfo(String name) {
-    this.name = name;
-    this.required = true;
-    this.defaultValue = null;
+    this(name, true, null);
   }
 
   public NamedValueInfo(String name, boolean required, @Nullable String defaultValue) {
     this.name = name;
     this.required = required;
     this.defaultValue = defaultValue;
+    this.nameEmbedded = EmbeddedValueResolver.isEmbedded(name);
+    this.defaultValueEmbedded = EmbeddedValueResolver.isEmbedded(defaultValue);
   }
 
 }
