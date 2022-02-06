@@ -36,12 +36,7 @@ public abstract class PathPatternsTestUtils {
 
   public static Stream<Function<String, RequestContext>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
-            path -> createRequest("GET", contextPath, path),
-            path -> {
-              RequestContext request = createRequest("GET", contextPath, path);
-              UrlPathHelper.defaultInstance.resolveAndCacheLookupPath(request);
-              return request;
-            }
+            path -> createRequest("GET", contextPath, path)
     );
   }
 

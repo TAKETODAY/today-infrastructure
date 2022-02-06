@@ -310,6 +310,29 @@ public abstract class WebUtils {
   }
 
   /**
+   * Remove ";" (semicolon) content from the given request URI
+   *
+   * @param requestUri the request URI string to remove ";" content from
+   * @return the updated URI string
+   */
+  public static String removeSemicolonContent(String requestUri) {
+    int semicolonIndex = requestUri.indexOf(';');
+    if (semicolonIndex == -1) {
+      return requestUri;
+    }
+    StringBuilder sb = new StringBuilder(requestUri);
+    while (semicolonIndex != -1) {
+      int slashIndex = sb.indexOf("/", semicolonIndex + 1);
+      if (slashIndex == -1) {
+        return sb.substring(0, semicolonIndex);
+      }
+      sb.delete(semicolonIndex, slashIndex);
+      semicolonIndex = sb.indexOf(";", semicolonIndex);
+    }
+    return sb.toString();
+  }
+
+  /**
    * Check the given request origin against a list of allowed origins.
    * A list containing "*" means that all origins are allowed.
    * An empty list means only same origin is allowed.

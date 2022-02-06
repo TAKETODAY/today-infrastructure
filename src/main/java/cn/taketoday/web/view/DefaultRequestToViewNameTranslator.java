@@ -20,10 +20,12 @@
 
 package cn.taketoday.web.view;
 
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestToViewNameTranslator;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * {@link RequestToViewNameTranslator} that simply transforms the URI of
@@ -70,6 +72,8 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   private boolean stripTrailingSlash = true;
 
   private boolean stripExtension = true;
+
+  private boolean removeSemicolonContent = true;
 
   /**
    * Set the prefix to prepend to generated view names.
@@ -123,6 +127,14 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   }
 
   /**
+   * Set if ";" (semicolon) content should be stripped from the request URI.
+   * <p>Default is "true".
+   */
+  public void setRemoveSemicolonContent(boolean removeSemicolonContent) {
+    this.removeSemicolonContent = removeSemicolonContent;
+  }
+
+  /**
    * Translates the request URI of the incoming {@link RequestContext}
    * into the view name based on the configured parameters.
    *
@@ -132,7 +144,11 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
    */
   @Override
   public String getViewName(RequestContext request) {
-    String path = request.getRequestPath();
+    RequestPath lookupPath = request.getLookupPath();
+    String path = lookupPath.pathWithinApplication().value();
+    path = removeSemicolonContent
+           ? WebUtils.removeSemicolonContent(path)
+           : path;
     return prefix + transformPath(path) + suffix;
   }
 
