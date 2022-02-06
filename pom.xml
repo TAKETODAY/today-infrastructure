@@ -27,7 +27,7 @@
     <!--server-->
     <netty.version>4.1.71.Final</netty.version>
     <jetty.version>11.0.7</jetty.version>
-    <undertow.version>2.2.12.Final</undertow.version>
+    <undertow.version>2.2.13.Final</undertow.version>
     <embed.tomcat.version>10.0.12</embed.tomcat.version>
     <servlet.version>5.0.0</servlet.version>
 
