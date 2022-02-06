@@ -171,7 +171,8 @@ public class DispatcherHandler {
           @Nullable Object handler, Throwable exception, RequestContext context) throws Throwable {
     // clear context
     context.reset();
-
+    // prepare context throwable
+    context.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, exception);
     // handle exception
     Object returnValue = exceptionHandler.handleException(context, exception, handler);
     if (returnValue == null) {
@@ -254,6 +255,8 @@ public class DispatcherHandler {
   @Nullable
   protected Object processHandlerException(
           RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+    // clear context
+    request.reset();
     // prepare context throwable
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     // Check registered HandlerExceptionResolvers...
