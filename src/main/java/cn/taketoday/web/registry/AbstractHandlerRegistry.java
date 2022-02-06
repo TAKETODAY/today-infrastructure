@@ -24,13 +24,11 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogDelegateFactory;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.util.UrlPathHelper;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
@@ -93,17 +91,6 @@ public abstract class AbstractHandlerRegistry
    */
   @Nullable
   protected abstract Object lookupInternal(RequestContext context);
-
-  /**
-   * Initialize the path to use for request mapping.
-   *
-   * @since 4.0
-   */
-  protected String initLookupPath(RequestContext request) {
-    RequestPath requestPath = request.getLookupPath();
-    String lookupPath = requestPath.pathWithinApplication().value();
-    return UrlPathHelper.defaultInstance.removeSemicolonContent(lookupPath);
-  }
 
   /**
    * Set the default handler for this handler registry. This handler will be

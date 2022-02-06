@@ -107,12 +107,10 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
   @Override
   protected Object lookupInternal(RequestContext request) {
     Object handler = lookupHandler(request);
-
     if (handler == null) {
-      // We need to care for the default handler directly, since we need to
-      // expose the PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE for it as well.
+      // We need to care for the default handler directly
       Object rawHandler = null;
-      String lookupPath = initLookupPath(request);
+      String lookupPath = request.getRequestPath();
       if (StringUtils.matchesCharacter(lookupPath, '/')) {
         rawHandler = getRootHandler();
       }
