@@ -20,12 +20,14 @@
 
 package cn.taketoday.web.servlet;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.view.Model;
 
@@ -34,6 +36,31 @@ import cn.taketoday.web.view.Model;
  * @since 4.0 2022/2/5 23:55
  */
 public abstract class AbstractEnumerableModel implements Model {
+
+  @Override
+  public Model addAllAttributes(@Nullable Collection<?> attributeValues) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Map<String, ?> attributes) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Model addAttribute(@Nullable Object attributeValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return getAttributeNames().length == 0;
+  }
 
   @Override
   public Map<String, Object> asMap() {
