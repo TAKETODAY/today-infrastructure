@@ -39,7 +39,6 @@ import cn.taketoday.lang.Component;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface MissingBean {
-  String MissingBeanMetadata = MissingBean.class.getName() + "-Metadata";
 
   /**
    * The class types of beans that should be checked. The condition matches when no bean

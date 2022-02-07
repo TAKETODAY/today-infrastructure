@@ -56,7 +56,6 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
@@ -364,47 +363,59 @@ public class StandardBeanFactory
     if (def.getBeanName() == null) {
       def.setBeanName(beanName);
     }
-    def = transformBeanDefinition(beanName, def);
-    if (def == null) {
-      return;
-    }
     try {
       def.validate();
     }
     catch (BeanDefinitionValidationException ex) {
-      throw new BeanDefinitionStoreException("Validation of bean definition '" + def + "' failed", ex);
+      throw new BeanDefinitionStoreException(def.getResourceDescription(), beanName,
+              "Validation of bean definition failed", ex);
     }
 
     BeanDefinition existBeanDef = getBeanDefinition(beanName);
-    if (existBeanDef != null && !def.hasAttribute(MissingBean.MissingBeanMetadata)) {
+    if (existBeanDef != null) {
       if (!isAllowBeanDefinitionOverriding()) {
         throw new BeanDefinitionOverrideException(beanName, def, existBeanDef);
       }
       else if (existBeanDef.getRole() < def.getRole()) {
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
         if (log.isInfoEnabled()) {
-          log.info("Overriding user-defined bean definition " +
-                  "for bean '{}' with a framework-generated bean " +
-                  "definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+          log.info("Overriding user-defined bean definition for bean '{}' with a " +
+                  "framework-generated bean definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
         }
       }
       else if (!def.equals(existBeanDef)) {
         if (log.isDebugEnabled()) {
-          log.debug("Overriding bean definition for bean '" + beanName +
-                  "' with a different definition: replacing [" + existBeanDef +
-                  "] with [" + def + "]");
+          log.debug("Overriding bean definition for bean '{}' with a different definition: replacing [{}] with [{}]",
+                  beanName, existBeanDef, def);
         }
       }
       else {
         if (log.isTraceEnabled()) {
-          log.trace("Overriding bean definition for bean '" + beanName +
-                  "' with an equivalent definition: replacing [" + existBeanDef +
-                  "] with [" + def + "]");
+          log.trace("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
+                  beanName, existBeanDef, def);
         }
       }
       this.beanDefinitionMap.put(beanName, def);
     }
     else {
+      if (isAlias(beanName)) {
+        if (!isAllowBeanDefinitionOverriding()) {
+          String aliasedName = canonicalName(beanName);
+          if (containsBeanDefinition(aliasedName)) {  // alias for existing bean definition
+            throw new BeanDefinitionOverrideException(
+                    beanName, def, getBeanDefinition(aliasedName));
+          }
+          else {  // alias pointing to non-existing bean definition
+            throw new BeanDefinitionStoreException(def.getResourceDescription(), beanName,
+                    "Cannot register bean definition for bean '" + beanName +
+                            "' since there is already an alias for bean '" + aliasedName + "' bound.");
+          }
+        }
+        else {
+          removeAlias(beanName);
+        }
+      }
+
       beanDefinitionMap.put(beanName, def);
       beanDefinitionNames.add(beanName);
       this.frozenBeanDefinitionNames = null;
@@ -422,25 +433,6 @@ public class StandardBeanFactory
     else if (isConfigurationFrozen()) {
       clearByTypeCache();
     }
-  }
-
-  /**
-   * @since 3.0
-   */
-  protected BeanDefinition transformBeanDefinition(String name, BeanDefinition def) {
-    BeanDefinition missedDef = null;
-    if (containsBeanDefinition(name)) {
-      missedDef = getBeanDefinition(name);
-    }
-
-    if (missedDef != null && missedDef.hasAttribute(MissingBean.MissingBeanMetadata)) {
-      // Have a corresponding missed bean
-      // copy all state
-      def.copyFrom(missedDef);
-      def.setBeanName(name); // fix bean name update error
-    }
-    // nothing
-    return def;
   }
 
   @Override

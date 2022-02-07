@@ -50,7 +50,7 @@ public class BeanDefinitionOverrideException extends BeanDefinitionStoreExceptio
   public BeanDefinitionOverrideException(
           String beanName, BeanDefinition beanDefinition, BeanDefinition existingDefinition) {
     super("Cannot register bean definition [" + beanDefinition + "] for bean '" + beanName +
-            "': There is already [" + existingDefinition + "] bound.");
+            "' since there is already [" + existingDefinition + "] bound.");
     this.beanDefinition = beanDefinition;
     this.existingDefinition = existingDefinition;
   }
