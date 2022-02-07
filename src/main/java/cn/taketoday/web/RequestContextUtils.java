@@ -28,7 +28,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.session.WebSession;
@@ -260,17 +259,16 @@ public class RequestContextUtils {
    */
   public static void saveRedirectModel(String location, RequestContext request) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
-    if (redirectModel == null || redirectModel.isEmpty()) {
-      return;
+    if (redirectModel != null && !redirectModel.isEmpty()) {
+      RedirectModelManager manager = getRedirectModelManager(request);
+      if (manager != null) {
+        UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
+        redirectModel.setTargetRequestPath(uriComponents.getPath());
+        redirectModel.addTargetRequestParams(uriComponents.getQueryParams());
+
+        manager.saveRedirectModel(request, redirectModel);
+      }
     }
-
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
-    redirectModel.setTargetRequestPath(uriComponents.getPath());
-    redirectModel.addTargetRequestParams(uriComponents.getQueryParams());
-
-    RedirectModelManager manager = getRedirectModelManager(request);
-    Assert.state(manager != null, "No RedirectModelManager.");
-    manager.saveRedirectModel(request, redirectModel);
   }
 
   // parameters

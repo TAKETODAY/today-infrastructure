@@ -45,6 +45,8 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.util.UriComponents;
+import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
@@ -285,6 +287,11 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     Object attribute = request.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
     if (attribute instanceof RedirectModel redirectModel) {
       if (redirectModelManager != null) {
+
+        UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
+        redirectModel.setTargetRequestPath(uriComponents.getPath());
+        redirectModel.addTargetRequestParams(uriComponents.getQueryParams());
+
         redirectModelManager.saveRedirectModel(request, redirectModel);
       }
     }

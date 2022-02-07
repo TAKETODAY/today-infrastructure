@@ -42,6 +42,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
@@ -305,7 +306,8 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
 
     String targetUrl = createTargetUrl(model, context);
 
-    // TODO Save flash attributes
+    // Save RedirectModel
+    RequestContextUtils.saveRedirectModel(targetUrl, context);
 
     // Redirect
     sendRedirect(context, targetUrl, this.http10Compatible);
