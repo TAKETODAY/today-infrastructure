@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -119,5 +120,44 @@ public interface Model {
    * @since 4.0
    */
   Iterator<String> attributeNames();
+
+  /**
+   * Add the supplied attribute to this {@code Map} using a
+   * {@link cn.taketoday.core.Conventions#getVariableName generated name}.
+   * <p><i>Note: Empty {@link java.util.Collection Collections} are not added to
+   * the model when using this method because we cannot correctly determine
+   * the true convention name. View code should check for {@code null} rather
+   * than for empty collections as is already done by JSTL tags.</i>
+   *
+   * @param attributeValue the model attribute value
+   * @since 4.0
+   */
+  Model addAttribute(@Nullable Object attributeValue);
+
+  /**
+   * Copy all attributes in the supplied {@code Collection} into this
+   * {@code Map}, using attribute name generation for each element.
+   *
+   * @see #addAttribute(Object)
+   * @since 4.0
+   */
+  Model addAllAttributes(@Nullable Collection<?> attributeValues);
+
+  /**
+   * Copy all attributes in the supplied {@code Map} into this {@code Map}.
+   *
+   * @see #setAttribute(String, Object)
+   * @since 4.0
+   */
+  Model addAllAttributes(@Nullable Map<String, ?> attributes);
+
+  /**
+   * Copy all attributes in the supplied {@code Map} into this {@code Map},
+   * with existing objects of the same name taking precedence (i.e. not getting
+   * replaced).
+   *
+   * @since 4.0
+   */
+  Model mergeAttributes(@Nullable Map<String, ?> attributes);
 
 }

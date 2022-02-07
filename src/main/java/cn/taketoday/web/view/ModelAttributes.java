@@ -22,10 +22,13 @@ package cn.taketoday.web.view;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.Conventions;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/4/1 15:56
@@ -41,12 +44,57 @@ public class ModelAttributes extends AttributeAccessorSupport implements Model, 
   }
 
   @Override
-  public Map<String, Object> asMap() {
-    return getAttributes();
+  public Model addAttribute(@Nullable Object attributeValue) {
+    if (attributeValue != null) {
+      if (attributeValue instanceof Collection && ((Collection<?>) attributeValue).isEmpty()) {
+        return this;
+      }
+      setAttribute(Conventions.getVariableName(attributeValue), attributeValue);
+    }
+    return this;
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Collection<?> attributeValues) {
+    if (attributeValues != null) {
+      for (Object attributeValue : attributeValues) {
+        addAttribute(attributeValue);
+      }
+    }
+    return this;
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Map<String, ?> attributes) {
+    if (attributes != null) {
+      getAttributes().putAll(attributes);
+    }
+    return this;
+  }
+
+  @Override
+  public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
+    if (attributes != null) {
+      Map<String, Object> map = getAttributes();
+      for (Map.Entry<String, ?> entry : attributes.entrySet()) {
+        String key = entry.getKey();
+        Object value = entry.getValue();
+        if (!map.containsKey(key)) {
+          map.put(key, value);
+        }
+      }
+    }
+    return this;
   }
 
   @Override
   protected LinkedHashMap<String, Object> createAttributes() {
     return new LinkedHashMap<>();
   }
+
+  @Override
+  public Map<String, Object> asMap() {
+    return getAttributes();
+  }
+
 }

@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -1060,6 +1061,31 @@ public abstract class RequestContext
   @Override
   public Iterator<String> attributeNames() {
     return getModel().attributeNames();
+  }
+
+  @Override
+  public Model addAttribute(@Nullable Object attributeValue) {
+    return getModel().addAttribute(attributeValue);
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Map<String, ?> attributes) {
+    return getModel().addAllAttributes(attributes);
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Collection<?> attributeValues) {
+    return getModel().addAllAttributes(attributeValues);
+  }
+
+  @Override
+  public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
+    return getModel().mergeAttributes(attributes);
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return getModel().isEmpty();
   }
 
   @Override
