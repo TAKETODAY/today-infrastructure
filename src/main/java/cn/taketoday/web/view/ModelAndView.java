@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -59,8 +60,9 @@ public class ModelAndView implements Model {
     setAttribute(name, value);
   }
 
+  @Nullable
   public String getContentType() {
-    return dataModel.getContentType();
+    return dataModel.getResponseContentType();
   }
 
   public ModelAndView setContentType(String contentType) {
@@ -126,6 +128,31 @@ public class ModelAndView implements Model {
   @Override
   public Iterator<String> attributeNames() {
     return dataModel.attributeNames();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return dataModel.isEmpty();
+  }
+
+  @Override
+  public Model addAttribute(@Nullable Object attributeValue) {
+    return dataModel.addAttribute(attributeValue);
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Map<String, ?> attributes) {
+    return dataModel.addAllAttributes(attributes);
+  }
+
+  @Override
+  public Model addAllAttributes(@Nullable Collection<?> attributeValues) {
+    return dataModel.addAllAttributes(attributeValues);
+  }
+
+  @Override
+  public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
+    return dataModel.mergeAttributes(attributes);
   }
 
 }
