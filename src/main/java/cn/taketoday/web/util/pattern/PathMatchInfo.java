@@ -39,7 +39,7 @@ public class PathMatchInfo {
   private final Map<String, String> uriVariables;
   private final Map<String, MultiValueMap<String, String>> matrixVariables;
 
-  PathMatchInfo(Map<String, String> uriVars, @Nullable Map<String, MultiValueMap<String, String>> matrixVars) {
+  public PathMatchInfo(Map<String, String> uriVars, @Nullable Map<String, MultiValueMap<String, String>> matrixVars) {
     this.uriVariables = Collections.unmodifiableMap(uriVars);
     this.matrixVariables = matrixVars != null
                            ? Collections.unmodifiableMap(matrixVars) : Collections.emptyMap();
