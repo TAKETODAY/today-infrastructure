@@ -116,7 +116,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
                               beanName + "' has a non-boolean parameter - not supported as destroy method");
             }
           }
-          destroyMethod = ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod);
+          destroyMethod = ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod, bean.getClass());
         }
         this.destroyMethod = destroyMethod;
       }
@@ -197,7 +197,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     else if (destroyMethodName != null) {
       Method methodToInvoke = determineDestroyMethod(destroyMethodName);
       if (methodToInvoke != null) {
-        invokeCustomDestroyMethod(ReflectionUtils.getInterfaceMethodIfPossible(methodToInvoke));
+        invokeCustomDestroyMethod(ReflectionUtils.getInterfaceMethodIfPossible(methodToInvoke, bean.getClass()));
       }
     }
   }

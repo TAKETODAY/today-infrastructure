@@ -422,25 +422,51 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static Method getInterfaceMethodIfPossible(Method method) {
+    return getInterfaceMethodIfPossible(method, null);
+  }
+
+  /**
+   * Determine a corresponding interface method for the given method handle, if possible.
+   * <p>This is particularly useful for arriving at a public exported type on Jigsaw
+   * which can be reflectively invoked without an illegal access warning.
+   *
+   * @param method the method to be invoked, potentially from an implementation class
+   * @param targetClass the target class to check for declared interfaces
+   * @return the corresponding interface method, or the original method if none found
+   * @see #getMostSpecificMethod
+   * @since 4.0
+   */
+  public static Method getInterfaceMethodIfPossible(Method method, @Nullable Class<?> targetClass) {
     if (!Modifier.isPublic(method.getModifiers()) || method.getDeclaringClass().isInterface()) {
       return method;
     }
-    return interfaceMethodCache.computeIfAbsent(method, key -> {
-      Class<?> current = key.getDeclaringClass();
-      while (current != null && current != Object.class) {
-        Class<?>[] ifcs = current.getInterfaces();
-        for (Class<?> ifc : ifcs) {
-          try {
-            return ifc.getMethod(key.getName(), key.getParameterTypes());
-          }
-          catch (NoSuchMethodException ex) {
-            // ignore
-          }
+    // Try cached version of method in its declaring class
+    Method result = interfaceMethodCache.computeIfAbsent(method,
+            key -> findInterfaceMethodIfPossible(key, key.getDeclaringClass(), Object.class));
+    if (result == method && targetClass != null) {
+      // No interface method found yet -> try given target class (possibly a subclass of the
+      // declaring class, late-binding a base class method to a subclass-declared interface:
+      // see e.g. HashMap.HashIterator.hasNext)
+      result = findInterfaceMethodIfPossible(method, targetClass, method.getDeclaringClass());
+    }
+    return result;
+  }
+
+  private static Method findInterfaceMethodIfPossible(Method method, Class<?> startClass, Class<?> endClass) {
+    Class<?> current = startClass;
+    while (current != null && current != endClass) {
+      Class<?>[] ifcs = current.getInterfaces();
+      for (Class<?> ifc : ifcs) {
+        try {
+          return ifc.getMethod(method.getName(), method.getParameterTypes());
         }
-        current = current.getSuperclass();
+        catch (NoSuchMethodException ex) {
+          // ignore
+        }
       }
-      return key;
-    });
+      current = current.getSuperclass();
+    }
+    return method;
   }
 
   /**

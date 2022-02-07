@@ -419,15 +419,6 @@ public class BeanDefinitionBuilder {
   }
 
   /**
-   * @param beanClass Bean class
-   * @param initMethods Init Method s
-   * @since 2.1.2
-   */
-  public static Method[] computeInitMethod(Class<?> beanClass, String... initMethods) {
-    return computeInitMethod(initMethods, beanClass);
-  }
-
-  /**
    * Add a method which annotated with {@link jakarta.annotation.PostConstruct}
    *
    * @param beanClass Bean class

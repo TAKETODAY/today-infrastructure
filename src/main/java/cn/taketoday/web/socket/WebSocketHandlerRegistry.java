@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.Prototypes;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
@@ -85,10 +85,8 @@ public class WebSocketHandlerRegistry
    * @param beanFactory {@link ConfigurableBeanFactory}
    * @return Returns a handler bean of target beanClass
    */
-  protected Object createHandler(BeanDefinition def, BeanFactory beanFactory) {
-    return def.isSingleton()
-           ? beanFactory.getBean(def.getBeanName())
-           : Prototypes.newProxyInstance(def.getBeanClass(), def.getBeanName(), beanFactory);
+  protected BeanSupplier<Object> createHandler(BeanDefinition def, BeanFactory beanFactory) {
+    return BeanSupplier.from(beanFactory, def);
   }
 
   protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
@@ -99,7 +97,7 @@ public class WebSocketHandlerRegistry
   protected void registerEndpoint(
           BeanDefinition definition, WebApplicationContext context,
           AnnotationHandlerFactory<ActionMappingAnnotationHandler> factory) {
-    Object handlerBean = createHandler(definition, context);
+    BeanSupplier<Object> handlerBean = createHandler(definition, context);
 
     Class<?> endpointClass = definition.getBeanClass();
 
@@ -122,7 +120,7 @@ public class WebSocketHandlerRegistry
         onClose = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
       }
       else if (isAfterHandshakeHandler(declaredMethod, definition)) {
-        afterHandshake = factory.create(handlerBean, declaredMethod);
+        afterHandshake = factory.create(handlerBean, declaredMethod, null);
       }
       else if (isOnErrorHandler(declaredMethod, definition)) {
         onError = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);

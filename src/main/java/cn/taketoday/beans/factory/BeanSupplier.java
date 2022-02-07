@@ -20,8 +20,11 @@
 
 package cn.taketoday.beans.factory;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -33,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/29 21:13
  */
-public class BeanSupplier<T> implements Supplier<T> {
+public class BeanSupplier<T> implements Supplier<T>, Serializable {
 
   private final String beanName;
 
@@ -43,6 +46,8 @@ public class BeanSupplier<T> implements Supplier<T> {
   private final BeanFactory beanFactory;
 
   protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
+    Assert.notNull(beanName, "'beanName' is required");
+    Assert.notNull(beanFactory, "'beanFactory' is required");
     this.beanFactory = beanFactory;
     this.targetClass = targetClass;
     this.beanName = beanName;
@@ -70,30 +75,17 @@ public class BeanSupplier<T> implements Supplier<T> {
     return beanFactory.getBean(beanName, targetClass);
   }
 
-  private final static class SingletonBeanSupplier<T>
-          extends BeanSupplier<T> implements Supplier<T> {
-    private T instance;
-
-    SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
-      super(beanFactory, beanName, targetClass);
-    }
-
-    @Override
-    public T get() {
-      if (instance == null) { // TODO DCL ?
-        instance = super.get();
-      }
-      return instance;
-    }
-
-    @Override
-    public boolean isSingleton() {
-      return true;
-    }
-
-  }
-
   // static
+
+  @SuppressWarnings("unchecked")
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, BeanDefinition def) {
+    Assert.notNull(def, "BeanDefinition is required");
+    Class<E> targetClass = null;
+    if (def.hasBeanClass()) {
+      targetClass = (Class<E>) def.getBeanClass();
+    }
+    return from(beanFactory, targetClass, def.getBeanName(), def.isSingleton());
+  }
 
   public static <E> BeanSupplier<E> from(BeanFactory beanFactory, String beanName) {
     return from(beanFactory, null, beanName);
@@ -112,4 +104,28 @@ public class BeanSupplier<T> implements Supplier<T> {
     return new BeanSupplier<>(beanFactory, beanName, targetClass);
   }
 
+  private final static class SingletonBeanSupplier<T>
+          extends BeanSupplier<T> implements Supplier<T> {
+    private transient T instance;
+
+    SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
+      super(beanFactory, beanName, targetClass);
+    }
+
+    @Override
+    public T get() {
+      T instance = this.instance;
+      if (instance == null) { // TODO DCL ?
+        instance = super.get();
+        this.instance = instance;
+      }
+      return instance;
+    }
+
+    @Override
+    public boolean isSingleton() {
+      return true;
+    }
+
+  }
 }
