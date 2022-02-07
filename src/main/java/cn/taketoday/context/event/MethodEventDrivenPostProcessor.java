@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.aop.proxy.ProxyUtils;
+import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanInitializationException;
@@ -97,7 +97,7 @@ public class MethodEventDrivenPostProcessor
     for (String beanName : beanNames) {
       Class<?> type = null;
       try {
-        type = ProxyUtils.determineTargetClass(beanFactory, beanName);
+        type = AopProxyUtils.determineTargetClass(beanFactory, beanName);
       }
       catch (Throwable ex) {
         // An unresolvable bean type, probably from a lazy bean - let's ignore it.

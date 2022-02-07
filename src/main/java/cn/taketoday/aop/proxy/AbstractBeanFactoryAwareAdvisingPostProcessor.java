@@ -28,9 +28,9 @@ import cn.taketoday.lang.Nullable;
 /**
  * Extension of {@link AbstractAutoProxyCreator} which implements {@link BeanFactoryAware},
  * adds exposure of the original target class for each proxied bean
- * ({@link ProxyUtils#ORIGINAL_TARGET_CLASS_ATTRIBUTE}),
+ * ({@link AopProxyUtils#ORIGINAL_TARGET_CLASS_ATTRIBUTE}),
  * and participates in an externally enforced target-class mode for any given bean
- * ({@link ProxyUtils#PRESERVE_TARGET_CLASS_ATTRIBUTE}).
+ * ({@link AopProxyUtils#PRESERVE_TARGET_CLASS_ATTRIBUTE}).
  * This post-processor is therefore aligned with {@link AbstractAutoProxyCreator}.
  *
  * @author Juergen Hoeller
@@ -52,12 +52,12 @@ public abstract class AbstractBeanFactoryAwareAdvisingPostProcessor
   @Override
   protected ProxyFactory prepareProxyFactory(Object bean, String beanName) {
     if (this.beanFactory != null) {
-      ProxyUtils.exposeTargetClass(this.beanFactory, beanName, bean.getClass());
+      AopProxyUtils.exposeTargetClass(this.beanFactory, beanName, bean.getClass());
     }
 
     ProxyFactory proxyFactory = super.prepareProxyFactory(bean, beanName);
     if (!proxyFactory.isProxyTargetClass() && this.beanFactory != null &&
-            ProxyUtils.shouldProxyTargetClass(this.beanFactory, beanName)) {
+            AopProxyUtils.shouldProxyTargetClass(this.beanFactory, beanName)) {
       proxyFactory.setProxyTargetClass(true);
     }
     return proxyFactory;

@@ -29,8 +29,13 @@ import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.SingletonTargetSource;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.core.Conventions;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -47,6 +52,98 @@ import cn.taketoday.util.ClassUtils;
  * @since 3.0
  */
 public abstract class AopProxyUtils {
+
+  /**
+   * Bean definition attribute that may indicate whether a given bean is supposed
+   * to be proxied with its target class (in case of it getting proxied in the first
+   * place). The value is {@code Boolean.TRUE} or {@code Boolean.FALSE}.
+   * <p>Proxy factories can set this attribute if they built a target class proxy
+   * for a specific bean, and want to enforce that bean can always be cast
+   * to its target class (even if AOP advices get applied through auto-proxying).
+   *
+   * @see #shouldProxyTargetClass
+   * @since 4.0
+   */
+  public static final String PRESERVE_TARGET_CLASS_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(AopProxyUtils.class, "preserveTargetClass");
+
+  /**
+   * Bean definition attribute that indicates the original target class of an
+   * auto-proxied bean, e.g. to be used for the introspection of annotations
+   * on the target class behind an interface-based proxy.
+   *
+   * @see #determineTargetClass
+   * @since 4.0
+   */
+  public static final String ORIGINAL_TARGET_CLASS_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(AopProxyUtils.class, "originalTargetClass");
+
+  /**
+   * Determine whether the given bean should be proxied with its target
+   * class rather than its interfaces. Checks the
+   * {@link #PRESERVE_TARGET_CLASS_ATTRIBUTE "preserveTargetClass" attribute}
+   * of the corresponding bean definition.
+   *
+   * @param beanFactory the containing ConfigurableBeanFactory
+   * @param beanName the name of the bean
+   * @return whether the given bean should be proxied with its target class
+   * @since 4.0
+   */
+  public static boolean shouldProxyTargetClass(
+          ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
+    if (beanName != null) {
+      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+      if (definition != null) {
+        return Boolean.TRUE.equals(definition.getAttribute(PRESERVE_TARGET_CLASS_ATTRIBUTE));
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Determine the original target class for the specified bean, if possible,
+   * otherwise falling back to a regular {@code getType} lookup.
+   *
+   * @param beanFactory the containing ConfigurableBeanFactory
+   * @param beanName the name of the bean
+   * @return the original target class as stored in the bean definition, if any
+   * @see BeanFactory#getType(String)
+   * @since 4.0
+   */
+  @Nullable
+  public static Class<?> determineTargetClass(
+          ConfigurableBeanFactory beanFactory, @Nullable String beanName) {
+    if (beanName == null) {
+      return null;
+    }
+
+    BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+    if (definition != null) {
+      Object attribute = definition.getAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE);
+      if (attribute instanceof Class) {
+        return (Class<?>) attribute;
+      }
+    }
+    return beanFactory.getType(beanName);
+  }
+
+  /**
+   * Expose the given target class for the specified bean, if possible.
+   *
+   * @param beanFactory the containing ConfigurableBeanFactory
+   * @param beanName the name of the bean
+   * @param targetClass the corresponding target class
+   * @since 4.0
+   */
+  static void exposeTargetClass(
+          ConfigurableBeanFactory beanFactory, @Nullable String beanName, Class<?> targetClass) {
+    if (beanName != null) {
+      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+      if (definition != null) {
+        definition.setAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE, targetClass);
+      }
+    }
+  }
 
   /**
    * Obtain the singleton target object behind the given proxy, if any.
@@ -131,7 +228,7 @@ public abstract class AopProxyUtils {
         if (targetClass.isInterface()) {
           advised.setInterfaces(targetClass);
         }
-        else if (Proxy.isProxyClass(targetClass)) {
+        else if (Proxy.isProxyClass(targetClass) || isLambda(targetClass)) {
           advised.setInterfaces(targetClass.getInterfaces());
         }
         specifiedInterfaces = advised.getProxiedInterfaces();
@@ -207,6 +304,21 @@ public abstract class AopProxyUtils {
    */
   public static boolean equalsAdvisors(AdvisedSupport a, AdvisedSupport b) {
     return a.getAdvisorCount() == b.getAdvisorCount() && Arrays.equals(a.getAdvisors(), b.getAdvisors());
+  }
+
+  /**
+   * Determine if the supplied {@link Class} is a JVM-generated implementation
+   * class for a lambda expression or method reference.
+   * <p>This method makes a best-effort attempt at determining this, based on
+   * checks that work on modern, main stream JVMs.
+   *
+   * @param clazz the class to check
+   * @return {@code true} if the class is a lambda implementation class
+   * @since 4.0
+   */
+  static boolean isLambda(Class<?> clazz) {
+    return clazz.isSynthetic() && (clazz.getSuperclass() == Object.class)
+            && (clazz.getInterfaces().length > 0) && clazz.getName().contains("$$Lambda");
   }
 
 }

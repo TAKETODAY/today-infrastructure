@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.aop.proxy.ProxyUtils;
+import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
@@ -342,7 +342,7 @@ public class ConfigurationClassPostProcessor
     for (Map.Entry<String, BeanDefinition> entry : configBeanDefs.entrySet()) {
       BeanDefinition beanDef = entry.getValue();
       // If a @Configuration class gets proxied, always proxy the target class
-      beanDef.setAttribute(ProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
+      beanDef.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
       // Set enhanced subclass of the user-specified bean class
       Class<?> configClass = beanDef.getBeanClass();
       Class<?> enhancedClass = enhancer.enhance(configClass, this.beanClassLoader);

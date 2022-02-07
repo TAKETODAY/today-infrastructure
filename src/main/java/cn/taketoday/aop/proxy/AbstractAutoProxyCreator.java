@@ -38,9 +38,9 @@ import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.aop.target.TargetSourceCreator;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
@@ -389,7 +389,7 @@ public abstract class AbstractAutoProxyCreator
           @Nullable Object[] specificInterceptors, TargetSource targetSource) {
 
     if (this.beanFactory instanceof ConfigurableBeanFactory) {
-      ProxyUtils.exposeTargetClass((ConfigurableBeanFactory) this.beanFactory, beanName, beanClass);
+      AopProxyUtils.exposeTargetClass((ConfigurableBeanFactory) this.beanFactory, beanName, beanClass);
     }
 
     ProxyFactory proxyFactory = new ProxyFactory();
@@ -457,17 +457,17 @@ public abstract class AbstractAutoProxyCreator
 
   /**
    * Determine whether the given bean should be proxied with its target class rather than its interfaces.
-   * <p>Checks the {@link ProxyUtils#PRESERVE_TARGET_CLASS_ATTRIBUTE "preserveTargetClass" attribute}
+   * <p>Checks the {@link AopProxyUtils#PRESERVE_TARGET_CLASS_ATTRIBUTE "preserveTargetClass" attribute}
    * of the corresponding bean definition.
    *
    * @param beanClass the class of the bean
    * @param beanName the name of the bean
    * @return whether the given bean should be proxied with its target class
-   * @see ProxyUtils#shouldProxyTargetClass
+   * @see AopProxyUtils#shouldProxyTargetClass
    */
   protected boolean shouldProxyTargetClass(Class<?> beanClass, @Nullable String beanName) {
     return this.beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory
-            && ProxyUtils.shouldProxyTargetClass(configurableBeanFactory, beanName);
+            && AopProxyUtils.shouldProxyTargetClass(configurableBeanFactory, beanName);
   }
 
   /**
