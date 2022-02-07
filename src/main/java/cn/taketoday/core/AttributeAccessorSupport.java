@@ -147,6 +147,17 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     }
   }
 
+  /**
+   * Returns {@code true} if this map contains no key-value mappings.
+   *
+   * @return {@code true} if this map contains no key-value mappings
+   * @since 4.0
+   */
+  @Override
+  public boolean isEmpty() {
+    return attributes == null || attributes.isEmpty();
+  }
+
   @Override
   public int hashCode() {
     return ObjectUtils.nullSafeHashCode(attributes);

@@ -96,6 +96,14 @@ public interface AttributeAccessor {
   Iterator<String> attributeNames();
 
   /**
+   * Returns {@code true} if this map contains no key-value mappings.
+   *
+   * @return {@code true} if this map contains no key-value mappings
+   * @since 4.0
+   */
+  boolean isEmpty();
+
+  /**
    * Return attributes map
    *
    * @return attributes map
