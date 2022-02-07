@@ -20,11 +20,15 @@
 
 package cn.taketoday.web.view;
 
+import java.util.List;
+
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Store {@link RedirectModel} in {@link cn.taketoday.web.session.WebSession}
@@ -32,7 +36,9 @@ import cn.taketoday.web.session.WebSessionManager;
  * @author TODAY 2021/4/2 21:55
  * @since 3.0
  */
-public class SessionRedirectModelManager implements RedirectModelManager {
+public class SessionRedirectModelManager extends AbstractRedirectModelManager implements RedirectModelManager {
+  private static final String SESSION_ATTRIBUTE = SessionRedirectModelManager.class.getName() + ".RedirectModel";
+
   private final WebSessionManager sessionManager;
 
   public SessionRedirectModelManager(WebSessionManager sessionManager) {
@@ -41,29 +47,34 @@ public class SessionRedirectModelManager implements RedirectModelManager {
 
   @Nullable
   @Override
-  public RedirectModel getModel(RequestContext context) {
-    WebSession session = sessionManager.getSession(context, false);
+  @SuppressWarnings("unchecked")
+  protected List<RedirectModel> retrieveRedirectModel(RequestContext request) {
+    WebSession session = sessionManager.getSession(request, false);
     if (session != null) {
-      Object attribute = session.getAttribute(KEY_REDIRECT_MODEL);
-      if (attribute instanceof RedirectModel) {
-        return (RedirectModel) attribute;
-      }
+      return (List<RedirectModel>) session.getAttribute(SESSION_ATTRIBUTE);
     }
     return null;
   }
 
   @Override
-  public void saveRedirectModel(RequestContext context, @Nullable RedirectModel redirectModel) {
-    if (redirectModel == null) {
-      WebSession session = sessionManager.getSession(context, false);
+  protected void updateRedirectModel(List<RedirectModel> redirectModel, RequestContext request) {
+    if (CollectionUtils.isEmpty(redirectModel)) {
+      WebSession session = sessionManager.getSession(request, false);
       if (session != null) {
-        session.removeAttribute(KEY_REDIRECT_MODEL);
+        session.removeAttribute(SESSION_ATTRIBUTE);
       }
     }
     else {
-      WebSession session = sessionManager.getSession(context);
+      WebSession session = sessionManager.getSession(request);
       Assert.state(session != null, "WebSession not found in current request");
-      session.setAttribute(KEY_REDIRECT_MODEL, redirectModel);
+      session.setAttribute(SESSION_ATTRIBUTE, redirectModel);
     }
   }
+
+  @Nullable
+  @Override
+  protected Object getRedirectModelMutex(RequestContext request) {
+    return WebUtils.getSessionMutex(sessionManager.getSession(request));
+  }
+
 }

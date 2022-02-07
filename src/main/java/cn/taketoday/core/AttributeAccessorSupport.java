@@ -50,7 +50,7 @@ import cn.taketoday.util.StringUtils;
 public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
-  protected HashMap<String, Object> attributes;
+  protected Map<String, Object> attributes;
 
   @Override
   public void setAttribute(String name, final Object value) {
@@ -178,7 +178,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     return attributes;
   }
 
-  protected HashMap<String, Object> createAttributes() {
+  protected Map<String, Object> createAttributes() {
     return new HashMap<>();
   }
 

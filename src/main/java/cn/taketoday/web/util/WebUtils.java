@@ -44,6 +44,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.session.WebSession;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -62,6 +63,35 @@ public abstract class WebUtils {
    * Prefix of the charset clause in a content type String: ";charset=".
    */
   public static final String CONTENT_TYPE_CHARSET_PREFIX = ";charset=";
+
+  /** Key for the mutex session attribute. */
+  public static final String SESSION_MUTEX_ATTRIBUTE = WebUtils.class.getName() + ".MUTEX";
+
+  /**
+   * Return the best available mutex for the given session:
+   * that is, an object to synchronize on for the given session.
+   *
+   * <p>The session mutex is guaranteed to be the same object during
+   * the entire lifetime of the session, available under the key defined
+   * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
+   * safe reference to synchronize on for locking on the current session.
+   * <p>In many cases, the WebSession reference itself is a safe mutex
+   * as well, since it will always be the same object reference for the
+   * same active logical session. However, this is not guaranteed across
+   * different servlet containers; the only 100% safe way is a session mutex.
+   *
+   * @param session the WebSession to find a mutex for
+   * @return the mutex object (never {@code null})
+   * @see #SESSION_MUTEX_ATTRIBUTE
+   */
+  public static Object getSessionMutex(WebSession session) {
+    Assert.notNull(session, "Session must not be null");
+    Object mutex = session.getAttribute(SESSION_MUTEX_ATTRIBUTE);
+    if (mutex == null) {
+      mutex = session;
+    }
+    return mutex;
+  }
 
   /**
    * Retrieve the first cookie with the given name. Note that multiple

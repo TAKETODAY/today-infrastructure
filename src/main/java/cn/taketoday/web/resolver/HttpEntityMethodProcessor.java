@@ -282,7 +282,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   private void saveRedirectAttributes(RequestContext request, String location) {
-    Object attribute = request.getAttribute(RedirectModel.KEY_REDIRECT_MODEL);
+    Object attribute = request.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
     if (attribute instanceof RedirectModel redirectModel) {
       if (redirectModelManager != null) {
         redirectModelManager.saveRedirectModel(request, redirectModel);

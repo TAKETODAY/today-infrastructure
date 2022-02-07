@@ -30,7 +30,8 @@ import cn.taketoday.web.RequestContext;
  * @since 3.0
  */
 public interface RedirectModelManager {
-  String KEY_REDIRECT_MODEL = RedirectModelManager.class.getName() + ".redirect-model";
+
+  String BEAN_NAME = "redirectModelManager";
 
   /**
    * Get RedirectModel if exist

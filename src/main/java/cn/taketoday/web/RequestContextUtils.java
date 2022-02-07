@@ -28,10 +28,15 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
+import cn.taketoday.web.util.UriComponents;
+import cn.taketoday.web.util.UriComponentsBuilder;
+import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Parameter extraction methods, for an approach distinct from data binding,
@@ -207,6 +212,65 @@ public class RequestContextUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * Return read-only "input" flash attributes from request before redirect.
+   *
+   * @param request current request
+   * @return a read-only Map, or {@code null} if not found
+   * @see RedirectModel
+   */
+  @SuppressWarnings("unchecked")
+  @Nullable
+  public static RedirectModel getInputRedirectModel(RequestContext request) {
+    return (RedirectModel) request.getAttribute(RedirectModel.INPUT_ATTRIBUTE);
+  }
+
+  /**
+   * Return "output" FlashMap to save attributes for request after redirect.
+   *
+   * @param request current request
+   * @return a {@link RedirectModel} instance
+   */
+  public static RedirectModel getOutputRedirectModel(RequestContext request) {
+    return (RedirectModel) request.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
+  }
+
+  /**
+   * Return the {@code RedirectModelManager} instance to save flash attributes.
+   * <p>the convenience method {@link #saveRedirectModel} may be
+   * used to save the "output" FlashMap.
+   *
+   * @param request the current request
+   * @return a {@link RedirectModelManager} instance
+   */
+  @Nullable
+  public static RedirectModelManager getRedirectModelManager(RequestContext request) {
+    return getBean(request, RedirectModelManager.BEAN_NAME, RedirectModelManager.class);
+  }
+
+  /**
+   * Convenience method that retrieves the {@link #getOutputRedirectModel "output"
+   * FlashMap}, updates it with the path and query params of the target URL,
+   * and then saves it using the {@link #getRedirectModelManager FlashMapManager}.
+   *
+   * @param location the target URL for the redirect
+   * @param request the current request
+   */
+  public static void saveRedirectModel(String location, RequestContext request) {
+    RedirectModel redirectModel = getOutputRedirectModel(request);
+    if (redirectModel == null || redirectModel.isEmpty()) {
+      return;
+    }
+
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
+    redirectModel.setTargetRequestPath(uriComponents.getPath());
+    redirectModel.addTargetRequestParams(uriComponents.getQueryParams());
+
+    RedirectModelManager manager = getRedirectModelManager(request);
+    Assert.state(manager != null, "No RedirectModelManager.");
+    manager.saveRedirectModel(request, redirectModel);
   }
 
   // parameters

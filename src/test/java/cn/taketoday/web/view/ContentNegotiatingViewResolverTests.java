@@ -64,17 +64,17 @@ public class ContentNegotiatingViewResolverTests {
   private MockHttpServletRequest request;
 
   RequestContext requestContext;
+  StaticWebApplicationContext wac = new StaticWebApplicationContext();
 
   @BeforeEach
   public void createViewResolver() {
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.setServletContext(new MockServletContext());
     wac.refresh();
     viewResolver = new ContentNegotiatingViewResolver();
     viewResolver.setApplicationContext(wac);
     request = new MockHttpServletRequest("GET", "/test");
-
-    this.requestContext = new MockServletRequestContext(wac, request, null);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    this.requestContext = new MockServletRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
   }
 
@@ -483,6 +483,8 @@ public class ContentNegotiatingViewResolverTests {
     View result = viewResolver.resolveViewName(viewName, locale);
     assertThat(result).as("Invalid view").isNotNull();
     MockHttpServletResponse response = new MockHttpServletResponse();
+    this.requestContext = new MockServletRequestContext(wac, request, response);
+    RequestContextHolder.set(requestContext);
     result.render(null, requestContext);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);
   }

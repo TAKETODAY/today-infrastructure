@@ -29,7 +29,6 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelAttributes;
 import cn.taketoday.web.view.RedirectModelManager;
 
 /**
@@ -79,11 +78,11 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
           RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
     if (resolvable.isAssignableTo(RedirectModel.class)) { // RedirectModel
-      RedirectModelAttributes redirectModel = new RedirectModelAttributes();
+      RedirectModel redirectModel = new RedirectModel();
       RedirectModelManager modelManager = getModelManager();
       // @since 3.0.3 checking model manager
       if (modelManager != null) {
-        context.setAttribute(RedirectModel.KEY_REDIRECT_MODEL, redirectModel);
+        context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
         modelManager.saveRedirectModel(context, redirectModel);
       }
       return redirectModel;
