@@ -221,18 +221,18 @@ public class RequestContextUtils {
    * @return a read-only Map, or {@code null} if not found
    * @see RedirectModel
    */
-  @SuppressWarnings("unchecked")
   @Nullable
   public static RedirectModel getInputRedirectModel(RequestContext request) {
     return (RedirectModel) request.getAttribute(RedirectModel.INPUT_ATTRIBUTE);
   }
 
   /**
-   * Return "output" FlashMap to save attributes for request after redirect.
+   * Return "output" RedirectModel to save attributes for request after redirect.
    *
    * @param request current request
    * @return a {@link RedirectModel} instance
    */
+  @Nullable
   public static RedirectModel getOutputRedirectModel(RequestContext request) {
     return (RedirectModel) request.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
   }
@@ -240,7 +240,7 @@ public class RequestContextUtils {
   /**
    * Return the {@code RedirectModelManager} instance to save flash attributes.
    * <p>the convenience method {@link #saveRedirectModel} may be
-   * used to save the "output" FlashMap.
+   * used to save the "output" RedirectModel.
    *
    * @param request the current request
    * @return a {@link RedirectModelManager} instance
@@ -252,8 +252,8 @@ public class RequestContextUtils {
 
   /**
    * Convenience method that retrieves the {@link #getOutputRedirectModel "output"
-   * FlashMap}, updates it with the path and query params of the target URL,
-   * and then saves it using the {@link #getRedirectModelManager FlashMapManager}.
+   * RedirectModel}, updates it with the path and query params of the target URL,
+   * and then saves it using the {@link #getRedirectModelManager RedirectModelManager}.
    *
    * @param location the target URL for the redirect
    * @param request the current request

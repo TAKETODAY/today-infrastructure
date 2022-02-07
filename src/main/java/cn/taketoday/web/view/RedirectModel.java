@@ -44,8 +44,6 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public static final String KEY_REDIRECT_MODEL = Conventions.getQualifiedAttributeName(RedirectModel.class, "redirect-model");
-
   /**
    * Name of request attribute that holds a RedirectModel with "input"
    * redirect attributes saved by a previous request, if any.
@@ -75,7 +73,7 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   private long expirationTime = -1;
 
   /**
-   * Provide a URL path to help identify the target request for this FlashMap.
+   * Provide a URL path to help identify the target request for this RedirectModel.
    * <p>The path may be absolute (e.g. "/application/resource") or relative to the
    * current request (e.g. "../resource").
    *
@@ -96,7 +94,7 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   }
 
   /**
-   * Provide request parameters identifying the request for this FlashMap.
+   * Provide request parameters identifying the request for this RedirectModel.
    *
    * @param params a Map with the names and values of expected parameters
    * @since 4.0
@@ -113,7 +111,7 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   }
 
   /**
-   * Provide a request parameter identifying the request for this FlashMap.
+   * Provide a request parameter identifying the request for this RedirectModel.
    *
    * @param name the expected parameter name (skipped if empty)
    * @param value the expected value (skipped if empty)
@@ -145,7 +143,7 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   }
 
   /**
-   * Set the expiration time for the FlashMap. This is provided for serialization
+   * Set the expiration time for the RedirectModel. This is provided for serialization
    * purposes but can also be used instead {@link #startExpirationPeriod(int)}.
    *
    * @since 4.0
@@ -155,7 +153,7 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   }
 
   /**
-   * Return the expiration time for the FlashMap or -1 if the expiration
+   * Return the expiration time for the RedirectModel or -1 if the expiration
    * period has not started.
    *
    * @since 4.0
@@ -175,8 +173,8 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   }
 
   /**
-   * Compare two FlashMaps and prefer the one that specifies a target URL
-   * path or has more target URL parameters. Before comparing FlashMap
+   * Compare two RedirectModels and prefer the one that specifies a target URL
+   * path or has more target URL parameters. Before comparing RedirectModel
    * instances ensure that they match a given request.
    */
   @Override
