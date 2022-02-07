@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,16 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-
 package cn.taketoday.aop.proxy;
-
-
 
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import cn.taketoday.aop.ITestBean;
 import cn.taketoday.aop.TestBean;
@@ -131,9 +129,65 @@ public class AopProxyUtilsTests {
 
   @Test
   public void testProxiedUserInterfacesWithNoInterface() {
-    Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class[0],
-                                          (proxy1, method, args) -> null);
+    Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class[0], (proxy1, method, args) -> null);
     assertThatIllegalArgumentException().isThrownBy(() -> AopProxyUtils.proxiedUserInterfaces(proxy));
+  }
+
+  @Test
+  void isLambda() {
+    assertIsLambda(AopProxyUtilsTests.staticLambdaExpression);
+    assertIsLambda(AopProxyUtilsTests::staticStringFactory);
+
+    assertIsLambda(this.instanceLambdaExpression);
+    assertIsLambda(this::instanceStringFactory);
+  }
+
+  @Test
+  void isNotLambda() {
+    assertIsNotLambda(new EnigmaSupplier());
+
+    assertIsNotLambda(new Supplier<String>() {
+      @Override
+      public String get() {
+        return "anonymous inner class";
+      }
+    });
+
+    assertIsNotLambda(new Fake$$LambdaSupplier());
+  }
+
+  private static void assertIsLambda(Supplier<String> supplier) {
+    assertThat(AopProxyUtils.isLambda(supplier.getClass())).isTrue();
+  }
+
+  private static void assertIsNotLambda(Supplier<String> supplier) {
+    assertThat(AopProxyUtils.isLambda(supplier.getClass())).isFalse();
+  }
+
+  private static final Supplier<String> staticLambdaExpression = () -> "static lambda expression";
+
+  private final Supplier<String> instanceLambdaExpression = () -> "instance lambda expressions";
+
+  private static String staticStringFactory() {
+    return "static string factory";
+  }
+
+  private String instanceStringFactory() {
+    return "instance string factory";
+  }
+
+  private static class EnigmaSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+      return "enigma";
+    }
+  }
+
+  private static class Fake$$LambdaSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+      return "fake lambda";
+    }
   }
 
 }
