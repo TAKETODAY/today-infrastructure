@@ -364,7 +364,7 @@ public class TestEnhancer {
     final Class<?> eaClassFromCustomClassloader = custom.loadClass(EA.class.getName());
 
     CallbackFilter callbackFilter = new CallbackFilter() {
-      private final Object advised = eaClassFromCustomClassloader.newInstance();
+      private final Object advised = ReflectionUtils.newInstance(eaClassFromCustomClassloader);
 
       public int accept(Method method) {
         return 0;

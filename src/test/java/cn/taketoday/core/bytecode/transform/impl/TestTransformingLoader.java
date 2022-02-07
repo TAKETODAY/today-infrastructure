@@ -55,12 +55,12 @@ public class TestTransformingLoader extends CodeGenTestCase {
     ClassTransformer t2 = getExampleTransformer("derby", Type.DOUBLE_TYPE);
     ClassTransformer chain = new ClassTransformerChain(new ClassTransformer[] { t1, t2 });
     Class loaded = loadHelper(chain, Example.class);
-    Object obj = loaded.newInstance();
+    Object obj = ReflectionUtils.newInstance(loaded);
     String value = "HELLO";
     loaded.getMethod("setHerby", new Class[] { String.class }).invoke(obj, value);
     assertEquals(value, loaded.getMethod("getHerby", (Class[]) null).invoke(obj, (Object[]) null));
 
-    loaded.getMethod("setDerby", new Class[] { Double.TYPE }).invoke(obj, new Double(1.23456789d));
+    loaded.getMethod("setDerby", new Class[] { Double.TYPE }).invoke(obj, 1.23456789d);
   }
 
   private static Class inited;
@@ -78,7 +78,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
     // ClassTransformerTee(new cn.taketoday.core.bytecode.util.TraceClassVisitor(null, new
     // java.io.PrintWriter(System.out))) });
     Class loaded = loadHelper(t, Example.class);
-    Object obj = loaded.newInstance();
+    Object obj = ReflectionUtils.newInstance(loaded);
     // TODO
   }
 

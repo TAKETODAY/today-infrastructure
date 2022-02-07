@@ -190,7 +190,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   public void testVisitFrame_illegalPrimitiveType() {
     checkMethodAdapter.visitCode();
     checkMethodAdapter.visitInsn(NOP);
-    Integer invalidFrameValue = new Integer(0); // NOPMD(IntegerInstantiation): needed to build an invalid value.
+    Integer invalidFrameValue = 0; // NOPMD(IntegerInstantiation): needed to build an invalid value.
 
     Executable visitFrame =
             () -> checkMethodAdapter.visitFrame(F_FULL, 1, new Object[] { invalidFrameValue }, 0, null);
