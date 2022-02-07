@@ -78,7 +78,8 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
   @Nullable
   private String requestContextAttribute;
 
-  private final Map<String, Object> staticAttributes = new LinkedHashMap<>();
+  @Nullable
+  private LinkedHashMap<String, Object> staticAttributes;
 
   private boolean exposePathVariables = true;
 
@@ -170,7 +171,16 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
    * or a "props" element in XML bean definitions.
    */
   public void setAttributes(Properties attributes) {
-    CollectionUtils.mergePropertiesIntoMap(attributes, this.staticAttributes);
+    CollectionUtils.mergePropertiesIntoMap(attributes, staticAttributes());
+  }
+
+  private LinkedHashMap<String, Object> staticAttributes() {
+    LinkedHashMap<String, Object> staticAttributes = this.staticAttributes;
+    if (staticAttributes == null) {
+      staticAttributes = new LinkedHashMap<>();
+      this.staticAttributes = staticAttributes;
+    }
+    return staticAttributes;
   }
 
   /**
@@ -199,7 +209,7 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
    * adding or overriding entries in child view definitions.
    */
   public Map<String, Object> getAttributesMap() {
-    return this.staticAttributes;
+    return staticAttributes();
   }
 
   /**
@@ -214,7 +224,7 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
    * @see #render
    */
   public void addStaticAttribute(String name, Object value) {
-    this.staticAttributes.put(name, value);
+    staticAttributes().put(name, value);
   }
 
   /**
@@ -224,6 +234,7 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
    *
    * @return the static attributes in this view
    */
+  @Nullable
   public Map<String, Object> getStaticAttributes() {
     return staticAttributes;
   }
@@ -313,7 +324,7 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
       log.debug("View {}, model {} {}",
               formatViewName(),
               model != null ? model : Collections.emptyMap(),
-              staticAttributes.isEmpty() ? "" : ", static attributes " + staticAttributes);
+              CollectionUtils.isEmpty(staticAttributes) ? "" : ", static attributes " + staticAttributes);
     }
 
     Map<String, Object> mergedModel = createMergedOutputModel(model, context);
@@ -329,8 +340,11 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
           @Nullable Map<String, ?> model, RequestContext context) {
 
     // Consolidate static and dynamic model attributes.
-    int size = this.staticAttributes.size();
-    size += model != null ? model.size() : 0;
+    Map<String, Object> staticAttributes = getStaticAttributes();
+    int size = model != null ? model.size() : 0;
+    if (staticAttributes != null) {
+      size += staticAttributes.size();
+    }
 
     Map<String, String> pathVars = null;
     PathMatchInfo pathMatchInfo = context.pathMatchInfo();
@@ -340,11 +354,13 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
     }
 
     Map<String, Object> mergedModel = CollectionUtils.newLinkedHashMap(size);
-    mergedModel.putAll(this.staticAttributes);
-    if (pathVars != null) {
+    if (CollectionUtils.isNotEmpty(staticAttributes)) {
+      mergedModel.putAll(staticAttributes);
+    }
+    if (CollectionUtils.isNotEmpty(pathVars)) {
       mergedModel.putAll(pathVars);
     }
-    if (model != null) {
+    if (CollectionUtils.isNotEmpty(model)) {
       mergedModel.putAll(model);
     }
 
