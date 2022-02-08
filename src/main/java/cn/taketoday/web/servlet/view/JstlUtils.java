@@ -28,10 +28,13 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.support.MessageSourceResourceBundle;
 import cn.taketoday.context.support.ResourceBundleMessageSource;
+import cn.taketoday.core.i18n.LocaleContext;
+import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.LocaleContextResolver;
+import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -63,7 +66,6 @@ public abstract class JstlUtils {
    */
   public static MessageSource getJstlAwareMessageSource(
           @Nullable ServletContext servletContext, MessageSource messageSource) {
-
     if (servletContext != null) {
       String jstlInitParam = servletContext.getInitParameter(Config.FMT_LOCALIZATION_CONTEXT);
       if (jstlInitParam != null) {
@@ -85,21 +87,21 @@ public abstract class JstlUtils {
    * using Framework's locale and MessageSource.
    *
    * @param request the current HTTP request
+   * @param servletRequest the current HTTP servlet request
    * @param messageSource the MessageSource to expose,
    * typically the current ApplicationContext (may be {@code null})
-   * @see #exposeLocalizationContext(RequestContext)
+   * @see #exposeLocalizationContext(RequestContext, HttpServletRequest)
    */
-  public static void exposeLocalizationContext(RequestContext request, @Nullable MessageSource messageSource) {
+  public static void exposeLocalizationContext(
+          RequestContext request, HttpServletRequest servletRequest, @Nullable MessageSource messageSource) {
     Locale jstlLocale = RequestContextUtils.getLocale(request);
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
     Config.set(servletRequest, Config.FMT_LOCALE, jstlLocale);
     TimeZone timeZone = RequestContextUtils.getTimeZone(request);
     if (timeZone != null) {
       Config.set(servletRequest, Config.FMT_TIME_ZONE, timeZone);
     }
     if (messageSource != null) {
-      LocalizationContext jstlContext = new FrameworkLocalizationContext(
-              messageSource, servletRequest, request);
+      LocalizationContext jstlContext = new FrameworkLocalizationContext(messageSource, servletRequest, request);
       Config.set(servletRequest, Config.FMT_LOCALIZATION_CONTEXT, jstlContext);
     }
   }
@@ -109,20 +111,74 @@ public abstract class JstlUtils {
    * and resource bundle for JSTL's formatting and message tags,
    * using Framework's locale and MessageSource.
    *
-   * @param requestContext the context for the current HTTP request,
+   * @param request the context for the current HTTP request,
    * including the ApplicationContext to expose as MessageSource
    */
-  public static void exposeLocalizationContext(RequestContext requestContext) {
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(requestContext);
-    Config.set(servletRequest, Config.FMT_LOCALE, requestContext.getLocale());
-    TimeZone timeZone = RequestContextUtils.getTimeZone(requestContext);
+  public static void exposeLocalizationContext(RequestContext request, HttpServletRequest servletRequest) {
+    Locale locale = null;
+    TimeZone timeZone = null;
+    // Determine locale to use for this RequestContext.
+    LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
+    if (localeResolver instanceof LocaleContextResolver) {
+      LocaleContext localeContext = ((LocaleContextResolver) localeResolver).resolveLocaleContext(request);
+      locale = localeContext.getLocale();
+      if (localeContext instanceof TimeZoneAwareLocaleContext) {
+        timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
+      }
+    }
+    else if (localeResolver != null) {
+      // Try LocaleResolver (we're within a DispatcherServlet request).
+      locale = localeResolver.resolveLocale(request);
+    }
+
+    // fallback
+    if (locale == null) {
+      locale = getLocale(servletRequest);
+    }
+    if (timeZone == null) {
+      timeZone = getTimeZone(servletRequest);
+    }
+    if (locale != null) {
+      Config.set(servletRequest, Config.FMT_LOCALE, locale);
+    }
     if (timeZone != null) {
       Config.set(servletRequest, Config.FMT_TIME_ZONE, timeZone);
     }
+
     MessageSource messageSource = getJstlAwareMessageSource(
-            servletRequest.getServletContext(), requestContext.getWebApplicationContext());
-    LocalizationContext jstlContext = new FrameworkLocalizationContext(messageSource, servletRequest, requestContext);
+            servletRequest.getServletContext(), request.getWebApplicationContext());
+    LocalizationContext jstlContext = new FrameworkLocalizationContext(messageSource, servletRequest, request);
     Config.set(servletRequest, Config.FMT_LOCALIZATION_CONTEXT, jstlContext);
+  }
+
+  @Nullable
+  public static Locale getLocale(HttpServletRequest request) {
+    Object localeObject = Config.get(request, Config.FMT_LOCALE);
+    if (localeObject == null) {
+      HttpSession session = request.getSession(false);
+      if (session != null) {
+        localeObject = Config.get(session, Config.FMT_LOCALE);
+      }
+      if (localeObject == null) {
+        localeObject = Config.get(request.getServletContext(), Config.FMT_LOCALE);
+      }
+    }
+    return localeObject instanceof Locale ? (Locale) localeObject : null;
+  }
+
+  @Nullable
+  public static TimeZone getTimeZone(HttpServletRequest request) {
+    Object timeZoneObject = Config.get(request, Config.FMT_TIME_ZONE);
+    if (timeZoneObject == null) {
+      HttpSession session = request.getSession(false);
+      if (session != null) {
+        timeZoneObject = Config.get(session, Config.FMT_TIME_ZONE);
+      }
+      if (timeZoneObject == null) {
+        timeZoneObject = Config.get(request.getServletContext(), Config.FMT_TIME_ZONE);
+      }
+    }
+    return timeZoneObject instanceof TimeZone ? (TimeZone) timeZoneObject : null;
   }
 
   /**

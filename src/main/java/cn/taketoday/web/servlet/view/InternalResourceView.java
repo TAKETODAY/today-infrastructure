@@ -26,7 +26,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletContextAware;
+import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
 import jakarta.servlet.RequestDispatcher;
@@ -152,12 +152,13 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
     // Expose the model object as request attributes.
     exposeModelAsRequestAttributes(model, context);
 
-    // Expose helpers as request attributes, if any.
-    exposeHelpers(context);
-
     // Determine the path for the request dispatcher.
     HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
+
+    // Expose helpers as request attributes, if any.
+    exposeHelpers(servletRequest, context);
+
     String dispatcherPath = prepareForRendering(servletRequest, servletResponse);
     // Obtain a RequestDispatcher for the target resource (typically a JSP).
     RequestDispatcher rd = getRequestDispatcher(servletRequest, dispatcherPath);
@@ -190,12 +191,14 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * The default implementation is empty. This method can be overridden to add
    * custom helpers as request attributes.
    *
+   *
+   * @param servletRequest
    * @param request current HTTP request
    * @throws Exception if there's a fatal error while we're adding attributes
    * @see #renderMergedOutputModel
-   * @see JstlView#exposeHelpers
+   * @see InternalResourceView#exposeHelpers
    */
-  protected void exposeHelpers(RequestContext request) throws Exception { }
+  protected void exposeHelpers(HttpServletRequest servletRequest, RequestContext request) throws Exception { }
 
   /**
    * Prepare for rendering, and determine the request dispatcher path

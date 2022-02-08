@@ -53,8 +53,7 @@ import cn.taketoday.web.view.UrlBasedViewResolver;
  * @since 4.0
  */
 public class InternalResourceViewResolver extends UrlBasedViewResolver {
-
-  private static final boolean jstlPresent = ClassUtils.isPresent(
+  static final boolean jstlPresent = ClassUtils.isPresent(
           "jakarta.servlet.jsp.jstl.core.Config", InternalResourceViewResolver.class.getClassLoader());
 
   @Nullable

@@ -24,6 +24,7 @@ import cn.taketoday.context.MessageSource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Specialization of {@link InternalResourceView} for JSTL pages,
@@ -106,7 +107,7 @@ public class JstlView extends InternalResourceView {
    * {@code jakarta.servlet.jsp.jstl.fmt.localizationContext} context-param)
    * @see JstlUtils#getJstlAwareMessageSource
    */
-  public JstlView(String url, MessageSource messageSource) {
+  public JstlView(String url, @Nullable MessageSource messageSource) {
     this(url);
     this.messageSource = messageSource;
   }
@@ -132,12 +133,12 @@ public class JstlView extends InternalResourceView {
    * @see JstlUtils#exposeLocalizationContext
    */
   @Override
-  protected void exposeHelpers(RequestContext request) throws Exception {
+  protected void exposeHelpers(HttpServletRequest servletRequest, RequestContext request) throws Exception {
     if (this.messageSource != null) {
-      JstlUtils.exposeLocalizationContext(request, this.messageSource);
+      JstlUtils.exposeLocalizationContext(request, servletRequest, this.messageSource);
     }
     else {
-      JstlUtils.exposeLocalizationContext(request);
+      JstlUtils.exposeLocalizationContext(request, servletRequest);
     }
   }
 
