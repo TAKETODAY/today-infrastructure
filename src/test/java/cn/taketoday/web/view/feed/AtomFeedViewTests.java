@@ -35,7 +35,7 @@ import cn.taketoday.XmlContent;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AtomFeedViewTests {
 
-  private final AbstractAtomFeedView view = new MyAtomFeedView();
+  private final MyAtomFeedView view = new MyAtomFeedView();
 
   @Test
   public void render() throws Exception {
@@ -54,7 +54,7 @@ public class AtomFeedViewTests {
     Map<String, String> model = new LinkedHashMap<>();
     model.put("2", "This is entry 2");
     model.put("1", "This is entry 1");
-    view.render(model, ServletUtils.getRequestContext(request, response));
+    view.render(model, new ServletRequestContext(null, request, response));
 
     assertThat(response.getContentType()).as("Invalid content-type").isEqualTo("application/atom+xml");
     String expected = "<feed xmlns=\"http://www.w3.org/2005/Atom\">" + "<title>Test Feed</title>" +
