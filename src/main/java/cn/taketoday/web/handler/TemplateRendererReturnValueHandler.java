@@ -124,7 +124,7 @@ public class TemplateRendererReturnValueHandler
   public void renderTemplate(String templateName, RequestContext context) throws IOException {
     final RedirectModelManager modelManager = getModelManager();
     if (modelManager != null) { // @since 3.0.3 checking model manager
-      final RedirectModel redirectModel = modelManager.getModel(context);
+      final RedirectModel redirectModel = modelManager.retrieveAndUpdate(context);
       if (redirectModel != null) {
         context.setAttributes(redirectModel.asMap());
         modelManager.saveRedirectModel(context, null);

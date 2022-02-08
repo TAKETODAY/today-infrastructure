@@ -23,6 +23,7 @@ package cn.taketoday.web.view;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -71,7 +72,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
 
   @Nullable
   @Override
-  public RedirectModel getModel(RequestContext context) {
+  public RedirectModel retrieveAndUpdate(RequestContext context) {
     List<RedirectModel> allRedirectModels = retrieveRedirectModel(context);
     if (CollectionUtils.isEmpty(allRedirectModels)) {
       return null;
@@ -130,7 +131,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
       }
     }
     if (!result.isEmpty()) {
-      result.sort(null);
+      Collections.sort(result);
       if (logger.isTraceEnabled()) {
         logger.trace("Found {}", result.get(0));
       }

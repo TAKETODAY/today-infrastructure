@@ -34,12 +34,18 @@ public interface RedirectModelManager {
   String BEAN_NAME = "redirectModelManager";
 
   /**
-   * Get RedirectModel if exist
+   * Find a RedirectModel saved by a previous request that matches to the current
+   * request, remove it from underlying storage, and also remove other expired
+   * RedirectModel instances.
+   * <p>This method is invoked in the beginning of every request in contrast
+   * to {@link #saveRedirectModel}, which is invoked only when there are
+   * flash attributes to be saved - i.e. before a redirect.
    *
    * @param context Current request context
+   * @return a RedirectModel matching the current request or {@code null}
    */
   @Nullable
-  RedirectModel getModel(RequestContext context);
+  RedirectModel retrieveAndUpdate(RequestContext context);
 
   /**
    * Set a {@link RedirectModel} to current request context
