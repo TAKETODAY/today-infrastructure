@@ -25,12 +25,25 @@ import java.util.Map;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
 
 /**
- * @author TODAY <br>
- * 2018-12-02 19:54
+ * Holder for both Model and View in the web MVC framework.
+ * Note that these are entirely distinct. This class merely holds
+ * both to make it possible for a controller to return both model
+ * and view in a single return value.
+ *
+ * <p>Represents a model and view returned by a handler, to be resolved
+ * by a ReturnValueHandler. The view can take the form of a String
+ * view name which will need to be resolved by a ViewResolver object;
+ * alternatively a View object can be specified directly. The model
+ * is a Map, allowing the use of multiple objects keyed by name.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author Rossen Stoyanchev
+ * @author TODAY
+ * @since 2018-12-02 19:54
  */
 public class ModelAndView implements Model {
 
@@ -43,15 +56,18 @@ public class ModelAndView implements Model {
   @Nullable
   private HttpStatus status;
 
+  /** Indicates whether or not this instance has been cleared with a call to {@link #clear()}. */
+  private boolean cleared = false;
+
   public ModelAndView() {
     this((Object) null);
   }
 
   public ModelAndView(@Nullable Object view) {
-    this(view, RequestContextHolder.currentContext());
+    this(view, new ModelAttributes());
   }
 
-  public ModelAndView(RequestContext dataModel) {
+  public ModelAndView(Model dataModel) {
     this(null, dataModel);
   }
 
@@ -143,9 +159,32 @@ public class ModelAndView implements Model {
     return dataModel.asMap();
   }
 
+  /**
+   * Clear the state of this ModelAndView object.
+   * The object will be empty afterwards.
+   * <p>Can be used to suppress rendering of a given ModelAndView object
+   * in the {@code postHandle} method of a HandlerInterceptor.
+   *
+   * @see #isEmpty()
+   */
   @Override
   public void clear() {
     dataModel.clear();
+    this.view = null;
+    this.cleared = true;
+  }
+
+  /**
+   * Return whether this ModelAndView object is empty as a result of a call to {@link #clear}
+   * i.e. whether it does not hold any view and does not contain a model.
+   * <p>Returns {@code false} if any additional state was added to the instance
+   * <strong>after</strong> the call to {@link #clear}.
+   *
+   * @see #clear()
+   */
+  public boolean wasCleared() {
+    // FIXME isEmpty 语义问题
+    return this.cleared && isEmpty();
   }
 
   @Override

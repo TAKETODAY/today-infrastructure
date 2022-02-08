@@ -20,17 +20,16 @@
 
 package cn.taketoday.web.handler.mvc;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.Properties;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.mvc.WebContentInterceptor;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
+import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.view.PathPatternsParameterizedTest;
-import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,25 +45,27 @@ class WebContentInterceptorTests {
   private final WebContentInterceptor interceptor = new WebContentInterceptor();
 
   private final Object handler = new Object();
-
   RequestContext context = new ServletRequestContext(null, servletRequest, response);
 
-  @SuppressWarnings("unused")
-  private static Stream<Function<String, RequestContext>> pathPatternsArguments() {
-    return PathPatternsTestUtils.requestArguments();
-  }
+  Function<String, RequestContext> requestFactory = new Function<String, RequestContext>() {
+    @Override
+    public RequestContext apply(String path) {
+      MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", path);
+      return new MockServletRequestContext(servletRequest, response);
+    }
+  };
 
-  @PathPatternsParameterizedTest
-  void cacheResourcesConfiguration(Function<String, RequestContext> requestFactory) throws Exception {
+  @Test
+  void cacheResourcesConfiguration() throws Exception {
     interceptor.setCacheSeconds(10);
-    interceptor.beforeProcess(requestFactory.apply("/"), handler);
+    interceptor.beforeProcess(context, handler);
 
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
 
-  @PathPatternsParameterizedTest
-  void mappedCacheConfigurationOverridesGlobal(Function<String, RequestContext> requestFactory) throws Exception {
+  @Test
+  void mappedCacheConfigurationOverridesGlobal() throws Exception {
     Properties mappings = new Properties();
     mappings.setProperty("/*/*handle.vm", "-1");
 
@@ -84,8 +85,8 @@ class WebContentInterceptorTests {
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
 
-  @PathPatternsParameterizedTest
-  void preventCacheConfiguration(Function<String, RequestContext> requestFactory) throws Exception {
+  @Test
+  void preventCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(0);
     interceptor.beforeProcess(requestFactory.apply("/"), handler);
 
@@ -93,8 +94,8 @@ class WebContentInterceptorTests {
     assertThat(cacheControlHeaders).contains("no-store");
   }
 
-  @PathPatternsParameterizedTest
-  void emptyCacheConfiguration(Function<String, RequestContext> requestFactory) throws Exception {
+  @Test
+  void emptyCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(-1);
     interceptor.beforeProcess(requestFactory.apply("/"), handler);
 
@@ -102,64 +103,6 @@ class WebContentInterceptorTests {
     assertThat(expiresHeaders).isEmpty();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).isEmpty();
-  }
-
-  @PathPatternsParameterizedTest
-    // SPR-13252, SPR-14053
-  void cachingConfigAndPragmaHeader(Function<String, RequestContext> requestFactory) throws Exception {
-    response.setHeader("Pragma", "no-cache");
-    response.setHeader("Expires", "0");
-
-    interceptor.setCacheSeconds(10);
-    interceptor.beforeProcess(requestFactory.apply("/"), handler);
-
-    assertThat(response.getHeader("Pragma")).isEqualTo("");
-    assertThat(response.getHeader("Expires")).isEqualTo("");
-  }
-
-  @SuppressWarnings("deprecation")
-  @PathPatternsParameterizedTest
-    // SPR-13252, SPR-14053
-  void http10CachingConfigAndPragmaHeader(Function<String, RequestContext> requestFactory) throws Exception {
-    response.setHeader("Pragma", "no-cache");
-    response.setHeader("Expires", "0");
-
-    interceptor.setCacheSeconds(10);
-    interceptor.beforeProcess(requestFactory.apply("/"), handler);
-
-    assertThat(response.getHeader("Pragma")).isEqualTo("");
-    assertThat(response.getHeader("Expires")).isEqualTo("");
-  }
-
-  @SuppressWarnings("deprecation")
-  @PathPatternsParameterizedTest
-  void http10CachingConfigAndSpecificMapping(Function<String, RequestContext> requestFactory) throws Exception {
-    interceptor.setCacheSeconds(0);
-    Properties mappings = new Properties();
-    mappings.setProperty("/*/*.cache.html", "10");
-    interceptor.setCacheMappings(mappings);
-
-    RequestContext request = requestFactory.apply("/foo/page.html");
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    interceptor.beforeProcess(request, handler);
-
-    Iterable<String> expiresHeaders = response.getHeaders("Expires");
-    assertThat(expiresHeaders).hasSize(1);
-    Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
-    assertThat(cacheControlHeaders).containsExactly("no-cache", "no-store");
-    Iterable<String> pragmaHeaders = response.getHeaders("Pragma");
-    assertThat(pragmaHeaders).containsExactly("no-cache");
-
-    request = requestFactory.apply("/foo/page.cache.html");
-    response = new MockHttpServletResponse();
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-    new ServletRequestContext(null, servletRequest, response);
-    interceptor.beforeProcess(request, handler);
-
-    expiresHeaders = response.getHeaders("Expires");
-    assertThat(expiresHeaders).hasSize(1);
-    cacheControlHeaders = response.getHeaders("Cache-Control");
-    assertThat(cacheControlHeaders).containsExactly("max-age=10, must-revalidate");
   }
 
 }

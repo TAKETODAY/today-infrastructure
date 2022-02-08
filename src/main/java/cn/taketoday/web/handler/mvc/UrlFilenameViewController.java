@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Simple {@code Controller} implementation that transforms the virtual
@@ -57,6 +58,8 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
   private String prefix = "";
 
   private String suffix = "";
+
+  private boolean removeSemicolonContent = true;
 
   /** Request URL path String to view name String. */
   private final Map<String, String> viewNameCache = new ConcurrentHashMap<>(256);
@@ -92,6 +95,14 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
   }
 
   /**
+   * Set if ";" (semicolon) content should be stripped from the request URI.
+   * <p>Default is "true".
+   */
+  public void setRemoveSemicolonContent(boolean removeSemicolonContent) {
+    this.removeSemicolonContent = removeSemicolonContent;
+  }
+
+  /**
    * Returns view name based on the URL filename,
    * with prefix/suffix applied when appropriate.
    *
@@ -114,7 +125,11 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    */
   protected String extractOperableUrl(RequestContext request) {
     RequestPath lookupPath = request.getLookupPath();
-    return lookupPath.pathWithinApplication().value();
+    String path = lookupPath.pathWithinApplication().value();
+    path = removeSemicolonContent
+           ? WebUtils.removeSemicolonContent(path)
+           : path;
+    return path;
   }
 
   /**

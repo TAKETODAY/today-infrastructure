@@ -24,34 +24,36 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 
 public abstract class PathPatternsTestUtils {
 
-  public static Stream<Function<String, RequestContext>> requestArguments() {
+  public static Stream<Function<String, MockServletRequestContext>> requestArguments() {
     return requestArguments(null);
   }
 
-  public static Stream<Function<String, RequestContext>> requestArguments(@Nullable String contextPath) {
+  public static Stream<Function<String, MockServletRequestContext>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
             path -> createRequest("GET", contextPath, path)
     );
   }
 
-  private static RequestContext createRequest(String method, @Nullable String contextPath, String path) {
+  private static MockServletRequestContext createRequest(String method, @Nullable String contextPath, String path) {
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    context.refresh();
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
       MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, requestUri);
       servletRequest.setContextPath(contextPath);
-      return new MockServletRequestContext(servletRequest, new MockHttpServletResponse());
+      return new MockServletRequestContext(context, servletRequest, new MockHttpServletResponse());
     }
     else {
       MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, path);
-      return new MockServletRequestContext(servletRequest, new MockHttpServletResponse());
+      return new MockServletRequestContext(context, servletRequest, new MockHttpServletResponse());
     }
   }
 

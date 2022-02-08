@@ -24,6 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.servlet.MockServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +40,7 @@ class DefaultRequestToViewNameTranslatorTests {
   private final DefaultRequestToViewNameTranslator translator = new DefaultRequestToViewNameTranslator();
 
   @SuppressWarnings("unused")
-  private static Stream<Function<String, RequestContext>> pathPatternsArguments() {
+  private static Stream<Function<String, MockServletRequestContext>> pathPatternsArguments() {
     return PathPatternsTestUtils.requestArguments("/sundays");
   }
 

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.mvc.ParameterizableViewController;
+import cn.taketoday.web.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -55,7 +55,9 @@ class ParameterizableViewControllerTests {
   public void setup() {
     this.controller = new ParameterizableViewController();
     this.request = new MockHttpServletRequest("GET", "/");
-    this.context = new ServletRequestContext(null, request, response);
+    StaticWebApplicationContext context = new StaticWebApplicationContext();
+    context.refresh();
+    this.context = new ServletRequestContext(context, request, response);
   }
 
   @Test
@@ -85,7 +87,6 @@ class ParameterizableViewControllerTests {
   @Test
   public void handleRequestHttpOptions() throws Exception {
     this.request.setMethod(HttpMethod.OPTIONS.name());
-    MockHttpServletResponse response = new MockHttpServletResponse();
     ModelAndView mav = this.controller.handleRequest(this.context);
 
     assertThat(mav).isNull();

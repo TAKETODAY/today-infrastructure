@@ -55,7 +55,9 @@ class ControllerTests {
     ParameterizableViewController pvc = new ParameterizableViewController();
     pvc.setViewName(viewName);
     // We don't care about the params.
-    ServletRequestContext context = new ServletRequestContext(null, new MockHttpServletRequest("GET", "foo.html"), new MockHttpServletResponse());
+    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    wac.refresh();
+    ServletRequestContext context = new ServletRequestContext(wac, new MockHttpServletRequest("GET", "foo.html"), new MockHttpServletResponse());
     ModelAndView mv = pvc.handleRequest(context);
     assertThat(mv.getModel().asMap().size() == 0).as("model has no data").isTrue();
     assertThat(mv.getViewName().equals(viewName)).as("model has correct viewname").isTrue();
@@ -103,6 +105,9 @@ class ControllerTests {
     StaticWebApplicationContext sac = new StaticWebApplicationContext();
     sac.setServletContext(context);
     sfc.setApplicationContext(sac);
+    sac.refresh();
+
+    sfc.setServletContext(context);
 
     ServletRequestContext servletRequestContext = new ServletRequestContext(sac, request, response);
 
