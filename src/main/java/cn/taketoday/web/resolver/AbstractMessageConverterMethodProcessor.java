@@ -80,12 +80,10 @@ public abstract class AbstractMessageConverterMethodProcessor
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
 
   /* Extensions associated with the built-in message converters */
-  private static final Set<String> SAFE_EXTENSIONS = new HashSet<>(
-          Arrays.asList(
-                  "txt", "text", "yml", "properties", "csv",
-                  "json", "xml", "atom", "rss",
-                  "png", "jpe", "jpeg", "jpg", "gif", "wbmp", "bmp"
-          )
+  private static final List<String> SAFE_EXTENSIONS = Arrays.asList(
+          "txt", "text", "yml", "properties", "csv",
+          "json", "xml", "atom", "rss",
+          "png", "jpe", "jpeg", "jpg", "gif", "wbmp", "bmp"
   );
 
   private static final Set<String> SAFE_MEDIA_BASE_TYPES = new HashSet<>(
