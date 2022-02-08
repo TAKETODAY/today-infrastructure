@@ -31,7 +31,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
@@ -43,8 +42,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import static cn.taketoday.web.RequestContextHolder.set;
 
 /**
  * @author TODAY 2020/12/8 23:07
@@ -114,12 +111,7 @@ public abstract class ServletUtils {
 
   public static RequestContext getRequestContext(
           WebApplicationContext webApplicationContext, HttpServletRequest request, HttpServletResponse response) {
-    RequestContext context = RequestContextHolder.get();
-    if (context == null) {
-      context = new ServletRequestContext(webApplicationContext, request, response);
-      set(context);
-    }
-    return context;
+    return new ServletRequestContext(webApplicationContext, request, response);
   }
 
   /**
@@ -235,12 +227,12 @@ public abstract class ServletUtils {
    * @param request current HTTP request
    * @return the request-specific WebApplicationContext, or the global one
    * if no request-specific context has been found, or {@code null} if none
-   * @see #findWebApplicationContext(HttpServletRequest, ServletContext)
+   * @see #findWebApplicationContext(ServletRequest, ServletContext)
    * @see ServletRequest#getServletContext()
    * @since 4.0
    */
   @Nullable
-  public static WebApplicationContext findWebApplicationContext(HttpServletRequest request) {
+  public static WebApplicationContext findWebApplicationContext(ServletRequest request) {
     return findWebApplicationContext(request, request.getServletContext());
   }
 
@@ -262,7 +254,7 @@ public abstract class ServletUtils {
    */
   @Nullable
   public static WebApplicationContext findWebApplicationContext(
-          HttpServletRequest request, @Nullable ServletContext servletContext) {
+          ServletRequest request, @Nullable ServletContext servletContext) {
     WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(
             WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     if (webApplicationContext == null) {
