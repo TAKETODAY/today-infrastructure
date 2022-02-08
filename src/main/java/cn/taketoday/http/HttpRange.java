@@ -43,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author TODAY 2021/11/6 23:43
  * @see <a href="https://tools.ietf.org/html/rfc7233">HTTP/1.1: Range Requests</a>
- * @see HttpHeaders#setRange(List)
+ * @see HttpHeaders#setRange(Collection)
  * @see HttpHeaders#getRange()
  * @since 4.0
  */
@@ -64,7 +64,7 @@ public abstract class HttpRange {
     // Don't try to determine contentLength on InputStreamResource - cannot be read afterwards...
     // Note: custom InputStreamResource subclasses could provide a pre-calculated content length!
     Assert.isTrue(resource.getClass() != InputStreamResource.class,
-                  "Cannot convert an InputStreamResource to a ResourceRegion");
+            "Cannot convert an InputStreamResource to a ResourceRegion");
     long contentLength = getLengthFor(resource);
     long start = getRangeStart(contentLength);
     long end = getRangeEnd(contentLength);

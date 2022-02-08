@@ -1443,6 +1443,16 @@ public abstract class HttpHeaders
   }
 
   /**
+   * Set the (new) location of a resource, as specified by the {@code Location}
+   * header.
+   *
+   * @since 4.0
+   */
+  public void setLocation(@Nullable String location) {
+    setOrRemove(LOCATION, location);
+  }
+
+  /**
    * Return the (new) location of a resource as specified by the {@code Location}
    * header.
    * <p>
@@ -1451,7 +1461,7 @@ public abstract class HttpHeaders
   @Nullable
   public URI getLocation() {
     String value = getFirst(LOCATION);
-    return (value != null ? URI.create(value) : null);
+    return value != null ? URI.create(value) : null;
   }
 
   /**
