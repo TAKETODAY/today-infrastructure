@@ -29,7 +29,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
@@ -289,18 +288,19 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * {@link ViewResolverComposite#resolveViewName(String, Locale)} returns null in order
    * to allow other potential {@link ViewResolver} beans to resolve views.
    */
-  @Bean
+  @Component
   public ViewResolver webViewResolver(ContentNegotiationManager contentNegotiationManager) {
     ViewResolverRegistry registry =
             new ViewResolverRegistry(contentNegotiationManager, applicationContext);
     configureViewResolvers(registry);
 
-    List<ViewResolver> viewResolvers = registry.getViewResolvers();
-    if (viewResolvers.isEmpty() && applicationContext != null) {
+    if (ServletDetector.isPresent()
+            && registry.getViewResolvers().isEmpty()
+            && applicationContext != null) {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
-      if (names.size() == 1) {
-        viewResolvers.add(new InternalResourceViewResolver());
+      if (names.size() == 1) { // webViewResolver
+        registry.getViewResolvers().add(new InternalResourceViewResolver());
       }
     }
     ViewResolverComposite composite;
@@ -312,7 +312,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     }
 
     composite.setOrder(registry.getOrder());
-    composite.setViewResolvers(viewResolvers);
+    composite.setViewResolvers(registry.getViewResolvers());
     if (applicationContext != null) {
       composite.setApplicationContext(applicationContext);
     }

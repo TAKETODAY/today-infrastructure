@@ -57,7 +57,7 @@ public class UrlBasedViewResolverRegistration {
   /**
    * Set the suffix that gets appended to view names when building a URL.
    *
-   * @see cn.taketoday.web.servlet.view.UrlBasedViewResolver#setSuffix
+   * @see cn.taketoday.web.view.UrlBasedViewResolver#setSuffix
    */
   public UrlBasedViewResolverRegistration suffix(String suffix) {
     this.viewResolver.setSuffix(suffix);
@@ -67,7 +67,7 @@ public class UrlBasedViewResolverRegistration {
   /**
    * Set the view class that should be used to create views.
    *
-   * @see cn.taketoday.web.servlet.view.UrlBasedViewResolver#setViewClass
+   * @see cn.taketoday.web.view.UrlBasedViewResolver#setViewClass
    */
   public UrlBasedViewResolverRegistration viewClass(Class<?> viewClass) {
     this.viewResolver.setViewClass(viewClass);
@@ -79,7 +79,7 @@ public class UrlBasedViewResolverRegistration {
    * resolver. View names can contain simple wildcards such that 'my*', '*Report'
    * and '*Repo*' will all match the view name 'myReport'.
    *
-   * @see cn.taketoday.web.servlet.view.UrlBasedViewResolver#setViewNames
+   * @see cn.taketoday.web.view.UrlBasedViewResolver#setViewNames
    */
   public UrlBasedViewResolverRegistration viewNames(String... viewNames) {
     this.viewResolver.setViewNames(viewNames);
@@ -91,7 +91,7 @@ public class UrlBasedViewResolverRegistration {
    * views resolved by this view resolver. This allows for setting any kind of
    * attribute values, for example bean references.
    *
-   * @see cn.taketoday.web.servlet.view.UrlBasedViewResolver#setAttributesMap
+   * @see cn.taketoday.web.view.UrlBasedViewResolver#setAttributesMap
    */
   public UrlBasedViewResolverRegistration attributes(Map<String, ?> attributes) {
     this.viewResolver.setAttributesMap(attributes);
@@ -102,7 +102,7 @@ public class UrlBasedViewResolverRegistration {
    * Specify the maximum number of entries for the view cache.
    * Default is 1024.
    *
-   * @see cn.taketoday.web.servlet.view.UrlBasedViewResolver#setCache(boolean)
+   * @see cn.taketoday.web.view.UrlBasedViewResolver#setCache(boolean)
    */
   public UrlBasedViewResolverRegistration cacheLimit(int cacheLimit) {
     this.viewResolver.setCacheLimit(cacheLimit);
@@ -116,7 +116,7 @@ public class UrlBasedViewResolverRegistration {
    * <p>Default is "true": caching is enabled.
    * Disable this only for debugging and development.
    *
-   * @see cn.taketoday.web.servlet.view.UrlBasedViewResolver#setCache(boolean)
+   * @see cn.taketoday.web.view.UrlBasedViewResolver#setCache(boolean)
    */
   public UrlBasedViewResolverRegistration cache(boolean cache) {
     this.viewResolver.setCache(cache);

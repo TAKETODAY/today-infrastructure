@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -169,9 +168,10 @@ public class GroovyMarkupConfigurer extends TemplateConfiguration
    */
   protected ClassLoader createTemplateClassLoader() throws IOException {
     String[] paths = StringUtils.commaDelimitedListToStringArray(getResourceLoaderPath());
-    List<URL> urls = new ArrayList<>();
+    ArrayList<URL> urls = new ArrayList<>();
+    ApplicationContext context = getApplicationContext();
     for (String path : paths) {
-      Set<Resource> resources = getApplicationContext().getResources(path);
+      Set<Resource> resources = context.getResources(path);
       if (!resources.isEmpty()) {
         for (Resource resource : resources) {
           if (resource.exists()) {
@@ -180,7 +180,7 @@ public class GroovyMarkupConfigurer extends TemplateConfiguration
         }
       }
     }
-    ClassLoader classLoader = getApplicationContext().getClassLoader();
+    ClassLoader classLoader = context.getClassLoader();
     Assert.state(classLoader != null, "No ClassLoader");
     return !urls.isEmpty()
            ? new URLClassLoader(urls.toArray(new URL[0]), classLoader)

@@ -53,6 +53,7 @@ public class ViewResolverComposite extends OrderedSupport
     this.viewResolvers.clear();
     if (CollectionUtils.isNotEmpty(viewResolvers)) {
       this.viewResolvers.addAll(viewResolvers);
+      this.viewResolvers.trimToSize();
     }
   }
 

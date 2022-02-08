@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.config;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/8 15:42
- */
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +52,8 @@ import cn.taketoday.web.view.script.ScriptTemplateViewResolver;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/2/8 15:42
  */
 public class ViewResolverRegistry {
 
@@ -70,7 +66,7 @@ public class ViewResolverRegistry {
   @Nullable
   private ContentNegotiatingViewResolver contentNegotiatingResolver;
 
-  private final List<ViewResolver> viewResolvers = new ArrayList<>(4);
+  private final ArrayList<ViewResolver> viewResolvers = new ArrayList<>(4);
 
   @Nullable
   private Integer order;
@@ -88,7 +84,7 @@ public class ViewResolverRegistry {
    * Whether any view resolvers have been registered.
    */
   public boolean hasRegistrations() {
-    return (this.contentNegotiatingResolver != null || !this.viewResolvers.isEmpty());
+    return contentNegotiatingResolver != null || !viewResolvers.isEmpty();
   }
 
   /**
