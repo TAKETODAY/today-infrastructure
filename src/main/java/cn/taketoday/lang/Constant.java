@@ -46,8 +46,6 @@ public interface Constant extends Serializable {
    */
   String DEFAULT_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
 
-  String ENV_SERVLET = "jakarta.servlet.Servlet";
-
   String HTTP = "http";
   String HTTPS = "https";
 

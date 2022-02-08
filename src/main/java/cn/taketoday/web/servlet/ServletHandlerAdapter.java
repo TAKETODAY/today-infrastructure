@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
 import jakarta.servlet.Servlet;
@@ -30,7 +28,6 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * @author TODAY 2019-12-24 22:01
  */
-@ConditionalOnClass(name = Constant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
   public ServletHandlerAdapter() { }

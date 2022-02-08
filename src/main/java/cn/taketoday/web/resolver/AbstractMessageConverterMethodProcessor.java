@@ -45,11 +45,9 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
@@ -59,6 +57,7 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -79,7 +78,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public abstract class AbstractMessageConverterMethodProcessor
         extends AbstractMessageConverterParameterResolvingStrategy implements ReturnValueHandler {
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
-  static final boolean isServletPresent = ClassUtils.isPresent(Constant.ENV_SERVLET);
 
   /* Extensions associated with the built-in message converters */
   private static final Set<String> SAFE_EXTENSIONS = new HashSet<>(
@@ -465,7 +463,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   @Nullable
   private MediaType resolveMediaType(RequestContext request, String extension) {
     MediaType result = null;
-    if (isServletPresent) {
+    if (ServletDetector.isPresent()) {
       String rawMimeType = ServletDelegate.getMimeType(request, extension);
       if (StringUtils.hasText(rawMimeType)) {
         result = MediaType.parseMediaType(rawMimeType);

@@ -32,8 +32,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.servlet.view.InternalResourceView;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Simple implementation of the {@link ViewResolver}
@@ -119,9 +119,6 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   private boolean redirectContextRelative = true;
 
   private boolean redirectHttp10Compatible = true;
-
-  @Nullable
-  private String[] redirectHosts;
 
   @Nullable
   private String requestContextAttribute;
@@ -265,28 +262,6 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    */
   protected boolean isRedirectHttp10Compatible() {
     return this.redirectHttp10Compatible;
-  }
-
-  /**
-   * Configure one or more hosts associated with the application.
-   * All other hosts will be considered external hosts.
-   * <p>In effect, this property provides a way turn off encoding on redirect
-   * via {@link HttpServletResponse#encodeRedirectURL} for URLs that have a
-   * host and that host is not listed as a known host.
-   * <p>If not set (the default) all URLs are encoded through the response.
-   *
-   * @param redirectHosts one or more application hosts
-   */
-  public void setRedirectHosts(@Nullable String... redirectHosts) {
-    this.redirectHosts = redirectHosts;
-  }
-
-  /**
-   * Return the configured application hosts for redirect purposes.
-   */
-  @Nullable
-  public String[] getRedirectHosts() {
-    return this.redirectHosts;
   }
 
   /**
@@ -483,15 +458,11 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
       String redirectUrl = viewName.substring(REDIRECT_URL_PREFIX.length());
       RedirectView view = new RedirectView(
               redirectUrl, isRedirectContextRelative(), isRedirectHttp10Compatible());
-      String[] hosts = getRedirectHosts();
-      if (hosts != null) {
-        view.setHosts(hosts);
-      }
       return applyLifecycleMethods(REDIRECT_URL_PREFIX, view);
     }
 
     // Check for special "forward:" prefix.
-    if (viewName.startsWith(FORWARD_URL_PREFIX)) {
+    if (ServletDetector.isPresent() && viewName.startsWith(FORWARD_URL_PREFIX)) { // servlet check
       String forwardUrl = viewName.substring(FORWARD_URL_PREFIX.length());
       InternalResourceView view = new InternalResourceView(forwardUrl);
       return applyLifecycleMethods(FORWARD_URL_PREFIX, view);

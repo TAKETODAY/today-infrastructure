@@ -39,9 +39,9 @@ import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.servlet.HttpSessionModelAdapter;
 import cn.taketoday.web.servlet.ServletContextModelAdapter;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -55,7 +55,6 @@ import jakarta.servlet.http.HttpSession;
  * 2019-11-24 22:28
  */
 public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
-  static final boolean isServletPresent = ClassUtils.isPresent(Constant.ENV_SERVLET);
 
   private final StandardExpressionContext sharedContext;
   private ExpressionFactory expressionFactory;
@@ -155,7 +154,7 @@ public class DefaultTemplateRenderer extends AbstractTemplateRenderer {
   }
 
   static ExpressionResolver getResolvers(ExpressionContext sharedContext, RequestContext context) {
-    if (isServletPresent) {
+    if (ServletDetector.isPresent()) {
       return ServletDelegate.getResolvers(sharedContext, context);
     }
     return new ExpressionResolverComposite(

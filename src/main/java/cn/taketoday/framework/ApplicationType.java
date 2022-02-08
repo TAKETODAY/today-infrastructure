@@ -20,8 +20,8 @@
 
 package cn.taketoday.framework;
 
-import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.ServletDetector;
 
 /**
  * An enumeration of possible types of application.
@@ -49,15 +49,15 @@ public enum ApplicationType {
    */
   REACTIVE_WEB;
 
-  public static final String SERVLET_INDICATOR_CLASS = Constant.ENV_SERVLET;
+  public static final String SERVLET_INDICATOR_CLASS = ServletDetector.SERVLET_CLASS;
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   static ApplicationType deduceFromClasspath() {
     if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, null)
-            && !ClassUtils.isPresent(SERVLET_INDICATOR_CLASS, null)) {
+            && !ServletDetector.isPresent()) {
       return ApplicationType.REACTIVE_WEB;
     }
-    if (!ClassUtils.isPresent(SERVLET_INDICATOR_CLASS, null)) {
+    if (!ServletDetector.isPresent()) {
       return ApplicationType.NONE_WEB;
     }
     return ApplicationType.SERVLET_WEB;

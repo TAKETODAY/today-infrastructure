@@ -130,22 +130,6 @@ public class RedirectViewTests {
     assertThat(response.getHeader("Location")).isEqualTo("https://url.somewhere.com");
   }
 
-  @Test // SPR-13693
-  public void remoteHost() throws Exception {
-    RedirectView rv = new RedirectView();
-
-    assertThat(rv.isRemoteHost("https://url.somewhere.com")).isFalse();
-    assertThat(rv.isRemoteHost("/path")).isFalse();
-    assertThat(rv.isRemoteHost("http://somewhereelse.example")).isFalse();
-
-    rv.setHosts("url.somewhere.com");
-
-    assertThat(rv.isRemoteHost("https://url.somewhere.com")).isFalse();
-    assertThat(rv.isRemoteHost("/path")).isFalse();
-    assertThat(rv.isRemoteHost("http://somewhereelse.example")).isTrue();
-
-  }
-
   @Test // SPR-16752
   public void contextRelativeWithValidatedContextPath() throws Exception {
     String url = "/myUrl";

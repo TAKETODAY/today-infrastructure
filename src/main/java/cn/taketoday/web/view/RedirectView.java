@@ -25,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -39,11 +38,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 
@@ -310,7 +307,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     RequestContextUtils.saveRedirectModel(targetUrl, context);
 
     // Redirect
-    sendRedirect(context, targetUrl, this.http10Compatible);
+    sendRedirect(context, targetUrl);
   }
 
   /**
@@ -589,79 +586,39 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    *
    * @param context current HTTP request (allows for reacting to request method)
    * @param targetUrl the target URL to redirect to
-   * @param http10Compatible whether to stay compatible with HTTP 1.0 clients
    * @throws IOException if thrown by response methods
    */
   protected void sendRedirect(
-          RequestContext context, String targetUrl, boolean http10Compatible) throws IOException {
-    String encodedURL = isRemoteHost(targetUrl)
-                        ? targetUrl : URLEncoder.encode(targetUrl, StandardCharsets.UTF_8);
-    if (http10Compatible) {
-      HttpStatus attributeStatusCode = (HttpStatus) context.getAttribute(View.RESPONSE_STATUS_ATTRIBUTE);
-      if (this.statusCode != null) {
-        context.setStatus(this.statusCode.value());
-        context.responseHeaders().set("Location", encodedURL);
-      }
-      else if (attributeStatusCode != null) {
-        context.setStatus(attributeStatusCode.value());
-        context.responseHeaders().set("Location", encodedURL);
-      }
-      else {
-        // Send status code 302 by default.
-        context.sendRedirect(encodedURL);
-      }
-    }
-    else {
-      HttpStatus statusCode = getHttp11StatusCode(context, targetUrl);
+          RequestContext context, String targetUrl) throws IOException {
+    HttpStatus statusCode = getHttpStatusCode(context, targetUrl);
+    if (statusCode != null) {
       context.setStatus(statusCode.value());
-      context.responseHeaders().set("Location", encodedURL);
     }
+    context.sendRedirect(targetUrl);
   }
 
   /**
-   * Whether the given targetUrl has a host that is a "foreign" system in which
-   * case {@link URLEncoder#encode(String, Charset)} will not be applied.
-   * This method returns {@code true} if the {@link #setHosts(String[])}
-   * property is configured and the target URL has a host that does not match.
-   *
-   * @param targetUrl the target redirect URL
-   * @return {@code true} the target URL has a remote host, {@code false} if it
-   * the URL does not have a host or the "host" property is not configured.
-   */
-  protected boolean isRemoteHost(String targetUrl) {
-    String[] hosts = getHosts();
-    if (ObjectUtils.isEmpty(hosts)) {
-      return false;
-    }
-    String targetHost = UriComponentsBuilder.fromUriString(targetUrl).build().getHost();
-    if (StringUtils.isEmpty(targetHost)) {
-      return false;
-    }
-    for (String host : hosts) {
-      if (targetHost.equals(host)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Determines the status code to use for HTTP 1.1 compatible requests.
+   * Determines the status code to use for HTTP compatible requests.
    * <p>The default implementation returns the {@link #setStatusCode(HttpStatus) statusCode}
    * property if set, or the value of the {@link #RESPONSE_STATUS_ATTRIBUTE} attribute.
-   * If neither are set, it defaults to {@link HttpStatus#SEE_OTHER} (303).
+   * If neither are set, it defaults to {@link HttpStatus#SEE_OTHER} (303) or {@code null}
+   * when {@link #http10Compatible} is true.
    *
    * @param context the request to inspect
    * @param targetUrl the target URL
    * @return the response status
    */
-  protected HttpStatus getHttp11StatusCode(RequestContext context, String targetUrl) {
+  @Nullable
+  protected HttpStatus getHttpStatusCode(RequestContext context, String targetUrl) {
     if (statusCode != null) {
       return statusCode;
     }
     Object attribute = context.getAttribute(View.RESPONSE_STATUS_ATTRIBUTE);
     if (attribute instanceof HttpStatus attributeStatusCode) {
       return attributeStatusCode;
+    }
+    if (http10Compatible) {
+      return null;
     }
     return HttpStatus.SEE_OTHER;
   }
