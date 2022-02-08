@@ -22,8 +22,6 @@ package cn.taketoday.web.view;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.web.RequestContext;
@@ -33,6 +31,7 @@ import cn.taketoday.web.mock.MockRequestDispatcher;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.view.InternalResourceView;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,11 +49,7 @@ import static org.mockito.Mockito.verify;
  */
 public class InternalResourceViewTests {
 
-  @SuppressWarnings("serial")
-  private static final Map<String, Object> model = Collections.unmodifiableMap(new HashMap<String, Object>() {{
-    put("foo", "bar");
-    put("I", 1L);
-  }});
+  private static final Map<String, Object> model = Map.of("foo", "bar", "I", 1L);
 
   private static final String url = "forward-to";
 
@@ -115,6 +110,7 @@ public class InternalResourceViewTests {
   @Test
   public void includeOnAttribute() throws Exception {
     given(request.getRequestDispatcher(url)).willReturn(new MockRequestDispatcher(url));
+    given(request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI)).willReturn("somepath");
     RequestContext context = new ServletRequestContext(null, request, response);
 
     view.setUrl(url);
