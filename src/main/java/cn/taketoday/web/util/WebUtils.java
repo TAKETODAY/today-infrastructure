@@ -42,6 +42,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextDecorator;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.session.WebSession;
@@ -191,6 +192,29 @@ public abstract class WebUtils {
    */
   public static boolean isAjax(HttpHeaders request) {
     return HttpHeaders.XML_HTTP_REQUEST.equals(request.getFirst(HttpHeaders.X_REQUESTED_WITH));
+  }
+
+  /**
+   * Return an appropriate request object of the specified type, if available,
+   * unwrapping the given request as far as necessary.
+   *
+   * @param request the RequestContext to introspect
+   * @param requiredType the desired type of request object
+   * @return the matching request object, or {@code null} if none
+   * of that type is available
+   */
+  @SuppressWarnings("unchecked")
+  @Nullable
+  public static <T> T getNativeContext(RequestContext request, @Nullable Class<T> requiredType) {
+    if (requiredType != null) {
+      if (requiredType.isInstance(request)) {
+        return (T) request;
+      }
+      else if (request instanceof RequestContextDecorator wrapper) {
+        return getNativeContext(wrapper.getDelegate(), requiredType);
+      }
+    }
+    return null;
   }
 
   // Utility class for CORS request handling based on the
