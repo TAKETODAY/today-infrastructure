@@ -297,25 +297,25 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
 
-    if (this.contextRelative && getUrl().startsWith("/")) {
+    if (this.contextRelative && url.startsWith("/")) {
       // Do not apply context path to relative URLs.
       targetUrl.append(getContextPath(request));
     }
-    targetUrl.append(getUrl());
+    targetUrl.append(url);
 
     String enc = this.encodingScheme;
     if (enc == null) {
       enc = Constant.DEFAULT_ENCODING;
     }
 
-    if (this.expandUriTemplateVariables && StringUtils.hasText(targetUrl)) {
+    if (expandUriTemplateVariables && StringUtils.hasText(targetUrl)) {
       Map<String, String> variables = getCurrentRequestUriVariables(request);
       targetUrl = replaceUriTemplateVariables(targetUrl.toString(), model, variables, enc);
     }
     if (isPropagateQueryProperties()) {
       appendCurrentQueryParams(targetUrl, request);
     }
-    if (this.exposeModelAttributes) {
+    if (exposeModelAttributes) {
       appendQueryProperties(targetUrl, model, enc);
     }
 
@@ -564,11 +564,14 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    */
   protected void sendRedirect(
           RequestContext context, String targetUrl) throws IOException {
-    HttpStatus statusCode = getHttpStatusCode(context, targetUrl);
-    if (statusCode != null) {
-      context.setStatus(statusCode.value());
+    HttpStatus httpStatus = getHttpStatus(context, targetUrl);
+    if (httpStatus != null) {
+      context.setStatus(httpStatus);
+      context.responseHeaders().setLocation(targetUrl);
     }
-    context.sendRedirect(targetUrl);
+    else {
+      context.sendRedirect(targetUrl);
+    }
   }
 
   /**
@@ -583,7 +586,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @return the response status
    */
   @Nullable
-  protected HttpStatus getHttpStatusCode(RequestContext context, String targetUrl) {
+  protected HttpStatus getHttpStatus(RequestContext context, String targetUrl) {
     if (statusCode != null) {
       return statusCode;
     }

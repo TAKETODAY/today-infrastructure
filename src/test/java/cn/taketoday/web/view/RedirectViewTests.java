@@ -32,6 +32,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.support.TestBean;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
@@ -58,7 +59,8 @@ public class RedirectViewTests {
 
   private MockHttpServletResponse response;
 
-  RequestContext context;
+  @Nullable
+  private RequestContext context;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -136,10 +138,11 @@ public class RedirectViewTests {
 
     this.request.setContextPath("//context");
     this.response = new MockHttpServletResponse();
+    this.context = null;
     doTest(new HashMap<>(), url, true, "/context" + url);
-
     this.request.setContextPath("///context");
     this.response = new MockHttpServletResponse();
+    this.context = null;
     doTest(new HashMap<>(), url, true, "/context" + url);
   }
 
@@ -284,6 +287,10 @@ public class RedirectViewTests {
 
   private void doTest(Map<String, ?> map, String url, boolean contextRelative, String expectedUrl)
           throws Exception {
+    if (this.context == null) {
+      StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+      this.context = new MockServletRequestContext(context, request, response);
+    }
 
     TestRedirectView rv = new TestRedirectView(url, contextRelative, map);
     rv.render(map, context);
