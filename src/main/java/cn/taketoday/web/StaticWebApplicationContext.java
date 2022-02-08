@@ -23,6 +23,7 @@ package cn.taketoday.web;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletContextAwareBeanPostProcessor;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;

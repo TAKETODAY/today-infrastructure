@@ -20,6 +20,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.web.servlet.ServletContextAware;
 
 /**
  * Interface to provide configuration for a web application. This is read-only while

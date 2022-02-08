@@ -39,9 +39,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.web.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -201,7 +201,7 @@ public class XsltViewTests {
   private XsltView getXsltView(String templatePath) {
     XsltView view = new XsltView();
     view.setUrl(templatePath);
-    view.setApplicationContext(new StaticApplicationContext());
+    view.setApplicationContext(new StaticWebApplicationContext());
     view.initApplicationContext();
     return view;
   }

@@ -20,7 +20,6 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.WebApplicationContextSupport;
 import jakarta.servlet.ServletContext;
 

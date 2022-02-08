@@ -33,7 +33,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.ServletContextAware;
+import cn.taketoday.web.servlet.ServletContextAware;
 import jakarta.servlet.ServletContext;
 
 /**

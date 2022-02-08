@@ -217,14 +217,14 @@ public class BaseViewTests {
   public void attributeCSVParsingIgnoresNull() {
     AbstractView v = new ConcreteView();
     v.setAttributesCSV(null);
-    assertThat(v.getStaticAttributes().size()).isEqualTo(0);
+    assertThat(v.getStaticAttributes()).isNull();
   }
 
   @Test
   public void attributeCSVParsingIgnoresEmptyString() {
     AbstractView v = new ConcreteView();
     v.setAttributesCSV("");
-    assertThat(v.getStaticAttributes().size()).isEqualTo(0);
+    assertThat(v.getStaticAttributes()).isNull();
   }
 
   /**

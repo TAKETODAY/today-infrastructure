@@ -36,7 +36,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletContextAware;
+import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.HandshakeFailedException;

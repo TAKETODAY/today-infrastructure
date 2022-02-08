@@ -44,11 +44,11 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
  */
 public class GroovyMarkupConfigurerTests {
 
-  private static final String RESOURCE_LOADER_PATH = "classpath:cn/taketoday/web/servlet/view/groovy/";
+  private static final String RESOURCE_LOADER_PATH = "classpath:cn/taketoday/web/view/groovy/";
 
   private StaticApplicationContext applicationContext;
 
-  private static final String TEMPLATE_PREFIX = "cn/taketoday/web/servlet/view/groovy/";
+  private static final String TEMPLATE_PREFIX = "cn/taketoday/web/view/groovy/";
 
   private GroovyMarkupConfigurer configurer;
 
@@ -112,17 +112,17 @@ public class GroovyMarkupConfigurerTests {
     URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
     assertThat(urlClassLoader.getURLs()).hasSize(1);
     assertThat(urlClassLoader.getURLs()[0].toString())
-            .endsWith("cn/taketoday/web/servlet/view/groovy/");
+            .endsWith("cn/taketoday/web/view/groovy/");
 
-    this.configurer.setResourceLoaderPath(RESOURCE_LOADER_PATH + ",classpath:cn/taketoday/web/servlet/view/");
+    this.configurer.setResourceLoaderPath(RESOURCE_LOADER_PATH + ",classpath:cn/taketoday/web/view/");
     classLoader = this.configurer.createTemplateClassLoader();
     assertThat(classLoader).isNotNull();
     urlClassLoader = (URLClassLoader) classLoader;
     assertThat(urlClassLoader.getURLs()).hasSize(2);
     assertThat(urlClassLoader.getURLs()[0].toString())
-            .endsWith("cn/taketoday/web/servlet/view/groovy/");
+            .endsWith("cn/taketoday/web/view/groovy/");
     assertThat(urlClassLoader.getURLs()[1].toString())
-            .endsWith("cn/taketoday/web/servlet/view/");
+            .endsWith("cn/taketoday/web/view/");
   }
 
   private class TestTemplateEngine extends MarkupTemplateEngine {

@@ -34,6 +34,7 @@ import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
@@ -63,7 +64,7 @@ public class JythonScriptTemplateTests {
     Map<String, Object> model = new HashMap<>();
     model.put("title", "Layout example");
     model.put("body", "This is the body");
-    String url = "cn/taketoday/web/servlet/view/script/jython/template.html";
+    String url = "cn/taketoday/web/view/script/jython/template.html";
     MockHttpServletResponse response = render(url, model);
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
@@ -77,7 +78,7 @@ public class JythonScriptTemplateTests {
   }
 
   private ScriptTemplateView createViewWithUrl(String viewUrl) throws Exception {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    StandardApplicationContext ctx = new StandardWebServletApplicationContext();
     ctx.register(ScriptTemplatingConfiguration.class);
     ctx.refresh();
 
@@ -94,7 +95,7 @@ public class JythonScriptTemplateTests {
     @Bean
     public ScriptTemplateConfigurer jythonConfigurer() {
       ScriptTemplateConfigurer configurer = new ScriptTemplateConfigurer();
-      configurer.setScripts("cn/taketoday/web/servlet/view/script/jython/render.py");
+      configurer.setScripts("cn/taketoday/web/view/script/jython/render.py");
       configurer.setEngineName("jython");
       configurer.setRenderFunction("render");
       return configurer;

@@ -31,7 +31,6 @@ import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.ServletContextAware;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -117,8 +116,9 @@ public class StandardWebServletApplicationContext
 
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    super.postProcessBeanFactory(beanFactory);
+    beanFactory.addBeanPostProcessor(new ServletContextAwareBeanPostProcessor(this));
     beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+    super.postProcessBeanFactory(beanFactory);
   }
 
   @Override

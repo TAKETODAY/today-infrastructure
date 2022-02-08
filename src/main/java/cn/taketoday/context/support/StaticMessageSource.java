@@ -83,7 +83,7 @@ public class StaticMessageSource extends AbstractMessageSource {
     Assert.notNull(msg, "Message must not be null");
     this.messageMap.computeIfAbsent(code, key -> new HashMap<>(4)).put(locale, new MessageHolder(msg, locale));
     if (logger.isDebugEnabled()) {
-      logger.debug("Added message [" + msg + "] for code [" + code + "] and Locale [" + locale + "]");
+      logger.debug("Added message [{}] for code [{}] and Locale [{}]", msg, code, locale);
     }
   }
 
@@ -96,7 +96,11 @@ public class StaticMessageSource extends AbstractMessageSource {
    */
   public void addMessages(Map<String, String> messages, Locale locale) {
     Assert.notNull(messages, "Messages Map must not be null");
-    messages.forEach((code, msg) -> addMessage(code, locale, msg));
+    for (Map.Entry<String, String> entry : messages.entrySet()) {
+      String code = entry.getKey();
+      String msg = entry.getValue();
+      addMessage(code, locale, msg);
+    }
   }
 
   @Override

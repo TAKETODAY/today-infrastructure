@@ -32,13 +32,13 @@ import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import groovy.text.Template;
 import groovy.text.TemplateEngine;
 import groovy.text.markup.MarkupTemplateEngine;
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.mock;
  */
 public class GroovyMarkupViewTests {
 
-  private static final String RESOURCE_LOADER_PATH = "classpath*:cn/taketoday/web/servlet/view/groovy/";
+  private static final String RESOURCE_LOADER_PATH = "classpath*:cn/taketoday/web/view/groovy/";
 
   private WebApplicationContext webAppContext;
 
@@ -170,7 +170,7 @@ public class GroovyMarkupViewTests {
   }
 
   private GroovyMarkupView createViewWithUrl(String viewUrl) throws Exception {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    StandardWebServletApplicationContext ctx = new StandardWebServletApplicationContext();
     ctx.register(GroovyMarkupConfiguration.class);
     ctx.refresh();
 

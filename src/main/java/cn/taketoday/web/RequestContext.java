@@ -51,7 +51,6 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -141,7 +140,6 @@ public abstract class RequestContext
   /**
    * Return the WebApplicationContext that this request runs in.
    */
-  @NonNull
   public WebApplicationContext getWebApplicationContext() {
     return this.webApplicationContext;
   }

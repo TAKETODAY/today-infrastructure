@@ -119,7 +119,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.context.aware.ResourceLoaderAware#setResourceLoader
  * @see cn.taketoday.context.aware.ApplicationEventPublisherAware#setApplicationEventPublisher
  * @see cn.taketoday.context.aware.ApplicationContextAware#setApplicationContext
- * @see cn.taketoday.web.ServletContextAware#setServletContext
+ * @see cn.taketoday.web.servlet.ServletContextAware#setServletContext
  * @see InitializationBeanPostProcessor#postProcessBeforeInitialization
  * @see InitializingBean#afterPropertiesSet
  * @see BeanDefinition#getInitMethods()

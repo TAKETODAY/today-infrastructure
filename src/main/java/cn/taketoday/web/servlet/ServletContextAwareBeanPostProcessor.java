@@ -22,7 +22,6 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.web.ServletContextAware;
 
 /**
  * @author TODAY 2021/10/10 23:40
