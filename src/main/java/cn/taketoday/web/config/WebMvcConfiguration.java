@@ -22,6 +22,7 @@ package cn.taketoday.web.config;
 import java.util.List;
 
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -34,7 +35,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 import cn.taketoday.web.view.template.TemplateRenderer;
 
@@ -167,4 +168,12 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void configureContentNegotiation(ContentNegotiationConfigurer configurer) { }
+
+  /**
+   * Configure view resolvers to translate String-based view names returned from
+   * controllers into concrete {@link View} implementations to perform rendering with.
+   *
+   * @since 4.0
+   */
+  default void configureViewResolvers(ViewResolverRegistry registry) { }
 }

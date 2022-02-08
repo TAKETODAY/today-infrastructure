@@ -23,9 +23,14 @@ package cn.taketoday.web.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -46,18 +51,23 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
-import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.servlet.ServletViewResolverComposite;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.ViewResolverComposite;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 23:43
  */
-public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
+public class WebMvcConfigurationSupport implements ApplicationContextAware {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   private static final boolean romePresent;
@@ -93,6 +103,19 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
 
   @Nullable
   private List<HttpMessageConverter<?>> messageConverters;
+
+  @Nullable
+  private ApplicationContext applicationContext;
+
+  @Nullable
+  public ApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
+
+  @Override
+  public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
 
   //---------------------------------------------------------------------
   // HttpMessageConverter
@@ -255,6 +278,59 @@ public class WebMvcConfigurationSupport extends WebApplicationContextSupport {
    * @see PathMatchConfigurer
    */
   protected void configurePathMatch(PathMatchConfigurer configurer) { }
+
+  /**
+   * Register a {@link ViewResolverComposite} that contains a chain of view resolvers
+   * to use for view resolution.
+   * By default this resolver is ordered at 0 unless content negotiation view
+   * resolution is used in which case the order is raised to
+   * {@link cn.taketoday.core.Ordered#HIGHEST_PRECEDENCE Ordered.HIGHEST_PRECEDENCE}.
+   * <p>If no other resolvers are configured,
+   * {@link ViewResolverComposite#resolveViewName(String, Locale)} returns null in order
+   * to allow other potential {@link ViewResolver} beans to resolve views.
+   */
+  @Bean
+  public ViewResolver webViewResolver(ContentNegotiationManager contentNegotiationManager) {
+    ViewResolverRegistry registry =
+            new ViewResolverRegistry(contentNegotiationManager, applicationContext);
+    configureViewResolvers(registry);
+
+    List<ViewResolver> viewResolvers = registry.getViewResolvers();
+    if (viewResolvers.isEmpty() && applicationContext != null) {
+      Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+              applicationContext, ViewResolver.class, true, false);
+      if (names.size() == 1) {
+        viewResolvers.add(new InternalResourceViewResolver());
+      }
+    }
+    ViewResolverComposite composite;
+    if (ServletDetector.isPresent()) {
+      composite = new ServletViewResolverComposite();
+    }
+    else {
+      composite = new ViewResolverComposite();
+    }
+
+    composite.setOrder(registry.getOrder());
+    composite.setViewResolvers(viewResolvers);
+    if (applicationContext != null) {
+      composite.setApplicationContext(applicationContext);
+    }
+
+    if (ServletDetector.isPresent() && applicationContext instanceof WebServletApplicationContext servletApp) {
+      ServletViewResolverComposite viewResolverComposite = (ServletViewResolverComposite) composite;
+      viewResolverComposite.setServletContext(servletApp.getServletContext());
+    }
+
+    return composite;
+  }
+
+  /**
+   * Override this method to configure view resolution.
+   *
+   * @see ViewResolverRegistry
+   */
+  protected void configureViewResolvers(ViewResolverRegistry registry) { }
 
   // ControllerAdvice
 

@@ -22,6 +22,7 @@ package cn.taketoday.web.config;
 import java.util.List;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -32,7 +33,6 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 
 /**
@@ -151,6 +151,13 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureContentNegotiation(configurer);
+    }
+  }
+
+  @Override
+  public void configureViewResolvers(ViewResolverRegistry registry) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureViewResolvers(registry);
     }
   }
 
