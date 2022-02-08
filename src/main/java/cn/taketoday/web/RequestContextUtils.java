@@ -28,6 +28,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.session.WebSession;
@@ -222,7 +223,25 @@ public class RequestContextUtils {
    */
   @Nullable
   public static RedirectModel getInputRedirectModel(RequestContext request) {
-    return (RedirectModel) request.getAttribute(RedirectModel.INPUT_ATTRIBUTE);
+    Object attribute = request.getAttribute(RedirectModel.INPUT_ATTRIBUTE);
+    if (attribute instanceof RedirectModel redirectModel) {
+      return redirectModel;
+    }
+    else if (attribute == NullValue.INSTANCE) {
+      return null;
+    }
+    else {
+      RedirectModelManager manager = getRedirectModelManager(request);
+      if (manager != null) {
+        RedirectModel redirectModel = manager.retrieveAndUpdate(request);
+        if (redirectModel != null) {
+          request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, redirectModel);
+          return redirectModel;
+        }
+      }
+      request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, NullValue.INSTANCE);
+      return null;
+    }
   }
 
   /**
