@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 
 public abstract class PathPatternsTestUtils {
@@ -46,11 +47,11 @@ public abstract class PathPatternsTestUtils {
 
       MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, requestUri);
       servletRequest.setContextPath(contextPath);
-      return new MockServletRequestContext(servletRequest, null);
+      return new MockServletRequestContext(servletRequest, new MockHttpServletResponse());
     }
     else {
       MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, path);
-      return new MockServletRequestContext(servletRequest, null);
+      return new MockServletRequestContext(servletRequest, new MockHttpServletResponse());
     }
   }
 

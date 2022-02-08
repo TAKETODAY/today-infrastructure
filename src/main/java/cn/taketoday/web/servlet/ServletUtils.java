@@ -205,12 +205,26 @@ public abstract class ServletUtils {
     return null;
   }
 
+  /**
+   * Return an appropriate HttpServletRequest object
+   *
+   * @param context the context to introspect
+   * @return the matching request object
+   * @see WebUtils#getNativeContext(RequestContext, Class)
+   */
   public static HttpServletRequest getServletRequest(RequestContext context) {
     ServletRequestContext nativeContext = WebUtils.getNativeContext(context, ServletRequestContext.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     return nativeContext.getRequest();
   }
 
+  /**
+   * Return an appropriate response object
+   *
+   * @param context the context to introspect
+   * @return the matching response object
+   * @see WebUtils#getNativeContext(RequestContext, Class)
+   */
   public static HttpServletResponse getServletResponse(RequestContext context) {
     ServletRequestContext nativeContext = WebUtils.getNativeContext(context, ServletRequestContext.class);
     Assert.state(nativeContext != null, "Not run in servlet");

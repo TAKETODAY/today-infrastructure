@@ -73,6 +73,21 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   private long expirationTime = -1;
 
   /**
+   * Construct a new, empty RedirectModel.
+   */
+  public RedirectModel() { }
+
+  /**
+   * Construct a new {@code ModelMap} containing the supplied attribute
+   * under the supplied name.
+   *
+   * @see #setAttribute(String, Object)
+   */
+  public RedirectModel(String attributeName, @Nullable Object attributeValue) {
+    setAttribute(attributeName, attributeValue);
+  }
+
+  /**
    * Provide a URL path to help identify the target request for this RedirectModel.
    * <p>The path may be absolute (e.g. "/application/resource") or relative to the
    * current request (e.g. "../resource").

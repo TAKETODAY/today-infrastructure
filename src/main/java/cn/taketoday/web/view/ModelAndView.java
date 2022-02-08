@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -36,7 +37,11 @@ public class ModelAndView implements Model {
   @Nullable
   private Object view;
 
-  private final RequestContext dataModel;
+  private final Model dataModel;
+
+  /** Optional HTTP status for the response. */
+  @Nullable
+  private HttpStatus status;
 
   public ModelAndView() {
     this((Object) null);
@@ -50,7 +55,7 @@ public class ModelAndView implements Model {
     this(null, dataModel);
   }
 
-  public ModelAndView(@Nullable Object view, RequestContext dataModel) {
+  public ModelAndView(@Nullable Object view, Model dataModel) {
     setView(view);
     this.dataModel = dataModel;
   }
@@ -58,16 +63,6 @@ public class ModelAndView implements Model {
   public ModelAndView(Object view, String name, Object value) {
     this(view);
     setAttribute(name, value);
-  }
-
-  @Nullable
-  public String getContentType() {
-    return dataModel.getResponseContentType();
-  }
-
-  public ModelAndView setContentType(String contentType) {
-    dataModel.setContentType(contentType);
-    return this;
   }
 
   /**
@@ -79,6 +74,39 @@ public class ModelAndView implements Model {
   public ModelAndView setView(@Nullable Object view) {
     this.view = view;
     return this;
+  }
+
+  /**
+   * Set a view name for this ModelAndView, to be resolved by the
+   * ViewResolver. Will override any pre-existing view name or View.
+   *
+   * @since 4.0
+   */
+  public ModelAndView setViewName(@Nullable String viewName) {
+    this.view = viewName;
+    return this;
+  }
+
+  /**
+   * Return the view name to be resolved by the DispatcherServlet
+   * via a ViewResolver, or {@code null} if we are using a View object.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getViewName() {
+    return this.view instanceof String ? (String) this.view : null;
+  }
+
+  /**
+   * Return whether we use a view reference, i.e. {@code true}
+   * if the view has been specified via a name to be resolved by the
+   * ReturnValueHandler via a ViewResolver.
+   *
+   * @since 4.0
+   */
+  public boolean isReference() {
+    return this.view instanceof String;
   }
 
   public final boolean hasView() {
@@ -101,7 +129,7 @@ public class ModelAndView implements Model {
   }
 
   @Override
-  public void setAttribute(String name, Object value) {
+  public void setAttribute(String name, @Nullable Object value) {
     dataModel.setAttribute(name, value);
   }
 
@@ -153,6 +181,36 @@ public class ModelAndView implements Model {
   @Override
   public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
     return dataModel.mergeAttributes(attributes);
+  }
+
+  /**
+   * Return the model map. Never returns {@code null}.
+   * To be called by application code for modifying the model.
+   *
+   * @since 4.0
+   */
+  public Model getModel() {
+    return dataModel;
+  }
+
+  /**
+   * Set the HTTP status to use for the response.
+   * <p>The response status is set just prior to View rendering.
+   *
+   * @since 4.0
+   */
+  public void setStatus(@Nullable HttpStatus status) {
+    this.status = status;
+  }
+
+  /**
+   * Return the configured HTTP status for the response, if any.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public HttpStatus getStatus() {
+    return this.status;
   }
 
 }

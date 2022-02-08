@@ -33,8 +33,6 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.servlet.ServletContextAware;
-import jakarta.servlet.ServletContext;
 
 /**
  * A {@link ViewResolver} that delegates to others.
@@ -44,9 +42,9 @@ import jakarta.servlet.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class ViewResolverComposite extends OrderedSupport
-        implements ViewResolver, Ordered, InitializingBean, ApplicationContextAware, ServletContextAware {
+        implements ViewResolver, Ordered, InitializingBean, ApplicationContextAware {
 
-  private final ArrayList<ViewResolver> viewResolvers = new ArrayList<>();
+  protected final ArrayList<ViewResolver> viewResolvers = new ArrayList<>();
 
   /**
    * Set the list of view viewResolvers to delegate to.
@@ -70,15 +68,6 @@ public class ViewResolverComposite extends OrderedSupport
     for (ViewResolver viewResolver : this.viewResolvers) {
       if (viewResolver instanceof ApplicationContextAware) {
         ((ApplicationContextAware) viewResolver).setApplicationContext(applicationContext);
-      }
-    }
-  }
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    for (ViewResolver viewResolver : this.viewResolvers) {
-      if (viewResolver instanceof ServletContextAware) {
-        ((ServletContextAware) viewResolver).setServletContext(servletContext);
       }
     }
   }
