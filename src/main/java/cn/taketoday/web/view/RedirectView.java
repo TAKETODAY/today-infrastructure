@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -99,9 +98,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   private boolean expandUriTemplateVariables = true;
 
   private boolean propagateQueryParams = false;
-
-  @Nullable
-  private String[] hosts;
 
   /**
    * Constructor for use as a bean.
@@ -251,28 +247,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    */
   public boolean isPropagateQueryProperties() {
     return this.propagateQueryParams;
-  }
-
-  /**
-   * Configure one or more hosts associated with the application.
-   * All other hosts will be considered external hosts.
-   * <p>In effect, this property provides a way turn off encoding via
-   * {@link URLEncoder#encode(String, Charset)} for URLs that have a
-   * host and that host is not listed as a known host.
-   * <p>If not set (the default) all URLs are encoded through the response.
-   *
-   * @param hosts one or more application hosts
-   */
-  public void setHosts(@Nullable String... hosts) {
-    this.hosts = hosts;
-  }
-
-  /**
-   * Return the configured application hosts.
-   */
-  @Nullable
-  public String[] getHosts() {
-    return this.hosts;
   }
 
   /**
