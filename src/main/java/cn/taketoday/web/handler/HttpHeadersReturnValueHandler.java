@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
-
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -47,7 +45,7 @@ public class HttpHeadersReturnValueHandler
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
+  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) {
     context.setRequestHandled(true);
     Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
     HttpHeaders headers = (HttpHeaders) returnValue;

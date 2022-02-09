@@ -71,6 +71,7 @@ public class HandlerMethod {
   private ResponseStatus responseStatus;
 
   /** @since 3.0 @Produce */
+  @Nullable
   private String contentType;
 
   /** @since 4.0 */
@@ -211,10 +212,11 @@ public class HandlerMethod {
   // handleRequest
   // -----------------------------------------
 
-  public void setContentType(String contentType) {
+  public void setContentType(@Nullable String contentType) {
     this.contentType = contentType;
   }
 
+  @Nullable
   public String getContentType() {
     return contentType;
   }
@@ -304,14 +306,12 @@ public class HandlerMethod {
       return true;
     if (!(o instanceof HandlerMethod that))
       return false;
-    return Objects.equals(method, that.method)
-            && Objects.equals(contentType, that.contentType)
-            && Objects.equals(responseStatus, that.responseStatus);
+    return Objects.equals(method, that.method);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(method, responseStatus, contentType);
+    return method.hashCode();
   }
 
   @Override

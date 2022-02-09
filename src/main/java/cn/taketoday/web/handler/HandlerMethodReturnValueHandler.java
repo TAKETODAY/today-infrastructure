@@ -21,6 +21,7 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -33,7 +34,8 @@ public abstract class HandlerMethodReturnValueHandler
 
   @Override
   public final boolean supportsHandler(final Object handler) {
-    return handler instanceof HandlerMethod && supportsHandlerMethod((HandlerMethod) handler);
+    return handler instanceof ActionMappingAnnotationHandler annotationHandler
+            && supportsHandlerMethod(annotationHandler.getMethod());
   }
 
   /**

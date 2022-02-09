@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -28,13 +27,12 @@ import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 
 /**
@@ -160,11 +158,13 @@ public abstract class ActionMappingAnnotationHandler
   }
 
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
+          RequestContext context, Object handler, Object returnValue) throws Exception {
     applyResponseStatus(context);
 
+    ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
       returnValueHandler = resultHandlers.obtainHandler(this);
+      this.returnValueHandler = returnValueHandler;
     }
     returnValueHandler.handleReturnValue(context, handler, returnValue);
     // @since 3.0
@@ -200,12 +200,6 @@ public abstract class ActionMappingAnnotationHandler
   //---------------------------------------------------------------------
   // Static methods
   //---------------------------------------------------------------------
-
-  public static ActionMappingAnnotationHandler copy(ActionMappingAnnotationHandler handler) {
-    Class<? extends ActionMappingAnnotationHandler> handlerClass = handler.getClass();
-    return ReflectionUtils.invokeConstructor(
-            ReflectionUtils.getConstructor(handlerClass, handlerClass), new Object[] { handler });
-  }
 
   public static ActionMappingAnnotationHandler from(
           Object handlerBean, Method method, ResolvableParameterFactory parameterFactory) {

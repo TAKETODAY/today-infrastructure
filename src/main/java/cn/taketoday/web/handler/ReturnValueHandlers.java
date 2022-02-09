@@ -24,10 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -36,18 +34,15 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.config.CompositeWebMvcConfiguration;
-import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.view.RedirectModelManager;
-import cn.taketoday.web.view.template.AbstractTemplateRenderer;
-import cn.taketoday.web.view.template.TemplateRenderer;
+import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.ViewReturnValueHandler;
 
 /**
  * return-value handlers
@@ -56,29 +51,21 @@ import cn.taketoday.web.view.template.TemplateRenderer;
  */
 public class ReturnValueHandlers
         extends WebApplicationContextSupport implements ArraySizeTrimmer {
-  public static final String DOWNLOAD_BUFF_SIZE = "download.buff.size";
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
   /**
    * @since 3.0.1
    */
-  private int downloadFileBufferSize = 10240;
-  /**
-   * @since 3.0.1
-   */
   @Nullable
   private RedirectModelManager redirectModelManager;
-  /**
-   * @since 3.0.1
-   */
-  @Nullable
-  private TemplateRenderer templateRenderer;
 
-  @Nullable
-  private TemplateRendererReturnValueHandler templateRendererHandler;
+  private ViewReturnValueHandler viewReturnValueHandler;
 
   @Nullable
   private ObjectHandlerMethodReturnValueHandler objectHandler;
+
+  // @since 4.0
+  private ViewResolver viewResolver;
 
   // @since 4.0
   private List<HttpMessageConverter<?>> messageConverters;
@@ -96,6 +83,10 @@ public class ReturnValueHandlers
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
     this.messageConverters.add(new StringHttpMessageConverter());
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
+  }
+
+  public ReturnValueHandlers(List<HttpMessageConverter<?>> messageConverters) {
+    setMessageConverters(messageConverters);
   }
 
   public void addHandlers(ReturnValueHandler... handlers) {
@@ -156,63 +147,21 @@ public class ReturnValueHandlers
   //
 
   /**
-   * init handlers
-   */
-  public void initHandlers() {
-    WebApplicationContext context = obtainApplicationContext();
-    Environment environment = context.getEnvironment();
-    Integer bufferSize = environment.getProperty(DOWNLOAD_BUFF_SIZE, Integer.class);
-    if (bufferSize != null) {
-      setDownloadFileBufferSize(bufferSize);
-    }
-    // @since 3.0.3
-    if (redirectModelManager == null) {
-      setRedirectModelManager(context.getBean(RedirectModelManager.class));
-    }
-    if (templateRenderer == null) {
-      WebMvcConfiguration mvcConfiguration
-              = new CompositeWebMvcConfiguration(context.getBeans(WebMvcConfiguration.class));
-      setTemplateRenderer(getTemplateRenderer(context, mvcConfiguration));
-    }
-  }
-
-  protected TemplateRenderer getTemplateRenderer(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    TemplateRenderer templateRenderer = BeanFactoryUtils.requiredBean(context, TemplateRenderer.class);
-    if (templateRenderer instanceof AbstractTemplateRenderer) {
-      mvcConfiguration.configureTemplateRenderer((AbstractTemplateRenderer) templateRenderer);
-    }
-    return templateRenderer;
-  }
-
-  /**
    * register default return-value handlers
    */
   public void registerDefaultHandlers() {
-    registerDefaultHandlers(this.templateRenderer);
-  }
-
-  /**
-   * register default {@link ReturnValueHandler}s
-   *
-   * @since 3.0
-   */
-  public void registerDefaultHandlers(TemplateRenderer templateRenderer) {
     log.info("Registering default return-value handlers");
-
-    applyDefaults(templateRenderer);
+    Assert.state(viewReturnValueHandler != null, "No viewReturnValueHandler");
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();
     RenderedImageReturnValueHandler imageHandler = getRenderedImageHandler();
 
-    ResourceReturnValueHandler resourceHandler = new ResourceReturnValueHandler(getDownloadFileBufferSize());
     ModelAndViewReturnValueHandler modelAndViewHandler = new ModelAndViewReturnValueHandler(internalHandlers);
 
     internalHandlers.add(imageHandler);
-    internalHandlers.add(resourceHandler);
-    internalHandlers.add(templateRendererHandler);
+    internalHandlers.add(viewReturnValueHandler);
     internalHandlers.add(new VoidReturnValueHandler(modelAndViewHandler));
     internalHandlers.add(modelAndViewHandler);
-    internalHandlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
     internalHandlers.add(new HttpStatusReturnValueHandler());
     internalHandlers.add(new HttpHeadersReturnValueHandler());
 
@@ -224,19 +173,20 @@ public class ReturnValueHandlers
     //
     List<ReturnValueHandler> handlers = getHandlers();
     handlers.add(imageHandler);
-    handlers.add(resourceHandler);
-    handlers.add(templateRendererHandler);
+    handlers.add(viewReturnValueHandler);
 
     handlers.add(new VoidReturnValueHandler(modelAndViewHandler));
-    handlers.add(objectHandler);
     handlers.add(modelAndViewHandler);
-    handlers.add(new CharSequenceReturnValueHandler(templateRendererHandler));
     handlers.add(new HttpStatusReturnValueHandler());
 
     handlers.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, redirectModelManager));
 
     handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
+
+    // fall back
+    handlers.add(objectHandler);
+
     compositeHandler.trimToSize();
   }
 
@@ -259,16 +209,6 @@ public class ReturnValueHandlers
       imageHandler.setFormatName(imageFormatName);
     }
     return imageHandler;
-  }
-
-  private void applyDefaults(TemplateRenderer templateRenderer) {
-    // templateRendererHandler
-    if (templateRendererHandler == null) {
-      TemplateRendererReturnValueHandler handler
-              = new TemplateRendererReturnValueHandler(templateRenderer);
-      handler.setModelManager(getRedirectModelManager());
-      this.templateRendererHandler = handler;
-    }
   }
 
   /**
@@ -325,6 +265,9 @@ public class ReturnValueHandlers
     handlers.trimToSize();
   }
 
+  public void setViewResolver(ViewResolver webViewResolver) {
+    this.viewResolver = webViewResolver;
+  }
   //
 
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
@@ -334,32 +277,6 @@ public class ReturnValueHandlers
   @Nullable
   public RedirectModelManager getRedirectModelManager() {
     return redirectModelManager;
-  }
-
-  public void setDownloadFileBufferSize(int downloadFileBufferSize) {
-    this.downloadFileBufferSize = downloadFileBufferSize;
-  }
-
-  public int getDownloadFileBufferSize() {
-    return downloadFileBufferSize;
-  }
-
-  @Nullable
-  public TemplateRenderer getTemplateRenderer() {
-    return templateRenderer;
-  }
-
-  public void setTemplateRenderer(@Nullable TemplateRenderer templateRenderer) {
-    this.templateRenderer = templateRenderer;
-  }
-
-  public void setTemplateRendererHandler(@Nullable TemplateRendererReturnValueHandler templateRendererHandler) {
-    this.templateRendererHandler = templateRendererHandler;
-  }
-
-  @Nullable
-  public TemplateRendererReturnValueHandler getTemplateRendererHandler() {
-    return templateRendererHandler;
   }
 
   public void setObjectHandler(@Nullable ObjectHandlerMethodReturnValueHandler objectHandler) {
@@ -398,6 +315,7 @@ public class ReturnValueHandlers
    * @since 4.0
    */
   public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+    Assert.notNull(messageConverters, "messageConverters is required");
     this.messageConverters = messageConverters;
   }
 
@@ -430,5 +348,9 @@ public class ReturnValueHandlers
     if (responseBodyAdvice != null) {
       this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
     }
+  }
+
+  public void setViewReturnValueHandler(@Nullable ViewReturnValueHandler viewReturnValueHandler) {
+    this.viewReturnValueHandler = viewReturnValueHandler;
   }
 }

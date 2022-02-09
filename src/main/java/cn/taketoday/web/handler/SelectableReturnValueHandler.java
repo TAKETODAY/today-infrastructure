@@ -95,10 +95,10 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    * @param handler Target HTTP handler
    * @param returnValue Handler execution result
    * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
-   * @throws IOException throws when write data to response
+   * @throws Exception throws when write data to response
    */
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws IOException {
+  public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws Exception {
     if (handleSelectively(context, handler, returnValue) == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
@@ -114,7 +114,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    * @throws IOException throws when write data to response
    */
   public final ReturnValueHandler handleSelectively(
-          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws IOException {
+          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     ReturnValueHandler selected = selectHandler(handler, returnValue);
     if (selected != null && selected != this) {
       selected.handleReturnValue(context, handler, returnValue);

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.lang.Nullable;
@@ -56,7 +55,7 @@ public class ModelAndViewReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
+          RequestContext context, Object handler, Object returnValue) throws Exception {
     if (returnValue instanceof ModelAndView) {
       handleModelAndView(context, handler, (ModelAndView) returnValue);
     }
@@ -68,7 +67,7 @@ public class ModelAndViewReturnValueHandler
    * @since 2.3.3
    */
   public final void handleModelAndView(
-          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws IOException {
+          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws Exception {
     if (modelAndView != null && modelAndView.hasView()) {
       returnValueHandlers.handleReturnValue(context, handler, modelAndView.getView());
     }

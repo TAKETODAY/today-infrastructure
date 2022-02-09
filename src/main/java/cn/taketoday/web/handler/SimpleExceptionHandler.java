@@ -139,7 +139,7 @@ public class SimpleExceptionHandler
     if (!handlerMethod.isReturn(void.class)
             && !handlerMethod.isReturn(Object.class)
             && !handlerMethod.isReturn(ModelAndView.class)
-            && !TemplateRendererReturnValueHandler.supportsHandlerMethod(handlerMethod)) {
+            && !(handlerMethod.isReturn(String.class) && !handlerMethod.isResponseBody())) {
 
       return handleExceptionInternal(ex, context);
     }

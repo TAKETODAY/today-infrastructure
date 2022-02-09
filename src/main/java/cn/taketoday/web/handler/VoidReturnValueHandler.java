@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
-
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
@@ -53,7 +51,7 @@ public class VoidReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
+          RequestContext context, Object handler, Object returnValue) throws Exception {
     if (context.hasModelAndView()) {
       // user constructed a ModelAndView hold in context
       returnValueHandler.handleModelAndView(context, null, context.modelAndView());

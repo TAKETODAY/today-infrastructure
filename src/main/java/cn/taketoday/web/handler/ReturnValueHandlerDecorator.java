@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
-
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -52,7 +50,7 @@ public class ReturnValueHandlerDecorator implements ReturnValueHandler {
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
+  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     delegate.handleReturnValue(context, handler, returnValue);
   }
 

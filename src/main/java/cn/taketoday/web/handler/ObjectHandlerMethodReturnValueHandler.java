@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.web.RequestContext;
@@ -66,7 +65,7 @@ public class ObjectHandlerMethodReturnValueHandler
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws IOException {
+          RequestContext context, Object handler, Object returnValue) throws Exception {
     returnValueHandlers.handleReturnValue(context, handler, returnValue);
   }
 
