@@ -22,6 +22,7 @@ package cn.taketoday.web.view;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import cn.taketoday.lang.Assert;
@@ -68,7 +69,7 @@ public class ViewReturnValueHandler
     return handler.isReturnTypeAssignableTo(View.class);
   }
 
-  public static boolean supportsLambda(final Object handler) {
+  public static boolean supportsLambda(@Nullable Object handler) {
     if (handler != null) {
       Class<?> handlerClass = handler.getClass();
       Method method = ReflectionUtils.findMethod(handlerClass, "writeReplace");
@@ -109,21 +110,17 @@ public class ViewReturnValueHandler
   }
 
   public void renderView(RequestContext context, View view) throws Exception {
-    final RedirectModelManager modelManager = getModelManager();
-    if (modelManager != null) { // @since 3.0.3 checking model manager
-      final RedirectModel redirectModel = modelManager.retrieveAndUpdate(context);
-      if (redirectModel != null) {
-        context.setAttributes(redirectModel.asMap());
-        modelManager.saveRedirectModel(context, null);
-      }
+    LinkedHashMap<String, Object> model = new LinkedHashMap<>();
+    RedirectModel redirectModel = RequestContextUtils.getInputRedirectModel(context, modelManager);
+    if (redirectModel != null) {
+      model.putAll(redirectModel.asMap());
     }
+
     if (context.hasModelAndView()) {
       ModelAndView modelAndView = context.modelAndView();
-      view.render(modelAndView.asMap(), context);
+      model.putAll(modelAndView.asMap());
     }
-    else {
-      view.render(null, context);
-    }
+    view.render(model, context);
   }
 
   public void setModelManager(@Nullable RedirectModelManager modelManager) {

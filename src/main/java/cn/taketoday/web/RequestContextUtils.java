@@ -223,6 +223,20 @@ public class RequestContextUtils {
    */
   @Nullable
   public static RedirectModel getInputRedirectModel(RequestContext request) {
+    return getInputRedirectModel(request, null);
+  }
+
+  /**
+   * Return read-only "input" flash attributes from request before redirect.
+   *
+   * @param request current request
+   * @param manager RedirectModelManager manage RedirectModel
+   * @return a read-only Map, or {@code null} if not found
+   * @see RedirectModel
+   */
+  @Nullable
+  public static RedirectModel getInputRedirectModel(
+          RequestContext request, @Nullable RedirectModelManager manager) {
     Object attribute = request.getAttribute(RedirectModel.INPUT_ATTRIBUTE);
     if (attribute instanceof RedirectModel redirectModel) {
       return redirectModel;
@@ -231,7 +245,9 @@ public class RequestContextUtils {
       return null;
     }
     else {
-      RedirectModelManager manager = getRedirectModelManager(request);
+      if (manager == null) {
+        manager = getRedirectModelManager(request);
+      }
       if (manager != null) {
         RedirectModel redirectModel = manager.retrieveAndUpdate(request);
         if (redirectModel != null) {
@@ -277,9 +293,25 @@ public class RequestContextUtils {
    * @param request the current request
    */
   public static void saveRedirectModel(String location, RequestContext request) {
+    saveRedirectModel(location, request, null);
+  }
+
+  /**
+   * Convenience method that retrieves the {@link #getOutputRedirectModel "output"
+   * RedirectModel}, updates it with the path and query params of the target URL,
+   * and then saves it using the {@link #getRedirectModelManager RedirectModelManager}.
+   *
+   * @param location the target URL for the redirect
+   * @param request the current request
+   * @param manager RedirectModelManager
+   */
+  public static void saveRedirectModel(
+          String location, RequestContext request, @Nullable RedirectModelManager manager) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
     if (redirectModel != null && !redirectModel.isEmpty()) {
-      RedirectModelManager manager = getRedirectModelManager(request);
+      if (manager == null) {
+        manager = getRedirectModelManager(request);
+      }
       if (manager != null) {
         UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
         redirectModel.setTargetRequestPath(uriComponents.getPath());
