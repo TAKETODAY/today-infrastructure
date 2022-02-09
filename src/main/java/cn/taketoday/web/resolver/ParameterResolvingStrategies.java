@@ -21,7 +21,6 @@
 package cn.taketoday.web.resolver;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -95,7 +94,7 @@ public class ParameterResolvingStrategies
    * @param resolver resolvers or resolving-strategies
    */
   public void add(@Nullable ParameterResolvingStrategy... resolver) {
-    Collections.addAll(strategies, resolver);
+    CollectionUtils.addAll(strategies, resolver);
   }
 
   /**
