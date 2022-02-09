@@ -31,6 +31,8 @@ import cn.taketoday.lang.Constant;
  * Annotation which indicates that a method parameter should be bound to a web request parameter.
  * <p>
  * this Annotation provides {@code NamedValueInfo}
+ * <p>
+ * this Annotation is not like spring's RequestParam
  *
  * @author TODAY <br>
  * @see cn.taketoday.web.handler.method.NamedValueInfo
