@@ -48,6 +48,7 @@ public class AvailabilityChangeEvent<S extends AvailabilityState> extends Applic
    */
   public AvailabilityChangeEvent(Object source, S state) {
     super(source);
+    Assert.notNull(state, "state must not be null");
     this.state = state;
   }
 
