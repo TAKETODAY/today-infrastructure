@@ -19,11 +19,13 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpCookie;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -57,14 +59,18 @@ public class CookieParameterResolver
     return null;
   }
 
-  public static void register(ParameterResolvingStrategies resolvers) {
+  public static void register(ParameterResolvingStrategies resolvers, ConfigurableBeanFactory beanFactory) {
     resolvers.add(new CookieParameterResolver(),
             new AllCookieParameterResolver(),
-            new CookieValueAnnotationParameterResolver(),
+            new CookieValueAnnotationParameterResolver(beanFactory),
             new CookieCollectionParameterResolver());
   }
 
-  private static class CookieValueAnnotationParameterResolver extends ConversionServiceParameterResolver {
+  private static class CookieValueAnnotationParameterResolver extends AbstractNamedValueResolvingStrategy {
+
+    public CookieValueAnnotationParameterResolver(@Nullable ConfigurableBeanFactory beanFactory) {
+      super(beanFactory);
+    }
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -72,13 +78,19 @@ public class CookieParameterResolver
     }
 
     @Override
-    protected Object missingParameter(ResolvableMethodParameter parameter) {
-      throw new MissingCookieException(parameter.getName(), parameter.getParameter());
+    protected void handleMissingValue(String name, MethodParameter parameter) {
+      throw new MissingCookieException(name, parameter);
     }
 
     @Override
-    protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) {
-      final HttpCookie cookie = context.getCookie(parameter.getName());
+    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
+      throw new MissingCookieException(name, parameter, true);
+    }
+
+    @Nullable
+    @Override
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) {
+      HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
         return cookie.getValue();
       }
@@ -113,11 +125,8 @@ public class CookieParameterResolver
 
     @Override
     protected List<?> resolveCollection(RequestContext context, ResolvableMethodParameter parameter) {
-
-      final HttpCookie[] cookies = context.getCookies();
-      final List<HttpCookie> ret = new ArrayList<>(cookies.length);
-      Collections.addAll(ret, cookies);
-      return ret;
+      HttpCookie[] cookies = context.getCookies();
+      return CollectionUtils.newArrayList(cookies);
     }
   }
 }

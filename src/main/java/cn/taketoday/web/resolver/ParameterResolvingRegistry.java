@@ -24,6 +24,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.context.annotation.Props;
@@ -223,7 +224,7 @@ public class ParameterResolvingRegistry
               parameter,
               "There isn't have a parameter resolver to resolve parameter: ["
                       + parameter.getParameterType() + "] called: ["
-                      + parameter.getName() + "] on " + parameter.getParameter().getExecutable());
+                      + parameter.getName() + "] on " + parameter.getMethod());
     }
     return resolver;
   }
@@ -237,19 +238,6 @@ public class ParameterResolvingRegistry
    */
   public void registerDefaults(ParameterResolvingStrategies strategies) {
     log.info("Registering default parameter-resolvers to {}", strategies);
-
-    // Use ConverterParameterResolver to resolve primitive types
-    // --------------------------------------------------------------------------
-
-    strategies.add(
-            from(String.class, s -> s),
-            from(new OR(Long.class, long.class), Long::parseLong),
-            from(new OR(Integer.class, int.class), Integer::parseInt),
-            from(new OR(Short.class, short.class), Short::parseShort),
-            from(new OR(Float.class, float.class), Float::parseFloat),
-            from(new OR(Double.class, double.class), Double::parseDouble),
-            from(new OR(Boolean.class, boolean.class), Boolean::parseBoolean)
-    );
 
     // For some useful context annotations
     // --------------------------------------------
@@ -269,7 +257,8 @@ public class ParameterResolvingRegistry
     // For cookies
     // ------------------------------------------
 
-    CookieParameterResolver.register(strategies);
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    CookieParameterResolver.register(strategies, beanFactory);
 
     // For multipart
     // -------------------------------------------
@@ -319,6 +308,19 @@ public class ParameterResolvingRegistry
     configureDataBinder(strategies);
 
     strategies.add(new SimpleArrayParameterResolver());
+
+    // Use ConverterAwareParameterResolver to resolve primitive types
+    // --------------------------------------------------------------------------
+
+    strategies.add(
+            from(String.class, s -> s),
+            from(new OR(Long.class, long.class), Long::parseLong),
+            from(new OR(Integer.class, int.class), Integer::parseInt),
+            from(new OR(Short.class, short.class), Short::parseShort),
+            from(new OR(Float.class, float.class), Float::parseFloat),
+            from(new OR(Double.class, double.class), Double::parseDouble),
+            from(new OR(Boolean.class, boolean.class), Boolean::parseBoolean)
+    );
 
     // apply conversionService @since 4.0
     applyConversionService(conversionService, strategies);
