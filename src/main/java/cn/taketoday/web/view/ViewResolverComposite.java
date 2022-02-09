@@ -21,7 +21,6 @@
 package cn.taketoday.web.view;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,10 +57,10 @@ public class ViewResolverComposite extends OrderedSupport
   }
 
   /**
-   * Return the list of view viewResolvers to delegate to.
+   * Return the viewResolvers
    */
   public List<ViewResolver> getViewResolvers() {
-    return Collections.unmodifiableList(this.viewResolvers);
+    return viewResolvers;
   }
 
   @Override
