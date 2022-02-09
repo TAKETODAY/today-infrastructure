@@ -30,22 +30,16 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
-import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.lang.Component;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
-import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
-import cn.taketoday.web.view.template.DefaultTemplateRenderer;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
  * Web MVC auto configuration
@@ -124,21 +118,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   /**
-   * default {@link ReturnValueHandler} registry
-   */
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ReturnValueHandlers returnValueHandlers(WebApplicationContext context) {
-    ReturnValueHandlers resultHandlers = new ReturnValueHandlers();
-    resultHandlers.setApplicationContext(context);
-    resultHandlers.setMessageConverters(getMessageConverters());
-    resultHandlers.initHandlers();
-    resultHandlers.registerDefaultHandlers();
-    return resultHandlers;
-  }
-
-  /**
    * default {@link HandlerExceptionHandler}
    */
   @Component
@@ -148,14 +127,4 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return new DefaultExceptionHandler();
   }
 
-  @Component
-  @Props(prefix = "web.mvc.view.")
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(TemplateRenderer.class)
-  DefaultTemplateRenderer templateRenderer(ResourceLoader resourceLoader) {
-    DefaultTemplateRenderer renderer = new DefaultTemplateRenderer(
-            ExpressionProcessor.getSharedInstance().getManager());
-    renderer.setResourceLoader(resourceLoader);
-    return renderer;
-  }
 }

@@ -44,6 +44,7 @@ import cn.taketoday.web.view.groovy.GroovyMarkupConfigurer;
 import cn.taketoday.web.view.groovy.GroovyMarkupViewResolver;
 import cn.taketoday.web.view.script.ScriptTemplateConfigurer;
 import cn.taketoday.web.view.script.ScriptTemplateViewResolver;
+import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 
 /**
  * Assist with the configuration of a chain of
@@ -116,25 +117,49 @@ public class ViewResolverRegistry {
 
   private ContentNegotiatingViewResolver initContentNegotiatingViewResolver(View[] defaultViews) {
     // ContentNegotiatingResolver in the registry: elevate its precedence!
-    this.order = this.order != null ? this.order : Ordered.HIGHEST_PRECEDENCE;
+    this.order = order != null ? order : Ordered.HIGHEST_PRECEDENCE;
 
-    if (this.contentNegotiatingResolver != null) {
+    if (contentNegotiatingResolver != null) {
       if (ObjectUtils.isNotEmpty(defaultViews)
-              && CollectionUtils.isNotEmpty(this.contentNegotiatingResolver.getDefaultViews())) {
-        ArrayList<View> views = new ArrayList<>(this.contentNegotiatingResolver.getDefaultViews());
+              && CollectionUtils.isNotEmpty(contentNegotiatingResolver.getDefaultViews())) {
+        ArrayList<View> views = new ArrayList<>(contentNegotiatingResolver.getDefaultViews());
         CollectionUtils.addAll(views, defaultViews);
-        this.contentNegotiatingResolver.setDefaultViews(views);
+        contentNegotiatingResolver.setDefaultViews(views);
       }
     }
     else {
       this.contentNegotiatingResolver = new ContentNegotiatingViewResolver();
-      this.contentNegotiatingResolver.setDefaultViews(Arrays.asList(defaultViews));
-      this.contentNegotiatingResolver.setViewResolvers(this.viewResolvers);
-      if (this.contentNegotiationManager != null) {
-        this.contentNegotiatingResolver.setContentNegotiationManager(this.contentNegotiationManager);
+      contentNegotiatingResolver.setDefaultViews(Arrays.asList(defaultViews));
+      contentNegotiatingResolver.setViewResolvers(viewResolvers);
+      if (contentNegotiationManager != null) {
+        contentNegotiatingResolver.setContentNegotiationManager(contentNegotiationManager);
       }
     }
-    return this.contentNegotiatingResolver;
+    return contentNegotiatingResolver;
+  }
+
+  /**
+   * Register framework expression language view resolver using a default view name
+   * prefix of "classpath:templates/" and a default suffix of ".html".
+   * <p>When this method is invoked more than once, each call will register a
+   * new ViewResolver instance.
+   */
+  public UrlBasedViewResolverRegistration defaults() {
+    return defaults("classpath:templates/", ".html");
+  }
+
+  /**
+   * Register framework expression language supports view resolver with the
+   * specified prefix and suffix.
+   * <p>When this method is invoked more than once, each call will register a
+   * new ViewResolver instance.
+   */
+  public UrlBasedViewResolverRegistration defaults(String prefix, String suffix) {
+    DefaultTemplateViewResolver resolver = new DefaultTemplateViewResolver();
+    resolver.setPrefix(prefix);
+    resolver.setSuffix(suffix);
+    viewResolvers.add(resolver);
+    return new UrlBasedViewResolverRegistration(resolver);
   }
 
   /**
@@ -162,7 +187,7 @@ public class ViewResolverRegistry {
     InternalResourceViewResolver resolver = new InternalResourceViewResolver();
     resolver.setPrefix(prefix);
     resolver.setSuffix(suffix);
-    this.viewResolvers.add(resolver);
+    viewResolvers.add(resolver);
     return new UrlBasedViewResolverRegistration(resolver);
   }
 
@@ -180,7 +205,7 @@ public class ViewResolverRegistry {
               "This bean may be given any name.");
     }
     FreeMarkerRegistration registration = new FreeMarkerRegistration();
-    this.viewResolvers.add(registration.getViewResolver());
+    viewResolvers.add(registration.getViewResolver());
     return registration;
   }
 
@@ -196,7 +221,7 @@ public class ViewResolverRegistry {
               "This bean may be given any name.");
     }
     GroovyMarkupRegistration registration = new GroovyMarkupRegistration();
-    this.viewResolvers.add(registration.getViewResolver());
+    viewResolvers.add(registration.getViewResolver());
     return registration;
   }
 
@@ -211,7 +236,7 @@ public class ViewResolverRegistry {
               "This bean may be given any name.");
     }
     ScriptRegistration registration = new ScriptRegistration();
-    this.viewResolvers.add(registration.getViewResolver());
+    viewResolvers.add(registration.getViewResolver());
     return registration;
   }
 
@@ -221,7 +246,7 @@ public class ViewResolverRegistry {
    */
   public void beanName() {
     BeanNameViewResolver resolver = new BeanNameViewResolver();
-    this.viewResolvers.add(resolver);
+    viewResolvers.add(resolver);
   }
 
   /**
@@ -236,7 +261,7 @@ public class ViewResolverRegistry {
               "addViewResolver cannot be used to configure a ContentNegotiatingViewResolver. " +
                       "Please use the method enableContentNegotiation instead.");
     }
-    this.viewResolvers.add(viewResolver);
+    viewResolvers.add(viewResolver);
   }
 
   /**

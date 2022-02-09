@@ -186,7 +186,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
+  public void handleReturnValue(
+          RequestContext context, Object handler, @Nullable Object returnValue) throws IOException {
     context.setRequestHandled(true);
     if (returnValue == null) {
       return;

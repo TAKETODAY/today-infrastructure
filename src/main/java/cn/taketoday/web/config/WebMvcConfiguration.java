@@ -36,10 +36,18 @@ import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.View;
-import cn.taketoday.web.view.template.AbstractTemplateRenderer;
-import cn.taketoday.web.view.template.TemplateRenderer;
 
 /**
+ * Defines callback methods to customize the Java-based configuration for
+ * framework enabled via {@code @EnableWebMvc}.
+ *
+ * <p>{@code @EnableWebMvc}-annotated configuration classes may implement
+ * this interface to be called back and given a chance to customize the
+ * default configuration.
+ *
+ * <p>
+ * Like Spring's WebMvcConfigurer
+ *
  * @author TODAY 2019-05-17 17:46
  */
 public interface WebMvcConfiguration {
@@ -76,13 +84,6 @@ public interface WebMvcConfiguration {
    * @param returnValueHandlers {@link ReturnValueHandler} registry
    */
   default void configureResultHandler(List<ReturnValueHandler> returnValueHandlers) { }
-
-  /**
-   * Configure {@link TemplateRenderer}
-   *
-   * @param renderer {@link TemplateRenderer} instance
-   */
-  default void configureTemplateRenderer(AbstractTemplateRenderer renderer) { }
 
   /**
    * Configure static {@link Resource}

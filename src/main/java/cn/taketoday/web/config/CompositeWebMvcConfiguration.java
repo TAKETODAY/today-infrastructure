@@ -33,7 +33,6 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.view.template.AbstractTemplateRenderer;
 
 /**
  * @author TODAY <br>
@@ -46,13 +45,6 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
     AnnotationAwareOrderComparator.sort(webMvcConfigurations);
     this.webMvcConfigurations = webMvcConfigurations;
-  }
-
-  @Override
-  public void configureTemplateRenderer(AbstractTemplateRenderer renderer) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureTemplateRenderer(renderer);
-    }
   }
 
   @Override

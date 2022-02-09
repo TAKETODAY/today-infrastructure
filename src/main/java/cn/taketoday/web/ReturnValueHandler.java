@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web;
 
-import java.io.IOException;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -46,7 +44,6 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @see ReturnValueHandlerProvider
  */
 public interface ReturnValueHandler {
-  String RESPONSE_BODY_PREFIX = "body:";
   String REDIRECT_URL_PREFIX = "redirect:";
 
   Object NONE_RETURN_VALUE = HandlerAdapter.NONE_RETURN_VALUE;
@@ -83,8 +80,9 @@ public interface ReturnValueHandler {
    * @param handler Target HTTP handler
    * @param returnValue Handler execution result
    * Or {@link HandlerExceptionHandler} return value
+   * @throws Exception return-value handled failed
    */
   void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue)
-          throws IOException;
+          throws Exception;
 
 }

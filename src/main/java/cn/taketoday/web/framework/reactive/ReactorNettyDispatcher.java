@@ -23,7 +23,6 @@ package cn.taketoday.web.framework.reactive;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.io.IOException;
 import java.util.function.Function;
 
 import cn.taketoday.web.RequestContext;
@@ -111,7 +110,7 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
         dispatcherHandler.lookupReturnValueHandler(handler, returnValue)
                 .handleReturnValue(nettyContext, handler, returnValue);
       }
-      catch (IOException e) {
+      catch (Exception e) {
         return Mono.error(e);
       }
     }

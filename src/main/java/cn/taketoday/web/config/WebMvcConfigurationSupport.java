@@ -28,8 +28,13 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
+import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -50,6 +55,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.ReturnValueHandlers;
@@ -59,8 +65,11 @@ import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
+import cn.taketoday.web.view.ViewReturnValueHandler;
+import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -289,20 +298,30 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * to allow other potential {@link ViewResolver} beans to resolve views.
    */
   @Component
+  @DisableDependencyInjection
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ViewResolver webViewResolver(ContentNegotiationManager contentNegotiationManager) {
     ViewResolverRegistry registry =
             new ViewResolverRegistry(contentNegotiationManager, applicationContext);
     configureViewResolvers(registry);
 
-    if (ServletDetector.isPresent()
-            && registry.getViewResolvers().isEmpty()
-            && applicationContext != null) {
+    List<ViewResolver> viewResolvers = registry.getViewResolvers();
+    if (viewResolvers.isEmpty() && applicationContext != null) {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
-      if (names.size() == 1) { // webViewResolver
-        registry.getViewResolvers().add(new InternalResourceViewResolver());
+      if (names.size() == 1) {
+        if (ServletDetector.isPresent()) {
+          viewResolvers.add(new InternalResourceViewResolver());
+        }
+        else {
+          // add default
+          DefaultTemplateViewResolver viewResolver = new DefaultTemplateViewResolver();
+          viewResolver.setResourceLoader(applicationContext);
+          viewResolvers.add(viewResolver);
+        }
       }
     }
+
     ViewResolverComposite composite;
     if (ServletDetector.isPresent()) {
       composite = new ServletViewResolverComposite();
@@ -312,7 +331,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     }
 
     composite.setOrder(registry.getOrder());
-    composite.setViewResolvers(registry.getViewResolvers());
+    composite.setViewResolvers(viewResolvers);
     if (applicationContext != null) {
       composite.setApplicationContext(applicationContext);
     }
@@ -331,6 +350,28 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * @see ViewResolverRegistry
    */
   protected void configureViewResolvers(ViewResolverRegistry registry) { }
+
+  /**
+   * default {@link ReturnValueHandler} registry
+   */
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  ReturnValueHandlers returnValueHandlers(
+          @Nullable RedirectModelManager redirectModelManager,
+          @Qualifier("webViewResolver") ViewResolver webViewResolver) {
+    ReturnValueHandlers handlers = new ReturnValueHandlers(getMessageConverters());
+    handlers.setApplicationContext(applicationContext);
+    handlers.setRedirectModelManager(redirectModelManager);
+    handlers.setViewResolver(webViewResolver);
+
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(webViewResolver);
+    handler.setModelManager(redirectModelManager);
+    handlers.setViewReturnValueHandler(handler);
+
+    handlers.registerDefaultHandlers();
+    return handlers;
+  }
 
   // ControllerAdvice
 
