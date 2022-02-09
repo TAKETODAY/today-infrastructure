@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.http.client.ClientHttpResponseDecorator;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -38,15 +38,13 @@ import cn.taketoday.lang.Nullable;
  * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3.3">RFC 7230 Section 3.3.3</a>
  * @since 4.0
  */
-class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
-
-  private final ClientHttpResponse response;
+class MessageBodyClientHttpResponseWrapper extends ClientHttpResponseDecorator implements ClientHttpResponse {
 
   @Nullable
   private PushbackInputStream pushbackInputStream;
 
   public MessageBodyClientHttpResponseWrapper(ClientHttpResponse response) {
-    this.response = response;
+    super(response);
   }
 
   /**
@@ -83,7 +81,7 @@ class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
    * @throws IOException in case of I/O errors
    */
   public boolean hasEmptyMessageBody() throws IOException {
-    InputStream body = this.response.getBody();
+    InputStream body = delegate.getBody();
     // Per contract body shouldn't be null, but check anyway..
     if (body == null) {
       return true;
@@ -112,33 +110,8 @@ class MessageBodyClientHttpResponseWrapper implements ClientHttpResponse {
   }
 
   @Override
-  public HttpHeaders getHeaders() {
-    return this.response.getHeaders();
-  }
-
-  @Override
   public InputStream getBody() throws IOException {
-    return this.pushbackInputStream != null ? this.pushbackInputStream : this.response.getBody();
-  }
-
-  @Override
-  public HttpStatus getStatusCode() throws IOException {
-    return this.response.getStatusCode();
-  }
-
-  @Override
-  public int getRawStatusCode() throws IOException {
-    return this.response.getRawStatusCode();
-  }
-
-  @Override
-  public String getStatusText() throws IOException {
-    return this.response.getStatusText();
-  }
-
-  @Override
-  public void close() {
-    this.response.close();
+    return this.pushbackInputStream != null ? this.pushbackInputStream : super.getBody();
   }
 
 }
