@@ -40,7 +40,8 @@ public class GroovyScriptEvaluatorTests {
 
   @Test
   public void testGroovyScriptFromString() {
-    ScriptEvaluator evaluator = new GroovyScriptEvaluator();
+    GroovyScriptEvaluator evaluator = new GroovyScriptEvaluator();
+    evaluator.setCompilerConfiguration(null);
     Object result = evaluator.evaluate(new StaticScriptSource("return 3 * 2"));
     assertThat(result).isEqualTo(6);
   }
@@ -85,6 +86,7 @@ public class GroovyScriptEvaluatorTests {
   @Test
   public void testGroovyScriptFromStringUsingJsr223() {
     StandardScriptEvaluator evaluator = new StandardScriptEvaluator();
+    evaluator.setEngineName("");
     evaluator.setLanguage("Groovy");
     Object result = evaluator.evaluate(new StaticScriptSource("return 3 * 2"));
     assertThat(result).isEqualTo(6);

@@ -95,8 +95,7 @@ public abstract class BshScriptUtils {
           throws EvalError {
 
     Object result = evaluateBshScript(scriptSource, scriptInterfaces, classLoader);
-    if (result instanceof Class) {
-      Class<?> clazz = (Class<?>) result;
+    if (result instanceof Class<?> clazz) {
       try {
         return ReflectionUtils.accessibleConstructor(clazz).newInstance();
       }
@@ -181,13 +180,7 @@ public abstract class BshScriptUtils {
   /**
    * InvocationHandler that invokes a BeanShell script method.
    */
-  private static class BshObjectInvocationHandler implements InvocationHandler {
-
-    private final XThis xt;
-
-    public BshObjectInvocationHandler(XThis xt) {
-      this.xt = xt;
-    }
+  private record BshObjectInvocationHandler(XThis xt) implements InvocationHandler {
 
     @Override
     @Nullable

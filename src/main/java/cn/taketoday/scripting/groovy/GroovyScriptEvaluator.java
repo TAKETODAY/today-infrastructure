@@ -70,7 +70,7 @@ public class GroovyScriptEvaluator implements ScriptEvaluator, BeanClassLoaderAw
    */
   public void setCompilerConfiguration(@Nullable CompilerConfiguration compilerConfiguration) {
     this.compilerConfiguration =
-            (compilerConfiguration != null ? compilerConfiguration : new CompilerConfiguration());
+            compilerConfiguration != null ? compilerConfiguration : new CompilerConfiguration();
   }
 
   /**

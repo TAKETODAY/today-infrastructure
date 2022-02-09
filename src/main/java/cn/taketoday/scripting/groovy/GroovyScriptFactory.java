@@ -127,7 +127,6 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
    * @param compilerConfiguration a custom compiler configuration to be applied
    * to the GroovyClassLoader (may be {@code null})
    * @see GroovyClassLoader#GroovyClassLoader(ClassLoader, CompilerConfiguration)
-   * @since 4.3.3
    */
   public GroovyScriptFactory(String scriptSourceLocator, @Nullable CompilerConfiguration compilerConfiguration) {
     this(scriptSourceLocator);
@@ -145,7 +144,6 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
    * GroovyClassLoader compiler configuration
    * @see CompilerConfiguration#addCompilationCustomizers
    * @see org.codehaus.groovy.control.customizers.ImportCustomizer
-   * @since 4.3.3
    */
   public GroovyScriptFactory(String scriptSourceLocator, CompilationCustomizer... compilationCustomizers) {
     this(scriptSourceLocator);
@@ -190,11 +188,10 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
    * Build a {@link GroovyClassLoader} for the given {@code ClassLoader}.
    *
    * @param classLoader the ClassLoader to build a GroovyClassLoader for
-   * @since 4.3.3
    */
   protected GroovyClassLoader buildGroovyClassLoader(@Nullable ClassLoader classLoader) {
-    return (this.compilerConfiguration != null ?
-            new GroovyClassLoader(classLoader, this.compilerConfiguration) : new GroovyClassLoader(classLoader));
+    return compilerConfiguration != null ?
+           new GroovyClassLoader(classLoader, this.compilerConfiguration) : new GroovyClassLoader(classLoader);
   }
 
   @Override
@@ -309,7 +306,7 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
   @Override
   public boolean requiresScriptedObjectRefresh(ScriptSource scriptSource) {
     synchronized(this.scriptClassMonitor) {
-      return (scriptSource.isModified() || this.wasModifiedForTypeCheck);
+      return scriptSource.isModified() || this.wasModifiedForTypeCheck;
     }
   }
 
@@ -327,9 +324,9 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
     try {
       GroovyObject goo = (GroovyObject) ReflectionUtils.accessibleConstructor(scriptClass).newInstance();
 
-      if (this.groovyObjectCustomizer != null) {
+      if (groovyObjectCustomizer != null) {
         // Allow metaclass and other customization.
-        this.groovyObjectCustomizer.customize(goo);
+        groovyObjectCustomizer.customize(goo);
       }
 
       if (goo instanceof Script) {
