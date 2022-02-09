@@ -119,13 +119,8 @@ public abstract class Mixin {
 
     public void setStyle(int style) {
       switch (style) {
-        case STYLE_INTERFACES:
-        case STYLE_BEANS:
-        case STYLE_EVERYTHING:
-          this.style = style;
-          break;
-        default:
-          throw new IllegalArgumentException("Unknown mixin style: " + style);
+        case STYLE_INTERFACES, STYLE_BEANS, STYLE_EVERYTHING -> this.style = style;
+        default -> throw new IllegalArgumentException("Unknown mixin style: " + style);
       }
     }
 

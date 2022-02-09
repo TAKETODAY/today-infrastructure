@@ -737,7 +737,7 @@ public abstract class AbstractApplicationContext
         publishEvent(new ContextClosedEvent(this));
       }
       catch (Throwable ex) {
-        log.warn("Exception thrown from ApplicationListener handling ContextCloseEvent", ex);
+        log.warn("Exception thrown from ApplicationListener handling ContextClosedEvent", ex);
       }
       // Stop all Lifecycle beans, to avoid delays during individual destruction.
       if (this.lifecycleProcessor != null) {
