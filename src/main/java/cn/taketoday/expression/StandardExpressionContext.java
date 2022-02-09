@@ -42,9 +42,11 @@ package cn.taketoday.expression;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.expression.stream.StreamExpressionResolver;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A standard ELContext suitable for use in a stand alone environment. This
@@ -59,6 +61,7 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
   private FunctionMapper functionMapper;
   private VariableMapper variableMapper;
 
+  @Nullable
   private final ExpressionContext delegate;
 
   /**
@@ -72,7 +75,7 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
 
   private ExpressionResolverComposite customResolvers;
 
-  private final HashMap<String, Object> variables = new HashMap<>();
+  private final HashMap<String, Object> variables = new LinkedHashMap<>();
 
   public StandardExpressionContext() {
     this.delegate = null;
@@ -94,19 +97,20 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
    *
    * @param delegate The ELContext that acts as a delegate in most cases
    */
-  public StandardExpressionContext(ExpressionContext delegate) {
+  public StandardExpressionContext(@Nullable ExpressionContext delegate) {
     this.delegate = delegate;
     this.customResolvers = new ExpressionResolverComposite();
-    // Copy all attributes except map and resolved
-    this.expressionResolver = new ExpressionResolverComposite(
-            customResolvers,
-            new BeanNameExpressionResolver(this),
-            delegate.getResolver()
-    );
-
-    this.functionMapper = delegate.getFunctionMapper();
-    this.variableMapper = delegate.getVariableMapper();
-    setLocale(delegate.getLocale());
+    if (delegate != null) {
+      // Copy all attributes except map and resolved
+      this.expressionResolver = new ExpressionResolverComposite(
+              customResolvers,
+              new BeanNameExpressionResolver(this),
+              delegate.getResolver()
+      );
+      this.functionMapper = delegate.getFunctionMapper();
+      this.variableMapper = delegate.getVariableMapper();
+      setLocale(delegate.getLocale());
+    }
   }
 
   @Override
@@ -192,6 +196,15 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
    */
   public Object setVariable(String name, Object bean) {
     return variables.put(name, bean);
+  }
+
+  /**
+   * add variables
+   *
+   * @param variables variables
+   */
+  public void addVariables(Map<String, ?> variables) {
+    this.variables.putAll(variables);
   }
 
   @Override
