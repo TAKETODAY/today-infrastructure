@@ -235,7 +235,7 @@ public class ContentNegotiatingViewResolver
       return NOT_ACCEPTABLE_VIEW;
     }
     else {
-      log.debug("View remains unresolved" + mediaTypeInfo);
+      log.debug("View remains unresolved {}", mediaTypeInfo);
       return null;
     }
   }
