@@ -34,7 +34,7 @@ import cn.taketoday.lang.Assert;
  * @since 4.0 2022/2/9 14:57
  */
 public class ClientHttpResponseDecorator implements ClientHttpResponse {
-  private final ClientHttpResponse delegate;
+  protected final ClientHttpResponse delegate;
 
   public ClientHttpResponseDecorator(ClientHttpResponse delegate) {
     Assert.notNull(delegate, "ClientHttpResponse delegate is required");
@@ -70,4 +70,9 @@ public class ClientHttpResponseDecorator implements ClientHttpResponse {
   public void close() {
     delegate.close();
   }
+
+  public ClientHttpResponse getDelegate() {
+    return delegate;
+  }
+
 }

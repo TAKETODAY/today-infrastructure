@@ -24,8 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 
@@ -36,48 +34,21 @@ import cn.taketoday.util.StreamUtils;
  * @author Arjen Poutsma
  * @since 4.0
  */
-final class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
-
-  private final ClientHttpResponse response;
+final class BufferingClientHttpResponseWrapper extends ClientHttpResponseDecorator {
 
   @Nullable
   private byte[] body;
 
   BufferingClientHttpResponseWrapper(ClientHttpResponse response) {
-    this.response = response;
-  }
-
-  @Override
-  public HttpStatus getStatusCode() throws IOException {
-    return this.response.getStatusCode();
-  }
-
-  @Override
-  public int getRawStatusCode() throws IOException {
-    return this.response.getRawStatusCode();
-  }
-
-  @Override
-  public String getStatusText() throws IOException {
-    return this.response.getStatusText();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return this.response.getHeaders();
+    super(response);
   }
 
   @Override
   public InputStream getBody() throws IOException {
     if (this.body == null) {
-      this.body = StreamUtils.copyToByteArray(this.response.getBody());
+      this.body = StreamUtils.copyToByteArray(delegate.getBody());
     }
     return new ByteArrayInputStream(this.body);
-  }
-
-  @Override
-  public void close() {
-    this.response.close();
   }
 
 }
