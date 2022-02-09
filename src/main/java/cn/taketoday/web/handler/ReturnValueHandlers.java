@@ -65,6 +65,7 @@ public class ReturnValueHandlers
   private ObjectHandlerMethodReturnValueHandler objectHandler;
 
   // @since 4.0
+  @Nullable
   private ViewResolver viewResolver;
 
   // @since 4.0
@@ -151,7 +152,7 @@ public class ReturnValueHandlers
    */
   public void registerDefaultHandlers() {
     log.info("Registering default return-value handlers");
-    Assert.state(viewReturnValueHandler != null, "No viewReturnValueHandler");
+    ViewReturnValueHandler viewHandler = obtainViewHandler();
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();
     RenderedImageReturnValueHandler imageHandler = getRenderedImageHandler();
@@ -159,7 +160,7 @@ public class ReturnValueHandlers
     ModelAndViewReturnValueHandler modelAndViewHandler = new ModelAndViewReturnValueHandler(internalHandlers);
 
     internalHandlers.add(imageHandler);
-    internalHandlers.add(viewReturnValueHandler);
+    internalHandlers.add(viewHandler);
     internalHandlers.add(new VoidReturnValueHandler(modelAndViewHandler));
     internalHandlers.add(modelAndViewHandler);
     internalHandlers.add(new HttpStatusReturnValueHandler());
@@ -173,7 +174,7 @@ public class ReturnValueHandlers
     //
     List<ReturnValueHandler> handlers = getHandlers();
     handlers.add(imageHandler);
-    handlers.add(viewReturnValueHandler);
+    handlers.add(viewHandler);
 
     handlers.add(new VoidReturnValueHandler(modelAndViewHandler));
     handlers.add(modelAndViewHandler);
@@ -188,6 +189,17 @@ public class ReturnValueHandlers
     handlers.add(objectHandler);
 
     compositeHandler.trimToSize();
+  }
+
+  private ViewReturnValueHandler obtainViewHandler() {
+    if (viewReturnValueHandler == null) {
+      if (viewResolver != null) {
+        viewReturnValueHandler = new ViewReturnValueHandler(viewResolver);
+        viewReturnValueHandler.setModelManager(redirectModelManager);
+      }
+    }
+    Assert.state(viewReturnValueHandler != null, "No ViewReturnValueHandler");
+    return viewReturnValueHandler;
   }
 
   @NonNull
@@ -265,7 +277,7 @@ public class ReturnValueHandlers
     handlers.trimToSize();
   }
 
-  public void setViewResolver(ViewResolver webViewResolver) {
+  public void setViewResolver(@Nullable ViewResolver webViewResolver) {
     this.viewResolver = webViewResolver;
   }
   //
