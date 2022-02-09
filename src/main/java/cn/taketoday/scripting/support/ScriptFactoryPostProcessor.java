@@ -293,7 +293,7 @@ public class ScriptFactoryPostProcessor
     String scriptedObjectBeanName = SCRIPTED_OBJECT_NAME_PREFIX + beanName;
     prepareScriptBeans(bd, scriptFactoryBeanName, scriptedObjectBeanName);
 
-    ScriptFactory scriptFactory = BeanFactoryUtils.requiredBean(scriptBeanFactory, ScriptFactory.class);
+    ScriptFactory scriptFactory = BeanFactoryUtils.requiredBean(scriptBeanFactory, scriptFactoryBeanName, ScriptFactory.class);
     ScriptSource scriptSource = getScriptSource(scriptFactoryBeanName, scriptFactory.getScriptSourceLocator());
     boolean isFactoryBean = false;
     try {

@@ -119,7 +119,7 @@ class ParameterResolverRegistryTests {
     parameter.setName(name);
     parameter.setParameterClass(type);
     parameter.setParameterIndex(index);
-
+    parameter.setParameter(sharedParameter);
     return parameter;
   }
 

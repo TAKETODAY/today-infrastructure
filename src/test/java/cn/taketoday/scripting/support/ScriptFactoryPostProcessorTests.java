@@ -181,7 +181,6 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(true);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
     BeanDefinition collaboratorBuilder = new BeanDefinition(DefaultMessengerService.class);
-    collaboratorBuilder.getConstructorArgumentValues().addGenericArgumentValue(DELEGATING_SCRIPT);
     collaboratorBuilder.addPropertyValue(MESSENGER_BEAN_NAME, new RuntimeBeanReference(MESSENGER_BEAN_NAME));
 
     DefaultApplicationContext ctx = new DefaultApplicationContext();

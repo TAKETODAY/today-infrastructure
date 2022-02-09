@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.mock;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Objects;
 
@@ -95,6 +96,37 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   @Override
   public TypeDescriptor getTypeDescriptor() {
     return typeDescriptor;
+  }
+
+  @Override
+  public Annotation[] getMethodAnnotations() {
+    return parameter.getMethodAnnotations();
+  }
+
+  @Nullable
+  @Override
+  public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
+    return parameter.getMethodAnnotation(annotationType);
+  }
+
+  @Override
+  public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
+    return parameter.hasMethodAnnotation(annotationType);
+  }
+
+  @Override
+  public Annotation[] getParameterAnnotations() {
+    return parameter.getParameterAnnotations();
+  }
+
+  @Override
+  public boolean hasParameterAnnotation(Class<? extends Annotation> annotationType) {
+    return parameter.hasParameterAnnotation(annotationType);
+  }
+
+  @Override
+  public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
+    return parameter.getParameterAnnotation(annotationType);
   }
 
   @Override

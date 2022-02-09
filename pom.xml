@@ -1121,6 +1121,7 @@
         <version>2.22.2</version>
         <configuration>
           <argLine>
+            -DtestGroups=all
             --add-opens java.base/java.lang=ALL-UNNAMED
             --add-opens java.base/java.util=ALL-UNNAMED
             --add-opens java.base/java.lang.reflect=ALL-UNNAMED
@@ -1250,7 +1251,7 @@
             <version>2.22.2</version>
             <configuration>
               <argLine>
-                ${argLine} -Dcoverage=true
+                ${argLine} -Dcoverage=true -DtestGroups=all
                 --add-opens java.base/java.lang=ALL-UNNAMED
                 --add-opens java.base/java.util=ALL-UNNAMED
                 --add-opens java.base/java.lang.reflect=ALL-UNNAMED
