@@ -31,12 +31,14 @@ import java.util.Map;
 
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
+import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.client.RestTemplate;
+import cn.taketoday.web.config.WebMvcConfigurationSupport;
 
 /**
- * Bean used to manage the {@link HttpMessageConverter}s used in a Spring Boot
- * application. Provides a convenient way to add and merge additional
+ * Bean used to manage the {@link HttpMessageConverter}s used in application.
+ * Provides a convenient way to add and merge additional
  * {@link HttpMessageConverter}s to a web application.
  * <p>
  * An instance of this bean can be registered with specific
@@ -58,9 +60,10 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
 
   static {
     Map<Class<?>, Class<?>> equivalentConverters = new HashMap<>();
-    putIfExists(equivalentConverters,
-            "cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter",
-            "cn.taketoday.http.converter.json.GsonHttpMessageConverter");
+    try {
+      equivalentConverters.put(MappingJackson2HttpMessageConverter.class, GsonHttpMessageConverter.class);
+    }
+    catch (Throwable ignored) { }
     EQUIVALENT_CONVERTERS = Collections.unmodifiableMap(equivalentConverters);
   }
 
@@ -173,7 +176,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
   }
 
   private List<HttpMessageConverter<?>> getDefaultConverters() {
-    return new ArrayList<>(new RestTemplate().getMessageConverters());
+    return new ArrayList<>(new WebMvcConfigurationSupport().getMessageConverters());
   }
 
   @Override
@@ -189,15 +192,6 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
    */
   public List<HttpMessageConverter<?>> getConverters() {
     return this.converters;
-  }
-
-  private static void putIfExists(Map<Class<?>, Class<?>> map, String keyClassName, String valueClassName) {
-    try {
-      map.put(Class.forName(keyClassName), Class.forName(valueClassName));
-    }
-    catch (ClassNotFoundException | NoClassDefFoundError ex) {
-      // Ignore
-    }
   }
 
 }

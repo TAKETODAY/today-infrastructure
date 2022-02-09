@@ -136,7 +136,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * <p>This method cannot be overridden; use {@link #configureMessageConverters} instead.
    * Also see {@link #addDefaultHttpMessageConverters} for adding default message converters.
    */
-  protected final List<HttpMessageConverter<?>> getMessageConverters() {
+  public final List<HttpMessageConverter<?>> getMessageConverters() {
     if (this.messageConverters == null) {
       this.messageConverters = new ArrayList<>();
       configureMessageConverters(this.messageConverters);

@@ -28,10 +28,12 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.auto.AutoConfigureAfter;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 
 /**
  * Auto-configuration for {@link HttpMessageConverter}s.
@@ -49,6 +51,7 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
  * @since 4.0 2022/1/16 15:10
  */
 @Configuration(proxyBeanMethods = false)
+@AutoConfigureAfter({ JacksonAutoConfiguration.class })
 @Import(JacksonHttpMessageConvertersConfiguration.class)
 public class HttpMessageConvertersAutoConfiguration {
 
