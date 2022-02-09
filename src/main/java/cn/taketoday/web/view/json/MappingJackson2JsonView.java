@@ -45,7 +45,7 @@ import cn.taketoday.web.view.View;
  *
  * <p>The default constructor uses the default configuration provided by {@link Jackson2ObjectMapperBuilder}.
  *
- * <p>Compatible with Jackson 2.9 to 2.12, as of Framework 5.3.
+ * <p>Compatible with Jackson 2.9 to 2.12
  *
  * @author Jeremy Grelle
  * @author Arjen Poutsma

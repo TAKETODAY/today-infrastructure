@@ -17,58 +17,55 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
 
-import java.io.IOException;
+package cn.taketoday.web.view;
+
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
+import java.util.Locale;
 
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.handler.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelManager;
-import cn.taketoday.web.view.template.DefaultTemplateRenderer;
-import cn.taketoday.web.view.template.TemplateRenderer;
+import cn.taketoday.web.view.template.TemplateRenderingException;
 
 /**
- * @author TODAY 2019-07-14 11:32
+ * view-name ReturnValueHandler
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see View
+ * @since 4.0 2022/2/9 20:34
  */
-public class TemplateRendererReturnValueHandler
-        extends OrderedSupport implements ReturnValueHandler {
+public class ViewReturnValueHandler
+        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
-  private boolean allowLambdaDetect;
-  /** Template renderer */
-  private final TemplateRenderer templateRenderer;
-  /** @since 4.0 */
+  private final ViewResolver viewResolver;
+
   @Nullable
   private RedirectModelManager modelManager;
 
-  public TemplateRendererReturnValueHandler() {
-    this(new DefaultTemplateRenderer());
-  }
-
-  public TemplateRendererReturnValueHandler(TemplateRenderer templateRenderer) {
-    this(false, templateRenderer);
-  }
-
-  public TemplateRendererReturnValueHandler(boolean lambdaDetect, TemplateRenderer templateRenderer) {
-    Assert.notNull(templateRenderer, "templateRenderer must not be null");
-    this.allowLambdaDetect = lambdaDetect;
-    this.templateRenderer = templateRenderer;
+  public ViewReturnValueHandler(ViewResolver viewResolver) {
+    Assert.notNull(viewResolver, "viewResolver is required");
+    this.viewResolver = viewResolver;
   }
 
   @Override
-  public boolean supportsHandler(Object handler) {
-    if (handler instanceof HandlerMethod) {
-      return supportsHandlerMethod((HandlerMethod) handler);
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof String || returnValue instanceof View;
+  }
+
+  @Override
+  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+    if (handler.isReturn(String.class)) {
+      return !handler.isResponseBody();
     }
-    return isAllowLambdaDetect() && supportsLambda(handler);
+    return handler.isReturnTypeAssignableTo(View.class);
   }
 
   public static boolean supportsLambda(final Object handler) {
@@ -93,35 +90,25 @@ public class TemplateRendererReturnValueHandler
     return false;
   }
 
-  public static boolean supportsHandlerMethod(final HandlerMethod handlerMethod) {
-    if (handlerMethod.isReturn(String.class)) {
-      return handlerMethod.isResponseBody();
-    }
-    return false;
-  }
-
-  @Override
-  public boolean supportsReturnValue(Object returnValue) {
-    return returnValue instanceof String;
-  }
-
   @Override
   public void handleReturnValue(
-          RequestContext context, final Object handler, final Object returnValue) throws IOException {
-    if (returnValue instanceof String) {
-      renderTemplate((String) returnValue, context);
+          RequestContext context, Object handler, Object returnValue) throws Exception {
+    View view;
+    if (returnValue instanceof String viewName) {
+      Locale locale = RequestContextUtils.getLocale(context);
+      view = viewResolver.resolveViewName(viewName, locale);
+      if (view == null) {
+        throw new TemplateRenderingException(
+                "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
+      }
     }
+    else {
+      view = (View) returnValue;
+    }
+    renderView(context, view);
   }
 
-  /**
-   * use template-renderer render template to response
-   *
-   * @param templateName template name
-   * @param context request context
-   * @throws IOException If any {@link IOException} occurred when render template
-   * @see TemplateRenderer#render(String, RequestContext)
-   */
-  public void renderTemplate(String templateName, RequestContext context) throws IOException {
+  public void renderView(RequestContext context, View view) throws Exception {
     final RedirectModelManager modelManager = getModelManager();
     if (modelManager != null) { // @since 3.0.3 checking model manager
       final RedirectModel redirectModel = modelManager.retrieveAndUpdate(context);
@@ -130,30 +117,22 @@ public class TemplateRendererReturnValueHandler
         modelManager.saveRedirectModel(context, null);
       }
     }
-    templateRenderer.render(templateName, context);
+    if (context.hasModelAndView()) {
+      ModelAndView modelAndView = context.modelAndView();
+      view.render(modelAndView.asMap(), context);
+    }
+    else {
+      view.render(null, context);
+    }
   }
 
-  public boolean isAllowLambdaDetect() {
-    return allowLambdaDetect;
-  }
-
-  public void setAllowLambdaDetect(boolean allowLambdaDetect) {
-    this.allowLambdaDetect = allowLambdaDetect;
-  }
-
-  /** @since 4.0 */
-  public TemplateRenderer getTemplateRenderer() {
-    return templateRenderer;
-  }
-
-  /** @since 4.0 */
   public void setModelManager(@Nullable RedirectModelManager modelManager) {
     this.modelManager = modelManager;
   }
 
-  /** @since 4.0 */
   @Nullable
   public RedirectModelManager getModelManager() {
     return modelManager;
   }
+
 }

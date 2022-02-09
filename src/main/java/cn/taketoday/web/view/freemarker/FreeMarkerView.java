@@ -64,7 +64,6 @@ import freemarker.template.TemplateException;
  * @author Darren Davison
  * @author Juergen Hoeller
  * @see #setUrl
- * @see #setExposeMacroHelpers
  * @see #setEncoding
  * @see #setConfiguration
  * @see FreeMarkerConfig
