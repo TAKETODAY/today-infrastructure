@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 
@@ -38,6 +39,7 @@ public class WebSocketHandlerMethod {
 
   private final MethodInvoker handlerInvoker;
 
+  @Nullable
   private final ResolvableMethodParameter[] parameters;
 
   public WebSocketHandlerMethod(BeanSupplier<Object> supplier, Method method, ResolvableParameterFactory parameterBuilder) {
@@ -51,6 +53,7 @@ public class WebSocketHandlerMethod {
     handlerInvoker.invoke(supplier.get(), args);
   }
 
+  @Nullable
   public ResolvableMethodParameter[] getParameters() {
     return parameters;
   }

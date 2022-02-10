@@ -21,6 +21,7 @@
 package cn.taketoday.web.handler.method;
 
 import cn.taketoday.beans.factory.BeanSupplier;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -30,7 +31,7 @@ class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHand
   private final BeanSupplier<Object> beanSupplier;
 
   SuppliedActionMappingAnnotationHandler(
-          BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod, ResolvableMethodParameter[] parameters) {
+          BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters) {
     super(handlerMethod, parameters);
     this.beanSupplier = beanSupplier;
   }

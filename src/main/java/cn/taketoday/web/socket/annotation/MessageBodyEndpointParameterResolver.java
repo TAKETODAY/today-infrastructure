@@ -20,8 +20,13 @@
 
 package cn.taketoday.web.socket.annotation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.lang.reflect.Type;
+
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterReadFailedException;
 import cn.taketoday.web.socket.Message;
@@ -35,11 +40,12 @@ import cn.taketoday.web.socket.WebSocketSession;
  * @since 3.0.1
  */
 public class MessageBodyEndpointParameterResolver implements EndpointParameterResolver {
-  private final MessageBodyConverter messageBodyConverter;
 
-  public MessageBodyEndpointParameterResolver(MessageBodyConverter messageBodyConverter) {
-    Assert.notNull(messageBodyConverter, "MessageBodyConverter must not be null");
-    this.messageBodyConverter = messageBodyConverter;
+  private final ObjectMapper jacksonObjectMapper;
+
+  public MessageBodyEndpointParameterResolver(ObjectMapper jacksonObjectMapper) {
+    Assert.notNull(jacksonObjectMapper, "jacksonObjectMapper must not be null");
+    this.jacksonObjectMapper = jacksonObjectMapper;
   }
 
   @Override
@@ -51,11 +57,16 @@ public class MessageBodyEndpointParameterResolver implements EndpointParameterRe
   public Object resolve(
           WebSocketSession session, Message<?> message, ResolvableMethodParameter parameter) {
     if (message instanceof TextMessage) {
-      final String payload = (String) message.getPayload();
+      String payload = (String) message.getPayload();
       try {
-        return messageBodyConverter.read(payload, parameter);
+        return jacksonObjectMapper.readValue(payload, new TypeReference<>() {
+          @Override
+          public Type getType() {
+            return parameter.getResolvableType().getType();
+          }
+        });
       }
-      catch (Exception e) {
+      catch (JsonProcessingException e) {
         throw new ParameterReadFailedException(e);
       }
     }

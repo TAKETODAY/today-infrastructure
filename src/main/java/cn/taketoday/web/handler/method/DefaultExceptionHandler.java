@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -218,7 +219,7 @@ public class DefaultExceptionHandler
   protected static class ExceptionHandlerMappingHandler extends SuppliedActionMappingAnnotationHandler {
 
     ExceptionHandlerMappingHandler(
-            BeanSupplier<Object> beanSupplier, HandlerMethod method, ResolvableMethodParameter[] parameters) {
+            BeanSupplier<Object> beanSupplier, HandlerMethod method, @Nullable ResolvableMethodParameter[] parameters) {
       super(beanSupplier, method, parameters);
     }
 

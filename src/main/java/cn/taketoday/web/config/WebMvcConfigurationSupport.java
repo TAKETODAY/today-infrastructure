@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
@@ -75,31 +75,17 @@ import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 23:43
  */
+@DisableAllDependencyInjection
 public class WebMvcConfigurationSupport implements ApplicationContextAware {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
-  private static final boolean romePresent;
-
-  private static final boolean jackson2Present;
-
-  private static final boolean jackson2SmilePresent;
-
-  private static final boolean jackson2CborPresent;
-
-  private static final boolean gsonPresent;
-
-  private static final boolean jsonbPresent;
-
-  static {
-    ClassLoader classLoader = WebMvcAutoConfiguration.class.getClassLoader();
-    romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", classLoader);
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
-            ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
-    jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
-    jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", classLoader);
-    gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
-    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
-  }
+  private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
+  private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
+  private static final boolean romePresent = isPresent("com.rometools.rome.feed.WireFeed");
+  private static final boolean jackson2Present = isPresent("com.fasterxml.jackson.databind.ObjectMapper")
+          && isPresent("com.fasterxml.jackson.core.JsonGenerator");
+  private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
+  private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
 
   private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
 
@@ -231,6 +217,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * requested {@linkplain MediaType media types} in a given request.
    */
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ContentNegotiationManager contentNegotiationManager() {
     if (this.contentNegotiationManager == null) {
       ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
@@ -298,7 +285,6 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * to allow other potential {@link ViewResolver} beans to resolve views.
    */
   @Component
-  @DisableDependencyInjection
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ViewResolver webViewResolver(ContentNegotiationManager contentNegotiationManager) {
     ViewResolverRegistry registry =
@@ -396,6 +382,11 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
       this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
     }
 
+  }
+
+  static boolean isPresent(String name) {
+    ClassLoader classLoader = WebMvcAutoConfiguration.class.getClassLoader();
+    return ClassUtils.isPresent(name, classLoader);
   }
 
 }

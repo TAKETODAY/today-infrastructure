@@ -26,6 +26,7 @@ import java.util.Objects;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -58,10 +59,11 @@ public abstract class ActionMappingAnnotationHandler
   private ReturnValueHandler returnValueHandler;
 
   // resolvable parameters
+  @Nullable
   private final ResolvableMethodParameter[] resolvableParameters;
 
   public ActionMappingAnnotationHandler(
-          HandlerMethod handlerMethod, ResolvableMethodParameter[] parameters) {
+          HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters) {
     this.resolvableParameters = parameters;
     this.handlerMethod = handlerMethod;
   }
@@ -74,6 +76,7 @@ public abstract class ActionMappingAnnotationHandler
     this.resolvableParameters = handler.resolvableParameters;
   }
 
+  @Nullable
   public ResolvableMethodParameter[] getResolvableParameters() {
     return resolvableParameters;
   }

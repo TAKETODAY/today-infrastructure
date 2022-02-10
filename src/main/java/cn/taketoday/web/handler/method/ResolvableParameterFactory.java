@@ -39,6 +39,7 @@ import cn.taketoday.util.ObjectUtils;
 public class ResolvableParameterFactory {
   private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
+  @Nullable
   public ResolvableMethodParameter[] createArray(Method method) {
     final int length = method.getParameterCount();
     if (length == 0) {

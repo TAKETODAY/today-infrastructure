@@ -126,8 +126,8 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
         }
       }
       combined.add(defaultConverter);
-      if (defaultConverter instanceof AllEncompassingFormHttpMessageConverter) {
-        configurePartConverters((AllEncompassingFormHttpMessageConverter) defaultConverter, converters);
+      if (defaultConverter instanceof AllEncompassingFormHttpMessageConverter allEncompassingConverters) {
+        configurePartConverters(allEncompassingConverters, converters);
       }
     }
     combined.addAll(0, processing);

@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.socket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,7 +32,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.MessageBodyConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
@@ -101,9 +102,8 @@ class WebSocketConfig implements WebApplicationInitializer {
   }
 
   @MissingBean
-  MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(
-          MessageBodyConverter messageBodyConverter) {
-    return new MessageBodyEndpointParameterResolver(messageBodyConverter);
+  MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(ObjectMapper jacksonObjectMapper) {
+    return new MessageBodyEndpointParameterResolver(jacksonObjectMapper);
   }
 
   @Override

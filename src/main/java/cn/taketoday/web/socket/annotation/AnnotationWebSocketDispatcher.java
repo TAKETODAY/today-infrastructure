@@ -77,16 +77,16 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
 
   protected Object[] resolveParameters(
           WebSocketSession session, WebSocketHandlerMethod handler, Message<?> message, Object... providedArgs) {
-    final ResolvableMethodParameter[] parameters = handler.getParameters();
+    ResolvableMethodParameter[] parameters = handler.getParameters();
     if (parameters == null) {
       return null;
     }
-    final Object[] ret = new Object[parameters.length];
+    Object[] ret = new Object[parameters.length];
     int i = 0;
-    for (final ResolvableMethodParameter parameter : parameters) {
+    for (ResolvableMethodParameter parameter : parameters) {
       Object argument = findProvidedArgument(parameter, providedArgs);
       if (argument == null) {
-        for (final EndpointParameterResolver resolver : resolvers) {
+        for (EndpointParameterResolver resolver : resolvers) {
           if (resolver.supports(parameter)) {
             argument = resolver.resolve(session, message, parameter);
             break;
