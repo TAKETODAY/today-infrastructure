@@ -27,7 +27,11 @@ import java.lang.annotation.Target;
 
 /**
  * A common annotation to declare that annotated elements is <b>Experimental</b>
- * May be deleted in the future
+ * that can change at any time, and has no guarantee of API stability and
+ * backward-compatibility. If users want stabilization or signature change of a specific API that
+ * is currently annotated {@code @Experimental}, please comment on its tracking issue on GitHub
+ * with rationale, use-cases, and so forth, so that may prioritize the process toward
+ * stabilization of the API.
  *
  * @author TODAY 2021/9/28 11:24
  * @since 4.0
@@ -36,7 +40,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({
         ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD,
-        ElementType.TYPE, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR
+        ElementType.PACKAGE, ElementType.TYPE, ElementType.ANNOTATION_TYPE,
+        ElementType.CONSTRUCTOR
 })
 public @interface Experimental {
+
+  /**
+   * description
+   */
+  String value() default "";
 }
