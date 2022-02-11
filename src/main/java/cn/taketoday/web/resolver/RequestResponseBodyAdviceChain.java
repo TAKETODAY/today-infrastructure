@@ -63,7 +63,7 @@ class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyA
   @SuppressWarnings("unchecked")
   static <T> List<T> getAdviceByType(@Nullable List<Object> requestResponseBodyAdvice, Class<T> adviceType) {
     if (requestResponseBodyAdvice != null) {
-      List<T> result = new ArrayList<>();
+      ArrayList<T> result = new ArrayList<>();
       for (Object advice : requestResponseBodyAdvice) {
         Class<?> beanType = advice instanceof ControllerAdviceBean adviceBean
                             ? adviceBean.getBeanType() : advice.getClass();
@@ -129,43 +129,45 @@ class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyA
 
     for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class)) {
       if (advice.supports(parameter, targetType, converterType)) {
-        body = advice.handleEmptyBody(body, inputMessage, parameter, targetType, converterType);
+        body = advice.handleEmptyBody(
+                body, inputMessage, parameter, targetType, converterType);
       }
     }
     return body;
   }
 
-  @SuppressWarnings("unchecked")
   @Nullable
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private <T> Object processBody(
           @Nullable Object body, MethodParameter returnType, MediaType contentType,
           Class<? extends HttpMessageConverter<?>> converterType, RequestContext context) {
 
     for (ResponseBodyAdvice<?> advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class)) {
       if (advice.supports(returnType, converterType)) {
-        body = ((ResponseBodyAdvice<T>) advice).beforeBodyWrite((T) body, returnType,
-                contentType, converterType, context);
+        body = ((ResponseBodyAdvice) advice).beforeBodyWrite(
+                body, returnType, contentType, converterType, context);
       }
     }
     return body;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private <A> List<A> getMatchingAdvice(MethodParameter parameter, Class<? extends A> adviceType) {
     List<Object> availableAdvice = getAdvice(adviceType);
     if (CollectionUtils.isEmpty(availableAdvice)) {
       return Collections.emptyList();
     }
-    ArrayList<A> result = new ArrayList<>(availableAdvice.size());
+    Class<?> containingClass = parameter.getContainingClass();
+    ArrayList result = new ArrayList<>(availableAdvice.size());
     for (Object advice : availableAdvice) {
       if (advice instanceof ControllerAdviceBean adviceBean) {
-        if (!adviceBean.isApplicableToBeanType(parameter.getContainingClass())) {
+        if (!adviceBean.isApplicableToBeanType(containingClass)) {
           continue;
         }
         advice = adviceBean.resolveBean();
       }
       if (adviceType.isAssignableFrom(advice.getClass())) {
-        result.add((A) advice);
+        result.add(advice);
       }
     }
     return result;
