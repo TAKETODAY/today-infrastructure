@@ -21,6 +21,7 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -57,11 +58,17 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
+import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
+import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
@@ -355,8 +362,37 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     handler.setModelManager(redirectModelManager);
     handlers.setViewReturnValueHandler(handler);
 
+    if (jackson2Present) {
+      handlers.setResponseBodyAdvice(
+              Collections.singletonList(new JsonViewResponseBodyAdvice()));
+    }
+
     handlers.registerDefaultHandlers();
     return handlers;
+  }
+
+  /**
+   * default {@link ParameterResolvingStrategy} registry
+   */
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  ParameterResolvingRegistry parameterResolvingRegistry(
+          WebApplicationContext context, MultipartConfiguration multipartConfig) {
+
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    registry.setApplicationContext(context);
+    registry.setMultipartConfig(multipartConfig);
+    registry.setMessageConverters(getMessageConverters());
+    // @since 3.0
+    registry.registerDefaultParameterResolvers();
+
+    if (jackson2Present) {
+      registry.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
+      registry.setResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
+    }
+
+    return registry;
   }
 
   // ControllerAdvice

@@ -37,7 +37,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.template.TemplateRenderingException;
 
 /**
- * view-name ReturnValueHandler
+ * view-name or {@link View} ReturnValueHandler
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see View

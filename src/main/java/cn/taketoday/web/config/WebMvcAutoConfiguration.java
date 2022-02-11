@@ -31,15 +31,12 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
 import cn.taketoday.lang.Component;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 
 /**
  * Web MVC auto configuration
@@ -97,23 +94,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       registry.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
     }
 
-    return registry;
-  }
-
-  /**
-   * default {@link ParameterResolvingStrategy} registry
-   */
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ParameterResolvingRegistry parameterResolvingRegistry(
-          WebApplicationContext context, MultipartConfiguration multipartConfig) {
-    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
-    registry.setApplicationContext(context);
-    registry.setMultipartConfig(multipartConfig);
-    registry.setMessageConverters(getMessageConverters());
-    // @since 3.0
-    registry.registerDefaultParameterResolvers();
     return registry;
   }
 

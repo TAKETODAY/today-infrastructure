@@ -81,8 +81,11 @@ public interface RequestBodyAdvice {
    * @param converterType the converter used to deserialize the body
    * @return the same body or a new instance
    */
-  Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
-                       Type targetType, Class<? extends HttpMessageConverter<?>> converterType);
+  default Object afterBodyRead(
+          Object body, HttpInputMessage inputMessage, MethodParameter parameter,
+          Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+    return body;
+  }
 
   /**
    * Invoked second (and last) if the body is empty.
@@ -97,8 +100,11 @@ public interface RequestBodyAdvice {
    * {@code HttpMessageNotReadableException} if the argument is required
    */
   @Nullable
-  Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage, MethodParameter parameter,
-                         Type targetType, Class<? extends HttpMessageConverter<?>> converterType);
+  default Object handleEmptyBody(
+          @Nullable Object body, HttpInputMessage inputMessage, MethodParameter parameter,
+          Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+    return body;
+  }
 
 }
 
