@@ -21,25 +21,15 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
-import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
-import cn.taketoday.lang.Component;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.NotFoundRequestAdapter;
-import cn.taketoday.web.handler.method.DefaultExceptionHandler;
-import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 
 /**
- * Web MVC auto configuration
+ * Web MVC configuration
  * <p>
  * config framework
  * </p>
@@ -50,61 +40,5 @@ import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Import(JacksonAutoConfiguration.class)
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
-
-  /**
-   * default {@link MultipartConfiguration} bean
-   */
-  @Lazy
-  @Component
-  @EnableDependencyInjection
-  @Props(prefix = "multipart.")
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(MultipartConfiguration.class)
-  MultipartConfiguration multipartConfiguration() {
-    return new MultipartConfiguration();
-  }
-
-  /**
-   * default {@link NotFoundRequestAdapter} to handle request-url not found
-   */
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(NotFoundRequestAdapter.class)
-  NotFoundRequestAdapter notFoundRequestAdapter() {
-    return new NotFoundRequestAdapter();
-  }
-
-  /**
-   * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
-   */
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  RequestPathMappingHandlerRegistry requestPathMappingHandlerRegistry() {
-    RequestPathMappingHandlerRegistry registry = new RequestPathMappingHandlerRegistry();
-    PathMatchConfigurer configurer = getPathMatchConfigurer();
-
-    Boolean useTrailingSlashMatch = configurer.isUseTrailingSlashMatch();
-    if (useTrailingSlashMatch != null) {
-      registry.setUseTrailingSlashMatch(useTrailingSlashMatch);
-    }
-
-    Boolean useCaseSensitiveMatch = configurer.isUseCaseSensitiveMatch();
-    if (useCaseSensitiveMatch != null) {
-      registry.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
-    }
-
-    return registry;
-  }
-
-  /**
-   * default {@link HandlerExceptionHandler}
-   */
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(HandlerExceptionHandler.class)
-  DefaultExceptionHandler defaultExceptionHandler() {
-    return new DefaultExceptionHandler();
-  }
 
 }

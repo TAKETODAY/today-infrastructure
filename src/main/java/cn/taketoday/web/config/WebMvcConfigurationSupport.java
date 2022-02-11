@@ -33,6 +33,8 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -60,13 +62,17 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
+import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.handler.ReturnValueHandlers;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
+import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
@@ -363,7 +369,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     handlers.setViewReturnValueHandler(handler);
 
     if (jackson2Present) {
-      handlers.setResponseBodyAdvice(
+      handlers.addResponseBodyAdvice(
               Collections.singletonList(new JsonViewResponseBodyAdvice()));
     }
 
@@ -383,13 +389,69 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
     registry.setMultipartConfig(multipartConfig);
-    registry.setMessageConverters(getMessageConverters());
-    // @since 3.0
     registry.registerDefaultParameterResolvers();
+    registry.setMessageConverters(getMessageConverters());
 
     if (jackson2Present) {
-      registry.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
-      registry.setResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
+      registry.addRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
+      registry.addResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
+    }
+
+    return registry;
+  }
+
+  /**
+   * default {@link MultipartConfiguration} bean
+   */
+  @Lazy
+  @Component
+  @Props(prefix = "multipart.")
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(MultipartConfiguration.class)
+  MultipartConfiguration multipartConfiguration() {
+    return new MultipartConfiguration();
+  }
+
+  /**
+   * default {@link NotFoundRequestAdapter} to handle request-url not found
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(NotFoundRequestAdapter.class)
+  NotFoundRequestAdapter notFoundRequestAdapter() {
+    return new NotFoundRequestAdapter();
+  }
+
+  /**
+   * default {@link HandlerExceptionHandler}
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(HandlerExceptionHandler.class)
+  DefaultExceptionHandler defaultExceptionHandler() {
+    return new DefaultExceptionHandler();
+  }
+
+  // HandlerRegistry
+
+  /**
+   * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
+   */
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  RequestPathMappingHandlerRegistry requestPathMappingHandlerRegistry() {
+    RequestPathMappingHandlerRegistry registry = new RequestPathMappingHandlerRegistry();
+    PathMatchConfigurer configurer = getPathMatchConfigurer();
+
+    Boolean useTrailingSlashMatch = configurer.isUseTrailingSlashMatch();
+    if (useTrailingSlashMatch != null) {
+      registry.setUseTrailingSlashMatch(useTrailingSlashMatch);
+    }
+
+    Boolean useCaseSensitiveMatch = configurer.isUseCaseSensitiveMatch();
+    if (useCaseSensitiveMatch != null) {
+      registry.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
     }
 
     return registry;

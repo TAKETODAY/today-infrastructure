@@ -345,7 +345,7 @@ public class ReturnValueHandlers
    * request before it is read and converted for {@code @RequestBody} and
    * {@code HttpEntity} method arguments.
    */
-  public void setRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
+  public void addRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
     if (requestBodyAdvice != null) {
       this.requestResponseBodyAdvice.addAll(requestBodyAdvice);
     }
@@ -356,7 +356,7 @@ public class ReturnValueHandlers
    * response before {@code @ResponseBody} or {@code ResponseEntity} return
    * values are written to the response body.
    */
-  public void setResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
+  public void addResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
     if (responseBodyAdvice != null) {
       this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
     }
