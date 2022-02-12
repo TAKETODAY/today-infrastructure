@@ -97,20 +97,17 @@ public class ReturnValueHandlerManager
   public void addHandlers(ReturnValueHandler... handlers) {
     Assert.notNull(handlers, "handler must not be null");
     Collections.addAll(this.handlers, handlers);
-    sort();
   }
 
   public void addHandlers(List<ReturnValueHandler> handlers) {
     Assert.notNull(handlers, "handler must not be null");
     this.handlers.addAll(handlers);
-    sort();
   }
 
   public void setHandlers(List<ReturnValueHandler> handlers) {
     Assert.notNull(handlers, "handler must not be null");
     this.handlers.clear();
     this.handlers.addAll(handlers);
-    sort();
   }
 
   public void sort() {

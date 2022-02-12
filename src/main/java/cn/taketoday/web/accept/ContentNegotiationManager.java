@@ -48,6 +48,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ContentNegotiationManager implements ContentNegotiationStrategy, MediaTypeFileExtensionResolver {
