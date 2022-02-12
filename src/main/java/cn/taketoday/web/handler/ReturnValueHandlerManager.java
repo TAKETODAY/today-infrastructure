@@ -79,7 +79,7 @@ public class ReturnValueHandlerManager
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
   // @since 4.0
-  private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
+  private final ArrayList<Object> bodyAdvice = new ArrayList<>();
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
@@ -122,10 +122,28 @@ public class ReturnValueHandlerManager
     return handlers;
   }
 
+  @Nullable
   public ReturnValueHandler getHandler(final Object handler) {
     Assert.notNull(handler, "handler must not be null");
-    for (final ReturnValueHandler resolver : getHandlers()) {
+    for (ReturnValueHandler resolver : getHandlers()) {
       if (resolver.supportsHandler(handler)) {
+        return resolver;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * search by {@code returnValue}
+   *
+   * @param returnValue returnValue
+   * @return {@code ReturnValueHandler} maybe null
+   */
+  // @since 4.0
+  @Nullable
+  public ReturnValueHandler getByReturnValue(@Nullable Object returnValue) {
+    for (ReturnValueHandler resolver : getHandlers()) {
+      if (resolver.supportsReturnValue(returnValue)) {
         return resolver;
       }
     }
@@ -139,7 +157,7 @@ public class ReturnValueHandlerManager
    * @return A suitable {@link ReturnValueHandler}
    */
   public ReturnValueHandler obtainHandler(Object handler) {
-    final ReturnValueHandler returnValueHandler = getHandler(handler);
+    ReturnValueHandler returnValueHandler = getHandler(handler);
     if (returnValueHandler == null) {
       throw new ReturnValueHandlerNotFoundException(handler);
     }
@@ -172,7 +190,6 @@ public class ReturnValueHandlerManager
 
     ObjectHandlerMethodReturnValueHandler objectHandler = getObjectHandler(compositeHandler);
 
-    //
     List<ReturnValueHandler> handlers = getHandlers();
     handlers.add(imageHandler);
     handlers.add(viewHandler);
@@ -182,10 +199,12 @@ public class ReturnValueHandlerManager
     handlers.add(new HttpStatusReturnValueHandler());
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
-    handlers.add(new HttpEntityMethodProcessor(
-            messageConverters, contentNegotiationManager, requestResponseBodyAdvice, redirectModelManager));
 
-    handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, requestResponseBodyAdvice));
+    handlers.add(new HttpEntityMethodProcessor(
+            messageConverters, contentNegotiationManager, bodyAdvice, redirectModelManager));
+
+    handlers.add(new RequestResponseBodyMethodProcessor(
+            messageConverters, contentNegotiationManager, bodyAdvice));
 
     // fall back
     handlers.add(objectHandler);
@@ -242,7 +261,7 @@ public class ReturnValueHandlerManager
   /**
    * @since 4.0
    */
-  boolean contains(Class<?> handlerClass, List<ReturnValueHandler> handlers) {
+  protected boolean contains(Class<?> handlerClass, List<ReturnValueHandler> handlers) {
     return get(handlerClass, handlers) != null;
   }
 
@@ -262,8 +281,8 @@ public class ReturnValueHandlerManager
    */
   @Nullable
   @SuppressWarnings("unchecked")
-  final <T> T get(Class<T> handlerClass, List<ReturnValueHandler> handlers) {
-    for (final ReturnValueHandler handler : handlers) {
+  protected final <T> T get(Class<T> handlerClass, List<ReturnValueHandler> handlers) {
+    for (ReturnValueHandler handler : handlers) {
       if (handlerClass.isInstance(handler)) {
         return (T) handler;
       }
@@ -349,14 +368,14 @@ public class ReturnValueHandlerManager
    * @since 4.0
    */
   public void addRequestResponseBodyAdvice(@Nullable List<Object> list) {
-    CollectionUtils.addAll(requestResponseBodyAdvice, list);
+    CollectionUtils.addAll(bodyAdvice, list);
   }
 
   /**
    * @since 4.0
    */
   public List<Object> getRequestResponseBodyAdvice() {
-    return requestResponseBodyAdvice;
+    return bodyAdvice;
   }
 
   public void setViewReturnValueHandler(@Nullable ViewReturnValueHandler viewReturnValueHandler) {
@@ -377,7 +396,7 @@ public class ReturnValueHandlerManager
             && Objects.equals(redirectModelManager, that.redirectModelManager)
             && Objects.equals(viewReturnValueHandler, that.viewReturnValueHandler)
             && Objects.equals(contentNegotiationManager, that.contentNegotiationManager)
-            && Objects.equals(requestResponseBodyAdvice, that.requestResponseBodyAdvice);
+            && Objects.equals(bodyAdvice, that.bodyAdvice);
   }
 
   @Override
@@ -385,7 +404,7 @@ public class ReturnValueHandlerManager
     return Objects.hash(handlers, redirectModelManager,
             viewReturnValueHandler, objectHandler,
             viewResolver, messageConverters, contentNegotiationManager,
-            requestResponseBodyAdvice, imageFormatName);
+            bodyAdvice, imageFormatName);
   }
 
   @Override
@@ -394,7 +413,7 @@ public class ReturnValueHandlerManager
             .append("handlers", handlers)
             .append("viewResolver", viewResolver)
             .append("messageConverters", messageConverters)
-            .append("requestResponseBodyAdvice", requestResponseBodyAdvice)
+            .append("requestResponseBodyAdvice", bodyAdvice)
             .toString();
   }
 }

@@ -53,7 +53,7 @@ public abstract class ActionMappingAnnotationHandler
   private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
-  private ReturnValueHandlerManager resultHandlers;
+  private ReturnValueHandlerManager returnValueHandlerManager;
 
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
@@ -71,7 +71,7 @@ public abstract class ActionMappingAnnotationHandler
   public ActionMappingAnnotationHandler(ActionMappingAnnotationHandler handler) {
     this.handlerMethod = handler.handlerMethod;
     this.handlerInvoker = handler.handlerInvoker;
-    this.resultHandlers = handler.resultHandlers;
+    this.returnValueHandlerManager = handler.returnValueHandlerManager;
     this.returnValueHandler = handler.returnValueHandler;
     this.resolvableParameters = handler.resolvableParameters;
   }
@@ -90,7 +90,7 @@ public abstract class ActionMappingAnnotationHandler
   }
 
   public void setReturnValueHandlers(ReturnValueHandlerManager resultHandlers) {
-    this.resultHandlers = resultHandlers;
+    this.returnValueHandlerManager = resultHandlers;
   }
 
   // InterceptableRequestHandler
@@ -166,7 +166,7 @@ public abstract class ActionMappingAnnotationHandler
 
     ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
-      returnValueHandler = resultHandlers.obtainHandler(this);
+      returnValueHandler = returnValueHandlerManager.obtainHandler(this);
       this.returnValueHandler = returnValueHandler;
     }
     returnValueHandler.handleReturnValue(context, handler, returnValue);
