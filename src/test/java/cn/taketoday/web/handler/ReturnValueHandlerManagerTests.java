@@ -28,8 +28,14 @@ import java.util.List;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.resolver.HttpEntityMethodProcessor;
+import cn.taketoday.web.resolver.RequestResponseBodyMethodProcessor;
+import cn.taketoday.web.view.SessionRedirectModelManager;
+import cn.taketoday.web.view.ViewReturnValueHandler;
+import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -133,7 +139,119 @@ class ReturnValueHandlerManagerTests {
     assertThat(manager.contains(HttpStatusReturnValueHandler.class)).isTrue();
 
     assertThat(manager.get(HttpStatusReturnValueHandler.class)).isNotNull();
+    assertThat(manager.get((Class<?>) null)).isNull();
 
   }
 
+  @Test
+  void requestResponseBodyAdvice() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    assertThat(manager.getRequestResponseBodyAdvice()).isEmpty();
+
+    manager.addRequestResponseBodyAdvice(List.of(new Object()));
+    assertThat(manager.getRequestResponseBodyAdvice()).isNotEmpty().hasSize(1);
+
+    manager.setRequestResponseBodyAdvice(List.of(new Object()));
+    assertThat(manager.getRequestResponseBodyAdvice()).isNotEmpty().hasSize(1);
+
+  }
+
+  @Test
+  void contentNegotiationManager() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+    manager.setContentNegotiationManager(contentNegotiationManager);
+  }
+
+  @Test
+  void imageFormatName() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    assertThat(manager.getImageFormatName()).isEqualTo("png");
+
+    manager.setImageFormatName("jpg");
+    assertThat(manager.getImageFormatName()).isEqualTo("jpg");
+  }
+
+  @Test
+  void removeIf() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    manager.setHandlers(List.of(new HttpStatusReturnValueHandler()));
+
+    assertThat(manager.contains(HttpStatusReturnValueHandler.class)).isTrue();
+    manager.removeIf(HttpStatusReturnValueHandler.class::isInstance);
+    assertThat(manager.contains(HttpStatusReturnValueHandler.class)).isFalse();
+
+    manager.trimToSize();
+  }
+
+  @Test
+  void registerDefaultHandlers() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    manager.setViewReturnValueHandler(new ViewReturnValueHandler(new DefaultTemplateViewResolver()));
+    manager.registerDefaultHandlers();
+
+    assertThat(manager.contains(ModelAndViewReturnValueHandler.class)).isTrue();
+    assertThat(manager.contains(VoidReturnValueHandler.class)).isTrue();
+    assertThat(manager.contains(HttpHeadersReturnValueHandler.class)).isTrue();
+    assertThat(manager.contains(HttpStatusReturnValueHandler.class)).isTrue();
+
+    assertThat(manager.contains(ObjectHandlerMethodReturnValueHandler.class)).isTrue();
+    assertThat(manager.contains(VoidReturnValueHandler.class)).isTrue();
+    assertThat(manager.contains(HttpEntityMethodProcessor.class)).isTrue();
+    assertThat(manager.contains(RequestResponseBodyMethodProcessor.class)).isTrue();
+    assertThat(manager.contains(RequestResponseBodyMethodProcessor.class)).isTrue();
+
+  }
+
+  @Test
+  void redirectModelManager() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+
+    assertThat(manager.getRedirectModelManager())
+            .isNull();
+
+    SessionRedirectModelManager redirectModelManager = new SessionRedirectModelManager();
+    manager.setRedirectModelManager(redirectModelManager);
+
+    assertThat(manager.getRedirectModelManager())
+            .isEqualTo(redirectModelManager);
+  }
+
+  @Test
+  void objectHandler() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+
+    assertThat(manager.getObjectHandler())
+            .isNull();
+
+    ObjectHandlerMethodReturnValueHandler objectHandler = new ObjectHandlerMethodReturnValueHandler(List.of());
+    manager.setObjectHandler(objectHandler);
+
+    assertThat(manager.getObjectHandler())
+            .isEqualTo(objectHandler);
+  }
+
+  @Test
+  void viewResolver() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    DefaultTemplateViewResolver webViewResolver = new DefaultTemplateViewResolver();
+    manager.setViewResolver(webViewResolver);
+
+    manager.registerDefaultHandlers();
+    ViewReturnValueHandler viewReturnValueHandler = manager.get(ViewReturnValueHandler.class);
+
+    assertThat(viewReturnValueHandler).isNotNull();
+    assertThat(viewReturnValueHandler.getModelManager()).isNull();
+    assertThat(webViewResolver).isEqualTo(viewReturnValueHandler.getViewResolver());
+  }
+
+  @Test
+  void managerEquals() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    assertThat(manager.equals(null)).isFalse();
+
+    assertThat(manager.equals("")).isFalse();
+    assertThat(manager.equals(manager)).isTrue();
+
+  }
 }

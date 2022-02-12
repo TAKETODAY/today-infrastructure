@@ -43,6 +43,7 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
  * @see InternalResourceViewResolver
  * @see ContentNegotiatingViewResolver
  * @see BeanNameViewResolver
+ * @see cn.taketoday.web.view.template.DefaultTemplateViewResolver
  * @since 4.0 2022/1/29 11:12
  */
 public interface ViewResolver {

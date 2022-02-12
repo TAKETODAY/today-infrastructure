@@ -47,8 +47,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  * @since 4.0 2022/2/7 15:36
  */
 public abstract class AbstractRedirectModelManager implements RedirectModelManager {
-
-  private static final Object DEFAULT_FLASH_MAPS_MUTEX = new Object();
+  protected static final Object DEFAULT_FLASH_MAPS_MUTEX = new Object();
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 

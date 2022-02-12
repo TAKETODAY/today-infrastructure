@@ -132,4 +132,8 @@ public class ViewReturnValueHandler
     return modelManager;
   }
 
+  public ViewResolver getViewResolver() {
+    return viewResolver;
+  }
+
 }
