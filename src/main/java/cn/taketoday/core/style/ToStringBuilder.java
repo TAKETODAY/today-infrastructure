@@ -203,7 +203,7 @@ public class ToStringBuilder {
     return this.buffer.toString();
   }
 
-  public static ToStringBuilder valueOf(Object obj) {
+  public static ToStringBuilder from(Object obj) {
     return new ToStringBuilder(obj);
   }
 

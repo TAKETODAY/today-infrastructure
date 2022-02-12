@@ -457,7 +457,7 @@ public class ParameterResolvingRegistry
 
   @Override
   public String toString() {
-    return ToStringBuilder.valueOf(this)
+    return ToStringBuilder.from(this)
             .append("defaultStrategies", defaultStrategies.size())
             .append("customizedStrategies", customizedStrategies.size())
             .toString();

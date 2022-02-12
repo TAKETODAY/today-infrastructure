@@ -158,7 +158,7 @@ public class WebServletInitializer<T extends Servlet>
 
   @Override
   public String toString() {
-    return ToStringBuilder.valueOf(this)
+    return ToStringBuilder.from(this)
             .append("servlet", servlet)
             .append("name", getOrDeduceName(servlet))
             .append("loadOnStartup", loadOnStartup)

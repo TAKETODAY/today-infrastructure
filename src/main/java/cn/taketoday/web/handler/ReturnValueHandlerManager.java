@@ -22,10 +22,12 @@ package cn.taketoday.web.handler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -364,4 +366,38 @@ public class ReturnValueHandlerManager
     this.viewReturnValueHandler = viewReturnValueHandler;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof ReturnValueHandlerManager that))
+      return false;
+    return Objects.equals(handlers, that.handlers)
+            && Objects.equals(viewResolver, that.viewResolver)
+            && Objects.equals(objectHandler, that.objectHandler)
+            && Objects.equals(imageFormatName, that.imageFormatName)
+            && Objects.equals(messageConverters, that.messageConverters)
+            && Objects.equals(redirectModelManager, that.redirectModelManager)
+            && Objects.equals(viewReturnValueHandler, that.viewReturnValueHandler)
+            && Objects.equals(contentNegotiationManager, that.contentNegotiationManager)
+            && Objects.equals(requestResponseBodyAdvice, that.requestResponseBodyAdvice);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(handlers, redirectModelManager,
+            viewReturnValueHandler, objectHandler,
+            viewResolver, messageConverters, contentNegotiationManager,
+            requestResponseBodyAdvice, imageFormatName);
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.from(this)
+            .append("handlers", handlers)
+            .append("viewResolver", viewResolver)
+            .append("messageConverters", messageConverters)
+            .append("requestResponseBodyAdvice", requestResponseBodyAdvice)
+            .toString();
+  }
 }

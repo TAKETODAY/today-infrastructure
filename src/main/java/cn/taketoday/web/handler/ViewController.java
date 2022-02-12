@@ -90,7 +90,7 @@ public class ViewController extends OrderedSupport {
 
   @Override
   public String toString() {
-    return ToStringBuilder.valueOf(this)
+    return ToStringBuilder.from(this)
             .append("status", status)
             .append("resource", resource)
             .append("contentType", contentType)

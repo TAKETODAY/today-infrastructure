@@ -84,7 +84,7 @@ public class MultipartConfiguration {
 
   @Override
   public String toString() {
-    return ToStringBuilder.valueOf(this)
+    return ToStringBuilder.from(this)
             .append("encoding", encoding)
             .append("maxFileSize", maxFileSize)
             .append("maxRequestSize", maxRequestSize)

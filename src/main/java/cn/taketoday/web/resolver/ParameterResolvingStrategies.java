@@ -202,7 +202,7 @@ public class ParameterResolvingStrategies
 
   @Override
   public String toString() {
-    return ToStringBuilder.valueOf(this)
+    return ToStringBuilder.from(this)
             .append("strategies", strategies.size())
             .toString();
   }
