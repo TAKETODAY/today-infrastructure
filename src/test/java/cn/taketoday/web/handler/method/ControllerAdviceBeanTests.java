@@ -307,10 +307,10 @@ class ControllerAdviceBeanTests {
           AbstractController.class })
   static class AssignableTypesSupport { }
 
-  @ControllerAdvice(basePackages = "org.springframework.web.method")
+  @ControllerAdvice(basePackages = "cn.taketoday.web.handler.method")
   static class BasePackageSupport { }
 
-  @ControllerAdvice("org.springframework.web.method")
+  @ControllerAdvice("cn.taketoday.web.handler.method")
   static class BasePackageValueSupport { }
 
   @ControllerAdvice(annotations = ControllerAnnotation.class, assignableTypes = ControllerInterface.class)
