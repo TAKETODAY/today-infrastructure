@@ -236,7 +236,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
         }
       }
       else if (returnStatus / 100 == 3) {
-        String location = outputHeaders.getFirst("location");
+        String location = outputHeaders.getFirst(HttpHeaders.LOCATION);
         if (location != null) {
           saveRedirectAttributes(context, location);
         }

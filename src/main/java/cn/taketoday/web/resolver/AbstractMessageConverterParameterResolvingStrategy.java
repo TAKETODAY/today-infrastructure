@@ -177,7 +177,7 @@ public abstract class AbstractMessageConverterParameterResolvingStrategy impleme
                 converter instanceof GenericHttpMessageConverter
                 ? (GenericHttpMessageConverter<?>) converter : null;
         if (genericConverter != null ? genericConverter.canRead(targetType, contextClass, contentType)
-                                     : (targetClass != null && converter.canRead(targetClass, contentType))) {
+                                     : targetClass != null && converter.canRead(targetClass, contentType)) {
 
           if (message.hasBody()) {
             HttpInputMessage msgToUse =

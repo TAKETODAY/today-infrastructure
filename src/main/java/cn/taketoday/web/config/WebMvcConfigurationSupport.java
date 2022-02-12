@@ -100,7 +100,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
 
-  private final ArrayList<Object> requestResponseBodyAdvice = new ArrayList<>();
+  private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
@@ -122,6 +122,35 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   @Override
   public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
+    initControllerAdviceCache();
+  }
+
+  private void initControllerAdviceCache() {
+    if (getApplicationContext() == null) {
+      return;
+    }
+
+    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
+    ArrayList<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
+    for (ControllerAdviceBean adviceBean : adviceBeans) {
+      Class<?> beanType = adviceBean.getBeanType();
+      if (beanType == null) {
+        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
+      }
+      if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
+        requestResponseBodyAdviceBeans.add(adviceBean);
+      }
+    }
+
+    if (!requestResponseBodyAdviceBeans.isEmpty()) {
+      this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
+    }
+
+    if (jackson2Present) {
+      requestResponseBodyAdvice.add(new JsonViewRequestBodyAdvice());
+      requestResponseBodyAdvice.add(new JsonViewResponseBodyAdvice());
+    }
+
   }
 
   //---------------------------------------------------------------------
@@ -369,6 +398,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     handlers.setViewReturnValueHandler(handler);
 
     if (jackson2Present) {
+
       handlers.addResponseBodyAdvice(
               Collections.singletonList(new JsonViewResponseBodyAdvice()));
     }
@@ -391,11 +421,6 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     registry.setMultipartConfig(multipartConfig);
     registry.registerDefaultParameterResolvers();
     registry.setMessageConverters(getMessageConverters());
-
-    if (jackson2Present) {
-      registry.addRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
-      registry.addResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
-    }
 
     return registry;
   }
@@ -455,31 +480,6 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     }
 
     return registry;
-  }
-
-  // ControllerAdvice
-
-  private void initControllerAdviceCache() {
-    if (getApplicationContext() == null) {
-      return;
-    }
-
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
-    ArrayList<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
-    for (ControllerAdviceBean adviceBean : adviceBeans) {
-      Class<?> beanType = adviceBean.getBeanType();
-      if (beanType == null) {
-        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
-      }
-      if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
-        requestResponseBodyAdviceBeans.add(adviceBean);
-      }
-    }
-
-    if (!requestResponseBodyAdviceBeans.isEmpty()) {
-      this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
-    }
-
   }
 
   static boolean isPresent(String name) {

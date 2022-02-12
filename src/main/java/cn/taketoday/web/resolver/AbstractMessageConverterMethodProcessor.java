@@ -474,8 +474,8 @@ public abstract class AbstractMessageConverterMethodProcessor
   }
 
   private boolean safeMediaType(MediaType mediaType) {
-    return (SAFE_MEDIA_BASE_TYPES.contains(mediaType.getType()) ||
-            mediaType.getSubtype().endsWith("+xml"));
+    return SAFE_MEDIA_BASE_TYPES.contains(mediaType.getType())
+            || mediaType.getSubtype().endsWith("+xml");
   }
 
   static class ServletDelegate {
@@ -484,6 +484,7 @@ public abstract class AbstractMessageConverterMethodProcessor
       HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
       return servletRequest.getServletContext().getMimeType("file." + extension);
     }
+
   }
 
 }
