@@ -50,7 +50,7 @@ import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.ReturnValueHandlers;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 
 /**
@@ -262,15 +262,15 @@ public class WebApplicationLoader
     }
     WebApplicationContext context = obtainApplicationContext();
     // @since 3.0
-    ReturnValueHandlers returnValueHandlers = context.getBean(ReturnValueHandlers.class);
-    Assert.state(returnValueHandlers != null, "No ReturnValueHandlers");
+    ReturnValueHandlerManager manager = context.getBean(ReturnValueHandlerManager.class);
+    Assert.state(manager != null, "No ReturnValueHandlers");
     // user config
     mvcConfiguration.configureResultHandler(handlers);
 
-    returnValueHandlers.addHandlers(handlers);
+    manager.addHandlers(handlers);
     // apply result handler
     SelectableReturnValueHandler selectable =
-            new SelectableReturnValueHandler(returnValueHandlers.getHandlers());
+            new SelectableReturnValueHandler(manager.getHandlers());
     selectable.trimToSize();
     obtainDispatcher.setReturnValueHandler(selectable);
   }

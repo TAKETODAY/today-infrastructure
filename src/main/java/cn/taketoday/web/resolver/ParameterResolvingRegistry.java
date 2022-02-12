@@ -41,6 +41,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -107,6 +108,10 @@ public class ParameterResolvingRegistry
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  public ParameterResolvingRegistry(List<HttpMessageConverter<?>> messageConverters) {
+    setMessageConverters(messageConverters);
+  }
+
   /**
    * Set the {@link ContentNegotiationManager} to use to determine requested media types.
    * If not set, the default constructor is used.
@@ -135,28 +140,6 @@ public class ParameterResolvingRegistry
    */
   public List<HttpMessageConverter<?>> getMessageConverters() {
     return this.messageConverters;
-  }
-
-  /**
-   * Add one or more {@code RequestBodyAdvice} instances to intercept the
-   * request before it is read and converted for {@code @RequestBody} and
-   * {@code HttpEntity} method arguments.
-   */
-  public void addRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
-    if (requestBodyAdvice != null) {
-      this.requestResponseBodyAdvice.addAll(requestBodyAdvice);
-    }
-  }
-
-  /**
-   * Add one or more {@code ResponseBodyAdvice} instances to intercept the
-   * response before {@code @ResponseBody} or {@code ResponseEntity} return
-   * values are written to the response body.
-   */
-  public void addResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
-    if (responseBodyAdvice != null) {
-      this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
-    }
   }
 
   /**
@@ -407,6 +390,24 @@ public class ParameterResolvingRegistry
 
   public ExpressionEvaluator getExpressionEvaluator() {
     return expressionEvaluator;
+  }
+
+  /**
+   * Add one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   *
+   * @see RequestBodyAdvice
+   * @see ResponseBodyAdvice
+   * @since 4.0
+   */
+  public void addRequestResponseBodyAdvice(@Nullable List<Object> list) {
+    CollectionUtils.addAll(requestResponseBodyAdvice, list);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public List<Object> getRequestResponseBodyAdvice() {
+    return requestResponseBodyAdvice;
   }
 
   /**

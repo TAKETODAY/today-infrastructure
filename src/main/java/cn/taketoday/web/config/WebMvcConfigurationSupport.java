@@ -21,7 +21,6 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -64,7 +63,7 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
-import cn.taketoday.web.handler.ReturnValueHandlers;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
@@ -160,7 +159,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   /**
    * Provides access to the shared {@link HttpMessageConverter HttpMessageConverters}
    * used by the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
-   * {@link ReturnValueHandlers}.
+   * {@link ReturnValueHandlerManager}.
    * <p>This method cannot be overridden; use {@link #configureMessageConverters} instead.
    * Also see {@link #addDefaultHttpMessageConverters} for adding default message converters.
    */
@@ -179,7 +178,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   /**
    * Override this method to add custom {@link HttpMessageConverter HttpMessageConverters}
    * to use with the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
-   * {@link ReturnValueHandlers}.
+   * {@link ReturnValueHandlerManager}.
    * <p>Adding converters to the list turns off the default converters that would
    * otherwise be registered by default. Also see {@link #addDefaultHttpMessageConverters}
    * for adding default message converters.
@@ -385,25 +384,23 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ReturnValueHandlers returnValueHandlers(
+  ReturnValueHandlerManager returnValueHandlers(
           @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("webViewResolver") ViewResolver webViewResolver) {
-    ReturnValueHandlers handlers = new ReturnValueHandlers(getMessageConverters());
+
+    ReturnValueHandlerManager handlers = new ReturnValueHandlerManager(getMessageConverters());
+
     handlers.setApplicationContext(applicationContext);
     handlers.setRedirectModelManager(redirectModelManager);
     handlers.setViewResolver(webViewResolver);
 
     ViewReturnValueHandler handler = new ViewReturnValueHandler(webViewResolver);
     handler.setModelManager(redirectModelManager);
+
     handlers.setViewReturnValueHandler(handler);
-
-    if (jackson2Present) {
-
-      handlers.addResponseBodyAdvice(
-              Collections.singletonList(new JsonViewResponseBodyAdvice()));
-    }
-
+    handlers.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
     handlers.registerDefaultHandlers();
+
     return handlers;
   }
 
@@ -421,6 +418,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     registry.setMultipartConfig(multipartConfig);
     registry.registerDefaultParameterResolvers();
     registry.setMessageConverters(getMessageConverters());
+    registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
 
     return registry;
   }
