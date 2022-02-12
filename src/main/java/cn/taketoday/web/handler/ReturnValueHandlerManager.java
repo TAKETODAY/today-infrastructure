@@ -197,6 +197,7 @@ public class ReturnValueHandlerManager
     handlers.add(new VoidReturnValueHandler(modelAndViewHandler));
     handlers.add(modelAndViewHandler);
     handlers.add(new HttpStatusReturnValueHandler());
+    handlers.add(new HttpHeadersReturnValueHandler());
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
@@ -335,7 +336,7 @@ public class ReturnValueHandlerManager
    *
    * @since 4.0
    */
-  public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
+  public void setContentNegotiationManager(@Nullable ContentNegotiationManager contentNegotiationManager) {
     this.contentNegotiationManager = contentNegotiationManager;
   }
 
@@ -368,6 +369,21 @@ public class ReturnValueHandlerManager
    * @since 4.0
    */
   public void addRequestResponseBodyAdvice(@Nullable List<Object> list) {
+    CollectionUtils.addAll(bodyAdvice, list);
+  }
+
+  /**
+   * Set one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   *
+   * <p>
+   * clear all and add all
+   *
+   * @see RequestBodyAdvice
+   * @see ResponseBodyAdvice
+   * @since 4.0
+   */
+  public void setRequestResponseBodyAdvice(@Nullable List<Object> list) {
+    bodyAdvice.clear();
     CollectionUtils.addAll(bodyAdvice, list);
   }
 
