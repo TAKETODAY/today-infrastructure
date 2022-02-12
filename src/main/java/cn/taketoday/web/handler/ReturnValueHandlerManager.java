@@ -33,6 +33,7 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -45,14 +46,15 @@ import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 
 /**
- * return-value handlers
+ * return-value handler manager
  *
  * @author TODAY 2019-12-28 13:47
  */
-public class ReturnValueHandlers
+public class ReturnValueHandlerManager
         extends WebApplicationContextSupport implements ArraySizeTrimmer {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
+
   /**
    * @since 3.0.1
    */
@@ -79,14 +81,14 @@ public class ReturnValueHandlers
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
-  public ReturnValueHandlers() {
+  public ReturnValueHandlerManager() {
     this.messageConverters = new ArrayList<>(4);
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
     this.messageConverters.add(new StringHttpMessageConverter());
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
-  public ReturnValueHandlers(List<HttpMessageConverter<?>> messageConverters) {
+  public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }
 
@@ -180,10 +182,11 @@ public class ReturnValueHandlers
     handlers.add(modelAndViewHandler);
     handlers.add(new HttpStatusReturnValueHandler());
 
+    List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
     handlers.add(new HttpEntityMethodProcessor(
-            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, redirectModelManager));
+            messageConverters, contentNegotiationManager, requestResponseBodyAdvice, redirectModelManager));
 
-    handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
+    handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, requestResponseBodyAdvice));
 
     // fall back
     handlers.add(objectHandler);
@@ -259,7 +262,7 @@ public class ReturnValueHandlers
    * @since 4.0
    */
   @Nullable
-  @SuppressWarnings("unchecked") //
+  @SuppressWarnings("unchecked")
   final <T> T get(Class<T> handlerClass, List<ReturnValueHandler> handlers) {
     for (final ReturnValueHandler handler : handlers) {
       if (handlerClass.isInstance(handler)) {
@@ -280,7 +283,6 @@ public class ReturnValueHandlers
   public void setViewResolver(@Nullable ViewResolver webViewResolver) {
     this.viewResolver = webViewResolver;
   }
-  //
 
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
@@ -341,28 +343,25 @@ public class ReturnValueHandlers
   }
 
   /**
-   * Add one or more {@code RequestBodyAdvice} instances to intercept the
-   * request before it is read and converted for {@code @RequestBody} and
-   * {@code HttpEntity} method arguments.
+   * Add one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   *
+   * @see RequestBodyAdvice
+   * @see ResponseBodyAdvice
+   * @since 4.0
    */
-  public void addRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
-    if (requestBodyAdvice != null) {
-      this.requestResponseBodyAdvice.addAll(requestBodyAdvice);
-    }
+  public void addRequestResponseBodyAdvice(@Nullable List<Object> list) {
+    CollectionUtils.addAll(requestResponseBodyAdvice, list);
   }
 
   /**
-   * Add one or more {@code ResponseBodyAdvice} instances to intercept the
-   * response before {@code @ResponseBody} or {@code ResponseEntity} return
-   * values are written to the response body.
+   * @since 4.0
    */
-  public void addResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
-    if (responseBodyAdvice != null) {
-      this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
-    }
+  public List<Object> getRequestResponseBodyAdvice() {
+    return requestResponseBodyAdvice;
   }
 
   public void setViewReturnValueHandler(@Nullable ViewReturnValueHandler viewReturnValueHandler) {
     this.viewReturnValueHandler = viewReturnValueHandler;
   }
+
 }

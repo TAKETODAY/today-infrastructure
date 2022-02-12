@@ -34,7 +34,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
-import cn.taketoday.web.handler.ReturnValueHandlers;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 
 /**
  * HTTP Request Annotation Handler
@@ -53,7 +53,7 @@ public abstract class ActionMappingAnnotationHandler
   private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
-  private ReturnValueHandlers resultHandlers;
+  private ReturnValueHandlerManager resultHandlers;
 
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
@@ -89,7 +89,7 @@ public abstract class ActionMappingAnnotationHandler
     return handlerMethod;
   }
 
-  public void setReturnValueHandlers(ReturnValueHandlers resultHandlers) {
+  public void setReturnValueHandlers(ReturnValueHandlerManager resultHandlers) {
     this.resultHandlers = resultHandlers;
   }
 

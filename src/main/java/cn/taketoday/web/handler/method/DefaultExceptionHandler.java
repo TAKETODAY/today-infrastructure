@@ -39,7 +39,7 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.handler.ReturnValueHandlers;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleExceptionHandler;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.util.WebUtils;
@@ -148,7 +148,7 @@ public class DefaultExceptionHandler
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     ParameterResolvingRegistry registry = beanFactory.getBean(ParameterResolvingRegistry.class);
     var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(registry);
-    ReturnValueHandlers returnValueHandlers = beanFactory.getBean(ReturnValueHandlers.class);
+    ReturnValueHandlerManager manager = beanFactory.getBean(ReturnValueHandlerManager.class);
 
     Set<String> errorHandlers = beanFactory.getBeanNamesForAnnotation(ControllerAdvice.class);
     // get all error handlers
@@ -160,7 +160,7 @@ public class DefaultExceptionHandler
             // @since 3.0
             BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
             ExceptionHandlerMappingHandler handler = getHandler(
-                    handlerBean, parameterFactory, method, returnValueHandlers);
+                    handlerBean, parameterFactory, method, manager);
 
             ExceptionHandlerMappingHandler oldHandler = exceptionHandlers.put(exceptionType, handler);
             if (oldHandler != null && !method.equals(oldHandler.getJavaMethod())) {
@@ -182,10 +182,10 @@ public class DefaultExceptionHandler
 
   private ExceptionHandlerMappingHandler getHandler(
           BeanSupplier<Object> handlerBean, ResolvableParameterFactory parameterFactory,
-          Method method, ReturnValueHandlers returnValueHandlers) {
+          Method method, ReturnValueHandlerManager manager) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
     ExceptionHandlerMappingHandler handler = new ExceptionHandlerMappingHandler(handlerBean, handlerMethod, parameterFactory.createArray(method));
-    handler.setReturnValueHandlers(returnValueHandlers);
+    handler.setReturnValueHandlers(manager);
     return handler;
   }
 

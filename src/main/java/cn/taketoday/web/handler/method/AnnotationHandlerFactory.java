@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.handler.ReturnValueHandlers;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 
@@ -39,7 +39,7 @@ import cn.taketoday.web.resolver.ParameterResolvingRegistry;
  */
 public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> {
 
-  private ReturnValueHandlers returnValueHandlers;
+  private ReturnValueHandlerManager returnValueHandlerManager;
   private ResolvableParameterFactory parameterFactory;
 
   public AnnotationHandlerFactory() { }
@@ -53,7 +53,7 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
     Assert.notNull(factory, "BeanFactory is required");
     ParameterResolvingRegistry registry = factory.getBean(ParameterResolvingRegistry.class);
     Assert.state(registry != null, "No ParameterResolvingRegistry");
-    setReturnValueHandlers(factory.getBean(ReturnValueHandlers.class));
+    setReturnValueHandlers(factory.getBean(ReturnValueHandlerManager.class));
     setParameterFactory(new ParameterResolvingRegistryResolvableParameterFactory(registry));
   }
 
@@ -62,12 +62,12 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
    */
   @SuppressWarnings("unchecked")
   public T create(Object handlerBean, Method method) {
-    Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
+    Assert.state(returnValueHandlerManager != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
 
     ActionMappingAnnotationHandler handler = ActionMappingAnnotationHandler.from(
             handlerBean, method, parameterFactory);
-    handler.setReturnValueHandlers(returnValueHandlers);
+    handler.setReturnValueHandlers(returnValueHandlerManager);
     return (T) handler;
   }
 
@@ -83,16 +83,16 @@ public class AnnotationHandlerFactory<T extends ActionMappingAnnotationHandler> 
   @SuppressWarnings("unchecked")
   public T create(
           BeanSupplier<Object> handlerBean, Method method, @Nullable List<HandlerInterceptor> interceptors) {
-    Assert.state(returnValueHandlers != null, "No ReturnValueHandlers set");
+    Assert.state(returnValueHandlerManager != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
     T handler = (T) ActionMappingAnnotationHandler.from(handlerBean, method, parameterFactory);
     handler.setInterceptors(interceptors);
-    handler.setReturnValueHandlers(returnValueHandlers);
+    handler.setReturnValueHandlers(returnValueHandlerManager);
     return handler;
   }
 
-  public void setReturnValueHandlers(ReturnValueHandlers returnValueHandlers) {
-    this.returnValueHandlers = returnValueHandlers;
+  public void setReturnValueHandlers(ReturnValueHandlerManager manager) {
+    this.returnValueHandlerManager = manager;
   }
 
   public void setParameterFactory(ResolvableParameterFactory parameterFactory) {
