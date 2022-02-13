@@ -416,7 +416,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
     registry.setMultipartConfig(multipartConfig);
-    registry.registerDefaultParameterResolvers();
+    registry.registerDefaultStrategies();
     registry.setMessageConverters(getMessageConverters());
     registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
 

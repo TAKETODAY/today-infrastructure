@@ -234,7 +234,7 @@ public class DataBinderParameterResolver
     AnnotatedPropertyResolver(ResolvableMethodParameter other, Field field, ParameterResolvingRegistry registry) {
       this.propertyName = field.getName();// TODO BeanMetadata#getPropertyName
       this.parameter = new AnnotationBinderParameter(other, field);
-      this.resolver = registry.obtainResolvingStrategy(this.parameter);
+      this.resolver = registry.obtainStrategy(this.parameter);
     }
 
     public PropertyValue resolve(RequestContext context) throws Throwable {

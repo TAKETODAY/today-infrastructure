@@ -185,7 +185,7 @@ public class ParameterResolvingRegistry
    * @return A suitable {@link ParameterResolvingStrategy}
    */
   @Nullable
-  public ParameterResolvingStrategy findStrategy(final ResolvableMethodParameter parameter) {
+  public ParameterResolvingStrategy findStrategy(ResolvableMethodParameter parameter) {
     ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedStrategies);
     if (resolvingStrategy == null) {
       resolvingStrategy = lookupStrategy(parameter, defaultStrategies);
@@ -200,7 +200,7 @@ public class ParameterResolvingRegistry
    * @return A suitable {@link ParameterResolvingStrategy}
    * @throws ParameterResolverNotFoundException If there isn't a suitable resolver
    */
-  public ParameterResolvingStrategy obtainResolvingStrategy(final ResolvableMethodParameter parameter) {
+  public ParameterResolvingStrategy obtainStrategy(ResolvableMethodParameter parameter) {
     final ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
       throw new ParameterResolverNotFoundException(
@@ -212,14 +212,14 @@ public class ParameterResolvingRegistry
     return resolver;
   }
 
-  public void registerDefaultParameterResolvers() {
-    registerDefaults(defaultStrategies);
+  public void registerDefaultStrategies() {
+    registerDefaultsStrategies(defaultStrategies);
   }
 
   /**
    * register default {@link ParameterResolvingStrategy}s
    */
-  public void registerDefaults(ParameterResolvingStrategies strategies) {
+  public void registerDefaultsStrategies(ParameterResolvingStrategies strategies) {
     log.info("Registering default parameter-resolvers to {}", strategies);
 
     // For some useful context annotations
@@ -228,7 +228,7 @@ public class ParameterResolvingRegistry
     WebApplicationContext context = obtainApplicationContext();
     ExpressionEvaluator expressionEvaluator = getExpressionEvaluator();
     if (expressionEvaluator == null) {
-      expressionEvaluator = new ExpressionEvaluator(context);
+      expressionEvaluator = context.getExpressionEvaluator();
     }
 
     strategies.add(new RequestAttributeParameterResolver(),
@@ -404,6 +404,21 @@ public class ParameterResolvingRegistry
   }
 
   /**
+   * Set one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   *
+   * <p>
+   * clear all and add all
+   *
+   * @see RequestBodyAdvice
+   * @see ResponseBodyAdvice
+   * @since 4.0
+   */
+  public void setRequestResponseBodyAdvice(@Nullable List<Object> list) {
+    requestResponseBodyAdvice.clear();
+    CollectionUtils.addAll(requestResponseBodyAdvice, list);
+  }
+
+  /**
    * @since 4.0
    */
   public List<Object> getRequestResponseBodyAdvice() {
@@ -413,17 +428,18 @@ public class ParameterResolvingRegistry
   /**
    * @since 4.0
    */
-  public void setConversionService(ConversionService conversionService) {
-    Assert.notNull(conversionService, "conversionService must not be null");
+  public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService;
   }
 
   /**
    * apply conversionService to resolvers
    *
+   * @throws IllegalArgumentException ConversionService is null
    * @since 4.0
    */
   public void applyConversionService(ConversionService conversionService) {
+    Assert.notNull(conversionService, "conversionService is required");
     setConversionService(conversionService);
     applyConversionService(conversionService, defaultStrategies);
     applyConversionService(conversionService, customizedStrategies);
@@ -443,6 +459,7 @@ public class ParameterResolvingRegistry
   /**
    * @since 4.0
    */
+  @Nullable
   public ConversionService getConversionService() {
     return conversionService;
   }
@@ -458,6 +475,7 @@ public class ParameterResolvingRegistry
   @Override
   public String toString() {
     return ToStringBuilder.from(this)
+            .append("messageConverters", messageConverters)
             .append("defaultStrategies", defaultStrategies.size())
             .append("customizedStrategies", customizedStrategies.size())
             .toString();

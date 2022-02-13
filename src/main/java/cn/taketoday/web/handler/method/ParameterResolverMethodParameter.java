@@ -51,7 +51,7 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
 
   public final ParameterResolvingStrategy obtainResolver() {
     if (resolver == null) {
-      resolver = resolvers.obtainResolvingStrategy(this);
+      resolver = resolvers.obtainStrategy(this);
     }
     return resolver;
   }

@@ -111,7 +111,7 @@ public class HandlerMethodTests {
     final ParameterResolvingRegistry resolversRegistry = methodParameterBuilder.getResolvingRegistry();
     resolversRegistry.setApplicationContext(applicationContext);
 
-    resolversRegistry.registerDefaultParameterResolvers();
+    resolversRegistry.registerDefaultStrategies();
 
     setResultHandlers(produceMethod, applicationContext);
 

@@ -139,7 +139,7 @@ class ParameterResolverRegistryTests {
 
       assertThat(defaultStrategies).isEmpty();
 
-      registry.registerDefaults(defaultStrategies);
+      registry.registerDefaultsStrategies(defaultStrategies);
       assertThat(defaultStrategies).isNotEmpty();
 
       // contains
@@ -159,7 +159,7 @@ class ParameterResolverRegistryTests {
       context.refresh();
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);
-      registry.registerDefaultParameterResolvers(); // register defaults
+      registry.registerDefaultStrategies(); // register defaults
 
       ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
       assertThat(strategy).isNotNull().isInstanceOf(DataBinderParameterResolver.class);
