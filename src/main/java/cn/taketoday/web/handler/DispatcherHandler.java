@@ -22,9 +22,11 @@ package cn.taketoday.web.handler;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -44,7 +46,7 @@ import cn.taketoday.web.util.WebUtils;
  * @since 3.0
  */
 public class DispatcherHandler {
-  private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   /** Log category to use when no mapped handler is found for a request. */
@@ -55,6 +57,7 @@ public class DispatcherHandler {
 
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
+
   private HandlerAdapter[] handlerAdapters;
   /** exception handler */
   private HandlerExceptionHandler exceptionHandler;
@@ -64,10 +67,28 @@ public class DispatcherHandler {
   /** Throw a NoHandlerFoundException if no Handler was found to process this request? @since 4.0 */
   private boolean throwExceptionIfNoHandlerFound = false;
 
+  /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
+  private boolean enableLoggingRequestDetails = false;
+
   private final WebApplicationContext webApplicationContext;
 
   public DispatcherHandler(WebApplicationContext context) {
     this.webApplicationContext = context;
+  }
+
+  // @since 4.0
+  public void init() {
+    initStrategies(webApplicationContext);
+  }
+
+  /**
+   * Initialize the strategy objects that this servlet uses.
+   * <p>May be overridden in subclasses in order to initialize further strategy objects.
+   */
+  protected void initStrategies(ApplicationContext context) {
+
+
+
   }
 
   // Handler
@@ -140,6 +161,7 @@ public class DispatcherHandler {
    * @param context Current HTTP request context
    * @throws Throwable If {@link Throwable} cannot handle
    */
+  @Deprecated
   public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
     try {
       Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
@@ -199,6 +221,7 @@ public class DispatcherHandler {
    *
    * @param context current HTTP request and HTTP response
    * @throws Exception in case of any kind of processing failure
+   * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
     Object handler = null;
@@ -221,6 +244,7 @@ public class DispatcherHandler {
       processDispatchResult(context, handler, returnValue, throwable);
       // @since 3.0 cleanup MultipartFiles
       context.cleanupMultipartFiles();
+      logResult(context, throwable);
     }
   }
 
@@ -265,11 +289,11 @@ public class DispatcherHandler {
       throw ex;
     }
     else if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
-      if (log.isTraceEnabled()) {
-        log.trace("Using resolved error view: {}", returnValue, ex);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Using resolved error view: {}", returnValue, ex);
       }
-      else if (log.isDebugEnabled()) {
-        log.debug("Using resolved error view: {}", returnValue);
+      else if (logger.isDebugEnabled()) {
+        logger.debug("Using resolved error view: {}", returnValue);
       }
     }
     return returnValue;
@@ -291,6 +315,36 @@ public class DispatcherHandler {
     }
     else {
       request.sendError(HttpStatus.NOT_FOUND.value());
+    }
+  }
+
+  private void logResult(RequestContext request, @Nullable Throwable failureCause) {
+    if (logger.isDebugEnabled()) {
+      if (failureCause != null) {
+        if (logger.isTraceEnabled()) {
+          logger.trace("Failed to complete request", failureCause);
+        }
+        else {
+          logger.debug("Failed to complete request: {}", failureCause.toString());
+        }
+      }
+      else {
+        String headers = "";  // nothing below trace
+        if (logger.isTraceEnabled()) {
+          HttpHeaders httpHeaders = request.responseHeaders();
+          if (this.enableLoggingRequestDetails) {
+            headers = httpHeaders.entrySet().stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.joining(", "));
+          }
+          else {
+            headers = httpHeaders.isEmpty() ? "" : "masked";
+          }
+          headers = ", headers={" + headers + "}";
+        }
+        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
+        logger.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
+      }
     }
   }
 
@@ -328,7 +382,7 @@ public class DispatcherHandler {
    * @param msg Log message
    */
   protected void log(final String msg) {
-    log.info(msg);
+    logger.info(msg);
   }
 
   public HandlerAdapter[] getHandlerAdapters() {
@@ -367,4 +421,25 @@ public class DispatcherHandler {
     this.returnValueHandler = returnValueHandler;
   }
 
+  /**
+   * Whether to log request params at DEBUG level, and headers at TRACE level.
+   * Both may contain sensitive information.
+   * <p>By default set to {@code false} so that request details are not shown.
+   *
+   * @param enable whether to enable or not
+   * @since 4.0
+   */
+  public void setEnableLoggingRequestDetails(boolean enable) {
+    this.enableLoggingRequestDetails = enable;
+  }
+
+  /**
+   * Whether logging of potentially sensitive, request details at DEBUG and
+   * TRACE level is allowed.
+   *
+   * @since 4.0
+   */
+  public boolean isEnableLoggingRequestDetails() {
+    return this.enableLoggingRequestDetails;
+  }
 }

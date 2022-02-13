@@ -92,6 +92,12 @@ public class DispatcherServlet
   @Override
   public void init(ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
+    init();
+  }
+
+  @Override
+  public void init() {
+    super.init();
   }
 
   @Override
