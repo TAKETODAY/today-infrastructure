@@ -21,12 +21,20 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.LogFormatUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -55,12 +63,14 @@ public class DispatcherServlet
 
   @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException {
+    HttpServletRequest servletRequest = (HttpServletRequest) request;
+    logRequest(servletRequest);
+
     RequestContext context = RequestContextHolder.get();
 
     boolean reset = false;
     if (context == null) {
       WebApplicationContext webApplicationContext = getWebApplicationContext();
-      HttpServletRequest servletRequest = (HttpServletRequest) request;
       context = new ServletRequestContext(webApplicationContext, servletRequest, (HttpServletResponse) response);
       RequestContextHolder.set(context);
       reset = true;
@@ -106,4 +116,51 @@ public class DispatcherServlet
     getServletConfig().getServletContext().log(msg);
   }
 
+  // @since 4.0
+  private void logRequest(HttpServletRequest request) {
+    LogFormatUtils.traceDebug(logger, traceOn -> {
+      String params;
+      if (StringUtils.startsWithIgnoreCase(request.getContentType(), "multipart/")) {
+        params = "multipart";
+      }
+      else if (isEnableLoggingRequestDetails()) {
+        params = request.getParameterMap().entrySet().stream()
+                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
+                .collect(Collectors.joining(", "));
+      }
+      else {
+        params = request.getParameterMap().isEmpty() ? "" : "masked";
+      }
+
+      String queryString = request.getQueryString();
+      String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
+      String dispatchType = !DispatcherType.REQUEST.equals(request.getDispatcherType())
+                            ? "\"" + request.getDispatcherType() + "\" dispatch for "
+                            : "";
+      String message = dispatchType + request.getMethod() + " \"" +
+              getRequestUri(request) + queryClause + "\", parameters={" + params + "}";
+
+      if (traceOn) {
+        List<String> values = Collections.list(request.getHeaderNames());
+        String headers = values.size() > 0 ? "masked" : "";
+        if (isEnableLoggingRequestDetails()) {
+          headers = values.stream().map(name -> name + ":" + Collections.list(request.getHeaders(name)))
+                  .collect(Collectors.joining(", "));
+        }
+        return message + ", headers={" + headers + "} in DispatcherServlet '" +
+                getServletConfig().getServletName() + "'";
+      }
+      else {
+        return message;
+      }
+    });
+  }
+
+  private static String getRequestUri(HttpServletRequest request) {
+    String uri = (String) request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
+    if (uri == null) {
+      uri = request.getRequestURI();
+    }
+    return uri;
+  }
 }
