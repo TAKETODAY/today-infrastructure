@@ -28,7 +28,6 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.ReturnValueHandler;
@@ -43,8 +42,8 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
@@ -73,7 +72,6 @@ public class WebApplicationLoader
   public void onStartup(WebApplicationContext context) throws Throwable {
     WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
-    configureTemplateLoader(context, mvcConfiguration);
     configureFunctionHandler(context, mvcConfiguration);
     configureViewControllerHandler(context, mvcConfiguration);
     configureExceptionHandler(context, mvcConfiguration);
@@ -121,7 +119,7 @@ public class WebApplicationLoader
 
     obtainDispatcher.setHandlerRegistry(registries.size() == 1
                                         ? registries.get(0)
-                                        : new CompositeHandlerRegistry(registries));
+                                        : new HandlerRegistries(registries));
   }
 
   private void configureHandlerAdapter(
@@ -163,8 +161,6 @@ public class WebApplicationLoader
         }
       }
     }
-    // 用户自定义
-    mvcConfiguration.configureHandlerAdapter(adapters);
     // 排序
     sort(adapters);
     // apply request handler
@@ -225,19 +221,6 @@ public class WebApplicationLoader
     FunctionHandlerRegistry registry = context.getBean(FunctionHandlerRegistry.class);
     if (registry != null) {
       mvcConfiguration.configureFunctionHandler(registry);
-    }
-  }
-
-  /**
-   * Configure Freemarker's TemplateLoader s
-   *
-   * @since 2.3.7
-   */
-  protected void configureTemplateLoader(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    Class<Object> loaderClass = ClassUtils.load("freemarker.cache.TemplateLoader");
-    if (loaderClass != null) {
-      List<?> beans = context.getBeans(loaderClass);
-      mvcConfiguration.configureTemplateLoader(beans);
     }
   }
 

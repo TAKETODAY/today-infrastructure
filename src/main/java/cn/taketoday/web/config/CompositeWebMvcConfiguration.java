@@ -23,7 +23,6 @@ import java.util.List;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -90,13 +89,6 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public <T> void configureTemplateLoader(List<T> loaders) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureTemplateLoader(loaders);
-    }
-  }
-
-  @Override
   public void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);
@@ -107,13 +99,6 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
-    }
-  }
-
-  @Override
-  public void configureHandlerAdapter(List<HandlerAdapter> adapters) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureHandlerAdapter(adapters);
     }
   }
 
