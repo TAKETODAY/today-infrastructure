@@ -28,7 +28,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A {@link cn.taketoday.web.resource.ResourceTransformer} that checks a
@@ -66,7 +66,7 @@ public class CachingResourceTransformer implements ResourceTransformer {
   }
 
   @Override
-  public Resource transform(HttpServletRequest request, Resource resource, ResourceTransformerChain transformerChain)
+  public Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException {
 
     Resource transformed = this.cache.get(resource, Resource.class);

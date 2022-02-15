@@ -32,6 +32,7 @@ import java.util.Map;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -52,7 +53,7 @@ public class VersionResourceResolverTests {
 
   private VersionResourceResolver resolver;
 
-  private ResourceResolverChain chain;
+  private ResourceResolvingChain chain;
 
   private VersionStrategy versionStrategy;
 
@@ -63,7 +64,7 @@ public class VersionResourceResolverTests {
     this.locations.add(new ClassPathResource("testalternatepath/", getClass()));
 
     this.resolver = new VersionResourceResolver();
-    this.chain = mock(ResourceResolverChain.class);
+    this.chain = mock(ResourceResolvingChain.class);
     this.versionStrategy = mock(VersionStrategy.class);
   }
 
@@ -139,21 +140,21 @@ public class VersionResourceResolverTests {
   }
 
   @Test
-  public void resolveResourceSuccess() throws Exception {
+  public void resolveResourceSuccess() {
     String versionFile = "bar-version.css";
     String version = "version";
     String file = "bar.css";
     Resource expected = new ClassPathResource("test/" + file, getClass());
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/resources/bar-version.css");
-    given(this.chain.resolveResource(request, versionFile, this.locations)).willReturn(null);
-    given(this.chain.resolveResource(request, file, this.locations)).willReturn(expected);
+    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    given(this.chain.resolveResource(context, versionFile, this.locations)).willReturn(null);
+    given(this.chain.resolveResource(context, file, this.locations)).willReturn(expected);
     given(this.versionStrategy.extractVersion(versionFile)).willReturn(version);
     given(this.versionStrategy.removeVersion(versionFile, version)).willReturn(file);
     given(this.versionStrategy.getResourceVersion(expected)).willReturn(version);
 
-    this.resolver
-            .setStrategyMap(Collections.singletonMap("/**", this.versionStrategy));
-    Resource actual = this.resolver.resolveResourceInternal(request, versionFile, this.locations, this.chain);
+    this.resolver.setStrategyMap(Collections.singletonMap("/**", this.versionStrategy));
+    Resource actual = this.resolver.resolveResourceInternal(context, versionFile, this.locations, this.chain);
     assertThat(actual.getName()).isEqualTo(expected.getName());
     verify(this.versionStrategy, times(1)).getResourceVersion(expected);
     assertThat(actual).isInstanceOf(HttpResource.class);

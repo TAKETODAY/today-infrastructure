@@ -24,7 +24,7 @@ import java.util.List;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A strategy for resolving a request to a server-side resource.
@@ -52,8 +52,9 @@ public interface ResourceResolver {
    * @return the resolved resource, or {@code null} if unresolved
    */
   @Nullable
-  Resource resolveResource(@Nullable HttpServletRequest request, String requestPath,
-                           List<? extends Resource> locations, ResourceResolverChain chain);
+  Resource resolveResource(
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain);
 
   /**
    * Resolve the externally facing <em>public</em> URL path for clients to use
@@ -67,6 +68,6 @@ public interface ResourceResolver {
    * @return the resolved public URL path, or {@code null} if unresolved
    */
   @Nullable
-  String resolveUrlPath(String resourcePath, List<? extends Resource> locations, ResourceResolverChain chain);
+  String resolveUrlPath(String resourcePath, List<? extends Resource> locations, ResourceResolvingChain chain);
 
 }

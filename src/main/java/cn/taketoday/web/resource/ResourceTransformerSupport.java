@@ -27,7 +27,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A base class for a {@code ResourceTransformer} with an optional helper method
@@ -75,18 +75,18 @@ public abstract class ResourceTransformerSupport implements ResourceTransformer 
    */
   @Nullable
   protected String resolveUrlPath(
-          String resourcePath, HttpServletRequest request,
+          String resourcePath, RequestContext request,
           Resource resource, ResourceTransformerChain transformerChain) {
 
     if (resourcePath.startsWith("/")) {
       // full resource path
-      ResourceUrlProvider urlProvider = findResourceUrlProvider(request);
-      return (urlProvider != null ? urlProvider.getForRequestUrl(request, resourcePath) : null);
+      ResourceUrlProvider urlProvider = getResourceUrlProvider();
+      return urlProvider != null ? urlProvider.getForRequestUrl(request, resourcePath) : null;
     }
     else {
       // try resolving as relative path
-      return transformerChain.getResolverChain().resolveUrlPath(
-              resourcePath, Collections.singletonList(resource));
+      return transformerChain.getResolvingChain()
+              .resolveUrlPath(resourcePath, Collections.singletonList(resource));
     }
   }
 
@@ -99,20 +99,15 @@ public abstract class ResourceTransformerSupport implements ResourceTransformer 
    * @param request the referer request
    * @return the absolute request path for the given resource path
    */
-  protected String toAbsolutePath(String path, HttpServletRequest request) {
+  protected String toAbsolutePath(String path, RequestContext request) {
     String absolutePath = path;
     if (!path.startsWith("/")) {
-      ResourceUrlProvider urlProvider = findResourceUrlProvider(request);
+      ResourceUrlProvider urlProvider = getResourceUrlProvider();
       Assert.state(urlProvider != null, "No ResourceUrlProvider");
-      String requestPath = urlProvider.getUrlPathHelper().getRequestUri(request);
+      String requestPath = request.getRequestPath();
       absolutePath = ResourceUtils.getRelativePath(requestPath, path);
     }
     return StringUtils.cleanPath(absolutePath);
-  }
-
-  @Nullable
-  private ResourceUrlProvider findResourceUrlProvider(HttpServletRequest request) {
-    return resourceUrlProvider;
   }
 
 }

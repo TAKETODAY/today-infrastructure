@@ -24,7 +24,7 @@ import java.util.List;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A contract for invoking a chain of {@link ResourceResolver ResourceResolvers} where each resolver
@@ -35,7 +35,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Sam Brannen
  * @since 4.0
  */
-public interface ResourceResolverChain {
+public interface ResourceResolvingChain {
 
   /**
    * Resolve the supplied request and request path to a {@link Resource} that
@@ -48,7 +48,7 @@ public interface ResourceResolverChain {
    */
   @Nullable
   Resource resolveResource(
-          @Nullable HttpServletRequest request, String requestPath, List<? extends Resource> locations);
+          @Nullable RequestContext request, String requestPath, List<? extends Resource> locations);
 
   /**
    * Resolve the externally facing <em>public</em> URL path for clients to use

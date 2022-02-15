@@ -23,7 +23,7 @@ package cn.taketoday.web.resource;
 import java.io.IOException;
 
 import cn.taketoday.core.io.Resource;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A contract for invoking a chain of {@link ResourceTransformer ResourceTransformers} where each resolver
@@ -39,7 +39,7 @@ public interface ResourceTransformerChain {
    * {@code Resource} being transformed. This may be needed for resolving
    * related resources, e.g. links to other resources.
    */
-  ResourceResolverChain getResolverChain();
+  ResourceResolvingChain getResolvingChain();
 
   /**
    * Transform the given resource.
@@ -49,6 +49,6 @@ public interface ResourceTransformerChain {
    * @return the transformed or the same resource, never {@code null}
    * @throws IOException if transformation fails
    */
-  Resource transform(HttpServletRequest request, Resource resource) throws IOException;
+  Resource transform(RequestContext request, Resource resource) throws IOException;
 
 }

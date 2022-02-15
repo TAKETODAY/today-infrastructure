@@ -69,7 +69,7 @@ public class CssLinkResourceTransformerTests {
     cssLinkTransformer.setResourceUrlProvider(resourceUrlProvider);
 
     this.transformerChain = new DefaultResourceTransformerChain(
-            new DefaultResourceResolverChain(resolvers), Collections.singletonList(cssLinkTransformer));
+            new DefaultResourceResolvingChain(resolvers), Collections.singletonList(cssLinkTransformer));
   }
 
   private ResourceUrlProvider createUrlProvider(List<ResourceResolver> resolvers) {
@@ -113,7 +113,7 @@ public class CssLinkResourceTransformerTests {
     this.request = new MockHttpServletRequest("GET", "/static/external.css");
 
     List<ResourceTransformer> transformers = Collections.singletonList(new CssLinkResourceTransformer());
-    ResourceResolverChain mockChain = Mockito.mock(DefaultResourceResolverChain.class);
+    ResourceResolvingChain mockChain = Mockito.mock(DefaultResourceResolvingChain.class);
     ResourceTransformerChain chain = new DefaultResourceTransformerChain(mockChain, transformers);
 
     Resource resource = getResource("external.css");

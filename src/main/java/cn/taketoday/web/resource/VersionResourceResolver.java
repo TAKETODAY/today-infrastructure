@@ -39,7 +39,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Resolves request paths containing a version string that can be used as part
@@ -161,8 +161,8 @@ public class VersionResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected Resource resolveResourceInternal(
-          @Nullable HttpServletRequest request, String requestPath,
-          List<? extends Resource> locations, ResourceResolverChain chain) {
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);
     if (resolved != null) {
@@ -199,7 +199,7 @@ public class VersionResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected String resolveUrlPathInternal(String resourceUrlPath,
-                                          List<? extends Resource> locations, ResourceResolverChain chain) {
+                                          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String baseUrl = chain.resolveUrlPath(resourceUrlPath, locations);
     if (StringUtils.hasText(baseUrl)) {

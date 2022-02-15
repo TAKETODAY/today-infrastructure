@@ -28,39 +28,39 @@ import java.util.ListIterator;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
- * Default immutable implementation of {@link ResourceResolverChain}.
+ * Default immutable implementation of {@link ResourceResolvingChain}.
  *
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-class DefaultResourceResolverChain implements ResourceResolverChain {
+class DefaultResourceResolvingChain implements ResourceResolvingChain {
 
   @Nullable
   private final ResourceResolver resolver;
 
   @Nullable
-  private final ResourceResolverChain nextChain;
+  private final ResourceResolvingChain nextChain;
 
-  public DefaultResourceResolverChain(@Nullable List<? extends ResourceResolver> resolvers) {
+  public DefaultResourceResolvingChain(@Nullable List<? extends ResourceResolver> resolvers) {
     resolvers = resolvers != null ? resolvers : Collections.emptyList();
-    DefaultResourceResolverChain chain = initChain(new ArrayList<>(resolvers));
+    DefaultResourceResolvingChain chain = initChain(new ArrayList<>(resolvers));
     this.resolver = chain.resolver;
     this.nextChain = chain.nextChain;
   }
 
-  private static DefaultResourceResolverChain initChain(ArrayList<? extends ResourceResolver> resolvers) {
-    DefaultResourceResolverChain chain = new DefaultResourceResolverChain(null, null);
+  private static DefaultResourceResolvingChain initChain(ArrayList<? extends ResourceResolver> resolvers) {
+    DefaultResourceResolvingChain chain = new DefaultResourceResolvingChain(null, null);
     ListIterator<? extends ResourceResolver> it = resolvers.listIterator(resolvers.size());
     while (it.hasPrevious()) {
-      chain = new DefaultResourceResolverChain(it.previous(), chain);
+      chain = new DefaultResourceResolvingChain(it.previous(), chain);
     }
     return chain;
   }
 
-  private DefaultResourceResolverChain(@Nullable ResourceResolver resolver, @Nullable ResourceResolverChain chain) {
+  private DefaultResourceResolvingChain(@Nullable ResourceResolver resolver, @Nullable ResourceResolvingChain chain) {
     Assert.isTrue((resolver == null && chain == null) || (resolver != null && chain != null),
             "Both resolver and resolver chain must be null, or neither is");
     this.resolver = resolver;
@@ -70,7 +70,7 @@ class DefaultResourceResolverChain implements ResourceResolverChain {
   @Override
   @Nullable
   public Resource resolveResource(
-          @Nullable HttpServletRequest request, String requestPath, List<? extends Resource> locations) {
+          @Nullable RequestContext request, String requestPath, List<? extends Resource> locations) {
     return resolver != null && nextChain != null
            ? resolver.resolveResource(request, requestPath, locations, nextChain) : null;
   }

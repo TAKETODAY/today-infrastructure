@@ -50,7 +50,7 @@ public class WebJarsResourceResolverTests {
 
 	private WebJarsResourceResolver resolver;
 
-	private ResourceResolverChain chain;
+	private ResourceResolvingChain chain;
 
 	private HttpServletRequest request = new MockHttpServletRequest();
 
@@ -60,7 +60,7 @@ public class WebJarsResourceResolverTests {
 		// for this to work, an actual WebJar must be on the test classpath
 		this.locations = Collections.singletonList(new ClassPathResource("/META-INF/resources/webjars"));
 		this.resolver = new WebJarsResourceResolver();
-		this.chain = mock(ResourceResolverChain.class);
+		this.chain = mock(ResourceResolvingChain.class);
 	}
 
 

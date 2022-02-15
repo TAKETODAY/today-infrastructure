@@ -59,6 +59,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebContentGenerator;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -117,7 +118,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   private final List<ResourceTransformer> resourceTransformers = new ArrayList<>(4);
 
   @Nullable
-  private ResourceResolverChain resolverChain;
+  private ResourceResolvingChain resolverChain;
 
   @Nullable
   private ResourceTransformerChain transformerChain;
@@ -127,6 +128,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   @Nullable
   private ResourceRegionHttpMessageConverter resourceRegionHttpMessageConverter;
+
+  @Nullable
+  private ContentNegotiationManager contentNegotiationManager;
 
   private final Map<String, MediaType> mediaTypes = new HashMap<>(4);
 
@@ -268,6 +272,23 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   }
 
   /**
+   * Configure a {@code ContentNegotiationManager} to help determine the
+   * media types for resources being served. If the manager contains a path
+   * extension strategy it will be checked for registered file extension.
+   */
+  public void setContentNegotiationManager(@Nullable ContentNegotiationManager contentNegotiationManager) {
+    this.contentNegotiationManager = contentNegotiationManager;
+  }
+
+  /**
+   * Return the configured content negotiation manager.
+   */
+  @Nullable
+  public ContentNegotiationManager getContentNegotiationManager() {
+    return this.contentNegotiationManager;
+  }
+
+  /**
    * Add mappings between file extensions, extracted from the filename of a
    * static {@link Resource}, and corresponding media type to set on the
    * response.
@@ -364,7 +385,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     initAllowedLocations();
 
     // Initialize immutable resolver and transformer chains
-    this.resolverChain = new DefaultResourceResolverChain(this.resourceResolvers);
+    this.resolverChain = new DefaultResourceResolvingChain(this.resourceResolvers);
     this.transformerChain = new DefaultResourceTransformerChain(this.resolverChain, this.resourceTransformers);
 
     if (this.resourceHttpMessageConverter == null) {
@@ -372,6 +393,11 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     }
     if (this.resourceRegionHttpMessageConverter == null) {
       this.resourceRegionHttpMessageConverter = new ResourceRegionHttpMessageConverter();
+    }
+
+    ContentNegotiationManager manager = getContentNegotiationManager();
+    if (manager != null) {
+      setMediaTypes(manager.getMediaTypeMappings());
     }
 
   }
@@ -442,6 +468,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         if (ObjectUtils.isEmpty(pathResolver.getAllowedLocations())) {
           pathResolver.setAllowedLocations(getLocations().toArray(Resource.EMPTY_ARRAY));
         }
+
+        pathResolver.setLocationCharsets(this.locationCharsets);
         break;
       }
     }

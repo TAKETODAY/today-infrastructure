@@ -33,7 +33,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A {@link cn.taketoday.web.resource.ResourceResolver} that
@@ -105,8 +105,8 @@ public class CachingResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected Resource resolveResourceInternal(
-          @Nullable HttpServletRequest request, String requestPath,
-          List<? extends Resource> locations, ResourceResolverChain chain) {
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String key = computeKey(request, requestPath);
     Resource resource = this.cache.get(key, Resource.class);
@@ -126,7 +126,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
     return resource;
   }
 
-  protected String computeKey(@Nullable HttpServletRequest request, String requestPath) {
+  protected String computeKey(@Nullable RequestContext request, String requestPath) {
     if (request != null) {
       String codingKey = getContentCodingKey(request);
       if (StringUtils.hasText(codingKey)) {
@@ -137,24 +137,24 @@ public class CachingResourceResolver extends AbstractResourceResolver {
   }
 
   @Nullable
-  private String getContentCodingKey(HttpServletRequest request) {
-    String header = request.getHeader(HttpHeaders.ACCEPT_ENCODING);
-    if (!StringUtils.hasText(header)) {
-      return null;
+  private String getContentCodingKey(RequestContext request) {
+    String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
+    if (StringUtils.hasText(header)) {
+      return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))
+              .map(token -> {
+                int index = token.indexOf(';');
+                return (index >= 0 ? token.substring(0, index) : token).trim().toLowerCase();
+              })
+              .filter(this.contentCodings::contains)
+              .sorted()
+              .collect(Collectors.joining(","));
     }
-    return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))
-            .map(token -> {
-              int index = token.indexOf(';');
-              return (index >= 0 ? token.substring(0, index) : token).trim().toLowerCase();
-            })
-            .filter(this.contentCodings::contains)
-            .sorted()
-            .collect(Collectors.joining(","));
+    return null;
   }
 
   @Override
   protected String resolveUrlPathInternal(
-          String resourceUrlPath, List<? extends Resource> locations, ResourceResolverChain chain) {
+          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String key = RESOLVED_URL_PATH_CACHE_KEY_PREFIX + resourceUrlPath;
     String resolvedUrlPath = this.cache.get(key, String.class);

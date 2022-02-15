@@ -35,7 +35,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A {@link ResourceTransformer} implementation that modifies links in a CSS
@@ -44,7 +44,7 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * <p>The implementation looks for links in CSS {@code @import} statements and
  * also inside CSS {@code url()} functions. All links are then passed through the
- * {@link ResourceResolverChain} and resolved relative to the location of the
+ * {@link ResourceResolvingChain} and resolved relative to the location of the
  * containing CSS file. If successfully resolved, the link is modified, otherwise
  * the original link is preserved.
  *
@@ -65,7 +65,7 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
   }
 
   @Override
-  public Resource transform(HttpServletRequest request, Resource resource, ResourceTransformerChain transformerChain)
+  public Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException {
 
     resource = transformerChain.transform(request, resource);

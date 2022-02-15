@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Resolver that delegates to the chain, and if a resource is found, it then
@@ -94,7 +93,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
    * Return a read-only list with the supported content codings.
    */
   public List<String> getContentCodings() {
-    return Collections.unmodifiableList(this.contentCodings);
+    return contentCodings;
   }
 
   /**
@@ -107,14 +106,16 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
    * @see #registerExtension(String, String)
    */
   public void setExtensions(Map<String, String> extensions) {
-    extensions.forEach(this::registerExtension);
+    for (Map.Entry<String, String> entry : extensions.entrySet()) {
+      registerExtension(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
    * Return a read-only map with coding-to-extension mappings.
    */
   public Map<String, String> getExtensions() {
-    return Collections.unmodifiableMap(this.extensions);
+    return extensions;
   }
 
   /**
@@ -124,13 +125,13 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
    * @param extension the associated file extension
    */
   public void registerExtension(String coding, String extension) {
-    this.extensions.put(coding, (extension.startsWith(".") ? extension : "." + extension));
+    this.extensions.put(coding, extension.startsWith(".") ? extension : "." + extension);
   }
 
   @Override
   protected Resource resolveResourceInternal(
-          @Nullable HttpServletRequest request, String requestPath,
-          List<? extends Resource> locations, ResourceResolverChain chain) {
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resource = chain.resolveResource(request, requestPath, locations);
     if (resource == null || request == null) {
@@ -142,7 +143,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
       return resource;
     }
 
-    for (String coding : this.contentCodings) {
+    for (String coding : contentCodings) {
       if (acceptEncoding.contains(coding)) {
         try {
           String extension = getExtension(coding);
@@ -163,9 +164,9 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
   }
 
   @Nullable
-  private String getAcceptEncoding(HttpServletRequest request) {
-    String header = request.getHeader(HttpHeaders.ACCEPT_ENCODING);
-    return (header != null ? header.toLowerCase() : null);
+  private String getAcceptEncoding(RequestContext request) {
+    String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
+    return header != null ? header.toLowerCase() : null;
   }
 
   private String getExtension(String coding) {
@@ -177,9 +178,8 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected String resolveUrlPathInternal(String resourceUrlPath,
-                                          List<? extends Resource> locations, ResourceResolverChain chain) {
-
+  protected String resolveUrlPathInternal(
+          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     return chain.resolveUrlPath(resourceUrlPath, locations);
   }
 
@@ -188,11 +188,9 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
    */
   static final class EncodedResource extends AbstractResource implements HttpResource {
 
-    private final Resource original;
-
     private final String coding;
-
     private final Resource encoded;
+    private final Resource original;
 
     EncodedResource(Resource original, String coding, String extension) throws IOException {
       this.original = original;

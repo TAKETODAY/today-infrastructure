@@ -26,7 +26,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Base class for {@link cn.taketoday.web.resource.ResourceResolver}
@@ -42,26 +42,26 @@ public abstract class AbstractResourceResolver implements ResourceResolver {
   @Override
   @Nullable
   public Resource resolveResource(
-          @Nullable HttpServletRequest request, String requestPath,
-          List<? extends Resource> locations, ResourceResolverChain chain) {
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
     return resolveResourceInternal(request, requestPath, locations, chain);
   }
 
   @Override
   @Nullable
   public String resolveUrlPath(
-          String resourceUrlPath, List<? extends Resource> locations, ResourceResolverChain chain) {
+          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     return resolveUrlPathInternal(resourceUrlPath, locations, chain);
   }
 
   @Nullable
   protected abstract Resource resolveResourceInternal(
-          @Nullable HttpServletRequest request,
-          String requestPath, List<? extends Resource> locations, ResourceResolverChain chain);
+          @Nullable RequestContext request,
+          String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain);
 
   @Nullable
   protected abstract String resolveUrlPathInternal(
-          String resourceUrlPath, List<? extends Resource> locations, ResourceResolverChain chain);
+          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain);
 
 }

@@ -23,7 +23,7 @@ package cn.taketoday.web.resource;
 import java.io.IOException;
 
 import cn.taketoday.core.io.Resource;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * An abstraction for transforming the content of a resource.
@@ -44,7 +44,7 @@ public interface ResourceTransformer {
    * @return the transformed resource (never {@code null})
    * @throws IOException if the transformation fails
    */
-  Resource transform(HttpServletRequest request, Resource resource, ResourceTransformerChain transformerChain)
+  Resource transform(RequestContext request, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException;
 
 }

@@ -26,7 +26,7 @@ import java.util.List;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A {@code ResourceResolver} that delegates to the chain to locate a resource and then
@@ -71,8 +71,8 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected Resource resolveResourceInternal(
-          @Nullable HttpServletRequest request, String requestPath,
-          List<? extends Resource> locations, ResourceResolverChain chain) {
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);
     if (resolved == null) {
@@ -86,7 +86,7 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected String resolveUrlPathInternal(
-          String resourceUrlPath, List<? extends Resource> locations, ResourceResolverChain chain) {
+          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String path = chain.resolveUrlPath(resourceUrlPath, locations);
     if (path == null) {

@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(GzipSupport.class)
 public class EncodedResourceResolverTests {
 
-  private ResourceResolverChain resolver;
+  private ResourceResolvingChain resolver;
 
   private List<Resource> locations;
 
@@ -65,7 +65,7 @@ public class EncodedResourceResolverTests {
     resolvers.add(new EncodedResourceResolver());
     resolvers.add(versionResolver);
     resolvers.add(new PathResourceResolver());
-    this.resolver = new DefaultResourceResolverChain(resolvers);
+    this.resolver = new DefaultResourceResolvingChain(resolvers);
 
     this.locations = new ArrayList<>();
     this.locations.add(new ClassPathResource("test/", getClass()));

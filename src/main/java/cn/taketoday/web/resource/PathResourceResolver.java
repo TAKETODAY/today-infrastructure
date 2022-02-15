@@ -37,8 +37,8 @@ import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.UriUtils;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * A simple {@code ResourceResolver} that tries to find a resource under the given
@@ -104,22 +104,22 @@ public class PathResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected Resource resolveResourceInternal(
-          @Nullable HttpServletRequest request, String requestPath,
-          List<? extends Resource> locations, ResourceResolverChain chain) {
+          @Nullable RequestContext request, String requestPath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     return getResource(requestPath, request, locations);
   }
 
   @Override
   protected String resolveUrlPathInternal(
-          String resourcePath, List<? extends Resource> locations, ResourceResolverChain chain) {
+          String resourcePath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     return StringUtils.hasText(resourcePath)
                    && getResource(resourcePath, null, locations) != null ? resourcePath : null;
   }
 
   @Nullable
   private Resource getResource(
-          String resourcePath, @Nullable HttpServletRequest request, List<? extends Resource> locations) {
+          String resourcePath, @Nullable RequestContext request, List<? extends Resource> locations) {
     for (Resource location : locations) {
       try {
         String pathToUse = encodeOrDecodeIfNecessary(resourcePath, request, location);
@@ -224,7 +224,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     return (resourcePath.startsWith(locationPath) && !isInvalidEncodedPath(resourcePath));
   }
 
-  private String encodeOrDecodeIfNecessary(String path, @Nullable HttpServletRequest request, Resource location) {
+  private String encodeOrDecodeIfNecessary(String path, @Nullable RequestContext request, Resource location) {
     if (shouldDecodeRelativePath(location, request)) {
       return UriUtils.decode(path, StandardCharsets.UTF_8);
     }
@@ -247,7 +247,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     }
   }
 
-  private boolean shouldDecodeRelativePath(Resource location, @Nullable HttpServletRequest request) {
+  private boolean shouldDecodeRelativePath(Resource location, @Nullable RequestContext request) {
     return !(location instanceof UrlBasedResource) && request != null;
   }
 

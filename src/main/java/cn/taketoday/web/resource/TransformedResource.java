@@ -44,7 +44,7 @@ public class TransformedResource extends ByteArrayResource {
 
   public TransformedResource(Resource original, byte[] transformedContent) {
     super(transformedContent);
-    this.filename = original.getFilename();
+    this.filename = original.getName();
     try {
       this.lastModified = original.lastModified();
     }
@@ -56,7 +56,7 @@ public class TransformedResource extends ByteArrayResource {
 
   @Override
   @Nullable
-  public String getFilename() {
+  public String getName() {
     return this.filename;
   }
 

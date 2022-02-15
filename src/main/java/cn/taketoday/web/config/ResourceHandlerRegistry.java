@@ -146,7 +146,6 @@ public class ResourceHandlerRegistry {
     return new SimpleUrlHandlerRegistry(urlMap, this.order);
   }
 
-  @SuppressWarnings("deprecation")
   private ResourceHttpRequestHandler getRequestHandler(ResourceHandlerRegistration registration) {
     ResourceHttpRequestHandler handler = registration.getRequestHandler();
     if (this.contentNegotiationManager != null) {

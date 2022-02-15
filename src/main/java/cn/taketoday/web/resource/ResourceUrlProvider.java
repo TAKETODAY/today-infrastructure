@@ -37,8 +37,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * A central component to use to obtain the public URL path that clients should
@@ -155,7 +155,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
    * @return the resolved public URL path, or {@code null} if unresolved
    */
   @Nullable
-  public final String getForRequestUrl(HttpServletRequest request, String requestUrl) {
+  public final String getForRequestUrl(RequestContext request, String requestUrl) {
     int prefixIndex = getLookupPathIndex(request);
     int suffixIndex = getEndPathIndex(requestUrl);
     if (prefixIndex >= suffixIndex) {
@@ -168,13 +168,9 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
     return resolvedLookupPath != null ? prefix + resolvedLookupPath + suffix : null;
   }
 
-  private int getLookupPathIndex(HttpServletRequest request) {
-    UrlPathHelper pathHelper = getUrlPathHelper();
-    if (request.getAttribute(UrlPathHelper.PATH_ATTRIBUTE) == null) {
-      pathHelper.resolveAndCacheLookupPath(request);
-    }
-    String requestUri = request.getRequestURI();
-    String lookupPath = UrlPathHelper.getResolvedLookupPath(request);
+  private int getLookupPathIndex(RequestContext request) {
+    String requestUri = request.getLookupPath().value();
+    String lookupPath = request.getLookupPath().pathWithinApplication().value();
     return requestUri.indexOf(lookupPath);
   }
 
@@ -229,7 +225,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
         String pathWithinMapping = pathMatcher.extractPathWithinPattern(pattern, lookupPath);
         String pathMapping = lookupPath.substring(0, lookupPath.indexOf(pathWithinMapping));
         ResourceHttpRequestHandler handler = this.handlerMap.get(pattern);
-        ResourceResolverChain chain = new DefaultResourceResolverChain(handler.getResourceResolvers());
+        ResourceResolvingChain chain = new DefaultResourceResolvingChain(handler.getResourceResolvers());
         String resolved = chain.resolveUrlPath(pathWithinMapping, handler.getLocations());
         if (resolved == null) {
           continue;
