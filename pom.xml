@@ -688,6 +688,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>webjars-locator-core</artifactId>
+      <version>0.48</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!--
         ======================================================
              test
