@@ -23,9 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.core.PathMatcher;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.pattern.PathPattern;
+import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
  * Provide a per request {@link CorsConfiguration} instance based on a
@@ -40,55 +42,70 @@ import cn.taketoday.web.RequestContext;
  */
 public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource {
 
-  private PathMatcher pathMatcher;
-  private final Map<String, CorsConfiguration> corsConfigurations = new LinkedHashMap<>();
+  private final Map<PathPattern, CorsConfiguration> corsConfigurations = new LinkedHashMap<>();
 
-  public UrlBasedCorsConfigurationSource() {
-    this(new AntPathMatcher());
-  }
-
-  public UrlBasedCorsConfigurationSource(PathMatcher pathMatcher) {
-    this.pathMatcher = pathMatcher;
-  }
+  private final PathPatternParser patternParser;
 
   /**
-   * Set the PathMatcher implementation to use for matching URL paths
-   * against registered URL patterns. Default is AntPathMatcher.
+   * Default constructor with {@link PathPatternParser#defaultInstance}.
    */
-  public void setPathMatcher(PathMatcher pathMatcher) {
-    Assert.notNull(pathMatcher, "PathMatcher must not be null");
-    this.pathMatcher = pathMatcher;
+  public UrlBasedCorsConfigurationSource() {
+    this(PathPatternParser.defaultInstance);
   }
 
   /**
-   * Set CORS configuration based on URL patterns.
+   * Constructor with a {@link PathPatternParser} to parse patterns with.
+   *
+   * @param parser the parser to use
+   * @since 4.0
+   */
+  public UrlBasedCorsConfigurationSource(PathPatternParser parser) {
+    Assert.notNull(parser, "PathPatternParser must not be null");
+    this.patternParser = parser;
+  }
+
+  /**
+   * Set the CORS configuration mappings.
+   * <p>For pattern syntax see {@link AntPathMatcher} and {@link PathPattern}
+   * as well as class-level Javadoc for details on which one may in use.
+   * Generally the syntax is largely the same with {@link PathPattern} more
+   * tailored for web usage.
+   *
+   * @param corsConfigurations the mappings to use
+   * @see PathPattern
+   * @see AntPathMatcher
    */
   public void setCorsConfigurations(Map<String, CorsConfiguration> corsConfigurations) {
     this.corsConfigurations.clear();
     if (corsConfigurations != null) {
-      this.corsConfigurations.putAll(corsConfigurations);
+      corsConfigurations.forEach(this::registerCorsConfiguration);
     }
+  }
+
+  /**
+   * Variant of {@link #setCorsConfigurations(Map)} to register one mapping at a time.
+   *
+   * @param pattern the mapping pattern
+   * @param config the CORS configuration to use for the pattern
+   * @see PathPattern
+   * @see AntPathMatcher
+   */
+  public void registerCorsConfiguration(String pattern, CorsConfiguration config) {
+    this.corsConfigurations.put(this.patternParser.parse(pattern), config);
   }
 
   /**
    * Get the CORS configuration.
    */
-  public Map<String, CorsConfiguration> getCorsConfigurations() {
+  public Map<PathPattern, CorsConfiguration> getCorsConfigurations() {
     return this.corsConfigurations;
-  }
-
-  /**
-   * Register a {@link CorsConfiguration} for the specified path pattern.
-   */
-  public void registerCorsConfiguration(String path, CorsConfiguration config) {
-    this.corsConfigurations.put(path, config);
   }
 
   @Override
   public CorsConfiguration getCorsConfiguration(final RequestContext request) {
-    final String lookupPath = request.getRequestPath();
-    for (Map.Entry<String, CorsConfiguration> entry : this.corsConfigurations.entrySet()) {
-      if (this.pathMatcher.match(entry.getKey(), lookupPath)) {
+    final RequestPath lookupPath = request.getLookupPath();
+    for (Map.Entry<PathPattern, CorsConfiguration> entry : this.corsConfigurations.entrySet()) {
+      if (entry.getKey().matches(lookupPath)) {
         return entry.getValue();
       }
     }

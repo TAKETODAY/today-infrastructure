@@ -29,6 +29,7 @@ import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StreamUtils;
@@ -111,11 +112,7 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 
   @Override
   protected MediaType getDefaultContentType(Resource resource) {
-    MediaType mediaType = MediaType.fromResource(resource);
-    if (mediaType == null) {
-      return MediaType.APPLICATION_OCTET_STREAM;
-    }
-    return mediaType;
+    return MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM);
   }
 
   @Override

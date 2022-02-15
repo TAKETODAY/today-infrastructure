@@ -219,6 +219,16 @@ public abstract class ServletUtils {
   }
 
   /**
+   * Gets the servlet context to which this ServletRequest was last dispatched.
+   *
+   * @return the servlet context to which this ServletRequest was last dispatched
+   * @since 4.0
+   */
+  public static ServletContext getServletContext(RequestContext context) {
+    return getServletRequest(context).getServletContext();
+  }
+
+  /**
    * Return an appropriate response object
    *
    * @param context the context to introspect

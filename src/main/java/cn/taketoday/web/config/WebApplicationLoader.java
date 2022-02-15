@@ -31,6 +31,7 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.ApplicationStartedEvent;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
@@ -38,20 +39,18 @@ import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
-import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.SelectableReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -75,7 +74,6 @@ public class WebApplicationLoader
     WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
     configureTemplateLoader(context, mvcConfiguration);
-    configureResourceHandler(context, mvcConfiguration);
     configureFunctionHandler(context, mvcConfiguration);
     configureViewControllerHandler(context, mvcConfiguration);
     configureExceptionHandler(context, mvcConfiguration);
@@ -301,18 +299,6 @@ public class WebApplicationLoader
     mvcConfiguration.configureParameterResolving(registry, customizedStrategies); // user configure
 
     registry.getCustomizedStrategies().add(customizedStrategies);
-  }
-
-  /**
-   * Configure {@link ResourceHandlerRegistry}
-   *
-   * @param mvcConfiguration All {@link WebMvcConfiguration} object
-   */
-  protected void configureResourceHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    ResourceHandlerRegistry registry = context.getBean(ResourceHandlerRegistry.class);
-    if (registry != null) {
-      mvcConfiguration.configureResourceHandler(registry);
-    }
   }
 
   /**

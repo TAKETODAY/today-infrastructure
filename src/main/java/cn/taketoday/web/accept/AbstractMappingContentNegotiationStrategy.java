@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
 import cn.taketoday.util.StringUtils;
@@ -142,10 +143,7 @@ public abstract class AbstractMappingContentNegotiationStrategy
           throws HttpMediaTypeNotAcceptableException {
 
     if (!isUseRegisteredExtensionsOnly()) {
-      MediaType mediaType = MediaType.fromFileName("file." + key);
-      if (mediaType != null) {
-        return mediaType;
-      }
+      return MediaTypeFactory.getMediaType("file." + key).orElse(null);
     }
     if (isIgnoreUnknownExtensions()) {
       return null;

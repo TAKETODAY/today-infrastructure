@@ -1,0 +1,118 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.web.resource;
+
+import java.util.Collections;
+
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
+
+/**
+ * A base class for a {@code ResourceTransformer} with an optional helper method
+ * for resolving public links within a transformed resource.
+ *
+ * @author Brian Clozel
+ * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
+ * @since 4.0
+ */
+public abstract class ResourceTransformerSupport implements ResourceTransformer {
+
+  @Nullable
+  private ResourceUrlProvider resourceUrlProvider;
+
+  /**
+   * Configure a {@link ResourceUrlProvider} to use when resolving the public
+   * URL of links in a transformed resource (e.g. import links in a CSS file).
+   * This is required only for links expressed as full paths and not for
+   * relative links.
+   */
+  public void setResourceUrlProvider(@Nullable ResourceUrlProvider resourceUrlProvider) {
+    this.resourceUrlProvider = resourceUrlProvider;
+  }
+
+  /**
+   * Return the configured {@code ResourceUrlProvider}.
+   */
+  @Nullable
+  public ResourceUrlProvider getResourceUrlProvider() {
+    return this.resourceUrlProvider;
+  }
+
+  /**
+   * A transformer can use this method when a resource being transformed
+   * contains links to other resources. Such links need to be replaced with the
+   * public facing link as determined by the resource resolver chain (e.g. the
+   * public URL may have a version inserted).
+   *
+   * @param resourcePath the path to a resource that needs to be re-written
+   * @param request the current request
+   * @param resource the resource being transformed
+   * @param transformerChain the transformer chain
+   * @return the resolved URL, or {@code} if not resolvable
+   */
+  @Nullable
+  protected String resolveUrlPath(
+          String resourcePath, HttpServletRequest request,
+          Resource resource, ResourceTransformerChain transformerChain) {
+
+    if (resourcePath.startsWith("/")) {
+      // full resource path
+      ResourceUrlProvider urlProvider = findResourceUrlProvider(request);
+      return (urlProvider != null ? urlProvider.getForRequestUrl(request, resourcePath) : null);
+    }
+    else {
+      // try resolving as relative path
+      return transformerChain.getResolverChain().resolveUrlPath(
+              resourcePath, Collections.singletonList(resource));
+    }
+  }
+
+  /**
+   * Transform the given relative request path to an absolute path,
+   * taking the path of the given request as a point of reference.
+   * The resulting path is also cleaned from sequences like "path/..".
+   *
+   * @param path the relative path to transform
+   * @param request the referer request
+   * @return the absolute request path for the given resource path
+   */
+  protected String toAbsolutePath(String path, HttpServletRequest request) {
+    String absolutePath = path;
+    if (!path.startsWith("/")) {
+      ResourceUrlProvider urlProvider = findResourceUrlProvider(request);
+      Assert.state(urlProvider != null, "No ResourceUrlProvider");
+      String requestPath = urlProvider.getUrlPathHelper().getRequestUri(request);
+      absolutePath = ResourceUtils.getRelativePath(requestPath, path);
+    }
+    return StringUtils.cleanPath(absolutePath);
+  }
+
+  @Nullable
+  private ResourceUrlProvider findResourceUrlProvider(HttpServletRequest request) {
+    return resourceUrlProvider;
+  }
+
+}

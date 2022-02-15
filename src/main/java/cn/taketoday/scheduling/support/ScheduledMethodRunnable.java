@@ -33,7 +33,6 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.scheduling.annotation.ScheduledAnnotationBeanPostProcessor
- * @since 3.0.6
  */
 public class ScheduledMethodRunnable implements Runnable {
 

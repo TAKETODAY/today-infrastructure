@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -71,10 +71,10 @@ final class AttributeMethods {
     for (int i = 0; i < attributes.length; i++) {
       Method method = this.attributes[i];
       Class<?> type = method.getReturnType();
-      if (method.getDefaultValue() != null) {
+      if (!foundDefaultValueMethod && (method.getDefaultValue() != null)) {
         foundDefaultValueMethod = true;
       }
-      if (type.isAnnotation() || (type.isArray() && type.getComponentType().isAnnotation())) {
+      if (!foundNestedAnnotation && (type.isAnnotation() || (type.isArray() && type.getComponentType().isAnnotation()))) {
         foundNestedAnnotation = true;
       }
       ReflectionUtils.makeAccessible(method);
@@ -83,7 +83,6 @@ final class AttributeMethods {
     this.hasDefaultValueMethod = foundDefaultValueMethod;
     this.hasNestedAnnotation = foundNestedAnnotation;
   }
-
 
   /**
    * Determine if this instance only contains a single attribute named
