@@ -19,16 +19,29 @@
  */
 package cn.taketoday.web.registry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.StringValueResolver;
+import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.http.CorsConfigurationSource;
+import cn.taketoday.http.CorsProcessor;
+import cn.taketoday.http.DefaultCorsProcessor;
+import cn.taketoday.http.UrlBasedCorsConfigurationSource;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogDelegateFactory;
 import cn.taketoday.logging.Logger;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
@@ -60,6 +73,26 @@ public abstract class AbstractHandlerRegistry
   private StringValueResolver embeddedValueResolver;
 
   private final PathPatternParser patternParser = new PathPatternParser();
+
+  private final List<Object> interceptors = new ArrayList<>();
+
+  private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<>();
+
+  @Nullable
+  private CorsConfigurationSource corsConfigurationSource;
+
+  private CorsProcessor corsProcessor = new DefaultCorsProcessor();
+
+  /**
+   * Return the {@link #setCorsConfigurationSource(CorsConfigurationSource)
+   * configured} {@code CorsConfigurationSource}, if any.
+   *
+   * @since .0
+   */
+  @Nullable
+  public CorsConfigurationSource getCorsConfigurationSource() {
+    return this.corsConfigurationSource;
+  }
 
   /**
    * Look up a handler for the given request, falling back to the default
@@ -143,6 +176,81 @@ public abstract class AbstractHandlerRegistry
    */
   public void setUseTrailingSlashMatch(boolean trailingSlashMatch) {
     this.patternParser.setMatchOptionalTrailingSeparator(trailingSlashMatch);
+  }
+
+  /**
+   * Set the interceptors to apply for all handlers mapped by this handler registry.
+   *
+   * @param interceptors array of handler interceptors
+   * @since 4.0
+   */
+  public void setInterceptors(Object... interceptors) {
+    this.interceptors.addAll(Arrays.asList(interceptors));
+  }
+
+  /**
+   * Set "global" CORS configuration mappings. The first matching URL pattern
+   * determines the {@code CorsConfiguration} to use which is then further
+   * {@link CorsConfiguration#combine(CorsConfiguration) combined} with the
+   * {@code CorsConfiguration} for the selected handler.
+   * <p>This is mutually exclusive with
+   * {@link #setCorsConfigurationSource(CorsConfigurationSource)}.
+   *
+   * @see #setCorsProcessor(CorsProcessor)
+   * @since 4.0
+   */
+  public void setCorsConfigurations(Map<String, CorsConfiguration> corsConfigurations) {
+    if (CollectionUtils.isEmpty(corsConfigurations)) {
+      this.corsConfigurationSource = null;
+    }
+    else {
+      UrlBasedCorsConfigurationSource source;
+      if (getPatternParser() != null) {
+        source = new UrlBasedCorsConfigurationSource(getPatternParser());
+        source.setCorsConfigurations(corsConfigurations);
+      }
+      else {
+        source = new UrlBasedCorsConfigurationSource();
+        source.setCorsConfigurations(corsConfigurations);
+      }
+      setCorsConfigurationSource(source);
+    }
+  }
+
+  /**
+   * Set a {@code CorsConfigurationSource} for "global" CORS config. The
+   * {@code CorsConfiguration} determined by the source is
+   * {@link CorsConfiguration#combine(CorsConfiguration) combined} with the
+   * {@code CorsConfiguration} for the selected handler.
+   * <p>This is mutually exclusive with {@link #setCorsConfigurations(Map)}.
+   *
+   * @see #setCorsProcessor(CorsProcessor)
+   * @since 4.0
+   */
+  public void setCorsConfigurationSource(CorsConfigurationSource source) {
+    Assert.notNull(source, "CorsConfigurationSource must not be null");
+    this.corsConfigurationSource = source;
+  }
+
+  /**
+   * Configure a custom {@link CorsProcessor} to use to apply the matched
+   * {@link CorsConfiguration} for a request.
+   * <p>By default {@link DefaultCorsProcessor} is used.
+   *
+   * @since 4.0
+   */
+  public void setCorsProcessor(CorsProcessor corsProcessor) {
+    Assert.notNull(corsProcessor, "CorsProcessor must not be null");
+    this.corsProcessor = corsProcessor;
+  }
+
+  /**
+   * Return the configured {@link CorsProcessor}.
+   *
+   * @since 4.0
+   */
+  public CorsProcessor getCorsProcessor() {
+    return this.corsProcessor;
   }
 
   public void setOrder(int order) {

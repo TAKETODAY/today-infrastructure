@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,12 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.interceptor;
+package cn.taketoday.web.config;
 
 import java.util.ArrayList;
 
 import cn.taketoday.core.PathMatcher;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * @author TODAY 2021/8/30 21:38
@@ -32,9 +34,18 @@ import cn.taketoday.util.CollectionUtils;
 public class InterceptorRegistration {
 
   protected HandlerInterceptor interceptor;
+  private int order = 0;
 
   private final ArrayList<String> includePatterns = new ArrayList<>();
   private final ArrayList<String> excludePatterns = new ArrayList<>();
+
+  /**
+   * Create an {@link InterceptorRegistration} instance.
+   */
+  public InterceptorRegistration(HandlerInterceptor interceptor) {
+    Assert.notNull(interceptor, "Interceptor is required");
+    this.interceptor = interceptor;
+  }
 
   public InterceptorRegistration setInterceptor(HandlerInterceptor interceptor) {
     this.interceptor = interceptor;
@@ -73,6 +84,21 @@ public class InterceptorRegistration {
 
   public HandlerInterceptor getInterceptor() {
     return interceptor;
+  }
+
+  /**
+   * Specify an order position to be used. Default is 0.
+   */
+  public InterceptorRegistration order(int order) {
+    this.order = order;
+    return this;
+  }
+
+  /**
+   * Return the order position to be used.
+   */
+  protected int getOrder() {
+    return this.order;
   }
 
 }

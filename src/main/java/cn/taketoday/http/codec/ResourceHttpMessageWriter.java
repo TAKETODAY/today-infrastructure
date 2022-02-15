@@ -44,6 +44,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
@@ -143,7 +144,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
     if (mediaType != null && mediaType.isConcrete() && !mediaType.equals(MediaType.APPLICATION_OCTET_STREAM)) {
       return mediaType;
     }
-    mediaType = Optional.ofNullable(MediaType.fromResource(resource))
+    mediaType = MediaTypeFactory.getMediaType(resource)
             .orElse(MediaType.APPLICATION_OCTET_STREAM);
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
       logger.debug("{}Resource associated with '{}'", Hints.getLogPrefix(hints), mediaType);

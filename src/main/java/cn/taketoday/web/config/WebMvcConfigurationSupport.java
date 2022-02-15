@@ -37,6 +37,8 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.http.CorsConfiguration;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -51,6 +53,7 @@ import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -71,9 +74,12 @@ import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.registry.AbstractHandlerRegistry;
+import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
@@ -112,6 +118,12 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
 
   @Nullable
   private ApplicationContext applicationContext;
+
+  @Nullable
+  private Map<String, CorsConfiguration> corsConfigurations;
+
+  @Nullable
+  private List<Object> interceptors;
 
   @Nullable
   public ApplicationContext getApplicationContext() {
@@ -478,6 +490,94 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     }
 
     return registry;
+  }
+
+  /**
+   * Return a handler mapping ordered at Integer.MAX_VALUE-1 with mapped
+   * resource handlers. To configure resource handling, override
+   * {@link #addResourceHandlers}.
+   */
+  @Nullable
+  @Component
+  public HandlerRegistry resourceHandlerRegistry(
+          @Nullable ContentNegotiationManager contentNegotiationManager,
+          ConversionService conversionService, ResourceUrlProvider resourceUrlProvider) {
+
+    Assert.state(this.applicationContext != null, "No ApplicationContext set");
+    PathMatchConfigurer pathConfig = getPathMatchConfigurer();
+
+    ResourceHandlerRegistry registry = new ResourceHandlerRegistry(this.applicationContext, contentNegotiationManager);
+    addResourceHandlers(registry);
+
+    AbstractHandlerRegistry handlerRegistry = registry.getHandlerMapping();
+    if (handlerRegistry == null) {
+      return null;
+    }
+
+    handlerRegistry.setInterceptors(getInterceptors(conversionService, resourceUrlProvider));
+    handlerRegistry.setCorsConfigurations(getCorsConfigurations());
+    return handlerRegistry;
+  }
+
+  /**
+   * Override this method to add resource handlers for serving static resources.
+   *
+   * @see ResourceHandlerRegistry
+   */
+  protected void addResourceHandlers(ResourceHandlerRegistry registry) { }
+
+  /**
+   * A {@link ResourceUrlProvider} bean for use with the MVC dispatcher.
+   */
+  @Component
+  public ResourceUrlProvider mvcResourceUrlProvider() {
+    return new ResourceUrlProvider();
+  }
+
+  /**
+   * Return the registered {@link CorsConfiguration} objects,
+   * keyed by path pattern.
+   */
+  protected final Map<String, CorsConfiguration> getCorsConfigurations() {
+    if (this.corsConfigurations == null) {
+      CorsRegistry registry = new CorsRegistry();
+      addCorsMappings(registry);
+      this.corsConfigurations = registry.getCorsConfigurations();
+    }
+    return this.corsConfigurations;
+  }
+
+  /**
+   * Override this method to configure cross origin requests processing.
+   *
+   * @see CorsRegistry
+   */
+  protected void addCorsMappings(CorsRegistry registry) { }
+
+  /**
+   * Provide access to the shared handler interceptors used to configure
+   * {@link HandlerRegistry} instances with.
+   * <p>This method cannot be overridden; use {@link #addInterceptors} instead.
+   */
+  protected final Object[] getInterceptors(
+          ConversionService mvcConversionService,
+          ResourceUrlProvider mvcResourceUrlProvider) {
+
+    if (this.interceptors == null) {
+      InterceptorRegistry registry = new InterceptorRegistry();
+      addInterceptors(registry);
+      this.interceptors = registry.getInterceptors();
+    }
+    return this.interceptors.toArray();
+  }
+
+  /**
+   * Override this method to add Spring MVC interceptors for
+   * pre- and post-processing of controller invocation.
+   *
+   * @see InterceptorRegistry
+   */
+  protected void addInterceptors(InterceptorRegistry registry) {
   }
 
   static boolean isPresent(String name) {

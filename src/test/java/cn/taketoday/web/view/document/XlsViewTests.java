@@ -46,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for AbstractXlsView and its subclasses.
  *
  * @author Juergen Hoeller
- * @since 4.2
  */
 public class XlsViewTests {
 

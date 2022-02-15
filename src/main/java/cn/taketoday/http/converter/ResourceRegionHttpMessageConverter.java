@@ -27,13 +27,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Optional;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MediaType;
@@ -68,7 +68,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
         resource = regions.iterator().next().getResource();
       }
     }
-    return Optional.ofNullable(MediaType.fromResource(resource))
+    return MediaTypeFactory.getMediaType(resource)
             .orElse(MediaType.APPLICATION_OCTET_STREAM);
   }
 

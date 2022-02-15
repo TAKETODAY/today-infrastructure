@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,26 +18,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.demo.config;
+package cn.taketoday.web.resource;
 
-import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.config.InterceptorRegistry;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.HttpHeaders;
 
 /**
- * @author TODAY 2021/8/29 22:20
+ * Extended interface for a {@link Resource} to be written to an
+ * HTTP response.
+ *
+ * @author Brian Clozel
+ * @since 4.0
  */
-@Configuration
-@ComponentScan("cn.taketoday.web.demo")
-public class AppConfig implements WebMvcConfiguration {
+public interface HttpResource extends Resource {
 
-  HandlerInterceptor interceptor;
-
-  public void configureInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(interceptor)
-            .addPathPatterns("/app/*", "/api/**");
-  }
+  /**
+   * The HTTP headers to be contributed to the HTTP response
+   * that serves the current resource.
+   *
+   * @return the HTTP response headers
+   */
+  HttpHeaders getResponseHeaders();
 
 }

@@ -22,6 +22,7 @@ package cn.taketoday.web.interceptor;
 
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.config.InterceptorRegistration;
 
 /**
  * @author TODAY 2021/8/30 22:08
@@ -31,6 +32,13 @@ public final class RuntimeHandlerInterceptor
         extends InterceptorRegistration implements HandlerInterceptor {
 
   private PathMatcher pathMatcher;
+
+  /**
+   * Create an {@link InterceptorRegistration} instance.
+   */
+  public RuntimeHandlerInterceptor(HandlerInterceptor interceptor) {
+    super(interceptor);
+  }
 
   @Override
   public Object intercept(

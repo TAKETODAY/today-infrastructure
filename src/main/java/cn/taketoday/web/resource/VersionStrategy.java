@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,27 +18,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.interceptor;
+package cn.taketoday.web.resource;
 
-import java.util.ArrayList;
-import java.util.List;
+import cn.taketoday.core.io.Resource;
 
 /**
- * @author TODAY 2021/8/30 21:43
- */
-public class InterceptorRegistry {
+ * An extension of {@link VersionPathStrategy} that adds a method
+ * to determine the actual version of a {@link Resource}.
+ *
+ * @author Brian Clozel
+ * @author Rossen Stoyanchev
+ * @since 4.0
+ * @see VersionResourceResolver
+*/
+public interface VersionStrategy extends VersionPathStrategy {
 
-  private final List<InterceptorRegistration> registrations = new ArrayList<>();
-
-  public InterceptorRegistration addInterceptor(HandlerInterceptor interceptor) {
-    InterceptorRegistration registration = new RuntimeHandlerInterceptor();
-    registration.setInterceptor(interceptor);
-    registrations.add(registration);
-    return registration;
-  }
-
-  public List<InterceptorRegistration> getRegistrations() {
-    return registrations;
-  }
+	/**
+	 * Determine the version for the given resource.
+	 * @param resource the resource to check
+	 * @return the version (never {@code null})
+	 */
+	String getResourceVersion(Resource resource);
 
 }
