@@ -22,10 +22,15 @@ package cn.taketoday.web.handler;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
@@ -36,6 +41,8 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
+import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.util.WebUtils;
 
@@ -86,9 +93,62 @@ public class DispatcherHandler {
    * <p>May be overridden in subclasses in order to initialize further strategy objects.
    */
   protected void initStrategies(ApplicationContext context) {
+    initHandlerRegistries(context);
+    initHandlerAdapters(context);
 
+  }
 
+  /**
+   * Initialize the HandlerRegistries used by this class.
+   * <p>If no HandlerRegistry beans are defined in the BeanFactory for this namespace,
+   * we default to BeanNameUrlHandlerRegistry.
+   */
+  private void initHandlerRegistries(ApplicationContext context) {
+    if (handlerRegistry == null) {
+      // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+      Map<String, HandlerRegistry> matchingBeans =
+              BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerRegistry.class, true, false);
+      if (!matchingBeans.isEmpty()) {
+        ArrayList<HandlerRegistry> registries = new ArrayList<>(matchingBeans.values());
+        // We keep HandlerRegistries in sorted order.
+        AnnotationAwareOrderComparator.sort(registries);
+        this.handlerRegistry = registries.size() == 1
+                               ? registries.get(0)
+                               : new HandlerRegistries(registries);
+      }
+      else {
+        handlerRegistry = (HandlerRegistry) context.getAutowireCapableBeanFactory()
+                .configureBean(new BeanNameUrlHandlerRegistry(), "handlerRegistry");
+      }
+    }
 
+  }
+
+  /**
+   * Initialize the HandlerAdapters used by this class.
+   * <p>If no HandlerAdapter beans are defined in the BeanFactory for this namespace,
+   * we default to SimpleControllerHandlerAdapter.
+   */
+  private void initHandlerAdapters(ApplicationContext context) {
+    if (handlerAdapters == null) {
+      // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
+      Map<String, HandlerAdapter> matchingBeans =
+              BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, true, false);
+      if (!matchingBeans.isEmpty()) {
+        ArrayList<HandlerAdapter> handlerAdapters = new ArrayList<>(matchingBeans.values());
+        // We keep HandlerAdapters in sorted order.
+        AnnotationAwareOrderComparator.sort(handlerAdapters);
+        this.handlerAdapters = handlerAdapters.toArray(new HandlerAdapter[handlerAdapters.size()]);
+      }
+
+      // Ensure we have at least some HandlerAdapters, by registering
+      // default HandlerAdapters if no other adapters are found.
+      if (this.handlerAdapters == null) {
+        ArrayList<HandlerAdapter> adapters = new ArrayList<>(matchingBeans.values());
+        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
+        this.handlerAdapters = adapters.toArray(new HandlerAdapter[adapters.size()]);
+      }
+    }
   }
 
   // Handler
