@@ -38,7 +38,6 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.ControllerAdvice;
@@ -91,7 +90,7 @@ public class ControllerAdviceBean implements Ordered {
    *
    * @param bean the bean instance
    */
-  public ControllerAdviceBean(@NonNull Object bean) {
+  public ControllerAdviceBean(Object bean) {
     Assert.notNull(bean, "Bean must not be null");
     this.beanOrName = bean;
     this.isSingleton = true;
@@ -125,7 +124,7 @@ public class ControllerAdviceBean implements Ordered {
    * bean, or {@code null} if not yet retrieved
    */
   public ControllerAdviceBean(
-          String beanName, @NonNull BeanFactory beanFactory, @Nullable ControllerAdvice controllerAdvice) {
+          String beanName, BeanFactory beanFactory, @Nullable ControllerAdvice controllerAdvice) {
     Assert.hasText(beanName, "Bean name must contain text");
     Assert.notNull(beanFactory, "BeanFactory must not be null");
     if (!beanFactory.containsBean(beanName)) {
