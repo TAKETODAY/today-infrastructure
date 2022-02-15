@@ -42,7 +42,7 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;

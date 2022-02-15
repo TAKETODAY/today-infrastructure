@@ -33,7 +33,7 @@ import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;

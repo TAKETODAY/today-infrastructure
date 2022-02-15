@@ -28,7 +28,7 @@ import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.DataSize;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.MultipartParsingException;

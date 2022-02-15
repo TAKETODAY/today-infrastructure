@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.util;
+package cn.taketoday.http;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -32,9 +32,14 @@ import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.InvalidMediaTypeException;
+import cn.taketoday.util.InvalidMimeTypeException;
+import cn.taketoday.util.MimeType;
+import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.StringUtils;
 
 import static java.util.Collections.singletonMap;
 

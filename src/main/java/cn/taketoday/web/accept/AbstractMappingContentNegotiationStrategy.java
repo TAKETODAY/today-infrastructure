@@ -26,7 +26,7 @@ import java.util.Map;
 
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;

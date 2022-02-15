@@ -25,7 +25,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.AbstractJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**

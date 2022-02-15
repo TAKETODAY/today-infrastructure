@@ -45,13 +45,12 @@ import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
-import static cn.taketoday.util.MediaType.APPLICATION_FORM_URLENCODED;
-import static cn.taketoday.util.MediaType.APPLICATION_JSON;
-import static cn.taketoday.util.MediaType.MULTIPART_FORM_DATA;
-import static cn.taketoday.util.MediaType.MULTIPART_MIXED;
-import static cn.taketoday.util.MediaType.TEXT_XML;
+import static cn.taketoday.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static cn.taketoday.http.MediaType.APPLICATION_JSON;
+import static cn.taketoday.http.MediaType.MULTIPART_FORM_DATA;
+import static cn.taketoday.http.MediaType.MULTIPART_MIXED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

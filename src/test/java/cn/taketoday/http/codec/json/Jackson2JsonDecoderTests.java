@@ -47,17 +47,17 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.codec.Pojo;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView1;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView3;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static cn.taketoday.http.codec.json.Jackson2CodecSupport.JSON_VIEW_HINT;
-import static cn.taketoday.util.MediaType.APPLICATION_JSON;
-import static cn.taketoday.util.MediaType.APPLICATION_NDJSON;
-import static cn.taketoday.util.MediaType.APPLICATION_STREAM_JSON;
-import static cn.taketoday.util.MediaType.APPLICATION_XML;
+import static cn.taketoday.http.MediaType.APPLICATION_JSON;
+import static cn.taketoday.http.MediaType.APPLICATION_NDJSON;
+import static cn.taketoday.http.MediaType.APPLICATION_STREAM_JSON;
+import static cn.taketoday.http.MediaType.APPLICATION_XML;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

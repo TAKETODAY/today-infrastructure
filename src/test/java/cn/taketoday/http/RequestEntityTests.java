@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.util.MediaType;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;

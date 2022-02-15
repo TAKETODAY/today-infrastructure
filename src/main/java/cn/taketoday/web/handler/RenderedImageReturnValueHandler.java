@@ -25,7 +25,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;

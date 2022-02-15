@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * An implementation of {@code MediaTypeFileExtensionResolver} that maintains

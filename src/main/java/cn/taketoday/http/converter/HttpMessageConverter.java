@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Strategy interface for converting from and to HTTP requests and responses.

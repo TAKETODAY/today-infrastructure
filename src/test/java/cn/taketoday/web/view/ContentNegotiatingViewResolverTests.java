@@ -32,7 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.StaticWebApplicationContext;

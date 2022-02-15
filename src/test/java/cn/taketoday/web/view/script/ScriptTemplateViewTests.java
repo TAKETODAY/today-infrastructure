@@ -41,7 +41,7 @@ import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;

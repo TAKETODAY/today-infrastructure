@@ -35,7 +35,7 @@ import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
@@ -63,7 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static cn.taketoday.http.HttpMethod.POST;
-import static cn.taketoday.util.MediaType.MULTIPART_MIXED;
+import static cn.taketoday.http.MediaType.MULTIPART_MIXED;
 
 /**
  * Integration tests for {@link RestTemplate}.

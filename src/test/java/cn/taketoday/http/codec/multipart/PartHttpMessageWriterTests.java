@@ -33,7 +33,7 @@ import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.core.io.buffer.AbstractLeakCheckingTests;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.server.reactive.MockServerHttpResponse;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 
 import static cn.taketoday.http.codec.multipart.MultipartHttpMessageWriterTests.parse;

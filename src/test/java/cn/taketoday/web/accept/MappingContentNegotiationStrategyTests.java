@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -37,7 +37,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;

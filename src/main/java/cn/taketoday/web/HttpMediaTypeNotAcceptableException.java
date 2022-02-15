@@ -22,7 +22,7 @@ package cn.taketoday.web;
 
 import java.util.List;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Exception thrown when the request handler cannot generate a response that is acceptable by the client.

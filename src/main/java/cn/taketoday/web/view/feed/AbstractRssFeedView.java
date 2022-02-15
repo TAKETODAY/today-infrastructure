@@ -26,7 +26,7 @@ import com.rometools.rome.feed.rss.Item;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**

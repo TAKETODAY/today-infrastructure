@@ -35,7 +35,7 @@ import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

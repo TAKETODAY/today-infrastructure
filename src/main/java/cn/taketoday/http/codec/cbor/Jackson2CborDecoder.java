@@ -32,7 +32,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.codec.json.AbstractJackson2Decoder;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 

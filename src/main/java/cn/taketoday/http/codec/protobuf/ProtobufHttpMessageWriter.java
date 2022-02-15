@@ -38,7 +38,7 @@ import cn.taketoday.http.codec.EncoderHttpMessageWriter;
 import cn.taketoday.http.codec.HttpMessageEncoder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

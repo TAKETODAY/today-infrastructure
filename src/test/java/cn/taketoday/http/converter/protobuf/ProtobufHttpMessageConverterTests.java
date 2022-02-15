@@ -35,7 +35,7 @@ import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
 import cn.taketoday.protobuf.Msg;
 import cn.taketoday.protobuf.SecondMsg;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

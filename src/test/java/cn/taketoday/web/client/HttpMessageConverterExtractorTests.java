@@ -25,7 +25,7 @@ import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;

@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -38,8 +38,8 @@ import okio.Buffer;
 import static cn.taketoday.http.HttpHeaders.CONTENT_LENGTH;
 import static cn.taketoday.http.HttpHeaders.CONTENT_TYPE;
 import static cn.taketoday.http.HttpHeaders.LOCATION;
-import static cn.taketoday.util.MediaType.MULTIPART_FORM_DATA;
-import static cn.taketoday.util.MediaType.MULTIPART_MIXED;
+import static cn.taketoday.http.MediaType.MULTIPART_FORM_DATA;
+import static cn.taketoday.http.MediaType.MULTIPART_MIXED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

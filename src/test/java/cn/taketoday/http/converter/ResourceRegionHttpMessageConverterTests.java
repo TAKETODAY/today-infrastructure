@@ -38,7 +38,7 @@ import cn.taketoday.core.io.ResourceRegion;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

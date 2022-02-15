@@ -29,7 +29,7 @@ import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

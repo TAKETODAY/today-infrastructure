@@ -56,7 +56,7 @@ import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.ConverterRegistry;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StopWatch;

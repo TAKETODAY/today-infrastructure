@@ -34,7 +34,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Mono;
 

@@ -32,7 +32,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.http.codec.json.Jackson2JsonDecoder;
 import cn.taketoday.http.server.reactive.MockServerHttpRequest;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;

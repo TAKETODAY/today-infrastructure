@@ -51,7 +51,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -488,7 +488,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public Object handleRequest(RequestContext request) throws Throwable {
+  public Object handleRequest(RequestContext request) throws Exception {
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(request);
     if (resource == null) {

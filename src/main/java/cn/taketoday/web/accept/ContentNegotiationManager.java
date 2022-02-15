@@ -33,7 +33,7 @@ import java.util.function.Function;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 
@@ -145,7 +145,7 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
    * {@inheritDoc}
    * <p>At startup this method returns extensions explicitly registered with
    * {@link ParameterContentNegotiationStrategy}.
-   * {@link cn.taketoday.util.MediaType} and cached.
+   * {@link MediaType} and cached.
    */
   @Override
   public List<String> getAllFileExtensions() {

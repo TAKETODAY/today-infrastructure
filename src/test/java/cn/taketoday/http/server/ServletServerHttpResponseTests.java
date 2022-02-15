@@ -29,7 +29,7 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;

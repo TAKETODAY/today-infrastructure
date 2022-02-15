@@ -23,7 +23,7 @@ package cn.taketoday.web.client;
 import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.util.StreamUtils;
 

@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
 
 /**
  * {@code HttpHeaders} object that can only be read, not written to.

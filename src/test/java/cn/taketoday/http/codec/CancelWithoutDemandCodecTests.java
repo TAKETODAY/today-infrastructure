@@ -46,7 +46,7 @@ import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufEncoder;
 import cn.taketoday.protobuf.Msg;
 import cn.taketoday.protobuf.SecondMsg;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;

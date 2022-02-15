@@ -39,7 +39,7 @@ import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Prepare the body of a multipart request, resulting in a

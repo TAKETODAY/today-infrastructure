@@ -43,7 +43,7 @@ import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.codec.EncoderHttpMessageWriter;
 import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.http.codec.json.Jackson2JsonEncoder;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.channel.AbortedException;

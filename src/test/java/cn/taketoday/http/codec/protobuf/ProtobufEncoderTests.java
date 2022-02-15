@@ -33,7 +33,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.protobuf.Msg;
 import cn.taketoday.protobuf.SecondMsg;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

@@ -63,7 +63,7 @@ import cn.taketoday.http.codec.json.Jackson2SmileEncoder;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 

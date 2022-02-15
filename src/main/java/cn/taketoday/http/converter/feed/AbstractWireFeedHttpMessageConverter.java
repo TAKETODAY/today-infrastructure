@@ -39,7 +39,7 @@ import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.converter.AbstractHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 

@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
 
 /**
  * Extension of {@link HttpEntity} that adds a {@link HttpStatus} status code.

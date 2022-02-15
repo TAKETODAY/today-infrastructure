@@ -47,7 +47,7 @@ import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static cn.taketoday.util.MediaType.ALL_VALUE;
+import static cn.taketoday.http.MediaType.ALL_VALUE;
 
 /**
  * {@link ClientHttpRequest} implementation for the Apache HttpComponents HttpClient 5.x.

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Collections;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;

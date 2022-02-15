@@ -26,7 +26,7 @@ import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import cn.taketoday.http.converter.json.AbstractJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Implementation of {@link cn.taketoday.http.converter.HttpMessageConverter

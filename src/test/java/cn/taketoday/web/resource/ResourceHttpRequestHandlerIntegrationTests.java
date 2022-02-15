@@ -23,29 +23,25 @@ package cn.taketoday.web.resource;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileSystemResource;
-import cn.taketoday.core.io.UrlResource;
-import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
-import cn.taketoday.web.servlet.config.annotation.PathMatchConfigurer;
-import cn.taketoday.web.servlet.config.annotation.ResourceHandlerRegistry;
-import cn.taketoday.web.servlet.config.annotation.WebMvcConfigurer;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockServletConfig;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
-import cn.taketoday.web.util.UriUtils;
-import cn.taketoday.web.util.pattern.PathPatternParser;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.config.PathMatchConfigurer;
+import cn.taketoday.web.config.ResourceHandlerRegistry;
+import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.mock.MockHttpServletResponse;
+import cn.taketoday.web.mock.MockServletContext;
+import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.util.UriUtils;
+import cn.taketoday.web.util.pattern.PathPatternParser;
 import jakarta.servlet.ServletException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
@@ -55,127 +51,123 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  */
 public class ResourceHttpRequestHandlerIntegrationTests {
 
-	private final MockServletContext servletContext = new MockServletContext();
+  private final MockServletContext servletContext = new MockServletContext();
 
-	private final MockServletConfig servletConfig = new MockServletConfig(this.servletContext);
+  private final MockServletConfig servletConfig = new MockServletConfig(this.servletContext);
 
+  public static Stream<Arguments> argumentSource() {
+    return Stream.of(
+            arguments(true, "/cp"),
+            arguments(true, "/fs"),
+            arguments(true, "/url"),
+            arguments(false, "/cp"),
+            arguments(false, "/fs"),
+            arguments(false, "/url")
+    );
+  }
 
-	public static Stream<Arguments> argumentSource() {
-		return Stream.of(
-				arguments(true, "/cp"),
-				arguments(true, "/fs"),
-				arguments(true, "/url"),
-				arguments(false, "/cp"),
-				arguments(false, "/fs"),
-				arguments(false, "/url")
-		);
-	}
+  @ParameterizedTest
+  @MethodSource("argumentSource")
+  void cssFile(boolean usePathPatterns, String pathPrefix) throws Exception {
+    MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo.css");
+    MockHttpServletResponse response = new MockHttpServletResponse();
 
+    DispatcherServlet servlet = initDispatcherServlet(usePathPatterns, WebConfig.class);
+    servlet.service(request, response);
 
-	@ParameterizedTest
-	@MethodSource("argumentSource")
-	void cssFile(boolean usePathPatterns, String pathPrefix) throws Exception {
-		MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo.css");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+    String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
+    assertThat(response.getStatus()).as(description).isEqualTo(200);
+    assertThat(response.getContentType()).as(description).isEqualTo("text/css");
+    assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
+  }
 
-		DispatcherServlet servlet = initDispatcherServlet(usePathPatterns, WebConfig.class);
-		servlet.service(request, response);
+  @ParameterizedTest
+  @MethodSource("argumentSource")
+  void classpathLocationWithEncodedPath(boolean usePathPatterns, String pathPrefix) throws Exception {
+    MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
+    MockHttpServletResponse response = new MockHttpServletResponse();
 
-		String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
-		assertThat(response.getStatus()).as(description).isEqualTo(200);
-		assertThat(response.getContentType()).as(description).isEqualTo("text/css");
-		assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
-	}
+    DispatcherServlet servlet = initDispatcherServlet(usePathPatterns, WebConfig.class);
+    servlet.service(request, response);
 
-	@ParameterizedTest
-	@MethodSource("argumentSource")
-	void classpathLocationWithEncodedPath(boolean usePathPatterns, String pathPrefix) throws Exception {
-		MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
-		MockHttpServletResponse response = new MockHttpServletResponse();
+    String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
+    assertThat(response.getStatus()).as(description).isEqualTo(200);
+    assertThat(response.getContentType()).as(description).isEqualTo("text/css");
+    assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
+  }
 
-		DispatcherServlet servlet = initDispatcherServlet(usePathPatterns, WebConfig.class);
-		servlet.service(request, response);
+  private DispatcherServlet initDispatcherServlet(boolean usePathPatterns, Class<?>... configClasses)
+          throws ServletException {
 
-		String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
-		assertThat(response.getStatus()).as(description).isEqualTo(200);
-		assertThat(response.getContentType()).as(description).isEqualTo("text/css");
-		assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
-	}
+    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    context.register(configClasses);
+    if (usePathPatterns) {
+      context.register(PathPatternParserConfig.class);
+    }
+    context.setServletConfig(this.servletConfig);
+    context.refresh();
 
-	private DispatcherServlet initDispatcherServlet(boolean usePathPatterns, Class<?>... configClasses)
-			throws ServletException {
+    DispatcherServlet servlet = new DispatcherServlet();
+    servlet.setApplicationContext(context);
+    servlet.init(this.servletConfig);
+    return servlet;
+  }
 
-		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-		context.register(configClasses);
-		if (usePathPatterns) {
-			context.register(PathPatternParserConfig.class);
-		}
-		context.setServletConfig(this.servletConfig);
-		context.refresh();
+  private MockHttpServletRequest initRequest(String path) {
+    path = UriUtils.encodePath(path, StandardCharsets.UTF_8);
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
+    request.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    return request;
+  }
 
-		DispatcherServlet servlet = new DispatcherServlet();
-		servlet.setApplicationContext(context);
-		servlet.init(this.servletConfig);
-		return servlet;
-	}
+  @EnableWebMvc
+  static class WebConfig implements WebMvcConfigurer {
 
-	private MockHttpServletRequest initRequest(String path) {
-		path = UriUtils.encodePath(path, StandardCharsets.UTF_8);
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
-		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		return request;
-	}
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+      ClassPathResource classPathLocation = new ClassPathResource("", getClass());
+      String path = getPath(classPathLocation);
 
+      registerClasspathLocation("/cp/**", classPathLocation, registry);
+      registerFileSystemLocation("/fs/**", path, registry);
+      registerUrlLocation("/url/**", "file:" + path, registry);
+    }
 
-	@EnableWebMvc
-	static class WebConfig implements WebMvcConfigurer {
+    protected void registerClasspathLocation(String pattern, ClassPathResource resource, ResourceHandlerRegistry registry) {
+      registry.addResourceHandler(pattern).addResourceLocations(resource);
+    }
 
-		@Override
-		public void addResourceHandlers(ResourceHandlerRegistry registry) {
-			ClassPathResource classPathLocation = new ClassPathResource("", getClass());
-			String path = getPath(classPathLocation);
+    protected void registerFileSystemLocation(String pattern, String path, ResourceHandlerRegistry registry) {
+      FileSystemResource fileSystemLocation = new FileSystemResource(path);
+      registry.addResourceHandler(pattern).addResourceLocations(fileSystemLocation);
+    }
 
-			registerClasspathLocation("/cp/**", classPathLocation, registry);
-			registerFileSystemLocation("/fs/**", path, registry);
-			registerUrlLocation("/url/**", "file:" + path, registry);
-		}
+    protected void registerUrlLocation(String pattern, String path, ResourceHandlerRegistry registry) {
+      try {
+        UrlResource urlLocation = new UrlResource(path);
+        registry.addResourceHandler(pattern).addResourceLocations(urlLocation);
+      }
+      catch (MalformedURLException ex) {
+        throw new IllegalStateException(ex);
+      }
+    }
 
-		protected void registerClasspathLocation(String pattern, ClassPathResource resource, ResourceHandlerRegistry registry) {
-			registry.addResourceHandler(pattern).addResourceLocations(resource);
-		}
+    private String getPath(ClassPathResource resource) {
+      try {
+        return resource.getFile().getCanonicalPath().replace('\\', '/').replace("classes/java", "resources") + "/";
+      }
+      catch (IOException ex) {
+        throw new IllegalStateException(ex);
+      }
+    }
+  }
 
-		protected void registerFileSystemLocation(String pattern, String path, ResourceHandlerRegistry registry) {
-			FileSystemResource fileSystemLocation = new FileSystemResource(path);
-			registry.addResourceHandler(pattern).addResourceLocations(fileSystemLocation);
-		}
+  static class PathPatternParserConfig implements WebMvcConfigurer {
 
-		protected void registerUrlLocation(String pattern, String path, ResourceHandlerRegistry registry) {
-			try {
-				UrlResource urlLocation = new UrlResource(path);
-				registry.addResourceHandler(pattern).addResourceLocations(urlLocation);
-			}
-			catch (MalformedURLException ex) {
-				throw new IllegalStateException(ex);
-			}
-		}
-
-		private String getPath(ClassPathResource resource) {
-			try {
-				return resource.getFile().getCanonicalPath().replace('\\', '/').replace("classes/java", "resources") + "/";
-			}
-			catch (IOException ex) {
-				throw new IllegalStateException(ex);
-			}
-		}
-	}
-
-
-	static class PathPatternParserConfig implements WebMvcConfigurer {
-
-		@Override
-		public void configurePathMatch(PathMatchConfigurer configurer) {
-			configurer.setPatternParser(new PathPatternParser());
-		}
-	}
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+      configurer.setPatternParser(new PathPatternParser());
+    }
+  }
 
 }

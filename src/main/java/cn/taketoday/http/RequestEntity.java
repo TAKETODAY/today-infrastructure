@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.client.RestOperations;
 

@@ -19,6 +19,8 @@
  */
 package cn.taketoday.util;
 
+import cn.taketoday.http.MediaType;
+
 /**
  * Exception thrown from {@link MediaType#parseMediaType(String)} in case of
  * encountering an invalid media type specification String.

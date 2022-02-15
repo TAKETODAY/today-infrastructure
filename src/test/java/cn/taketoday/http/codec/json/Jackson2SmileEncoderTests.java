@@ -43,7 +43,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static cn.taketoday.core.io.buffer.DataBufferUtils.release;
-import static cn.taketoday.util.MediaType.APPLICATION_XML;
+import static cn.taketoday.http.MediaType.APPLICATION_XML;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

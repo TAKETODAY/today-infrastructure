@@ -49,7 +49,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.http.HttpHeaders;
 

@@ -41,7 +41,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.util.UriComponentsBuilder;

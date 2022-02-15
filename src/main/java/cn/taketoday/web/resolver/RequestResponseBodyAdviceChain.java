@@ -31,7 +31,7 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;

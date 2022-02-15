@@ -23,7 +23,7 @@ package cn.taketoday.web.handler.method;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**

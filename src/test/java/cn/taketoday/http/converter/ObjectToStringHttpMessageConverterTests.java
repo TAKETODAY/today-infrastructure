@@ -34,7 +34,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 

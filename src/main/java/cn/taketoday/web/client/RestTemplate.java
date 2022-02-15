@@ -58,7 +58,7 @@ import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverte
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.util.AbstractUriTemplateHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;

@@ -13,7 +13,7 @@ import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;

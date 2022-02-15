@@ -23,7 +23,7 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -33,7 +33,7 @@ import cn.taketoday.web.RequestContext;
  * <p>You can register static mappings between keys (i.e. the expected value of
  * the query parameter) and MediaType's via {@link #addMapping(String, MediaType)}.
  * this strategy also supports dynamic lookups of keys via
- * {@link cn.taketoday.util.MediaType#fromFileName(String)}.
+ * {@link MediaType#fromFileName(String)}.
  *
  * @author Rossen Stoyanchev
  * @since 4.0

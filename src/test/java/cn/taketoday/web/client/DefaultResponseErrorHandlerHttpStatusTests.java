@@ -25,7 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;

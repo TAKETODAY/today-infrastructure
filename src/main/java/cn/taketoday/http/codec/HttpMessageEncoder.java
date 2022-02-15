@@ -30,7 +30,7 @@ import cn.taketoday.core.codec.Hints;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Extension of {@code Encoder} exposing extra methods relevant in the context

@@ -23,7 +23,7 @@ package cn.taketoday.web;
 import java.util.List;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Exception thrown when a client POSTs, PUTs, or PATCHes content of a type

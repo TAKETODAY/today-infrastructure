@@ -36,7 +36,7 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;

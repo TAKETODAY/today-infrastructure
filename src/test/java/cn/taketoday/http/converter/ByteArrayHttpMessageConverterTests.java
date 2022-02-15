@@ -22,7 +22,7 @@ package cn.taketoday.http.converter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
 

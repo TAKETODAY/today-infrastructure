@@ -50,7 +50,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.Exceptions;
 import reactor.core.publisher.BaseSubscriber;

@@ -22,7 +22,7 @@ package cn.taketoday.http.converter.feed;
 
 import com.rometools.rome.feed.rss.Channel;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Implementation of {@link cn.taketoday.http.converter.HttpMessageConverter}

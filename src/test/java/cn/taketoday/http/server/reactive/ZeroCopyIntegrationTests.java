@@ -32,7 +32,7 @@ import cn.taketoday.http.server.reactive.bootstrap.AbstractHttpHandlerIntegratio
 import cn.taketoday.http.server.reactive.bootstrap.HttpServer;
 import cn.taketoday.http.server.reactive.bootstrap.ReactorHttpServer;
 import cn.taketoday.http.server.reactive.bootstrap.UndertowHttpServer;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 

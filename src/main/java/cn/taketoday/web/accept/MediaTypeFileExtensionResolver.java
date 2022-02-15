@@ -22,7 +22,7 @@ package cn.taketoday.web.accept;
 
 import java.util.List;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Strategy to resolve a {@link MediaType} to a list of file extensions &mdash;

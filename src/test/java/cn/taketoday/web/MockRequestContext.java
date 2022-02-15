@@ -31,7 +31,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**

@@ -23,7 +23,7 @@ package cn.taketoday.web;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Abstract base for exceptions related to media types. Adds a list of supported {@link MediaType MediaTypes}.

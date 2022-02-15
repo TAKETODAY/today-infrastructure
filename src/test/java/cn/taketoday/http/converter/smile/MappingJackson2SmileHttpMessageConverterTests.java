@@ -29,7 +29,7 @@ import java.io.IOException;
 
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;

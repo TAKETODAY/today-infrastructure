@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Factory to create a {@code ContentNegotiationManager} and configure it with
@@ -146,7 +146,7 @@ public class ContentNegotiationManagerFactoryBean
    * extension, or passed as a query parameter.
    * <p>The {@link #setFavorParameter(boolean) parameter strategy} requires
    * such mappings in order to work while the path extension strategy can fall
-   * back on lookups via and {@link cn.taketoday.util.MediaType}.
+   * back on lookups via and {@link MediaType}.
    * <p><strong>Note:</strong> Mappings registered here may be accessed via
    * {@link ContentNegotiationManager#getMediaTypeMappings()} and may be used
    * not only in the parameter and path extension strategies.

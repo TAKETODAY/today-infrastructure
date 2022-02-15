@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.accept.ContentNegotiationStrategy;

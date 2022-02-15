@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.util.MediaType;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

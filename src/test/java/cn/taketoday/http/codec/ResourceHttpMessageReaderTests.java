@@ -34,7 +34,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.reactive.MockClientHttpResponse;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -29,7 +29,7 @@ import java.util.Map;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.MockRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Produce;

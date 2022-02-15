@@ -70,7 +70,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.AsyncContext;

@@ -34,7 +34,7 @@ import java.util.Map;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 

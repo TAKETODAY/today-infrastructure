@@ -30,7 +30,7 @@ import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Default implementation of the {@link ResponseErrorHandler} interface.

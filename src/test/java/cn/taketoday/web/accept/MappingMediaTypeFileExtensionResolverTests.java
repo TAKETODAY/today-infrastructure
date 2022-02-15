@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -32,7 +32,7 @@ import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Mono;
 
 /**

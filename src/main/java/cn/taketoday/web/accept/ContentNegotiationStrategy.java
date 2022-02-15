@@ -23,7 +23,7 @@ package cn.taketoday.web.accept;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 

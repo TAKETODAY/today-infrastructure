@@ -35,7 +35,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;

@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;

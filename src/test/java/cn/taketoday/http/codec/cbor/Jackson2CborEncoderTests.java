@@ -39,7 +39,7 @@ import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 
 import static cn.taketoday.core.io.buffer.DataBufferUtils.release;
-import static cn.taketoday.util.MediaType.APPLICATION_XML;
+import static cn.taketoday.http.MediaType.APPLICATION_XML;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

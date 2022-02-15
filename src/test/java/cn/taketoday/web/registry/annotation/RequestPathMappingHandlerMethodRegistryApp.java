@@ -23,7 +23,7 @@ package cn.taketoday.web.registry.annotation;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;

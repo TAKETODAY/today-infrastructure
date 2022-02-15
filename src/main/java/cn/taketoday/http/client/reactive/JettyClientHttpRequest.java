@@ -38,7 +38,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;

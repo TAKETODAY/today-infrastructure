@@ -24,7 +24,7 @@ import java.util.Map;
 
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 

@@ -44,7 +44,7 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;

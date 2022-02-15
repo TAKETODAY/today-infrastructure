@@ -35,7 +35,7 @@ import java.util.List;
 import cn.taketoday.XmlContent;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;

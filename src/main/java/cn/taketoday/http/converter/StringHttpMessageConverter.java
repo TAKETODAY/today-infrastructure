@@ -32,7 +32,7 @@ import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 
 /**

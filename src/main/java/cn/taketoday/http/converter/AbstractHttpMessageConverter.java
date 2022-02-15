@@ -36,7 +36,7 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Abstract base class for most {@link HttpMessageConverter} implementations.

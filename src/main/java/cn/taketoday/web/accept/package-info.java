@@ -2,7 +2,7 @@
  * This package contains classes used to determine the requested the media types in a request.
  *
  * <p>{@link cn.taketoday.web.accept.ContentNegotiationStrategy} is the main
- * abstraction for determining requested {@linkplain cn.taketoday.util.MediaType media types}
+ * abstraction for determining requested {@linkplain cn.taketoday.http.MediaType media types}
  * with implementations based on
  * {@linkplain cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy path extensions}, a
  * {@linkplain cn.taketoday.web.accept.ParameterContentNegotiationStrategy a request parameter}, the

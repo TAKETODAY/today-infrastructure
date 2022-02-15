@@ -51,12 +51,12 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
-import static cn.taketoday.util.MediaType.APPLICATION_JSON;
-import static cn.taketoday.util.MediaType.APPLICATION_XML;
-import static cn.taketoday.util.MediaType.TEXT_HTML;
-import static cn.taketoday.util.MediaType.TEXT_PLAIN;
+import static cn.taketoday.http.MediaType.APPLICATION_JSON;
+import static cn.taketoday.http.MediaType.APPLICATION_XML;
+import static cn.taketoday.http.MediaType.TEXT_HTML;
+import static cn.taketoday.http.MediaType.TEXT_PLAIN;
 
 /**
  * An {@code HttpMessageConverter} that reads and writes

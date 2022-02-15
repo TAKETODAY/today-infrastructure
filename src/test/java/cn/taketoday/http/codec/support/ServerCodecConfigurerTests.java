@@ -62,7 +62,7 @@ import cn.taketoday.http.codec.multipart.MultipartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.PartHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 

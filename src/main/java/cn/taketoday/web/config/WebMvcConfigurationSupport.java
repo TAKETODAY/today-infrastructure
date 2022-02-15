@@ -59,7 +59,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebApplicationContext;

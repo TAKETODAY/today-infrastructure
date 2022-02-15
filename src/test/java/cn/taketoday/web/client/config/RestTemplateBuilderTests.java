@@ -49,7 +49,7 @@ import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ReflectionTestUtils;
 import cn.taketoday.web.client.ResponseErrorHandler;
 import cn.taketoday.web.client.RestTemplate;

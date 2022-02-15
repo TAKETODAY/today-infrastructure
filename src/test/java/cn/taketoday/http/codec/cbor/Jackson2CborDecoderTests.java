@@ -36,7 +36,7 @@ import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 
-import static cn.taketoday.util.MediaType.APPLICATION_JSON;
+import static cn.taketoday.http.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

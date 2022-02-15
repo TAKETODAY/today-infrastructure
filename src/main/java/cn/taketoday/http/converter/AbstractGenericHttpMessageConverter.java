@@ -28,7 +28,7 @@ import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.SimpleHttpOutputMessage;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * Abstract base class for most {@link GenericHttpMessageConverter} implementations.

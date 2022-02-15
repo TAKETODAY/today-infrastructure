@@ -26,7 +26,7 @@ import java.lang.reflect.Type;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MediaType;
+import cn.taketoday.http.MediaType;
 
 /**
  * A specialization of {@link HttpMessageConverter} that can convert an HTTP request
