@@ -20,11 +20,11 @@
 
 package cn.taketoday.web.resource;
 
+import java.io.IOException;
+
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
-
-import java.io.IOException;
 
 /**
  * An extension of {@link ByteArrayResource} that a {@link ResourceTransformer}
@@ -37,34 +37,32 @@ import java.io.IOException;
  */
 public class TransformedResource extends ByteArrayResource {
 
-	@Nullable
-	private final String filename;
+  @Nullable
+  private final String filename;
 
-	private final long lastModified;
+  private final long lastModified;
 
+  public TransformedResource(Resource original, byte[] transformedContent) {
+    super(transformedContent);
+    this.filename = original.getFilename();
+    try {
+      this.lastModified = original.lastModified();
+    }
+    catch (IOException ex) {
+      // should never happen
+      throw new IllegalArgumentException(ex);
+    }
+  }
 
-	public TransformedResource(Resource original, byte[] transformedContent) {
-		super(transformedContent);
-		this.filename = original.getFilename();
-		try {
-			this.lastModified = original.lastModified();
-		}
-		catch (IOException ex) {
-			// should never happen
-			throw new IllegalArgumentException(ex);
-		}
-	}
+  @Override
+  @Nullable
+  public String getFilename() {
+    return this.filename;
+  }
 
-
-	@Override
-	@Nullable
-	public String getFilename() {
-		return this.filename;
-	}
-
-	@Override
-	public long lastModified() throws IOException {
-		return this.lastModified;
-	}
+  @Override
+  public long lastModified() throws IOException {
+    return this.lastModified;
+  }
 
 }

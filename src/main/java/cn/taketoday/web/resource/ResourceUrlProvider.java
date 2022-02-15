@@ -23,7 +23,6 @@ package cn.taketoday.web.resource;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
@@ -45,7 +44,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * A central component to use to obtain the public URL path that clients should
  * use to access a static resource.
  *
- * <p>This class is aware of Spring MVC handler mappings used to serve static
+ * <p>This class is aware of Framework MVC handler mappings used to serve static
  * resources and uses the {@code ResourceResolver} chains of the configured
  * {@code ResourceHttpRequestHandler}s to make its decisions.
  *
@@ -89,7 +88,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
   /**
    * Manually configure the resource mappings.
    * <p><strong>Note:</strong> by default resource mappings are auto-detected
-   * from the Spring {@code ApplicationContext}. However if this property is
+   * from the {@code ApplicationContext}. However if this property is
    * used, the auto-detection is turned off.
    */
   public void setHandlerMap(@Nullable Map<String, ResourceHttpRequestHandler> handlerMap) {
@@ -102,7 +101,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
 
   /**
    * Return the resource mappings, either manually configured or auto-detected
-   * when the Spring {@code ApplicationContext} is refreshed.
+   * when the {@code ApplicationContext} is refreshed.
    */
   public Map<String, ResourceHttpRequestHandler> getHandlerMap() {
     return this.handlerMap;
@@ -118,10 +117,10 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
 
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    if (event.getApplicationContext() == this.applicationContext && isAutodetect()) {
-      this.handlerMap.clear();
-      detectResourceHandlers(this.applicationContext);
-      if (!this.handlerMap.isEmpty()) {
+    if (event.getApplicationContext() == applicationContext && isAutodetect()) {
+      handlerMap.clear();
+      detectResourceHandlers(applicationContext);
+      if (!handlerMap.isEmpty()) {
         this.autodetect = false;
       }
     }
@@ -166,7 +165,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
     String suffix = requestUrl.substring(suffixIndex);
     String lookupPath = requestUrl.substring(prefixIndex, suffixIndex);
     String resolvedLookupPath = getForLookupPath(lookupPath);
-    return (resolvedLookupPath != null ? prefix + resolvedLookupPath + suffix : null);
+    return resolvedLookupPath != null ? prefix + resolvedLookupPath + suffix : null;
   }
 
   private int getLookupPathIndex(HttpServletRequest request) {
@@ -174,7 +173,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
     if (request.getAttribute(UrlPathHelper.PATH_ATTRIBUTE) == null) {
       pathHelper.resolveAndCacheLookupPath(request);
     }
-    String requestUri = pathHelper.getRequestUri(request);
+    String requestUri = request.getRequestURI();
     String lookupPath = UrlPathHelper.getResolvedLookupPath(request);
     return requestUri.indexOf(lookupPath);
   }
@@ -197,7 +196,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
    * if a match is found use the {@code ResourceResolver} chain of the matched
    * {@code ResourceHttpRequestHandler} to resolve the URL path to expose for
    * public use.
-   * <p>It is expected that the given path is what Spring MVC would use for
+   * <p>It is expected that the given path is what MVC would use for
    * request mapping purposes, i.e. excluding context and servlet path portions.
    * <p>If several handler mappings match, the handler used will be the one
    * configured with the most specific pattern.
@@ -215,18 +214,19 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
     }
     while (!lookupPath.equals(previous));
 
-    List<String> matchingPatterns = new ArrayList<>();
+    ArrayList<String> matchingPatterns = new ArrayList<>();
+    PathMatcher pathMatcher = getPathMatcher();
     for (String pattern : this.handlerMap.keySet()) {
-      if (getPathMatcher().match(pattern, lookupPath)) {
+      if (pathMatcher.match(pattern, lookupPath)) {
         matchingPatterns.add(pattern);
       }
     }
 
     if (!matchingPatterns.isEmpty()) {
-      Comparator<String> patternComparator = getPathMatcher().getPatternComparator(lookupPath);
+      Comparator<String> patternComparator = pathMatcher.getPatternComparator(lookupPath);
       matchingPatterns.sort(patternComparator);
       for (String pattern : matchingPatterns) {
-        String pathWithinMapping = getPathMatcher().extractPathWithinPattern(pattern, lookupPath);
+        String pathWithinMapping = pathMatcher.extractPathWithinPattern(pattern, lookupPath);
         String pathMapping = lookupPath.substring(0, lookupPath.indexOf(pathWithinMapping));
         ResourceHttpRequestHandler handler = this.handlerMap.get(pattern);
         ResourceResolverChain chain = new DefaultResourceResolverChain(handler.getResourceResolvers());

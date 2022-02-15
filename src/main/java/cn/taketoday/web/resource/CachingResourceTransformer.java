@@ -20,19 +20,18 @@
 
 package cn.taketoday.web.resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.Assert;
-
-import java.io.IOException;
-
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * A {@link cn.taketoday.web.servlet.resource.ResourceTransformer} that checks a
+ * A {@link cn.taketoday.web.resource.ResourceTransformer} that checks a
  * {@link cn.taketoday.cache.Cache} to see if a previously transformed resource
  * exists in the cache and returns it if found, and otherwise delegates to the resolver
  * chain and saves the result in the cache.
@@ -42,47 +41,44 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class CachingResourceTransformer implements ResourceTransformer {
 
-	private static final Logger logger = LoggerFactory.getLogger(CachingResourceTransformer.class);
+  private static final Logger logger = LoggerFactory.getLogger(CachingResourceTransformer.class);
 
-	private final Cache cache;
+  private final Cache cache;
 
+  public CachingResourceTransformer(Cache cache) {
+    Assert.notNull(cache, "Cache is required");
+    this.cache = cache;
+  }
 
-	public CachingResourceTransformer(Cache cache) {
-		Assert.notNull(cache, "Cache is required");
-		this.cache = cache;
-	}
+  public CachingResourceTransformer(CacheManager cacheManager, String cacheName) {
+    Cache cache = cacheManager.getCache(cacheName);
+    if (cache == null) {
+      throw new IllegalArgumentException("Cache '" + cacheName + "' not found");
+    }
+    this.cache = cache;
+  }
 
-	public CachingResourceTransformer(CacheManager cacheManager, String cacheName) {
-		Cache cache = cacheManager.getCache(cacheName);
-		if (cache == null) {
-			throw new IllegalArgumentException("Cache '" + cacheName + "' not found");
-		}
-		this.cache = cache;
-	}
+  /**
+   * Return the configured {@code Cache}.
+   */
+  public Cache getCache() {
+    return this.cache;
+  }
 
+  @Override
+  public Resource transform(HttpServletRequest request, Resource resource, ResourceTransformerChain transformerChain)
+          throws IOException {
 
-	/**
-	 * Return the configured {@code Cache}.
-	 */
-	public Cache getCache() {
-		return this.cache;
-	}
+    Resource transformed = this.cache.get(resource, Resource.class);
+    if (transformed != null) {
+      logger.trace("Resource resolved from cache");
+      return transformed;
+    }
 
+    transformed = transformerChain.transform(request, resource);
+    this.cache.put(resource, transformed);
 
-	@Override
-	public Resource transform(HttpServletRequest request, Resource resource, ResourceTransformerChain transformerChain)
-			throws IOException {
-
-		Resource transformed = this.cache.get(resource, Resource.class);
-		if (transformed != null) {
-			logger.trace("Resource resolved from cache");
-			return transformed;
-		}
-
-		transformed = transformerChain.transform(request, resource);
-		this.cache.put(resource, transformed);
-
-		return transformed;
-	}
+    return transformed;
+  }
 
 }

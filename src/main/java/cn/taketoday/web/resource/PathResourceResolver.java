@@ -34,13 +34,9 @@ import java.util.StringTokenizer;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
-import cn.taketoday.core.io.UrlResource;
-import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.support.ServletContextResource;
-import cn.taketoday.web.util.ServletRequestPathUtils;
 import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -93,9 +89,6 @@ public class PathResourceResolver extends AbstractResourceResolver {
    * Configure charsets associated with locations. If a static resource is found
    * under a {@link cn.taketoday.core.io.UrlBasedResource URL resource}
    * location the charset is used to encode the relative path
-   * <p><strong>Note:</strong> the charset is used only if the
-   * {@link #setUrlPathHelper urlPathHelper} property is also configured and
-   * its {@code urlDecode} property is set to true.
    */
   public void setLocationCharsets(Map<Resource, Charset> locationCharsets) {
     this.locationCharsets.clear();
@@ -219,10 +212,6 @@ public class PathResourceResolver extends AbstractResourceResolver {
       resourcePath = classPathResource.getPath();
       locationPath = StringUtils.cleanPath(((ClassPathResource) location).getPath());
     }
-    else if (resource instanceof ServletContextResource servletContextResource) {
-      resourcePath = servletContextResource.getPath();
-      locationPath = StringUtils.cleanPath(((ServletContextResource) location).getPath());
-    }
     else {
       resourcePath = resource.getLocation().getPath();
       locationPath = StringUtils.cleanPath(location.getLocation().getPath());
@@ -259,14 +248,11 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   private boolean shouldDecodeRelativePath(Resource location, @Nullable HttpServletRequest request) {
-    return (!(location instanceof UrlBasedResource) && request != null &&
-            ServletRequestPathUtils.hasCachedPath(request) &&
-            ServletRequestPathUtils.getCachedPath(request) instanceof PathContainer);
+    return !(location instanceof UrlBasedResource) && request != null;
   }
 
   private boolean shouldEncodeRelativePath(Resource location) {
-    return (location instanceof UrlBasedResource &&
-            this.urlPathHelper != null && this.urlPathHelper.isUrlDecode());
+    return location instanceof UrlBasedResource;
   }
 
   private boolean isInvalidEncodedPath(String resourcePath) {

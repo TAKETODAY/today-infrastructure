@@ -20,10 +20,9 @@
 
 package cn.taketoday.web.resource;
 
-import cn.taketoday.core.io.Resource;
-
 import java.io.IOException;
 
+import cn.taketoday.core.io.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -35,20 +34,21 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public interface ResourceTransformerChain {
 
-	/**
-	 * Return the {@code ResourceResolverChain} that was used to resolve the
-	 * {@code Resource} being transformed. This may be needed for resolving
-	 * related resources, e.g. links to other resources.
-	 */
-	ResourceResolverChain getResolverChain();
+  /**
+   * Return the {@code ResourceResolverChain} that was used to resolve the
+   * {@code Resource} being transformed. This may be needed for resolving
+   * related resources, e.g. links to other resources.
+   */
+  ResourceResolverChain getResolverChain();
 
-	/**
-	 * Transform the given resource.
-	 * @param request the current request
-	 * @param resource the candidate resource to transform
-	 * @return the transformed or the same resource, never {@code null}
-	 * @throws IOException if transformation fails
-	 */
-	Resource transform(HttpServletRequest request, Resource resource) throws IOException;
+  /**
+   * Transform the given resource.
+   *
+   * @param request the current request
+   * @param resource the candidate resource to transform
+   * @return the transformed or the same resource, never {@code null}
+   * @throws IOException if transformation fails
+   */
+  Resource transform(HttpServletRequest request, Resource resource) throws IOException;
 
 }

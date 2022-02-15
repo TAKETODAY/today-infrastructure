@@ -59,8 +59,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebContentGenerator;
-import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -130,9 +128,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   private ResourceRegionHttpMessageConverter resourceRegionHttpMessageConverter;
 
-  @Nullable
-  private ContentNegotiationManager contentNegotiationManager;
-
   private final Map<String, MediaType> mediaTypes = new HashMap<>(4);
 
   @Nullable
@@ -188,7 +183,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * {@code Resource} locations provided via {@link #setLocations(List) setLocations}.
    * <p>Note that the returned list is fully initialized only after
    * initialization via {@link #afterPropertiesSet()}.
-   * <p><strong>Note:</strong> As of 5.3.11 the list of locations may be filtered to
+   * <p><strong>Note:</strong> the list of locations may be filtered to
    * exclude those that don't actually exist and therefore the list returned from this
    * method may be a subset of all given locations. See {@link #setOptimizeLocations}.
    *
@@ -270,31 +265,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   public ResourceRegionHttpMessageConverter getResourceRegionHttpMessageConverter() {
     return this.resourceRegionHttpMessageConverter;
-  }
-
-  /**
-   * Configure a {@code ContentNegotiationManager} to help determine the
-   * media types for resources being served. If the manager contains a path
-   * extension strategy it will be checked for registered file extension.
-   *
-   * @deprecated as of 5.2.4 in favor of using {@link #setMediaTypes(Map)}
-   * with mappings possibly obtained from
-   * {@link ContentNegotiationManager#getMediaTypeMappings()}.
-   */
-  @Deprecated
-  public void setContentNegotiationManager(@Nullable ContentNegotiationManager contentNegotiationManager) {
-    this.contentNegotiationManager = contentNegotiationManager;
-  }
-
-  /**
-   * Return the configured content negotiation manager.
-   *
-   * @deprecated as of 5.2.4
-   */
-  @Nullable
-  @Deprecated
-  public ContentNegotiationManager getContentNegotiationManager() {
-    return this.contentNegotiationManager;
   }
 
   /**
@@ -404,10 +374,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       this.resourceRegionHttpMessageConverter = new ResourceRegionHttpMessageConverter();
     }
 
-    ContentNegotiationManager manager = getContentNegotiationManager();
-    if (manager != null) {
-      setMediaTypes(manager.getMediaTypeMappings());
-    }
   }
 
   private void resolveResourceLocations() {
@@ -434,7 +400,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
           location = location.substring(endIndex + 1);
         }
         Resource resource = applicationContext.getResource(location);
-        if (location.equals("/") && !(resource instanceof ServletContextResource)) {
+        if (location.equals("/")) {
           throw new IllegalStateException(
                   "The String-based location \"/\" should be relative to the web application root " +
                           "but resolved to a Resource of type: " + resource.getClass() + ". " +
@@ -452,7 +418,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
     result.addAll(this.locationResources);
     if (isOptimizeLocations()) {
-      result = result.stream().filter(Resource::exists).collect(Collectors.toList());
+      result = result.stream()
+              .filter(Resource::exists)
+              .collect(Collectors.toCollection(ArrayList::new));
     }
 
     this.locationsToUse.clear();
@@ -468,8 +436,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     if (CollectionUtils.isEmpty(getLocations())) {
       return;
     }
-    for (int i = getResourceResolvers().size() - 1; i >= 0; i--) {
-      if (getResourceResolvers().get(i) instanceof PathResourceResolver pathResolver) {
+    List<ResourceResolver> resourceResolvers = getResourceResolvers();
+    for (int i = resourceResolvers.size() - 1; i >= 0; i--) {
+      if (resourceResolvers.get(i) instanceof PathResourceResolver pathResolver) {
         if (ObjectUtils.isEmpty(pathResolver.getAllowedLocations())) {
           pathResolver.setAllowedLocations(getLocations().toArray(Resource.EMPTY_ARRAY));
         }
