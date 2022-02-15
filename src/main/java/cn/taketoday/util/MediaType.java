@@ -19,26 +19,20 @@
  */
 package cn.taketoday.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
-import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -769,47 +763,6 @@ public class MediaType extends MimeType implements Serializable {
 
   // --------------------------------------------
 
-  private static final String MIME_TYPES_FILE_NAME = "META-INF/mime.types";
-
-  private static HashMap<String, MediaType> fileExtensionToMediaTypes;
-
-  /**
-   * Parse the {@code mime.types} file found in the resources. Format is: <code>
-   * # comments begin with a '#'<br>
-   * # the format is &lt;mime type> &lt;space separated file extensions><br>
-   * # for example:<br>
-   * text/plain    txt text<br>
-   * # this would map file.txt and file.text to<br>
-   * # the mime type "text/plain"<br>
-   * </code>
-   *
-   * @return a map, mapping media types to file extensions.
-   */
-  private static HashMap<String, MediaType> parseMimeTypes() {
-    try (InputStream is = new ClassPathResource(MIME_TYPES_FILE_NAME).getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
-
-      HashMap<String, MediaType> result = new HashMap<>();
-      String line;
-
-      while ((line = reader.readLine()) != null) {
-        if (line.isEmpty() || line.charAt(0) == '#') {
-          continue;
-        }
-        String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
-        MediaType mediaType = MediaType.parseMediaType(tokens[0]);
-        for (int i = 1; i < tokens.length; i++) {
-          String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);
-          result.put(fileExtension, mediaType);
-        }
-      }
-      return result;
-    }
-    catch (IOException ex) {
-      throw new IllegalStateException("Could not load '" + MIME_TYPES_FILE_NAME + "'", ex);
-    }
-  }
-
   /**
    * Determine a media type for the given resource, if possible.
    *
@@ -829,18 +782,8 @@ public class MediaType extends MimeType implements Serializable {
    */
   @Nullable
   public static MediaType fromFileName(String filename) {
-    String ext = StringUtils.getFilenameExtension(filename);
-    if (ext == null) {
-      return null;
-    }
-    return getFileExtensionMediaTypes().get(ext.toLowerCase(Locale.ENGLISH));
-  }
-
-  public static Map<String, MediaType> getFileExtensionMediaTypes() {
-    if (fileExtensionToMediaTypes == null) {
-      fileExtensionToMediaTypes = parseMimeTypes();
-    }
-    return fileExtensionToMediaTypes;
+    Optional<MediaType> mediaType = MediaTypeFactory.getMediaType(filename);
+    return mediaType.orElse(null);
   }
 
 }
