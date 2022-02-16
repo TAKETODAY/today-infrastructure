@@ -195,6 +195,26 @@ public class RequestContextDecorator extends RequestContext {
   public Locale doGetLocale() { return delegate.doGetLocale(); }
 
   @Override
+  public boolean checkNotModified(long lastModifiedTimestamp) {
+    return delegate.checkNotModified(lastModifiedTimestamp);
+  }
+
+  @Override
+  public boolean checkNotModified(String etag) {
+    return delegate.checkNotModified(etag);
+  }
+
+  @Override
+  public boolean checkNotModified(@Nullable String etag, long lastModifiedTimestamp) {
+    return delegate.checkNotModified(etag, lastModifiedTimestamp);
+  }
+
+  @Override
+  public boolean isNotModified() {
+    return delegate.isNotModified();
+  }
+
+  @Override
   public ModelAndView modelAndView() { return delegate.modelAndView(); }
 
   @Override

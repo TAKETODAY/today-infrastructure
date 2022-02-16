@@ -33,13 +33,12 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextDecorator;
@@ -246,69 +245,6 @@ public abstract class WebUtils {
 
   // checkNotModified
   // ---------------------------------------------
-
-  protected static boolean matches(@Nullable String matchHeader, @Nullable String etag) {
-    if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
-      return "*".equals(etag) || matchHeader.equals(etag);
-    }
-    return false;
-  }
-
-  public static boolean checkNotModified(String etag, RequestContext context) {
-    return checkNotModified(etag, -1, context);
-  }
-
-  public static boolean checkNotModified(long lastModifiedTimestamp, RequestContext context) {
-    return checkNotModified(null, lastModifiedTimestamp, context);
-  }
-
-  public static boolean checkNotModified(
-          @Nullable String eTag, long lastModified, RequestContext context) {
-
-    // Validate request headers for caching
-    // ---------------------------------------------------
-
-    // If-None-Match header should contain "*" or ETag. If so, then return 304
-    HttpHeaders requestHeaders = context.requestHeaders();
-    String ifNoneMatch = requestHeaders.getFirst(HttpHeaders.IF_NONE_MATCH);
-    if (matches(ifNoneMatch, eTag)) {
-      context.responseHeaders().setETag(eTag); // 304.
-      context.setStatus(HttpStatus.NOT_MODIFIED);
-      return true;
-    }
-
-    // If-Modified-Since header should be greater than LastModified
-    // If so, then return 304
-    // This header is ignored if any If-None-Match header is specified
-
-    long ifModifiedSince = requestHeaders.getIfModifiedSince();// If-Modified-Since
-    if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
-      // if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
-      context.responseHeaders().setLastModified(lastModified); // 304
-      context.setStatus(HttpStatus.NOT_MODIFIED);
-      return true;
-    }
-
-    // Validate request headers for resume
-    // ----------------------------------------------------
-
-    // If-Match header should contain "*" or ETag. If not, then return 412
-    String ifMatch = requestHeaders.getFirst(HttpHeaders.IF_MATCH);
-    if (ifMatch != null && !matches(ifMatch, eTag)) {
-//      context.status(412);
-      context.setStatus(HttpStatus.PRECONDITION_FAILED);
-      return true;
-    }
-
-    // If-Unmodified-Since header should be greater than LastModified.
-    // If not, then return 412.
-    long ifUnmodifiedSince = requestHeaders.getIfUnmodifiedSince();// "If-Unmodified-Since"
-    if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
-      context.setStatus(HttpStatus.PRECONDITION_FAILED);
-      return true;
-    }
-    return false;
-  }
 
   /**
    * Sanitize the given path. Uses the following rules:

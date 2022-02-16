@@ -525,7 +525,6 @@ public class DispatcherHandler implements ApplicationContextAware {
    *
    * @since 4.0
    */
-  @Nullable
   public final WebApplicationContext getWebApplicationContext() {
     return this.webApplicationContext;
   }
@@ -534,21 +533,16 @@ public class DispatcherHandler implements ApplicationContextAware {
    * Destroy Application
    */
   public void destroy() {
-    final ApplicationContext context = getWebApplicationContext();
+    ApplicationContext context = getWebApplicationContext();
     if (context != null) {
-      final State state = context.getState();
+      State state = context.getState();
       if (state != State.CLOSING && state != State.CLOSED) {
         context.close();
-
-        final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-        final String msg = new StringBuilder("Your application destroyed at: [")
-                .append(dateFormat.format(System.currentTimeMillis()))
-                .append("] on startup date: [")
-                .append(dateFormat.format(context.getStartupDate()))
-                .append(']')
-                .toString();
-
-        log(msg);
+        DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
+        log("Your application destroyed at: ["
+                + dateFormat.format(System.currentTimeMillis())
+                + "] on startup date: [" + dateFormat.format(context.getStartupDate()) + ']'
+        );
       }
     }
   }

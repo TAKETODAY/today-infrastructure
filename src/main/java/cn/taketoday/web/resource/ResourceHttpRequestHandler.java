@@ -64,7 +64,6 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * {@code HttpRequestHandler} that serves static resources in an optimized way
@@ -506,7 +505,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     checkRequest(request);
 
     // Header phase
-    if (isUseLastModified() && WebUtils.checkNotModified(resource.lastModified(), request)) {
+    if (isUseLastModified() && request.checkNotModified(resource.lastModified())) {
       logger.trace("Resource not modified");
       return HandlerAdapter.NONE_RETURN_VALUE;
     }

@@ -47,7 +47,6 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
 
@@ -281,7 +280,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       responseHeaders.remove(HttpHeaders.ETAG);
       responseHeaders.remove(HttpHeaders.LAST_MODIFIED);
     }
-    return WebUtils.checkNotModified(etag, lastModifiedTimestamp, context);
+    return context.checkNotModified(etag, lastModifiedTimestamp);
   }
 
   private void saveRedirectAttributes(RequestContext request, String location) {

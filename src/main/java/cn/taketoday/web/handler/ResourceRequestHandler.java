@@ -36,7 +36,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.resource.WebResourceResolver;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * @author TODAY 2019-12-25 16:12
@@ -107,7 +106,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     long lastModified = resource.lastModified();
 
     // lastModified
-    if (WebUtils.checkNotModified(eTag, lastModified, context)) {
+    if (context.checkNotModified(eTag, lastModified)) {
       return;
     }
 

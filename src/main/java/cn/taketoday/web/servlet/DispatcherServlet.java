@@ -110,7 +110,7 @@ public class DispatcherServlet
 
   @Override
   public final String getServletInfo() {
-    return "DispatcherServlet, Copyright © TODAY & 2017 - 2021 All Rights Reserved";
+    return "DispatcherServlet, Copyright © TODAY & 2017 - 2022 All Rights Reserved";
   }
 
   @Override
