@@ -97,7 +97,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void getResource() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("text/css");
@@ -113,7 +113,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void getResourceHttpHeader() throws Exception {
     this.request.setMethod("HEAD");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(200);
@@ -129,7 +129,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void getResourceHttpOptions() throws Exception {
     this.request.setMethod("OPTIONS");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(200);
@@ -138,7 +138,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void getResourceNoCache() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.setCacheSeconds(0);
     this.handler.handleRequest(requestContext);
 
@@ -156,7 +156,7 @@ public class ResourceHttpRequestHandlerTests {
     this.handler.setResourceResolvers(Arrays.asList(versionResolver, new PathResourceResolver()));
     this.handler.afterPropertiesSet();
 
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "versionString/foo.css");
+    request.setRequestURI("versionString/foo.css");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getHeader("ETag")).isEqualTo("W/\"versionString\"");
@@ -165,9 +165,8 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void getResourceHttp10BehaviorCache() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.setCacheSeconds(3600);
     this.handler.handleRequest(requestContext);
 
@@ -180,9 +179,8 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void getResourceHttp10BehaviorNoCache() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.setCacheSeconds(0);
     this.handler.handleRequest(requestContext);
 
@@ -198,7 +196,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void getResourceWithHtmlMediaType() throws Throwable {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.html");
+    request.setRequestURI("foo.html");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("text/html");
@@ -211,7 +209,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void getResourceFromAlternatePath() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "baz.css");
+    request.setRequestURI("baz.css");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("text/css");
@@ -226,7 +224,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void getResourceFromSubDirectory() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "js/foo.js");
+    request.setRequestURI("js/foo.js");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("text/javascript");
@@ -235,7 +233,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void getResourceFromSubDirectoryOfAlternatePath() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "js/baz.js");
+    request.setRequestURI("js/baz.js");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("text/javascript");
@@ -243,7 +241,6 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // SPR-13658
-  @SuppressWarnings("deprecation")
   public void getResourceWithRegisteredMediaType() throws Exception {
     ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
     factory.addMediaType("bar", new MediaType("foo", "bar"));
@@ -257,7 +254,7 @@ public class ResourceHttpRequestHandlerTests {
     handler.setContentNegotiationManager(manager);
     handler.afterPropertiesSet();
 
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.bar");
+    request.setRequestURI("foo.bar");
     handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("foo/bar");
@@ -265,7 +262,6 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // SPR-14577
-  @SuppressWarnings("deprecation")
   public void getMediaTypeWithFavorPathExtensionOff() throws Exception {
     ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
     factory.afterPropertiesSet();
@@ -279,7 +275,7 @@ public class ResourceHttpRequestHandlerTests {
     handler.afterPropertiesSet();
 
     this.request.addHeader("Accept", "application/json,text/plain,*/*");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.html");
+    request.setRequestURI("foo.html");
     handler.handleRequest(requestContext);
 
     assertThat(this.response.getContentType()).isEqualTo("text/html");
@@ -361,7 +357,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   private void testInvalidPath(String requestPath, ResourceHttpRequestHandler handler) throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, requestPath);
+    request.setRequestURI(requestPath);
     this.response = new MockHttpServletResponse();
     handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
@@ -403,7 +399,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   private void testResolvePathWithTraversal(Resource location, String requestPath) throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, requestPath);
+    request.setRequestURI(requestPath);
     this.response = new MockHttpServletResponse();
     this.handler.handleRequest(requestContext);
     if (!location.createRelative(requestPath).exists() && !requestPath.contains(":")) {
@@ -414,7 +410,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void ignoreInvalidEscapeSequence() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "/%foo%/bar.txt");
+    request.setRequestURI("/%foo%/bar.txt");
     this.response = new MockHttpServletResponse();
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
@@ -489,7 +485,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void notModified() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_MODIFIED);
@@ -497,7 +493,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void modified() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css") / 1000 * 1000 - 1);
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
@@ -506,21 +502,21 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void directory() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "js/");
+    request.setRequestURI("js/");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
 
   @Test
   public void directoryInJarFile() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "underscorejs/");
+    request.setRequestURI("underscorejs/");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
 
   @Test
   public void missingResourcePath() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "");
+    request.setRequestURI("");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
@@ -533,7 +529,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void unsupportedHttpMethod() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.request.setMethod("POST");
     assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class).isThrownBy(() ->
             this.handler.handleRequest(requestContext));
@@ -550,7 +546,7 @@ public class ResourceHttpRequestHandlerTests {
 
   private void resourceNotFound(HttpMethod httpMethod) throws Exception {
     this.request.setMethod(httpMethod.name());
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "not-there.css");
+    request.setRequestURI("not-there.css");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }
@@ -558,7 +554,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentByteRange() throws Exception {
     this.request.addHeader("Range", "bytes=0-1");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -573,7 +569,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentByteRangeNoEnd() throws Exception {
     this.request.addHeader("Range", "bytes=9-");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -588,7 +584,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentByteRangeLargeEnd() throws Exception {
     this.request.addHeader("Range", "bytes=9-10000");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -603,7 +599,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentSuffixRange() throws Exception {
     this.request.addHeader("Range", "bytes=-1");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -618,7 +614,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentSuffixRangeLargeSuffix() throws Exception {
     this.request.addHeader("Range", "bytes=-11");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -633,7 +629,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentInvalidRangeHeader() throws Exception {
     this.request.addHeader("Range", "bytes= foo bar");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(416);
@@ -645,7 +641,7 @@ public class ResourceHttpRequestHandlerTests {
   @Test
   public void partialContentMultipleByteRanges() throws Exception {
     this.request.addHeader("Range", "bytes=0-1, 4-5, 8-9");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -685,7 +681,7 @@ public class ResourceHttpRequestHandlerTests {
 
     this.request.addHeader("Accept-Encoding", "gzip");
     this.request.addHeader("Range", "bytes=0-1");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, path);
+    request.setRequestURI(path);
     handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -705,7 +701,7 @@ public class ResourceHttpRequestHandlerTests {
   public void partialContentWithHttpHead() throws Exception {
     this.request.setMethod("HEAD");
     this.request.addHeader("Range", "bytes=0-1");
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.txt");
+    request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
 
     assertThat(this.response.getStatus()).isEqualTo(206);
@@ -717,7 +713,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test  // SPR-14005
   public void doOverwriteExistingCacheControlHeaders() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.response.setHeader("Cache-Control", "no-store");
 
     this.handler.handleRequest(requestContext);
@@ -727,7 +723,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   public void ignoreLastModified() throws Exception {
-    this.request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     this.handler.setUseLastModified(false);
     this.handler.handleRequest(requestContext);
 

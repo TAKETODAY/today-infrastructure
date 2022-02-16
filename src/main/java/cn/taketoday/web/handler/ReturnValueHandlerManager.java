@@ -122,6 +122,13 @@ public class ReturnValueHandlerManager
     return handlers;
   }
 
+  /**
+   * @return Returns SelectableReturnValueHandler
+   */
+  public SelectableReturnValueHandler asSelectable() {
+    return new SelectableReturnValueHandler(handlers);
+  }
+
   @Nullable
   public ReturnValueHandler getHandler(final Object handler) {
     Assert.notNull(handler, "handler must not be null");

@@ -42,6 +42,8 @@ import cn.taketoday.http.CorsConfigurationSource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRange;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.ResourceRegionHttpMessageConverter;
@@ -51,7 +53,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -64,7 +65,6 @@ import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.WebUtils;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * {@code HttpRequestHandler} that serves static resources in an optimized way
@@ -105,20 +105,20 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   private static final String URL_RESOURCE_CHARSET_PREFIX = "[charset=";
 
-  private final List<String> locationValues = new ArrayList<>(4);
+  private final ArrayList<String> locationValues = new ArrayList<>(4);
 
-  private final List<Resource> locationResources = new ArrayList<>(4);
+  private final ArrayList<Resource> locationResources = new ArrayList<>(4);
 
-  private final List<Resource> locationsToUse = new ArrayList<>(4);
+  private final ArrayList<Resource> locationsToUse = new ArrayList<>(4);
 
-  private final Map<Resource, Charset> locationCharsets = new HashMap<>(4);
+  private final HashMap<Resource, Charset> locationCharsets = new HashMap<>(4);
 
-  private final List<ResourceResolver> resourceResolvers = new ArrayList<>(4);
+  private final ArrayList<ResourceResolver> resourceResolvers = new ArrayList<>(4);
 
-  private final List<ResourceTransformer> resourceTransformers = new ArrayList<>(4);
+  private final ArrayList<ResourceTransformer> resourceTransformers = new ArrayList<>(4);
 
   @Nullable
-  private ResourceResolvingChain resolverChain;
+  private ResourceResolvingChain resolvingChain;
 
   @Nullable
   private ResourceTransformerChain transformerChain;
@@ -385,8 +385,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     initAllowedLocations();
 
     // Initialize immutable resolver and transformer chains
-    this.resolverChain = new DefaultResourceResolvingChain(this.resourceResolvers);
-    this.transformerChain = new DefaultResourceTransformerChain(this.resolverChain, this.resourceTransformers);
+    this.resolvingChain = new DefaultResourceResolvingChain(this.resourceResolvers);
+    this.transformerChain = new DefaultResourceTransformerChain(this.resolvingChain, this.resourceTransformers);
 
     if (this.resourceHttpMessageConverter == null) {
       this.resourceHttpMessageConverter = new ResourceHttpMessageConverter();
@@ -493,7 +493,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     Resource resource = getResource(request);
     if (resource == null) {
       logger.debug("Resource not found");
-      request.sendError(HttpServletResponse.SC_NOT_FOUND);
+      request.sendError(HttpStatus.NOT_FOUND.value());
       return HandlerAdapter.NONE_RETURN_VALUE;
     }
 
@@ -529,13 +529,13 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       Assert.state(this.resourceRegionHttpMessageConverter != null, "Not initialized");
       try {
         List<HttpRange> httpRanges = request.getHeaders().getRange();
-        request.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        request.setStatus(HttpStatus.PARTIAL_CONTENT);
         this.resourceRegionHttpMessageConverter.write(
                 HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
         request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-        request.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
       }
     }
 
@@ -544,7 +544,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   @Nullable
   protected Resource getResource(RequestContext request) throws IOException {
-    String path = request.getRequestPath();
+    String path = request.pathWithinApplication().value();
 
     path = processPath(path);
     if (!StringUtils.hasText(path) || isInvalidPath(path)) {
@@ -554,10 +554,10 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       return null;
     }
 
-    Assert.notNull(this.resolverChain, "ResourceResolverChain not initialized.");
+    Assert.notNull(this.resolvingChain, "ResourceResolverChain not initialized.");
     Assert.notNull(this.transformerChain, "ResourceTransformerChain not initialized.");
 
-    Resource resource = this.resolverChain.resolveResource(request, path, getLocations());
+    Resource resource = this.resolvingChain.resolveResource(request, path, getLocations());
     if (resource != null) {
       resource = this.transformerChain.transform(request, resource);
     }

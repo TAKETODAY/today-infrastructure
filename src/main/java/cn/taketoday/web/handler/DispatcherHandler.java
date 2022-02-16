@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpHeaders;
@@ -41,6 +43,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.handler.method.DefaultExceptionHandler;
 import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
@@ -52,8 +55,32 @@ import cn.taketoday.web.util.WebUtils;
  * @author TODAY 2019-11-16 19:05
  * @since 3.0
  */
-public class DispatcherHandler {
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+public class DispatcherHandler implements ApplicationContextAware {
+
+  /**
+   * Well-known name for the HandlerMapping object in the bean factory for this namespace.
+   * Only used when "detectAllHandlerMappings" is turned off.
+   *
+   * @see #setDetectAllHandlerRegistries(boolean)
+   */
+  public static final String HANDLER_REGISTRY_BEAN_NAME = "handlerRegistry";
+
+  /**
+   * Well-known name for the HandlerAdapter object in the bean factory for this namespace.
+   * Only used when "detectAllHandlerAdapters" is turned off.
+   *
+   * @see #setDetectAllHandlerAdapters
+   */
+  public static final String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
+
+  /**
+   * Well-known name for the HandlerExceptionResolver object in the bean factory for this namespace.
+   * Only used when "detectAllHandlerExceptionResolvers" is turned off.
+   *
+   * @see #setDetectAllHandlerExceptionHandlers(boolean)
+   */
+  public static final String HANDLER_EXCEPTION_HANDLER_BEAN_NAME = "handlerExceptionResolver";
+
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   /** Log category to use when no mapped handler is found for a request. */
@@ -62,12 +89,16 @@ public class DispatcherHandler {
   /** Additional logger to use when no mapped handler is found for a request. */
   protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
 
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
+
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
 
   private HandlerAdapter[] handlerAdapters;
+
   /** exception handler */
   private HandlerExceptionHandler exceptionHandler;
+
   /** @since 4.0 */
   private SelectableReturnValueHandler returnValueHandler;
 
@@ -77,7 +108,18 @@ public class DispatcherHandler {
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;
 
-  private final WebApplicationContext webApplicationContext;
+  /** Detect all HandlerMappings or just expect "HandlerRegistry" bean?. */
+  private boolean detectAllHandlerRegistries = true;
+
+  /** Detect all HandlerAdapters or just expect "HandlerAdapter" bean?. */
+  private boolean detectAllHandlerAdapters = true;
+
+  /** Detect all HandlerExceptionResolvers or just expect "HandlerExceptionHandler" bean?. */
+  private boolean detectAllHandlerExceptionHandlers = true;
+
+  private WebApplicationContext webApplicationContext;
+
+  public DispatcherHandler() { }
 
   public DispatcherHandler(WebApplicationContext context) {
     this.webApplicationContext = context;
@@ -95,7 +137,8 @@ public class DispatcherHandler {
   protected void initStrategies(ApplicationContext context) {
     initHandlerRegistries(context);
     initHandlerAdapters(context);
-
+    initReturnValueHandler(context);
+    initExceptionHandler(context);
   }
 
   /**
@@ -105,48 +148,117 @@ public class DispatcherHandler {
    */
   private void initHandlerRegistries(ApplicationContext context) {
     if (handlerRegistry == null) {
-      // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
-      Map<String, HandlerRegistry> matchingBeans =
-              BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerRegistry.class, true, false);
-      if (!matchingBeans.isEmpty()) {
-        ArrayList<HandlerRegistry> registries = new ArrayList<>(matchingBeans.values());
-        // We keep HandlerRegistries in sorted order.
-        AnnotationAwareOrderComparator.sort(registries);
-        this.handlerRegistry = registries.size() == 1
-                               ? registries.get(0)
-                               : new HandlerRegistries(registries);
+      if (detectAllHandlerRegistries) {
+        // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+        Map<String, HandlerRegistry> matchingBeans =
+                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerRegistry.class, true, false);
+        if (!matchingBeans.isEmpty()) {
+          ArrayList<HandlerRegistry> registries = new ArrayList<>(matchingBeans.values());
+          // We keep HandlerRegistries in sorted order.
+          AnnotationAwareOrderComparator.sort(registries);
+          this.handlerRegistry = registries.size() == 1
+                                 ? registries.get(0)
+                                 : new HandlerRegistries(registries);
+        }
       }
       else {
+        handlerRegistry = context.getBean(HANDLER_REGISTRY_BEAN_NAME, HandlerRegistry.class);
+      }
+      if (handlerRegistry == null) {
         handlerRegistry = (HandlerRegistry) context.getAutowireCapableBeanFactory()
-                .configureBean(new BeanNameUrlHandlerRegistry(), "handlerRegistry");
+                .configureBean(new BeanNameUrlHandlerRegistry(), HANDLER_REGISTRY_BEAN_NAME);
       }
     }
-
   }
 
   /**
    * Initialize the HandlerAdapters used by this class.
    * <p>If no HandlerAdapter beans are defined in the BeanFactory for this namespace,
-   * we default to SimpleControllerHandlerAdapter.
+   * we default to RequestHandlerAdapter.
    */
   private void initHandlerAdapters(ApplicationContext context) {
     if (handlerAdapters == null) {
-      // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
-      Map<String, HandlerAdapter> matchingBeans =
-              BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, true, false);
-      if (!matchingBeans.isEmpty()) {
-        ArrayList<HandlerAdapter> handlerAdapters = new ArrayList<>(matchingBeans.values());
-        // We keep HandlerAdapters in sorted order.
-        AnnotationAwareOrderComparator.sort(handlerAdapters);
-        this.handlerAdapters = handlerAdapters.toArray(new HandlerAdapter[handlerAdapters.size()]);
+      if (detectAllHandlerAdapters) {
+        // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
+        Map<String, HandlerAdapter> matchingBeans =
+                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, true, false);
+        if (!matchingBeans.isEmpty()) {
+          ArrayList<HandlerAdapter> handlerAdapters = new ArrayList<>(matchingBeans.values());
+          // We keep HandlerAdapters in sorted order.
+          AnnotationAwareOrderComparator.sort(handlerAdapters);
+          this.handlerAdapters = handlerAdapters.toArray(new HandlerAdapter[0]);
+        }
       }
+      else {
+        HandlerAdapter handlerAdapter = context.getBean(HANDLER_ADAPTER_BEAN_NAME, HandlerAdapter.class);
+        if (handlerAdapter != null) {
+          setHandlerAdapters(handlerAdapter);
+        }
+      }
+      if (handlerAdapters == null) {
+        // Ensure we have at least some HandlerAdapters, by registering
+        // default HandlerAdapters if no other adapters are found.
+        setHandlerAdapters(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
+      }
+    }
+  }
 
-      // Ensure we have at least some HandlerAdapters, by registering
-      // default HandlerAdapters if no other adapters are found.
-      if (this.handlerAdapters == null) {
-        ArrayList<HandlerAdapter> adapters = new ArrayList<>(matchingBeans.values());
-        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
-        this.handlerAdapters = adapters.toArray(new HandlerAdapter[adapters.size()]);
+  /**
+   * Initialize the ReturnValueHandler used by this class.
+   * <p>If no ReturnValueHandlerManager beans are defined in the BeanFactory for this namespace,
+   * we default to {@link ReturnValueHandlerManager#registerDefaultHandlers()}.
+   *
+   * @see ReturnValueHandler
+   * @see ReturnValueHandlerManager
+   */
+  private void initReturnValueHandler(ApplicationContext context) {
+    if (returnValueHandler == null) {
+      ReturnValueHandlerManager manager;
+      try {
+        manager = BeanFactoryUtils.beanOfTypeIncludingAncestors(context, ReturnValueHandlerManager.class);
+      }
+      catch (NoSuchBeanDefinitionException e) {
+        manager = new ReturnValueHandlerManager();
+        manager.setApplicationContext(context);
+        manager.registerDefaultHandlers();
+      }
+      this.returnValueHandler = manager.asSelectable();
+    }
+  }
+
+  /**
+   * Initialize the HandlerExceptionHandler used by this class.
+   * <p>If no HandlerExceptionHandler beans are defined in the BeanFactory for this namespace,
+   * we default to {@link DefaultExceptionHandler}.
+   *
+   * @see HandlerExceptionHandler
+   */
+  private void initExceptionHandler(ApplicationContext context) {
+    if (exceptionHandler == null) {
+      if (detectAllHandlerExceptionHandlers) {
+        // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
+        Map<String, HandlerExceptionHandler> matchingBeans =
+                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerExceptionHandler.class, true, false);
+        if (!matchingBeans.isEmpty()) {
+          ArrayList<HandlerExceptionHandler> handlers = new ArrayList<>(matchingBeans.values());
+          // at least one exception-handler
+          if (handlers.size() == 1) {
+            exceptionHandler = handlers.get(0);
+          }
+          else {
+            // We keep HandlerExceptionHandlers in sorted order.
+            AnnotationAwareOrderComparator.sort(handlers);
+            exceptionHandler = new CompositeHandlerExceptionHandler(handlers);
+          }
+        }
+      }
+      else {
+        exceptionHandler = context.getBean(HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
+      }
+      if (exceptionHandler == null) {
+        DefaultExceptionHandler exceptionHandler = new DefaultExceptionHandler();
+        exceptionHandler.onStartup(getWebApplicationContext());
+        this.exceptionHandler = exceptionHandler;
       }
     }
   }
@@ -408,9 +520,14 @@ public class DispatcherHandler {
     }
   }
 
-  // @since 4.0
-  public WebApplicationContext getWebApplicationContext() {
-    return webApplicationContext;
+  /**
+   * Return this handler's WebApplicationContext.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public final WebApplicationContext getWebApplicationContext() {
+    return this.webApplicationContext;
   }
 
   /**
@@ -502,4 +619,54 @@ public class DispatcherHandler {
   public boolean isEnableLoggingRequestDetails() {
     return this.enableLoggingRequestDetails;
   }
+
+  /**
+   * Set whether to detect all HandlerRegistry beans in this handler's context. Otherwise,
+   * just a single bean with name "handlerRegistry" will be expected.
+   * <p>Default is "true". Turn this off if you want this servlet to use a single
+   * HandlerRegistry, despite multiple HandlerRegistry beans being defined in the context.
+   *
+   * @since 4.0
+   */
+  public void setDetectAllHandlerRegistries(boolean detectAllHandlerRegistries) {
+    this.detectAllHandlerRegistries = detectAllHandlerRegistries;
+  }
+
+  /**
+   * Set whether to detect all HandlerAdapter beans in this handler's context. Otherwise,
+   * just a single bean with name "handlerAdapter" will be expected.
+   * <p>Default is "true". Turn this off if you want this servlet to use a single
+   * HandlerAdapter, despite multiple HandlerAdapter beans being defined in the context.
+   *
+   * @since 4.0
+   */
+  public void setDetectAllHandlerAdapters(boolean detectAllHandlerAdapters) {
+    this.detectAllHandlerAdapters = detectAllHandlerAdapters;
+  }
+
+  /**
+   * Set whether to detect all HandlerExceptionHandler beans in this handler's context. Otherwise,
+   * just a single bean with name "handlerExceptionHandler" will be expected.
+   * <p>Default is "true". Turn this off if you want this servlet to use a single
+   * HandlerExceptionHandler, despite multiple HandlerExceptionHandler beans being defined in the context.
+   *
+   * @since 4.0
+   */
+  public void setDetectAllHandlerExceptionHandlers(boolean detectAllHandlerExceptionHandlers) {
+    this.detectAllHandlerExceptionHandlers = detectAllHandlerExceptionHandlers;
+  }
+
+  /**
+   * Called by Framework via {@link ApplicationContextAware} to inject the current
+   * application context.
+   *
+   * @since 4.0
+   */
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) {
+    if (this.webApplicationContext == null && applicationContext instanceof WebApplicationContext wac) {
+      this.webApplicationContext = wac;
+    }
+  }
+
 }

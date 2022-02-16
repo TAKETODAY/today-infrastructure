@@ -57,6 +57,8 @@ public class DispatcherServlet
 
   private transient ServletConfig servletConfig;
 
+  public DispatcherServlet() { }
+
   public DispatcherServlet(WebServletApplicationContext context) {
     super(context);
   }

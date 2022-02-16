@@ -254,4 +254,11 @@ class ReturnValueHandlerManagerTests {
     assertThat(manager.equals(manager)).isTrue();
 
   }
+
+  @Test
+  void asSelectable() {
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
+    SelectableReturnValueHandler selectable = manager.asSelectable();
+    assertThat(selectable.getInternalHandlers()).isEqualTo(manager.getHandlers());
+  }
 }

@@ -49,8 +49,10 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -120,6 +122,9 @@ public abstract class RequestContext
 
   /** @since 4.0 */
   protected RequestPath lookupPath;
+
+  /** @since 4.0 */
+  protected PathContainer pathWithinApplication;
 
   /** @since 4.0 */
   protected PathMatchInfo pathMatchInfo = PathMatchInfo.EMPTY;
@@ -241,8 +246,10 @@ public abstract class RequestContext
    * protocol name up to the query string
    */
   public String getRequestPath() {
+    String requestPath = this.requestPath;
     if (requestPath == null) {
-      this.requestPath = doGetRequestPath();
+      requestPath = doGetRequestPath();
+      this.requestPath = requestPath;
     }
     return requestPath;
   }
@@ -251,10 +258,22 @@ public abstract class RequestContext
    * @since 4.0
    */
   public final RequestPath getLookupPath() {
+    RequestPath lookupPath = this.lookupPath;
     if (lookupPath == null) {
       lookupPath = RequestPath.parse(getRequestPath(), getContextPath());
+      this.lookupPath = lookupPath;
     }
     return lookupPath;
+  }
+
+  @Experimental
+  public final PathContainer pathWithinApplication() {
+    PathContainer pathWithinApplication = this.pathWithinApplication;
+    if (pathWithinApplication == null) {
+      pathWithinApplication = getLookupPath().pathWithinApplication();
+      this.pathWithinApplication = pathWithinApplication;
+    }
+    return pathWithinApplication;
   }
 
   protected abstract String doGetRequestPath();
