@@ -522,16 +522,17 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     RequestContextHttpOutputMessage outputMessage = new RequestContextHttpOutputMessage(request);
     HttpHeaders requestHeaders = request.requestHeaders();
     if (requestHeaders.get(HttpHeaders.RANGE) == null) {
-      Assert.state(this.resourceHttpMessageConverter != null, "Not initialized");
-      this.resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
+      ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
+      Assert.state(converter != null, "Not initialized");
+      converter.write(resource, mediaType, outputMessage);
     }
     else {
-      Assert.state(this.resourceRegionHttpMessageConverter != null, "Not initialized");
+      ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
+      Assert.state(converter != null, "Not initialized");
       try {
         List<HttpRange> httpRanges = request.getHeaders().getRange();
         request.setStatus(HttpStatus.PARTIAL_CONTENT);
-        this.resourceRegionHttpMessageConverter.write(
-                HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
+        converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
         request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
@@ -554,12 +555,14 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       return null;
     }
 
-    Assert.notNull(this.resolvingChain, "ResourceResolverChain not initialized.");
-    Assert.notNull(this.transformerChain, "ResourceTransformerChain not initialized.");
+    ResourceResolvingChain resolvingChain = this.resolvingChain;
+    ResourceTransformerChain transformerChain = this.transformerChain;
+    Assert.state(resolvingChain != null, "ResourceResolvingChain not initialized.");
+    Assert.state(transformerChain != null, "ResourceTransformerChain not initialized.");
 
-    Resource resource = this.resolvingChain.resolveResource(request, path, getLocations());
+    Resource resource = resolvingChain.resolveResource(request, path, getLocations());
     if (resource != null) {
-      resource = this.transformerChain.transform(request, resource);
+      resource = transformerChain.transform(request, resource);
     }
     return resource;
   }
