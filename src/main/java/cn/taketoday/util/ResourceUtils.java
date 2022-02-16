@@ -53,8 +53,6 @@ public abstract class ResourceUtils {
 
   public static final String JAR_ENTRY_URL_PREFIX = "jar:file:";
   public static final String JAR_SEPARATOR = "!/";
-  public static final String PROTOCOL_JAR = "jar";
-  public static final String PROTOCOL_FILE = "file";
 
   /** URL prefix for loading from the file system: "file:". */
   public static final String FILE_URL_PREFIX = "file:";
@@ -63,9 +61,9 @@ public abstract class ResourceUtils {
   /** URL prefix for loading from a war file on Tomcat: "war:". */
   public static final String WAR_URL_PREFIX = "war:";
   /** URL protocol for a file in the file system: "file". */
-  public static final String URL_PROTOCOL_FILE = PROTOCOL_FILE;
+  public static final String URL_PROTOCOL_FILE = "file";
   /** URL protocol for an entry from a jar file: "jar". */
-  public static final String URL_PROTOCOL_JAR = PROTOCOL_JAR;
+  public static final String URL_PROTOCOL_JAR = "jar";
   /** URL protocol for an entry from a war file: "war". */
   public static final String URL_PROTOCOL_WAR = "war";
   /** URL protocol for an entry from a zip file: "zip". */
@@ -138,10 +136,10 @@ public abstract class ResourceUtils {
 
   public static Resource getResource(URL url) {
     String protocol = url.getProtocol();
-    if (PROTOCOL_FILE.equals(protocol)) {
+    if (URL_PROTOCOL_FILE.equals(protocol)) {
       return new FileBasedResource(URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8));
     }
-    if (PROTOCOL_JAR.equals(protocol)) {
+    if (URL_PROTOCOL_JAR.equals(protocol)) {
       return new JarEntryResource(url);
     }
     return new UrlBasedResource(url);

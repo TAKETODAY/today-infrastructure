@@ -165,20 +165,6 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceHttp10BehaviorCache() throws Exception {
-    request.setRequestURI("foo.css");
-    this.handler.setCacheSeconds(3600);
-    this.handler.handleRequest(requestContext);
-
-    assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600, must-revalidate");
-    assertThat(this.response.getDateHeader("Expires") >= System.currentTimeMillis() - 1000 + (3600 * 1000)).isTrue();
-    assertThat(this.response.containsHeader("Last-Modified")).isTrue();
-    assertThat(this.response.getDateHeader("Last-Modified") / 1000).isEqualTo(resourceLastModified("test/foo.css") / 1000);
-    assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
-    assertThat(this.response.getHeaders("Accept-Ranges").size()).isEqualTo(1);
-  }
-
-  @Test
   public void getResourceHttp10BehaviorNoCache() throws Exception {
     request.setRequestURI("foo.css");
     this.handler.setCacheSeconds(0);
@@ -359,6 +345,8 @@ public class ResourceHttpRequestHandlerTests {
   private void testInvalidPath(String requestPath, ResourceHttpRequestHandler handler) throws Exception {
     request.setRequestURI(requestPath);
     this.response = new MockHttpServletResponse();
+    requestContext = new ServletRequestContext(null, request, response);
+
     handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }
@@ -401,6 +389,8 @@ public class ResourceHttpRequestHandlerTests {
   private void testResolvePathWithTraversal(Resource location, String requestPath) throws Exception {
     request.setRequestURI(requestPath);
     this.response = new MockHttpServletResponse();
+    requestContext = new ServletRequestContext(null, request, response);
+
     this.handler.handleRequest(requestContext);
     if (!location.createRelative(requestPath).exists() && !requestPath.contains(":")) {
       fail(requestPath + " doesn't actually exist as a relative path");
@@ -547,6 +537,8 @@ public class ResourceHttpRequestHandlerTests {
   private void resourceNotFound(HttpMethod httpMethod) throws Exception {
     this.request.setMethod(httpMethod.name());
     request.setRequestURI("not-there.css");
+    requestContext = new ServletRequestContext(null, request, response);
+
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }

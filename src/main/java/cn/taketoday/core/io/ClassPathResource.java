@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
@@ -37,8 +38,15 @@ import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2019-05-14 21:47
+ * {@link Resource} implementation for class path resources. Uses either a
+ * given {@link ClassLoader} or a given {@link Class} for loading resources.
+ *
+ * <p>Supports resolution as {@code java.io.File} if the class path
+ * resource resides in the file system, but not for resources in a JAR.
+ * Always supports resolution as URL.
+ *
+ * @author TODAY
+ * @since 2019-05-14 21:47
  */
 public class ClassPathResource implements Resource, WritableResource {
 
@@ -166,6 +174,26 @@ public class ClassPathResource implements Resource, WritableResource {
   @Override
   public boolean exists() {
     return getResource().exists();
+  }
+
+  @Override
+  public boolean isReadable() {
+    return getResource().isReadable();
+  }
+
+  @Override
+  public Reader getReader() throws IOException {
+    return getResource().getReader();
+  }
+
+  @Override
+  public Reader getReader(String encoding) throws IOException {
+    return getResource().getReader(encoding);
+  }
+
+  @Override
+  public boolean isOpen() {
+    return getResource().isOpen();
   }
 
   @Override

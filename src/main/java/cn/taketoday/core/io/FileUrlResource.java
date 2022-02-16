@@ -92,6 +92,11 @@ public class FileUrlResource extends UrlBasedResource implements WritableResourc
   }
 
   @Override
+  public boolean isDirectory() throws IOException {
+    return getFile().isDirectory();
+  }
+
+  @Override
   public boolean isWritable() {
     try {
       File file = getFile();
