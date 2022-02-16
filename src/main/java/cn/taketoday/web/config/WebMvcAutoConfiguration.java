@@ -22,11 +22,27 @@ package cn.taketoday.web.config;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.context.condition.ConditionalOnBean;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
+import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
+import cn.taketoday.web.i18n.FixedLocaleResolver;
+import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.view.BeanNameViewResolver;
+import cn.taketoday.web.view.ContentNegotiatingViewResolver;
+import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.ViewResolver;
 
 /**
  * Web MVC configuration
@@ -40,5 +56,56 @@ import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Import(JacksonAutoConfiguration.class)
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
+
+  private final WebProperties webProperties;
+  private final WebMvcProperties mvcProperties;
+
+  public WebMvcAutoConfiguration(
+          @Props(prefix = "web.mvc.") WebMvcProperties mvcProperties,
+          @Props(prefix = "web.") WebProperties webProperties) {
+    this.mvcProperties = mvcProperties;
+    this.webProperties = webProperties;
+  }
+
+  @Component
+  @ConditionalOnMissingBean
+  public InternalResourceViewResolver defaultViewResolver() {
+    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+    resolver.setPrefix(this.mvcProperties.getView().getPrefix());
+    resolver.setSuffix(this.mvcProperties.getView().getSuffix());
+    return resolver;
+  }
+
+  @Component
+  @ConditionalOnBean(View.class)
+  @ConditionalOnMissingBean
+  public BeanNameViewResolver beanNameViewResolver() {
+    BeanNameViewResolver resolver = new BeanNameViewResolver();
+    resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
+    return resolver;
+  }
+
+  @Component
+  @ConditionalOnBean(ViewResolver.class)
+  @ConditionalOnMissingBean(name = "viewResolver", value = ContentNegotiatingViewResolver.class)
+  public ContentNegotiatingViewResolver viewResolver(@Nullable ContentNegotiationManager contentNegotiationManager) {
+    ContentNegotiatingViewResolver resolver = new ContentNegotiatingViewResolver();
+    resolver.setContentNegotiationManager(contentNegotiationManager);
+    // ContentNegotiatingViewResolver uses all the other view resolvers to locate
+    // a view so it should have a high precedence
+    resolver.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    return resolver;
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
+  public LocaleResolver localeResolver() {
+    if (this.webProperties.getLocaleResolver() == WebProperties.LocaleResolver.FIXED) {
+      return new FixedLocaleResolver(this.webProperties.getLocale());
+    }
+    AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+    localeResolver.setDefaultLocale(this.webProperties.getLocale());
+    return localeResolver;
+  }
 
 }
