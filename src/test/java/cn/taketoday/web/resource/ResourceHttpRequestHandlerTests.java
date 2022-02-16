@@ -356,6 +356,8 @@ public class ResourceHttpRequestHandlerTests {
     for (HttpMethod method : HttpMethod.values()) {
       this.request = new MockHttpServletRequest("GET", "");
       this.response = new MockHttpServletResponse();
+      requestContext = new ServletRequestContext(null, request, response);
+
       testResolvePathWithTraversal(method);
     }
   }
@@ -402,6 +404,8 @@ public class ResourceHttpRequestHandlerTests {
   public void ignoreInvalidEscapeSequence() throws Exception {
     request.setRequestURI("/%foo%/bar.txt");
     this.response = new MockHttpServletResponse();
+    requestContext = new ServletRequestContext(null, request, response);
+
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
