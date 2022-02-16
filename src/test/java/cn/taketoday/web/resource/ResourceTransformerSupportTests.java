@@ -79,13 +79,12 @@ public class ResourceTransformerSupportTests {
   public void resolveUrlPath() {
     this.request.setRequestURI("/context/servlet/resources/main.css");
     this.request.setContextPath("/context");
-    this.request.setServletPath("/servlet");
-    String resourcePath = "/context/servlet/resources/bar.css";
+    String resourcePath = "/context/resources/bar.css";
     Resource resource = getResource("main.css");
     String actual = this.transformer.resolveUrlPath(
             resourcePath, new ServletRequestContext(null, request, null), resource, this.transformerChain);
 
-    assertThat(actual).isEqualTo("/context/servlet/resources/bar-11e16cf79faee7ac698c805cf28248d2.css");
+    assertThat(actual).isEqualTo("/context/resources/bar-11e16cf79faee7ac698c805cf28248d2.css");
   }
 
   @Test

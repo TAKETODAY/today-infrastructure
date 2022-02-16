@@ -20,6 +20,9 @@
 
 package cn.taketoday.web.config;
 
+import java.util.List;
+
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
@@ -31,13 +34,16 @@ import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
+import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
@@ -60,11 +66,20 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   private final WebProperties webProperties;
   private final WebMvcProperties mvcProperties;
 
+  private final CompositeWebMvcConfiguration mvcConfiguration = new CompositeWebMvcConfiguration();
+
   public WebMvcAutoConfiguration(
           @Props(prefix = "web.mvc.") WebMvcProperties mvcProperties,
           @Props(prefix = "web.") WebProperties webProperties) {
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
+  }
+
+  @Autowired(required = false)
+  public void setMvcConfiguration(List<WebMvcConfiguration> mvcConfiguration) {
+    if (!CollectionUtils.isEmpty(mvcConfiguration)) {
+      this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
+    }
   }
 
   @Component
@@ -106,6 +121,41 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
     localeResolver.setDefaultLocale(this.webProperties.getLocale());
     return localeResolver;
+  }
+
+  @Override
+  protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+    mvcConfiguration.configureResourceHandler(registry);
+  }
+
+  @Override
+  protected void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
+    mvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
+  }
+
+  @Override
+  protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    mvcConfiguration.configureMessageConverters(converters);
+  }
+
+  @Override
+  protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+    mvcConfiguration.extendMessageConverters(converters);
+  }
+
+  @Override
+  protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+    mvcConfiguration.configureContentNegotiation(configurer);
+  }
+
+  @Override
+  protected void configurePathMatch(PathMatchConfigurer configurer) {
+    mvcConfiguration.configurePathMatch(configurer);
+  }
+
+  @Override
+  protected void configureViewResolvers(ViewResolverRegistry registry) {
+    mvcConfiguration.configureViewResolvers(registry);
   }
 
 }

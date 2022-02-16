@@ -72,23 +72,14 @@ public class ResourceUrlProviderJavaConfigTests {
             }*/);
   }
 
-  @Test
-  public void resolvePathWithServletMappedAsRoot() throws Exception {
-    this.request.setRequestURI("/myapp/index");
-    this.request.setServletPath("/index");
-    this.filterChain.doFilter(this.request, this.response);
-
-    assertThat(resolvePublicResourceUrlPath("/myapp/resources/foo.css")).isEqualTo("/myapp/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css");
-  }
-
-  @Test
-  public void resolvePathWithServletMappedByPrefix() throws Exception {
-    this.request.setRequestURI("/myapp/myservlet/index");
-    this.request.setServletPath("/myservlet");
-    this.filterChain.doFilter(this.request, this.response);
-
-    assertThat(resolvePublicResourceUrlPath("/myapp/myservlet/resources/foo.css")).isEqualTo("/myapp/myservlet/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css");
-  }
+//  @Test
+//  public void resolvePathWithServletMappedAsRoot() throws Exception {
+//    this.request.setRequestURI("/myapp/index");
+//    this.request.setServletPath("/index");
+//    this.filterChain.doFilter(this.request, this.response);
+//
+//    assertThat(resolvePublicResourceUrlPath("/myapp/resources/foo.css")).isEqualTo("/myapp/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css");
+//  }
 
   @Test
   public void resolvePathNoMatch() throws Exception {

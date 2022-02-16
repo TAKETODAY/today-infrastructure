@@ -37,6 +37,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.http.CorsConfiguration;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
@@ -63,6 +64,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -74,6 +76,7 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.AbstractHandlerRegistry;
+import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
@@ -518,6 +521,23 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     handlerRegistry.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
 
     return handlerRegistry;
+  }
+
+  @Component
+  public HandlerRegistry webFunctionHandlerRegistry() {
+    FunctionHandlerRegistry functionHandlerRegistry = new FunctionHandlerRegistry();
+    functionHandlerRegistry.setApplicationContext(getApplicationContext());
+    functionHandlerRegistry.setCorsConfigurations(getCorsConfigurations());
+
+    configureFunctionHandler(functionHandlerRegistry);
+    return functionHandlerRegistry;
+  }
+
+  protected void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) { }
+
+  @Component
+  FunctionRequestAdapter functionRequestAdapter() {
+    return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE + 1);
   }
 
   /**

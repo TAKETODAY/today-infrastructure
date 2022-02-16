@@ -19,9 +19,11 @@
  */
 package cn.taketoday.web.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -40,9 +42,18 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
   private final List<WebMvcConfiguration> webMvcConfigurations;
 
+  public CompositeWebMvcConfiguration() {
+    this(new ArrayList<>());
+  }
+
   public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
-    AnnotationAwareOrderComparator.sort(webMvcConfigurations);
     this.webMvcConfigurations = webMvcConfigurations;
+  }
+
+  public void addWebMvcConfiguration(List<WebMvcConfiguration> configurers) {
+    if (!CollectionUtils.isEmpty(configurers)) {
+      webMvcConfigurations.addAll(configurers);
+    }
   }
 
   @Override
@@ -134,6 +145,20 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void configureViewResolvers(ViewResolverRegistry registry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureViewResolvers(registry);
+    }
+  }
+
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureMessageConverters(converters);
+    }
+  }
+
+  @Override
+  public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.extendMessageConverters(converters);
     }
   }
 

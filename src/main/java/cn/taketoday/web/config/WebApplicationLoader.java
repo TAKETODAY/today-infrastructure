@@ -72,7 +72,6 @@ public class WebApplicationLoader
   public void onStartup(WebApplicationContext context) throws Throwable {
     WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
-    configureFunctionHandler(context, mvcConfiguration);
     configureViewControllerHandler(context, mvcConfiguration);
     configureExceptionHandler(context, mvcConfiguration);
     configureReturnValueHandler(context, mvcConfiguration);
@@ -217,12 +216,6 @@ public class WebApplicationLoader
     dispatcherHandler.setExceptionHandler(exceptionHandler);
   }
 
-  protected void configureFunctionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    FunctionHandlerRegistry registry = context.getBean(FunctionHandlerRegistry.class);
-    if (registry != null) {
-      mvcConfiguration.configureFunctionHandler(registry);
-    }
-  }
 
   private void configureReturnValueHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     configureReturnValueHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);

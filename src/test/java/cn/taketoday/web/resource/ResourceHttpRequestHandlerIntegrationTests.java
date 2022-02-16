@@ -61,10 +61,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     return Stream.of(
             arguments(true, "/cp"),
             arguments(true, "/fs"),
-            arguments(true, "/url"),
-            arguments(false, "/cp"),
-            arguments(false, "/fs"),
-            arguments(false, "/url")
+            arguments(true, "/url")
     );
   }
 
@@ -103,10 +100,6 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
     StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
     context.register(configClasses);
-    if (usePathPatterns) {
-      context.register(PathPatternParserConfig.class);
-    }
-//    context.setServletConfig(this.servletConfig);
     context.refresh();
 
     DispatcherServlet servlet = new DispatcherServlet(context);
@@ -162,10 +155,6 @@ public class ResourceHttpRequestHandlerIntegrationTests {
         throw new IllegalStateException(ex);
       }
     }
-  }
-
-  static class PathPatternParserConfig implements WebMvcConfiguration {
-
   }
 
 }

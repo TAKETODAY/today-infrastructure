@@ -22,6 +22,7 @@ package cn.taketoday.web.config;
 import java.util.List;
 
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -168,5 +169,34 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void configurePathMatch(PathMatchConfigurer configurer) { }
+
+  /**
+   * Configure the {@link HttpMessageConverter HttpMessageConverter}s for
+   * reading from the request body and for writing to the response body.
+   * <p>By default, all built-in converters are configured as long as the
+   * corresponding 3rd party libraries such Jackson JSON, JAXB2, and others
+   * are present on the classpath.
+   * <p><strong>Note</strong> use of this method turns off default converter
+   * registration. Alternatively, use
+   * {@link #extendMessageConverters(java.util.List)} to modify that default
+   * list of converters.
+   *
+   * @param converters initially an empty list of converters
+   * @since 4.0
+   */
+  default void configureMessageConverters(List<HttpMessageConverter<?>> converters) { }
+
+  /**
+   * Extend or modify the list of converters after it has been, either
+   * {@link #configureMessageConverters(List) configured} or initialized with
+   * a default list.
+   * <p>Note that the order of converter registration is important. Especially
+   * in cases where clients accept {@link cn.taketoday.http.MediaType#ALL}
+   * the converters configured earlier will be preferred.
+   *
+   * @param converters the list of configured converters to be extended
+   * @since 4.0
+   */
+  default void extendMessageConverters(List<HttpMessageConverter<?>> converters) { }
 
 }
