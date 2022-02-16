@@ -226,7 +226,12 @@ public class PathResourceResolver extends AbstractResourceResolver {
 
   private String encodeOrDecodeIfNecessary(String path, @Nullable RequestContext request, Resource location) {
     if (shouldDecodeRelativePath(location, request)) {
-      return UriUtils.decode(path, StandardCharsets.UTF_8);
+      try {
+        return UriUtils.decode(path, StandardCharsets.UTF_8);
+      }
+      catch (IllegalArgumentException e) {
+        return path;
+      }
     }
     else if (shouldEncodeRelativePath(location) && request != null) {
       Charset charset = this.locationCharsets.getOrDefault(location, StandardCharsets.UTF_8);

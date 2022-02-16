@@ -907,6 +907,12 @@ public abstract class RequestContext
           String datePart = headerValue.substring(0, separatorIndex);
           dateValue = parseDateValue(datePart);
         }
+        else {
+          try {
+            return Long.parseLong(headerValue);
+          }
+          catch (NumberFormatException ignored) { }
+        }
       }
     }
     return dateValue;

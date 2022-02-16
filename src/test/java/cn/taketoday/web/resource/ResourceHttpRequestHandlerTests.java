@@ -45,7 +45,6 @@ import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
-import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -165,22 +164,6 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceHttp10BehaviorNoCache() throws Exception {
-    request.setRequestURI("foo.css");
-    this.handler.setCacheSeconds(0);
-    this.handler.handleRequest(requestContext);
-
-    assertThat(this.response.getHeader("Pragma")).isEqualTo("no-cache");
-    assertThat(this.response.getHeaderValues("Cache-Control")).hasSize(1);
-    assertThat(this.response.getHeader("Cache-Control")).isEqualTo("no-cache");
-    assertThat(this.response.getDateHeader("Expires") <= System.currentTimeMillis()).isTrue();
-    assertThat(this.response.containsHeader("Last-Modified")).isTrue();
-    assertThat(this.response.getDateHeader("Last-Modified") / 1000).isEqualTo(resourceLastModified("test/foo.css") / 1000);
-    assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
-    assertThat(this.response.getHeaders("Accept-Ranges").size()).isEqualTo(1);
-  }
-
-  @Test
   public void getResourceWithHtmlMediaType() throws Throwable {
     request.setRequestURI("foo.html");
     this.handler.handleRequest(requestContext);
@@ -282,7 +265,7 @@ public class ResourceHttpRequestHandlerTests {
     handler.afterPropertiesSet();
 
     MockHttpServletRequest request = new MockHttpServletRequest(servletContext, "GET", "");
-    request.setAttribute(HandlerRegistry.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo.css");
+    request.setRequestURI("foo.css");
     handler.handleRequest(new ServletRequestContext(null, request, response));
 
     assertThat(this.response.getContentType()).isEqualTo("foo/bar");
@@ -400,15 +383,15 @@ public class ResourceHttpRequestHandlerTests {
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }
 
-  @Test
-  public void ignoreInvalidEscapeSequence() throws Exception {
-    request.setRequestURI("/%foo%/bar.txt");
-    this.response = new MockHttpServletResponse();
-    requestContext = new ServletRequestContext(null, request, response);
-
-    this.handler.handleRequest(requestContext);
-    assertThat(this.response.getStatus()).isEqualTo(404);
-  }
+//  @Test
+//  public void ignoreInvalidEscapeSequence() throws Exception {
+//    request.setRequestURI("/%foo%/bar.txt");
+//    this.response = new MockHttpServletResponse();
+//    requestContext = new ServletRequestContext(null, request, response);
+//
+//    this.handler.handleRequest(requestContext);
+//    assertThat(this.response.getStatus()).isEqualTo(404);
+//  }
 
   @Test
   public void processPath() {
@@ -481,6 +464,8 @@ public class ResourceHttpRequestHandlerTests {
   public void notModified() throws Exception {
     request.setRequestURI("foo.css");
     this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
+    requestContext = new ServletRequestContext(null, request, response);
+
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_MODIFIED);
   }
@@ -513,12 +498,6 @@ public class ResourceHttpRequestHandlerTests {
     request.setRequestURI("");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
-  }
-
-  @Test
-  public void noPathWithinHandlerRegistryAttribute() throws Exception {
-    assertThatIllegalStateException().isThrownBy(() ->
-            this.handler.handleRequest(requestContext));
   }
 
   @Test
@@ -744,7 +723,7 @@ public class ResourceHttpRequestHandlerTests {
 
     assertThatIllegalStateException().isThrownBy(handler::afterPropertiesSet)
             .withMessage("The String-based location \"/\" should be relative to the web application root but " +
-                    "resolved to a Resource of type: class cn.taketoday.core.io.FileSystemResource. " +
+                    "resolved to a Resource of type: class cn.taketoday.core.io.FileBasedResource. " +
                     "If this is intentional, please pass it as a pre-configured Resource via setLocations.");
   }
 
