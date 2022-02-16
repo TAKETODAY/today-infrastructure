@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.MissingRequestParameterException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -50,7 +51,7 @@ public class SimpleArrayParameterResolver implements ParameterResolvingStrategy 
       values = StringUtils.split(context.getParameter(name));
       if (ObjectUtils.isEmpty(values)) {
         if (resolvable.isRequired()) {
-          throw new MissingParameterException("Array", resolvable.getParameter());
+          throw new MissingRequestParameterException(name, resolvable.getParameterType().getName());
         }
         return null;
       }

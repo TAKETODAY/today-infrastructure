@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.web.MissingRequestValueException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -33,7 +34,7 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
    * @param context Current request Context
    * @param resolvable parameter
    * @return parameter value
-   * @throws MissingParameterException parameter cannot be resolved
+   * @throws MissingRequestValueException parameter cannot be resolved
    */
   @Override
   public Object resolveParameter(
@@ -74,7 +75,7 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
    * handle missed parameter value
    */
   protected Object missingParameter(final ResolvableMethodParameter parameter) {
-    throw new MissingParameterException(parameter.getParameter());
+    throw new MissingRequestValueException("Required parameter '" + parameter.getParameterName() + "' is not present");
   }
 
 }

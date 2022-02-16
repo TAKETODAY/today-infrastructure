@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,17 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.util;
+package cn.taketoday.http;
 
-import cn.taketoday.http.MediaType;
+import cn.taketoday.util.InvalidMimeTypeException;
 
 /**
  * Exception thrown from {@link MediaType#parseMediaType(String)} in case of
  * encountering an invalid media type specification String.
  *
  * @author Juergen Hoeller
- * @author TODAY <br>
- * 2019-12-08 20:03
+ * @author TODAY
+ * @since 2019-12-08 20:03
  */
 @SuppressWarnings("serial")
 public class InvalidMediaTypeException extends IllegalArgumentException {

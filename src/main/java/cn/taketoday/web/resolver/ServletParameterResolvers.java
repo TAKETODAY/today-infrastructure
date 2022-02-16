@@ -155,7 +155,7 @@ public class ServletParameterResolvers {
       }
       // no cookie
       if (resolvable.isRequired()) {
-        throw new MissingParameterException("Cookie", resolvable.getParameter());
+        throw new MissingCookieException(name, resolvable.getParameter());
       }
       return null;
     }

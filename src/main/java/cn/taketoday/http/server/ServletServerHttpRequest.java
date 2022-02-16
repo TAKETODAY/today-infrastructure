@@ -41,7 +41,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayIterator;
-import cn.taketoday.util.InvalidMediaTypeException;
+import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;

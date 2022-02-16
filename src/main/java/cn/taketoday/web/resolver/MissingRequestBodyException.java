@@ -21,6 +21,7 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.MissingRequestValueException;
 
 /**
  * Missing RequestBody in current request
@@ -28,14 +29,55 @@ import cn.taketoday.core.MethodParameter;
  * @author TODAY 2021/3/10 12:51
  * @since 3.0
  */
-public class MissingRequestBodyException extends MissingParameterException {
+public class MissingRequestBodyException extends MissingRequestValueException {
 
-  public MissingRequestBodyException(MethodParameter parameter) {
-    super("RequestBody", parameter);
+  private final String bodyName;
+
+  private final MethodParameter parameter;
+
+  /**
+   * Constructor for MissingRequestCookieException.
+   *
+   * @param bodyName the name of the missing request body
+   * @param parameter the method parameter
+   */
+  public MissingRequestBodyException(String bodyName, MethodParameter parameter) {
+    this(bodyName, parameter, false);
   }
 
-  public MissingRequestBodyException(String type, MethodParameter parameter) {
-    super(type, parameter);
+  /**
+   * Constructor for use when a value was present but converted to {@code null}.
+   *
+   * @param bodyName the name of the missing request body
+   * @param parameter the method parameter
+   * @param missingAfterConversion whether the value became null after conversion
+   */
+  public MissingRequestBodyException(
+          String bodyName, MethodParameter parameter, boolean missingAfterConversion) {
+    super("", missingAfterConversion);
+    this.bodyName = bodyName;
+    this.parameter = parameter;
+  }
+
+  @Override
+  public String getMessage() {
+    return "Required body '" + this.bodyName + "' for method parameter type " +
+            this.parameter.getNestedParameterType().getSimpleName() + " is " +
+            (isMissingAfterConversion() ? "present but converted to null" : "not present");
+  }
+
+  /**
+   * Return the expected name of the request body.
+   */
+  public final String getBodyName() {
+    return this.bodyName;
+  }
+
+  /**
+   * Return the method parameter bound to the request cookie.
+   */
+  public final MethodParameter getParameter() {
+    return this.parameter;
   }
 
 }

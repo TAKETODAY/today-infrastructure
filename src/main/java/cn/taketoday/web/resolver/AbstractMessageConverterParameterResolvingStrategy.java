@@ -44,7 +44,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.InvalidMediaTypeException;
+import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;

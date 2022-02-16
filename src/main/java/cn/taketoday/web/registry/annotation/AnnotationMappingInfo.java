@@ -31,7 +31,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.InvalidMediaTypeException;
+import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ActionMapping;

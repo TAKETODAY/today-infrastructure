@@ -143,7 +143,7 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
   private static RequestBody getRequestBody(
           byte[] content, HttpMethod method, @Nullable MediaType contentType) {
     return content.length > 0 || okhttp3.internal.http.HttpMethod.requiresRequestBody(method.name())
-           ? RequestBody.create(contentType, content) : null;
+           ? RequestBody.create(content, contentType) : null;
   }
 
   @Nullable

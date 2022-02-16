@@ -35,7 +35,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.InvalidMediaTypeException;
 import cn.taketoday.util.InvalidMimeTypeException;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;

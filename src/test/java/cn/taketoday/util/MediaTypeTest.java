@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;

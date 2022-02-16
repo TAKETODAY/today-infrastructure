@@ -35,9 +35,9 @@ import java.io.OutputStream;
 import java.net.URI;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 
 /**
  * {@link ClientHttpRequest} implementation based on
@@ -151,7 +151,7 @@ final class HttpComponentsStreamingClientHttpRequest
     }
 
     @Override
-    public void consumeContent() throws IOException {
+    public void consumeContent() {
       throw new UnsupportedOperationException();
     }
   }
