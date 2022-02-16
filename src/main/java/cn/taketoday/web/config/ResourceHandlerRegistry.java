@@ -40,7 +40,7 @@ import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
 /**
  * Stores registrations of resource handlers for serving static resources such
- * as images, css files and others through Spring MVC including setting cache
+ * as images, css files and others through Framework MVC including setting cache
  * headers optimized for efficient loading in a web browser. Resources can be
  * served out of locations under web application root, from the classpath, and
  * others.

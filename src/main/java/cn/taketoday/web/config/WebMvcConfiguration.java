@@ -158,4 +158,15 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void configureViewResolvers(ViewResolverRegistry registry) { }
+
+  /**
+   * Help with configuring {@link HandlerRegistry} path matching options such as
+   * whether to use parsed {@code PathPatterns} or String pattern matching
+   * with {@code PathMatcher}, whether to match trailing slashes, and more.
+   *
+   * @see PathMatchConfigurer
+   * @since 4.0
+   */
+  default void configurePathMatch(PathMatchConfigurer configurer) { }
+
 }

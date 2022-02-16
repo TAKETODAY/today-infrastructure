@@ -36,6 +36,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.resource.EncodedResourceResolver.EncodedResource;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -93,8 +94,9 @@ public class CssLinkResourceTransformerTests {
             "@import \"/static/foo-e36d2e05253c6c7085a91522ce43a0b4.css\";\n" +
             "@import '/static/foo-e36d2e05253c6c7085a91522ce43a0b4.css';\n\n" +
             "body { background: url(\"/static/images/image-f448cd1d5dba82b774f3202c878230b3.png?#iefix\") }\n";
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
-    TransformedResource actual = (TransformedResource) this.transformerChain.transform(this.request, css);
+    TransformedResource actual = (TransformedResource) this.transformerChain.transform(requestContext, css);
     String result = new String(actual.getByteArray(), StandardCharsets.UTF_8);
     result = StringUtils.deleteAny(result, "\r");
     assertThat(result).isEqualTo(expected);
@@ -104,7 +106,9 @@ public class CssLinkResourceTransformerTests {
   public void transformNoLinks() throws Exception {
     this.request = new MockHttpServletRequest("GET", "/static/foo.css");
     Resource expected = getResource("foo.css");
-    Resource actual = this.transformerChain.transform(this.request, expected);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    Resource actual = this.transformerChain.transform(requestContext, expected);
     assertThat(actual).isSameAs(expected);
   }
 
@@ -121,7 +125,9 @@ public class CssLinkResourceTransformerTests {
             "body { background: url(\"file:///home/spring/image.png\") }\n" +
             "figure { background: url(\"//example.org/style.css\")}";
 
-    TransformedResource transformedResource = (TransformedResource) chain.transform(this.request, resource);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    TransformedResource transformedResource = (TransformedResource) chain.transform(requestContext, resource);
     String result = new String(transformedResource.getByteArray(), StandardCharsets.UTF_8);
     result = StringUtils.deleteAny(result, "\r");
     assertThat(result).isEqualTo(expected);
@@ -135,8 +141,10 @@ public class CssLinkResourceTransformerTests {
   @Test
   public void transformSkippedForNonCssResource() throws Exception {
     this.request = new MockHttpServletRequest("GET", "/static/images/image.png");
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
     Resource expected = getResource("images/image.png");
-    Resource actual = this.transformerChain.transform(this.request, expected);
+    Resource actual = this.transformerChain.transform(requestContext, expected);
 
     assertThat(actual).isSameAs(expected);
   }
@@ -147,8 +155,10 @@ public class CssLinkResourceTransformerTests {
 
     this.request = new MockHttpServletRequest("GET", "/static/main.css");
     Resource original = new ClassPathResource("test/main.css", getClass());
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
     EncodedResource gzipped = new EncodedResource(original, "gzip", ".gz");
-    Resource actual = this.transformerChain.transform(this.request, gzipped);
+    Resource actual = this.transformerChain.transform(requestContext, gzipped);
 
     assertThat(actual).isSameAs(gzipped);
   }
@@ -161,8 +171,9 @@ public class CssLinkResourceTransformerTests {
             ".fooStyle {\n" +
                     "\tbackground: transparent url() no-repeat left top;\n" +
                     "}";
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
-    TransformedResource actual = (TransformedResource) this.transformerChain.transform(this.request, css);
+    TransformedResource actual = (TransformedResource) this.transformerChain.transform(requestContext, css);
     String result = new String(actual.getByteArray(), StandardCharsets.UTF_8);
     result = StringUtils.deleteAny(result, "\r");
     assertThat(result).isEqualTo(expected);

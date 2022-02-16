@@ -31,7 +31,9 @@ import java.util.List;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -58,7 +60,7 @@ public class PathResourceResolverTests {
   @Test
   public void resolveFromClasspathRoot() {
     Resource location = new ClassPathResource("/");
-    String requestPath = "org/springframework/web/servlet/resource/test/bar.css";
+    String requestPath = "cn/taketoday/web/resource/test/bar.css";
     Resource actual = this.resolver.resolveResource(null, requestPath, Collections.singletonList(location), null);
 
     assertThat(actual).isNotNull();
@@ -70,8 +72,8 @@ public class PathResourceResolverTests {
     testCheckResource(location, "../testsecret/secret.txt");
     testCheckResource(location, "test/../../testsecret/secret.txt");
 
-    location = new UrlResource(getClass().getResource("./test/"));
-    String secretPath = new UrlResource(getClass().getResource("testsecret/secret.txt")).getURL().getPath();
+    location = new UrlBasedResource(getClass().getResource("./test/"));
+    String secretPath = new UrlBasedResource(getClass().getResource("testsecret/secret.txt")).getLocation().getPath();
     testCheckResource(location, "file:" + secretPath);
     testCheckResource(location, "/file:" + secretPath);
     testCheckResource(location, "/" + secretPath);
@@ -94,7 +96,7 @@ public class PathResourceResolverTests {
 
   @Test // gh-23463
   public void ignoreInvalidEscapeSequence() throws IOException {
-    UrlResource location = new UrlResource(getClass().getResource("./test/"));
+    UrlBasedResource location = new UrlBasedResource(getClass().getResource("./test/"));
     Resource resource = location.createRelative("test%file.txt");
     assertThat(this.resolver.checkResource(resource, location)).isTrue();
   }
@@ -115,7 +117,7 @@ public class PathResourceResolverTests {
   @Test // SPR-12624
   public void checkRelativeLocation() throws Exception {
     String location = new UrlBasedResource(getClass().getResource("./test/")).getLocation().toExternalForm();
-    location = location.replace("/test/org/springframework", "/test/org/../org/springframework");
+    location = location.replace("/test/cn/taketoday", "/test/cn/../cn/taketoday");
 
     Resource actual = this.resolver.resolveResource(
             null, "main.css", Collections.singletonList(new UrlBasedResource(location)), null);
@@ -144,28 +146,34 @@ public class PathResourceResolverTests {
 
     // ISO-8859-1
     this.resolver.setLocationCharsets(Collections.singletonMap(location, StandardCharsets.ISO_8859_1));
-    this.resolver.resolveResource(new MockHttpServletRequest(), "/Ä ;ä.txt", locations, null);
+    this.resolver.resolveResource(getContext(), "/Ä ;ä.txt", locations, null);
 
     assertThat(location.getSavedRelativePath()).isEqualTo("%C4%20%3B%E4.txt");
 
     // UTF-8
     this.resolver.setLocationCharsets(Collections.singletonMap(location, StandardCharsets.UTF_8));
-    this.resolver.resolveResource(new MockHttpServletRequest(), "/Ä ;ä.txt", locations, null);
+    this.resolver.resolveResource(getContext(), "/Ä ;ä.txt", locations, null);
 
     assertThat(location.getSavedRelativePath()).isEqualTo("%C3%84%20%3B%C3%A4.txt");
 
     // UTF-8 by default
     this.resolver.setLocationCharsets(Collections.emptyMap());
-    this.resolver.resolveResource(new MockHttpServletRequest(), "/Ä ;ä.txt", locations, null);
+    ServletRequestContext request = getContext();
+    this.resolver.resolveResource(request, "/Ä ;ä.txt", locations, null);
 
     assertThat(location.getSavedRelativePath()).isEqualTo("%C3%84%20%3B%C3%A4.txt");
+  }
+
+  @NonNull
+  private ServletRequestContext getContext() {
+    return new ServletRequestContext(null, new MockHttpServletRequest(), null);
   }
 
   private Resource getResource(String filePath) {
     return new ClassPathResource("test/" + filePath, getClass());
   }
 
-  private static class TestUrlResource extends UrlResource {
+  private static class TestUrlResource extends UrlBasedResource {
 
     private String relativePath;
 
@@ -178,7 +186,7 @@ public class PathResourceResolverTests {
     }
 
     @Override
-    public Resource createRelative(String relativePath) throws MalformedURLException {
+    public UrlBasedResource createRelative(String relativePath) {
       this.relativePath = relativePath;
       return this;
     }

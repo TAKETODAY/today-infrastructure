@@ -79,7 +79,7 @@ public class ImportResourceTests {
   public void importWithPlaceholder() throws Exception {
     StandardApplicationContext ctx = new StandardApplicationContext();
     PropertySource<?> propertySource = new MapPropertySource("test",
-            Collections.<String, Object>singletonMap("test", "springframework"));
+            Collections.<String, Object>singletonMap("test", "taketoday"));
     ctx.getEnvironment().getPropertySources().addFirst(propertySource);
     ctx.register(ImportXmlConfig.class);
     ctx.refresh();

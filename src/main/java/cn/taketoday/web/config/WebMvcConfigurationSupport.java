@@ -37,8 +37,8 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -59,7 +59,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebApplicationContext;
@@ -500,8 +499,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   @Nullable
   @Component
   public HandlerRegistry resourceHandlerRegistry(
-          @Nullable ContentNegotiationManager contentNegotiationManager,
-          ConversionService conversionService, ResourceUrlProvider resourceUrlProvider) {
+          @Nullable ContentNegotiationManager contentNegotiationManager, ResourceUrlProvider resourceUrlProvider) {
 
     Assert.state(this.applicationContext != null, "No ApplicationContext set");
     PathMatchConfigurer pathConfig = getPathMatchConfigurer();
@@ -514,8 +512,11 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
       return null;
     }
 
-    handlerRegistry.setInterceptors(getInterceptors(conversionService, resourceUrlProvider));
     handlerRegistry.setCorsConfigurations(getCorsConfigurations());
+    handlerRegistry.setInterceptors(getInterceptors(resourceUrlProvider));
+    handlerRegistry.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
+    handlerRegistry.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
+
     return handlerRegistry;
   }
 
@@ -559,10 +560,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * {@link HandlerRegistry} instances with.
    * <p>This method cannot be overridden; use {@link #addInterceptors} instead.
    */
-  protected final Object[] getInterceptors(
-          ConversionService mvcConversionService,
-          ResourceUrlProvider mvcResourceUrlProvider) {
-
+  protected final Object[] getInterceptors(ResourceUrlProvider mvcResourceUrlProvider) {
     if (this.interceptors == null) {
       InterceptorRegistry registry = new InterceptorRegistry();
       addInterceptors(registry);
@@ -572,7 +570,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   }
 
   /**
-   * Override this method to add Spring MVC interceptors for
+   * Override this method to add Framework MVC interceptors for
    * pre- and post-processing of controller invocation.
    *
    * @see InterceptorRegistry

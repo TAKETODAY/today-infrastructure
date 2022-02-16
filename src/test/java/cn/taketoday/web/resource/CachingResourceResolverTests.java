@@ -35,6 +35,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -121,38 +122,42 @@ public class CachingResourceResolverTests {
     // 1. Resolve plain resource
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", file);
-    Resource expected = this.chain.resolveResource(request, file, this.locations);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    Resource expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     String cacheKey = resourceKey(file);
-    assertThat(this.cache.get(cacheKey).get()).isSameAs(expected);
+    assertThat(this.cache.get(cacheKey)).isSameAs(expected);
 
     // 2. Resolve with Accept-Encoding
 
     request = new MockHttpServletRequest("GET", file);
     request.addHeader("Accept-Encoding", "gzip ; a=b  , deflate ,  br  ; c=d ");
-    expected = this.chain.resolveResource(request, file, this.locations);
+    expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     cacheKey = resourceKey(file + "+encoding=br,gzip");
-    assertThat(this.cache.get(cacheKey).get()).isSameAs(expected);
+    assertThat(this.cache.get(cacheKey)).isSameAs(expected);
 
     // 3. Resolve with Accept-Encoding but no matching codings
 
     request = new MockHttpServletRequest("GET", file);
     request.addHeader("Accept-Encoding", "deflate");
-    expected = this.chain.resolveResource(request, file, this.locations);
+    expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     cacheKey = resourceKey(file);
-    assertThat(this.cache.get(cacheKey).get()).isSameAs(expected);
+    assertThat(this.cache.get(cacheKey)).isSameAs(expected);
   }
 
   @Test
   public void resolveResourceNoAcceptEncoding() {
     String file = "bar.css";
     MockHttpServletRequest request = new MockHttpServletRequest("GET", file);
-    Resource expected = this.chain.resolveResource(request, file, this.locations);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    Resource expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     String cacheKey = resourceKey(file);
-    Object actual = this.cache.get(cacheKey).get();
+    Object actual = this.cache.get(cacheKey);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -165,11 +170,13 @@ public class CachingResourceResolverTests {
     this.cache.put(resourceKey("bar.css+encoding=gzip"), gzipped);
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "bar.css");
-    assertThat(this.chain.resolveResource(request, "bar.css", this.locations)).isSameAs(resource);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    assertThat(this.chain.resolveResource(requestContext, "bar.css", this.locations)).isSameAs(resource);
 
     request = new MockHttpServletRequest("GET", "bar.css");
     request.addHeader("Accept-Encoding", "gzip");
-    assertThat(this.chain.resolveResource(request, "bar.css", this.locations)).isSameAs(gzipped);
+    assertThat(this.chain.resolveResource(requestContext, "bar.css", this.locations)).isSameAs(gzipped);
   }
 
   private static String resourceKey(String key) {

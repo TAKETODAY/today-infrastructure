@@ -30,15 +30,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.config.PathMatchConfigurer;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
+import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.util.UriUtils;
-import cn.taketoday.web.util.pattern.PathPatternParser;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,16 +101,16 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   private DispatcherServlet initDispatcherServlet(boolean usePathPatterns, Class<?>... configClasses)
           throws ServletException {
 
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
     context.register(configClasses);
     if (usePathPatterns) {
       context.register(PathPatternParserConfig.class);
     }
-    context.setServletConfig(this.servletConfig);
+//    context.setServletConfig(this.servletConfig);
     context.refresh();
 
-    DispatcherServlet servlet = new DispatcherServlet();
-    servlet.setApplicationContext(context);
+    DispatcherServlet servlet = new DispatcherServlet(context);
+//    servlet.setApplicationContext(context);
     servlet.init(this.servletConfig);
     return servlet;
   }
@@ -121,10 +123,10 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   }
 
   @EnableWebMvc
-  static class WebConfig implements WebMvcConfigurer {
+  static class WebConfig implements WebMvcConfiguration {
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void configureResourceHandler(ResourceHandlerRegistry registry) {
       ClassPathResource classPathLocation = new ClassPathResource("", getClass());
       String path = getPath(classPathLocation);
 
@@ -138,13 +140,13 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     }
 
     protected void registerFileSystemLocation(String pattern, String path, ResourceHandlerRegistry registry) {
-      FileSystemResource fileSystemLocation = new FileSystemResource(path);
+      FileBasedResource fileSystemLocation = new FileBasedResource(path);
       registry.addResourceHandler(pattern).addResourceLocations(fileSystemLocation);
     }
 
     protected void registerUrlLocation(String pattern, String path, ResourceHandlerRegistry registry) {
       try {
-        UrlResource urlLocation = new UrlResource(path);
+        UrlBasedResource urlLocation = new UrlBasedResource(path);
         registry.addResourceHandler(pattern).addResourceLocations(urlLocation);
       }
       catch (MalformedURLException ex) {
@@ -162,12 +164,8 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     }
   }
 
-  static class PathPatternParserConfig implements WebMvcConfigurer {
+  static class PathPatternParserConfig implements WebMvcConfiguration {
 
-    @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-      configurer.setPatternParser(new PathPatternParser());
-    }
   }
 
 }

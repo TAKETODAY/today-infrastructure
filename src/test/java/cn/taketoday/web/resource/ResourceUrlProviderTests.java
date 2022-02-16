@@ -36,6 +36,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,13 +83,14 @@ public class ResourceUrlProviderTests {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setContextPath("/");
     request.setRequestURI("/");
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
     String url = "/resources/foo.css?foo=bar&url=https://example.org";
-    String resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
+    String resolvedUrl = this.urlProvider.getForRequestUrl(requestContext, url);
     assertThat(resolvedUrl).isEqualTo("/resources/foo.css?foo=bar&url=https://example.org");
 
     url = "/resources/foo.css#hash";
-    resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
+    resolvedUrl = this.urlProvider.getForRequestUrl(requestContext, url);
     assertThat(resolvedUrl).isEqualTo("/resources/foo.css#hash");
   }
 
@@ -99,7 +101,9 @@ public class ResourceUrlProviderTests {
     request.setContextPath("/contextpath-longer-than-request-path");
     request.setRequestURI("/contextpath-longer-than-request-path/style.css");
     String url = "/resources/foo.css";
-    String resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    String resolvedUrl = this.urlProvider.getForRequestUrl(requestContext, url);
     assertThat((Object) resolvedUrl).isNull();
   }
 

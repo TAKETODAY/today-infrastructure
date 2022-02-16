@@ -35,6 +35,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +79,10 @@ public class EncodedResourceResolverTests {
     gzippedFiles.create(file);
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader("Accept-Encoding", "gzip");
-    Resource actual = this.resolver.resolveResource(request, file, this.locations);
+
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    Resource actual = this.resolver.resolveResource(requestContext, file, this.locations);
 
     assertThat(actual.toString()).isEqualTo(getResource(file + ".gz").toString());
     assertThat(actual.getName()).isEqualTo(getResource(file).getName());
@@ -96,7 +100,9 @@ public class EncodedResourceResolverTests {
     String file = "foo-e36d2e05253c6c7085a91522ce43a0b4.css";
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addHeader("Accept-Encoding", "gzip");
-    Resource resolved = this.resolver.resolveResource(request, file, this.locations);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    Resource resolved = this.resolver.resolveResource(requestContext, file, this.locations);
 
     assertThat(resolved.toString()).isEqualTo(getResource("foo.css.gz").toString());
     assertThat(resolved.getName()).isEqualTo(getResource("foo.css").getName());
@@ -111,7 +117,9 @@ public class EncodedResourceResolverTests {
     gzippedFiles.create(file);
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/js/foo.js");
     request.addHeader("Accept-Encoding", "gzip");
-    Resource resolved = this.resolver.resolveResource(request, file, this.locations);
+    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+
+    Resource resolved = this.resolver.resolveResource(requestContext, file, this.locations);
 
     assertThat(resolved.toString()).isEqualTo(getResource(file + ".gz").toString());
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());
@@ -120,7 +128,7 @@ public class EncodedResourceResolverTests {
 
     // 2. Resolve unencoded resource
     request = new MockHttpServletRequest("GET", "/js/foo.js");
-    resolved = this.resolver.resolveResource(request, file, this.locations);
+    resolved = this.resolver.resolveResource(requestContext, file, this.locations);
 
     assertThat(resolved.toString()).isEqualTo(getResource(file).toString());
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());
