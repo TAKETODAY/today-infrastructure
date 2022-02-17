@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
@@ -35,7 +36,6 @@ import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -133,7 +133,13 @@ public class BaseViewTests {
     pathVars.put("one", new HashMap<>());
     pathVars.put("two", new Object());
     RequestContext requestContext = ServletUtils.getRequestContext(request, response);
-    requestContext.setPathMatchInfo(new PathMatchInfo(pathVars, null));
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext) {
+      @Override
+      public Map<String, String> getUriVariables() {
+        return pathVars;
+      }
+    };
+    requestContext.setMatchingMetadata(metadata);
 
     tv.render(new HashMap<>(), requestContext);
 
@@ -189,7 +195,14 @@ public class BaseViewTests {
     pathVars.put("one", "bar");
     pathVars.put("something", "else");
     RequestContext requestContext = ServletUtils.getRequestContext(request, response);
-    requestContext.setPathMatchInfo(new PathMatchInfo(pathVars, null));
+
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext) {
+      @Override
+      public Map<String, String> getUriVariables() {
+        return pathVars;
+      }
+    };
+    requestContext.setMatchingMetadata(metadata);
 
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());

@@ -42,6 +42,7 @@ import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
@@ -49,7 +50,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -59,9 +59,9 @@ import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriUtils;
+import cn.taketoday.web.util.pattern.PathPattern;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -288,9 +288,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     }
 
     if (body != null) {
-      MediaType[] producibleMediaTypes =
-              (MediaType[]) context.getAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-
+      MediaType[] producibleMediaTypes = context.getMatchingMetadata().getProducibleMediaTypes();
       if (isContentTypePreset || ObjectUtils.isNotEmpty(producibleMediaTypes)) {
         throw new HttpMessageNotWritableException(
                 "No converter for [" + valueType + "] with preset Content-Type '" + contentType + "'");
@@ -351,8 +349,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   protected List<MediaType> getProducibleMediaTypes(
           RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
 
-    MediaType[] mediaTypes =
-            (MediaType[]) request.getAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+    MediaType[] mediaTypes = request.getMatchingMetadata().getProducibleMediaTypes();
     if (ObjectUtils.isNotEmpty(mediaTypes)) {
       return Arrays.asList(mediaTypes);
     }
@@ -443,13 +440,12 @@ public abstract class AbstractMessageConverterMethodProcessor
     if (this.safeExtensions.contains(extension)) {
       return false;
     }
-    String pattern = (String) request.getAttribute(HandlerRegistry.BEST_MATCHING_PATTERN_ATTRIBUTE);
-    if (pattern != null && pattern.endsWith("." + extension)) {
+    PathPattern bestMatchingPattern = request.getMatchingMetadata().getBestMatchingPattern();
+    if (bestMatchingPattern != null && bestMatchingPattern.getPatternString().endsWith("." + extension)) {
       return false;
     }
     if (extension.equals("html")) {
-      String name = HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE;
-      MediaType[] mediaTypes = (MediaType[]) request.getAttribute(name);
+      MediaType[] mediaTypes = request.getMatchingMetadata().getProducibleMediaTypes();
       if (ObjectUtils.isNotEmpty(mediaTypes) && ObjectUtils.containsElement(mediaTypes, MediaType.TEXT_HTML)) {
         return false;
       }

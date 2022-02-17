@@ -67,6 +67,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
+import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.DefaultExceptionHandler;
@@ -524,6 +525,8 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   }
 
   @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerRegistry webFunctionHandlerRegistry() {
     FunctionHandlerRegistry functionHandlerRegistry = new FunctionHandlerRegistry();
     functionHandlerRegistry.setApplicationContext(getApplicationContext());
@@ -536,8 +539,17 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   protected void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) { }
 
   @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   FunctionRequestAdapter functionRequestAdapter() {
     return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE + 1);
+  }
+
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  RequestHandlerAdapter requestHandlerAdapter() {
+    return new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE);
   }
 
   /**
@@ -551,6 +563,8 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    * A {@link ResourceUrlProvider} bean for use with the MVC dispatcher.
    */
   @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ResourceUrlProvider mvcResourceUrlProvider() {
     return new ResourceUrlProvider();
   }

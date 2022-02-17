@@ -35,7 +35,6 @@ import cn.taketoday.web.RequestBindingException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.registry.HandlerRegistry;
 
 /**
  * Resolves arguments annotated with {@link MatrixParam @MatrixParam}.
@@ -73,10 +72,7 @@ public class MatrixParamParameterResolvingStrategy extends AbstractNamedValueRes
   @Override
   protected Object resolveName(
           String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
-
-    @SuppressWarnings("unchecked")
-    Map<String, MultiValueMap<String, String>> pathParameters =
-            (Map<String, MultiValueMap<String, String>>) request.getAttribute(HandlerRegistry.MATRIX_VARIABLES_ATTRIBUTE);
+    Map<String, MultiValueMap<String, String>> pathParameters = request.getMatchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;
     }

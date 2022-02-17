@@ -544,7 +544,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   @Nullable
   protected Resource getResource(RequestContext request) throws IOException {
-    String path = request.pathWithinApplication().value();
+    String path = request.getMatchingMetadata().getPathWithinMapping().value();
 
     path = processPath(path);
     if (!StringUtils.hasText(path) || isInvalidPath(path)) {

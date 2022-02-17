@@ -63,7 +63,7 @@ public class PathVariableParameterResolvingStrategy extends AbstractNamedValueRe
   @Override
   protected Object resolveName(
           String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-    return context.pathMatchInfo().getUriVariable(name);
+    return context.getMatchingMetadata().getUriVariable(name);
   }
 
   @Override

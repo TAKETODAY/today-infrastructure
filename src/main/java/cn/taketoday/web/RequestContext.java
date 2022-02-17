@@ -56,17 +56,13 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Experimental;
-import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
-import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.ModelAttributes;
@@ -144,9 +140,6 @@ public abstract class RequestContext
   protected PathContainer pathWithinApplication;
 
   /** @since 4.0 */
-  protected PathMatchInfo pathMatchInfo = PathMatchInfo.EMPTY;
-
-  /** @since 4.0 */
   protected Locale locale;
 
   /** @since 4.0 */
@@ -156,6 +149,8 @@ public abstract class RequestContext
   protected final WebApplicationContext webApplicationContext;
 
   protected boolean notModified = false;
+
+  private HandlerMatchingMetadata matchingMetadata;
 
   protected RequestContext(WebApplicationContext context) {
     this.webApplicationContext = context;
@@ -285,14 +280,16 @@ public abstract class RequestContext
     return lookupPath;
   }
 
-  @Experimental
-  public final PathContainer pathWithinApplication() {
-    PathContainer pathWithinApplication = this.pathWithinApplication;
-    if (pathWithinApplication == null) {
-      pathWithinApplication = getLookupPath().pathWithinApplication();
-      this.pathWithinApplication = pathWithinApplication;
+  public void setMatchingMetadata(HandlerMatchingMetadata handlerMatchingMetadata) {
+    this.matchingMetadata = handlerMatchingMetadata;
+  }
+
+  public HandlerMatchingMetadata getMatchingMetadata() {
+    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
+    if (matchingMetadata == null) {
+      return new HandlerMatchingMetadata(this);
     }
-    return pathWithinApplication;
+    return matchingMetadata;
   }
 
   protected abstract String doGetRequestPath();
@@ -1280,47 +1277,6 @@ public abstract class RequestContext
   public abstract <T> T unwrapResponse(Class<T> responseClass);
 
   // ------------------
-
-  /**
-   * Request body object
-   */
-  public Object requestBody() {
-    return requestBody;
-  }
-
-  /**
-   * Cache request body object
-   * <p>
-   * If input body is {@code null} will cache {@link cn.taketoday.lang.NullValue#INSTANCE}
-   * </p>
-   *
-   * @param body Target request body object
-   */
-  public void setRequestBody(Object body) {
-    this.requestBody = body != null ? body : NullValue.INSTANCE;
-  }
-
-  public void setPathMatchInfo(PathMatchInfo pathMatchInfo) {
-    this.pathMatchInfo = pathMatchInfo;
-  }
-
-  public PathMatchInfo pathMatchInfo() {
-    return pathMatchInfo;
-  }
-
-  public String[] pathVariables() {
-    return pathVariables;
-  }
-
-  /**
-   * set current {@link PathVariable}s
-   *
-   * @param variables {@link PathVariable}s
-   * @return input variables
-   */
-  public String[] pathVariables(String[] variables) {
-    return this.pathVariables = variables;
-  }
 
   // Model
 

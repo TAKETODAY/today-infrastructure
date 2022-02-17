@@ -38,10 +38,10 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.util.UriUtils;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 
 /**
  * View that redirects to an absolute, context relative, or current request
@@ -362,9 +362,9 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   }
 
   private Map<String, String> getCurrentRequestUriVariables(RequestContext request) {
-    PathMatchInfo pathMatchInfo = request.pathMatchInfo();
-    if (pathMatchInfo != null) {
-      return pathMatchInfo.getUriVariables();
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      return matchingMetadata.getUriVariables();
     }
     return Collections.emptyMap();
   }

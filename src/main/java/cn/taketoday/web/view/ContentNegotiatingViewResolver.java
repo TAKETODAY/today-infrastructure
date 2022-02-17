@@ -34,11 +34,12 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
@@ -47,7 +48,6 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
-import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 
 /**
@@ -272,12 +272,10 @@ public class ContentNegotiatingViewResolver
     }
   }
 
-  @SuppressWarnings("unchecked")
   private List<MediaType> getProducibleMediaTypes(RequestContext context) {
-    Set<MediaType> mediaTypes = (Set<MediaType>)
-            context.getAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-    if (CollectionUtils.isNotEmpty(mediaTypes)) {
-      return new ArrayList<>(mediaTypes);
+    MediaType[] mediaTypes = context.getMatchingMetadata().getProducibleMediaTypes();
+    if (ObjectUtils.isNotEmpty(mediaTypes)) {
+      return CollectionUtils.newArrayList(mediaTypes);
     }
     else {
       return Collections.singletonList(MediaType.ALL);

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -26,7 +27,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author TODAY 2019-12-23 21:50
  */
-public class RequestHandlerAdapter extends AbstractHandlerAdapter {
+public class RequestHandlerAdapter extends OrderedSupport implements HandlerAdapter {
 
   public RequestHandlerAdapter() { }
 

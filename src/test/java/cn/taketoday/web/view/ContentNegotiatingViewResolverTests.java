@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.http.MediaType;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.StaticWebApplicationContext;
@@ -85,8 +86,11 @@ public class ContentNegotiatingViewResolverTests {
 
   @Test
   public void getMediaTypeAcceptHeaderWithProduces() throws Exception {
-    Set<MediaType> producibleTypes = Collections.singleton(MediaType.APPLICATION_XHTML_XML);
-    request.setAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, producibleTypes);
+
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestContext);
+    matchingMetadata.setProducibleMediaTypes(new MediaType[] { MediaType.APPLICATION_XHTML_XML });
+    requestContext.setMatchingMetadata(matchingMetadata);
+
     request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");
     viewResolver.afterPropertiesSet();
     List<MediaType> result = viewResolver.getMediaTypes(requestContext);

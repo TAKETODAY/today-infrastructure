@@ -34,15 +34,15 @@ import java.util.StringTokenizer;
 
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.ContextExposingRequestContext;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 
 /**
  * Abstract base class for {@link View}
@@ -347,9 +347,9 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
     }
 
     Map<String, String> pathVars = null;
-    PathMatchInfo pathMatchInfo = context.pathMatchInfo();
-    if (exposePathVariables && pathMatchInfo != null) {
-      pathVars = pathMatchInfo.getUriVariables();
+    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    if (exposePathVariables && matchingMetadata != null) {
+      pathVars = matchingMetadata.getUriVariables();
       size += pathVars.size();
     }
 

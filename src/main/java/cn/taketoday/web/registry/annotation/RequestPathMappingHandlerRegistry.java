@@ -22,28 +22,24 @@ package cn.taketoday.web.registry.annotation;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
@@ -263,6 +259,7 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
         }
       }
     }
+    HandlerMatchingMetadata matchingMetadata;
 
     // test produces (Accept header)
     MediaType[] produces = mappingInfo.produces();
@@ -273,19 +270,15 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
           return false;
         }
       }
-      context.setAttribute(HandlerRegistry.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, produces.clone());
+      matchingMetadata = new HandlerMatchingMetadata(
+              context.getRequestPath(), context.getLookupPath(), mappingInfo.getPathPattern());
+      matchingMetadata.setProducibleMediaTypes(produces.clone());
     }
-
-    // PathMatchInfo
-    PathMatchInfo extract = mappingInfo.matches(context.getLookupPath());
-    if (extract != null) {
-      context.setPathMatchInfo(extract);
-      Map<String, String> uriVariables = extract.getUriVariables();
-      context.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, extractMatrixVariables(uriVariables));
-      // URI_TEMPLATE_VARIABLES_ATTRIBUTE
-      uriVariables = WebUtils.decodePathVariables(uriVariables);
-      context.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriVariables);
+    else {
+      matchingMetadata = new HandlerMatchingMetadata(
+              context.getRequestPath(), context.getLookupPath(), mappingInfo.getPathPattern());
     }
+    context.setMatchingMetadata(matchingMetadata);
     return true;
   }
 
@@ -307,34 +300,6 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
       }
     }
     return true;
-  }
-
-  private Map<String, MultiValueMap<String, String>> extractMatrixVariables(Map<String, String> uriVariables) {
-    LinkedHashMap<String, MultiValueMap<String, String>> result = new LinkedHashMap<>();
-    for (Map.Entry<String, String> entry : uriVariables.entrySet()) {
-      String uriVarKey = entry.getKey();
-      String uriVarValue = entry.getValue();
-
-      int equalsIndex = uriVarValue.indexOf('=');
-      if (equalsIndex != -1) {
-        int semicolonIndex = uriVarValue.indexOf(';');
-        if (semicolonIndex != -1 && semicolonIndex != 0) {
-          uriVariables.put(uriVarKey, uriVarValue.substring(0, semicolonIndex));
-        }
-
-        String matrixVariables;
-        if (semicolonIndex == -1 || semicolonIndex == 0 || equalsIndex < semicolonIndex) {
-          matrixVariables = uriVarValue;
-        }
-        else {
-          matrixVariables = uriVarValue.substring(semicolonIndex + 1);
-        }
-
-        MultiValueMap<String, String> vars = WebUtils.parseMatrixVariables(matrixVariables);
-        result.put(uriVarKey, WebUtils.decodeMatrixVariables(vars));
-      }
-    }
-    return result;
   }
 
 }

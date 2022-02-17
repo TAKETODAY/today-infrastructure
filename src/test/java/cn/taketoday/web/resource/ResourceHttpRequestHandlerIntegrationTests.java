@@ -71,7 +71,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo.css");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
-    DispatcherServlet servlet = initDispatcherServlet(usePathPatterns, WebConfig.class);
+    DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
     servlet.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
@@ -86,7 +86,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
-    DispatcherServlet servlet = initDispatcherServlet(usePathPatterns, WebConfig.class);
+    DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
     servlet.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
@@ -95,7 +95,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
   }
 
-  private DispatcherServlet initDispatcherServlet(boolean usePathPatterns, Class<?>... configClasses)
+  private DispatcherServlet initDispatcherServlet(Class<?>... configClasses)
           throws ServletException {
 
     StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();

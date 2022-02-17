@@ -23,10 +23,11 @@ package cn.taketoday.web.accept;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
@@ -143,7 +144,10 @@ public abstract class AbstractMappingContentNegotiationStrategy
           throws HttpMediaTypeNotAcceptableException {
 
     if (!isUseRegisteredExtensionsOnly()) {
-      return MediaTypeFactory.getMediaType("file." + key).orElse(null);
+      Optional<MediaType> mediaType = MediaTypeFactory.getMediaType("file." + key);
+      if (mediaType.isPresent()) {
+        return mediaType.get();
+      }
     }
     if (isIgnoreUnknownExtensions()) {
       return null;

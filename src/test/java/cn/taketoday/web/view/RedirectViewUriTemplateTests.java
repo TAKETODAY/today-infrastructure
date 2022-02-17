@@ -26,12 +26,12 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -111,7 +111,14 @@ class RedirectViewUriTemplateTests {
     currentRequestUriTemplateVars.put("var1", "v1");
     currentRequestUriTemplateVars.put("name", "v2");
     currentRequestUriTemplateVars.put("var3", "v3");
-    context.setPathMatchInfo(new PathMatchInfo(currentRequestUriTemplateVars, null));
+
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(context) {
+      @Override
+      public Map<String, String> getUriVariables() {
+        return currentRequestUriTemplateVars;
+      }
+    };
+    context.setMatchingMetadata(metadata);
 
     String url = "https://url.somewhere.com";
     RedirectView redirectView = new RedirectView(url + "/{key1}/{var1}/{name}");

@@ -35,7 +35,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.registry.HandlerRegistry;
 
 /**
  * Resolves arguments of type {@link Map} annotated with {@link MatrixParam @MatrixParam}
@@ -63,17 +62,15 @@ public class MatrixParamMapParameterResolvingStrategy implements ParameterResolv
   @Nullable
   @Override
   public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    MethodParameter parameter = resolvable.getParameter();
 
-    @SuppressWarnings("unchecked")
-    Map<String, MultiValueMap<String, String>> matrixVariables =
-            (Map<String, MultiValueMap<String, String>>) context.getAttribute(HandlerRegistry.MATRIX_VARIABLES_ATTRIBUTE);
-
+    Map<String, MultiValueMap<String, String>> matrixVariables = context.getMatchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(matrixVariables)) {
       return Collections.emptyMap();
     }
 
     MultiValueMap<String, String> map = MultiValueMap.fromLinkedHashMap();
+
+    MethodParameter parameter = resolvable.getParameter();
     MatrixParam ann = parameter.getParameterAnnotation(MatrixParam.class);
     Assert.state(ann != null, "No MatrixVariable annotation");
     String pathVariable = ann.pathVar();

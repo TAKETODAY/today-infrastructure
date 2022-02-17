@@ -25,13 +25,12 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
@@ -141,6 +140,8 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     String requestPath = request.getRequestPath();
     Object handler = getDirectMatch(requestPath, request);
     if (handler != null) {
+      HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestPath, request.getLookupPath(), null);
+      request.setMatchingMetadata(matchingMetadata);
       return handler;
     }
     RequestPath lookupPath = request.getLookupPath();
@@ -162,8 +163,8 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
       }
     }
 
-    PathPattern pattern = matches.get(0);
-    handler = pathPatternHandlerMap.get(pattern);
+    PathPattern bestMatchingPattern = matches.get(0);
+    handler = pathPatternHandlerMap.get(bestMatchingPattern);
 
     // Bean name or resolved handler?
     if (handler instanceof String handlerName) {
@@ -172,17 +173,8 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
     validateHandler(handler, request);
 
-    // TODO 优化
-    PathContainer pathWithinMapping = pattern.extractPathWithinPattern(lookupPath);
-    PathMatchInfo matchInfo = pattern.matchAndExtract(lookupPath);
-    Assert.state(matchInfo != null, "Expected a match");
-
-    request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, handler);
-    request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, pattern);
-    request.setAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, pathWithinMapping);
-    request.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, matchInfo.getMatrixVariables());
-    request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, matchInfo.getUriVariables());
-
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestPath, lookupPath, bestMatchingPattern);
+    request.setMatchingMetadata(matchingMetadata);
     return handler;
   }
 

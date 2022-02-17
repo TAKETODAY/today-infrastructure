@@ -41,7 +41,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -297,19 +296,14 @@ public class RequestContextDecorator extends RequestContext {
   public <T> T unwrapResponse(Class<T> responseClass) { return delegate.unwrapResponse(responseClass); }
 
   @Override
-  public Object requestBody() { return delegate.requestBody(); }
+  public HandlerMatchingMetadata getMatchingMetadata() {
+    return delegate.getMatchingMetadata();
+  }
 
   @Override
-  public void setRequestBody(Object body) { delegate.setRequestBody(body); }
-
-  @Override
-  public PathMatchInfo pathMatchInfo() { return delegate.pathMatchInfo(); }
-
-  @Override
-  public String[] pathVariables() { return delegate.pathVariables(); }
-
-  @Override
-  public String[] pathVariables(String[] variables) { return delegate.pathVariables(variables); }
+  public void setMatchingMetadata(HandlerMatchingMetadata handlerMatchingMetadata) {
+    delegate.setMatchingMetadata(handlerMatchingMetadata);
+  }
 
   @Override
   public Model getModel() {
