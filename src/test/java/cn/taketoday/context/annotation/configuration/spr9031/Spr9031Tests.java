@@ -39,7 +39,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * Unit tests cornering bug SPR-9031.
  *
  * @author Chris Beams
- * @since 3.1.1
+ * @since 4.0
  */
 public class Spr9031Tests {
 

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * A test fixture with a test sub-class of AbstractMappingContentNegotiationStrategy.
  *
  * @author Rossen Stoyanchev
- * @since 3.2
+ * @since 4.0
  */
 public class MappingContentNegotiationStrategyTests {
 

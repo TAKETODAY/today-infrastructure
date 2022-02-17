@@ -33,7 +33,6 @@ import cn.taketoday.util.NumberUtils;
  * delegates to {@link NumberUtils#convertNumberToTargetClass(Number, Class)} to perform the conversion.
  *
  * @author Keith Donald
- * @since 3.0
  * @see Byte
  * @see Short
  * @see Integer
@@ -43,32 +42,32 @@ import cn.taketoday.util.NumberUtils;
  * @see Double
  * @see java.math.BigDecimal
  * @see NumberUtils
+ * @since 3.0
  */
 final class NumberToNumberConverterFactory implements ConverterFactory<Number, Number>, ConditionalConverter {
 
-	@Override
-	public <T extends Number> Converter<Number, T> getConverter(Class<T> targetType) {
-		return new NumberToNumber<>(targetType);
-	}
+  @Override
+  public <T extends Number> Converter<Number, T> getConverter(Class<T> targetType) {
+    return new NumberToNumber<>(targetType);
+  }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		return !sourceType.equals(targetType);
-	}
+  @Override
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return !sourceType.equals(targetType);
+  }
 
+  private static final class NumberToNumber<T extends Number> implements Converter<Number, T> {
 
-	private static final class NumberToNumber<T extends Number> implements Converter<Number, T> {
+    private final Class<T> targetType;
 
-		private final Class<T> targetType;
+    NumberToNumber(Class<T> targetType) {
+      this.targetType = targetType;
+    }
 
-		NumberToNumber(Class<T> targetType) {
-			this.targetType = targetType;
-		}
-
-		@Override
-		public T convert(Number source) {
-			return NumberUtils.convertNumberToTargetClass(source, this.targetType);
-		}
-	}
+    @Override
+    public T convert(Number source) {
+      return NumberUtils.convertNumberToTargetClass(source, this.targetType);
+    }
+  }
 
 }

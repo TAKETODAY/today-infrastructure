@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Unit tests for the {@link ReaderEditor} class.
  *
  * @author Juergen Hoeller
- * @since 4.2
+ * @since 4.0
  */
 public class ReaderEditorTests {
 

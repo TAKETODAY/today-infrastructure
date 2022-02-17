@@ -28,17 +28,17 @@ import cn.taketoday.core.conversion.Converter;
  * This converter will not match enums with interfaces that can be converted.
  *
  * @author Yanming Zhou
- * @since 4.3
+ * @since 4.0
  */
 final class EnumToIntegerConverter extends AbstractConditionalEnumConverter implements Converter<Enum<?>, Integer> {
 
-	public EnumToIntegerConverter(ConversionService conversionService) {
-		super(conversionService);
-	}
+  public EnumToIntegerConverter(ConversionService conversionService) {
+    super(conversionService);
+  }
 
-	@Override
-	public Integer convert(Enum<?> source) {
-		return source.ordinal();
-	}
+  @Override
+  public Integer convert(Enum<?> source) {
+    return source.ordinal();
+  }
 
 }

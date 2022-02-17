@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * container lifecycle issues when BFPPs are in the mix.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class ConfigurationClassAndBFPPTests {
 

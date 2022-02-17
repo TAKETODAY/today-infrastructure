@@ -20,22 +20,22 @@
 
 package cn.taketoday.core.conversion.support;
 
+import java.util.TimeZone;
+
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.util.StringUtils;
-
-import java.util.TimeZone;
 
 /**
  * Convert a String to a {@link TimeZone}.
  *
  * @author Stephane Nicoll
- * @since 4.2
+ * @since 4.0
  */
 class StringToTimeZoneConverter implements Converter<String, TimeZone> {
 
-	@Override
-	public TimeZone convert(String source) {
-		return StringUtils.parseTimeZoneString(source);
-	}
+  @Override
+  public TimeZone convert(String source) {
+    return StringUtils.parseTimeZoneString(source);
+  }
 
 }

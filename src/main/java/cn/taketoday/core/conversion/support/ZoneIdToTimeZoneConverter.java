@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.Converter;
-
 import java.time.ZoneId;
 import java.util.TimeZone;
+
+import cn.taketoday.core.conversion.Converter;
 
 /**
  * Simple converter from Java 8's {@link ZoneId} to {@link TimeZone}.
@@ -35,14 +35,14 @@ import java.util.TimeZone;
  * {@link java.util.Date#from(java.time.Instant)} and {@link java.util.Date#toInstant()}.
  *
  * @author Juergen Hoeller
- * @since 4.0
  * @see TimeZone#getTimeZone(ZoneId)
+ * @since 4.0
  */
 final class ZoneIdToTimeZoneConverter implements Converter<ZoneId, TimeZone> {
 
-	@Override
-	public TimeZone convert(ZoneId source) {
-		return TimeZone.getTimeZone(source);
-	}
+  @Override
+  public TimeZone convert(ZoneId source) {
+    return TimeZone.getTimeZone(source);
+  }
 
 }

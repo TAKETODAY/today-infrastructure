@@ -20,21 +20,21 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.Converter;
-
 import java.util.Currency;
+
+import cn.taketoday.core.conversion.Converter;
 
 /**
  * Convert a String to a {@link Currency}.
  *
  * @author Stephane Nicoll
- * @since 4.2
+ * @since 4.0
  */
 class StringToCurrencyConverter implements Converter<String, Currency> {
 
-	@Override
-	public Currency convert(String source) {
-		return Currency.getInstance(source);
-	}
+  @Override
+  public Currency convert(String source) {
+    return Currency.getInstance(source);
+  }
 
 }

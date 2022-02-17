@@ -20,25 +20,25 @@
 
 package cn.taketoday.core.conversion.support;
 
+import java.util.UUID;
+
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-
-import java.util.UUID;
 
 /**
  * Converts from a String to a {@link UUID}.
  *
  * @author Phillip Webb
- * @since 3.2
  * @see UUID#fromString
+ * @since 4.0
  */
 final class StringToUUIDConverter implements Converter<String, UUID> {
 
-	@Override
-	@Nullable
-	public UUID convert(String source) {
-		return (StringUtils.hasText(source) ? UUID.fromString(source.trim()) : null);
-	}
+  @Override
+  @Nullable
+  public UUID convert(String source) {
+    return (StringUtils.hasText(source) ? UUID.fromString(source.trim()) : null);
+  }
 
 }

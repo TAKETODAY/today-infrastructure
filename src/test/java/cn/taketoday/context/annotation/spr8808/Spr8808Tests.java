@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Configuration;
  * would result in a ConflictingBeanDefinitionException.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class Spr8808Tests {
 

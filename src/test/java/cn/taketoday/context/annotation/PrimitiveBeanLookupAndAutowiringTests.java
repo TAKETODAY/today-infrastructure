@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * wrapper types, whereas the latter does not.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class PrimitiveBeanLookupAndAutowiringTests {
 

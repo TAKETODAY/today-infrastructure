@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 class PropertySourceAnnotationTests {
 

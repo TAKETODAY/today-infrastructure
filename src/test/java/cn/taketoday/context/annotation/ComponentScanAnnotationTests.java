@@ -32,7 +32,7 @@ import cn.taketoday.core.type.filter.TypeFilter;
  *
  * @author Chris Beams
  * @see ComponentScanAnnotationIntegrationTests
- * @since 3.1
+ * @since 4.0
  */
 public class ComponentScanAnnotationTests {
 

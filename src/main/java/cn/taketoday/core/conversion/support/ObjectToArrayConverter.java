@@ -20,15 +20,15 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConditionalGenericConverter;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.Set;
+
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Converts an Object to a single-element array containing the Object.
@@ -40,37 +40,35 @@ import java.util.Set;
  */
 final class ObjectToArrayConverter implements ConditionalGenericConverter {
 
-	private final ConversionService conversionService;
+  private final ConversionService conversionService;
 
+  public ObjectToArrayConverter(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
 
-	public ObjectToArrayConverter(ConversionService conversionService) {
-		this.conversionService = conversionService;
-	}
+  @Override
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Object.class, Object[].class));
+  }
 
+  @Override
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(sourceType, targetType.getElementDescriptor(),
+            this.conversionService);
+  }
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(Object.class, Object[].class));
-	}
-
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		return ConversionUtils.canConvertElements(sourceType, targetType.getElementDescriptor(),
-				this.conversionService);
-	}
-
-	@Override
-	@Nullable
-	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (source == null) {
-			return null;
-		}
-		TypeDescriptor targetElementType = targetType.getElementDescriptor();
-		Assert.state(targetElementType != null, "No target element type");
-		Object target = Array.newInstance(targetElementType.getType(), 1);
-		Object targetElement = this.conversionService.convert(source, sourceType, targetElementType);
-		Array.set(target, 0, targetElement);
-		return target;
-	}
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    TypeDescriptor targetElementType = targetType.getElementDescriptor();
+    Assert.state(targetElementType != null, "No target element type");
+    Object target = Array.newInstance(targetElementType.getType(), 1);
+    Object targetElement = this.conversionService.convert(source, sourceType, targetElementType);
+    Array.set(target, 0, targetElement);
+    return target;
+  }
 
 }

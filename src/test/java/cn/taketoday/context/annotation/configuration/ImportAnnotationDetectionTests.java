@@ -41,7 +41,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * is processed last.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 @SuppressWarnings("resource")
 public class ImportAnnotationDetectionTests {

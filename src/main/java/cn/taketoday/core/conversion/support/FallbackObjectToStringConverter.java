@@ -20,13 +20,13 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConditionalGenericConverter;
-import cn.taketoday.lang.Nullable;
-
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Set;
+
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object
@@ -42,32 +42,32 @@ import java.util.Set;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 3.0
  * @see ObjectToObjectConverter
+ * @since 3.0
  */
 final class FallbackObjectToStringConverter implements ConditionalGenericConverter {
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(Object.class, String.class));
-	}
+  @Override
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Object.class, String.class));
+  }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		Class<?> sourceClass = sourceType.getObjectType();
-		if (String.class == sourceClass) {
-			// no conversion required
-			return false;
-		}
-		return (CharSequence.class.isAssignableFrom(sourceClass) ||
-				StringWriter.class.isAssignableFrom(sourceClass) ||
-				ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceClass, String.class));
-	}
+  @Override
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    Class<?> sourceClass = sourceType.getObjectType();
+    if (String.class == sourceClass) {
+      // no conversion required
+      return false;
+    }
+    return (CharSequence.class.isAssignableFrom(sourceClass) ||
+            StringWriter.class.isAssignableFrom(sourceClass) ||
+            ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceClass, String.class));
+  }
 
-	@Override
-	@Nullable
-	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		return (source != null ? source.toString() : null);
-	}
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return (source != null ? source.toString() : null);
+  }
 
 }

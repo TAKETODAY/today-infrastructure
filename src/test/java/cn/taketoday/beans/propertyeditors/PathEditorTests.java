@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 /**
  * @author Juergen Hoeller
- * @since 4.3.2
+ * @since 4.0
  */
 public class PathEditorTests {
 

@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * Unit tests for @EnableLoadTimeWeaving
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class EnableLoadTimeWeavingTests {
 

@@ -42,7 +42,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.stream;
  *
  * @author Stephane Nicoll
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 class StreamConverterTests {
 

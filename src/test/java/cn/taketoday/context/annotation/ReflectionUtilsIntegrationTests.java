@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Chris Beams
  * @see cn.taketoday.util.ReflectionUtilsTests
- * @since 3.1
+ * @since 4.0
  */
 public class ReflectionUtilsIntegrationTests {
 

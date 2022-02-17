@@ -20,12 +20,12 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.Converter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+
+import cn.taketoday.core.conversion.Converter;
 
 /**
  * Converts from a Properties to a String by calling {@link Properties#store(java.io.OutputStream, String)}.
@@ -36,17 +36,17 @@ import java.util.Properties;
  */
 final class PropertiesToStringConverter implements Converter<Properties, String> {
 
-	@Override
-	public String convert(Properties source) {
-		try {
-			ByteArrayOutputStream os = new ByteArrayOutputStream(256);
-			source.store(os, null);
-			return os.toString(StandardCharsets.ISO_8859_1);
-		}
-		catch (IOException ex) {
-			// Should never happen.
-			throw new IllegalArgumentException("Failed to store [" + source + "] into String", ex);
-		}
-	}
+  @Override
+  public String convert(Properties source) {
+    try {
+      ByteArrayOutputStream os = new ByteArrayOutputStream(256);
+      source.store(os, null);
+      return os.toString(StandardCharsets.ISO_8859_1);
+    }
+    catch (IOException ex) {
+      // Should never happen.
+      throw new IllegalArgumentException("Failed to store [" + source + "] into String", ex);
+    }
+  }
 
 }

@@ -20,35 +20,33 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConditionalConverter;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.util.ClassUtils;
 
 /**
  * A {@link ConditionalConverter} base implementation for enum-based converters.
  *
  * @author Stephane Nicoll
- * @since 4.3
+ * @since 4.0
  */
 abstract class AbstractConditionalEnumConverter implements ConditionalConverter {
 
-	private final ConversionService conversionService;
+  private final ConversionService conversionService;
 
+  protected AbstractConditionalEnumConverter(ConversionService conversionService) {
+    this.conversionService = conversionService;
+  }
 
-	protected AbstractConditionalEnumConverter(ConversionService conversionService) {
-		this.conversionService = conversionService;
-	}
-
-
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClassAsSet(sourceType.getType())) {
-			if (this.conversionService.canConvert(TypeDescriptor.valueOf(interfaceType), targetType)) {
-				return false;
-			}
-		}
-		return true;
-	}
+  @Override
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClassAsSet(sourceType.getType())) {
+      if (this.conversionService.canConvert(TypeDescriptor.valueOf(interfaceType), targetType)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
 }

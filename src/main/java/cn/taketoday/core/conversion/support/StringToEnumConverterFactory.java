@@ -31,32 +31,31 @@ import cn.taketoday.lang.Nullable;
  * @author Stephane Nicoll
  * @since 3.0
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked" })
 final class StringToEnumConverterFactory implements ConverterFactory<String, Enum> {
 
-	@Override
-	public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
-		return new StringToEnum(ConversionUtils.getEnumType(targetType));
-	}
+  @Override
+  public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
+    return new StringToEnum(ConversionUtils.getEnumType(targetType));
+  }
 
+  private static class StringToEnum<T extends Enum> implements Converter<String, T> {
 
-	private static class StringToEnum<T extends Enum> implements Converter<String, T> {
+    private final Class<T> enumType;
 
-		private final Class<T> enumType;
+    StringToEnum(Class<T> enumType) {
+      this.enumType = enumType;
+    }
 
-		StringToEnum(Class<T> enumType) {
-			this.enumType = enumType;
-		}
-
-		@Override
-		@Nullable
-		public T convert(String source) {
-			if (source.isEmpty()) {
-				// It's an empty enum identifier: reset the enum value to null.
-				return null;
-			}
-			return (T) Enum.valueOf(this.enumType, source.trim());
-		}
-	}
+    @Override
+    @Nullable
+    public T convert(String source) {
+      if (source.isEmpty()) {
+        // It's an empty enum identifier: reset the enum value to null.
+        return null;
+      }
+      return (T) Enum.valueOf(this.enumType, source.trim());
+    }
+  }
 
 }

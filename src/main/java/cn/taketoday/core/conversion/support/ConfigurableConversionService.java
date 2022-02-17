@@ -33,10 +33,10 @@ import cn.taketoday.core.conversion.ConverterRegistry;
  * instance in application context bootstrapping code.
  *
  * @author Chris Beams
- * @since 3.1
  * @see cn.taketoday.core.env.ConfigurablePropertyResolver#getConversionService()
  * @see cn.taketoday.core.env.ConfigurableEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment()
+ * @since 4.0
  */
 public interface ConfigurableConversionService extends ConversionService, ConverterRegistry {
 

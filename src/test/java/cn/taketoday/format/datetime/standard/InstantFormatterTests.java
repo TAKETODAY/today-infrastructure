@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andrei Nevedomskii
  * @author Sam Brannen
- * @since 5.1.12
+ * @since 4.0
  */
 @DisplayName("InstantFormatter unit tests")
 @DisplayNameGeneration(ReplaceUnderscores.class)

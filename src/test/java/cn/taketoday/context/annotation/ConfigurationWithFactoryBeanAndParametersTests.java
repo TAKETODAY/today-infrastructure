@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * accepts parameters
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class ConfigurationWithFactoryBeanAndParametersTests {
 

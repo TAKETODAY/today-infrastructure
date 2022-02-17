@@ -20,11 +20,11 @@
 
 package cn.taketoday.core.conversion.support;
 
+import java.util.Locale;
+
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-
-import java.util.Locale;
 
 /**
  * Converts from a String to a {@link Locale}.
@@ -34,15 +34,15 @@ import java.util.Locale;
  *
  * @author Keith Donald
  * @author Juergen Hoeller
- * @since 3.0
  * @see StringUtils#parseLocale
+ * @since 3.0
  */
 final class StringToLocaleConverter implements Converter<String, Locale> {
 
-	@Override
-	@Nullable
-	public Locale convert(String source) {
-		return StringUtils.parseLocale(source);
-	}
+  @Override
+  @Nullable
+  public Locale convert(String source) {
+    return StringUtils.parseLocale(source);
+  }
 
 }

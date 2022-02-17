@@ -37,7 +37,7 @@ import cn.taketoday.context.loader.DefinitionLoadingContext;
  * creation" exception.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class DuplicateConfigurationClassPostProcessorTests {
 

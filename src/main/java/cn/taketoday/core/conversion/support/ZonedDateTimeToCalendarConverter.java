@@ -20,11 +20,11 @@
 
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.Converter;
-
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import cn.taketoday.core.conversion.Converter;
 
 /**
  * Simple converter from Java 8's {@link ZonedDateTime} to {@link Calendar}.
@@ -36,14 +36,14 @@ import java.util.GregorianCalendar;
  * {@link java.util.Date#from(java.time.Instant)} and {@link java.util.Date#toInstant()}.
  *
  * @author Juergen Hoeller
- * @since 4.0.1
  * @see GregorianCalendar#from(ZonedDateTime)
+ * @since 4.0.1
  */
 final class ZonedDateTimeToCalendarConverter implements Converter<ZonedDateTime, Calendar> {
 
-	@Override
-	public Calendar convert(ZonedDateTime source) {
-		return GregorianCalendar.from(source);
-	}
+  @Override
+  public Calendar convert(ZonedDateTime source) {
+    return GregorianCalendar.from(source);
+  }
 
 }

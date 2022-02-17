@@ -28,29 +28,28 @@ import cn.taketoday.core.conversion.ConverterFactory;
  *
  * @author Yanming Zhou
  * @author Stephane Nicoll
- * @since 4.3
+ * @since 4.0
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked" })
 final class IntegerToEnumConverterFactory implements ConverterFactory<Integer, Enum> {
 
-	@Override
-	public <T extends Enum> Converter<Integer, T> getConverter(Class<T> targetType) {
-		return new IntegerToEnum(ConversionUtils.getEnumType(targetType));
-	}
+  @Override
+  public <T extends Enum> Converter<Integer, T> getConverter(Class<T> targetType) {
+    return new IntegerToEnum(ConversionUtils.getEnumType(targetType));
+  }
 
+  private static class IntegerToEnum<T extends Enum> implements Converter<Integer, T> {
 
-	private static class IntegerToEnum<T extends Enum> implements Converter<Integer, T> {
+    private final Class<T> enumType;
 
-		private final Class<T> enumType;
+    public IntegerToEnum(Class<T> enumType) {
+      this.enumType = enumType;
+    }
 
-		public IntegerToEnum(Class<T> enumType) {
-			this.enumType = enumType;
-		}
-
-		@Override
-		public T convert(Integer source) {
-			return this.enumType.getEnumConstants()[source];
-		}
-	}
+    @Override
+    public T convert(Integer source) {
+      return this.enumType.getEnumConstants()[source];
+    }
+  }
 
 }

@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
  * Tests covering overlapping use of @ComponentScan and @Import annotations.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 public class ComponentScanAndImportAnnotationInteractionTests {
 

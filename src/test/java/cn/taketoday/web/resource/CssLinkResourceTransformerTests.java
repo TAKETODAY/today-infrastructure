@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ExtendWith(GzipSupport.class)
 public class CssLinkResourceTransformerTests {
