@@ -516,7 +516,7 @@ public class BeanPropertyAccessor {
       return doConvertInternal(value, beanProperty);
     }
     catch (ConversionException e) {
-      throw new TypeMismatchException(beanProperty.getName(), value, beanProperty.getType(), e);
+      throw new TypeMismatchException(value, beanProperty.getType(), e);
     }
   }
 
@@ -524,7 +524,7 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException conversion failed
    */
   protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
-    return doConvertInternal(value, TypeDescriptor.fromProperty(beanProperty));
+    return doConvertInternal(value, beanProperty.getTypeDescriptor());
   }
 
   /**
@@ -535,7 +535,7 @@ public class BeanPropertyAccessor {
       return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
     }
     catch (ConversionException e) {
-      throw new TypeMismatchException(null, value, requiredType, e);
+      throw new TypeMismatchException(value, requiredType, e);
     }
   }
 

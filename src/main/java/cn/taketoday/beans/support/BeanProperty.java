@@ -194,13 +194,8 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
         conversionService = DefaultConversionService.getSharedInstance();
         setConversionService(conversionService);
       }
-      TypeDescriptor typeDescriptor = getTypeDescriptor();
-      if (typeDescriptor == null) {
-        typeDescriptor = TypeDescriptor.fromProperty(this);
-        this.typeDescriptor = typeDescriptor;
-      }
       value = handleOptional(
-              conversionService.convert(value, typeDescriptor), propertyType);
+              conversionService.convert(value, getTypeDescriptor()), propertyType);
     }
     setDirectly(obj, value);
   }
@@ -227,16 +222,22 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   /**
    * @since 3.0.4
    */
-  @Nullable
   public TypeDescriptor getTypeDescriptor() {
+    TypeDescriptor typeDescriptor = this.typeDescriptor;
+    if (typeDescriptor == null) {
+      typeDescriptor = new TypeDescriptor(this);
+      this.typeDescriptor = typeDescriptor;
+    }
     return typeDescriptor;
   }
 
   // PropertyAccessor
 
   public PropertyAccessor obtainAccessor() {
+    PropertyAccessor propertyAccessor = this.propertyAccessor;
     if (propertyAccessor == null) {
-      this.propertyAccessor = createAccessor();
+      propertyAccessor = createAccessor();
+      this.propertyAccessor = propertyAccessor;
     }
     return propertyAccessor;
   }
@@ -269,11 +270,13 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
    */
   @Nullable
   public Object newComponentInstance(@Nullable Object[] args) {
+    BeanInstantiator componentConstructor = this.componentConstructor;
     if (componentConstructor == null) {
       Class<?> componentClass = getComponentClass();
       componentConstructor = componentClass == null
                              ? NullInstantiator.INSTANCE
                              : BeanInstantiator.fromConstructor(componentClass);
+      this.componentConstructor = componentConstructor;
     }
     return componentConstructor.instantiate(args);
   }
@@ -281,8 +284,10 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   //
   @Nullable
   public Type[] getGenerics() {
+    Type[] genericClass = this.genericClass;
     if (genericClass == null) {
-      this.genericClass = ClassUtils.getGenericTypes(field);
+      genericClass = ClassUtils.getGenericTypes(field);
+      this.genericClass = genericClass;
     }
     return genericClass;
   }
