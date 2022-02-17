@@ -20,8 +20,7 @@
 
 package cn.taketoday.validation.beanvalidation;
 
-import org.apache.commons.logging.LogFactory;
-
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.validation.ValidationException;
 
 /**
@@ -29,7 +28,7 @@ import jakarta.validation.ValidationException;
  * {@link cn.taketoday.validation.Validator} calls into no-ops
  * in case of no Bean Validation provider being available.
  *
- * <p>This is the actual class used by Spring's MVC configuration namespace,
+ * <p>This is the actual class used by Framework's MVC configuration namespace,
  * in case of the {@code jakarta.validation} API being present but no explicit
  * Validator having been configured.
  *
@@ -44,7 +43,7 @@ public class OptionalValidatorFactoryBean extends LocalValidatorFactoryBean {
       super.afterPropertiesSet();
     }
     catch (ValidationException ex) {
-      LogFactory.getLog(getClass()).debug("Failed to set up a Bean Validation provider", ex);
+      LoggerFactory.getLogger(getClass()).debug("Failed to set up a Bean Validation provider", ex);
     }
   }
 

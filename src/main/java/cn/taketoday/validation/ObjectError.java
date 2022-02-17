@@ -63,7 +63,8 @@ public class ObjectError extends DefaultMessageSourceResolvable {
    * @param defaultMessage the default message to be used to resolve this message
    */
   public ObjectError(
-          String objectName, @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
+          String objectName, @Nullable String[] codes,
+          @Nullable Object[] arguments, @Nullable String defaultMessage) {
 
     super(codes, arguments, defaultMessage);
     Assert.notNull(objectName, "Object name must not be null");
@@ -85,7 +86,6 @@ public class ObjectError extends DefaultMessageSourceResolvable {
    * that is, it won't be part of a serialized error representation.
    *
    * @param source the source object
-   * @since 4.0
    */
   public void wrap(Object source) {
     if (this.source != null) {
@@ -105,7 +105,6 @@ public class ObjectError extends DefaultMessageSourceResolvable {
    * @return the source object of the given type
    * @throws IllegalArgumentException if no such source object is available
    * (i.e. none specified or not available anymore after deserialization)
-   * @since 4.0
    */
   public <T> T unwrap(Class<T> sourceType) {
     if (sourceType.isInstance(this.source)) {
@@ -129,7 +128,6 @@ public class ObjectError extends DefaultMessageSourceResolvable {
    * (instead of having to unwrap the {@code PropertyAccessException} in turn).
    *
    * @return whether this error has been caused by a source object of the given type
-   * @since 4.0
    */
   public boolean contains(Class<?> sourceType) {
     return (sourceType.isInstance(this.source) ||

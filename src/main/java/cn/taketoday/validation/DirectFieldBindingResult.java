@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
  * supporting registration and evaluation of binding errors on value objects.
  * Performs direct field access instead of going through JavaBean getters.
  *
- * <p>Since Spring 4.1 this implementation is able to traverse nested fields.
+ * <p>this implementation is able to traverse nested fields.
  *
  * @author Juergen Hoeller
  * @see DataBinder#getBindingResult()

@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.lang.Assert;
@@ -54,13 +53,10 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
 
   private MessageCodesResolver messageCodesResolver = new DefaultMessageCodesResolver();
 
-  private final List<ObjectError> errors = new ArrayList<>();
-
-  private final Map<String, Class<?>> fieldTypes = new HashMap<>();
-
-  private final Map<String, Object> fieldValues = new HashMap<>();
-
-  private final Set<String> suppressedFields = new HashSet<>();
+  private final ArrayList<ObjectError> errors = new ArrayList<>();
+  private final HashSet<String> suppressedFields = new HashSet<>();
+  private final HashMap<String, Object> fieldValues = new HashMap<>();
+  private final HashMap<String, Class<?>> fieldTypes = new HashMap<>();
 
   /**
    * Create a new AbstractBindingResult instance.
@@ -105,10 +101,11 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
   }
 
   @Override
-  public void rejectValue(@Nullable String field, String errorCode, @Nullable Object[] errorArgs,
-                          @Nullable String defaultMessage) {
+  public void rejectValue(
+          @Nullable String field, String errorCode,
+          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
-    if (!StringUtils.hasLength(getNestedPath()) && !StringUtils.hasLength(field)) {
+    if (StringUtils.isEmpty(getNestedPath()) && StringUtils.isEmpty(field)) {
       // We're at the top of the nested object hierarchy,
       // so the present level is not a field but rather the top object.
       // The best we can do is register a global error here...
@@ -148,7 +145,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
 
   @Override
   public List<ObjectError> getGlobalErrors() {
-    List<ObjectError> result = new ArrayList<>();
+    ArrayList<ObjectError> result = new ArrayList<>();
     for (ObjectError objectError : this.errors) {
       if (!(objectError instanceof FieldError)) {
         result.add(objectError);
@@ -170,7 +167,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
 
   @Override
   public List<FieldError> getFieldErrors() {
-    List<FieldError> result = new ArrayList<>();
+    ArrayList<FieldError> result = new ArrayList<>();
     for (ObjectError objectError : this.errors) {
       if (objectError instanceof FieldError) {
         result.add((FieldError) objectError);
@@ -192,7 +189,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
 
   @Override
   public List<FieldError> getFieldErrors(String field) {
-    List<FieldError> result = new ArrayList<>();
+    ArrayList<FieldError> result = new ArrayList<>();
     String fixedField = fixedField(field);
     for (ObjectError objectError : this.errors) {
       if (objectError instanceof FieldError && isMatchingFieldError(fixedField, (FieldError) objectError)) {
@@ -224,7 +221,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
     if (fieldError != null) {
       Object value = fieldError.getRejectedValue();
       // Do not apply formatting on binding failures like type mismatches.
-      return (fieldError.isBindingFailure() || getTarget() == null ? value : formatFieldValue(field, value));
+      return fieldError.isBindingFailure() || getTarget() == null ? value : formatFieldValue(field, value);
     }
     else if (getTarget() != null) {
       Object value = getActualFieldValue(fixedField(field));
@@ -265,7 +262,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
    * <p>Note that the Map is constructed every time you're calling this method.
    * Adding things to the map and then re-calling this method will not work.
    * <p>The attributes in the model Map returned by this method are usually
-   * included in the ModelAndView for a form view that uses Spring's bind tag,
+   * included in the ModelAndView for a form view that uses Framework's bind tag,
    * which needs access to the Errors instance.
    *
    * @see #getObjectName
@@ -273,7 +270,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
    */
   @Override
   public Map<String, Object> getModel() {
-    Map<String, Object> model = new LinkedHashMap<>(2);
+    LinkedHashMap<String, Object> model = new LinkedHashMap<>(2);
     // Mapping from name to target object.
     model.put(getObjectName(), getTarget());
     // Errors instance, even if no errors.
@@ -284,7 +281,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
   @Override
   @Nullable
   public Object getRawFieldValue(String field) {
-    return (getTarget() != null ? getActualFieldValue(fixedField(field)) : null);
+    return getTarget() != null ? getActualFieldValue(fixedField(field)) : null;
   }
 
   /**
@@ -371,9 +368,9 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
     if (!(other instanceof BindingResult otherResult)) {
       return false;
     }
-    return (getObjectName().equals(otherResult.getObjectName()) &&
-            ObjectUtils.nullSafeEquals(getTarget(), otherResult.getTarget()) &&
-            getAllErrors().equals(otherResult.getAllErrors()));
+    return (getObjectName().equals(otherResult.getObjectName())
+            && ObjectUtils.nullSafeEquals(getTarget(), otherResult.getTarget())
+            && getAllErrors().equals(otherResult.getAllErrors()));
   }
 
   @Override

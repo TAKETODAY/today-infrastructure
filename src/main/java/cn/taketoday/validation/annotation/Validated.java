@@ -26,12 +26,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.validation.beanvalidation.ValidatorAdapter;
+
 /**
  * Variant of JSR-303's {@link jakarta.validation.Valid}, supporting the
  * specification of validation groups. Designed for convenient use with
- * Spring's JSR-303 support but not JSR-303 specific.
+ * Framework's JSR-303 support but not JSR-303 specific.
  *
- * <p>Can be used e.g. with Spring MVC handler methods arguments.
+ * <p>Can be used e.g. with Framework MVC handler methods arguments.
  * Supported through {@link cn.taketoday.validation.SmartValidator}'s
  * validation hint concept, with validation group classes acting as hint objects.
  *
@@ -48,7 +50,7 @@ import java.lang.annotation.Target;
  * @author Juergen Hoeller
  * @see jakarta.validation.Validator#validate(Object, Class[])
  * @see cn.taketoday.validation.SmartValidator#validate(Object, cn.taketoday.validation.Errors, Object...)
- * @see cn.taketoday.validation.beanvalidation.SpringValidatorAdapter
+ * @see ValidatorAdapter
  * @see cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor
  * @since 4.0
  */
@@ -62,7 +64,7 @@ public @interface Validated {
    * kicked off by this annotation.
    * <p>JSR-303 defines validation groups as custom annotations which an application declares
    * for the sole purpose of using them as type-safe group arguments, as implemented in
-   * {@link cn.taketoday.validation.beanvalidation.SpringValidatorAdapter}.
+   * {@link ValidatorAdapter}.
    * <p>Other {@link cn.taketoday.validation.SmartValidator} implementations may
    * support class arguments in other ways as well.
    */

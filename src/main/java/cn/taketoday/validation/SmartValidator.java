@@ -62,10 +62,10 @@ public interface SmartValidator extends Validator {
    * @param errors contextual state about the validation process
    * @param validationHints one or more hint objects to be passed to the validation engine
    * @see jakarta.validation.Validator#validateValue(Class, String, Object, Class[])
-   * @since 4.0
    */
   default void validateValue(
-          Class<?> targetType, String fieldName, @Nullable Object value, Errors errors, Object... validationHints) {
+          Class<?> targetType, String fieldName,
+          @Nullable Object value, Errors errors, Object... validationHints) {
 
     throw new IllegalArgumentException("Cannot validate individual value for " + targetType);
   }

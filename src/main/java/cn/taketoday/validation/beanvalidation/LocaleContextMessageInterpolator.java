@@ -27,7 +27,7 @@ import cn.taketoday.lang.Assert;
 import jakarta.validation.MessageInterpolator;
 
 /**
- * Delegates to a target {@link MessageInterpolator} implementation but enforces Spring's
+ * Delegates to a target {@link MessageInterpolator} implementation but enforces Framework's
  * managed Locale. Typically used to wrap the validation provider's default interpolator.
  *
  * @author Juergen Hoeller

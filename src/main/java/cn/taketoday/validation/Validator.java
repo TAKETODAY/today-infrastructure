@@ -58,7 +58,7 @@ package cn.taketoday.validation;
  *    }
  * }</pre>
  *
- * <p>See also the Spring reference manual for a fuller discussion of
+ * <p>See also the Framework reference manual for a fuller discussion of
  * the {@code Validator} interface and its role in an enterprise
  * application.
  *

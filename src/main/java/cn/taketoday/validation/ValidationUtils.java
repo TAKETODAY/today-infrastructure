@@ -79,7 +79,7 @@ public abstract class ValidationUtils {
     Assert.notNull(errors, "Errors object must not be null");
 
     if (logger.isDebugEnabled()) {
-      logger.debug("Invoking validator [" + validator + "]");
+      logger.debug("Invoking validator [{}]", validator);
     }
     if (!validator.supports(target.getClass())) {
       throw new IllegalArgumentException(
@@ -95,7 +95,7 @@ public abstract class ValidationUtils {
 
     if (logger.isDebugEnabled()) {
       if (errors.hasErrors()) {
-        logger.debug("Validator found " + errors.getErrorCount() + " errors");
+        logger.debug("Validator found {} errors", errors.getErrorCount());
       }
       else {
         logger.debug("Validator found no errors");
@@ -172,8 +172,9 @@ public abstract class ValidationUtils {
    * (can be {@code null})
    * @param defaultMessage fallback default message
    */
-  public static void rejectIfEmpty(Errors errors, String field, String errorCode,
-                                   @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public static void rejectIfEmpty(
+          Errors errors, String field, String errorCode,
+          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
     Assert.notNull(errors, "Errors object must not be null");
     Object value = errors.getFieldValue(field);
@@ -257,7 +258,8 @@ public abstract class ValidationUtils {
    * @param defaultMessage fallback default message
    */
   public static void rejectIfEmptyOrWhitespace(
-          Errors errors, String field, String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+          Errors errors, String field, String errorCode,
+          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
     Assert.notNull(errors, "Errors object must not be null");
     Object value = errors.getFieldValue(field);

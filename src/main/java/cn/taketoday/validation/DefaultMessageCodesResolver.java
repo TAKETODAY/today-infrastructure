@@ -151,7 +151,8 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
    * @return the list of codes
    */
   @Override
-  public String[] resolveMessageCodes(String errorCode, String objectName, String field, @Nullable Class<?> fieldType) {
+  public String[] resolveMessageCodes(
+          String errorCode, String objectName, String field, @Nullable Class<?> fieldType) {
     Set<String> codeList = new LinkedHashSet<>();
     List<String> fieldList = new ArrayList<>();
     buildFieldList(field, fieldList);
@@ -168,13 +169,15 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
     return StringUtils.toStringArray(codeList);
   }
 
-  private void addCodes(Collection<String> codeList, String errorCode, @Nullable String objectName, Iterable<String> fields) {
+  private void addCodes(Collection<String> codeList, String errorCode,
+                        @Nullable String objectName, Iterable<String> fields) {
     for (String field : fields) {
       addCode(codeList, errorCode, objectName, field);
     }
   }
 
-  private void addCode(Collection<String> codeList, String errorCode, @Nullable String objectName, @Nullable String field) {
+  private void addCode(Collection<String> codeList, String errorCode,
+                       @Nullable String objectName, @Nullable String field) {
     codeList.add(postProcessMessageCode(this.formatter.format(errorCode, objectName, field)));
   }
 
@@ -249,7 +252,7 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
     public static String toDelimitedString(String... elements) {
       StringJoiner rtn = new StringJoiner(CODE_SEPARATOR);
       for (String element : elements) {
-        if (StringUtils.hasLength(element)) {
+        if (StringUtils.isNotEmpty(element)) {
           rtn.add(element);
         }
       }

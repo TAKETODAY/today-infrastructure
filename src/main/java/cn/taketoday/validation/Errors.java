@@ -44,6 +44,7 @@ import cn.taketoday.lang.Nullable;
  * @see BindException
  * @see DataBinder
  * @see ValidationUtils
+ * @since 4.0
  */
 public interface Errors {
 

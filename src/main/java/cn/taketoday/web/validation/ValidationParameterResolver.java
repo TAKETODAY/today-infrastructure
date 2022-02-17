@@ -27,6 +27,7 @@ import java.util.HashMap;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;

@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract base class for {@link BindingResult} implementations that work with
- * Spring's {@link cn.taketoday.beans.PropertyAccessor} mechanism.
+ * Framework's {@link cn.taketoday.beans.PropertyAccessor} mechanism.
  * Pre-implements field access through delegation to the corresponding
  * PropertyAccessor methods.
  *
@@ -96,8 +96,9 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
   @Override
   @Nullable
   public Class<?> getFieldType(@Nullable String field) {
-    return (getTarget() != null ? getPropertyAccessor().getPropertyType(fixedField(field)) :
-            super.getFieldType(field));
+    return getTarget() != null
+           ? getPropertyAccessor().getPropertyType(fixedField(field))
+           : super.getFieldType(field);
   }
 
   /**
@@ -149,8 +150,9 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
    */
   @Nullable
   protected PropertyEditor getCustomEditor(String fixedField) {
-    Class<?> targetType = getPropertyAccessor().getPropertyType(fixedField);
-    PropertyEditor editor = getPropertyAccessor().findCustomEditor(targetType, fixedField);
+    ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
+    Class<?> targetType = propertyAccessor.getPropertyType(fixedField);
+    PropertyEditor editor = propertyAccessor.findCustomEditor(targetType, fixedField);
     if (editor == null) {
       editor = BeanUtils.findEditorByConvention(targetType);
     }

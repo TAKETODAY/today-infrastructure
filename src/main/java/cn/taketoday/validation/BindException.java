@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * {@link BindingResult} interface (and its super-interface {@link Errors})
  * to allow for the direct analysis of binding errors.
  *
- * <p>As of Spring 2.0, this is a special-purpose class. Normally,
+ * <p>this is a special-purpose class. Normally,
  * application code will work with the {@link BindingResult} interface,
  * or with a {@link DataBinder} that in turn exposes a BindingResult via
  * {@link cn.taketoday.validation.DataBinder#getBindingResult()}.
@@ -44,6 +44,7 @@ import cn.taketoday.lang.Nullable;
  * @see BindingResult
  * @see DataBinder#getBindingResult()
  * @see DataBinder#close()
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class BindException extends Exception implements BindingResult {

@@ -39,7 +39,7 @@ public abstract class ValidationAnnotationUtils {
   /**
    * Determine any validation hints by the given annotation.
    * <p>This implementation checks for {@code @jakarta.validation.Valid},
-   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * Framework's {@link cn.taketoday.validation.annotation.Validated},
    * and custom annotations whose name starts with "Valid".
    *
    * @param ann the annotation (potentially a validation annotation)

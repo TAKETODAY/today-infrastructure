@@ -68,17 +68,16 @@ public interface BindingResult extends Errors {
    * <p>Note that the Map is constructed every time you're calling this method.
    * Adding things to the map and then re-calling this method will not work.
    * <p>The attributes in the model Map returned by this method are usually
-   * included in the {@link cn.taketoday.web.servlet.ModelAndView}
-   * for a form view that uses Spring's {@code bind} tag in a JSP,
-   * which needs access to the BindingResult instance. Spring's pre-built
+   * included in the {@link cn.taketoday.web.view.ModelAndView}
+   * for a form view that uses Framework's {@code bind} tag in a JSP,
+   * which needs access to the BindingResult instance. Framework's pre-built
    * form controllers will do this for you when rendering a form view.
    * When building the ModelAndView instance yourself, you need to include
    * the attributes from the model Map returned by this method.
    *
    * @see #getObjectName()
    * @see #MODEL_KEY_PREFIX
-   * @see cn.taketoday.web.servlet.ModelAndView
-   * @see cn.taketoday.web.servlet.tags.BindTag
+   * @see cn.taketoday.web.view.ModelAndView
    */
   Map<String, Object> getModel();
 

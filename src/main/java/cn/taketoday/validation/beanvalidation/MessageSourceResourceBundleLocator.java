@@ -31,7 +31,7 @@ import cn.taketoday.lang.Assert;
 
 /**
  * Implementation of Hibernate Validator 4.3/5.x's {@link ResourceBundleLocator} interface,
- * exposing a Spring {@link MessageSource} as localized {@link MessageSourceResourceBundle}.
+ * exposing a Framework {@link MessageSource} as localized {@link MessageSourceResourceBundle}.
  *
  * @author Juergen Hoeller
  * @see ResourceBundleLocator
@@ -46,7 +46,7 @@ public class MessageSourceResourceBundleLocator implements ResourceBundleLocator
   /**
    * Build a MessageSourceResourceBundleLocator for the given MessageSource.
    *
-   * @param messageSource the Spring MessageSource to wrap
+   * @param messageSource the Framework MessageSource to wrap
    */
   public MessageSourceResourceBundleLocator(MessageSource messageSource) {
     Assert.notNull(messageSource, "MessageSource must not be null");

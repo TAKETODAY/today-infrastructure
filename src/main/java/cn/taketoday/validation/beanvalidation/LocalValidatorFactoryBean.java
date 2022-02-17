@@ -61,19 +61,19 @@ import jakarta.validation.bootstrap.GenericBootstrap;
 import jakarta.validation.bootstrap.ProviderSpecificBootstrap;
 
 /**
- * This is the central class for {@code jakarta.validation} (JSR-303) setup in a Spring
+ * This is the central class for {@code jakarta.validation} (JSR-303) setup in a Framework
  * application context: It bootstraps a {@code jakarta.validation.ValidationFactory} and
- * exposes it through the Spring {@link cn.taketoday.validation.Validator} interface
+ * exposes it through the Framework {@link cn.taketoday.validation.Validator} interface
  * as well as through the JSR-303 {@link Validator} interface and the
  * {@link ValidatorFactory} interface itself.
  *
- * <p>When talking to an instance of this bean through the Spring or JSR-303 Validator interfaces,
+ * <p>When talking to an instance of this bean through the Framework or JSR-303 Validator interfaces,
  * you'll be talking to the default Validator of the underlying ValidatorFactory. This is very
  * convenient in that you don't have to perform yet another call on the factory, assuming that
  * you will almost always use the default Validator anyway. This can also be injected directly
  * into any target dependency of type {@link cn.taketoday.validation.Validator}!
  *
- * <p>This class is also being used by Spring's MVC configuration namespace, in case of the
+ * <p>This class is also being used by Framework's MVC configuration namespace, in case of the
  * {@code jakarta.validation} API being present but no explicit Validator having been configured.
  *
  * @author Juergen Hoeller
@@ -83,7 +83,7 @@ import jakarta.validation.bootstrap.ProviderSpecificBootstrap;
  * @see ValidatorFactory#getValidator()
  * @since 4.0
  */
-public class LocalValidatorFactoryBean extends SpringValidatorAdapter
+public class LocalValidatorFactoryBean extends ValidatorAdapter
         implements ValidatorFactory, ApplicationContextAware, InitializingBean, DisposableBean {
 
   @SuppressWarnings("rawtypes")
@@ -147,9 +147,9 @@ public class LocalValidatorFactoryBean extends SpringValidatorAdapter
   }
 
   /**
-   * Specify a custom Spring MessageSource for resolving validation messages,
+   * Specify a custom Framework MessageSource for resolving validation messages,
    * instead of relying on JSR-303's default "ValidationMessages.properties" bundle
-   * in the classpath. This may refer to a Spring context's shared "messageSource" bean,
+   * in the classpath. This may refer to a Framework context's shared "messageSource" bean,
    * or to some special MessageSource setup for validation purposes only.
    * <p><b>NOTE:</b> This feature requires Hibernate Validator 4.3 or higher on the classpath.
    * You may nevertheless use a different validation provider but Hibernate Validator's
@@ -157,7 +157,7 @@ public class LocalValidatorFactoryBean extends SpringValidatorAdapter
    * <p>Specify either this property or {@link #setMessageInterpolator "messageInterpolator"},
    * not both. If you would like to build a custom MessageInterpolator, consider deriving from
    * Hibernate Validator's {@link ResourceBundleMessageInterpolator} and passing in a
-   * Spring-based {@code ResourceBundleLocator} when constructing your interpolator.
+   * Framework-based {@code ResourceBundleLocator} when constructing your interpolator.
    * <p>In order for Hibernate's default validation messages to be resolved still, your
    * {@link MessageSource} must be configured for optional resolution (usually the default).
    * In particular, the {@code MessageSource} instance specified here should not apply

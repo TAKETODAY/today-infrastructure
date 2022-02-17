@@ -100,8 +100,8 @@ public abstract class AbstractErrors implements Errors, Serializable {
     }
     else {
       String path = getNestedPath();
-      return (path.endsWith(Errors.NESTED_PATH_SEPARATOR) ?
-              path.substring(0, path.length() - NESTED_PATH_SEPARATOR.length()) : path);
+      return path.endsWith(Errors.NESTED_PATH_SEPARATOR)
+             ? path.substring(0, path.length() - NESTED_PATH_SEPARATOR.length()) : path;
     }
   }
 
@@ -156,7 +156,7 @@ public abstract class AbstractErrors implements Errors, Serializable {
 
   @Override
   public boolean hasGlobalErrors() {
-    return (getGlobalErrorCount() > 0);
+    return getGlobalErrorCount() > 0;
   }
 
   @Override
@@ -168,12 +168,12 @@ public abstract class AbstractErrors implements Errors, Serializable {
   @Nullable
   public ObjectError getGlobalError() {
     List<ObjectError> globalErrors = getGlobalErrors();
-    return (!globalErrors.isEmpty() ? globalErrors.get(0) : null);
+    return !globalErrors.isEmpty() ? globalErrors.get(0) : null;
   }
 
   @Override
   public boolean hasFieldErrors() {
-    return (getFieldErrorCount() > 0);
+    return getFieldErrorCount() > 0;
   }
 
   @Override
@@ -185,12 +185,12 @@ public abstract class AbstractErrors implements Errors, Serializable {
   @Nullable
   public FieldError getFieldError() {
     List<FieldError> fieldErrors = getFieldErrors();
-    return (!fieldErrors.isEmpty() ? fieldErrors.get(0) : null);
+    return !fieldErrors.isEmpty() ? fieldErrors.get(0) : null;
   }
 
   @Override
   public boolean hasFieldErrors(String field) {
-    return (getFieldErrorCount(field) > 0);
+    return getFieldErrorCount(field) > 0;
   }
 
   @Override
@@ -201,7 +201,7 @@ public abstract class AbstractErrors implements Errors, Serializable {
   @Override
   public List<FieldError> getFieldErrors(String field) {
     List<FieldError> fieldErrors = getFieldErrors();
-    List<FieldError> result = new ArrayList<>();
+    ArrayList<FieldError> result = new ArrayList<>();
     String fixedField = fixedField(field);
     for (FieldError error : fieldErrors) {
       if (isMatchingFieldError(fixedField, error)) {
@@ -215,14 +215,14 @@ public abstract class AbstractErrors implements Errors, Serializable {
   @Nullable
   public FieldError getFieldError(String field) {
     List<FieldError> fieldErrors = getFieldErrors(field);
-    return (!fieldErrors.isEmpty() ? fieldErrors.get(0) : null);
+    return !fieldErrors.isEmpty() ? fieldErrors.get(0) : null;
   }
 
   @Override
   @Nullable
   public Class<?> getFieldType(String field) {
     Object value = getFieldValue(field);
-    return (value != null ? value.getClass() : null);
+    return value != null ? value.getClass() : null;
   }
 
   /**
@@ -238,8 +238,8 @@ public abstract class AbstractErrors implements Errors, Serializable {
     }
     // Optimization: use charAt and regionMatches instead of endsWith and startsWith (SPR-11304)
     int endIndex = field.length() - 1;
-    return (endIndex >= 0 && field.charAt(endIndex) == '*' &&
-            (endIndex == 0 || field.regionMatches(0, fieldError.getField(), 0, endIndex)));
+    return endIndex >= 0 && field.charAt(endIndex) == '*'
+            && (endIndex == 0 || field.regionMatches(0, fieldError.getField(), 0, endIndex));
   }
 
   @Override

@@ -31,13 +31,13 @@ import jakarta.validation.ValidatorFactory;
 
 /**
  * Configurable bean class that exposes a specific JSR-303 Validator
- * through its original interface as well as through the Spring
+ * through its original interface as well as through the Framework
  * {@link cn.taketoday.validation.Validator} interface.
  *
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class CustomValidatorBean extends SpringValidatorAdapter implements Validator, InitializingBean {
+public class CustomValidatorBean extends ValidatorAdapter implements Validator, InitializingBean {
 
   @Nullable
   private ValidatorFactory validatorFactory;

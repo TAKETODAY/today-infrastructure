@@ -27,7 +27,7 @@ import jakarta.validation.ConstraintValidatorFactory;
 
 /**
  * JSR-303 {@link ConstraintValidatorFactory} implementation that delegates to a
- * Spring BeanFactory for creating autowired {@link ConstraintValidator} instances.
+ * Framework BeanFactory for creating autowired {@link ConstraintValidator} instances.
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.beans.factory.AutowireCapableBeanFactory#createBean(Class)
@@ -39,7 +39,7 @@ public class ContextConstraintValidatorFactory implements ConstraintValidatorFac
   private final AutowireCapableBeanFactory beanFactory;
 
   /**
-   * Create a new SpringConstraintValidatorFactory for the given BeanFactory.
+   * Create a new COntextConstraintValidatorFactory for the given BeanFactory.
    *
    * @param beanFactory the target BeanFactory
    */

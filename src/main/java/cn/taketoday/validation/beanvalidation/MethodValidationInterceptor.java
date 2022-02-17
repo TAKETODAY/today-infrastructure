@@ -32,7 +32,7 @@ import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -51,11 +51,11 @@ import jakarta.validation.executable.ExecutableValidator;
  *
  * <p>E.g.: {@code public @NotNull Object myValidMethod(@NotNull String arg1, @Max(10) int arg2)}
  *
- * <p>Validation groups can be specified through Spring's {@link Validated} annotation
+ * <p>Validation groups can be specified through Framework's {@link Validated} annotation
  * at the type level of the containing target class, applying to all public service methods
  * of that class. By default, JSR-303 will validate against its default group only.
  *
- * <p>As of Spring 5.0, this functionality requires a Bean Validation 1.1+ provider.
+ * <p>this functionality requires a Bean Validation 1.1+ provider.
  *
  * @author Juergen Hoeller
  * @see MethodValidationPostProcessor
@@ -116,7 +116,7 @@ public class MethodValidationInterceptor implements MethodInterceptor {
       // Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
       // Let's try to find the bridged method on the implementation class...
       methodToValidate = BridgeMethodResolver.findBridgedMethod(
-              ClassUtils.getMostSpecificMethod(invocation.getMethod(), target.getClass()));
+              ReflectionUtils.getMostSpecificMethod(invocation.getMethod(), target.getClass()));
       result = execVal.validateParameters(target, methodToValidate, invocation.getArguments(), groups);
     }
     if (!result.isEmpty()) {
@@ -138,8 +138,8 @@ public class MethodValidationInterceptor implements MethodInterceptor {
 
     // Call from interface-based proxy handle, allowing for an efficient check?
     if (clazz.isInterface()) {
-      return ((clazz == FactoryBean.class || clazz == SmartFactoryBean.class) &&
-              !method.getName().equals("getObject"));
+      return (clazz == FactoryBean.class || clazz == SmartFactoryBean.class)
+              && !method.getName().equals("getObject");
     }
 
     // Call from CGLIB proxy handle, potentially implementing a FactoryBean method?
@@ -150,8 +150,9 @@ public class MethodValidationInterceptor implements MethodInterceptor {
     else if (FactoryBean.class.isAssignableFrom(clazz)) {
       factoryBeanType = FactoryBean.class;
     }
-    return (factoryBeanType != null && !method.getName().equals("getObject") &&
-            ClassUtils.hasMethod(factoryBeanType, method));
+    return factoryBeanType != null
+            && !method.getName().equals("getObject")
+            && ReflectionUtils.hasMethod(factoryBeanType, method);
   }
 
   /**

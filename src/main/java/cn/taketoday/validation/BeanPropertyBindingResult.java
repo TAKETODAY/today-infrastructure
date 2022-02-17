@@ -75,8 +75,9 @@ public class BeanPropertyBindingResult extends AbstractPropertyBindingResult imp
    * @param autoGrowNestedPaths whether to "auto-grow" a nested path that contains a null value
    * @param autoGrowCollectionLimit the limit for array and collection auto-growing
    */
-  public BeanPropertyBindingResult(@Nullable Object target, String objectName,
-                                   boolean autoGrowNestedPaths, int autoGrowCollectionLimit) {
+  public BeanPropertyBindingResult(
+          @Nullable Object target, String objectName,
+          boolean autoGrowNestedPaths, int autoGrowCollectionLimit) {
 
     super(objectName);
     this.target = target;

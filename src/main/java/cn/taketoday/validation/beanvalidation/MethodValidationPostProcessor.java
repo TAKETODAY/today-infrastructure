@@ -48,7 +48,7 @@ import jakarta.validation.ValidatorFactory;
  * public @NotNull Object myValidMethod(@NotNull String arg1, @Max(10) int arg2)
  * </pre>
  *
- * <p>Target classes with such annotated methods need to be annotated with Spring's
+ * <p>Target classes with such annotated methods need to be annotated with Framework's
  * {@link Validated} annotation at the type level, for their methods to be searched for
  * inline constraint annotations. Validation groups can be specified through {@code @Validated}
  * as well. By default, JSR-303 will validate against its default group only.
@@ -73,7 +73,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
    * Set the 'validated' annotation type.
    * The default validated annotation type is the {@link Validated} annotation.
    * <p>This setter property exists so that developers can provide their own
-   * (non-Spring-specific) annotation type to indicate that a class is supposed
+   * (non-Framework-specific) annotation type to indicate that a class is supposed
    * to be validated in the sense of applying method validation.
    *
    * @param validatedAnnotationType the desired annotation type
@@ -92,7 +92,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
     if (validator instanceof LocalValidatorFactoryBean) {
       this.validator = ((LocalValidatorFactoryBean) validator).getValidator();
     }
-    else if (validator instanceof SpringValidatorAdapter) {
+    else if (validator instanceof ValidatorAdapter) {
       this.validator = validator.unwrap(Validator.class);
     }
     else {
