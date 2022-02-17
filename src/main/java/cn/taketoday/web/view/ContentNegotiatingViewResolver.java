@@ -22,11 +22,9 @@ package cn.taketoday.web.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -41,6 +39,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -248,11 +247,12 @@ public class ContentNegotiatingViewResolver
    */
   @Nullable
   protected List<MediaType> getMediaTypes(RequestContext context) {
-    Assert.state(this.contentNegotiationManager != null, "No ContentNegotiationManager set");
+    ContentNegotiationManager manager = getContentNegotiationManager();
+    Assert.state(manager != null, "No ContentNegotiationManager set");
     try {
-      List<MediaType> acceptableMediaTypes = this.contentNegotiationManager.resolveMediaTypes(context);
-      List<MediaType> producibleMediaTypes = getProducibleMediaTypes(context);
-      Set<MediaType> compatibleMediaTypes = new LinkedHashSet<>();
+      List<MediaType> acceptableMediaTypes = manager.resolveMediaTypes(context);
+      MediaType[] producibleMediaTypes = getProducibleMediaTypes(context);
+      LinkedHashSet<MediaType> compatibleMediaTypes = new LinkedHashSet<>();
       for (MediaType acceptable : acceptableMediaTypes) {
         for (MediaType producible : producibleMediaTypes) {
           if (acceptable.isCompatibleWith(producible)) {
@@ -260,7 +260,7 @@ public class ContentNegotiatingViewResolver
           }
         }
       }
-      List<MediaType> selectedMediaTypes = new ArrayList<>(compatibleMediaTypes);
+      ArrayList<MediaType> selectedMediaTypes = new ArrayList<>(compatibleMediaTypes);
       MimeTypeUtils.sortBySpecificity(selectedMediaTypes);
       return selectedMediaTypes;
     }
@@ -272,14 +272,15 @@ public class ContentNegotiatingViewResolver
     }
   }
 
-  private List<MediaType> getProducibleMediaTypes(RequestContext context) {
-    MediaType[] mediaTypes = context.getMatchingMetadata().getProducibleMediaTypes();
-    if (ObjectUtils.isNotEmpty(mediaTypes)) {
-      return CollectionUtils.newArrayList(mediaTypes);
+  private MediaType[] getProducibleMediaTypes(RequestContext context) {
+    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
+      if (ObjectUtils.isNotEmpty(mediaTypes)) {
+        return mediaTypes;
+      }
     }
-    else {
-      return Collections.singletonList(MediaType.ALL);
-    }
+    return new MediaType[] { MediaType.ALL };
   }
 
   /**
