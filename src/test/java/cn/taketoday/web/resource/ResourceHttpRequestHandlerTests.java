@@ -22,6 +22,8 @@ package cn.taketoday.web.resource;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
@@ -335,6 +337,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
   public void resolvePathWithTraversal() throws Exception {
     for (HttpMethod method : HttpMethod.values()) {
       this.request = new MockHttpServletRequest("GET", "");

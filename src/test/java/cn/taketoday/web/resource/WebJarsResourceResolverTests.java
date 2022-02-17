@@ -29,6 +29,7 @@ import java.util.List;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -63,7 +64,7 @@ public class WebJarsResourceResolverTests {
     this.locations = Collections.singletonList(new ClassPathResource("/META-INF/resources/webjars"));
     this.resolver = new WebJarsResourceResolver();
     this.chain = mock(ResourceResolvingChain.class);
-    this.requestContext = new ServletRequestContext(null, request, null);
+    this.requestContext = new ServletRequestContext(null, request, new MockHttpServletResponse());
   }
 
   @Test
