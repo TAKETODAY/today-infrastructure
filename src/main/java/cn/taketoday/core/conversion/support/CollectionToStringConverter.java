@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,24 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Converts a Collection to a comma-delimited String.
  *
  * @author Keith Donald
- * @author TODAY
  * @since 3.0
  */
-final class CollectionToStringConverter extends CollectionSourceConverter {
+final class CollectionToStringConverter implements ConditionalGenericConverter {
+
   private static final String DELIMITER = ",";
+
   private final ConversionService conversionService;
 
   public CollectionToStringConverter(ConversionService conversionService) {
@@ -42,20 +47,30 @@ final class CollectionToStringConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    // Collection.class -> String.class
-    return targetType.is(String.class);
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Collection.class, String.class));
   }
 
   @Override
-  protected Object convertInternal(final TypeDescriptor targetType, final Collection<?> sourceCollection) {
-    if (sourceCollection.isEmpty()) {
-      return Constant.BLANK;
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(
+            sourceType.getElementDescriptor(), targetType, this.conversionService);
+  }
+
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
     }
-    final StringJoiner sj = new StringJoiner(DELIMITER);
-    final ConversionService conversionService = this.conversionService;
-    for (final Object sourceElement : sourceCollection) {
-      Object targetElement = conversionService.convert(sourceElement, targetType);
+    Collection<?> sourceCollection = (Collection<?>) source;
+    if (sourceCollection.isEmpty()) {
+      return "";
+    }
+    StringJoiner sj = new StringJoiner(DELIMITER);
+    for (Object sourceElement : sourceCollection) {
+      Object targetElement = this.conversionService.convert(
+              sourceElement, sourceType.elementDescriptor(sourceElement), targetType);
       sj.add(String.valueOf(targetElement));
     }
     return sj.toString();

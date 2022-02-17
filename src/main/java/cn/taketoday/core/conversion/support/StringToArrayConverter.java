@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,13 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Array;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -36,7 +41,8 @@ import cn.taketoday.util.StringUtils;
  * @see StringUtils#splitAsList(String)
  * @since 3.0
  */
-final class StringToArrayConverter extends ToArrayConverter {
+final class StringToArrayConverter implements ConditionalGenericConverter {
+
   private final ConversionService conversionService;
 
   public StringToArrayConverter(ConversionService conversionService) {
@@ -44,24 +50,31 @@ final class StringToArrayConverter extends ToArrayConverter {
   }
 
   @Override
-  protected boolean supportsInternal(TypeDescriptor targetType, final Class<?> sourceType) {
-    // String.class, Object[].class
-    return sourceType == String.class;
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(String.class, Object[].class));
   }
 
   @Override
-  public Object convert(final TypeDescriptor targetType, final Object source) {
-    final String string = (String) source;
-    final List<String> fields = StringUtils.splitAsList(string);
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(sourceType, targetType.getElementDescriptor(),
+            this.conversionService);
+  }
 
-    final Class<?> targetElementType = targetType.getComponentType();
-    final Object target = Array.newInstance(targetElementType, fields.size());
-    final ConversionService conversionService = this.conversionService;
-
-    int i = 0;
-    for (final String sourceElement : fields) {
-      Object targetElement = conversionService.convert(sourceElement.trim(), targetElementType);
-      Array.set(target, i++, targetElement);
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    String string = (String) source;
+    String[] fields = StringUtils.commaDelimitedListToStringArray(string);
+    TypeDescriptor targetElementType = targetType.getElementDescriptor();
+    Assert.state(targetElementType != null, "No target element type");
+    Object target = Array.newInstance(targetElementType.getType(), fields.length);
+    for (int i = 0; i < fields.length; i++) {
+      String sourceElement = fields[i];
+      Object targetElement = this.conversionService.convert(sourceElement.trim(), sourceType, targetElementType);
+      Array.set(target, i, targetElement);
     }
     return target;
   }

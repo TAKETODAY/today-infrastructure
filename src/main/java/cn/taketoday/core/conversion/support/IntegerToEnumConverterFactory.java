@@ -21,31 +21,35 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.Converter;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
+import cn.taketoday.core.conversion.ConverterFactory;
 
 /**
- * Converts a String to a Properties by calling Properties#load(java.io.InputStream).
- * Uses ISO-8559-1 encoding required by Properties.
+ * Converts from a Integer to a {@link Enum} by calling {@link Class#getEnumConstants()}.
  *
- * @author Keith Donald
- * @since 3.0
+ * @author Yanming Zhou
+ * @author Stephane Nicoll
+ * @since 4.3
  */
-final class StringToPropertiesConverter implements Converter<String, Properties> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+final class IntegerToEnumConverterFactory implements ConverterFactory<Integer, Enum> {
 
 	@Override
-	public Properties convert(String source) {
-		try {
-			Properties props = new Properties();
-			// Must use the ISO-8859-1 encoding because Properties.load(stream) expects it.
-			props.load(new ByteArrayInputStream(source.getBytes(StandardCharsets.ISO_8859_1)));
-			return props;
+	public <T extends Enum> Converter<Integer, T> getConverter(Class<T> targetType) {
+		return new IntegerToEnum(ConversionUtils.getEnumType(targetType));
+	}
+
+
+	private static class IntegerToEnum<T extends Enum> implements Converter<Integer, T> {
+
+		private final Class<T> enumType;
+
+		public IntegerToEnum(Class<T> enumType) {
+			this.enumType = enumType;
 		}
-		catch (Exception ex) {
-			// Should never happen.
-			throw new IllegalArgumentException("Failed to parse [" + source + "] into Properties", ex);
+
+		@Override
+		public T convert(Integer source) {
+			return this.enumType.getEnumConstants()[source];
 		}
 	}
 

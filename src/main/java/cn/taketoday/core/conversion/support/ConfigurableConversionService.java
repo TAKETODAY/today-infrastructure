@@ -21,25 +21,23 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.conversion.ConverterRegistry;
 
 /**
- * Calls {@link Enum#name()} to convert a source Enum to a String.
- * This converter will not match enums with interfaces that can be converted.
+ * Configuration interface to be implemented by most if not all {@link ConversionService}
+ * types. Consolidates the read-only operations exposed by {@link ConversionService} and
+ * the mutating operations of {@link ConverterRegistry} to allow for convenient ad-hoc
+ * addition and removal of {@link cn.taketoday.core.conversion.Converter
+ * Converters} through. The latter is particularly useful when working against a
+ * {@link cn.taketoday.core.env.ConfigurableEnvironment ConfigurableEnvironment}
+ * instance in application context bootstrapping code.
  *
- * @author Keith Donald
- * @author Phillip Webb
- * @since 3.0
+ * @author Chris Beams
+ * @since 3.1
+ * @see cn.taketoday.core.env.ConfigurablePropertyResolver#getConversionService()
+ * @see cn.taketoday.core.env.ConfigurableEnvironment
+ * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment()
  */
-final class EnumToStringConverter extends AbstractConditionalEnumConverter implements Converter<Enum<?>, String> {
-
-	public EnumToStringConverter(ConversionService conversionService) {
-		super(conversionService);
-	}
-
-	@Override
-	public String convert(Enum<?> source) {
-		return source.name();
-	}
+public interface ConfigurableConversionService extends ConversionService, ConverterRegistry {
 
 }

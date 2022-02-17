@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,36 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.conversion.AbstractTypeCapable;
 import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Converts a String to a Character.
  *
  * @author Keith Donald
- * @author TODAY
  * @since 3.0
  */
-final class StringToCharacterConverter
-        extends AbstractTypeCapable implements Converter<String, Character> {
+final class StringToCharacterConverter implements Converter<String, Character> {
 
-  protected StringToCharacterConverter(Class<?> type) {
-    super(type);
-  }
-
-  @Override
-  public Character convert(final String source) {
-    if (source.isEmpty()) {
-      return null;
-    }
-    if (source.length() > 1) {
-      throw new IllegalArgumentException(
-              "Can only convert a [String] with length of 1 to a [Character]; string value '"
-                      + source + "'  has length of " + source.length());
-    }
-    return source.charAt(0);
-  }
+	@Override
+	@Nullable
+	public Character convert(String source) {
+		if (source.isEmpty()) {
+			return null;
+		}
+		if (source.length() > 1) {
+			throw new IllegalArgumentException(
+					"Can only convert a [String] with length of 1 to a [Character]; string value '" + source + "'  has length of " + source.length());
+		}
+		return source.charAt(0);
+	}
 
 }

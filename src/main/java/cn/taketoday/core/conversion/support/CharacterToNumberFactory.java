@@ -21,13 +21,18 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.conversion.ConverterFactory;
+import cn.taketoday.util.NumberUtils;
 
 /**
- * Converts from any JDK-standard Number implementation to a Character.
+ * Converts from a Character to any JDK-standard Number implementation.
+ *
+ * <p>Support Number classes including Byte, Short, Integer, Float, Double, Long, BigInteger, BigDecimal. This class
+ * delegates to {@link NumberUtils#convertNumberToTargetClass(Number, Class)} to perform the conversion.
  *
  * @author Keith Donald
  * @since 3.0
- * @see Character
+ * @see Byte
  * @see Short
  * @see Integer
  * @see Long
@@ -35,12 +40,27 @@ import cn.taketoday.core.conversion.Converter;
  * @see Float
  * @see Double
  * @see java.math.BigDecimal
+ * @see NumberUtils
  */
-final class NumberToCharacterConverter implements Converter<Number, Character> {
+final class CharacterToNumberFactory implements ConverterFactory<Character, Number> {
 
 	@Override
-	public Character convert(Number source) {
-		return (char) source.shortValue();
+	public <T extends Number> Converter<Character, T> getConverter(Class<T> targetType) {
+		return new CharacterToNumber<>(targetType);
+	}
+
+	private static final class CharacterToNumber<T extends Number> implements Converter<Character, T> {
+
+		private final Class<T> targetType;
+
+		public CharacterToNumber(Class<T> targetType) {
+			this.targetType = targetType;
+		}
+
+		@Override
+		public T convert(Character source) {
+			return NumberUtils.convertNumberToTargetClass((short) source.charValue(), this.targetType);
+		}
 	}
 
 }

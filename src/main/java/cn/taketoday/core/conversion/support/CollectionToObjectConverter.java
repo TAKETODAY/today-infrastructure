@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,23 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Converts a Collection to an Object by returning the first
- * collection element after converting it to the desired targetType.
+ * Converts a Collection to an Object by returning the first collection element after converting it to the desired targetType.
  *
  * @author Keith Donald
  * @author TODAY
  * @since 3.0
  */
-final class CollectionToObjectConverter extends CollectionSourceConverter {
+final class CollectionToObjectConverter implements ConditionalGenericConverter {
+
   private final ConversionService conversionService;
 
   public CollectionToObjectConverter(ConversionService conversionService) {
@@ -41,27 +45,30 @@ final class CollectionToObjectConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    // Collection.class, Object.class
-    final ResolvableType resolvableType = ResolvableType.fromClass(sourceType).asCollection();
-    if (resolvableType.hasGenerics()) {
-      final ResolvableType generic = resolvableType.getGeneric(0);
-      return generic != ResolvableType.NONE && this.conversionService.canConvert(generic.toClass(), targetType);
-    }
-    return false;
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Collection.class, Object.class));
   }
 
   @Override
-  protected Object convertInternal(TypeDescriptor targetType, Collection<?> sourceCollection) {
-    if (targetType.isInstance(sourceCollection)) {
-      return sourceCollection;
-    }
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(sourceType.getElementDescriptor(), targetType, this.conversionService);
+  }
 
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    if (sourceType.isAssignableTo(targetType)) {
+      return source;
+    }
+    Collection<?> sourceCollection = (Collection<?>) source;
     if (sourceCollection.isEmpty()) {
       return null;
     }
     Object firstElement = sourceCollection.iterator().next();
-    return this.conversionService.convert(firstElement, targetType);
+    return this.conversionService.convert(firstElement, sourceType.elementDescriptor(firstElement), targetType);
   }
 
 }

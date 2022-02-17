@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,60 +17,58 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import java.util.HashSet;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.lang.Nullable;
 
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.MatchingConverter;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Converts String to a Boolean.
  *
  * @author Keith Donald
  * @author Juergen Hoeller
- * @author TODAY
  * @since 3.0
  */
-public final class StringToBooleanConverter extends StringSourceMatchingConverter implements MatchingConverter {
-  public static final HashSet<String> trueValues = new HashSet<>(8);
-  public static final HashSet<String> falseValues = new HashSet<>(8);
+final class StringToBooleanConverter implements Converter<String, Boolean> {
 
-  static {
-    trueValues.add("true");
-    trueValues.add("on");
-    trueValues.add("yes");
-    trueValues.add("1");
+	private static final Set<String> trueValues = new HashSet<>(8);
 
-    falseValues.add("false");
-    falseValues.add("off");
-    falseValues.add("no");
-    falseValues.add("0");
-  }
+	private static final Set<String> falseValues = new HashSet<>(8);
 
-  @Override
-  public boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    return targetType.is(boolean.class) || targetType.is(Boolean.class);
-  }
+	static {
+		trueValues.add("true");
+		trueValues.add("on");
+		trueValues.add("yes");
+		trueValues.add("1");
 
-  @Override
-  protected Object convertInternal(final TypeDescriptor targetType, final String source) {
-    String value = source.trim();
-    if (value.isEmpty()) {
-      if (targetType.is(Boolean.class)) {
-        return null;
-      }
-      return Boolean.FALSE;
-    }
-    value = value.toLowerCase();
-    if (trueValues.contains(value)) {
-      return Boolean.TRUE;
-    }
-    else if (falseValues.contains(value)) {
-      return Boolean.FALSE;
-    }
-    else {
-      throw new IllegalArgumentException("Invalid boolean value '" + source + "'");
-    }
-  }
+		falseValues.add("false");
+		falseValues.add("off");
+		falseValues.add("no");
+		falseValues.add("0");
+	}
+
+
+	@Override
+	@Nullable
+	public Boolean convert(String source) {
+		String value = source.trim();
+		if (value.isEmpty()) {
+			return null;
+		}
+		value = value.toLowerCase();
+		if (trueValues.contains(value)) {
+			return Boolean.TRUE;
+		}
+		else if (falseValues.contains(value)) {
+			return Boolean.FALSE;
+		}
+		else {
+			throw new IllegalArgumentException("Invalid boolean value '" + source + "'");
+		}
+	}
+
 }

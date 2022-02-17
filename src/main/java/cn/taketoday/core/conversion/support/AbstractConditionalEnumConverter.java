@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,24 +20,35 @@
 
 package cn.taketoday.core.conversion.support;
 
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.core.conversion.ConditionalConverter;
 import cn.taketoday.util.ClassUtils;
 
 /**
- * @author TODAY 2021/3/22 16:43
- * @since 3.0
+ * A {@link ConditionalConverter} base implementation for enum-based converters.
+ *
+ * @author Stephane Nicoll
+ * @since 4.3
  */
-final class IntegerToEnumConverter implements MatchingConverter {
+abstract class AbstractConditionalEnumConverter implements ConditionalConverter {
 
-  @Override
-  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
-    return sourceType == Integer.class
-            && targetType.isAssignableTo(Enum.class);
-  }
+	private final ConversionService conversionService;
 
-  @Override
-  public Object convert(final TypeDescriptor targetType, final Object source) {
-    return ClassUtils.getEnumType(targetType.getType()).getEnumConstants()[(int) source];
-  }
+
+	protected AbstractConditionalEnumConverter(ConversionService conversionService) {
+		this.conversionService = conversionService;
+	}
+
+
+	@Override
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClassAsSet(sourceType.getType())) {
+			if (this.conversionService.canConvert(TypeDescriptor.valueOf(interfaceType), targetType)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

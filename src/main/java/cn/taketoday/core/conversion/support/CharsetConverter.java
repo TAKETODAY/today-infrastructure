@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
  * @author TODAY 2021/3/21 11:17
  * @since 3.0
  */
-public class CharsetConverter extends StringSourceConverter<Charset> {
+public class CharsetConverter implements cn.taketoday.core.conversion.Converter<String, Charset> {
 
   @Override
   public Charset convert(String source) {

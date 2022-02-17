@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,15 +26,13 @@ import cn.taketoday.core.conversion.Converter;
  * Simply calls {@link Object#toString()} to convert a source Object to a String.
  *
  * @author Keith Donald
- * @author TODAY
  * @since 3.0
  */
 final class ObjectToStringConverter implements Converter<Object, String> {
-  static final ObjectToStringConverter INSTANCE = new ObjectToStringConverter();
 
-  @Override
-  public String convert(Object source) {
-    return source.toString();
-  }
+	@Override
+	public String convert(Object source) {
+		return source.toString();
+	}
 
 }

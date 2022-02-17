@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,34 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
+
+import cn.taketoday.core.conversion.Converter;
 
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import cn.taketoday.core.conversion.Converter;
-
 /**
  * Simple converter from Java 8's {@link ZonedDateTime} to {@link Calendar}.
  *
- * <p>Note that default ConversionService setup understands the
- * 'from'/'to' convention that the JSR-310 {@code java.time}
- * package consistently uses. That convention is implemented
- * reflectively in {@link ObjectToObjectConverter}, not in
- * specific JSR-310 converters. It covers {@link GregorianCalendar#toZonedDateTime()}
- * as well, and also {@link java.util.Date#from(java.time.Instant)}
- * and {@link java.util.Date#toInstant()}.
+ * <p>Note that Spring's default ConversionService setup understands the 'from'/'to' convention
+ * that the JSR-310 {@code java.time} package consistently uses. That convention is implemented
+ * reflectively in {@link ObjectToObjectConverter}, not in specific JSR-310 converters.
+ * It covers {@link GregorianCalendar#toZonedDateTime()} as well, and also
+ * {@link java.util.Date#from(java.time.Instant)} and {@link java.util.Date#toInstant()}.
  *
  * @author Juergen Hoeller
+ * @since 4.0.1
  * @see GregorianCalendar#from(ZonedDateTime)
- * @since 4.0
  */
 final class ZonedDateTimeToCalendarConverter implements Converter<ZonedDateTime, Calendar> {
 
-  @Override
-  public Calendar convert(ZonedDateTime source) {
-    return GregorianCalendar.from(source);
-  }
+	@Override
+	public Calendar convert(ZonedDateTime source) {
+		return GregorianCalendar.from(source);
+	}
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,15 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.MatchingConverter;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Converts a Collection to an array.
@@ -40,28 +44,39 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY
  * @since 3.0
  */
-final class CollectionToArrayConverter extends ToArrayConverter implements MatchingConverter {
-  final ConversionService conversionService;
+final class CollectionToArrayConverter implements ConditionalGenericConverter {
+
+  private final ConversionService conversionService;
 
   public CollectionToArrayConverter(ConversionService conversionService) {
     this.conversionService = conversionService;
   }
 
   @Override
-  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    //Collection.class, Object[].class
-    return CollectionUtils.isCollection(sourceType);
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Collection.class, Object[].class));
   }
 
   @Override
-  public Object convert(TypeDescriptor targetType, Object source) {
-    final Class<?> elementType = targetType.getComponentType();
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(sourceType.getElementDescriptor(),
+            targetType.getElementDescriptor(), this.conversionService);
+  }
+
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
     Collection<?> sourceCollection = (Collection<?>) source;
-    Object array = Array.newInstance(elementType, sourceCollection.size());
+    TypeDescriptor targetElementType = targetType.getElementDescriptor();
+    Assert.state(targetElementType != null, "No target element type");
+    Object array = Array.newInstance(targetElementType.getType(), sourceCollection.size());
     int i = 0;
-    final ConversionService conversionService = this.conversionService;
     for (Object sourceElement : sourceCollection) {
-      Object targetElement = conversionService.convert(sourceElement, elementType);
+      Object targetElement = this.conversionService.convert(sourceElement,
+              sourceType.elementDescriptor(sourceElement), targetElementType);
       Array.set(array, i++, targetElement);
     }
     return array;

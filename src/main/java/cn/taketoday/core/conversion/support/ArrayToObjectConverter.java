@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,12 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Converts an array to an Object by returning the first array element
@@ -32,7 +37,7 @@ import cn.taketoday.core.conversion.ConversionService;
  * @author TODAY
  * @since 3.0
  */
-final class ArrayToObjectConverter extends ArraySourceConverter {
+final class ArrayToObjectConverter implements ConditionalGenericConverter {
 
   private final ConversionService conversionService;
 
@@ -41,23 +46,29 @@ final class ArrayToObjectConverter extends ArraySourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(final TypeDescriptor targetType, Class<?> sourceType) {
-    // Object[].class -> Object.class
-    final Class<?> componentType = sourceType.getComponentType();
-    return conversionService.canConvert(componentType, targetType.getType());
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Object[].class, Object.class));
   }
 
   @Override
-  public Object convert(final TypeDescriptor targetType, final Object source) {
-    if (targetType.isInstance(source)) {
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(sourceType.getElementDescriptor(), targetType, this.conversionService);
+  }
+
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    if (sourceType.isAssignableTo(targetType)) {
       return source;
     }
     if (Array.getLength(source) == 0) {
       return null;
     }
-    // first element
     Object firstElement = Array.get(source, 0);
-    return this.conversionService.convert(firstElement, targetType);
+    return this.conversionService.convert(firstElement, sourceType.elementDescriptor(firstElement), targetType);
   }
 
 }

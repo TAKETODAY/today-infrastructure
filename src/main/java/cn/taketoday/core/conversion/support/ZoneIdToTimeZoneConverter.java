@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
+
+import cn.taketoday.core.conversion.Converter;
 
 import java.time.ZoneId;
 import java.util.TimeZone;
 
-import cn.taketoday.core.conversion.Converter;
-
 /**
  * Simple converter from Java 8's {@link ZoneId} to {@link TimeZone}.
  *
- * <p>Note that default ConversionService setup understands the 'from'/'to' convention
+ * <p>Note that Spring's default ConversionService setup understands the 'from'/'to' convention
  * that the JSR-310 {@code java.time} package consistently uses. That convention is implemented
  * reflectively in {@link ObjectToObjectConverter}, not in specific JSR-310 converters.
  * It covers {@link TimeZone#toZoneId()} as well, and also
  * {@link java.util.Date#from(java.time.Instant)} and {@link java.util.Date#toInstant()}.
  *
  * @author Juergen Hoeller
+ * @since 4.0
  * @see TimeZone#getTimeZone(ZoneId)
- * @since 3.0
  */
 final class ZoneIdToTimeZoneConverter implements Converter<ZoneId, TimeZone> {
 
-  @Override
-  public TimeZone convert(ZoneId source) {
-    return TimeZone.getTimeZone(source);
-  }
+	@Override
+	public TimeZone convert(ZoneId source) {
+		return TimeZone.getTimeZone(source);
+	}
 
 }

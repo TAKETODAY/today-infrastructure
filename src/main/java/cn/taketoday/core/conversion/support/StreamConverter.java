@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,122 +17,118 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.lang.Nullable;
+
 import java.util.Collection;
-import java.util.function.UnaryOperator;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.MatchingConverter;
-import cn.taketoday.util.CollectionUtils;
-
 /**
- * Converts a {@link Stream} to and from a collection or array,
- * converting the element type if necessary.
+ * Converts a {@link Stream} to and from a collection or array, converting the
+ * element type if necessary.
  *
  * @author Stephane Nicoll
- * @author TODAY
- * @since 3.o
+ * @since 4.2
  */
-final class StreamConverter implements MatchingConverter {
-  private final ConversionService conversionService;
+class StreamConverter implements ConditionalGenericConverter {
 
-  public StreamConverter(ConversionService conversionService) {
-    this.conversionService = conversionService;
-  }
+	private static final TypeDescriptor STREAM_TYPE = TypeDescriptor.valueOf(Stream.class);
 
-  @Override
-  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
-    // Stream.class, Collection.class
-    // Stream.class, Object[].class
-    // Collection.class, Stream.class
-    // Object[].class, Stream.class
+	private static final Set<ConvertiblePair> CONVERTIBLE_TYPES = createConvertibleTypes();
 
-    if (Stream.class.isAssignableFrom(sourceType)) {
-      return targetType.isCollection() || targetType.isArray();
-    }
-    if (targetType.is(Stream.class)) {
-      return CollectionUtils.isCollection(sourceType) || sourceType.isArray();
-    }
-    return false;
-  }
+	private final ConversionService conversionService;
 
-  @Override
-  public Object convert(TypeDescriptor targetType, Object source) {
-    if (source instanceof Stream) {
-      return convertFromStream((Stream<?>) source, targetType);
-    }
-    TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
-    if (elementDescriptor == null) {
-      // convert to Stream
-      if (source instanceof Collection) {
-        return ((Collection<?>) source).stream();
-      }
-      else if (source instanceof Object[]) {
-        return Arrays.stream((Object[]) source);
-      }
-    }
-    else {
-      if (source instanceof Collection<?> collection) {
-        ArrayList<Object> target = new ArrayList<>(collection.size());
 
-        for (Object element : collection) {
-          Object converted = conversionService.convert(element, elementDescriptor);
-          target.add(converted);
-        }
-        return target.stream();
-      }
-      else if (source instanceof Object[] sourceArray) {
-        // array
-        ArrayList<Object> target = new ArrayList<>(sourceArray.length);
-        for (Object element : sourceArray) {
-          Object converted = conversionService.convert(element, elementDescriptor);
-          target.add(converted);
-        }
-        return target.stream();
-      }
-    }
-    // Should not happen
-    throw new IllegalStateException("Unexpected source/target types");
-  }
+	public StreamConverter(ConversionService conversionService) {
+		this.conversionService = conversionService;
+	}
 
-  private Object convertFromStream(Stream<?> source, TypeDescriptor targetType) {
-    final class MapFunction implements UnaryOperator<Object> {
-      final TypeDescriptor elementType;
 
-      MapFunction(TypeDescriptor elementType) {
-        this.elementType = elementType;
-      }
+	@Override
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		return CONVERTIBLE_TYPES;
+	}
 
-      @Override
-      public Object apply(Object original) {
-        return conversionService.convert(original, elementType);
-      }
-    }
+	@Override
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (sourceType.isAssignableTo(STREAM_TYPE)) {
+			return matchesFromStream(sourceType.getElementDescriptor(), targetType);
+		}
+		if (targetType.isAssignableTo(STREAM_TYPE)) {
+			return matchesToStream(targetType.getElementDescriptor(), sourceType);
+		}
+		return false;
+	}
 
-    TypeDescriptor elementType = targetType.getElementDescriptor();
-    if (elementType != null) {
-      if (targetType.isCollection()) {
-        return source.map(new MapFunction(elementType))
-                .collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
-                        targetType.getType(), elementType.getType(), 16)));
-      }
-      return source.map(new MapFunction(elementType))
-              .toArray(count -> (Object[]) Array.newInstance(elementType.getType(), count));
-    }
+	/**
+	 * Validate that a {@link Collection} of the elements held within the stream can be
+	 * converted to the specified {@code targetType}.
+	 * @param elementType the type of the stream elements
+	 * @param targetType the type to convert to
+	 */
+	public boolean matchesFromStream(@Nullable TypeDescriptor elementType, TypeDescriptor targetType) {
+		TypeDescriptor collectionOfElement = TypeDescriptor.collection(Collection.class, elementType);
+		return this.conversionService.canConvert(collectionOfElement, targetType);
+	}
 
-    // elementType is null
-    if (targetType.isCollection()) {
-      return source.collect(Collectors.toCollection(() -> CollectionUtils.createCollection(
-              targetType.getType(), null, 16)));
-    }
-    return source.toArray(Object[]::new);
-  }
+	/**
+	 * Validate that the specified {@code sourceType} can be converted to a {@link Collection} of
+	 * the type of the stream elements.
+	 * @param elementType the type of the stream elements
+	 * @param sourceType the type to convert from
+	 */
+	public boolean matchesToStream(@Nullable TypeDescriptor elementType, TypeDescriptor sourceType) {
+		TypeDescriptor collectionOfElement = TypeDescriptor.collection(Collection.class, elementType);
+		return this.conversionService.canConvert(sourceType, collectionOfElement);
+	}
+
+	@Override
+	@Nullable
+	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (sourceType.isAssignableTo(STREAM_TYPE)) {
+			return convertFromStream((Stream<?>) source, sourceType, targetType);
+		}
+		if (targetType.isAssignableTo(STREAM_TYPE)) {
+			return convertToStream(source, sourceType, targetType);
+		}
+		// Should not happen
+		throw new IllegalStateException("Unexpected source/target types");
+	}
+
+	@Nullable
+	private Object convertFromStream(@Nullable Stream<?> source, TypeDescriptor streamType, TypeDescriptor targetType) {
+		List<Object> content = (source != null ? source.collect(Collectors.<Object>toList()) : Collections.emptyList());
+		TypeDescriptor listType = TypeDescriptor.collection(List.class, streamType.getElementDescriptor());
+		return this.conversionService.convert(content, listType, targetType);
+	}
+
+	private Object convertToStream(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor streamType) {
+		TypeDescriptor targetCollection = TypeDescriptor.collection(List.class, streamType.getElementDescriptor());
+		List<?> target = (List<?>) this.conversionService.convert(source, sourceType, targetCollection);
+		if (target == null) {
+			target = Collections.emptyList();
+		}
+		return target.stream();
+	}
+
+
+	private static Set<ConvertiblePair> createConvertibleTypes() {
+		Set<ConvertiblePair> convertiblePairs = new HashSet<>();
+		convertiblePairs.add(new ConvertiblePair(Stream.class, Collection.class));
+		convertiblePairs.add(new ConvertiblePair(Stream.class, Object[].class));
+		convertiblePairs.add(new ConvertiblePair(Collection.class, Stream.class));
+		convertiblePairs.add(new ConvertiblePair(Object[].class, Stream.class));
+		return convertiblePairs;
+	}
 
 }

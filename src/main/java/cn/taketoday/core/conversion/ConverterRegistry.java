@@ -28,34 +28,45 @@ import java.util.List;
  */
 public interface ConverterRegistry {
 
-  void setConverters(MatchingConverter... cts);
+  /**
+   * Add a plain converter to this registry.
+   * The convertible source/target type pair is derived from the Converter's parameterized types.
+   *
+   * @throws IllegalArgumentException if the parameterized types could not be resolved
+   */
+  void addConverter(Converter<?, ?> converter);
 
   /**
-   * Add {@link MatchingConverter}s
-   *
-   * @param converters {@link MatchingConverter} object
+   * Add a plain converter to this registry.
+   * The convertible source/target type pair is specified explicitly.
+   * <p>Allows for a Converter to be reused for multiple distinct pairs without
+   * having to create a Converter class for each pair.
    */
-  void addConverters(MatchingConverter... converters);
-
-  void addConverter(MatchingConverter converter);
+  <S, T> void addConverter(Class<S> sourceType, Class<T> targetType, Converter<? super S, ? extends T> converter);
 
   /**
-   * Add a list of {@link MatchingConverter}
+   * Add a generic converter to this registry.
    *
-   * @param converters {@link MatchingConverter} object
+   * @since 4.0
    */
-  void addConverters(List<MatchingConverter> converters);
+  void addConverter(GenericConverter converter);
 
-  // Converter
+  /**
+   * Add a ranged converter factory to this registry.
+   * The convertible source/target type pair is derived from the ConverterFactory's parameterized types.
+   *
+   * @throws IllegalArgumentException if the parameterized types could not be resolved
+   * @since 4.0
+   */
+  void addConverterFactory(ConverterFactory<?, ?> factory);
 
-  <S, T> void addConverter(Converter<S, T> converter);
-
-  void addConverters(Converter<?, ?>... converters);
-
-  <S, T> void addConverter(
-          Class<T> targetType, Converter<? super S, ? extends T> converter);
-
-  <S, T> void addConverter(
-          Class<T> targetType, Class<S> sourceType, Converter<? super S, ? extends T> converter);
+  /**
+   * Remove any converters from {@code sourceType} to {@code targetType}.
+   *
+   * @param sourceType the source type
+   * @param targetType the target type
+   * @since 4.0
+   */
+  void removeConvertible(Class<?> sourceType, Class<?> targetType);
 
 }

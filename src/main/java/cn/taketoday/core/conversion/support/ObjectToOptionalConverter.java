@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,15 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
+
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.lang.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Optional;
-
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.MatchingConverter;
+import java.util.Set;
 
 /**
  * Convert an Object to {@code java.util.Optional<T>} if necessary using the
@@ -33,63 +37,66 @@ import cn.taketoday.core.conversion.MatchingConverter;
  * of Optional when known.
  *
  * @author Rossen Stoyanchev
- * @author TODAY
  * @author Juergen Hoeller
- * @since 3.0
+ * @since 4.1
  */
-final class ObjectToOptionalConverter implements MatchingConverter {
-  private final ConversionService conversionService;
+final class ObjectToOptionalConverter implements ConditionalGenericConverter {
 
-  public ObjectToOptionalConverter(ConversionService conversionService) {
-    this.conversionService = conversionService;
-  }
+	private final ConversionService conversionService;
 
-  @Override
-  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
-    // Collection.class -> Optional.class
-    // Object[].class -> Optional.class
-    // Object.class -> Optional.class
 
-    if (targetType.is(Optional.class)) {
-      final TypeDescriptor valueType = targetType.getGeneric(Optional.class);
-      if (valueType != null) {
-        return this.conversionService.canConvert(sourceType, valueType);
-      }
-    }
-    return false;
-  }
+	public ObjectToOptionalConverter(ConversionService conversionService) {
+		this.conversionService = conversionService;
+	}
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public Object convert(final TypeDescriptor targetType, final Object source) {
-    // Optional<E> -> E
 
-    if (source instanceof Optional) {
-      final Optional<Object> optional = (Optional<Object>) source;
-      if (optional.isPresent()) {
-        final TypeDescriptor elementType = targetType.getGeneric(Optional.class);
-        final Object original = optional.get();
-        if (elementType != null && !elementType.isInstance(original)) {
-          final Object converted = conversionService.convert(optional, elementType);
-          return Optional.of(converted);
-        }
-        // return original source
-      }
-      return source;
-    }
-    final TypeDescriptor elementType = targetType.getGeneric(Optional.class);
-    if (elementType != null) {
-      final Object target = this.conversionService.convert(source, elementType);
-      if (target == null
-              || (target.getClass().isArray() && Array.getLength(target) == 0)
-              || (target instanceof Collection && ((Collection<?>) target).isEmpty())) {
-        return Optional.empty();
-      }
-      return Optional.of(target);
-    }
-    else { // not a Optional
-      return Optional.of(source);
-    }
-  }
+	@Override
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		Set<ConvertiblePair> convertibleTypes = new LinkedHashSet<>(4);
+		convertibleTypes.add(new ConvertiblePair(Collection.class, Optional.class));
+		convertibleTypes.add(new ConvertiblePair(Object[].class, Optional.class));
+		convertibleTypes.add(new ConvertiblePair(Object.class, Optional.class));
+		return convertibleTypes;
+	}
+
+	@Override
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (targetType.getResolvableType().hasGenerics()) {
+			return this.conversionService.canConvert(sourceType, new GenericTypeDescriptor(targetType));
+		}
+		else {
+			return true;
+		}
+	}
+
+	@Override
+	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (source == null) {
+			return Optional.empty();
+		}
+		else if (source instanceof Optional) {
+			return source;
+		}
+		else if (targetType.getResolvableType().hasGenerics()) {
+			Object target = this.conversionService.convert(source, sourceType, new GenericTypeDescriptor(targetType));
+			if (target == null || (target.getClass().isArray() && Array.getLength(target) == 0) ||
+						(target instanceof Collection && ((Collection<?>) target).isEmpty())) {
+				return Optional.empty();
+			}
+			return Optional.of(target);
+		}
+		else {
+			return Optional.of(source);
+		}
+	}
+
+
+	@SuppressWarnings("serial")
+	private static class GenericTypeDescriptor extends TypeDescriptor {
+
+		public GenericTypeDescriptor(TypeDescriptor typeDescriptor) {
+			super(typeDescriptor.getResolvableType().getGeneric(), null, typeDescriptor.getAnnotations());
+		}
+	}
 
 }

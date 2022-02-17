@@ -21,31 +21,41 @@
 package cn.taketoday.core.conversion.support;
 
 import cn.taketoday.core.conversion.Converter;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
+import cn.taketoday.core.conversion.ConverterFactory;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Converts a String to a Properties by calling Properties#load(java.io.InputStream).
- * Uses ISO-8559-1 encoding required by Properties.
+ * Converts from a String to a {@link Enum} by calling {@link Enum#valueOf(Class, String)}.
  *
  * @author Keith Donald
+ * @author Stephane Nicoll
  * @since 3.0
  */
-final class StringToPropertiesConverter implements Converter<String, Properties> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+final class StringToEnumConverterFactory implements ConverterFactory<String, Enum> {
 
 	@Override
-	public Properties convert(String source) {
-		try {
-			Properties props = new Properties();
-			// Must use the ISO-8859-1 encoding because Properties.load(stream) expects it.
-			props.load(new ByteArrayInputStream(source.getBytes(StandardCharsets.ISO_8859_1)));
-			return props;
+	public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
+		return new StringToEnum(ConversionUtils.getEnumType(targetType));
+	}
+
+
+	private static class StringToEnum<T extends Enum> implements Converter<String, T> {
+
+		private final Class<T> enumType;
+
+		StringToEnum(Class<T> enumType) {
+			this.enumType = enumType;
 		}
-		catch (Exception ex) {
-			// Should never happen.
-			throw new IllegalArgumentException("Failed to parse [" + source + "] into Properties", ex);
+
+		@Override
+		@Nullable
+		public T convert(String source) {
+			if (source.isEmpty()) {
+				// It's an empty enum identifier: reset the enum value to null.
+				return null;
+			}
+			return (T) Enum.valueOf(this.enumType, source.trim());
 		}
 	}
 

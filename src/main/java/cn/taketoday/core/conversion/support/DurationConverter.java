@@ -28,7 +28,7 @@ import cn.taketoday.lang.Assert;
  * @author TODAY 2021/3/21 11:18
  * @since 3.0
  */
-public class DurationConverter extends StringSourceConverter<Duration> {
+public class DurationConverter implements cn.taketoday.core.conversion.Converter<String, Duration> {
 
   @Override
   public Duration convert(String source) {

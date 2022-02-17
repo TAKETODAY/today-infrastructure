@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,32 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.Converter;
 
 /**
- * @author TODAY <br>
- * 2019-06-06 15:31
- * @since 2.1.6
+ * Calls {@link Enum#ordinal()} to convert a source Enum to a Integer.
+ * This converter will not match enums with interfaces that can be converted.
+ *
+ * @author Yanming Zhou
+ * @since 4.3
  */
-public abstract class StringSourceMatchingConverter implements MatchingConverter {
+final class EnumToIntegerConverter extends AbstractConditionalEnumConverter implements Converter<Enum<?>, Integer> {
 
-  @Override
-  public final boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
-    return sourceType == String.class
-            && supportsInternal(targetType, sourceType);
-  }
+	public EnumToIntegerConverter(ConversionService conversionService) {
+		super(conversionService);
+	}
 
-  public boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    return true;
-  }
+	@Override
+	public Integer convert(Enum<?> source) {
+		return source.ordinal();
+	}
 
-  @Override
-  public final Object convert(TypeDescriptor targetType, Object source) {
-    return convertInternal(targetType, (String) source);
-  }
-
-  protected abstract Object convertInternal(TypeDescriptor targetClass, String source);
 }

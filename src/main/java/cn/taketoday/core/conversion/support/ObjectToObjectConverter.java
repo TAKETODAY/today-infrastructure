@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Constructor;
@@ -24,12 +25,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionFailedException;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -54,30 +59,40 @@ import cn.taketoday.util.ReflectionUtils;
  * <p><strong>Warning</strong>: this converter does <em>not</em> support the
  * {@link Object#toString()} method for converting from a {@code sourceType}
  * to {@code java.lang.String}. For {@code toString()} support, use
- * {@link FallbackConverter} instead.
+ * {@link FallbackObjectToStringConverter} instead.
  *
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see FallbackConverter
+ * @see FallbackObjectToStringConverter
  * @since 3.0
  */
-final class ObjectToObjectConverter implements MatchingConverter {
-  // Cache for the latest to-method resolved on a given Class
-  private static final Map<Class<?>, Member> conversionMemberCache = new ConcurrentHashMap<>(32);
+final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
-  // Object.class, Object.class
+  // Cache for the latest to-method resolved on a given Class
+  private static final Map<Class<?>, Member> conversionMemberCache =
+          new ConcurrentReferenceHashMap<>(32);
 
   @Override
-  public boolean supports(final TypeDescriptor targetType, final Class<?> sourceType) {
-    return !targetType.is(sourceType)
-            && hasConversionMethodOrConstructor(targetType.getType(), sourceType);
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Object.class, Object.class));
   }
 
   @Override
-  public Object convert(TypeDescriptor targetType, Object source) {
-    Class<?> sourceClass = source.getClass();
-    Member member = getValidatedMember(targetType.getType(), sourceClass);
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return (sourceType.getType() != targetType.getType() &&
+            hasConversionMethodOrConstructor(targetType.getType(), sourceType.getType()));
+  }
+
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    Class<?> sourceClass = sourceType.getType();
+    Class<?> targetClass = targetType.getType();
+    Member member = getValidatedMember(targetClass, sourceClass);
 
     try {
       if (member instanceof Method method) {
@@ -95,25 +110,25 @@ final class ObjectToObjectConverter implements MatchingConverter {
       }
     }
     catch (InvocationTargetException ex) {
-      throw new ConversionFailedException(ex.getTargetException(), source, targetType);
+      throw new ConversionFailedException(sourceType, targetType, source, ex.getTargetException());
     }
     catch (Throwable ex) {
-      throw new ConversionFailedException(ex, source, targetType);
+      throw new ConversionFailedException(sourceType, targetType, source, ex);
     }
 
     // If sourceClass is Number and targetClass is Integer, the following message should expand to:
     // No toInteger() method exists on java.lang.Number, and no static valueOf/of/from(java.lang.Number)
     // method or Integer(java.lang.Number) constructor exists on java.lang.Integer.
-    throw new IllegalStateException(
-            String.format("No to%3$s() method exists on %1$s, and no static valueOf/of/from(%1$s)" +
-                                  " method or %3$s(%1$s) constructor exists on %2$s.",
-                          sourceClass.getName(), targetType.getName(), targetType.getSimpleName()));
+    throw new IllegalStateException(String.format("No to%3$s() method exists on %1$s, " +
+                    "and no static valueOf/of/from(%1$s) method or %3$s(%1$s) constructor exists on %2$s.",
+            sourceClass.getName(), targetClass.getName(), targetClass.getSimpleName()));
   }
 
   static boolean hasConversionMethodOrConstructor(Class<?> targetClass, Class<?> sourceClass) {
     return (getValidatedMember(targetClass, sourceClass) != null);
   }
 
+  @Nullable
   private static Member getValidatedMember(Class<?> targetClass, Class<?> sourceClass) {
     Member member = conversionMemberCache.get(targetClass);
     if (isApplicable(member, sourceClass)) {
@@ -137,66 +152,51 @@ final class ObjectToObjectConverter implements MatchingConverter {
 
   private static boolean isApplicable(Member member, Class<?> sourceClass) {
     if (member instanceof Method method) {
-      return !Modifier.isStatic(method.getModifiers())
-             ? isAssignable(method.getDeclaringClass(), sourceClass)
-             : method.getParameterTypes()[0] == sourceClass;
+      return (!Modifier.isStatic(method.getModifiers()) ?
+              ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass) :
+              method.getParameterTypes()[0] == sourceClass);
     }
-    else if (member instanceof Constructor<?> ctor) {
-      return ctor.getParameterTypes()[0] == sourceClass;
+    else if (member instanceof Constructor) {
+      Constructor<?> ctor = (Constructor<?>) member;
+      return (ctor.getParameterTypes()[0] == sourceClass);
     }
     else {
       return false;
     }
   }
 
-  /**
-   * Check if the right-hand side type may be assigned to the left-hand side
-   * type, assuming setting by reflection. Considers primitive wrapper
-   * classes as assignable to the corresponding primitive types.
-   *
-   * @param lhsType the target type
-   * @param rhsType the value type that should be assigned to the target type
-   * @return if the target type is assignable from the value type
-   */
-  private static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
-    return lhsType.isAssignableFrom(rhsType);
-  }
-
+  @Nullable
   private static Method determineToMethod(Class<?> targetClass, Class<?> sourceClass) {
     if (String.class == targetClass || String.class == sourceClass) {
       // Do not accept a toString() method or any to methods on String itself
       return null;
     }
 
-    final Method method = ReflectionUtils.findMethod(sourceClass, "to" + targetClass.getSimpleName());
-    return method != null
-                   && !Modifier.isStatic(method.getModifiers())
-                   && isAssignable(targetClass, method.getReturnType()) ? method : null;
+    Method method = ReflectionUtils.getMethodIfAvailable(sourceClass, "to" + targetClass.getSimpleName());
+    return (method != null && !Modifier.isStatic(method.getModifiers()) &&
+                    ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null);
   }
 
+  @Nullable
   private static Method determineFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {
     if (String.class == targetClass) {
       // Do not accept the String.valueOf(Object) method
       return null;
     }
 
-    Method method = ReflectionUtils.findMethod(targetClass, "valueOf", sourceClass);
-    if (method == null || !Modifier.isStatic(method.getModifiers())) {
-      method = ReflectionUtils.findMethod(targetClass, "of", sourceClass);
-      if (method == null || !Modifier.isStatic(method.getModifiers())) {
-        method = ReflectionUtils.findMethod(targetClass, "from", sourceClass);
+    Method method = ReflectionUtils.getStaticMethod(targetClass, "valueOf", sourceClass);
+    if (method == null) {
+      method = ReflectionUtils.getStaticMethod(targetClass, "of", sourceClass);
+      if (method == null) {
+        method = ReflectionUtils.getStaticMethod(targetClass, "from", sourceClass);
       }
     }
     return method;
   }
 
+  @Nullable
   private static Constructor<?> determineFactoryConstructor(Class<?> targetClass, Class<?> sourceClass) {
-    try {
-      return targetClass.getDeclaredConstructor(sourceClass);
-    }
-    catch (NoSuchMethodException e) {
-      return null;
-    }
+    return ReflectionUtils.getConstructorIfAvailable(targetClass, sourceClass);
   }
 
 }

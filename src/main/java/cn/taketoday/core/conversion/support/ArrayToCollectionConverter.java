@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,14 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -39,7 +43,8 @@ import cn.taketoday.util.CollectionUtils;
  * @author Juergen Hoeller
  * @since 3.0
  */
-final class ArrayToCollectionConverter extends ArraySourceConverter implements MatchingConverter {
+final class ArrayToCollectionConverter implements ConditionalGenericConverter {
+
   private final ConversionService conversionService;
 
   public ArrayToCollectionConverter(ConversionService conversionService) {
@@ -47,28 +52,39 @@ final class ArrayToCollectionConverter extends ArraySourceConverter implements M
   }
 
   @Override
-  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    return targetType.isCollection();
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Object[].class, Collection.class));
   }
 
   @Override
-  public Object convert(TypeDescriptor targetType, Object source) {
-    final int length = Array.getLength(source);
-    final TypeDescriptor elementType = targetType.getElementDescriptor();
-    final Collection<Object> target = CollectionUtils.createCollection(
-            targetType.getType(), elementType != null ? elementType.getType() : null, length);
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(
+            sourceType.getElementDescriptor(), targetType.getElementDescriptor(), this.conversionService);
+  }
 
-    if (elementType == null) {
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+
+    int length = Array.getLength(source);
+    TypeDescriptor elementDesc = targetType.getElementDescriptor();
+    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(),
+            (elementDesc != null ? elementDesc.getType() : null), length);
+
+    if (elementDesc == null) {
       for (int i = 0; i < length; i++) {
         Object sourceElement = Array.get(source, i);
         target.add(sourceElement);
       }
     }
     else {
-      final ConversionService conversionService = this.conversionService;
       for (int i = 0; i < length; i++) {
         Object sourceElement = Array.get(source, i);
-        Object targetElement = conversionService.convert(sourceElement, elementType);
+        Object targetElement = this.conversionService.convert(sourceElement,
+                sourceType.elementDescriptor(sourceElement), elementDesc);
         target.add(targetElement);
       }
     }

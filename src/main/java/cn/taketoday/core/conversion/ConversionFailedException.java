@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,8 @@
 package cn.taketoday.core.conversion;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Exception to be thrown when an actual type conversion attempt fails.
@@ -31,15 +33,54 @@ import cn.taketoday.core.TypeDescriptor;
  * @since 3.0
  */
 public class ConversionFailedException extends ConversionException {
-  private static final long serialVersionUID = 1L;
 
-  public ConversionFailedException(Throwable cause, Object source, TypeDescriptor targetType) {
-    super("Failed to convert from type [" + source.getClass() + "] to type [" + targetType +
-                  "] for value '" + source + "'", cause, source, targetType);
+  @Nullable
+  private final TypeDescriptor sourceType;
+
+  private final TypeDescriptor targetType;
+
+  @Nullable
+  private final Object value;
+
+  /**
+   * Create a new conversion exception.
+   *
+   * @param sourceType the value's original type
+   * @param targetType the value's target type
+   * @param value the value we tried to convert
+   * @param cause the cause of the conversion failure
+   */
+  public ConversionFailedException(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType,
+                                   @Nullable Object value, Throwable cause) {
+
+    super("Failed to convert from type [" + sourceType + "] to type [" + targetType +
+            "] for value '" + ObjectUtils.nullSafeToString(value) + "'", cause);
+    this.sourceType = sourceType;
+    this.targetType = targetType;
+    this.value = value;
   }
 
-  public ConversionFailedException(String message, Throwable cause, Object source, TypeDescriptor targetType) {
-    super(message, cause, source, targetType);
+  /**
+   * Return the source type we tried to convert the value from.
+   */
+  @Nullable
+  public TypeDescriptor getSourceType() {
+    return this.sourceType;
+  }
+
+  /**
+   * Return the target type we tried to convert the value to.
+   */
+  public TypeDescriptor getTargetType() {
+    return this.targetType;
+  }
+
+  /**
+   * Return the offending value.
+   */
+  @Nullable
+  public Object getValue() {
+    return this.value;
   }
 
 }

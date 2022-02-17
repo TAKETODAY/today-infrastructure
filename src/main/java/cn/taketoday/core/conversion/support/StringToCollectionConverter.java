@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,18 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Converts a split-able String to a Collection.
+ * Converts a comma-delimited String to a Collection.
  * If the target collection element type is declared, only matches if
  * {@code String.class} can be converted to it.
  *
@@ -38,7 +42,8 @@ import cn.taketoday.util.StringUtils;
  * @see StringUtils#splitAsList(String)
  * @since 3.0
  */
-final class StringToCollectionConverter extends StringSourceMatchingConverter {
+final class StringToCollectionConverter implements ConditionalGenericConverter {
+
   private final ConversionService conversionService;
 
   public StringToCollectionConverter(ConversionService conversionService) {
@@ -46,26 +51,36 @@ final class StringToCollectionConverter extends StringSourceMatchingConverter {
   }
 
   @Override
-  public boolean supportsInternal(final TypeDescriptor targetType, final Class<?> sourceType) {
-    // String.class, Collection.class
-    return targetType.isCollection();
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(String.class, Collection.class));
   }
 
   @Override
-  protected Object convertInternal(TypeDescriptor targetType, String string) {
-    final List<String> fields = StringUtils.splitAsList(string);
-    final TypeDescriptor elementType = targetType.getGeneric(Collection.class);
-    final Collection<Object> target = CollectionUtils.createCollection(
-            targetType.getType(), elementType != null ? elementType.getType() : null, fields.size());
-    if (elementType == null) {
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return (targetType.getElementDescriptor() == null ||
+            this.conversionService.canConvert(sourceType, targetType.getElementDescriptor()));
+  }
+
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    String string = (String) source;
+
+    String[] fields = StringUtils.commaDelimitedListToStringArray(string);
+    TypeDescriptor elementDesc = targetType.getElementDescriptor();
+    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(),
+            (elementDesc != null ? elementDesc.getType() : null), fields.length);
+    if (elementDesc == null) {
       for (String field : fields) {
         target.add(field.trim());
       }
     }
     else {
-      final ConversionService conversionService = this.conversionService;
       for (String field : fields) {
-        Object targetElement = conversionService.convert(field.trim(), elementType);
+        Object targetElement = this.conversionService.convert(field.trim(), sourceType, elementDesc);
         target.add(targetElement);
       }
     }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,18 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import java.io.StringWriter;
-
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.lang.Nullable;
+
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Simply calls {@link Object#toString()} to convert any supported object
  * to a {@link String}.
- * If source is instance of {@code targetType}, just return {@code source}
  *
  * <p>Supports {@link CharSequence}, {@link StringWriter}, and any class
  * with a String constructor or one of the following static factory methods:
@@ -40,37 +42,32 @@ import cn.taketoday.core.conversion.MatchingConverter;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see ObjectToObjectConverter
  * @since 3.0
+ * @see ObjectToObjectConverter
  */
-final class FallbackConverter implements MatchingConverter, Ordered {
+final class FallbackObjectToStringConverter implements ConditionalGenericConverter {
 
-  // Object.class -> String.class
+	@Override
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		return Collections.singleton(new ConvertiblePair(Object.class, String.class));
+	}
 
-  @Override
-  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
-    if (targetType.isAssignableFrom(sourceType)) {
-      return true;
-    }
-    if (String.class == sourceType) {
-      // no conversion required
-      return false;
-    }
-    return CharSequence.class.isAssignableFrom(sourceType)
-            || StringWriter.class.isAssignableFrom(sourceType)
-            || ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceType, String.class);
-  }
+	@Override
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		Class<?> sourceClass = sourceType.getObjectType();
+		if (String.class == sourceClass) {
+			// no conversion required
+			return false;
+		}
+		return (CharSequence.class.isAssignableFrom(sourceClass) ||
+				StringWriter.class.isAssignableFrom(sourceClass) ||
+				ObjectToObjectConverter.hasConversionMethodOrConstructor(sourceClass, String.class));
+	}
 
-  @Override
-  public Object convert(final TypeDescriptor targetType, final Object source) {
-    if (targetType.isInstance(source)) {
-      return source;
-    }
-    return (source != null ? source.toString() : null);
-  }
+	@Override
+	@Nullable
+	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		return (source != null ? source.toString() : null);
+	}
 
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE;
-  }
 }

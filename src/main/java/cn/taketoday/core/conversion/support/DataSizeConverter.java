@@ -26,7 +26,7 @@ import cn.taketoday.util.DataSize;
  * @author TODAY 2021/3/21 11:14
  * @since 3.0
  */
-public class DataSizeConverter extends StringSourceConverter<DataSize> {
+public class DataSizeConverter implements cn.taketoday.core.conversion.Converter<String, DataSize> {
 
   @Override
   public DataSize convert(String source) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,38 +17,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import java.util.Arrays;
-
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+
 /**
- * Converts an array to a comma-delimited String.
+ * Converts an array to a comma-delimited String. First adapts the source array
+ * to a List, then delegates to {@link CollectionToStringConverter} to perform
+ * the target String conversion.
  *
  * @author Keith Donald
- * @author TODAY
  * @since 3.0
  */
-final class ArrayToStringConverter extends ArraySourceConverter {
-  private final CollectionToStringConverter helperConverter;
+final class ArrayToStringConverter implements ConditionalGenericConverter {
 
-  public ArrayToStringConverter(ConversionService conversionService) {
-    this.helperConverter = new CollectionToStringConverter(conversionService);
-  }
+	private final CollectionToStringConverter helperConverter;
 
-  @Override
-  protected boolean supportsInternal(final TypeDescriptor targetType, Class<?> sourceType) {
-    // Object[].class -> String.class
-    return targetType.is(String.class);
-  }
 
-  @Override
-  public Object convert(TypeDescriptor targetType, Object source) {
-    return this.helperConverter.convertInternal(
-            targetType, Arrays.asList(ObjectUtils.toObjectArray(source)));
-  }
+	public ArrayToStringConverter(ConversionService conversionService) {
+		this.helperConverter = new CollectionToStringConverter(conversionService);
+	}
+
+
+	@Override
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		return Collections.singleton(new ConvertiblePair(Object[].class, String.class));
+	}
+
+	@Override
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		return this.helperConverter.matches(sourceType, targetType);
+	}
+
+	@Override
+	@Nullable
+	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		return this.helperConverter.convert(Arrays.asList(ObjectUtils.toObjectArray(source)), sourceType, targetType);
+	}
 
 }

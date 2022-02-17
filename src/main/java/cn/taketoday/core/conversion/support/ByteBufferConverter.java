@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,88 +17,106 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
-import java.nio.ByteBuffer;
-
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.lang.Nullable;
+
+import java.nio.ByteBuffer;
+import java.util.Set;
 
 /**
- * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer}
- * directly to and from {@code byte[]s} and indirectly to any type
- * that the {@link ConversionService} support via {@code byte[]}.
+ * Converts a {@link ByteBuffer} directly to and from {@code byte[] ByteBuffer} directly to and from {@code byte[]s} and indirectly
+ * to any type that the {@link ConversionService} support via {@code byte[]}.
  *
  * @author Phillip Webb
  * @author Juergen Hoeller
- * @author TODAY
- * @since 3.0
+ * @since 4.0
  */
-final class ByteBufferConverter implements MatchingConverter {
-  private final ConversionService conversionService;
+final class ByteBufferConverter implements ConditionalGenericConverter {
 
-  public ByteBufferConverter(ConversionService conversionService) {
-    this.conversionService = conversionService;
-  }
+	private static final TypeDescriptor BYTE_BUFFER_TYPE = TypeDescriptor.valueOf(ByteBuffer.class);
 
-  @Override
-  public boolean supports(TypeDescriptor targetType, Class<?> sourceType) {
-    // ByteBuffer.class -> byte[].class
-    // ByteBuffer.class -> Object.class
-    // byte[].class -> ByteBuffer.class
-    // Object.class -> ByteBuffer.class
+	private static final TypeDescriptor BYTE_ARRAY_TYPE = TypeDescriptor.valueOf(byte[].class);
 
-    final boolean byteBufferTarget = targetType.isAssignableTo(ByteBuffer.class);
-    if (ByteBuffer.class.isAssignableFrom(sourceType)) {
-      // 转换为其他ByteBuffer
-      return byteBufferTarget ||
-              (targetType.is(byte[].class) || conversionService.canConvert(sourceType, targetType));
-    }
+	private static final Set<ConvertiblePair> CONVERTIBLE_PAIRS = Set.of(
+				new ConvertiblePair(ByteBuffer.class, byte[].class),
+				new ConvertiblePair(byte[].class, ByteBuffer.class),
+				new ConvertiblePair(ByteBuffer.class, Object.class),
+				new ConvertiblePair(Object.class, ByteBuffer.class));
 
-    return byteBufferTarget && matchesToByteBuffer(sourceType);
-  }
+	private final ConversionService conversionService;
 
-  private boolean matchesToByteBuffer(Class<?> sourceType) {
-    return (sourceType == byte[].class || conversionService.canConvert(sourceType, byte[].class));
-  }
 
-  @Override
-  public Object convert(TypeDescriptor targetType, Object source) {
-    boolean byteBufferTarget = targetType.isAssignableTo(ByteBuffer.class);
-    if (source instanceof ByteBuffer buffer) {
-      return (byteBufferTarget ? buffer.duplicate() : convertFromByteBuffer(buffer, targetType));
-    }
-    if (byteBufferTarget) {
-      return convertToByteBuffer(source);
-    }
-    // Should not happen
-    throw new IllegalStateException("Unexpected source/target types");
-  }
+	public ByteBufferConverter(ConversionService conversionService) {
+		this.conversionService = conversionService;
+	}
 
-  private Object convertFromByteBuffer(ByteBuffer source, TypeDescriptor targetType) {
-    byte[] bytes = new byte[source.remaining()];
-    source.get(bytes);
-    if (targetType.is(byte[].class)) {
-      return bytes;
-    }
-    return this.conversionService.convert(bytes, targetType);
-  }
 
-  private Object convertToByteBuffer(Object source) {
-    byte[] bytes = (byte[]) (source instanceof byte[] ? source : conversionService.convert(source, byte[].class));
+	@Override
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		return CONVERTIBLE_PAIRS;
+	}
 
-    if (bytes == null) {
-      return ByteBuffer.wrap(new byte[0]);
-    }
+	@Override
+	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		boolean byteBufferTarget = targetType.isAssignableTo(BYTE_BUFFER_TYPE);
+		if (sourceType.isAssignableTo(BYTE_BUFFER_TYPE)) {
+			return (byteBufferTarget || matchesFromByteBuffer(targetType));
+		}
+		return (byteBufferTarget && matchesToByteBuffer(sourceType));
+	}
 
-    ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
-    byteBuffer.put(bytes);
+	private boolean matchesFromByteBuffer(TypeDescriptor targetType) {
+		return (targetType.isAssignableTo(BYTE_ARRAY_TYPE) ||
+				this.conversionService.canConvert(BYTE_ARRAY_TYPE, targetType));
+	}
 
-    // Extra cast necessary for compiling on JDK 9 plus running on JDK 8, since
-    // otherwise the overridden ByteBuffer-returning rewind method would be chosen
-    // which isn't available on JDK 8.
-    return byteBuffer.rewind();
-  }
+	private boolean matchesToByteBuffer(TypeDescriptor sourceType) {
+		return (sourceType.isAssignableTo(BYTE_ARRAY_TYPE) ||
+				this.conversionService.canConvert(sourceType, BYTE_ARRAY_TYPE));
+	}
+
+	@Override
+	@Nullable
+	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		boolean byteBufferTarget = targetType.isAssignableTo(BYTE_BUFFER_TYPE);
+		if (source instanceof ByteBuffer buffer) {
+			return (byteBufferTarget ? buffer.duplicate() : convertFromByteBuffer(buffer, targetType));
+		}
+		if (byteBufferTarget) {
+			return convertToByteBuffer(source, sourceType);
+		}
+		// Should not happen
+		throw new IllegalStateException("Unexpected source/target types");
+	}
+
+	@Nullable
+	private Object convertFromByteBuffer(ByteBuffer source, TypeDescriptor targetType) {
+		byte[] bytes = new byte[source.remaining()];
+		source.get(bytes);
+
+		if (targetType.isAssignableTo(BYTE_ARRAY_TYPE)) {
+			return bytes;
+		}
+		return this.conversionService.convert(bytes, BYTE_ARRAY_TYPE, targetType);
+	}
+
+	private Object convertToByteBuffer(@Nullable Object source, TypeDescriptor sourceType) {
+		byte[] bytes = (byte[]) (source instanceof byte[] ? source :
+				this.conversionService.convert(source, sourceType, BYTE_ARRAY_TYPE));
+
+		if (bytes == null) {
+			return ByteBuffer.wrap(new byte[0]);
+		}
+
+		ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
+		byteBuffer.put(bytes);
+
+		return byteBuffer.rewind();
+	}
 
 }

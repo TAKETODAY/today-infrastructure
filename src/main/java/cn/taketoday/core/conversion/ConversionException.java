@@ -19,10 +19,7 @@
  */
 package cn.taketoday.core.conversion;
 
-import java.io.Serial;
-
 import cn.taketoday.core.NestedRuntimeException;
-import cn.taketoday.core.TypeDescriptor;
 
 /**
  * Base class for exceptions thrown by the conversion system.
@@ -30,42 +27,25 @@ import cn.taketoday.core.TypeDescriptor;
  * @author TODAY <br>
  * 2018-06-28 17:05:34
  */
-public class ConversionException extends NestedRuntimeException {
+public abstract class ConversionException extends NestedRuntimeException {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  final Object source;
-  final TypeDescriptor targetType;
-
-  public ConversionException() {
-    this(null, null, null, null);
-  }
-
-  public ConversionException(Throwable cause) {
-    this(null, cause, null, null);
-  }
-
-  public ConversionException(String message, Throwable cause) {
-    this(message, cause, null, null);
-  }
-
+  /**
+   * Construct a new conversion exception.
+   *
+   * @param message the exception message
+   */
   public ConversionException(String message) {
-    this(message, null, null, null);
+    super(message);
   }
 
-  public ConversionException(String message, Throwable cause, Object source, TypeDescriptor targetType) {
+  /**
+   * Construct a new conversion exception.
+   *
+   * @param message the exception message
+   * @param cause the cause
+   */
+  public ConversionException(String message, Throwable cause) {
     super(message, cause);
-    this.source = source;
-    this.targetType = targetType;
-  }
-
-  public Object getSource() {
-    return source;
-  }
-
-  public TypeDescriptor getTargetType() {
-    return targetType;
   }
 
 }

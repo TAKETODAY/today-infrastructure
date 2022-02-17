@@ -18,35 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.conversion.support;
-
-import cn.taketoday.core.conversion.Converter;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
+package cn.taketoday.core.conversion;
 
 /**
- * Converts a String to a Properties by calling Properties#load(java.io.InputStream).
- * Uses ISO-8559-1 encoding required by Properties.
+ * A factory for "ranged" converters that can convert objects from S to subtypes of R.
+ *
+ * <p>Implementations may additionally implement {@link ConditionalConverter}.
  *
  * @author Keith Donald
  * @since 3.0
+ * @param <S> the source type converters created by this factory can convert from
+ * @param <R> the target range (or base) type converters created by this factory can convert to;
+ * for example {@link Number} for a set of number subtypes.
+ * @see ConditionalConverter
  */
-final class StringToPropertiesConverter implements Converter<String, Properties> {
+public interface ConverterFactory<S, R> {
 
-	@Override
-	public Properties convert(String source) {
-		try {
-			Properties props = new Properties();
-			// Must use the ISO-8859-1 encoding because Properties.load(stream) expects it.
-			props.load(new ByteArrayInputStream(source.getBytes(StandardCharsets.ISO_8859_1)));
-			return props;
-		}
-		catch (Exception ex) {
-			// Should never happen.
-			throw new IllegalArgumentException("Failed to parse [" + source + "] into Properties", ex);
-		}
-	}
+	/**
+	 * Get the converter to convert from S to target type T, where T is also an instance of R.
+	 * @param <T> the target type
+	 * @param targetType the target type to convert to
+	 * @return a converter from S to T
+	 */
+	<T extends R> Converter<S, T> getConverter(Class<T> targetType);
 
 }

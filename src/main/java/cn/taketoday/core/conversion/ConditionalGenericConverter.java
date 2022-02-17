@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,30 +18,22 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.conversion.support;
+package cn.taketoday.core.conversion;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.MatchingConverter;
 
 /**
- * @author TODAY 2021/3/22 16:45
- * @since 3.0
+ * A {@link GenericConverter} that may conditionally execute based on attributes
+ * of the {@code source} and {@code target} {@link TypeDescriptor}.
+ *
+ * <p>See {@link ConditionalConverter} for details.
+ *
+ * @author Keith Donald
+ * @author Phillip Webb
+ * @see GenericConverter
+ * @see ConditionalConverter
+ * @since 4.0
  */
-public class StringToEnumConverter extends StringSourceMatchingConverter implements MatchingConverter {
-
-  @Override
-  public boolean supportsInternal(TypeDescriptor targetClass, Class<?> sourceType) {
-    return targetClass.isEnum();
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  protected Object convertInternal(TypeDescriptor targetClass, String source) {
-    if (source.isEmpty()) {
-      // It's an empty enum identifier: reset the enum value to null.
-      return null;
-    }
-    return Enum.valueOf((Class<Enum>) targetClass.getType(), source.trim());
-  }
+public interface ConditionalGenericConverter extends GenericConverter, ConditionalConverter {
 
 }

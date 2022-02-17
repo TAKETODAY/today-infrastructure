@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,12 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.conversion.support;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -35,10 +40,10 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Keith Donald
  * @author Juergen Hoeller
- * @author TODAY
  * @since 3.0
  */
-final class CollectionToCollectionConverter extends CollectionSourceConverter {
+final class CollectionToCollectionConverter implements ConditionalGenericConverter {
+
   private final ConversionService conversionService;
 
   public CollectionToCollectionConverter(ConversionService conversionService) {
@@ -46,35 +51,45 @@ final class CollectionToCollectionConverter extends CollectionSourceConverter {
   }
 
   @Override
-  protected boolean supportsInternal(TypeDescriptor targetType, Class<?> sourceType) {
-    // Collection.class, Collection.class
-    return targetType.isCollection();
+  public Set<ConvertiblePair> getConvertibleTypes() {
+    return Collections.singleton(new ConvertiblePair(Collection.class, Collection.class));
   }
 
   @Override
-  protected Object convertInternal(TypeDescriptor targetType, Collection<?> sourceCollection) {
-    // Shortcut if possible...
-    boolean copyRequired = !targetType.isInstance(sourceCollection);
-    if (!copyRequired && sourceCollection.isEmpty()) {
-      return sourceCollection;
-    }
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.canConvertElements(
+            sourceType.getElementDescriptor(), targetType.getElementDescriptor(), this.conversionService);
+  }
 
-    final TypeDescriptor elementType = targetType.getGeneric(Collection.class);
-    if (elementType == null && !copyRequired) {
-      return sourceCollection;
+  @Override
+  @Nullable
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    if (source == null) {
+      return null;
+    }
+    Collection<?> sourceCollection = (Collection<?>) source;
+
+    // Shortcut if possible...
+    boolean copyRequired = !targetType.getType().isInstance(source);
+    if (!copyRequired && sourceCollection.isEmpty()) {
+      return source;
+    }
+    TypeDescriptor elementDesc = targetType.getElementDescriptor();
+    if (elementDesc == null && !copyRequired) {
+      return source;
     }
 
     // At this point, we need a collection copy in any case, even if just for finding out about element copies...
-    Collection<Object> target = CollectionUtils.createCollection(
-            targetType.getType(), elementType != null ? elementType.getType() : null, sourceCollection.size());
+    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(),
+            (elementDesc != null ? elementDesc.getType() : null), sourceCollection.size());
 
-    if (elementType == null) {
+    if (elementDesc == null) {
       target.addAll(sourceCollection);
     }
     else {
-      final ConversionService conversionService = this.conversionService;
       for (Object sourceElement : sourceCollection) {
-        Object targetElement = conversionService.convert(sourceElement, elementType);
+        Object targetElement = this.conversionService.convert(sourceElement,
+                sourceType.elementDescriptor(sourceElement), elementDesc);
         target.add(targetElement);
         if (sourceElement != targetElement) {
           copyRequired = true;
@@ -82,7 +97,7 @@ final class CollectionToCollectionConverter extends CollectionSourceConverter {
       }
     }
 
-    return (copyRequired ? target : sourceCollection);
+    return (copyRequired ? target : source);
   }
 
 }

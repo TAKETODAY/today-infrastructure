@@ -22,6 +22,7 @@ package cn.taketoday.core.conversion;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Conversion Service
@@ -34,78 +35,119 @@ import cn.taketoday.lang.Assert;
  */
 public interface ConversionService {
 
-  /**
-   * use {@link TypeDescriptor} to resolve generic info
-   */
-  boolean canConvert(Class<?> sourceType, TypeDescriptor targetType);
-
-  /**
-   * static test this {@link ConversionService} can convert source to target
-   */
-  default boolean canConvert(Class<?> sourceType, Class<?> targetType) {
-    return canConvert(sourceType, TypeDescriptor.valueOf(targetType));
+  default GenericConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
+    return getConverter(TypeDescriptor.valueOf(sourceType), targetType);
   }
 
-  /**
-   * whether this {@link ConversionService} supports to convert source object to
-   * target class object
-   *
-   * @param targetType target class
-   * @param source source object
-   * @return whether this {@link ConversionService} supports to convert source object
-   * to target class object
-   */
-  default boolean canConvert(Object source, Class<?> targetType) {
-    return getConverter(source, targetType) != null;
-  }
-
-  /**
-   * Convert source to target type
-   * <p>
-   * If source object is {@code null} just returns {@code null}
-   * </p>
-   *
-   * @param source source object
-   * @param targetClass targetClass
-   * @return converted object
-   * @throws ConversionException conversion exception
-   */
-  default <T> T convert(Object source, Class<T> targetClass) {
-    return convert(source, TypeDescriptor.valueOf(targetClass));
-  }
-
-  /**
-   * Convert source to target type
-   * <p>
-   * If source object is {@code null} just returns {@code null}
-   * </p>
-   *
-   * @param source source object
-   * @param targetType target class and generics info
-   * @throws ConversionException conversion exception
-   */
-  <T> T convert(Object source, TypeDescriptor targetType);
-
-  MatchingConverter getConverter(Class<?> sourceType, TypeDescriptor targetType);
-
-  default MatchingConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
+  default GenericConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
     Assert.notNull(sourceObject, "source object must not be null");
     return getConverter(sourceObject.getClass(), targetType);
   }
 
   /**
-   * Get Target {@link MatchingConverter}
+   * Get Target {@link GenericConverter}
    *
    * @param source input source
    * @param targetType convert to target class
    * @return TypeConverter
    */
-  default MatchingConverter getConverter(Object source, Class<?> targetType) {
+  default GenericConverter getConverter(Object source, Class<?> targetType) {
     return getConverter(source.getClass(), targetType);
   }
 
-  default MatchingConverter getConverter(Class<?> sourceType, Class<?> targetType) {
-    return getConverter(sourceType, TypeDescriptor.valueOf(targetType));
+  /**
+   * Hook method to lookup the converter for a given sourceType/targetType pair.
+   * First queries this ConversionService's converter cache.
+   * On a cache miss, then performs an exhaustive search for a matching converter.
+   * If no converter matches, returns the default converter.
+   *
+   * @param sourceType the source type to convert from
+   * @param targetType the target type to convert to
+   * @return the generic converter that will perform the conversion,
+   * or {@code null} if no suitable converter was found
+   */
+  GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType);
+
+  default GenericConverter getConverter(Class<?> sourceType, Class<?> targetType) {
+    return getConverter(TypeDescriptor.valueOf(sourceType), TypeDescriptor.valueOf(targetType));
   }
+
+  /**
+   * Return {@code true} if objects of {@code sourceType} can be converted to the {@code targetType}.
+   * <p>If this method returns {@code true}, it means {@link #convert(Object, Class)} is capable
+   * of converting an instance of {@code sourceType} to {@code targetType}.
+   * <p>Special note on collections, arrays, and maps types:
+   * For conversion between collection, array, and map types, this method will return {@code true}
+   * even though a convert invocation may still generate a {@link ConversionException} if the
+   * underlying elements are not convertible. Callers are expected to handle this exceptional case
+   * when working with collections and maps.
+   *
+   * @param sourceType the source type to convert from (may be {@code null} if source is {@code null})
+   * @param targetType the target type to convert to (required)
+   * @return {@code true} if a conversion can be performed, {@code false} if not
+   * @throws IllegalArgumentException if {@code targetType} is {@code null}
+   */
+  boolean canConvert(@Nullable Class<?> sourceType, Class<?> targetType);
+
+  /**
+   * Return {@code true} if objects of {@code sourceType} can be converted to the {@code targetType}.
+   * The TypeDescriptors provide additional context about the source and target locations
+   * where conversion would occur, often object fields or property locations.
+   * <p>If this method returns {@code true}, it means {@link #convert(Object, TypeDescriptor, TypeDescriptor)}
+   * is capable of converting an instance of {@code sourceType} to {@code targetType}.
+   * <p>Special note on collections, arrays, and maps types:
+   * For conversion between collection, array, and map types, this method will return {@code true}
+   * even though a convert invocation may still generate a {@link ConversionException} if the
+   * underlying elements are not convertible. Callers are expected to handle this exceptional case
+   * when working with collections and maps.
+   *
+   * @param sourceType context about the source type to convert from
+   * (may be {@code null} if source is {@code null})
+   * @param targetType context about the target type to convert to (required)
+   * @return {@code true} if a conversion can be performed between the source and target types,
+   * {@code false} if not
+   * @throws IllegalArgumentException if {@code targetType} is {@code null}
+   */
+  boolean canConvert(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType);
+
+  /**
+   * Convert the given {@code source} to the specified {@code targetType}.
+   *
+   * @param source the source object to convert (may be {@code null})
+   * @param targetType the target type to convert to (required)
+   * @return the converted object, an instance of targetType
+   * @throws ConversionException if a conversion exception occurred
+   * @throws IllegalArgumentException if targetType is {@code null}
+   */
+  @Nullable
+  <T> T convert(@Nullable Object source, Class<T> targetType);
+
+  /**
+   * Convert the given {@code source} to the specified {@code targetType}.
+   *
+   * @param source the source object to convert (may be {@code null})
+   * @param targetType the target type to convert to (required)
+   * @return the converted object, an instance of targetType
+   * @throws ConversionException if a conversion exception occurred
+   * @throws IllegalArgumentException if targetType is {@code null}
+   */
+  <T> T convert(@Nullable Object source, TypeDescriptor targetType);
+
+  /**
+   * Convert the given {@code source} to the specified {@code targetType}.
+   * The TypeDescriptors provide additional context about the source and target locations
+   * where conversion will occur, often object fields or property locations.
+   *
+   * @param source the source object to convert (may be {@code null})
+   * @param sourceType context about the source type to convert from
+   * (may be {@code null} if source is {@code null})
+   * @param targetType context about the target type to convert to (required)
+   * @return the converted object, an instance of {@link TypeDescriptor#getObjectType() targetType}
+   * @throws ConversionException if a conversion exception occurred
+   * @throws IllegalArgumentException if targetType is {@code null},
+   * or {@code sourceType} is {@code null} but source is not {@code null}
+   */
+  @Nullable
+  Object convert(@Nullable Object source, @Nullable TypeDescriptor sourceType, TypeDescriptor targetType);
 
 }
