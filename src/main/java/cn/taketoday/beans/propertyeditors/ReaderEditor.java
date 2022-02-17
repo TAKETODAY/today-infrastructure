@@ -23,28 +23,28 @@ package cn.taketoday.beans.propertyeditors;
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 
+import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceEditor;
-import cn.taketoday.core.io.support.EncodedResource;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
 
 /**
  * One-way PropertyEditor which can convert from a text String to a
- * {@code java.io.Reader}, interpreting the given String as a Spring
+ * {@code java.io.Reader}, interpreting the given String as a Framework
  * resource location (e.g. a URL String).
  *
- * <p>Supports Spring-style URL notation: any fully qualified standard URL
- * ("file:", "http:", etc.) and Spring's special "classpath:" pseudo-URL.
+ * <p>Supports Framework-style URL notation: any fully qualified standard URL
+ * ("file:", "http:", etc.) and Framework's special "classpath:" pseudo-URL.
  *
- * <p>Note that such readers usually do not get closed by Spring itself!
+ * <p>Note that such readers usually do not get closed by Framework itself!
  *
  * @author Juergen Hoeller
  * @see java.io.Reader
  * @see cn.taketoday.core.io.ResourceEditor
  * @see cn.taketoday.core.io.ResourceLoader
  * @see InputStreamEditor
- * @since 4.2
+ * @since 4.0
  */
 public class ReaderEditor extends PropertyEditorSupport {
 

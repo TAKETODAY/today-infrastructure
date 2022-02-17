@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.validation.DataBinder#registerCustomEditor
- * @since 10.06.2003
+ * @since 4.0
  */
 public class CustomBooleanEditor extends PropertyEditorSupport {
 
@@ -133,7 +133,7 @@ public class CustomBooleanEditor extends PropertyEditorSupport {
   @Override
   public void setAsText(@Nullable String text) throws IllegalArgumentException {
     String input = (text != null ? text.trim() : null);
-    if (this.allowEmpty && !StringUtils.hasLength(input)) {
+    if (this.allowEmpty && StringUtils.isEmpty(input)) {
       // Treat empty String as null value.
       setValue(null);
     }
@@ -148,9 +148,9 @@ public class CustomBooleanEditor extends PropertyEditorSupport {
                     VALUE_YES.equalsIgnoreCase(input) || VALUE_1.equals(input))) {
       setValue(Boolean.TRUE);
     }
-    else if (this.falseString == null &&
-            (VALUE_FALSE.equalsIgnoreCase(input) || VALUE_OFF.equalsIgnoreCase(input) ||
-                    VALUE_NO.equalsIgnoreCase(input) || VALUE_0.equals(input))) {
+    else if (this.falseString == null
+            && (VALUE_FALSE.equalsIgnoreCase(input) || VALUE_OFF.equalsIgnoreCase(input)
+            || VALUE_NO.equalsIgnoreCase(input) || VALUE_0.equals(input))) {
       setValue(Boolean.FALSE);
     }
     else {

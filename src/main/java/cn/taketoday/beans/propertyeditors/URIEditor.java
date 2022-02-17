@@ -26,17 +26,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
  * Editor for {@code java.net.URI}, to directly populate a URI property
  * instead of using a String property as bridge.
  *
- * <p>Supports Spring-style URI notation: any fully qualified standard URI
- * ("file:", "http:", etc) and Spring's special "classpath:" pseudo-URL,
+ * <p>Supports Framework-style URI notation: any fully qualified standard URI
+ * ("file:", "http:", etc) and Framework's special "classpath:" pseudo-URL,
  * which will be resolved to a corresponding URI.
  *
  * <p>By default, this editor will encode Strings into URIs. For instance,
@@ -50,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @see URI
  * @see URLEditor
- * @since 2.0.2
+ * @since 4.0
  */
 public class URIEditor extends PropertyEditorSupport {
 
@@ -72,7 +72,6 @@ public class URIEditor extends PropertyEditorSupport {
    * standard URIs (not trying to resolve them into physical resources).
    *
    * @param encode indicates whether Strings will be encoded or not
-   * @since 3.0
    */
   public URIEditor(boolean encode) {
     this.classLoader = null;
@@ -97,7 +96,6 @@ public class URIEditor extends PropertyEditorSupport {
    * @param classLoader the ClassLoader to use for resolving "classpath:" locations
    * (may be {@code null} to indicate the default ClassLoader)
    * @param encode indicates whether Strings will be encoded or not
-   * @since 3.0
    */
   public URIEditor(@Nullable ClassLoader classLoader, boolean encode) {
     this.classLoader = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
@@ -108,9 +106,9 @@ public class URIEditor extends PropertyEditorSupport {
   public void setAsText(String text) throws IllegalArgumentException {
     if (StringUtils.hasText(text)) {
       String uri = text.trim();
-      if (this.classLoader != null && uri.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
+      if (this.classLoader != null && uri.startsWith(ResourceLoader.CLASSPATH_URL_PREFIX)) {
         ClassPathResource resource = new ClassPathResource(
-                uri.substring(ResourceUtils.CLASSPATH_URL_PREFIX.length()), this.classLoader);
+                uri.substring(ResourceLoader.CLASSPATH_URL_PREFIX.length()), this.classLoader);
         try {
           setValue(resource.getURI());
         }

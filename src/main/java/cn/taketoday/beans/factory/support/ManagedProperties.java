@@ -27,7 +27,7 @@ import cn.taketoday.beans.Mergeable;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Tag class which represents a Spring-managed {@link Properties} instance
+ * Tag class which represents a Framework-managed {@link Properties} instance
  * that supports merging of parent/child definitions.
  *
  * @author Rob Harrop

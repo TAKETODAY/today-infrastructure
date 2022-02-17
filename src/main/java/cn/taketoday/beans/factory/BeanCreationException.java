@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;
@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2021/11/4 23:21
  */
 @SuppressWarnings("serial")
-public class BeanCreationException extends BeansException {
+public class BeanCreationException extends FatalBeanException {
 
   @Nullable
   private final String beanName;

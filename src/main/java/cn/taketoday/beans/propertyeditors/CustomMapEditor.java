@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -37,7 +37,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Juergen Hoeller
  * @see Map
  * @see SortedMap
- * @since 2.0.1
+ * @since 4.0
  */
 public class CustomMapEditor extends PropertyEditorSupport {
 

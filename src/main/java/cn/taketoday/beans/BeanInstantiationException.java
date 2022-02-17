@@ -33,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2020-02-19 21:36
  * @since 2.17
  */
-public class BeanInstantiationException extends BeansException {
+public class BeanInstantiationException extends FatalBeanException {
   @Serial
   private static final long serialVersionUID = 1L;
 

@@ -31,7 +31,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @see UUID
- * @since 3.0.1
+ * @since 4.0
  */
 public class UUIDEditor extends PropertyEditorSupport {
 

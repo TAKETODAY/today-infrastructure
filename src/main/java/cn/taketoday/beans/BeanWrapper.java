@@ -20,10 +20,12 @@
 
 package cn.taketoday.beans;
 
-import java.beans.PropertyDescriptor;
+import java.util.List;
+
+import cn.taketoday.beans.support.BeanProperty;
 
 /**
- * The central interface of Spring's low-level JavaBeans infrastructure.
+ * The central interface of Framework's low-level JavaBeans infrastructure.
  *
  * <p>Typically not used directly but rather implicitly via a
  * {@link cn.taketoday.beans.factory.BeanFactory} or a
@@ -49,24 +51,18 @@ import java.beans.PropertyDescriptor;
  * @see cn.taketoday.beans.factory.BeanFactory
  * @see cn.taketoday.validation.BeanPropertyBindingResult
  * @see cn.taketoday.validation.DataBinder#initBeanPropertyAccess()
- * @since 13 April 2001
  * @since 4.0 2022/2/17 17:37
  */
-
 public interface BeanWrapper extends ConfigurablePropertyAccessor {
 
   /**
    * Specify a limit for array and collection auto-growing.
    * <p>Default is unlimited on a plain BeanWrapper.
-   *
-   * @since 4.1
    */
   void setAutoGrowCollectionLimit(int autoGrowCollectionLimit);
 
   /**
    * Return the limit for array and collection auto-growing.
-   *
-   * @since 4.1
    */
   int getAutoGrowCollectionLimit();
 
@@ -81,15 +77,14 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
   Class<?> getWrappedClass();
 
   /**
-   * Obtain the PropertyDescriptors for the wrapped object
-   * (as determined by standard JavaBeans introspection).
+   * Obtain the BeanProperty for the wrapped object
    *
-   * @return the PropertyDescriptors for the wrapped object
+   * @return the BeanProperty for the wrapped object
    */
-  PropertyDescriptor[] getPropertyDescriptors();
+  List<BeanProperty> getBeanProperties();
 
   /**
-   * Obtain the property descriptor for a specific property
+   * Obtain the BeanProperty for a specific property
    * of the wrapped object.
    *
    * @param propertyName the property to obtain the descriptor for
@@ -97,6 +92,6 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
    * @return the property descriptor for the specified property
    * @throws InvalidPropertyException if there is no such property
    */
-  PropertyDescriptor getPropertyDescriptor(String propertyName) throws InvalidPropertyException;
+  BeanProperty getBeanProperty(String propertyName) throws InvalidPropertyException;
 
 }

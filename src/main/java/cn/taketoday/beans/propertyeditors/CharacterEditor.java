@@ -42,7 +42,7 @@ import cn.taketoday.util.StringUtils;
  * @author Rick Evans
  * @see Character
  * @see cn.taketoday.beans.BeanWrapperImpl
- * @since 1.2
+ * @since 4.0
  */
 public class CharacterEditor extends PropertyEditorSupport {
 
@@ -73,7 +73,7 @@ public class CharacterEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(@Nullable String text) throws IllegalArgumentException {
-    if (this.allowEmpty && !StringUtils.hasLength(text)) {
+    if (this.allowEmpty && StringUtils.isEmpty(text)) {
       // Treat empty String as null value.
       setValue(null);
     }

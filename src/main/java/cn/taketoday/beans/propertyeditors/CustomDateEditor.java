@@ -44,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  * @see Date
  * @see DateFormat
  * @see cn.taketoday.validation.DataBinder#registerCustomEditor
- * @since 28.04.2003
+ * @since 4.0
  */
 public class CustomDateEditor extends PropertyEditorSupport {
 

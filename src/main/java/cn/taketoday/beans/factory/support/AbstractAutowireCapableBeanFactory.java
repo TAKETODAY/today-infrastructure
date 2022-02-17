@@ -682,7 +682,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * "autowire constructor" (with constructor arguments by type) behavior.
    * Also applied if explicit constructor argument values are specified,
    * matching all remaining arguments with beans from the bean factory.
-   * <p>This corresponds to constructor injection: In this mode, a Spring
+   * <p>This corresponds to constructor injection: In this mode, a Framework
    * bean factory is able to host components that expect constructor-based
    * dependency resolution.
    *
@@ -899,7 +899,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Abstract method defining "autowire by type" (bean properties by type) behavior.
    * <p>This is like PicoContainer default, in which there must be exactly one bean
    * of the property type in the bean factory. This makes bean factories simple to
-   * configure for small namespaces, but doesn't work as well as standard Spring
+   * configure for small namespaces, but doesn't work as well as standard Framework
    * behavior for bigger applications.
    *
    * @param beanName the name of the bean to autowire by type
@@ -1000,6 +1000,8 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {
     dataBinder.setConversionService(getConversionService());
     dataBinder.setIgnoreUnknownProperty(false);
+
+//    registerCustomEditors(bw);
   }
 
   @Override
@@ -1608,7 +1610,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Special DependencyDescriptor variant for Spring's good old autowire="byType" mode.
+   * Special DependencyDescriptor variant for Framework's good old autowire="byType" mode.
    * Always optional; never considering the parameter name for choosing a primary candidate.
    */
   @SuppressWarnings("serial")

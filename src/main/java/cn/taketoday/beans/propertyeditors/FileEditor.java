@@ -26,23 +26,21 @@ import java.io.IOException;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceEditor;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
  * Editor for {@code java.io.File}, to directly populate a File property
- * from a Spring resource location.
+ * from a Framework resource location.
  *
- * <p>Supports Spring-style URL notation: any fully qualified standard URL
- * ("file:", "http:", etc) and Spring's special "classpath:" pseudo-URL.
+ * <p>Supports Framework-style URL notation: any fully qualified standard URL
+ * ("file:", "http:", etc) and Framework's special "classpath:" pseudo-URL.
  *
- * <p><b>NOTE:</b> The behavior of this editor has changed in Spring 2.0.
- * Previously, it created a File instance directly from a filename.
- * As of Spring 2.0, it takes a standard Spring resource location as input;
+ * <p><b>NOTE:</b> it takes a standard Framework resource location as input;
  * this is consistent with URLEditor and InputStreamEditor now.
  *
- * <p><b>NOTE:</b> In Spring 2.5 the following modification was made.
+ * <p><b>NOTE:</b> the following modification was made.
  * If a file name is specified without a URL prefix or without an absolute path
  * then we try to locate the file using standard ResourceLoader semantics.
  * If the file was not found, then a File instance is created assuming the file
@@ -55,7 +53,7 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.core.io.ResourceLoader
  * @see URLEditor
  * @see InputStreamEditor
- * @since 09.12.2003
+ * @since 4.0
  */
 public class FileEditor extends PropertyEditorSupport {
 

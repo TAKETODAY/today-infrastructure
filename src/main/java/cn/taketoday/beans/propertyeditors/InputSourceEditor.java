@@ -31,10 +31,10 @@ import cn.taketoday.lang.Assert;
 
 /**
  * Editor for {@code org.xml.sax.InputSource}, converting from a
- * Spring resource location String to a SAX InputSource object.
+ * Framework resource location String to a SAX InputSource object.
  *
- * <p>Supports Spring-style URL notation: any fully qualified standard URL
- * ("file:", "http:", etc) and Spring's special "classpath:" pseudo-URL.
+ * <p>Supports Framework-style URL notation: any fully qualified standard URL
+ * ("file:", "http:", etc) and Framework's special "classpath:" pseudo-URL.
  *
  * @author Juergen Hoeller
  * @see InputSource
@@ -42,7 +42,7 @@ import cn.taketoday.lang.Assert;
  * @see cn.taketoday.core.io.ResourceLoader
  * @see URLEditor
  * @see FileEditor
- * @since 3.0.3
+ * @since 4.0
  */
 public class InputSourceEditor extends PropertyEditorSupport {
 

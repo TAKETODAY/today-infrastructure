@@ -45,7 +45,7 @@ import cn.taketoday.util.StringUtils;
  * @see Number
  * @see NumberFormat
  * @see cn.taketoday.validation.DataBinder#registerCustomEditor
- * @since 06.06.2003
+ * @since 4.0
  */
 public class CustomNumberEditor extends PropertyEditorSupport {
 

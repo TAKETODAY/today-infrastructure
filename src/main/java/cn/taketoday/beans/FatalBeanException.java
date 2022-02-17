@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,38 +18,46 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans;
 
-import cn.taketoday.beans.FatalBeanException;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Exception that indicates an expression evaluation attempt having failed.
+ * Thrown on an unrecoverable problem encountered in the
+ * beans packages or sub-packages, e.g. bad class or field.
  *
- * @author Juergen Hoeller
+ * @author Rod Johnson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/12/25 15:05
+ * @since 4.0 2022/2/17 22:20
  */
 @SuppressWarnings("serial")
-public class BeanExpressionException extends FatalBeanException {
+public class FatalBeanException extends BeansException {
 
   /**
-   * Create a new BeanExpressionException with the specified message.
+   * Create a new FatalBeanException with the specified message.
    *
    * @param msg the detail message
    */
-  public BeanExpressionException(String msg) {
+  public FatalBeanException(String msg) {
     super(msg);
   }
 
   /**
-   * Create a new BeanExpressionException with the specified message
+   * Create a new FatalBeanException with the specified message
    * and root cause.
    *
    * @param msg the detail message
    * @param cause the root cause
    */
-  public BeanExpressionException(String msg, Throwable cause) {
+  public FatalBeanException(String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
+  public FatalBeanException() { }
+
+  public FatalBeanException(Throwable cause) {
+    super(cause);
+  }
+
 }
+

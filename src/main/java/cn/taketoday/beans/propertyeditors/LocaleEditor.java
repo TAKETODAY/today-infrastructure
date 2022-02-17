@@ -34,7 +34,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @see java.util.Locale
  * @see cn.taketoday.util.StringUtils#parseLocaleString
- * @since 26.05.2003
+ * @since 4.0
  */
 public class LocaleEditor extends PropertyEditorSupport {
 

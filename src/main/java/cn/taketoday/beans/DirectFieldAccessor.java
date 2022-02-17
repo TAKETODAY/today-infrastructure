@@ -39,7 +39,7 @@ import cn.taketoday.util.ReflectionUtils;
  * instance fields. Allows for direct binding to fields instead of going through
  * JavaBean setters.
  *
- * <p>As of Spring 4.2, the vast majority of the {@link BeanWrapper} features have
+ * <p>As of Framework 4.2, the vast majority of the {@link BeanWrapper} features have
  * been merged to {@link AbstractPropertyAccessor}, which means that property
  * traversal as well as collections and map access is now supported here as well.
  *

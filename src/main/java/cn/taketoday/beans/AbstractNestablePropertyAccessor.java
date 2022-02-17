@@ -79,7 +79,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   /**
    * We'll create a lot of these objects, so we don't want a new logger every time.
    */
-  private static final Logger logger = LoggerFactory.getLogger(AbstractNestablePropertyAccessor.class);
+  private static final Logger log = LoggerFactory.getLogger(AbstractNestablePropertyAccessor.class);
 
   private int autoGrowCollectionLimit = Integer.MAX_VALUE;
 
@@ -431,9 +431,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
     if (ph == null || !ph.isWritable()) {
       if (pv.isOptional()) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Ignoring optional value for property '" + tokens.actualName +
-                  "' - property not found on bean class [" + getRootClass().getName() + "]");
+        if (log.isDebugEnabled()) {
+          log.debug("Ignoring optional value for property '{}' - property not found on bean class [{}]",
+                  tokens.actualName, getRootClass().getName());
         }
         return;
       }
@@ -462,9 +462,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
               if (ex instanceof PrivilegedActionException) {
                 ex = ((PrivilegedActionException) ex).getException();
               }
-              if (logger.isDebugEnabled()) {
-                logger.debug("Could not read previous value of property '" +
-                        this.nestedPath + tokens.canonicalName + "'", ex);
+              if (log.isDebugEnabled()) {
+                log.debug("Could not read previous value of property '{}{}'",
+                        nestedPath, tokens.canonicalName, ex);
               }
             }
           }
@@ -594,8 +594,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   }
 
   @Nullable
-  private Object convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
-                                    @Nullable Object newValue, @Nullable Class<?> requiredType, @Nullable TypeDescriptor td)
+  private Object convertIfNecessary(
+          @Nullable String propertyName, @Nullable Object oldValue,
+          @Nullable Object newValue, @Nullable Class<?> requiredType, @Nullable TypeDescriptor td)
           throws TypeMismatchException {
 
     Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
@@ -790,8 +791,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
   }
 
-  private void growCollectionIfNecessary(Collection<Object> collection, int index, String name,
-                                         PropertyHandler ph, int nestingLevel) {
+  private void growCollectionIfNecessary(
+          Collection<Object> collection, int index, String name, PropertyHandler ph, int nestingLevel) {
 
     if (!isAutoGrowNestedPaths()) {
       return;
@@ -858,7 +859,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     PropertyTokenHolder tokens = getPropertyNameTokens(nestedProperty);
     String canonicalName = tokens.canonicalName;
     Object value = getPropertyValue(tokens);
-    if (value == null || (value instanceof Optional && !((Optional<?>) value).isPresent())) {
+    if (value == null || (value instanceof Optional optional && optional.isEmpty())) {
       if (isAutoGrowNestedPaths()) {
         value = setDefaultValue(tokens);
       }
@@ -870,8 +871,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     // Lookup cached sub-PropertyAccessor, create new one if not found.
     AbstractNestablePropertyAccessor nestedPa = this.nestedPropertyAccessors.get(canonicalName);
     if (nestedPa == null || nestedPa.getWrappedInstance() != ObjectUtils.unwrapOptional(value)) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("Creating new nested " + getClass().getSimpleName() + " for property '" + canonicalName + "'");
+      if (log.isTraceEnabled()) {
+        log.trace("Creating new nested {} for property '{}'", getClass().getSimpleName(), canonicalName);
       }
       nestedPa = newNestedPropertyAccessor(value, this.nestedPath + canonicalName + NESTED_PROPERTY_SEPARATOR);
       // Inherit all type-specific PropertyEditors.
@@ -880,8 +881,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       this.nestedPropertyAccessors.put(canonicalName, nestedPa);
     }
     else {
-      if (logger.isTraceEnabled()) {
-        logger.trace("Using cached nested property accessor for property '" + canonicalName + "'");
+      if (log.isTraceEnabled()) {
+        log.trace("Using cached nested property accessor for property '{}'", canonicalName);
       }
     }
     return nestedPa;
@@ -932,7 +933,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         if (Modifier.isPrivate(ctor.getModifiers())) {
           throw new IllegalAccessException("Auto-growing not allowed with private constructor: " + ctor);
         }
-        return BeanUtils.newInstance(ctor);
+        return BeanUtils.newInstance(ctor, null);
       }
     }
     catch (Throwable ex) {

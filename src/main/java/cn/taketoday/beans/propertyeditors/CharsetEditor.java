@@ -34,7 +34,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Arjen Poutsma
  * @see Charset
- * @since 2.5.4
+ * @since 4.0
  */
 public class CharsetEditor extends PropertyEditorSupport {
 

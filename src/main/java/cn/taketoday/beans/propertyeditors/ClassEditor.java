@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
  * @author Rick Evans
  * @see Class#forName
  * @see cn.taketoday.util.ClassUtils#forName(String, ClassLoader)
- * @since 13.05.2003
+ * @since 4.0
  */
 public class ClassEditor extends PropertyEditorSupport {
 

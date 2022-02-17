@@ -20,14 +20,13 @@
 
 package cn.taketoday.beans;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
+import java.util.List;
 
+import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Default {@link BeanWrapper} implementation that should be sufficient
@@ -41,7 +40,7 @@ import cn.taketoday.util.ReflectionUtils;
  * across the application). See the base class
  * {@link PropertyEditorRegistrySupport} for details.
  *
- * <p><b>NOTE: As of Spring 2.5, this is - for almost all purposes - an
+ * <p><b>NOTE: this is - for almost all purposes - an
  * internal class.</b> It is just public in order to allow for access from
  * other framework packages. For standard application access purposes, use the
  * {@link PropertyAccessorFactory#forBeanPropertyAccess} factory method instead.
@@ -58,17 +57,12 @@ import cn.taketoday.util.ReflectionUtils;
  * @see #getPropertyType
  * @see BeanWrapper
  * @see PropertyEditorRegistrySupport
- * @since 15 April 2001
  * @since 4.0 2022/2/17 17:40
  */
 public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements BeanWrapper {
 
-  /**
-   * Cached introspections results for this object, to prevent encountering
-   * the cost of JavaBeans introspection every time.
-   */
   @Nullable
-  private CachedIntrospectionResults cachedIntrospectionResults;
+  private BeanMetadata beanMetadata;
 
   /**
    * Create a new empty BeanWrapperImpl. Wrapped instance needs to be set afterwards.
@@ -138,7 +132,6 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    *
    * @param object the actual target object
    * @see #setWrappedInstance(Object)
-   * @since 4.3
    */
   public void setBeanInstance(Object object) {
     this.wrappedObject = object;
@@ -160,20 +153,22 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    * @param clazz the class to introspect
    */
   protected void setIntrospectionClass(Class<?> clazz) {
-    if (this.cachedIntrospectionResults != null && this.cachedIntrospectionResults.getBeanClass() != clazz) {
-      this.cachedIntrospectionResults = null;
+    if (this.beanMetadata != null && this.beanMetadata.getType() != clazz) {
+      this.beanMetadata = null;
     }
   }
 
   /**
-   * Obtain a lazily initialized CachedIntrospectionResults instance
+   * Obtain a lazily initialized BeanMetadata instance
    * for the wrapped object.
    */
-  private CachedIntrospectionResults getCachedIntrospectionResults() {
-    if (this.cachedIntrospectionResults == null) {
-      this.cachedIntrospectionResults = CachedIntrospectionResults.forClass(getWrappedClass());
+  public BeanMetadata getBeanMetadata() {
+    BeanMetadata beanMetadata = this.beanMetadata;
+    if (beanMetadata == null) {
+      beanMetadata = BeanMetadata.from(getWrappedClass());
+      this.beanMetadata = beanMetadata;
     }
-    return this.cachedIntrospectionResults;
+    return beanMetadata;
   }
 
   /**
@@ -189,28 +184,20 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    */
   @Nullable
   public Object convertForProperty(@Nullable Object value, String propertyName) throws TypeMismatchException {
-    CachedIntrospectionResults cachedIntrospectionResults = getCachedIntrospectionResults();
-    PropertyDescriptor pd = cachedIntrospectionResults.getPropertyDescriptor(propertyName);
-    if (pd == null) {
+    BeanProperty beanProperty = getBeanMetadata().getBeanProperty(propertyName);
+    if (beanProperty == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
               "No property '" + propertyName + "' found");
     }
-    TypeDescriptor td = cachedIntrospectionResults.getTypeDescriptor(pd);
-    if (td == null) {
-      td = cachedIntrospectionResults.addTypeDescriptor(pd, new TypeDescriptor(property(pd)));
-    }
-    return convertForProperty(propertyName, null, value, td);
-  }
-
-  private BeanProperty property(PropertyDescriptor pd) {
-    return BeanProperty.valueOf(pd.getName(), pd.getReadMethod(), pd.getWriteMethod(), pd.getPropertyType());
+    TypeDescriptor typeDescriptor = beanProperty.getTypeDescriptor();
+    return convertForProperty(propertyName, null, value, typeDescriptor);
   }
 
   @Override
   @Nullable
   protected BeanPropertyHandler getLocalPropertyHandler(String propertyName) {
-    PropertyDescriptor pd = getCachedIntrospectionResults().getPropertyDescriptor(propertyName);
-    return (pd != null ? new BeanPropertyHandler(pd) : null);
+    BeanProperty beanProperty = getBeanMetadata().getBeanProperty(propertyName);
+    return beanProperty != null ? new BeanPropertyHandler(beanProperty) : null;
   }
 
   @Override
@@ -226,60 +213,56 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
   }
 
   @Override
-  public PropertyDescriptor[] getPropertyDescriptors() {
-    return getCachedIntrospectionResults().getPropertyDescriptors();
+  public List<BeanProperty> getBeanProperties() {
+    return getBeanMetadata().beanProperties();
   }
 
   @Override
-  public PropertyDescriptor getPropertyDescriptor(String propertyName) throws InvalidPropertyException {
+  public BeanProperty getBeanProperty(String propertyName) throws InvalidPropertyException {
     BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
     String finalPath = getFinalPath(nestedBw, propertyName);
-    PropertyDescriptor pd = nestedBw.getCachedIntrospectionResults().getPropertyDescriptor(finalPath);
-    if (pd == null) {
+    BeanProperty property = nestedBw.getBeanMetadata().getBeanProperty(finalPath);
+    if (property == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
               "No property '" + propertyName + "' found");
     }
-    return pd;
+    return property;
   }
 
   private class BeanPropertyHandler extends PropertyHandler {
 
-    private final PropertyDescriptor pd;
+    private final BeanProperty property;
 
-    public BeanPropertyHandler(PropertyDescriptor pd) {
-      super(pd.getPropertyType(), pd.getReadMethod() != null, pd.getWriteMethod() != null);
-      this.pd = pd;
+    public BeanPropertyHandler(BeanProperty property) {
+      super(property.getType(), property.getReadMethod() != null, property.getWriteMethod() != null);
+      this.property = property;
     }
 
     @Override
     public ResolvableType getResolvableType() {
-      return ResolvableType.forReturnType(this.pd.getReadMethod());
+      return ResolvableType.fromProperty(property);
     }
 
     @Override
     public TypeDescriptor toTypeDescriptor() {
-      return new TypeDescriptor(property(this.pd));
+      return property.getTypeDescriptor();
     }
 
     @Override
     @Nullable
     public TypeDescriptor nested(int level) {
-      return TypeDescriptor.nested(new TypeDescriptor(property(this.pd)), level);
+      return TypeDescriptor.nested(property.getTypeDescriptor(), level);
     }
 
     @Override
     @Nullable
     public Object getValue() throws Exception {
-      Method readMethod = this.pd.getReadMethod();
-      ReflectionUtils.makeAccessible(readMethod);
-      return readMethod.invoke(getWrappedInstance(), (Object[]) null);
+      return property.getValue(getWrappedInstance());
     }
 
     @Override
     public void setValue(@Nullable Object value) throws Exception {
-      Method writeMethod = this.pd.getWriteMethod();
-      ReflectionUtils.makeAccessible(writeMethod);
-      writeMethod.invoke(getWrappedInstance(), value);
+      property.setDirectly(getWrappedInstance(), value);
     }
   }
 

@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/2/17 17:39
  */
 @SuppressWarnings("serial")
-public class InvalidPropertyException extends BeansException {
+public class InvalidPropertyException extends FatalBeanException {
 
   private final Class<?> beanClass;
 

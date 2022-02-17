@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.beans.PropertyEditor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +36,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.PropertyEditorRegistrar;
+import cn.taketoday.beans.PropertyEditorRegistry;
+import cn.taketoday.beans.PropertyEditorRegistrySupport;
+import cn.taketoday.beans.SimpleTypeConverter;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
@@ -160,6 +167,16 @@ public abstract class AbstractBeanFactory
 
   /** String resolvers to apply e.g. to annotation attribute values. */
   private final ArrayList<StringValueResolver> embeddedValueResolvers = new ArrayList<>();
+
+  /** A custom TypeConverter to use, overriding the default PropertyEditor mechanism. */
+  @Nullable
+  private TypeConverter typeConverter;
+
+  /** Custom PropertyEditorRegistrars to apply to the beans of this factory. */
+  private final LinkedHashSet<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4);
+
+  /** Custom PropertyEditors to apply to the beans of this factory. */
+  private final HashMap<Class<?>, Class<? extends PropertyEditor>> customEditors = new HashMap<>(4);
 
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
@@ -1700,6 +1717,117 @@ public abstract class AbstractBeanFactory
       }
     }
     return result;
+  }
+
+  // @since 4.0
+  @Override
+  public void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar) {
+    Assert.notNull(registrar, "PropertyEditorRegistrar must not be null");
+    this.propertyEditorRegistrars.add(registrar);
+  }
+
+  /**
+   * Return the set of PropertyEditorRegistrars.
+   *
+   * @since 4.0
+   */
+  public Set<PropertyEditorRegistrar> getPropertyEditorRegistrars() {
+    return this.propertyEditorRegistrars;
+  }
+
+  @Override
+  public void registerCustomEditor(Class<?> requiredType, Class<? extends PropertyEditor> propertyEditorClass) {
+    Assert.notNull(requiredType, "Required type must not be null");
+    Assert.notNull(propertyEditorClass, "PropertyEditor class must not be null");
+    this.customEditors.put(requiredType, propertyEditorClass);
+  }
+
+  @Override
+  public void copyRegisteredEditorsTo(PropertyEditorRegistry registry) {
+    registerCustomEditors(registry);
+  }
+
+  /**
+   * Return the map of custom editors, with Classes as keys and PropertyEditor classes as values.
+   */
+  public Map<Class<?>, Class<? extends PropertyEditor>> getCustomEditors() {
+    return this.customEditors;
+  }
+
+  @Override
+  public void setTypeConverter(TypeConverter typeConverter) {
+    this.typeConverter = typeConverter;
+  }
+
+  /**
+   * Return the custom TypeConverter to use, if any.
+   *
+   * @return the custom TypeConverter, or {@code null} if none specified
+   */
+  @Nullable
+  protected TypeConverter getCustomTypeConverter() {
+    return this.typeConverter;
+  }
+
+  @Override
+  public TypeConverter getTypeConverter() {
+    TypeConverter customConverter = getCustomTypeConverter();
+    if (customConverter != null) {
+      return customConverter;
+    }
+    else {
+      // Build default TypeConverter, registering custom editors.
+      SimpleTypeConverter typeConverter = new SimpleTypeConverter();
+      typeConverter.setConversionService(getConversionService());
+      registerCustomEditors(typeConverter);
+      return typeConverter;
+    }
+  }
+
+  /**
+   * Initialize the given PropertyEditorRegistry with the custom editors
+   * that have been registered with this BeanFactory.
+   * <p>To be called for BeanWrappers that will create and populate bean
+   * instances, and for SimpleTypeConverter used for constructor argument
+   * and factory method type conversion.
+   *
+   * @param registry the PropertyEditorRegistry to initialize
+   * @since 4.0
+   */
+  protected void registerCustomEditors(PropertyEditorRegistry registry) {
+    if (registry instanceof PropertyEditorRegistrySupport registrySupport) {
+      registrySupport.useConfigValueEditors();
+    }
+    if (!propertyEditorRegistrars.isEmpty()) {
+      for (PropertyEditorRegistrar registrar : propertyEditorRegistrars) {
+        try {
+          registrar.registerCustomEditors(registry);
+        }
+        catch (BeanCreationException ex) {
+          Throwable rootCause = ex.getMostSpecificCause();
+          if (rootCause instanceof BeanCurrentlyInCreationException bce) {
+            String bceBeanName = bce.getBeanName();
+            if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
+              if (log.isDebugEnabled()) {
+                log.debug("PropertyEditorRegistrar [{}] failed because it tried to obtain currently created bean '{}': ",
+                        registrar.getClass().getName(), ex.getBeanName(), ex.getMessage());
+              }
+              onSuppressedException(ex);
+              continue;
+            }
+          }
+          throw ex;
+        }
+      }
+    }
+
+    if (!customEditors.isEmpty()) {
+      for (Map.Entry<Class<?>, Class<? extends PropertyEditor>> entry : customEditors.entrySet()) {
+        Class<?> requiredType = entry.getKey();
+        Class<? extends PropertyEditor> editorClass = entry.getValue();
+        registry.registerCustomEditor(requiredType, BeanUtils.newInstance(editorClass));
+      }
+    }
   }
 
   @NonNull

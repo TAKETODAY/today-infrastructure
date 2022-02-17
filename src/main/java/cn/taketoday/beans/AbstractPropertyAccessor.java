@@ -40,7 +40,7 @@ import cn.taketoday.lang.Nullable;
  * @author Stephane Nicoll
  * @see #getPropertyValue
  * @see #setPropertyValue
- * @since 2.0
+ * @since 4.0
  */
 public abstract class AbstractPropertyAccessor extends TypeConverterSupport implements ConfigurablePropertyAccessor {
 

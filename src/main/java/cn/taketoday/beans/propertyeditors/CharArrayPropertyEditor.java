@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @see String#toCharArray()
- * @since 1.2.8
+ * @since 4.0
  */
 public class CharArrayPropertyEditor extends PropertyEditorSupport {
 

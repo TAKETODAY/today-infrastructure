@@ -196,6 +196,18 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
+   * Get list of properties
+   *
+   * <p>
+   * Note: not read-only
+   *
+   * @return list of properties
+   */
+  public ArrayList<BeanProperty> beanProperties() {
+    return propertyHolder().beanProperties;
+  }
+
+  /**
    * @since 4.0
    */
   public int getPropertySize() {
@@ -213,8 +225,10 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @since 4.0
    */
   private BeanPropertiesHolder propertyHolder() {
+    BeanPropertiesHolder propertyHolder = this.propertyHolder;
     if (propertyHolder == null) {
       propertyHolder = BeanPropertiesMapCache.computeProperties(this);
+      this.propertyHolder = propertyHolder;
     }
     return propertyHolder;
   }

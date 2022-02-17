@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see Pattern
  * @see Pattern#compile(String)
- * @since 2.0.1
+ * @since 4.0
  */
 public class PatternEditor extends PropertyEditorSupport {
 

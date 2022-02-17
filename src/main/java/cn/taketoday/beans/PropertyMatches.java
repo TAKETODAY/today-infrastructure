@@ -23,7 +23,6 @@ package cn.taketoday.beans;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -206,7 +205,7 @@ public abstract class PropertyMatches {
      * @param maxDistance the maximum distance to accept
      */
     private static String[] calculateMatches(String name, PropertyDescriptor[] descriptors, int maxDistance) {
-      List<String> candidates = new ArrayList<>();
+      ArrayList<String> candidates = new ArrayList<>();
       for (PropertyDescriptor pd : descriptors) {
         if (pd.getWriteMethod() != null) {
           String possibleAlternative = pd.getName();
@@ -241,7 +240,7 @@ public abstract class PropertyMatches {
     }
 
     private static String[] calculateMatches(final String name, Class<?> clazz, final int maxDistance) {
-      final List<String> candidates = new ArrayList<>();
+      ArrayList<String> candidates = new ArrayList<>();
       ReflectionUtils.doWithFields(clazz, field -> {
         String possibleAlternative = field.getName();
         if (calculateStringDistance(name, possibleAlternative) <= maxDistance) {

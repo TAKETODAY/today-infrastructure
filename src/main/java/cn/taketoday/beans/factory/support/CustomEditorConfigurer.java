@@ -20,9 +20,6 @@
 
 package cn.taketoday.beans.factory.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.PropertyEditor;
 import java.util.Map;
 
@@ -31,6 +28,8 @@ import cn.taketoday.beans.PropertyEditorRegistrar;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -38,7 +37,7 @@ import cn.taketoday.util.ClassUtils;
  * registration of custom {@link PropertyEditor property editors}.
  *
  * <p>In case you want to register {@link PropertyEditor} instances,
- * the recommended usage as of Spring 2.0 is to use custom
+ * the recommended usage as of Framework is to use custom
  * {@link PropertyEditorRegistrar} implementations that in turn register any
  * desired editor instances on a given
  * {@link cn.taketoday.beans.PropertyEditorRegistry registry}. Each
@@ -57,7 +56,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * <p>
  * It's perfectly fine to register {@link PropertyEditor} <em>classes</em> via
- * the {@code customEditors} property. Spring will create fresh instances of
+ * the {@code customEditors} property. Framework will create fresh instances of
  * them for each editing attempt then:
  *
  * <pre class="code">
@@ -101,7 +100,7 @@ import cn.taketoday.util.ClassUtils;
  */
 public class CustomEditorConfigurer implements BeanFactoryPostProcessor, Ordered {
 
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 

@@ -21,14 +21,14 @@ package cn.taketoday.beans.factory;
 
 import java.io.Serial;
 
-import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2018-07-08 19:54:46
  */
-public class BeanDefinitionStoreException extends BeansException {
+public class BeanDefinitionStoreException extends FatalBeanException {
   @Serial
   private static final long serialVersionUID = 1L;
 

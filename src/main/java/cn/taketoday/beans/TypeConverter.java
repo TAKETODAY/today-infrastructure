@@ -47,7 +47,7 @@ public interface TypeConverter {
   /**
    * Convert the value to the required type (if necessary from a String).
    * <p>Conversions from String to any type will typically use the {@code setAsText}
-   * method of the PropertyEditor class, or a Spring Converter in a ConversionService.
+   * method of the PropertyEditor class, or a Framework Converter in a ConversionService.
    *
    * @param value the value to convert
    * @param requiredType the type we must convert to
@@ -65,7 +65,7 @@ public interface TypeConverter {
   /**
    * Convert the value to the required type (if necessary from a String).
    * <p>Conversions from String to any type will typically use the {@code setAsText}
-   * method of the PropertyEditor class, or a Spring Converter in a ConversionService.
+   * method of the PropertyEditor class, or a Framework Converter in a ConversionService.
    *
    * @param value the value to convert
    * @param requiredType the type we must convert to
@@ -80,13 +80,14 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
-                           @Nullable MethodParameter methodParam) throws TypeMismatchException;
+  <T> T convertIfNecessary(
+          @Nullable Object value, @Nullable Class<T> requiredType,
+          @Nullable MethodParameter methodParam) throws TypeMismatchException;
 
   /**
    * Convert the value to the required type (if necessary from a String).
    * <p>Conversions from String to any type will typically use the {@code setAsText}
-   * method of the PropertyEditor class, or a Spring Converter in a ConversionService.
+   * method of the PropertyEditor class, or a Framework Converter in a ConversionService.
    *
    * @param value the value to convert
    * @param requiredType the type we must convert to
@@ -107,7 +108,7 @@ public interface TypeConverter {
   /**
    * Convert the value to the required type (if necessary from a String).
    * <p>Conversions from String to any type will typically use the {@code setAsText}
-   * method of the PropertyEditor class, or a Spring Converter in a ConversionService.
+   * method of the PropertyEditor class, or a Framework Converter in a ConversionService.
    *
    * @param value the value to convert
    * @param requiredType the type we must convert to
@@ -121,8 +122,9 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  default <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
-                                   @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
+  default <T> T convertIfNecessary(
+          @Nullable Object value, @Nullable Class<T> requiredType,
+          @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
 
     throw new UnsupportedOperationException("TypeDescriptor resolution not supported");
   }

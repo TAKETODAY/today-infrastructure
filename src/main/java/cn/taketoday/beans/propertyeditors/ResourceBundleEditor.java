@@ -35,7 +35,7 @@ import cn.taketoday.util.StringUtils;
  * <p>Only supports conversion <i>from</i> a String, but not <i>to</i> a String.
  *
  * Find below some examples of using this class in a (properly configured)
- * Spring container using XML-based metadata:
+ * Framework container using XML-based metadata:
  *
  * <pre class="code"> &lt;bean id="errorDialog" class="..."&gt;
  *    &lt;!--
@@ -52,7 +52,7 @@ import cn.taketoday.util.StringUtils;
  *    &lt;property name="messages" value="com/messages/DialogMessages"/&gt;
  * &lt;/bean&gt;</pre>
  *
- * <p>A 'properly configured' Spring {@link cn.taketoday.context.ApplicationContext container}
+ * <p>A 'properly configured' Framework {@link cn.taketoday.context.ApplicationContext container}
  * might contain a {@link CustomEditorConfigurer}
  * definition such that the conversion can be effected transparently:
  *
@@ -67,7 +67,7 @@ import cn.taketoday.util.StringUtils;
  * &lt;/bean&gt;</pre>
  *
  * <p>Please note that this {@link java.beans.PropertyEditor} is <b>not</b>
- * registered by default with any of the Spring infrastructure.
+ * registered by default with any of the Framework infrastructure.
  *
  * <p>Thanks to David Leal Valmana for the suggestion and initial prototype.
  *

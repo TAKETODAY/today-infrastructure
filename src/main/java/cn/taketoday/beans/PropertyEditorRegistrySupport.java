@@ -120,7 +120,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   private Map<Class<?>, PropertyEditor> customEditorCache;
 
   /**
-   * Specify a Spring 3.0 ConversionService to use for converting
+   * Specify a ConversionService to use for converting
    * property values, as an alternative to JavaBeans PropertyEditors.
    */
   public void setConversionService(@Nullable ConversionService conversionService) {
@@ -243,7 +243,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
     this.defaultEditors.put(char.class, new CharacterEditor(false));
     this.defaultEditors.put(Character.class, new CharacterEditor(true));
 
-    // Spring's CustomBooleanEditor accepts more flag values than the JDK's default editor.
+    // Framework's CustomBooleanEditor accepts more flag values than the JDK's default editor.
     this.defaultEditors.put(boolean.class, new CustomBooleanEditor(false));
     this.defaultEditors.put(Boolean.class, new CustomBooleanEditor(true));
 

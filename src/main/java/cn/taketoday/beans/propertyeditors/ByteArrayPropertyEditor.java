@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @see String#getBytes
- * @since 1.0.1
+ * @since 4.0
  */
 public class ByteArrayPropertyEditor extends PropertyEditorSupport {
 

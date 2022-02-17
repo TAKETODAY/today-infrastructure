@@ -20,6 +20,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 
 /**
@@ -30,7 +31,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class BeanDefinitionValidationException extends BeansException {
+public class BeanDefinitionValidationException extends FatalBeanException {
 
   public BeanDefinitionValidationException(String msg) {
     super(msg);

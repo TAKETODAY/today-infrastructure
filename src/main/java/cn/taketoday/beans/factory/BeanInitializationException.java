@@ -21,7 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.io.Serial;
 
-import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.FatalBeanException;
 
 /**
  * Exception that a bean implementation is suggested to throw if its own
@@ -36,7 +36,7 @@ import cn.taketoday.beans.BeansException;
  * @see BeanFactoryAware#setBeanFactory
  * @see InitializingBean#afterPropertiesSet
  */
-public class BeanInitializationException extends BeansException {
+public class BeanInitializationException extends FatalBeanException {
   @Serial
   private static final long serialVersionUID = 1L;
 

@@ -55,10 +55,11 @@ public class PropertyAccessorUtils {
     if (propertyPath == null) {
       return false;
     }
-    for (int i = 0; i < propertyPath.length(); i++) {
+    int length = propertyPath.length();
+    for (int i = 0; i < length; i++) {
       char ch = propertyPath.charAt(i);
-      if (ch == PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR ||
-              ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
+      if (ch == PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR
+              || ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
         return true;
       }
     }
@@ -138,8 +139,8 @@ public class PropertyAccessorUtils {
     if (registeredPath.charAt(propertyPath.length()) != PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
       return false;
     }
-    return (registeredPath.indexOf(PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR, propertyPath.length() + 1) ==
-            registeredPath.length() - 1);
+    return registeredPath.indexOf(PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR, propertyPath.length() + 1)
+            == registeredPath.length() - 1;
   }
 
   /**

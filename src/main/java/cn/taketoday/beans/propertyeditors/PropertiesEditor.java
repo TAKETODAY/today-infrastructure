@@ -42,6 +42,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see Properties#load
+ * @since 4.0
  */
 public class PropertiesEditor extends PropertyEditorSupport {
 

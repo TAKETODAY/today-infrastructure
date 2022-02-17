@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.Assert;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -46,7 +46,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @see java.util.Set
  * @see SortedSet
  * @see List
- * @since 1.1.3
+ * @since 4.0
  */
 public class CustomCollectionEditor extends PropertyEditorSupport {
 

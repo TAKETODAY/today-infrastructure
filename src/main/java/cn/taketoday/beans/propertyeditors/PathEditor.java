@@ -30,7 +30,8 @@ import java.nio.file.Paths;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceEditor;
-import cn.taketoday.util.Assert;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ResourceUtils;
 
 /**
@@ -39,9 +40,9 @@ import cn.taketoday.util.ResourceUtils;
  *
  * <p>Based on {@link Paths#get(URI)}'s resolution algorithm, checking
  * registered NIO file system providers, including the default file system
- * for "file:..." paths. Also supports Spring-style URL notation: any fully
- * qualified standard URL and Spring's special "classpath:" pseudo-URL, as
- * well as Spring's context-specific relative file paths. As a fallback, a
+ * for "file:..." paths. Also supports Framework-style URL notation: any fully
+ * qualified standard URL and Framework's special "classpath:" pseudo-URL, as
+ * well as Framework's context-specific relative file paths. As a fallback, a
  * path will be resolved in the file system via {@code Paths#get(String)}
  * if no existing context-relative resource could be found.
  *
@@ -52,7 +53,7 @@ import cn.taketoday.util.ResourceUtils;
  * @see cn.taketoday.core.io.ResourceLoader
  * @see FileEditor
  * @see URLEditor
- * @since 4.3.2
+ * @since 4.0
  */
 public class PathEditor extends PropertyEditorSupport {
 
@@ -77,7 +78,7 @@ public class PathEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
-    boolean nioPathCandidate = !text.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX);
+    boolean nioPathCandidate = !text.startsWith(ResourceLoader.CLASSPATH_URL_PREFIX);
     if (nioPathCandidate && !text.startsWith("/")) {
       try {
         URI uri = new URI(text);
@@ -90,12 +91,12 @@ public class PathEditor extends PropertyEditorSupport {
       }
       catch (URISyntaxException ex) {
         // Not a valid URI; potentially a Windows-style path after
-        // a file prefix (let's try as Spring resource location)
+        // a file prefix (let's try as Framework resource location)
         nioPathCandidate = !text.startsWith(ResourceUtils.FILE_URL_PREFIX);
       }
       catch (FileSystemNotFoundException ex) {
         // URI scheme not registered for NIO (let's try URL
-        // protocol handlers via Spring's resource mechanism).
+        // protocol handlers via Framework's resource mechanism).
       }
     }
 

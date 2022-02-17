@@ -19,7 +19,12 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.beans.PropertyEditor;
+
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.PropertyEditorRegistrar;
+import cn.taketoday.beans.PropertyEditorRegistry;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -449,4 +454,60 @@ public interface ConfigurableBeanFactory
    */
   void ignoreDependencyInterface(Class<?> ifc);
 
+  /**
+   * Add a PropertyEditorRegistrar to be applied to all bean creation processes.
+   * <p>Such a registrar creates new PropertyEditor instances and registers them
+   * on the given registry, fresh for each bean creation attempt. This avoids
+   * the need for synchronization on custom editors; hence, it is generally
+   * preferable to use this method instead of {@link #registerCustomEditor}.
+   *
+   * @param registrar the PropertyEditorRegistrar to register
+   * @since 4.0
+   */
+  void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar);
+
+  /**
+   * Register the given custom property editor for all properties of the
+   * given type. To be invoked during factory configuration.
+   * <p>Note that this method will register a shared custom editor instance;
+   * access to that instance will be synchronized for thread-safety. It is
+   * generally preferable to use {@link #addPropertyEditorRegistrar} instead
+   * of this method, to avoid for the need for synchronization on custom editors.
+   *
+   * @param requiredType type of the property
+   * @param propertyEditorClass the {@link PropertyEditor} class to register
+   * @since 4.0
+   */
+  void registerCustomEditor(Class<?> requiredType, Class<? extends PropertyEditor> propertyEditorClass);
+
+  /**
+   * Initialize the given PropertyEditorRegistry with the custom editors
+   * that have been registered with this BeanFactory.
+   *
+   * @param registry the PropertyEditorRegistry to initialize
+   * @since 4.0
+   */
+  void copyRegisteredEditorsTo(PropertyEditorRegistry registry);
+
+  /**
+   * Set a custom type converter that this BeanFactory should use for converting
+   * bean property values, constructor argument values, etc.
+   * <p>This will override the default PropertyEditor mechanism and hence make
+   * any custom editors or custom editor registrars irrelevant.
+   *
+   * @see #addPropertyEditorRegistrar
+   * @see #registerCustomEditor
+   * @since 4.0
+   */
+  void setTypeConverter(TypeConverter typeConverter);
+
+  /**
+   * Obtain a type converter as used by this BeanFactory. This may be a fresh
+   * instance for each call, since TypeConverters are usually <i>not</i> thread-safe.
+   * <p>If the default PropertyEditor mechanism is active, the returned
+   * TypeConverter will be aware of all custom editors that have been registered.
+   *
+   * @since 4.0
+   */
+  TypeConverter getTypeConverter();
 }

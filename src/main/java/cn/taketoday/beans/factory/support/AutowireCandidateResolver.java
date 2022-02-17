@@ -112,7 +112,7 @@ public interface AutowireCandidateResolver {
    * <p>The default implementation creates a separate instance via the default
    * class constructor, assuming no specific configuration state to copy.
    * Subclasses may override this with custom configuration state handling
-   * or with standard {@link Cloneable} support (as implemented by Spring's
+   * or with standard {@link Cloneable} support (as implemented by Framework's
    * own configurable {@code AutowireCandidateResolver} variants), or simply
    * return {@code this} (as in {@link SimpleAutowireCandidateResolver}).
    *

@@ -26,15 +26,15 @@ import java.net.URL;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceEditor;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Editor for {@code java.net.URL}, to directly populate a URL property
  * instead of using a String property as bridge.
  *
- * <p>Supports Spring-style URL notation: any fully qualified standard URL
- * ("file:", "http:", etc) and Spring's special "classpath:" pseudo-URL,
- * as well as Spring's context-specific relative file paths.
+ * <p>Supports Framework-style URL notation: any fully qualified standard URL
+ * ("file:", "http:", etc) and Framework's special "classpath:" pseudo-URL,
+ * as well as Framework's context-specific relative file paths.
  *
  * <p>Note: A URL must specify a valid protocol, else it will be rejected
  * upfront. However, the target resource does not necessarily have to exist
@@ -46,7 +46,7 @@ import cn.taketoday.util.Assert;
  * @see cn.taketoday.core.io.ResourceLoader
  * @see FileEditor
  * @see InputStreamEditor
- * @since 15.12.2003
+ * @since 4.0
  */
 public class URLEditor extends PropertyEditorSupport {
 
@@ -74,7 +74,7 @@ public class URLEditor extends PropertyEditorSupport {
     this.resourceEditor.setAsText(text);
     Resource resource = (Resource) this.resourceEditor.getValue();
     try {
-      setValue(resource != null ? resource.getURL() : null);
+      setValue(resource != null ? resource.getLocation() : null);
     }
     catch (IOException ex) {
       throw new IllegalArgumentException("Could not retrieve URL for " + resource + ": " + ex.getMessage());

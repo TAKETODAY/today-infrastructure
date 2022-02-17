@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.0
+ * @since 4.0
  */
 public class ClassArrayEditor extends PropertyEditorSupport {
 

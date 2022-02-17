@@ -20,8 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.BeansException;
-
 /**
  * Exception thrown in case of a bean being requested despite
  * bean creation currently not being allowed (for example, during
@@ -31,7 +29,7 @@ import cn.taketoday.beans.BeansException;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class BeanCreationNotAllowedException extends BeansException {
+public class BeanCreationNotAllowedException extends BeanCreationException {
   private final String beanName;
 
   /**

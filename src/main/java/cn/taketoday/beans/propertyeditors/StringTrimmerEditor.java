@@ -33,6 +33,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @see cn.taketoday.validation.DataBinder#registerCustomEditor
+ * @since 4.0
  */
 public class StringTrimmerEditor extends PropertyEditorSupport {
 

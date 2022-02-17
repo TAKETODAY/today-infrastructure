@@ -73,7 +73,9 @@ public interface PropertyEditorRegistry {
    * {@code null} if registering an editor for all properties of the given type
    * @param propertyEditor editor to register
    */
-  void registerCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath, PropertyEditor propertyEditor);
+  void registerCustomEditor(
+          @Nullable Class<?> requiredType,
+          @Nullable String propertyPath, PropertyEditor propertyEditor);
 
   /**
    * Find a custom property editor for the given type and property.
