@@ -53,7 +53,7 @@ import cn.taketoday.lang.TodayStrategies;
 /**
  * Standard {@link ApplicationContext}
  *
- * like Spring's StandardApplicationContext
+ * like Spring's AnnotationConfigApplicationContext
  *
  * @author TODAY 2018-09-06 13:47
  */
