@@ -19,32 +19,66 @@
  */
 package cn.taketoday.util;
 
-import java.util.Objects;
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A data size, such as '12MB'.
  *
+ * <p>This class models data size in terms of bytes and is immutable and thread-safe.
+ *
+ * <p>The terms and units used in this class are based on
+ * <a href="https://en.wikipedia.org/wiki/Binary_prefix">binary prefixes</a>
+ * indicating multiplication by powers of 2. Consult the following table and
+ * the Javadoc for {@link DataUnit} for details.
+ *
  * <p>
- * This class models a size in terms of bytes and is immutable and thread-safe.
+ * <table border="1">
+ * <tr><th>Term</th><th>Data Size</th><th>Size in Bytes</th></tr>
+ * <tr><td>byte</td><td>1B</td><td>1</td></tr>
+ * <tr><td>kilobyte</td><td>1KB</td><td>1,024</td></tr>
+ * <tr><td>megabyte</td><td>1MB</td><td>1,048,576</td></tr>
+ * <tr><td>gigabyte</td><td>1GB</td><td>1,073,741,824</td></tr>
+ * <tr><td>terabyte</td><td>1TB</td><td>1,099,511,627,776</td></tr>
+ * </table>
  *
  * @author Stephane Nicoll
+ * @author Sam Brannen
+ * @author Stephane Nicoll
  * @author TODAY
+ * @see DataUnit
  * @since 2.1.3
  */
-public final class DataSize implements Comparable<DataSize> {
-  /** Bytes per Kilobyte. */
-  public static final long BYTES_PER_KB = 1024;
-  /** Bytes per Megabyte. */
-  public static final long BYTES_PER_MB = BYTES_PER_KB * 1024;
-  /** Bytes per Gigabyte. */
-  public static final long BYTES_PER_GB = BYTES_PER_MB * 1024;
-  /** Bytes per Terabyte. */
-  public static final long BYTES_PER_TB = BYTES_PER_GB * 1024;
+public final class DataSize implements Comparable<DataSize>, Serializable {
 
-  /** The pattern for parsing. */
+  /**
+   * The pattern for parsing.
+   */
   private static final Pattern PATTERN = Pattern.compile("^([+\\-]?\\d+)([a-zA-Z]{0,2})$");
+
+  /**
+   * Bytes per Kilobyte.
+   */
+  private static final long BYTES_PER_KB = 1024;
+
+  /**
+   * Bytes per Megabyte.
+   */
+  private static final long BYTES_PER_MB = BYTES_PER_KB * 1024;
+
+  /**
+   * Bytes per Gigabyte.
+   */
+  private static final long BYTES_PER_GB = BYTES_PER_MB * 1024;
+
+  /**
+   * Bytes per Terabyte.
+   */
+  private static final long BYTES_PER_TB = BYTES_PER_GB * 1024;
 
   private final long bytes;
 
@@ -103,27 +137,14 @@ public final class DataSize implements Comparable<DataSize> {
   }
 
   /**
-   * Obtain a {@link DataSize} representing an amount in the specified
-   * {@link DataUnit}.
+   * Obtain a {@link DataSize} representing an amount in the specified {@link DataUnit}.
    *
-   * @param amount the amount of the size, measured in terms of the unit, positive or
-   * negative
-   * @return a corresponding {@link DataSize}
-   * @since 2.1.6
-   */
-  public static DataSize of(long amount) {
-    return of(amount, DataUnit.BYTES);
-  }
-
-  /**
-   * Obtain a {@link DataSize} representing an amount in the specified
-   * {@link DataUnit}.
-   *
-   * @param amount the amount of the size, measured in terms of the unit, positive or
-   * negative
+   * @param amount the amount of the size, measured in terms of the unit,
+   * positive or negative
    * @return a corresponding {@link DataSize}
    */
   public static DataSize of(long amount, DataUnit unit) {
+    Assert.notNull(unit, "Unit must not be null");
     return new DataSize(Math.multiplyExact(amount, unit.size().toBytes()));
   }
 
@@ -132,7 +153,6 @@ public final class DataSize implements Comparable<DataSize> {
    * {@link DataUnit#BYTES} if no unit is specified.
    * <p>
    * Examples:
-   *
    * <pre>
    * "12KB" -- parses as "12 kilobytes"
    * "5MB"  -- parses as "5 megabytes"
@@ -144,18 +164,17 @@ public final class DataSize implements Comparable<DataSize> {
    * @see #parse(CharSequence, DataUnit)
    */
   public static DataSize parse(CharSequence text) {
-    return parse(text, DataUnit.BYTES);
+    return parse(text, null);
   }
 
   /**
-   * Obtain a {@link DataSize} from a text string such as {@code 12MB} using the
-   * specified default {@link DataUnit} if no unit is specified.
+   * Obtain a {@link DataSize} from a text string such as {@code 12MB} using
+   * the specified default {@link DataUnit} if no unit is specified.
    * <p>
-   * The string starts with a number followed optionally by a unit matching one of
-   * the supported {@link DataUnit suffixes}.
+   * The string starts with a number followed optionally by a unit matching one of the
+   * supported {@linkplain DataUnit suffixes}.
    * <p>
    * Examples:
-   *
    * <pre>
    * "12KB" -- parses as "12 kilobytes"
    * "5MB"  -- parses as "5 megabytes"
@@ -165,25 +184,23 @@ public final class DataSize implements Comparable<DataSize> {
    * @param text the text to parse
    * @return the parsed {@link DataSize}
    */
-  public static DataSize parse(CharSequence text, DataUnit defaultUnit) {
+  public static DataSize parse(CharSequence text, @Nullable DataUnit defaultUnit) {
+    Assert.notNull(text, "Text must not be null");
     try {
-
-      final Matcher matcher = PATTERN.matcher(text);
-      // fix matcher
-      if (matcher.matches()) {
-        final long amount = Long.parseLong(matcher.group(1));
-        final DataUnit unit = determineDataUnit(matcher.group(2), defaultUnit);
-        return DataSize.of(amount, unit);
-      }
-      return DataSize.of(Long.parseLong(text.toString()), DataUnit.BYTES);
+      Matcher matcher = PATTERN.matcher(text);
+      Assert.state(matcher.matches(), "Does not match data size pattern");
+      DataUnit unit = determineDataUnit(matcher.group(2), defaultUnit);
+      long amount = Long.parseLong(matcher.group(1));
+      return DataSize.of(amount, unit);
     }
     catch (Exception ex) {
       throw new IllegalArgumentException("'" + text + "' is not a valid data size", ex);
     }
   }
 
-  private static DataUnit determineDataUnit(String suffix, DataUnit defaultUnit) {
-    return (StringUtils.isNotEmpty(suffix) ? DataUnit.fromSuffix(suffix) : Objects.requireNonNull(defaultUnit));
+  private static DataUnit determineDataUnit(String suffix, @Nullable DataUnit defaultUnit) {
+    DataUnit defaultUnitToUse = (defaultUnit != null ? defaultUnit : DataUnit.BYTES);
+    return StringUtils.isNotEmpty(suffix) ? DataUnit.fromSuffix(suffix) : defaultUnitToUse;
   }
 
   /**
@@ -251,8 +268,15 @@ public final class DataSize implements Comparable<DataSize> {
   }
 
   @Override
-  public boolean equals(Object other) {
-    return this == other || (other instanceof DataSize && this.bytes == ((DataSize) other).bytes);
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    DataSize otherSize = (DataSize) other;
+    return (this.bytes == otherSize.bytes);
   }
 
   @Override

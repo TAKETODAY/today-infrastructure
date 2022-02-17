@@ -597,9 +597,9 @@ class CustomEditorTests {
   @Test
   void testClassEditorWithArray() {
     PropertyEditor classEditor = new ClassEditor();
-    classEditor.setAsText("cn.taketoday.beans.testfixture.beans.TestBean[]");
+    classEditor.setAsText("cn.taketoday.beans.factory.support.TestBean[]");
     assertThat(classEditor.getValue()).isEqualTo(TestBean[].class);
-    assertThat(classEditor.getAsText()).isEqualTo("cn.taketoday.beans.testfixture.beans.TestBean[]");
+    assertThat(classEditor.getAsText()).isEqualTo("cn.taketoday.beans.factory.support.TestBean[]");
   }
 
   /*

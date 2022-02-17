@@ -27,8 +27,8 @@ import java.io.IOException;
 import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.util.DataSize;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.MultipartParsingException;
@@ -103,7 +103,7 @@ public class MultipartIterator {
 
     if (partSize > maxFileSize.toBytes()) {
       throw new FileSizeExceededException(maxFileSize, null)
-              .setActual(DataSize.of(partSize));
+              .setActual(DataSize.ofBytes(partSize));
     }
 
     final ContentDisposition contentDisposition = ContentDisposition.parse(contentDispositionString);

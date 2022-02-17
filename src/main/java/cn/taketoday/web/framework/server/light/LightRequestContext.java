@@ -173,7 +173,7 @@ public class LightRequestContext extends RequestContext {
         final MultipartConfiguration multipartConfig = config.getMultipartConfig();
         if (contentLength > multipartConfig.getMaxRequestSize().toBytes()) {
           throw new FileSizeExceededException(multipartConfig.getMaxRequestSize(), null)
-                  .setActual(DataSize.of(contentLength));
+                  .setActual(DataSize.ofBytes(contentLength));
         }
 
         final MultipartIterator multipartIterator = new MultipartIterator(request);
