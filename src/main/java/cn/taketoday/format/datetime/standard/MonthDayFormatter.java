@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,19 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.conversion.support;
+package cn.taketoday.format.datetime.standard;
 
-import cn.taketoday.http.MediaType;
+import java.text.ParseException;
+import java.time.MonthDay;
+import java.util.Locale;
+
+import cn.taketoday.format.Formatter;
 
 /**
- * @author TODAY 2021/3/21 11:07
- * @since 3.0
+ * {@link Formatter} implementation for a JSR-310 {@link MonthDay},
+ * following JSR-310's parsing rules for a MonthDay.
+ *
+ * @author Juergen Hoeller
+ * @see MonthDay#parse
+ * @since 4.0
  */
-public class MediaTypeConverter extends StringSourceConverter<MediaType> {
+class MonthDayFormatter implements Formatter<MonthDay> {
 
   @Override
-  public MediaType convert(String source) {
-    return MediaType.valueOf(source);
+  public MonthDay parse(String text, Locale locale) throws ParseException {
+    return MonthDay.parse(text);
+  }
+
+  @Override
+  public String print(MonthDay object, Locale locale) {
+    return object.toString();
   }
 
 }

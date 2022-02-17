@@ -110,7 +110,7 @@ public @interface MapperScan {
   Class<?>[] basePackageClasses() default {};
 
   /**
-   * The {@link BeanNamePopulator} class to be used for naming detected components within the Spring container.
+   * The {@link BeanNamePopulator} class to be used for naming detected components within the Framework container.
    *
    * @return the class of {@link BeanNamePopulator}
    */
@@ -140,7 +140,7 @@ public @interface MapperScan {
   Class<?> markerInterface() default Class.class;
 
   /**
-   * Specifies which {@code SqlSessionTemplate} to use in the case that there is more than one in the spring context.
+   * Specifies which {@code SqlSessionTemplate} to use in the case that there is more than one in the Framework context.
    * Usually this is only needed when you have more than one datasource.
    *
    * @return the bean name of {@code SqlSessionTemplate}

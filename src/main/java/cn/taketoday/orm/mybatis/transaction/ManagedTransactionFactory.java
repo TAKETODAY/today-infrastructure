@@ -48,7 +48,7 @@ public class ManagedTransactionFactory implements TransactionFactory {
    */
   @Override
   public Transaction newTransaction(Connection conn) {
-    throw new UnsupportedOperationException("New Spring transactions require a DataSource");
+    throw new UnsupportedOperationException("New Framework transactions require a DataSource");
   }
 
   /**

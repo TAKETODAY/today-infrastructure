@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,14 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.conversion.support;
-
-import cn.taketoday.core.conversion.Converter;
+package cn.taketoday.format;
 
 /**
- * @author TODAY 2021/3/21 11:02
- * @since 3.0
+ * Formats objects of type T.
+ * A Formatter is both a Printer <i>and</i> a Parser for an object type.
+ *
+ * @param <T> the type of object this Formatter formats
+ * @author Keith Donald
+ * @since 4.0
  */
-public abstract class StringSourceConverter<R> implements Converter<String, R> {
+public interface Formatter<T> extends Printer<T>, Parser<T> {
 
 }

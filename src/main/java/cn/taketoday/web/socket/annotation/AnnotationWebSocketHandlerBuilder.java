@@ -21,6 +21,7 @@
 package cn.taketoday.web.socket.annotation;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,6 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.conversion.support.StringToBytesConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -58,7 +58,7 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
     }
     resolvers.add(new IsLastEndpointParameterResolver());
     resolvers.add(new MessageEndpointParameterResolver(String.class, conversionService));
-    resolvers.add(new MessageEndpointParameterResolver(byte[].class, new StringToBytesConverter()));
+    resolvers.add(new MessageEndpointParameterResolver(byte[].class, source -> ((String) source).getBytes(StandardCharsets.UTF_8)));
     resolvers.add(new MessageEndpointParameterResolver(ByteBuffer.class, conversionService));
     resolvers.add(new PathVariableEndpointParameterResolver(conversionService));
     resolvers.add(new WebSocketSessionEndpointParameterResolver());

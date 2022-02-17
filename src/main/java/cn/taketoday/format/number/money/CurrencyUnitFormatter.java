@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,18 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.conversion.support;
+package cn.taketoday.format.number.money;
 
-import cn.taketoday.util.MimeType;
+import java.util.Locale;
+
+import javax.money.CurrencyUnit;
+import javax.money.Monetary;
+
+import cn.taketoday.format.Formatter;
 
 /**
- * @author TODAY 2021/3/21 11:02
- * @since 3.0
+ * Formatter for JSR-354 {@link javax.money.CurrencyUnit} values,
+ * from and to currency code Strings.
+ *
+ * @author Juergen Hoeller
+ * @since 4.0
  */
-public class MimeTypeConverter extends StringSourceConverter<MimeType> {
+public class CurrencyUnitFormatter implements Formatter<CurrencyUnit> {
 
   @Override
-  public MimeType convert(String source) {
-    return MimeType.valueOf(source);
+  public String print(CurrencyUnit object, Locale locale) {
+    return object.getCurrencyCode();
   }
+
+  @Override
+  public CurrencyUnit parse(String text, Locale locale) {
+    return Monetary.getCurrency(text);
+  }
+
 }

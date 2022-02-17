@@ -74,10 +74,10 @@ public class ManagedTransaction implements Transaction {
   }
 
   /**
-   * Gets a connection from Spring transaction manager and discovers if this {@code Transaction} should manage
-   * connection or let it to Spring.
+   * Gets a connection from Framework transaction manager and discovers if this {@code Transaction} should manage
+   * connection or let it to Framework.
    * <p>
-   * It also reads autocommit setting because when using Spring Transaction MyBatis thinks that autocommit is always
+   * It also reads autocommit setting because when using Framework Transaction MyBatis thinks that autocommit is always
    * false and will always call commit/rollback so we need to no-op that calls.
    */
   private void openConnection() throws SQLException {

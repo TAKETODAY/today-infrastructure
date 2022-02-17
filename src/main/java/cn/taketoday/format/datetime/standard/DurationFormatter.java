@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,15 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.conversion.support;
+package cn.taketoday.format.datetime.standard;
+
+import java.text.ParseException;
+import java.time.Duration;
+import java.util.Locale;
+
+import cn.taketoday.format.Formatter;
 
 /**
- * @author TODAY 2021/3/21 10:37
- * @since 3.0
+ * {@link Formatter} implementation for a JSR-310 {@link Duration},
+ * following JSR-310's parsing rules for a Duration.
+ *
+ * @author Juergen Hoeller
+ * @see Duration#parse
+ * @since 4.0
  */
-public class IntegerConverter extends NumberConverter {
+class DurationFormatter implements Formatter<Duration> {
 
-  public IntegerConverter(Class<?> targetClass) {
-    super(targetClass);
+  @Override
+  public Duration parse(String text, Locale locale) throws ParseException {
+    return Duration.parse(text);
   }
+
+  @Override
+  public String print(Duration object, Locale locale) {
+    return object.toString();
+  }
+
 }

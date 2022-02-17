@@ -1,0 +1,93 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.format.datetime;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import cn.taketoday.context.support.EmbeddedValueResolutionSupport;
+import cn.taketoday.format.AnnotationFormatterFactory;
+import cn.taketoday.format.Formatter;
+import cn.taketoday.format.Parser;
+import cn.taketoday.format.Printer;
+import cn.taketoday.format.annotation.DateTimeFormat;
+import cn.taketoday.util.StringUtils;
+
+/**
+ * Formats fields annotated with the {@link DateTimeFormat} annotation using a {@link DateFormatter}.
+ *
+ * @author Phillip Webb
+ * @author Sam Brannen
+ * @since 4.0
+ */
+public class DateTimeFormatAnnotationFormatterFactory extends EmbeddedValueResolutionSupport
+        implements AnnotationFormatterFactory<DateTimeFormat> {
+
+  private static final Set<Class<?>> FIELD_TYPES = Set.of(Date.class, Calendar.class, Long.class);
+
+  @Override
+  public Set<Class<?>> getFieldTypes() {
+    return FIELD_TYPES;
+  }
+
+  @Override
+  public Printer<?> getPrinter(DateTimeFormat annotation, Class<?> fieldType) {
+    return getFormatter(annotation, fieldType);
+  }
+
+  @Override
+  public Parser<?> getParser(DateTimeFormat annotation, Class<?> fieldType) {
+    return getFormatter(annotation, fieldType);
+  }
+
+  protected Formatter<Date> getFormatter(DateTimeFormat annotation, Class<?> fieldType) {
+    DateFormatter formatter = new DateFormatter();
+    formatter.setSource(annotation);
+    formatter.setIso(annotation.iso());
+
+    String style = resolveEmbeddedValue(annotation.style());
+    if (StringUtils.isNotEmpty(style)) {
+      formatter.setStylePattern(style);
+    }
+
+    String pattern = resolveEmbeddedValue(annotation.pattern());
+    if (StringUtils.isNotEmpty(pattern)) {
+      formatter.setPattern(pattern);
+    }
+
+    List<String> resolvedFallbackPatterns = new ArrayList<>();
+    for (String fallbackPattern : annotation.fallbackPatterns()) {
+      String resolvedFallbackPattern = resolveEmbeddedValue(fallbackPattern);
+      if (StringUtils.isNotEmpty(resolvedFallbackPattern)) {
+        resolvedFallbackPatterns.add(resolvedFallbackPattern);
+      }
+    }
+    if (!resolvedFallbackPatterns.isEmpty()) {
+      formatter.setFallbackPatterns(resolvedFallbackPatterns.toArray(new String[0]));
+    }
+
+    return formatter;
+  }
+
+}

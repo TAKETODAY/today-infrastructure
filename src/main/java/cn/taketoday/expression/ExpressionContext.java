@@ -24,7 +24,7 @@ import java.util.Stack;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.MatchingConverter;
+import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.expression.lang.EvaluationContext;
 
@@ -402,10 +402,9 @@ public abstract class ExpressionContext {
       if (conversionService == null) { // @since 4.0
         conversionService = DefaultConversionService.getSharedInstance();
       }
-
-      final MatchingConverter matchingConverter = conversionService.getConverter(obj.getClass(), targetDescriptor);
-      if (matchingConverter != null) {
-        return matchingConverter.convert(targetDescriptor, obj);
+      final GenericConverter converter = conversionService.getConverter(obj, targetDescriptor);
+      if (converter != null) {
+        return converter.convert(obj, TypeDescriptor.fromObject(obj), targetDescriptor);
       }
       final ExpressionResolver elResolver = getResolver();
       if (elResolver != null) {

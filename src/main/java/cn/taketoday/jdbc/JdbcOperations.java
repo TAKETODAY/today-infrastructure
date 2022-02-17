@@ -102,8 +102,8 @@ public class JdbcOperations {
   public JdbcOperations(ConnectionSource source) {
     this.connectionSource = source;
     final DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
-    sharedInstance.addConverters(new ClobToStringConverter(),
-            new OffsetTimeToSQLTimeConverter());
+    sharedInstance.addConverter(new ClobToStringConverter());
+    sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
     if (FeatureDetector.isJodaTimeAvailable()) {
       sharedInstance.addConverter(new TimeToJodaLocalTimeConverter());
     }
