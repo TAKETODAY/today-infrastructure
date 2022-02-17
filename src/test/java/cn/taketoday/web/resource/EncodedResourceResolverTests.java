@@ -84,7 +84,7 @@ public class EncodedResourceResolverTests {
 
     Resource actual = this.resolver.resolveResource(requestContext, file, this.locations);
 
-    assertThat(actual.toString()).isEqualTo(getResource(file + ".gz").toString());
+    assertThat(actual).isEqualTo(getResource(file + ".gz"));
     assertThat(actual.getName()).isEqualTo(getResource(file).getName());
 
     boolean condition = actual instanceof HttpResource;
@@ -104,7 +104,7 @@ public class EncodedResourceResolverTests {
 
     Resource resolved = this.resolver.resolveResource(requestContext, file, this.locations);
 
-    assertThat(resolved.toString()).isEqualTo(getResource("foo.css.gz").toString());
+    assertThat(resolved).isEqualTo(getResource("foo.css.gz"));
     assertThat(resolved.getName()).isEqualTo(getResource("foo.css").getName());
     boolean condition = resolved instanceof HttpResource;
     assertThat(condition).isTrue();
@@ -121,13 +121,15 @@ public class EncodedResourceResolverTests {
 
     Resource resolved = this.resolver.resolveResource(requestContext, file, this.locations);
 
-    assertThat(resolved.toString()).isEqualTo(getResource(file + ".gz").toString());
+    assertThat(resolved).isEqualTo(getResource(file + ".gz"));
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());
     boolean condition = resolved instanceof HttpResource;
     assertThat(condition).isTrue();
 
     // 2. Resolve unencoded resource
     request = new MockHttpServletRequest("GET", "/js/foo.js");
+    requestContext = new ServletRequestContext(null, request, null);
+
     resolved = this.resolver.resolveResource(requestContext, file, this.locations);
 
     assertThat(resolved.toString()).isEqualTo(getResource(file).toString());

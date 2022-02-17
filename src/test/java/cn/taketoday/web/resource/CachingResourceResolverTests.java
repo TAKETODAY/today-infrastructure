@@ -133,6 +133,8 @@ public class CachingResourceResolverTests {
 
     request = new MockHttpServletRequest("GET", file);
     request.addHeader("Accept-Encoding", "gzip ; a=b  , deflate ,  br  ; c=d ");
+    requestContext = new ServletRequestContext(null, request, null);
+
     expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     cacheKey = resourceKey(file + "+encoding=br,gzip");
@@ -142,6 +144,8 @@ public class CachingResourceResolverTests {
 
     request = new MockHttpServletRequest("GET", file);
     request.addHeader("Accept-Encoding", "deflate");
+    requestContext = new ServletRequestContext(null, request, null);
+
     expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     cacheKey = resourceKey(file);
@@ -176,6 +180,8 @@ public class CachingResourceResolverTests {
 
     request = new MockHttpServletRequest("GET", "bar.css");
     request.addHeader("Accept-Encoding", "gzip");
+    requestContext = new ServletRequestContext(null, request, null);
+
     assertThat(this.chain.resolveResource(requestContext, "bar.css", this.locations)).isSameAs(gzipped);
   }
 

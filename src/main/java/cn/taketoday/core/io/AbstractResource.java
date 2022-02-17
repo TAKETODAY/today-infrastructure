@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -272,17 +273,9 @@ public abstract class AbstractResource implements Resource {
   @Override
   public String toString() {
     try {
-      StringBuilder builder = new StringBuilder();
-      builder.append("{\n\t\"name\":\"");
-      builder.append(getName());
-      builder.append("\",\n\t\"exists\":\"");
-      builder.append(exists());
-      builder.append("\",\n\t\"location\":\"");
-      builder.append(getLocation());
-      builder.append("\",\n\t\"file\":\"");
-      builder.append(getFile());
-      builder.append("\"\n}");
-      return builder.toString();
+      return ToStringBuilder.from(this).append("name", getName())
+              .append("location", getLocation())
+              .toString();
     }
     catch (IOException e) {
       return super.toString();
@@ -296,7 +289,19 @@ public abstract class AbstractResource implements Resource {
 
   @Override
   public boolean equals(Object obj) {
-    return obj == this || (obj instanceof AbstractResource && Objects.equals(toString(), obj.toString()));
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof Resource resource) {
+      try {
+        URL location = getLocation();
+        URL otherLocation = resource.getLocation();
+        return Objects.equals(location, otherLocation);
+      }
+      catch (Exception ignored) { }
+      return Objects.equals(toString(), obj.toString());
+    }
+    return false;
   }
 
 }
