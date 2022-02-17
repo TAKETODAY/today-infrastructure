@@ -24,14 +24,18 @@ import java.beans.ConstructorProperties;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.beans.PropertyEditor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.time.temporal.Temporal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeansException;
@@ -46,6 +50,7 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -57,6 +62,19 @@ public abstract class BeanUtils {
 
   private static final ParameterNameDiscoverer parameterNameDiscoverer =
           new DefaultParameterNameDiscoverer();
+
+  private static final Set<Class<?>> unknownEditorTypes =
+          Collections.newSetFromMap(new ConcurrentReferenceHashMap<>(64));
+
+  private static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES = Map.of(
+          boolean.class, false,
+          byte.class, (byte) 0,
+          short.class, (short) 0,
+          int.class, 0,
+          long.class, 0L,
+          float.class, 0F,
+          double.class, 0D,
+          char.class, '\0');
 
   /**
    * Get instance with bean class use default {@link Constructor}
@@ -361,6 +379,58 @@ public abstract class BeanUtils {
       }
     }
     return Object.class;
+  }
+
+  /**
+   * Find a JavaBeans PropertyEditor following the 'Editor' suffix convention
+   * (e.g. "mypackage.MyDomainClass" &rarr; "mypackage.MyDomainClassEditor").
+   * <p>Compatible to the standard JavaBeans convention as implemented by
+   * {@link java.beans.PropertyEditorManager} but isolated from the latter's
+   * registered default editors for primitive types.
+   *
+   * @param targetType the type to find an editor for
+   * @return the corresponding editor, or {@code null} if none found
+   * @since 4.0
+   */
+  @Nullable
+  public static PropertyEditor findEditorByConvention(@Nullable Class<?> targetType) {
+    if (targetType == null || targetType.isArray() || unknownEditorTypes.contains(targetType)) {
+      return null;
+    }
+
+    ClassLoader cl = targetType.getClassLoader();
+    if (cl == null) {
+      try {
+        cl = ClassLoader.getSystemClassLoader();
+        if (cl == null) {
+          return null;
+        }
+      }
+      catch (Throwable ex) {
+        // e.g. AccessControlException on Google App Engine
+        return null;
+      }
+    }
+
+    String targetTypeName = targetType.getName();
+    String editorName = targetTypeName + "Editor";
+    try {
+      Class<?> editorClass = cl.loadClass(editorName);
+      if (editorClass != null) {
+        if (!PropertyEditor.class.isAssignableFrom(editorClass)) {
+          unknownEditorTypes.add(targetType);
+          return null;
+        }
+        return (PropertyEditor) newInstance(editorClass);
+      }
+      // Misbehaving ClassLoader returned null instead of ClassNotFoundException
+      // - fall back to unknown editor type registration below
+    }
+    catch (ClassNotFoundException ex) {
+      // Ignore - fall back to unknown editor type registration below
+    }
+    unknownEditorTypes.add(targetType);
+    return null;
   }
 
 }
