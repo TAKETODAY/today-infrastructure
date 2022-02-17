@@ -20,9 +20,11 @@
 
 package cn.taketoday.core.conversion;
 
-import java.util.List;
-
 /**
+ * For registering converters with a type conversion system.
+ *
+ * @author Keith Donald
+ * @author Juergen Hoeller
  * @author TODAY 2021/3/21 17:55
  * @since 3.0
  */
@@ -42,7 +44,8 @@ public interface ConverterRegistry {
    * <p>Allows for a Converter to be reused for multiple distinct pairs without
    * having to create a Converter class for each pair.
    */
-  <S, T> void addConverter(Class<S> sourceType, Class<T> targetType, Converter<? super S, ? extends T> converter);
+  <S, T> void addConverter(
+          Class<S> sourceType, Class<T> targetType, Converter<? super S, ? extends T> converter);
 
   /**
    * Add a generic converter to this registry.
