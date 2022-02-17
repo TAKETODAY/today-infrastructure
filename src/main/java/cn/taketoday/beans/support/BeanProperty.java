@@ -500,6 +500,24 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   }
 
   /**
+   * can write
+   *
+   * @since 4.0
+   */
+  public boolean isWriteable() {
+    return writeMethod != null || field != null;
+  }
+
+  /**
+   * can read
+   *
+   * @since 4.0
+   */
+  public boolean isReadable() {
+    return readMethod != null || field != null;
+  }
+
+  /**
    * Mapping name
    *
    * @see cn.taketoday.beans.Property

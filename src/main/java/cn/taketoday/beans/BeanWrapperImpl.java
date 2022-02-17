@@ -234,7 +234,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     private final BeanProperty property;
 
     public BeanPropertyHandler(BeanProperty property) {
-      super(property.getType(), property.getReadMethod() != null, property.getWriteMethod() != null);
+      super(property.getType(), property.isReadable(), property.isWriteable());
       this.property = property;
     }
 

@@ -257,9 +257,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
 
     if (collectPropertiesFromMethods) {
       ReflectionUtils.doWithMethods(beanClass, method -> {
-        if (Modifier.isStatic(method.getModifiers())) {
-          return;
-        }
+//        if (Modifier.isStatic(method.getModifiers())) {
+//          return;
+//        }
 
         String methodName = method.getName();
 
@@ -297,7 +297,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   protected boolean shouldSkip(Field declaredField) {
-    return Modifier.isStatic(declaredField.getModifiers());
+    return false;
   }
 
   /**
