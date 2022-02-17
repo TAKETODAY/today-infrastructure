@@ -61,7 +61,6 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 import cn.taketoday.scheduling.support.CronTrigger;
 import cn.taketoday.scheduling.support.ScheduledMethodRunnable;
 import cn.taketoday.scheduling.support.SimpleTriggerContext;
-import cn.taketoday.web.validation.Validated;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -834,7 +833,6 @@ class ScheduledAnnotationBeanPostProcessorTests {
   static class FixedRatesDefaultBean implements FixedRatesDefaultMethod {
   }
 
-  @Validated
   static class CronTestBean {
 
     @Scheduled(cron = "*/7 * * * * ?")

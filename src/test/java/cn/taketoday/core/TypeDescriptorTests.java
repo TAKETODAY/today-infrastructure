@@ -189,11 +189,11 @@ public class TypeDescriptorTests {
   @Test
   public void propertyComplex() throws Exception {
     BeanProperty complexProperty = BeanProperty.valueOf(getClass(), "complexProperty");
-    TypeDescriptor desc = TypeDescriptor.fromProperty(complexProperty);
+    TypeDescriptor desc = complexProperty.getTypeDescriptor();
 
     assertThat(desc.getMapKeyDescriptor().getType()).isEqualTo(String.class);
     assertThat(desc.getMapValueDescriptor().getElementDescriptor()
-                       .getElementDescriptor().getType())
+            .getElementDescriptor().getType())
             .isEqualTo(Integer.class);
   }
 
@@ -545,7 +545,7 @@ public class TypeDescriptorTests {
   @Test
   public void mapNested() {
     TypeDescriptor desc = TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class),
-                                             TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Integer.class)));
+            TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Integer.class)));
     assertThat(desc.getType()).isEqualTo(Map.class);
     assertThat(desc.getObjectType()).isEqualTo(Map.class);
     assertThat(desc.getName()).isEqualTo("java.util.Map");
