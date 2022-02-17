@@ -150,6 +150,7 @@ public abstract class RequestContext
 
   protected boolean notModified = false;
 
+  @Nullable
   private HandlerMatchingMetadata matchingMetadata;
 
   protected RequestContext(WebApplicationContext context) {
@@ -280,16 +281,13 @@ public abstract class RequestContext
     return lookupPath;
   }
 
-  public void setMatchingMetadata(HandlerMatchingMetadata handlerMatchingMetadata) {
+  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
     this.matchingMetadata = handlerMatchingMetadata;
   }
 
+  @Nullable
   public HandlerMatchingMetadata getMatchingMetadata() {
-    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
-    if (matchingMetadata == null) {
-      return new HandlerMatchingMetadata(this);
-    }
-    return matchingMetadata;
+    return this.matchingMetadata;
   }
 
   protected abstract String doGetRequestPath();

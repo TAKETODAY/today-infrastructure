@@ -56,6 +56,7 @@ import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
@@ -544,7 +545,14 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   @Nullable
   protected Resource getResource(RequestContext request) throws IOException {
-    String path = request.getMatchingMetadata().getPathWithinMapping().value();
+    String path;
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata == null) {
+      path = request.getLookupPath().pathWithinApplication().value();
+    }
+    else {
+      path = request.getMatchingMetadata().getPathWithinMapping().value();
+    }
 
     path = processPath(path);
     if (!StringUtils.hasText(path) || isInvalidPath(path)) {

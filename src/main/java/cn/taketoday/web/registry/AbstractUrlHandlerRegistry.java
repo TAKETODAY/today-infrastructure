@@ -140,7 +140,8 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     String requestPath = request.getRequestPath();
     Object handler = getDirectMatch(requestPath, request);
     if (handler != null) {
-      HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestPath, request.getLookupPath(), null);
+      HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+              requestPath, request.getLookupPath(), null, getPatternParser());
       request.setMatchingMetadata(matchingMetadata);
       return handler;
     }
@@ -173,7 +174,8 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
 
     validateHandler(handler, request);
 
-    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestPath, lookupPath, bestMatchingPattern);
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+            requestPath, lookupPath, bestMatchingPattern, getPatternParser());
     request.setMatchingMetadata(matchingMetadata);
     return handler;
   }

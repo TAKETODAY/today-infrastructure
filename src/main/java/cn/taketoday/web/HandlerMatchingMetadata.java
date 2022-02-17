@@ -30,6 +30,7 @@ import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
+import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,7 +39,8 @@ import cn.taketoday.web.util.pattern.PathPattern;
 public class HandlerMatchingMetadata {
   private final String directPath;
   private final RequestPath requestPath;
-  private final PathPattern bestMatchingPattern;
+
+  private PathPattern bestMatchingPattern;
 
   private PathContainer pathWithinMapping;
 
@@ -49,15 +51,20 @@ public class HandlerMatchingMetadata {
   @Nullable
   private MediaType[] producibleMediaTypes;
 
+  private final PathPatternParser patternParser;
+
   public HandlerMatchingMetadata(RequestContext request) {
+    this.bestMatchingPattern = null;
     this.directPath = request.getRequestPath();
     this.requestPath = request.getLookupPath();
-    this.bestMatchingPattern = null;
+    this.patternParser = PathPatternParser.defaultInstance;
   }
 
-  public HandlerMatchingMetadata(String directPath, RequestPath requestPath, PathPattern bestMatchingPattern) {
+  public HandlerMatchingMetadata(
+          String directPath, RequestPath requestPath, PathPattern bestMatchingPattern, PathPatternParser patternParser) {
     this.directPath = directPath;
     this.requestPath = requestPath;
+    this.patternParser = patternParser;
     this.bestMatchingPattern = bestMatchingPattern;
   }
 
@@ -65,6 +72,7 @@ public class HandlerMatchingMetadata {
     this.directPath = other.directPath;
     this.requestPath = other.requestPath;
     this.pathMatchInfo = other.pathMatchInfo;
+    this.patternParser = other.patternParser;
     this.pathWithinMapping = other.pathWithinMapping;
     this.bestMatchingPattern = other.bestMatchingPattern;
     this.producibleMediaTypes = other.producibleMediaTypes;
@@ -115,6 +123,11 @@ public class HandlerMatchingMetadata {
   }
 
   public PathPattern getBestMatchingPattern() {
+    PathPattern bestMatchingPattern = this.bestMatchingPattern;
+    if (bestMatchingPattern == null) {
+      bestMatchingPattern = patternParser.parse(directPath);
+      this.bestMatchingPattern = bestMatchingPattern;
+    }
     return bestMatchingPattern;
   }
 

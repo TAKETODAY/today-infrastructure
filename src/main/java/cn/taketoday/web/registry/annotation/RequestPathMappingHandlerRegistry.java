@@ -271,12 +271,12 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
         }
       }
       matchingMetadata = new HandlerMatchingMetadata(
-              context.getRequestPath(), context.getLookupPath(), mappingInfo.getPathPattern());
+              context.getRequestPath(), context.getLookupPath(), mappingInfo.getPathPattern(), getPatternParser());
       matchingMetadata.setProducibleMediaTypes(produces.clone());
     }
     else {
       matchingMetadata = new HandlerMatchingMetadata(
-              context.getRequestPath(), context.getLookupPath(), mappingInfo.getPathPattern());
+              context.getRequestPath(), context.getLookupPath(), mappingInfo.getPathPattern(), getPatternParser());
     }
     context.setMatchingMetadata(matchingMetadata);
     return true;

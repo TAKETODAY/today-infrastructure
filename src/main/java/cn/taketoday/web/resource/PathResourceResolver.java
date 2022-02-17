@@ -257,7 +257,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   private boolean shouldEncodeRelativePath(Resource location) {
-    return location instanceof UrlBasedResource;
+    return !(location instanceof UrlBasedResource);
   }
 
   private boolean isInvalidEncodedPath(String resourcePath) {
