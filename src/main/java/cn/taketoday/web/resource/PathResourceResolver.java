@@ -57,7 +57,9 @@ public class PathResourceResolver extends AbstractResourceResolver {
   @Nullable
   private Resource[] allowedLocations;
 
-  private final Map<Resource, Charset> locationCharsets = new HashMap<>(4);
+  private boolean urlDecode = false;
+
+  private final HashMap<Resource, Charset> locationCharsets = new HashMap<>(4);
 
   /**
    * By default when a Resource is found, the path of the resolved resource is
@@ -93,6 +95,23 @@ public class PathResourceResolver extends AbstractResourceResolver {
   public void setLocationCharsets(Map<Resource, Charset> locationCharsets) {
     this.locationCharsets.clear();
     this.locationCharsets.putAll(locationCharsets);
+  }
+
+  /**
+   * Whether the resource-path should be decoded
+   *
+   * @see jakarta.servlet.ServletRequest#getCharacterEncoding()
+   * @see java.net.URLDecoder#decode(String, String)
+   */
+  public void setUrlDecode(boolean urlDecode) {
+    this.urlDecode = urlDecode;
+  }
+
+  /**
+   * Whether to decode the request URI when determining the lookup path.
+   */
+  public boolean isUrlDecode() {
+    return urlDecode;
   }
 
   /**
@@ -257,7 +276,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   private boolean shouldEncodeRelativePath(Resource location) {
-    return !(location instanceof UrlBasedResource);
+    return (location instanceof UrlBasedResource) && urlDecode;
   }
 
   private boolean isInvalidEncodedPath(String resourcePath) {

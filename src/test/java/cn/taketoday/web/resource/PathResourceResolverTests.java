@@ -145,9 +145,9 @@ public class PathResourceResolverTests {
     List<TestUrlResource> locations = Collections.singletonList(location);
 
     // ISO-8859-1
+    resolver.setUrlDecode(true);
     this.resolver.setLocationCharsets(Collections.singletonMap(location, StandardCharsets.ISO_8859_1));
     this.resolver.resolveResource(getContext(), "/Ä ;ä.txt", locations, null);
-
     assertThat(location.getSavedRelativePath()).isEqualTo("%C4%20%3B%E4.txt");
 
     // UTF-8
