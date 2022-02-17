@@ -1445,10 +1445,10 @@ public class ResolvableType implements Serializable {
   public static ResolvableType fromProperty(BeanProperty property) {
     Assert.notNull(property, "property must not be null");
     Method readMethod = property.getReadMethod();
-    Method writeMethod = property.getWriteMethod();
     if (readMethod != null) {
       return forReturnType(readMethod, property.getDeclaringClass());
     }
+    Method writeMethod = property.getWriteMethod();
     if (writeMethod != null) {
       return forParameter(writeMethod, 0, property.getDeclaringClass());
     }

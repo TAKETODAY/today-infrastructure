@@ -21,7 +21,7 @@ package cn.taketoday.context;
 
 import java.io.Serial;
 
-import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.beans.FatalBeanException;
 
 /**
  * Application Context Exception
@@ -29,25 +29,30 @@ import cn.taketoday.core.NestedRuntimeException;
  * @author TODAY <br>
  * 2018-10-05 21:33
  */
-public class ApplicationContextException extends NestedRuntimeException {
+public class ApplicationContextException extends FatalBeanException {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public ApplicationContextException() {
-    super();
+  /**
+   * Create a new {@code ApplicationContextException}
+   * with the specified detail message and no root cause.
+   *
+   * @param msg the detail message
+   */
+  public ApplicationContextException(String msg) {
+    super(msg);
   }
 
-  public ApplicationContextException(String message) {
-    super(message);
-  }
-
-  public ApplicationContextException(Throwable cause) {
-    super(cause);
-  }
-
-  public ApplicationContextException(String message, Throwable cause) {
-    super(message, cause);
+  /**
+   * Create a new {@code ApplicationContextException}
+   * with the specified detail message and the given root cause.
+   *
+   * @param msg the detail message
+   * @param cause the root cause
+   */
+  public ApplicationContextException(String msg, Throwable cause) {
+    super(msg, cause);
   }
 
 }

@@ -700,13 +700,6 @@ public class TypeDescriptor implements Serializable {
     return new TypeDescriptor(beanProperty);
   }
 
-  public static TypeDescriptor fromProperty(BeanProperty beanProperty) {
-    if (beanProperty.getTypeDescriptor() != null) {
-      return beanProperty.getTypeDescriptor();
-    }
-    return new TypeDescriptor(beanProperty);
-  }
-
   public static TypeDescriptor forParameter(Executable executable, int parameterIndex) {
     Parameter parameter = ReflectionUtils.getParameter(executable, parameterIndex);
     return fromParameter(parameter);

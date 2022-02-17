@@ -33,7 +33,6 @@ import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.IterablePropertyResolver;
@@ -253,7 +252,7 @@ public class PropsReader {
     if (conversionService == null) {
       conversionService = DefaultConversionService.getSharedInstance();
     }
-    return conversionService.convert(value, TypeDescriptor.fromProperty(property));
+    return conversionService.convert(value, property.getTypeDescriptor());
   }
 
   /**

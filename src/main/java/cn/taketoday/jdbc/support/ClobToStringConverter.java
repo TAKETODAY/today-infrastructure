@@ -23,7 +23,6 @@ package cn.taketoday.jdbc.support;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.Converter;
 
 /**
@@ -37,7 +36,7 @@ public class ClobToStringConverter implements Converter<Clob, String> {
       return source.getSubString(1, (int) source.length());
     }
     catch (SQLException e) {
-      throw new ConversionException("error converting clob to String", e);
+      throw new IllegalArgumentException("error converting clob to String", e);
     }
     finally {
       try {
