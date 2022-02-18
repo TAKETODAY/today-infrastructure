@@ -41,7 +41,7 @@ import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.Parser;
 import cn.taketoday.format.Printer;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -118,13 +118,15 @@ public class FormattingConversionService extends GenericConversionService
 
   private static <T> Class<?> getFieldType(T instance, Class<T> genericInterface) {
     Class<?> fieldType = GenericTypeResolver.resolveTypeArgument(instance.getClass(), genericInterface);
-    if (fieldType == null && instance instanceof DecoratingProxy) {
+    if (fieldType == null && instance instanceof DecoratingProxy decoratingProxy) {
       fieldType = GenericTypeResolver.resolveTypeArgument(
-              ((DecoratingProxy) instance).getDecoratedClass(), genericInterface);
+              decoratingProxy.getDecoratedClass(), genericInterface);
     }
-    Assert.notNull(fieldType, () -> "Unable to extract the parameterized field type from " +
-            ClassUtils.getShortName(genericInterface) + " [" + instance.getClass().getName() +
-            "]; does the class parameterize the <T> generic type?");
+    if (fieldType == null) {
+      throw new IllegalArgumentException("Unable to extract the parameterized field type from " +
+              ClassUtils.getShortName(genericInterface) + " [" + instance.getClass().getName() +
+              "]; does the class parameterize the <T> generic type?");
+    }
     return fieldType;
   }
 
@@ -222,6 +224,16 @@ public class FormattingConversionService extends GenericConversionService
     }
   }
 
+  @NonNull
+  private static Annotation getAnnotation(TypeDescriptor sourceType, Class<? extends Annotation> annotationType) {
+    Annotation ann = sourceType.getAnnotation(annotationType);
+    if (ann == null) {
+      throw new IllegalStateException(
+              "Expected [" + annotationType.getName() + "] to be present on " + sourceType);
+    }
+    return ann;
+  }
+
   private class AnnotationPrinterConverter implements ConditionalGenericConverter {
 
     private final Class<? extends Annotation> annotationType;
@@ -231,12 +243,13 @@ public class FormattingConversionService extends GenericConversionService
 
     private final Class<?> fieldType;
 
-    public AnnotationPrinterConverter(Class<? extends Annotation> annotationType,
-                                      AnnotationFormatterFactory<?> annotationFormatterFactory, Class<?> fieldType) {
+    public AnnotationPrinterConverter(
+            Class<? extends Annotation> annotationType,
+            AnnotationFormatterFactory<?> annotationFormatterFactory, Class<?> fieldType) {
 
+      this.fieldType = fieldType;
       this.annotationType = annotationType;
       this.annotationFormatterFactory = annotationFormatterFactory;
-      this.fieldType = fieldType;
     }
 
     @Override
@@ -253,11 +266,7 @@ public class FormattingConversionService extends GenericConversionService
     @SuppressWarnings("unchecked")
     @Nullable
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-      Annotation ann = sourceType.getAnnotation(this.annotationType);
-      if (ann == null) {
-        throw new IllegalStateException(
-                "Expected [" + this.annotationType.getName() + "] to be present on " + sourceType);
-      }
+      Annotation ann = getAnnotation(sourceType, annotationType);
       AnnotationConverterKey converterKey = new AnnotationConverterKey(ann, sourceType.getObjectType());
       GenericConverter converter = cachedPrinters.get(converterKey);
       if (converter == null) {
@@ -285,12 +294,12 @@ public class FormattingConversionService extends GenericConversionService
 
     private final Class<?> fieldType;
 
-    public AnnotationParserConverter(Class<? extends Annotation> annotationType,
-                                     AnnotationFormatterFactory<?> annotationFormatterFactory, Class<?> fieldType) {
-
+    public AnnotationParserConverter(
+            Class<? extends Annotation> annotationType,
+            AnnotationFormatterFactory<?> annotationFormatterFactory, Class<?> fieldType) {
+      this.fieldType = fieldType;
       this.annotationType = annotationType;
       this.annotationFormatterFactory = annotationFormatterFactory;
-      this.fieldType = fieldType;
     }
 
     @Override
@@ -307,11 +316,7 @@ public class FormattingConversionService extends GenericConversionService
     @SuppressWarnings("unchecked")
     @Nullable
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-      Annotation ann = targetType.getAnnotation(this.annotationType);
-      if (ann == null) {
-        throw new IllegalStateException(
-                "Expected [" + this.annotationType.getName() + "] to be present on " + targetType);
-      }
+      Annotation ann = getAnnotation(sourceType, annotationType);
       AnnotationConverterKey converterKey = new AnnotationConverterKey(ann, targetType.getObjectType());
       GenericConverter converter = cachedParsers.get(converterKey);
       if (converter == null) {
