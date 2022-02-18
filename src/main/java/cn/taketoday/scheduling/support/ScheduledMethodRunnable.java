@@ -27,7 +27,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * meant to be used for processing
+ * Variant of {@link MethodInvokingRunnable} meant to be used for processing
  * of no-arg scheduled methods. Propagates user exceptions to the caller,
  * assuming that an error strategy for Runnables is in place.
  *
