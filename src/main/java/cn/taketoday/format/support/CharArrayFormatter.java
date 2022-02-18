@@ -18,15 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans;
+package cn.taketoday.format.support;
+
+import java.text.ParseException;
+import java.util.Locale;
+
+import cn.taketoday.format.Formatter;
 
 /**
- * @author Rick Evans
- * @author Chris Beams
- * @see cn.taketoday.beans.factory.support.FieldRetrievingFactoryBeanTests
+ * {@link Formatter} for {@code char[]}.
+ *
+ * @author Phillip Webb
  */
-class PackageLevelVisibleBean {
+final class CharArrayFormatter implements Formatter<char[]> {
 
-  public static final String CONSTANT = "Wuby";
+  @Override
+  public String print(char[] object, Locale locale) {
+    return new String(object);
+  }
+
+  @Override
+  public char[] parse(String text, Locale locale) throws ParseException {
+    return text.toCharArray();
+  }
 
 }

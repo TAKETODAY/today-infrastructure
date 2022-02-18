@@ -57,7 +57,7 @@ import cn.taketoday.util.StringUtils;
  * @see SimpleTypeConverter
  * @since 4.0 2022/2/17 17:46
  */
-class TypeConverterDelegate {
+public class TypeConverterDelegate {
   private static final Logger logger = LoggerFactory.getLogger(TypeConverterDelegate.class);
   private static final boolean debugEnabled = logger.isDebugEnabled();
 

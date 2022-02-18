@@ -25,8 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.core.conversion.support.annotation.DurationUnit;
+import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.util.PropertyMapper;
 

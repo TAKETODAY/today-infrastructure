@@ -18,15 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans;
+package cn.taketoday.format.support;
 
 /**
- * @author Rick Evans
- * @author Chris Beams
- * @see cn.taketoday.beans.factory.support.FieldRetrievingFactoryBeanTests
+ * Converts from a String to a {@link Enum} with lenient conversion rules.
+ * Specifically:
+ * <ul>
+ * <li>Uses a case insensitive search</li>
+ * <li>Does not consider {@code '_'}, {@code '$'} or other special characters</li>
+ * <li>Allows mapping of {@code "false"} and {@code "true"} to enums {@code ON} and
+ * {@code OFF}</li>
+ * </ul>
+ *
+ * @author Phillip Webb
  */
-class PackageLevelVisibleBean {
-
-  public static final String CONSTANT = "Wuby";
+final class LenientStringToEnumConverterFactory extends LenientObjectToEnumConverterFactory<String> {
 
 }

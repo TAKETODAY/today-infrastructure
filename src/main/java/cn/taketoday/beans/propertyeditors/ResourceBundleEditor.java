@@ -56,7 +56,7 @@ import cn.taketoday.util.StringUtils;
  * might contain a {@link CustomEditorConfigurer}
  * definition such that the conversion can be effected transparently:
  *
- * <pre class="code"> &lt;bean class="cn.taketoday.beans.factory.config.CustomEditorConfigurer"&gt;
+ * <pre class="code"> &lt;bean class="cn.taketoday.beans.support.CustomEditorConfigurer"&gt;
  *    &lt;property name="customEditors"&gt;
  *        &lt;map&gt;
  *            &lt;entry key="java.util.ResourceBundle"&gt;

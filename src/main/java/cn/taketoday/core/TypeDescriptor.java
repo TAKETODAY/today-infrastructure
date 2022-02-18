@@ -251,6 +251,7 @@ public class TypeDescriptor implements Serializable {
    * @return a new TypeDescriptor for the up-cast type
    * @throws IllegalArgumentException if this type is not assignable to the super-type
    */
+  @Nullable
   public TypeDescriptor upcast(Class<?> superType) {
     if (superType == null) {
       return null;
@@ -348,6 +349,7 @@ public class TypeDescriptor implements Serializable {
    * an array type or a {@code java.util.Collection} or if its element type is not parameterized
    * @see #elementDescriptor(Object)
    */
+  @Nullable
   public TypeDescriptor getElementDescriptor() {
     if (getResolvableType().isArray()) {
       return new TypeDescriptor(getResolvableType().getComponentType(), null, getAnnotations());
@@ -376,6 +378,7 @@ public class TypeDescriptor implements Serializable {
    * @see #getElementDescriptor()
    * @see #narrow(Object)
    */
+  @Nullable
   public TypeDescriptor elementDescriptor(Object element) {
     return narrow(element, getElementDescriptor());
   }
@@ -396,6 +399,7 @@ public class TypeDescriptor implements Serializable {
    * but its key type is not parameterized
    * @throws IllegalStateException if this type is not a {@code java.util.Map}
    */
+  @Nullable
   public TypeDescriptor getMapKeyDescriptor() {
     Assert.state(isMap(), "Not a [java.util.Map]");
     return getRelatedIfResolvable(this, getResolvableType().asMap().getGeneric(0));
@@ -419,6 +423,7 @@ public class TypeDescriptor implements Serializable {
    * @throws IllegalStateException if this type is not a {@code java.util.Map}
    * @see #narrow(Object)
    */
+  @Nullable
   public TypeDescriptor getMapKeyDescriptor(Object mapKey) {
     return narrow(mapKey, getMapKeyDescriptor());
   }
@@ -433,6 +438,7 @@ public class TypeDescriptor implements Serializable {
    * but its value type is not parameterized
    * @throws IllegalStateException if this type is not a {@code java.util.Map}
    */
+  @Nullable
   public TypeDescriptor getMapValueDescriptor() {
     Assert.state(isMap(), "Not a [java.util.Map]");
     return getRelatedIfResolvable(this, getResolvableType().asMap().getGeneric(1));
@@ -456,10 +462,12 @@ public class TypeDescriptor implements Serializable {
    * @throws IllegalStateException if this type is not a {@code java.util.Map}
    * @see #narrow(Object)
    */
+  @Nullable
   public TypeDescriptor getMapValueDescriptor(Object mapValue) {
     return narrow(mapValue, getMapValueDescriptor());
   }
 
+  @Nullable
   private TypeDescriptor narrow(Object value, TypeDescriptor typeDescriptor) {
     if (typeDescriptor != null) {
       return typeDescriptor.narrow(value);

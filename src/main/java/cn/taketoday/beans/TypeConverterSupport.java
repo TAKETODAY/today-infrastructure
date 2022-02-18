@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
 public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport implements TypeConverter {
 
   @Nullable
-  TypeConverterDelegate typeConverterDelegate;
+  protected TypeConverterDelegate typeConverterDelegate;
 
   @Override
   @Nullable

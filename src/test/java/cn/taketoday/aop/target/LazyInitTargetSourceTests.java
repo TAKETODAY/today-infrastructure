@@ -128,7 +128,7 @@ class LazyInitTargetSourceTests {
   public void testLazyInitFactoryBeanTargetSource() {
     StandardBeanFactory factory = new StandardBeanFactory();
 /*
-	<bean id="target1" class="cn.taketoday.beans.factory.config.SetFactoryBean" lazy-init="true">
+	<bean id="target1" class="cn.taketoday.beans.support.SetFactoryBean" lazy-init="true">
 		<property name="sourceSet">
 			<set>
 				<value>10</value>
@@ -165,7 +165,7 @@ class LazyInitTargetSourceTests {
     factory.registerBeanDefinition(proxy1);
 
 /*
-	<bean id="target2" class="cn.taketoday.beans.factory.config.SetFactoryBean" lazy-init="true">
+	<bean id="target2" class="cn.taketoday.beans.support.SetFactoryBean" lazy-init="true">
 		<property name="sourceSet">
 			<set>
 				<value>20</value>

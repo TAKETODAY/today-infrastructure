@@ -31,10 +31,10 @@ import java.util.Locale;
 
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 
@@ -58,7 +58,6 @@ public class ObjectToStringHttpMessageConverterTests {
   @BeforeEach
   public void setup() {
     DefaultConversionService conversionService = new DefaultConversionService();
-    DefaultConversionService.addDefaultConverters(conversionService);
     this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
     this.servletResponse = new MockHttpServletResponse();

@@ -18,15 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans;
+package cn.taketoday.format.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import cn.taketoday.util.DataSize;
+import cn.taketoday.util.DataUnit;
 
 /**
- * @author Rick Evans
- * @author Chris Beams
- * @see cn.taketoday.beans.factory.support.FieldRetrievingFactoryBeanTests
+ * Annotation that can be used to change the default unit used when converting a
+ * {@link DataSize}.
+ *
+ * @author Stephane Nicoll
+ * @since 4.0
  */
-class PackageLevelVisibleBean {
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface DataSizeUnit {
 
-  public static final String CONSTANT = "Wuby";
+  /**
+   * The {@link DataUnit} to use if one is not specified.
+   *
+   * @return the data unit
+   */
+  DataUnit value();
 
 }

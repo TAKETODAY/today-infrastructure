@@ -165,7 +165,7 @@ class MethodInvokingFactoryBeanTests {
     // non-singleton, static
     TestClass1._staticField1 = 0;
     mcfb = new MethodInvokingFactoryBean();
-    mcfb.setStaticMethod("cn.taketoday.beans.factory.config.MethodInvokingFactoryBeanTests$TestClass1.staticMethod1");
+    mcfb.setStaticMethod("cn.taketoday.beans.factory.support.MethodInvokingFactoryBeanTests$TestClass1.staticMethod1");
     mcfb.setSingleton(false);
     mcfb.afterPropertiesSet();
     i = (Integer) mcfb.getObject();

@@ -18,15 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans;
+package cn.taketoday.format.support;
 
 /**
- * @author Rick Evans
- * @author Chris Beams
- * @see cn.taketoday.beans.factory.support.FieldRetrievingFactoryBeanTests
+ * Converter to support mapping of YAML style {@code "false"} and {@code "true"} to enums
+ * {@code ON} and {@code OFF}.
+ *
+ * @author Madhura Bhave
  */
-class PackageLevelVisibleBean {
-
-  public static final String CONSTANT = "Wuby";
+final class LenientBooleanToEnumConverterFactory extends LenientObjectToEnumConverterFactory<Boolean> {
 
 }

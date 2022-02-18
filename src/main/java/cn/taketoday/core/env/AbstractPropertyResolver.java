@@ -73,7 +73,6 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
         cs = this.conversionService;
         if (cs == null) {
           cs = new DefaultConversionService();
-          DefaultConversionService.addDefaultConverters(cs);
           this.conversionService = cs;
         }
       }

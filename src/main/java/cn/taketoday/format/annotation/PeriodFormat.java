@@ -18,15 +18,33 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans;
+package cn.taketoday.format.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.time.Period;
 
 /**
- * @author Rick Evans
- * @author Chris Beams
- * @see cn.taketoday.beans.factory.support.FieldRetrievingFactoryBeanTests
+ * Annotation that can be used to indicate the format to use when converting a
+ * {@link Period}.
+ *
+ * @author Eddú Meléndez
+ * @author Edson Chávez
+ * @since 4.0
  */
-class PackageLevelVisibleBean {
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface PeriodFormat {
 
-  public static final String CONSTANT = "Wuby";
+  /**
+   * The {@link Period} format style.
+   *
+   * @return the period format style.
+   */
+  PeriodStyle value();
 
 }

@@ -18,15 +18,35 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans;
+package cn.taketoday.format.support;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.Locale;
+
+import cn.taketoday.format.Formatter;
 
 /**
- * @author Rick Evans
- * @author Chris Beams
- * @see cn.taketoday.beans.factory.support.FieldRetrievingFactoryBeanTests
+ * {@link Formatter} for {@link InetAddress}.
+ *
+ * @author Phillip Webb
  */
-class PackageLevelVisibleBean {
+final class InetAddressFormatter implements Formatter<InetAddress> {
 
-  public static final String CONSTANT = "Wuby";
+  @Override
+  public String print(InetAddress object, Locale locale) {
+    return object.getHostAddress();
+  }
+
+  @Override
+  public InetAddress parse(String text, Locale locale) throws ParseException {
+    try {
+      return InetAddress.getByName(text);
+    }
+    catch (UnknownHostException ex) {
+      throw new IllegalStateException("Unknown host " + text, ex);
+    }
+  }
 
 }
