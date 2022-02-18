@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.ITestBean;
-import cn.taketoday.aop.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

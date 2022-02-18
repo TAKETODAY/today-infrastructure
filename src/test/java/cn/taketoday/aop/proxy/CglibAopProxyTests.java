@@ -27,14 +27,14 @@ import org.junit.jupiter.api.Test;
 import java.io.Serializable;
 
 import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.aop.ITestBean;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.NopInterceptor;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.mixin.LockMixinAdvisor;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContextException;
 
 import static org.assertj.core.api.Assertions.assertThat;

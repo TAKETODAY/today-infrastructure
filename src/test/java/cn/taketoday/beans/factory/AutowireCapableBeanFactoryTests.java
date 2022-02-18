@@ -22,17 +22,17 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.TestBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Component;
 import jakarta.annotation.PostConstruct;

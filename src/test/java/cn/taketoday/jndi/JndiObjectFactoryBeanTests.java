@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import cn.taketoday.aop.DerivedTestBean;
-import cn.taketoday.beans.factory.support.ITestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.testfixture.jndi.ExpectedLookupTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -369,7 +369,7 @@ public class JndiObjectFactoryBeanTests {
     jof.setProxyInterface(ITestBean.class);
     assertThatExceptionOfType(NamingException.class)
             .isThrownBy(jof::afterPropertiesSet)
-            .withMessageContaining("cn.taketoday.aop.DerivedTestBean");
+            .withMessageContaining("cn.taketoday.beans.testfixture.beans.DerivedTestBean");
   }
 
   @Test

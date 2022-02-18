@@ -40,11 +40,11 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
-import cn.taketoday.beans.factory.support.DerivedTestBean;
-import cn.taketoday.beans.factory.support.ITestBean;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -94,9 +94,9 @@ public class BeanFactoryTransactionTests {
 		<property name="transactionManager"><ref bean="mockMan"/></property>
 		<property name="transactionAttributeSource">
 			<value>
-				cn.taketoday.beans.factory.support.ITestBean.s*=PROPAGATION_MANDATORY
-				cn.taketoday.beans.factory.support.AgeHolder.setAg*=PROPAGATION_REQUIRED
-				cn.taketoday.beans.factory.support.ITestBean.set*= PROPAGATION_SUPPORTS , readOnly
+				cn.taketoday.beans.testfixture.beans.ITestBean.s*=PROPAGATION_MANDATORY
+				cn.taketoday.beans.testfixture.beans.AgeHolder.setAg*=PROPAGATION_REQUIRED
+				cn.taketoday.beans.testfixture.beans.ITestBean.set*= PROPAGATION_SUPPORTS , readOnly
 			</value>
 		</property>
 	</bean>
@@ -111,9 +111,9 @@ public class BeanFactoryTransactionTests {
 
     NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
     Properties properties = new Properties();
-    properties.setProperty("cn.taketoday.beans.factory.support.ITestBean.s*", "PROPAGATION_MANDATORY");
-    properties.setProperty("cn.taketoday.beans.factory.support.AgeHolder.setAg*", "PROPAGATION_REQUIRED");
-    properties.setProperty("cn.taketoday.beans.factory.support.ITestBean.set*", " PROPAGATION_SUPPORTS , readOnly");
+    properties.setProperty("cn.taketoday.beans.testfixture.beans.ITestBean.s*", "PROPAGATION_MANDATORY");
+    properties.setProperty("cn.taketoday.beans.testfixture.beans.AgeHolder.setAg*", "PROPAGATION_REQUIRED");
+    properties.setProperty("cn.taketoday.beans.testfixture.beans.ITestBean.set*", " PROPAGATION_SUPPORTS , readOnly");
     source.setProperties(properties);
     factory.registerBeanDefinition(new BeanDefinition("txInterceptor", TransactionInterceptor.class)
             .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
@@ -125,7 +125,7 @@ public class BeanFactoryTransactionTests {
   /*
 	<bean id="proxyFactory1" class="cn.taketoday.aop.framework.ProxyFactoryBean">
 		<property name="proxyInterfaces">
-			<value>cn.taketoday.beans.factory.support.ITestBean</value>
+			<value>cn.taketoday.beans.testfixture.beans.ITestBean</value>
 		</property>
 		<property name="interceptorNames">
 			<list>

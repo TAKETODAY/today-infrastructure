@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,22 +33,22 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionReference;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.support.DummyFactory;
-import cn.taketoday.beans.factory.support.ITestBean;
-import cn.taketoday.beans.factory.support.IndexedTestBean;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 

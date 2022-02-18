@@ -49,9 +49,9 @@ import cn.taketoday.beans.BooleanTestBean;
 import cn.taketoday.beans.NumberTestBean;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.ITestBean;
-import cn.taketoday.beans.factory.support.IndexedTestBean;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -597,9 +597,9 @@ class CustomEditorTests {
   @Test
   void testClassEditorWithArray() {
     PropertyEditor classEditor = new ClassEditor();
-    classEditor.setAsText("cn.taketoday.beans.factory.support.TestBean[]");
+    classEditor.setAsText("cn.taketoday.beans.testfixture.beans.TestBean[]");
     assertThat(classEditor.getValue()).isEqualTo(TestBean[].class);
-    assertThat(classEditor.getAsText()).isEqualTo("cn.taketoday.beans.factory.support.TestBean[]");
+    assertThat(classEditor.getAsText()).isEqualTo("cn.taketoday.beans.testfixture.beans.TestBean[]");
   }
 
   /*

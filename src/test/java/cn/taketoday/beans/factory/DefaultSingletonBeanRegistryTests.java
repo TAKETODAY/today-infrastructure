@@ -22,8 +22,8 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.DerivedTestBean;
 import cn.taketoday.beans.factory.support.DefaultSingletonBeanRegistry;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

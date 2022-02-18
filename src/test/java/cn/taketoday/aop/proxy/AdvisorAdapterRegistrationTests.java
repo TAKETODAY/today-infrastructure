@@ -35,8 +35,8 @@ import cn.taketoday.aop.support.AdvisorAdapterRegistrationManager;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.beans.factory.support.ITestBean;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.DefaultApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

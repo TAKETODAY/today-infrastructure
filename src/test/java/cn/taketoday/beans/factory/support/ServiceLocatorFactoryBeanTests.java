@@ -137,9 +137,9 @@ class ServiceLocatorFactoryBeanTests {
     bf.registerBeanDefinition("factory", factoryDef);
 
 //		StaticApplicationContext ctx = new StaticApplicationContext();
-//		ctx.registerPrototype("testService", TestService.class, new MutablePropertyValues());
+//		ctx.registerPrototype("testService", TestService.class, new PropertyValues());
 //		ctx.registerAlias("testService", "1");
-//		MutablePropertyValues mpv = new MutablePropertyValues();
+//		PropertyValues mpv = new PropertyValues();
 //		mpv.addPropertyValue("serviceLocatorInterface", TestServiceLocator3.class);
 //		ctx.registerSingleton("factory", ServiceLocatorFactoryBean.class, mpv);
 //		ctx.refresh();
@@ -177,9 +177,9 @@ class ServiceLocatorFactoryBeanTests {
     bf.registerBeanDefinition("factory", factoryDe);
 
 //		StaticApplicationContext ctx = new StaticApplicationContext();
-//		ctx.registerPrototype("testService1", TestService.class, new MutablePropertyValues());
-//		ctx.registerPrototype("testService2", ExtendedTestService.class, new MutablePropertyValues());
-//		MutablePropertyValues mpv = new MutablePropertyValues();
+//		ctx.registerPrototype("testService1", TestService.class, new PropertyValues());
+//		ctx.registerPrototype("testService2", ExtendedTestService.class, new PropertyValues());
+//		PropertyValues mpv = new PropertyValues();
 //		mpv.addPropertyValue("serviceLocatorInterface", TestServiceLocator3.class);
 //		mpv.addPropertyValue("serviceMappings", "=testService1\n1=testService1\n2=testService2");
 //		ctx.registerSingleton("factory", ServiceLocatorFactoryBean.class, mpv);

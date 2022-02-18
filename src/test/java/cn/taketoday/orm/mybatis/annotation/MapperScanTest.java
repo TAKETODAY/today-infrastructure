@@ -35,15 +35,18 @@ import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
+import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.annotation.mapper.ds1.AppConfigWithDefaultMapperScanAndRepeat;
 import cn.taketoday.orm.mybatis.annotation.mapper.ds1.AppConfigWithDefaultMapperScans;
 import cn.taketoday.orm.mybatis.annotation.mapper.ds1.Ds1Mapper;
@@ -91,11 +94,11 @@ class MapperScanTest {
   void assertNoMapperClass() {
     try {
       // concrete classes should always be ignored by MapperScannerPostProcessor
-//      assertBeanNotLoaded("mapperClass");
+      assertBeanNotLoaded("mapperClass");
 
       // no method interfaces should be ignored too
-//      assertBeanNotLoaded("package-info");
-      // assertBeanNotLoaded("annotatedMapperZeroMethods"); // as of 1.1.0 mappers
+      assertBeanNotLoaded("package-info");
+      assertBeanNotLoaded("annotatedMapperZeroMethods"); // as of 1.1.0 mappers
       // with no methods are loaded
     }
     finally {
@@ -257,7 +260,7 @@ class MapperScanTest {
     applicationContext.getBean("mapperChildInterface");
     applicationContext.getBean("annotatedMapper");
   }
-/*
+
   @Test
   void testScanWithExplicitSqlSessionTemplate() {
     BeanDefinition definition = new BeanDefinition();
@@ -276,7 +279,7 @@ class MapperScanTest {
     applicationContext.getBean("mapperSubinterface");
     applicationContext.getBean("mapperChildInterface");
     applicationContext.getBean("annotatedMapper");
-  }*/
+  }
 
   @Test
   void testScanWithMapperScanIsRepeat() {

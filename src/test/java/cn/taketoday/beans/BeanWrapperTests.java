@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

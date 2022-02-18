@@ -41,9 +41,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.ITestBean;
-import cn.taketoday.beans.factory.support.IndexedTestBean;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.propertyeditors.StringArrayPropertyEditor;
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
 import cn.taketoday.core.TypeDescriptor;

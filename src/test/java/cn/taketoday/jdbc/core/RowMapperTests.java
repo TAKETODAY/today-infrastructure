@@ -32,7 +32,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.jdbc.support.SQLStateSQLExceptionTranslator;
 

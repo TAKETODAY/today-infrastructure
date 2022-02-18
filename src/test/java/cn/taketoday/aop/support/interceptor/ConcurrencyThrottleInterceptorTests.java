@@ -22,12 +22,12 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.DerivedTestBean;
-import cn.taketoday.aop.ITestBean;
 import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.proxy.Advised;
 import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 

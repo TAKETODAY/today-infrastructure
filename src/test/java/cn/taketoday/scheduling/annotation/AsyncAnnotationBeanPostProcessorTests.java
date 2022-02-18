@@ -35,10 +35,10 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.DefaultApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
@@ -284,7 +284,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
     void await(long timeout);
   }
 
-  public static class TestBean implements ITestBean {
+  static class TestBean implements ITestBean {
 
     private Thread thread;
 

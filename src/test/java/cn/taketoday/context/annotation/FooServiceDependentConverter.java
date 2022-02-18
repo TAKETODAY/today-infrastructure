@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.conversion.Converter;
 import example.scannable.FooService;
 

@@ -26,11 +26,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 
-import cn.taketoday.aop.IOther;
-import cn.taketoday.aop.ITestBean;
-import cn.taketoday.aop.TestBean;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.interceptor.ExposeInvocationInterceptor;
+import cn.taketoday.beans.testfixture.beans.IOther;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

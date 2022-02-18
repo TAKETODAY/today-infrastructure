@@ -20,15 +20,13 @@
 
 package cn.taketoday.aop.support;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

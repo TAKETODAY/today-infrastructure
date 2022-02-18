@@ -75,7 +75,7 @@ class PropsReaderTests {
   // -------------------------
 
   @Singleton
-  public static class TestBean {
+  static class TestBean {
 
   }
 

@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.support.ITestBean;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.dao.OptimisticLockingFailureException;
 import cn.taketoday.transaction.CannotCreateTransactionException;
 import cn.taketoday.transaction.MockCallbackPreferringTransactionManager;

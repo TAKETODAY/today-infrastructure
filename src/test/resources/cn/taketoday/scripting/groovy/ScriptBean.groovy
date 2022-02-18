@@ -1,6 +1,6 @@
 package cn.taketoday.scripting.groovy
 
-import cn.taketoday.beans.factory.support.TestBean
+import cn.taketoday.beans.testfixture.beans.TestBean
 import cn.taketoday.context.ApplicationContext
 import cn.taketoday.context.aware.ApplicationContextAware
 import cn.taketoday.scripting.ContextScriptBean

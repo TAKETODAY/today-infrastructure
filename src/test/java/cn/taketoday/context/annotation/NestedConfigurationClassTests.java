@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 

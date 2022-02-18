@@ -28,7 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;

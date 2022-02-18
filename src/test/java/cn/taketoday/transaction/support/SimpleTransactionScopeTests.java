@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.aop.DerivedTestBean;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.DefaultApplicationContext;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 

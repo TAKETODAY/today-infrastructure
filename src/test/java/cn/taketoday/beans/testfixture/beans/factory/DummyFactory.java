@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,16 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.support;
+package cn.taketoday.beans.testfixture.beans.factory;
 
-import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 /**
  * Simple factory to allow testing of FactoryBean support in AbstractBeanFactory.
@@ -39,7 +40,7 @@ import cn.taketoday.beans.factory.FactoryBean;
  *
  * @author Rod Johnson
  * @author Chris Beams
- * @since 4.0
+ * @since 10.03.2003
  */
 public class DummyFactory
         implements FactoryBean<Object>, BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {
@@ -68,7 +69,7 @@ public class DummyFactory
 
   private boolean initialized;
 
-  private TestBean testBean;
+  private final TestBean testBean;
 
   private TestBean otherTestBean;
 

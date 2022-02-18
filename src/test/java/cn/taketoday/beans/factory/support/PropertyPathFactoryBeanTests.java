@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,7 +65,7 @@ class PropertyPathFactoryBeanTests {
     //	<bean id="propertyPath3" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean">
     //		<property name="targetBeanName"><value>tb</value></property>
     //		<property name="propertyPath"><value>spouse</value></property>
-    //		<property name="resultType"><value>cn.taketoday.beans.factory.support.TestBean</value></property>
+    //		<property name="resultType"><value>cn.taketoday.beans.testfixture.beans.TestBean</value></property>
     //	</bean>
 
     BeanDefinition propertyPath3 = new BeanDefinition("propertyPath3", PropertyPathFactoryBean.class);

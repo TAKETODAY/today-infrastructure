@@ -20,7 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 /**
  * Test for CGLIB proxying that implements no interfaces

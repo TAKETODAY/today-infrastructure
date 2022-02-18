@@ -33,7 +33,7 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;

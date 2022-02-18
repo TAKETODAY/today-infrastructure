@@ -25,8 +25,8 @@ package cn.taketoday.aop.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.aop.ITestBean;
-import cn.taketoday.aop.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.NestedRuntimeException;
 
 import static org.assertj.core.api.Assertions.assertThat;

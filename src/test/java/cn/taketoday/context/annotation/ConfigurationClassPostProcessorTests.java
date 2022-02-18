@@ -49,9 +49,9 @@ import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidat
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.ITestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StandardApplicationContext;
@@ -1380,7 +1380,7 @@ class ConfigurationClassPostProcessorTests {
     @Lazy
     @Scope/*(proxyMode = ScopedProxyMode.INTERFACES)*/
     public ITestBean scopedClass() {
-      return new cn.taketoday.beans.factory.support.TestBean();
+      return new TestBean();
     }
   }
 

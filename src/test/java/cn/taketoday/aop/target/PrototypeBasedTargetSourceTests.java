@@ -8,7 +8,7 @@ import cn.taketoday.aop.support.NameMatchMethodPointcutTests.SerializablePerson;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

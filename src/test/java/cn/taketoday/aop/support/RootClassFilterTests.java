@@ -25,7 +25,7 @@ package cn.taketoday.aop.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.aop.ITestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

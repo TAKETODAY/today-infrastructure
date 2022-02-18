@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.conversion.support.DefaultConversionService;

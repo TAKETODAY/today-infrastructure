@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;

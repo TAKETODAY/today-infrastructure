@@ -21,7 +21,7 @@ package cn.taketoday.context.annotation4;
 
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.BeanAge;
 import cn.taketoday.context.annotation.Scope;

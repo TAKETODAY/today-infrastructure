@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation.componentscan.level2;
 
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;

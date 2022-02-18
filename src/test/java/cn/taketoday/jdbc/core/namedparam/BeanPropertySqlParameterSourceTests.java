@@ -26,7 +26,7 @@ import java.sql.Types;
 import java.util.Arrays;
 
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

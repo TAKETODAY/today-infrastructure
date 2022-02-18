@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.IOther;
-import cn.taketoday.aop.ITestBean;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.TestBean;
+import cn.taketoday.beans.testfixture.beans.IOther;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

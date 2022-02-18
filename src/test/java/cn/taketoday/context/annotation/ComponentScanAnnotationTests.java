@@ -23,7 +23,7 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
-import cn.taketoday.beans.factory.support.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.core.type.filter.TypeFilter;
 

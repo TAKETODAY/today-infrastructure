@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.NestedRuntimeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
