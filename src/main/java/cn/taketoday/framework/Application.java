@@ -41,10 +41,12 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -138,6 +140,8 @@ public class Application {
   private boolean logStartupInfo = true;
   private boolean registerShutdownHook = true;
   private boolean addCommandLineProperties = true;
+
+  private boolean addConversionService = true;
 
   public Application(Class<?>... configSources) {
     this.configSources = configSources;
@@ -327,6 +331,8 @@ public class Application {
           ConfigurableApplicationContext context, ApplicationStartupListeners listeners,
           ApplicationArguments arguments, ConfigurableEnvironment environment) {
     context.setEnvironment(environment);
+
+    postProcessApplicationContext(context);
     applyInitializers(context);
 
     listeners.contextPrepared(context);
@@ -364,6 +370,19 @@ public class Application {
     listeners.contextLoaded(context);
   }
 
+  /**
+   * Apply any relevant post processing the {@link ApplicationContext}. Subclasses can
+   * apply additional processing as required.
+   *
+   * @param context the application context
+   */
+  protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
+
+    if (this.addConversionService) {
+      context.getBeanFactory().setConversionService(context.getEnvironment().getConversionService());
+    }
+  }
+
   private ConfigurableEnvironment getOrCreateEnvironment() {
     if (this.environment != null) {
       return this.environment;
@@ -384,6 +403,9 @@ public class Application {
    * @see #configurePropertySources(ConfigurableEnvironment, String[])
    */
   protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
+    if (this.addConversionService) {
+      environment.setConversionService(new ApplicationConversionService());
+    }
     configurePropertySources(environment, args);
     configureProfiles(environment, args);
   }
@@ -599,6 +621,16 @@ public class Application {
    */
   public void setLogStartupInfo(boolean logStartupInfo) {
     this.logStartupInfo = logStartupInfo;
+  }
+
+  /**
+   * Sets if the {@link ApplicationConversionService} should be added to the application
+   * context's {@link Environment}.
+   *
+   * @param addConversionService if the application conversion service should be added
+   */
+  public void setAddConversionService(boolean addConversionService) {
+    this.addConversionService = addConversionService;
   }
 
   private void handleRunFailure(
