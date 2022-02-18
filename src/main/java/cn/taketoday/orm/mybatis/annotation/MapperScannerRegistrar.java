@@ -22,7 +22,6 @@ package cn.taketoday.orm.mybatis.annotation;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
@@ -101,7 +100,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
       definition.addPropertyValue("sqlSessionFactoryBeanName", mapperScan.getString("sqlSessionFactoryRef"));
     }
 
-    List<String> basePackages = new ArrayList<>();
+    ArrayList<String> basePackages = new ArrayList<>();
     basePackages.addAll(Arrays.stream(mapperScan.getStringArray("value"))
             .filter(StringUtils::hasText).toList()
     );

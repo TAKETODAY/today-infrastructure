@@ -39,6 +39,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -51,10 +52,6 @@ import cn.taketoday.beans.factory.support.ConstructorArgumentValues.ValueHolder;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -729,7 +726,7 @@ final class ConstructorResolver {
           try {
             convertedValue = convertIfNecessary(originalValue, paramType, methodParam);
           }
-          catch (ConversionException ex) {
+          catch (TypeMismatchException ex) {
             throw new UnsatisfiedDependencyException(
                     definition.getResourceDescription(), beanName, new InjectionPoint(methodParam),
                     "Could not convert argument value of type [" +
@@ -790,12 +787,8 @@ final class ConstructorResolver {
     if (paramType.isInstance(originalValue)) {
       return originalValue;
     }
-    ConversionService conversionService = beanFactory.getConversionService();
-    if (conversionService == null) {
-      conversionService = DefaultConversionService.getSharedInstance();
-    }
-    TypeDescriptor typeDescriptor = new TypeDescriptor(methodParam);
-    return conversionService.convert(originalValue, typeDescriptor);
+    TypeConverter typeConverter = beanFactory.getTypeConverter();
+    return typeConverter.convertIfNecessary(originalValue, paramType, methodParam);
   }
 
   /**
