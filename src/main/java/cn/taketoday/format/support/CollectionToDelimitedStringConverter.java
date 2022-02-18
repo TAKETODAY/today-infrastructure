@@ -34,7 +34,9 @@ import cn.taketoday.lang.Nullable;
 /**
  * Converts a Collection to a delimited String.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Phillip Webb
+ * @since 4.0
  */
 final class CollectionToDelimitedStringConverter implements ConditionalGenericConverter {
 

@@ -31,6 +31,8 @@ import cn.taketoday.util.FileCopyUtils;
  * {@link Converter} to convert from an {@link InputStreamSource} to a {@code byte[]}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class InputStreamSourceToByteArrayConverter implements Converter<InputStreamSource, byte[]> {
 

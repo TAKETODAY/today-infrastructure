@@ -34,6 +34,8 @@ import cn.taketoday.util.ResourceUtils;
  * file conversion as well as file URLs.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class StringToFileConverter implements Converter<String, File> {
 

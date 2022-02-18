@@ -34,7 +34,9 @@ import cn.taketoday.util.DataSize;
  * {@link Converter} to convert from a {@link Number} to a {@link DataSize}.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSizeUnit
+ * @since 4.0
  */
 final class NumberToDataSizeConverter implements GenericConverter {
 

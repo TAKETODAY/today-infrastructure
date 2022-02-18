@@ -31,6 +31,8 @@ package cn.taketoday.format.support;
  * </ul>
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class LenientStringToEnumConverterFactory extends LenientObjectToEnumConverterFactory<String> {
 

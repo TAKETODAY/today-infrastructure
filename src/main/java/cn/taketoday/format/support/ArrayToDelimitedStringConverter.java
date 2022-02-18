@@ -35,6 +35,8 @@ import cn.taketoday.util.ObjectUtils;
  * Converts an array to a delimited String.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class ArrayToDelimitedStringConverter implements ConditionalGenericConverter {
 

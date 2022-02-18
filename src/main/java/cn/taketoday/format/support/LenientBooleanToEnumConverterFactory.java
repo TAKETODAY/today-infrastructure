@@ -25,6 +25,8 @@ package cn.taketoday.format.support;
  * {@code ON} and {@code OFF}.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class LenientBooleanToEnumConverterFactory extends LenientObjectToEnumConverterFactory<Boolean> {
 

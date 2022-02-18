@@ -37,7 +37,9 @@ import cn.taketoday.util.ObjectUtils;
  * {@link DataSize#parse(CharSequence)}.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSizeUnit
+ * @since 4.0
  */
 final class StringToDataSizeConverter implements GenericConverter {
 

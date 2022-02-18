@@ -37,8 +37,10 @@ import cn.taketoday.lang.Nullable;
  * {@link Converter} to convert from a {@link Duration} to a {@link String}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DurationFormat
  * @see DurationUnit
+ * @since 4.0
  */
 final class DurationToStringConverter implements GenericConverter {
 

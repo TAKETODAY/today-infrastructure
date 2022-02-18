@@ -39,6 +39,8 @@ import cn.taketoday.util.StringUtils;
  * Converts a {@link Delimiter delimited} String to a Collection.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class DelimitedStringToCollectionConverter implements ConditionalGenericConverter {
 

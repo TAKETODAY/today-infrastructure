@@ -38,8 +38,10 @@ import cn.taketoday.util.ReflectionUtils;
  * {@link Converter} to convert from a {@link Duration} to a {@link Number}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DurationFormat
  * @see DurationUnit
+ * @since 4.0
  */
 final class DurationToNumberConverter implements GenericConverter {
 

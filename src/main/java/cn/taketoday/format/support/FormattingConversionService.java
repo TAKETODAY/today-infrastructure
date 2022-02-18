@@ -52,6 +52,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Keith Donald
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class FormattingConversionService extends GenericConversionService

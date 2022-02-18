@@ -34,6 +34,8 @@ import cn.taketoday.lang.Nullable;
  * to existing {@link String} converters.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class CharSequenceToObjectConverter implements ConditionalGenericConverter {
 

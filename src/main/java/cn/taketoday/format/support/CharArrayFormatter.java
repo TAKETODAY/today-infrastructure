@@ -29,6 +29,8 @@ import cn.taketoday.format.Formatter;
  * {@link Formatter} for {@code char[]}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class CharArrayFormatter implements Formatter<char[]> {
 

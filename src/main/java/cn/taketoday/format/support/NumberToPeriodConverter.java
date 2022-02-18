@@ -37,8 +37,10 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Eddú Meléndez
  * @author Edson Chávez
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PeriodFormat
  * @see PeriodUnit
+ * @since 4.0
  */
 final class NumberToPeriodConverter implements GenericConverter {
 

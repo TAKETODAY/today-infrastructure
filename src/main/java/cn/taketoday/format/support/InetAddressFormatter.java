@@ -31,6 +31,8 @@ import cn.taketoday.format.Formatter;
  * {@link Formatter} for {@link InetAddress}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class InetAddressFormatter implements Formatter<InetAddress> {
 

@@ -37,6 +37,8 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the source type
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @SuppressWarnings("rawtypes")
 abstract class LenientObjectToEnumConverterFactory<T> implements ConverterFactory<T, Enum<?>> {

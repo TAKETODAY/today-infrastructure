@@ -40,8 +40,10 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Eddú Meléndez
  * @author Edson Chávez
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PeriodFormat
  * @see PeriodUnit
+ * @since 4.0
  */
 final class StringToPeriodConverter implements GenericConverter {
 

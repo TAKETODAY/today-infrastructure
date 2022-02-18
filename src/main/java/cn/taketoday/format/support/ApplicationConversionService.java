@@ -52,6 +52,7 @@ import cn.taketoday.lang.Nullable;
  * against registry instance.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ApplicationConversionService extends FormattingConversionService {

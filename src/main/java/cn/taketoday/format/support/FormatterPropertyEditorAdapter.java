@@ -32,6 +32,8 @@ import cn.taketoday.util.StringUtils;
  * Adapter that bridges between {@link Formatter} and {@link PropertyEditor}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  * @since 4.0
  */
 public class FormatterPropertyEditorAdapter extends PropertyEditorSupport {

@@ -39,8 +39,10 @@ import cn.taketoday.util.ObjectUtils;
  * {@link Duration#parse(CharSequence)} as well a more readable {@code 10s} form.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DurationFormat
  * @see DurationUnit
+ * @since 4.0
  */
 final class StringToDurationConverter implements GenericConverter {
 

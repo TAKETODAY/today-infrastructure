@@ -29,6 +29,7 @@ import cn.taketoday.core.conversion.ConditionalGenericConverter;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.format.annotation.Delimiter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -56,8 +57,9 @@ final class DelimitedStringToArrayConverter implements ConditionalGenericConvert
             || this.conversionService.canConvert(sourceType, targetType.getElementDescriptor());
   }
 
+  @Nullable
   @Override
-  public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+  public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     if (source == null) {
       return null;
     }
@@ -66,7 +68,7 @@ final class DelimitedStringToArrayConverter implements ConditionalGenericConvert
 
   private Object convert(String source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     Delimiter delimiter = targetType.getAnnotation(Delimiter.class);
-    String[] elements = getElements(source, (delimiter != null) ? delimiter.value() : ",");
+    String[] elements = getElements(source, delimiter != null ? delimiter.value() : ",");
     TypeDescriptor elementDescriptor = targetType.getElementDescriptor();
     Object target = Array.newInstance(elementDescriptor.getType(), elements.length);
     for (int i = 0; i < elements.length; i++) {
