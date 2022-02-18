@@ -1027,6 +1027,13 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.javamoney</groupId>
+      <artifactId>moneta</artifactId>
+      <version>1.4.2</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- JMH-->
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
