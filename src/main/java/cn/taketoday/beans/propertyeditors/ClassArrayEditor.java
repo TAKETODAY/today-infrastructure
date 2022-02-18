@@ -82,7 +82,7 @@ public class ClassArrayEditor extends PropertyEditorSupport {
 
   @Override
   public String getAsText() {
-    Class<?>[] classes = (Class[]) getValue();
+    Class<?>[] classes = (Class<?>[]) getValue();
     if (ObjectUtils.isEmpty(classes)) {
       return "";
     }
