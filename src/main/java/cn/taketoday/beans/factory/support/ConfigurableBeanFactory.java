@@ -499,7 +499,7 @@ public interface ConfigurableBeanFactory
    * @see #registerCustomEditor
    * @since 4.0
    */
-  void setTypeConverter(TypeConverter typeConverter);
+  void setTypeConverter(@Nullable TypeConverter typeConverter);
 
   /**
    * Obtain a type converter as used by this BeanFactory. This may be a fresh

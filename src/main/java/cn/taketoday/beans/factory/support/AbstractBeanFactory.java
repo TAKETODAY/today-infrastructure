@@ -41,6 +41,7 @@ import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.PropertyEditorRegistrySupport;
 import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.TypeConverter;
+import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
@@ -67,9 +68,7 @@ import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
@@ -198,7 +197,7 @@ public abstract class AbstractBeanFactory
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> T doGetBean(
+  protected final <T> T doGetBean(
           String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
@@ -372,21 +371,17 @@ public abstract class AbstractBeanFactory
 
   @SuppressWarnings("unchecked")
   @Nullable
-  protected <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
+  protected final <T> T adaptBeanInstance(String name, @Nullable Object bean, @Nullable Class<?> requiredType) {
     // Check if required type matches the type of the actual bean instance.
     if (bean != null && requiredType != null && !requiredType.isInstance(bean)) {
       try {
-        ConversionService conversionService = getConversionService();
-        if (conversionService == null) {
-          conversionService = DefaultConversionService.getSharedInstance();
-        }
-        Object convertedBean = conversionService.convert(bean, requiredType);
+        Object convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
         if (convertedBean == null) {
           throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
         }
         return (T) convertedBean;
       }
-      catch (ConversionException ex) {
+      catch (TypeMismatchException ex) {
         if (log.isTraceEnabled()) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
                   name, ClassUtils.getQualifiedName(requiredType), ex);
@@ -1165,7 +1160,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void setConversionService(ConversionService conversionService) {
+  public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService;
   }
 
@@ -1194,6 +1189,7 @@ public abstract class AbstractBeanFactory
     this.beanClassLoader = (beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader());
   }
 
+  @Nullable
   @Override
   public ClassLoader getBeanClassLoader() {
     return beanClassLoader;
@@ -1223,6 +1219,10 @@ public abstract class AbstractBeanFactory
       this.objectFactories.putAll(beanFactory.objectFactories);
       this.dependencyInjector = beanFactory.dependencyInjector;
       this.postProcessors.addAll(beanFactory.postProcessors);
+
+      this.typeConverter = beanFactory.typeConverter;
+      this.customEditors.putAll(beanFactory.customEditors);
+      this.propertyEditorRegistrars.addAll(beanFactory.propertyEditorRegistrars);
 
       if (beanFactory.beanSupplier != null) {
         beanSupplier().putAll(beanFactory.beanSupplier);
@@ -1755,7 +1755,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Override
-  public void setTypeConverter(TypeConverter typeConverter) {
+  public void setTypeConverter(@Nullable TypeConverter typeConverter) {
     this.typeConverter = typeConverter;
   }
 

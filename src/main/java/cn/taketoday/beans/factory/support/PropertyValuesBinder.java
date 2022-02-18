@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans.factory.support;
 
-import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.Map;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
@@ -106,24 +104,6 @@ public class PropertyValuesBinder extends BeanPropertyAccessor {
 
   public void setProperty(Object root, BeanMetadata metadata, PropertyValue propertyValue) {
     setProperty(root, metadata, propertyValue.getName(), propertyValue.getValue());
-  }
-
-  @Override
-  protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
-    PropertyEditor editor = findEditor(beanProperty);
-    if (editor != null && value instanceof String) {
-      try {
-        editor.setAsText((String) value);
-        return editor.getValue();
-      }
-      catch (IllegalArgumentException ignored) { }
-    }
-    // fallback to conversion service
-    return super.doConvertInternal(value, beanProperty);
-  }
-
-  protected PropertyEditor findEditor(BeanProperty beanProperty) {
-    return null;
   }
 
   //

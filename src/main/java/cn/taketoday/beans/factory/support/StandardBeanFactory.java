@@ -65,8 +65,6 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NullValue;
@@ -1101,6 +1099,8 @@ public class StandardBeanFactory
       this.dependencyComparator = std.dependencyComparator;
       this.allowEagerClassLoading = std.allowEagerClassLoading;
       this.allowBeanDefinitionOverriding = std.allowBeanDefinitionOverriding;
+      // A clone of the AutowireCandidateResolver since it is potentially BeanFactoryAware
+      setAutowireCandidateResolver(std.getAutowireCandidateResolver().cloneIfNecessary());
     }
   }
 
@@ -1332,15 +1332,9 @@ public class StandardBeanFactory
 
     // Check if required type matches the type of the actual bean instance.
     if (bean != null && requiredType != null && !requiredType.isInstance(bean)) {
-      ConversionService conversionService = getConversionService();
-      if (conversionService == null) {
-        conversionService = DefaultConversionService.getSharedInstance();
-      }
-      Object convertedBean = conversionService.convert(bean, typeDescriptor);
-      return (T) convertedBean;
+      return getTypeConverter().convertIfNecessary(bean, requiredType, typeDescriptor);
     }
     return (T) bean;
-
   }
 
   @Nullable

@@ -72,7 +72,7 @@ public class BeanDefinitionVisitor {
   protected BeanDefinitionVisitor() { }
 
   /**
-   * Traverse the given BeanDefinition object and the MutablePropertyValues
+   * Traverse the given BeanDefinition object and the PropertyValues
    * and ConstructorArgumentValues contained in them.
    *
    * @param beanDefinition the BeanDefinition object to traverse
