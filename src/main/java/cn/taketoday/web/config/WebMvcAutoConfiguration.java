@@ -20,8 +20,13 @@
 
 package cn.taketoday.web.config;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -34,16 +39,26 @@ import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.format.FormatterRegistry;
+import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.http.MediaType;
+import cn.taketoday.http.config.HttpMessageConverters;
+import cn.taketoday.http.config.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.config.WebProperties.Resources;
+import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.resource.EncodedResourceResolver;
+import cn.taketoday.web.resource.ResourceResolver;
+import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
@@ -60,19 +75,31 @@ import cn.taketoday.web.view.ViewResolver;
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-@Import(JacksonAutoConfiguration.class)
+@Import({ JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
+  private final BeanFactory beanFactory;
   private final WebProperties webProperties;
   private final WebMvcProperties mvcProperties;
 
   private final CompositeWebMvcConfiguration mvcConfiguration = new CompositeWebMvcConfiguration();
 
+  @Nullable
+  private final ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer;
+
+  private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
+
   public WebMvcAutoConfiguration(
+          BeanFactory beanFactory,
           @Props(prefix = "web.mvc.") WebMvcProperties mvcProperties,
-          @Props(prefix = "web.") WebProperties webProperties) {
+          @Props(prefix = "web.") WebProperties webProperties,
+          ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
+          ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
+    this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
+    this.resourceHandlerRegistrationCustomizer = customizers.getIfAvailable();
+    this.messageConvertersProvider = messageConvertersProvider;
   }
 
   @Autowired(required = false)
@@ -124,8 +151,26 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-    mvcConfiguration.configureResourceHandler(registry);
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    messageConvertersProvider.ifAvailable(
+            customConverters -> converters.addAll(customConverters.getConverters()));
+    mvcConfiguration.configureMessageConverters(converters);
+  }
+
+  @Override
+  protected void addFormatters(FormatterRegistry registry) {
+    ApplicationConversionService.addBeans(registry, this.beanFactory);
+    mvcConfiguration.addFormatters(registry);
+  }
+
+  @Override
+  protected void addInterceptors(InterceptorRegistry registry) {
+    mvcConfiguration.addInterceptors(registry);
+  }
+
+  @Override
+  protected void addCorsMappings(CorsRegistry registry) {
+    mvcConfiguration.addCorsMappings(registry);
   }
 
   @Override
@@ -134,17 +179,25 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    mvcConfiguration.configureMessageConverters(converters);
-  }
-
-  @Override
   protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     mvcConfiguration.extendMessageConverters(converters);
   }
 
   @Override
+  protected void addViewControllers(ViewControllerRegistry registry) {
+    mvcConfiguration.addViewControllers(registry);
+  }
+
+  @Override
   protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+    WebMvcProperties.Contentnegotiation contentnegotiation = mvcProperties.getContentnegotiation();
+    configurer.favorParameter(contentnegotiation.isFavorParameter());
+    if (contentnegotiation.getParameterName() != null) {
+      configurer.parameterName(contentnegotiation.getParameterName());
+    }
+    Map<String, MediaType> mediaTypes = mvcProperties.getContentnegotiation().getMediaTypes();
+    mediaTypes.forEach(configurer::mediaType);
+
     mvcConfiguration.configureContentNegotiation(configurer);
   }
 
@@ -156,6 +209,109 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void configureViewResolvers(ViewResolverRegistry registry) {
     mvcConfiguration.configureViewResolvers(registry);
+  }
+
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    Resources resourceProperties = webProperties.getResources();
+    if (!resourceProperties.isAddMappings()) {
+      log.debug("Default resource handling disabled");
+      return;
+    }
+    addResourceHandler(registry, "/webjars/**", "classpath:/META-INF/resources/webjars/");
+    addResourceHandler(registry, this.mvcProperties.getStaticPathPattern(), (registration) -> {
+      registration.addResourceLocations(resourceProperties.getStaticLocations());
+    });
+
+    mvcConfiguration.addResourceHandlers(registry);
+  }
+
+  private void addResourceHandler(ResourceHandlerRegistry registry, String pattern, String... locations) {
+    addResourceHandler(registry, pattern, (registration) -> registration.addResourceLocations(locations));
+  }
+
+  private void addResourceHandler(
+          ResourceHandlerRegistry registry, String pattern,
+          Consumer<ResourceHandlerRegistration> customizer) {
+    if (registry.hasMappingForPattern(pattern)) {
+      return;
+    }
+    Resources resourceProperties = webProperties.getResources();
+
+    ResourceHandlerRegistration registration = registry.addResourceHandler(pattern);
+    customizer.accept(registration);
+    registration.setCachePeriod(getSeconds(resourceProperties.getCache().getPeriod()));
+    registration.setCacheControl(resourceProperties.getCache().getCachecontrol().toHttpCacheControl());
+    registration.setUseLastModified(resourceProperties.getCache().isUseLastModified());
+    customizeResourceHandlerRegistration(registration);
+  }
+
+  private Integer getSeconds(Duration cachePeriod) {
+    return (cachePeriod != null) ? (int) cachePeriod.getSeconds() : null;
+  }
+
+  private void customizeResourceHandlerRegistration(ResourceHandlerRegistration registration) {
+    if (resourceHandlerRegistrationCustomizer != null) {
+      resourceHandlerRegistrationCustomizer.customize(registration);
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnEnabledResourceChain
+  static class ResourceChainCustomizerConfiguration {
+
+    @Bean
+    ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
+            WebProperties webProperties) {
+      return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.getResources());
+    }
+
+  }
+
+  interface ResourceHandlerRegistrationCustomizer {
+
+    void customize(ResourceHandlerRegistration registration);
+
+  }
+
+  static class ResourceChainResourceHandlerRegistrationCustomizer implements ResourceHandlerRegistrationCustomizer {
+
+    private final Resources resources;
+
+    ResourceChainResourceHandlerRegistrationCustomizer(Resources resourceProperties) {
+      this.resources = resourceProperties;
+    }
+
+    @Override
+    public void customize(ResourceHandlerRegistration registration) {
+      Resources.Chain properties = resources.getChain();
+      configureResourceChain(properties, registration.resourceChain(properties.isCache()));
+    }
+
+    private void configureResourceChain(Resources.Chain properties, ResourceChainRegistration chain) {
+      Strategy strategy = properties.getStrategy();
+      if (properties.isCompressed()) {
+        chain.addResolver(new EncodedResourceResolver());
+      }
+      if (strategy.getFixed().isEnabled() || strategy.getContent().isEnabled()) {
+        chain.addResolver(getVersionResourceResolver(strategy));
+      }
+    }
+
+    private ResourceResolver getVersionResourceResolver(Strategy properties) {
+      VersionResourceResolver resolver = new VersionResourceResolver();
+      if (properties.getFixed().isEnabled()) {
+        String version = properties.getFixed().getVersion();
+        String[] paths = properties.getFixed().getPaths();
+        resolver.addFixedVersionStrategy(version, paths);
+      }
+      if (properties.getContent().isEnabled()) {
+        String[] paths = properties.getContent().getPaths();
+        resolver.addContentVersionStrategy(paths);
+      }
+      return resolver;
+    }
+
   }
 
 }

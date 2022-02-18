@@ -22,6 +22,7 @@ package cn.taketoday.web.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
@@ -57,9 +58,9 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureResourceHandler(ResourceHandlerRegistry registry) {
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureResourceHandler(registry);
+      webMvcConfiguration.addResourceHandlers(registry);
     }
   }
 
@@ -159,6 +160,34 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.extendMessageConverters(converters);
+    }
+  }
+
+  @Override
+  public void addFormatters(FormatterRegistry registry) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.addFormatters(registry);
+    }
+  }
+
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.addCorsMappings(registry);
+    }
+  }
+
+  @Override
+  public void addViewControllers(ViewControllerRegistry registry) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.addViewControllers(registry);
+    }
+  }
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.addInterceptors(registry);
     }
   }
 

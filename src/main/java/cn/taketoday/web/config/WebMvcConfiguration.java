@@ -21,9 +21,14 @@ package cn.taketoday.web.config;
 
 import java.util.List;
 
+import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.format.Formatter;
+import cn.taketoday.format.FormatterRegistry;
+import cn.taketoday.http.CorsConfiguration;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ViewController;
@@ -89,7 +94,7 @@ public interface WebMvcConfiguration {
    *
    * @param registry {@link ResourceHandlerRegistry}
    */
-  default void configureResourceHandler(ResourceHandlerRegistry registry) { }
+  default void addResourceHandlers(ResourceHandlerRegistry registry) { }
 
   /**
    * Configure {@link Multipart}
@@ -198,5 +203,50 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void extendMessageConverters(List<HttpMessageConverter<?>> converters) { }
+
+  /**
+   * Add {@link Converter Converters} and {@link Formatter Formatters} in addition to the ones
+   * registered by default.
+   *
+   * @since 4.0
+   */
+  default void addFormatters(FormatterRegistry registry) { }
+
+  /**
+   * Add Spring MVC lifecycle interceptors for pre- and post-processing of
+   * controller method invocations and resource handler requests.
+   * Interceptors can be registered to apply to all requests or be limited
+   * to a subset of URL patterns.
+   *
+   * @since 4.0
+   */
+  default void addInterceptors(InterceptorRegistry registry) { }
+
+  /**
+   * Configure "global" cross-origin request processing. The configured CORS
+   * mappings apply to annotated controllers, functional endpoints, and static
+   * resources.
+   * <p>Annotated controllers can further declare more fine-grained config via
+   * {@link CrossOrigin @CrossOrigin}. In such cases "global" CORS configuration
+   * declared here is {@link CorsConfiguration#combine(CorsConfiguration) combined}
+   * with local CORS configuration defined on a controller method.
+   *
+   * @see CorsRegistry
+   * @see CorsConfiguration#combine(CorsConfiguration)
+   * @since 4.0
+   */
+  default void addCorsMappings(CorsRegistry registry) { }
+
+  /**
+   * Configure simple automated controllers pre-configured with the response
+   * status code and/or a view to render the response body. This is useful in
+   * cases where there is no need for custom controller logic -- e.g. render a
+   * home page, perform simple site URL redirects, return a 404 status with
+   * HTML content, a 204 with no content, and more.
+   *
+   * @see ViewControllerRegistry
+   * @since 4.0
+   */
+  default void addViewControllers(ViewControllerRegistry registry) { }
 
 }

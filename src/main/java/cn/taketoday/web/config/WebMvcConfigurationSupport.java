@@ -32,12 +32,18 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.format.Formatter;
+import cn.taketoday.format.FormatterRegistry;
+import cn.taketoday.format.support.DefaultFormattingConversionService;
+import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.http.CorsConfiguration;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
@@ -511,7 +517,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     ResourceHandlerRegistry registry = new ResourceHandlerRegistry(this.applicationContext, contentNegotiationManager);
     addResourceHandlers(registry);
 
-    AbstractHandlerRegistry handlerRegistry = registry.getHandlerMapping();
+    AbstractHandlerRegistry handlerRegistry = registry.getHandlerRegistry();
     if (handlerRegistry == null) {
       return null;
     }
@@ -537,6 +543,40 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   }
 
   protected void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) { }
+
+  /**
+   * Return a handler mapping ordered at 1 to map URL paths directly to
+   * view names. To configure view controllers, override
+   * {@link #addViewControllers}.
+   */
+  @Bean
+  @Nullable
+  public HandlerRegistry viewControllerHandlerRegistry(
+          @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
+
+    ViewControllerRegistry registry = new ViewControllerRegistry(this.applicationContext);
+    addViewControllers(registry);
+
+    AbstractHandlerRegistry handlerRegistry = registry.buildRegistry();
+    if (handlerRegistry == null) {
+      return null;
+    }
+    PathMatchConfigurer pathConfig = getPathMatchConfigurer();
+
+    handlerRegistry.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
+    handlerRegistry.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
+
+    handlerRegistry.setInterceptors(getInterceptors(resourceUrlProvider));
+    handlerRegistry.setCorsConfigurations(getCorsConfigurations());
+    return handlerRegistry;
+  }
+
+  /**
+   * Override this method to add view controllers.
+   *
+   * @see ViewControllerRegistry
+   */
+  protected void addViewControllers(ViewControllerRegistry registry) { }
 
   @Component
   @ConditionalOnMissingBean
@@ -609,8 +649,26 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
    *
    * @see InterceptorRegistry
    */
-  protected void addInterceptors(InterceptorRegistry registry) {
+  protected void addInterceptors(InterceptorRegistry registry) { }
+
+  /**
+   * Return a {@link FormattingConversionService} for use with annotated controllers.
+   * <p>See {@link #addFormatters} as an alternative to overriding this method.
+   */
+  @Bean
+  public FormattingConversionService mvcConversionService() {
+    FormattingConversionService conversionService = new DefaultFormattingConversionService();
+    addFormatters(conversionService);
+    return conversionService;
   }
+
+  /**
+   * Override this method to add custom {@link Converter} and/or {@link Formatter}
+   * delegates to the common {@link FormattingConversionService}.
+   *
+   * @see #mvcConversionService()
+   */
+  protected void addFormatters(FormatterRegistry registry) { }
 
   static boolean isPresent(String name) {
     ClassLoader classLoader = WebMvcAutoConfiguration.class.getClassLoader();

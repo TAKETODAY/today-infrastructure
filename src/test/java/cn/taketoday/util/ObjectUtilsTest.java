@@ -140,15 +140,6 @@ class ObjectUtilsTest {
     assert DoubleArrayObject.getClass().equals(Double[].class);
     assert ((Double[]) DoubleArrayObject)[0] == 125.45d;
 
-    // Object[]
-    final Class<Class[]> clazz = Class[].class;
-    final Object classArrayObject = ObjectUtils.toArrayObject(new String[] { //
-            "cn.taketoday.util.NumberUtilsTest", "cn.taketoday.util.ClassUtilsTests" //
-    }, clazz);
-
-    assert classArrayObject.getClass().equals(clazz);
-    assert ((Class[]) classArrayObject)[1] == ClassUtilsTests.class;
-
   }
 
   @Test
@@ -296,7 +287,7 @@ class ObjectUtilsTest {
   @Test
   void toObjectArrayWithNonArrayType() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            ObjectUtils.toObjectArray("Not an []"));
+            ObjectUtils.toObjectArray("Not an []"));
   }
 
   @Test

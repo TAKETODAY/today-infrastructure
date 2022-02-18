@@ -119,7 +119,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   static class WebConfig implements WebMvcConfiguration {
 
     @Override
-    public void configureResourceHandler(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
       ClassPathResource classPathLocation = new ClassPathResource("", getClass());
       String path = getPath(classPathLocation);
 

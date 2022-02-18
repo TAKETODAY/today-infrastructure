@@ -24,7 +24,6 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 
@@ -92,8 +91,6 @@ public class WebMvcProperties {
   private final View view = new View();
 
   private final Contentnegotiation contentnegotiation = new Contentnegotiation();
-
-  private final Pathmatch pathmatch = new Pathmatch();
 
   public Format getMessageCodesResolverFormat() {
     return this.messageCodesResolverFormat;
@@ -185,10 +182,6 @@ public class WebMvcProperties {
 
   public Contentnegotiation getContentnegotiation() {
     return this.contentnegotiation;
-  }
-
-  public Pathmatch getPathmatch() {
-    return this.pathmatch;
   }
 
   public static class Async {
@@ -344,26 +337,6 @@ public class WebMvcProperties {
     public void setParameterName(String parameterName) {
       this.parameterName = parameterName;
     }
-
-  }
-
-  public static class Pathmatch {
-
-    /**
-     * Whether to use suffix pattern match (".*") when matching patterns to requests.
-     * If enabled a method mapped to "/users" also matches to "/users.*". Enabling
-     * this option is not compatible with the PathPatternParser matching strategy.
-     */
-    private final boolean useSuffixPattern = false;
-
-    /**
-     * Whether suffix pattern matching should work only against extensions registered
-     * with "mvc.contentnegotiation.media-types.*". This is generally
-     * recommended to reduce ambiguity and to avoid issues such as when a "." appears
-     * in the path for other reasons. Enabling this option is not compatible with the
-     * PathPatternParser matching strategy.
-     */
-    private final boolean useRegisteredSuffixPattern = false;
 
   }
 

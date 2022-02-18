@@ -60,7 +60,7 @@ public class BeanValidationPostProcessorTests {
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
 //    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     BeanDefinition bd = new BeanDefinition(NotNullConstrainedBean.class);
-    bd.getPropertyValues().add("testBean", new TestBean());
+    bd.propertyValues().add("testBean", new TestBean());
     ac.registerBeanDefinition("bean", bd);
     ac.refresh();
     ac.close();
@@ -70,7 +70,7 @@ public class BeanValidationPostProcessorTests {
   public void testNotNullConstraintAfterInitialization() {
     DefaultApplicationContext ac = new DefaultApplicationContext();
     BeanDefinition bvpp = new BeanDefinition(BeanValidationPostProcessor.class);
-    bvpp.getPropertyValues().add("afterInitialization", true);
+    bvpp.propertyValues().add("afterInitialization", true);
     ac.registerBeanDefinition("bvpp", bvpp);
 //    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     ac.registerBeanDefinition("bean", new BeanDefinition(AfterInitConstraintBean.class));
@@ -82,7 +82,7 @@ public class BeanValidationPostProcessorTests {
   public void testNotNullConstraintAfterInitializationWithProxy() {
     DefaultApplicationContext ac = new DefaultApplicationContext();
     BeanDefinition bvpp = new BeanDefinition(BeanValidationPostProcessor.class);
-    bvpp.getPropertyValues().add("afterInitialization", true);
+    bvpp.propertyValues().add("afterInitialization", true);
     ac.registerBeanDefinition("bvpp", bvpp);
 //    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     ac.registerBeanDefinition("bean", new BeanDefinition(AfterInitConstraintBean.class));
@@ -97,8 +97,8 @@ public class BeanValidationPostProcessorTests {
     DefaultApplicationContext ac = new DefaultApplicationContext();
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
     BeanDefinition bd = new BeanDefinition(NotNullConstrainedBean.class);
-    bd.getPropertyValues().add("testBean", new TestBean());
-    bd.getPropertyValues().add("stringValue", "s");
+    bd.propertyValues().add("testBean", new TestBean());
+    bd.propertyValues().add("stringValue", "s");
     ac.registerBeanDefinition("bean", bd);
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(ac::refresh)
@@ -112,8 +112,8 @@ public class BeanValidationPostProcessorTests {
     DefaultApplicationContext ac = new DefaultApplicationContext();
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
     BeanDefinition bd = new BeanDefinition(NotNullConstrainedBean.class);
-    bd.getPropertyValues().add("testBean", new TestBean());
-    bd.getPropertyValues().add("stringValue", "ss");
+    bd.propertyValues().add("testBean", new TestBean());
+    bd.propertyValues().add("stringValue", "ss");
     ac.registerBeanDefinition("bean", bd);
     ac.refresh();
     ac.close();

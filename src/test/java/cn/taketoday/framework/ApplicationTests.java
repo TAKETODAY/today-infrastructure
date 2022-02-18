@@ -52,6 +52,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.framework.ServletWebServerApplicationContext;
 import cn.taketoday.web.framework.StandardWebServerApplicationContext;
@@ -246,6 +247,28 @@ class ApplicationTests {
     application.setEnvironment(environment);
     this.context = application.run("--foo=bar");
     assertThat(environment).doesNotHave(matchingPropertySource(PropertySource.class, "commandLineArgs"));
+  }
+
+  @Test
+  void contextUsesApplicationConversionService() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    this.context = application.run();
+    assertThat(this.context.getBeanFactory().getConversionService())
+            .isInstanceOf(ApplicationConversionService.class);
+    assertThat(this.context.getEnvironment().getConversionService())
+            .isInstanceOf(ApplicationConversionService.class);
+  }
+
+  @Test
+  void contextWhenHasAddConversionServiceFalseUsesRegularConversionService() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    application.setAddConversionService(false);
+    this.context = application.run();
+    assertThat(this.context.getBeanFactory().getConversionService()).isNull();
+    assertThat(this.context.getEnvironment().getConversionService())
+            .isNotInstanceOf(ApplicationConversionService.class);
   }
 
   @Test

@@ -132,7 +132,7 @@ public class ResourceHandlerRegistry {
    * of no registrations.
    */
   @Nullable
-  protected AbstractHandlerRegistry getHandlerMapping() {
+  protected AbstractHandlerRegistry getHandlerRegistry() {
     if (this.registrations.isEmpty()) {
       return null;
     }

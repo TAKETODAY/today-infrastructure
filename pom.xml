@@ -1028,9 +1028,16 @@
     </dependency>
 
     <dependency>
-      <groupId>org.javamoney</groupId>
-      <artifactId>moneta</artifactId>
+      <groupId>org.javamoney.moneta</groupId>
+      <artifactId>moneta-core</artifactId>
       <version>1.4.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>jakarta.el</artifactId>
+      <version>4.0.2</version>
       <scope>test</scope>
     </dependency>
 
