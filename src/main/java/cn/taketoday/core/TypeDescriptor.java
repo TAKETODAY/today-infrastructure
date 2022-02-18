@@ -312,7 +312,7 @@ public class TypeDescriptor implements Serializable {
    * type descriptor
    */
   public boolean isAssignableTo(TypeDescriptor typeDescriptor) {
-    boolean typesAssignable = typeDescriptor.getType().isAssignableFrom(getType());
+    boolean typesAssignable = typeDescriptor.getObjectType().isAssignableFrom(getObjectType());
     if (!typesAssignable) {
       return false;
     }
