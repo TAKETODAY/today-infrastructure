@@ -48,8 +48,7 @@ public class NumberStyleFormatter extends AbstractNumberFormatter {
   /**
    * Create a new NumberStyleFormatter without a pattern.
    */
-  public NumberStyleFormatter() {
-  }
+  public NumberStyleFormatter() { }
 
   /**
    * Create a new NumberStyleFormatter with the specified pattern.

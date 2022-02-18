@@ -36,7 +36,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.EnumMap;
-import java.util.Map;
 
 import cn.taketoday.format.FormatterRegistrar;
 import cn.taketoday.format.FormatterRegistry;
@@ -57,17 +56,19 @@ import cn.taketoday.format.annotation.DateTimeFormat.ISO;
  */
 public class DateTimeFormatterRegistrar implements FormatterRegistrar {
 
-  private enum Type {DATE, TIME, DATE_TIME}
+  private enum Type {
+    DATE, TIME, DATE_TIME
+  }
 
   /**
    * User-defined formatters.
    */
-  private final Map<Type, DateTimeFormatter> formatters = new EnumMap<>(Type.class);
+  private final EnumMap<Type, DateTimeFormatter> formatters = new EnumMap<>(Type.class);
 
   /**
    * Factories used when specific formatters have not been specified.
    */
-  private final Map<Type, DateTimeFormatterFactory> factories = new EnumMap<>(Type.class);
+  private final EnumMap<Type, DateTimeFormatterFactory> factories = new EnumMap<>(Type.class);
 
   public DateTimeFormatterRegistrar() {
     for (Type type : Type.values()) {
@@ -212,14 +213,11 @@ public class DateTimeFormatterRegistrar implements FormatterRegistrar {
   }
 
   private DateTimeFormatter getFallbackFormatter(Type type) {
-    switch (type) {
-      case DATE:
-        return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
-      case TIME:
-        return DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
-      default:
-        return DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
-    }
+    return switch (type) {
+      case DATE -> DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+      case TIME -> DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+      default -> DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
+    };
   }
 
 }

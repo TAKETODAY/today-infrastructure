@@ -127,7 +127,6 @@ public class FormattingConversionService extends GenericConversionService
     return fieldType;
   }
 
-  @SuppressWarnings("unchecked")
   static Class<? extends Annotation> getAnnotationType(AnnotationFormatterFactory<? extends Annotation> factory) {
     Class<? extends Annotation> annotationType = GenericTypeResolver.resolveTypeArgument(factory.getClass(), AnnotationFormatterFactory.class);
     if (annotationType == null) {
@@ -184,19 +183,8 @@ public class FormattingConversionService extends GenericConversionService
     }
   }
 
-  private static class ParserConverter implements GenericConverter {
-
-    private final Class<?> fieldType;
-
-    private final Parser<?> parser;
-
-    private final ConversionService conversionService;
-
-    public ParserConverter(Class<?> fieldType, Parser<?> parser, ConversionService conversionService) {
-      this.fieldType = fieldType;
-      this.parser = parser;
-      this.conversionService = conversionService;
-    }
+  private record ParserConverter(Class<?> fieldType, Parser<?> parser, ConversionService conversionService)
+          implements GenericConverter {
 
     @Override
     public Set<ConvertiblePair> getConvertibleTypes() {
@@ -341,16 +329,7 @@ public class FormattingConversionService extends GenericConversionService
     }
   }
 
-  private static class AnnotationConverterKey {
-
-    private final Annotation annotation;
-
-    private final Class<?> fieldType;
-
-    public AnnotationConverterKey(Annotation annotation, Class<?> fieldType) {
-      this.annotation = annotation;
-      this.fieldType = fieldType;
-    }
+  private record AnnotationConverterKey(Annotation annotation, Class<?> fieldType) {
 
     public Annotation getAnnotation() {
       return this.annotation;

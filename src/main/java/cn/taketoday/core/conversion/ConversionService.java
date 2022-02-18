@@ -35,24 +35,50 @@ import cn.taketoday.lang.Nullable;
  */
 public interface ConversionService {
 
+  /**
+   * Hook method to lookup the converter for a given sourceType/targetType pair.
+   * First queries this ConversionService's converter cache.
+   * On a cache miss, then performs an exhaustive search for a matching converter.
+   * If no converter matches, returns the default converter.
+   *
+   * @param sourceType the source type to convert from
+   * @param targetType the target type to convert to
+   * @return the generic converter that will perform the conversion,
+   * or {@code null} if no suitable converter was found
+   */
   default GenericConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
     return getConverter(TypeDescriptor.valueOf(sourceType), targetType);
   }
 
+  /**
+   * Hook method to lookup the converter for a given sourceType/targetType pair.
+   * First queries this ConversionService's converter cache.
+   * On a cache miss, then performs an exhaustive search for a matching converter.
+   * If no converter matches, returns the default converter.
+   *
+   * @param sourceObject the source to convert from
+   * @param targetType the target type to convert to
+   * @return the generic converter that will perform the conversion,
+   * or {@code null} if no suitable converter was found
+   */
   default GenericConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
     Assert.notNull(sourceObject, "source object must not be null");
     return getConverter(sourceObject.getClass(), targetType);
   }
 
   /**
-   * Get Target {@link GenericConverter}
+   * Hook method to lookup the converter for a given sourceType/targetType pair.
+   * First queries this ConversionService's converter cache.
+   * On a cache miss, then performs an exhaustive search for a matching converter.
+   * If no converter matches, returns the default converter.
    *
-   * @param source input source
-   * @param targetType convert to target class
-   * @return TypeConverter
+   * @param sourceObject the source  to convert from
+   * @param targetType the target type to convert to
+   * @return the generic converter that will perform the conversion,
+   * or {@code null} if no suitable converter was found
    */
-  default GenericConverter getConverter(Object source, Class<?> targetType) {
-    return getConverter(source.getClass(), targetType);
+  default GenericConverter getConverter(Object sourceObject, Class<?> targetType) {
+    return getConverter(sourceObject.getClass(), targetType);
   }
 
   /**
@@ -68,6 +94,17 @@ public interface ConversionService {
    */
   GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType);
 
+  /**
+   * Hook method to lookup the converter for a given sourceType/targetType pair.
+   * First queries this ConversionService's converter cache.
+   * On a cache miss, then performs an exhaustive search for a matching converter.
+   * If no converter matches, returns the default converter.
+   *
+   * @param sourceType the source type to convert from
+   * @param targetType the target type to convert to
+   * @return the generic converter that will perform the conversion,
+   * or {@code null} if no suitable converter was found
+   */
   default GenericConverter getConverter(Class<?> sourceType, Class<?> targetType) {
     return getConverter(TypeDescriptor.valueOf(sourceType), TypeDescriptor.valueOf(targetType));
   }

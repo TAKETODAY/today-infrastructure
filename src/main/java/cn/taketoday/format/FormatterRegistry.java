@@ -39,7 +39,6 @@ public interface FormatterRegistry extends ConverterRegistry {
    *
    * @param printer the printer to add
    * @see #addFormatter(Formatter)
-   * @since 4.0
    */
   void addPrinter(Printer<?> printer);
 
@@ -49,7 +48,6 @@ public interface FormatterRegistry extends ConverterRegistry {
    *
    * @param parser the parser to add
    * @see #addFormatter(Formatter)
-   * @since 4.0
    */
   void addParser(Parser<?> parser);
 
@@ -59,7 +57,6 @@ public interface FormatterRegistry extends ConverterRegistry {
    *
    * @param formatter the formatter to add
    * @see #addFormatterForFieldType(Class, Formatter)
-   * @since 4.0
    */
   void addFormatter(Formatter<?> formatter);
 

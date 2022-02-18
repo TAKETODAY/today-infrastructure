@@ -94,7 +94,7 @@ public final class TemporalAccessorParser implements Parser<TemporalAccessor> {
       return doParse(text, locale, this.formatter);
     }
     catch (DateTimeParseException ex) {
-      if (!ObjectUtils.isEmpty(this.fallbackPatterns)) {
+      if (ObjectUtils.isNotEmpty(this.fallbackPatterns)) {
         for (String pattern : this.fallbackPatterns) {
           try {
             DateTimeFormatter fallbackFormatter = DateTimeFormatterUtils.createStrictDateTimeFormatter(pattern);

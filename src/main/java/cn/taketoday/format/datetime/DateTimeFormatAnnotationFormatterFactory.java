@@ -23,7 +23,6 @@ package cn.taketoday.format.datetime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.context.support.EmbeddedValueResolutionSupport;
@@ -76,7 +75,7 @@ public class DateTimeFormatAnnotationFormatterFactory extends EmbeddedValueResol
       formatter.setPattern(pattern);
     }
 
-    List<String> resolvedFallbackPatterns = new ArrayList<>();
+    ArrayList<String> resolvedFallbackPatterns = new ArrayList<>();
     for (String fallbackPattern : annotation.fallbackPatterns()) {
       String resolvedFallbackPattern = resolveEmbeddedValue(fallbackPattern);
       if (StringUtils.isNotEmpty(resolvedFallbackPattern)) {
@@ -84,7 +83,7 @@ public class DateTimeFormatAnnotationFormatterFactory extends EmbeddedValueResol
       }
     }
     if (!resolvedFallbackPatterns.isEmpty()) {
-      formatter.setFallbackPatterns(resolvedFallbackPatterns.toArray(new String[0]));
+      formatter.setFallbackPatterns(StringUtils.toStringArray(resolvedFallbackPatterns));
     }
 
     return formatter;

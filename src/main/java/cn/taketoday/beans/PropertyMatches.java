@@ -255,7 +255,7 @@ public abstract class PropertyMatches {
     public String buildErrorMessage() {
       StringBuilder msg = new StringBuilder(80);
       msg.append("Bean property '").append(getPropertyName()).append("' has no matching field.");
-      if (!ObjectUtils.isEmpty(getPossibleMatches())) {
+      if (ObjectUtils.isNotEmpty(getPossibleMatches())) {
         msg.append(' ');
         appendHintMessage(msg);
       }

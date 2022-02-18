@@ -56,7 +56,7 @@ public class DateFormatter implements Formatter<Date> {
   private static final Map<ISO, String> ISO_PATTERNS;
 
   static {
-    Map<ISO, String> formats = new EnumMap<>(ISO.class);
+    EnumMap<ISO, String> formats = new EnumMap<>(ISO.class);
     formats.put(ISO.DATE, "yyyy-MM-dd");
     formats.put(ISO.TIME, "HH:mm:ss.SSSXXX");
     formats.put(ISO.DATE_TIME, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -88,8 +88,7 @@ public class DateFormatter implements Formatter<Date> {
   /**
    * Create a new default {@code DateFormatter}.
    */
-  public DateFormatter() {
-  }
+  public DateFormatter() { }
 
   /**
    * Create a new {@code DateFormatter} for the given date time pattern.
@@ -107,7 +106,6 @@ public class DateFormatter implements Formatter<Date> {
    * generating an exception message to provide further context.
    *
    * @param source the source of the configuration
-   * @since 4.0
    */
   public void setSource(Object source) {
     this.source = source;
@@ -128,7 +126,6 @@ public class DateFormatter implements Formatter<Date> {
    *
    * @param fallbackPatterns the fallback parsing patterns
    * @see DateTimeFormat#fallbackPatterns()
-   * @since 4.0
    */
   public void setFallbackPatterns(String... fallbackPatterns) {
     this.fallbackPatterns = fallbackPatterns;
@@ -138,7 +135,6 @@ public class DateFormatter implements Formatter<Date> {
    * Set the ISO format to use to format date values.
    *
    * @param iso the {@link ISO} format
-   * @since 4.0
    */
   public void setIso(ISO iso) {
     this.iso = iso;
@@ -173,7 +169,6 @@ public class DateFormatter implements Formatter<Date> {
    * This method mimics the styles supported by Joda-Time.
    *
    * @param stylePattern two characters from the set {"S", "M", "L", "F", "-"}
-   * @since 4.0
    */
   public void setStylePattern(String stylePattern) {
     this.stylePattern = stylePattern;
@@ -206,7 +201,7 @@ public class DateFormatter implements Formatter<Date> {
       return getDateFormat(locale).parse(text);
     }
     catch (ParseException ex) {
-      if (!ObjectUtils.isEmpty(this.fallbackPatterns)) {
+      if (ObjectUtils.isNotEmpty(this.fallbackPatterns)) {
         for (String pattern : this.fallbackPatterns) {
           try {
             DateFormat dateFormat = configureDateFormat(new SimpleDateFormat(pattern, locale));

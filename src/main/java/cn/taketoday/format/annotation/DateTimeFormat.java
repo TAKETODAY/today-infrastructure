@@ -129,8 +129,6 @@ public @interface DateTimeFormat {
    * which time zone is used for fallback patterns, see the
    * {@linkplain DateTimeFormat class-level documentation}.
    * <p>Fallback patterns are not supported for Joda-Time value types.
-   *
-   * @since 4.0
    */
   String[] fallbackPatterns() default {};
 
