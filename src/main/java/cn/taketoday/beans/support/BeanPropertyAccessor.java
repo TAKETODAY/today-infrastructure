@@ -30,7 +30,11 @@ import java.util.Set;
 
 import cn.taketoday.beans.InvalidPropertyValueException;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.TypeConverter;
+import cn.taketoday.beans.TypeConverterDelegate;
+import cn.taketoday.beans.TypeConverterSupport;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
@@ -44,7 +48,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/1/27 22:35
  * @since 3.0
  */
-public class BeanPropertyAccessor {
+public class BeanPropertyAccessor extends TypeConverterSupport implements PropertyEditorRegistry, TypeConverter {
   @Nullable
   protected Object rootObject;
 
@@ -74,9 +78,9 @@ public class BeanPropertyAccessor {
 
   public BeanPropertyAccessor(Class<?> beanClass, @Nullable ConversionService conversionService) {
     BeanMetadata metadata = BeanMetadata.from(beanClass);
-    this.rootObject = metadata.newInstance();
     this.metadata = metadata;
     this.conversionService = conversionService;
+    setRootObject(metadata.newInstance());
   }
 
   public BeanPropertyAccessor(Object rootObject) {
@@ -86,7 +90,7 @@ public class BeanPropertyAccessor {
   public BeanPropertyAccessor(@Nullable BeanMetadata metadata, @Nullable Object rootObject) {
     this();
     this.metadata = metadata;
-    this.rootObject = rootObject;
+    setRootObject(rootObject);
   }
 
   // get
@@ -107,9 +111,8 @@ public class BeanPropertyAccessor {
    * @throws InvalidPropertyValueException conversion failed
    * @see #getProperty(String)
    */
-  @SuppressWarnings("unchecked")
   public <T> T getProperty(String propertyPath, Class<T> requiredType) {
-    return (T) convertIfNecessary(getProperty(propertyPath), requiredType);
+    return convertIfNecessary(getProperty(propertyPath), requiredType);
   }
 
   /**
@@ -530,18 +533,6 @@ public class BeanPropertyAccessor {
   /**
    * @throws InvalidPropertyValueException conversion failed
    */
-  public Object convertIfNecessary(@Nullable Object value, Class<?> requiredType) {
-    try {
-      return doConvertInternal(value, TypeDescriptor.valueOf(requiredType));
-    }
-    catch (ConversionException e) {
-      throw new TypeMismatchException(value, requiredType, e);
-    }
-  }
-
-  /**
-   * @throws InvalidPropertyValueException conversion failed
-   */
   private Object doConvertInternal(Object value, TypeDescriptor requiredType) {
     Class<?> type = requiredType.getType();
     if (value == null && type == Optional.class) {
@@ -584,6 +575,7 @@ public class BeanPropertyAccessor {
 
   public void setRootObject(@Nullable Object rootObject) {
     this.rootObject = rootObject;
+    this.typeConverterDelegate = new TypeConverterDelegate(this, rootObject);
   }
 
   public void setMetadata(@Nullable BeanMetadata metadata) {
