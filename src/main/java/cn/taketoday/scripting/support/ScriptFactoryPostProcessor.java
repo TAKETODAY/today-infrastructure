@@ -254,7 +254,7 @@ public class ScriptFactoryPostProcessor
       if (scriptedType != null) {
         return scriptedType;
       }
-      else if (!ObjectUtils.isEmpty(interfaces)) {
+      else if (ObjectUtils.isNotEmpty(interfaces)) {
         return (interfaces.length == 1 ? interfaces[0] : createCompositeInterface(interfaces));
       }
       else {

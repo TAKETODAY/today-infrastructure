@@ -124,7 +124,6 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
    * @param validator the JSR-303 Validator to delegate to
    * @return the interceptor to use (typically, but not necessarily,
    * a {@link MethodValidationInterceptor} or subclass thereof)
-   * @since 4.0
    */
   protected Advice createMethodValidationAdvice(@Nullable Validator validator) {
     return (validator != null ? new MethodValidationInterceptor(validator) : new MethodValidationInterceptor());

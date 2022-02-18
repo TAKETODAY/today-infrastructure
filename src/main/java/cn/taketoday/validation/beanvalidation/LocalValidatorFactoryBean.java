@@ -131,8 +131,6 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
   /**
    * Specify a JSR-303 {@link ValidationProviderResolver} for bootstrapping the
    * provider of choice, as an alternative to {@code META-INF} driven resolution.
-   *
-   * @since 4.0
    */
   public void setValidationProviderResolver(ValidationProviderResolver validationProviderResolver) {
     this.validationProviderResolver = validationProviderResolver;
@@ -343,7 +341,7 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
   }
 
   private void closeMappingStreams(@Nullable List<InputStream> mappingStreams) {
-    if (!CollectionUtils.isEmpty(mappingStreams)) {
+    if (CollectionUtils.isNotEmpty(mappingStreams)) {
       for (InputStream stream : mappingStreams) {
         try {
           stream.close();

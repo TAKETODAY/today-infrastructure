@@ -147,7 +147,7 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
    */
   public GroovyScriptFactory(String scriptSourceLocator, CompilationCustomizer... compilationCustomizers) {
     this(scriptSourceLocator);
-    if (!ObjectUtils.isEmpty(compilationCustomizers)) {
+    if (ObjectUtils.isNotEmpty(compilationCustomizers)) {
       this.compilerConfiguration = new CompilerConfiguration();
       this.compilerConfiguration.addCompilationCustomizers(compilationCustomizers);
     }

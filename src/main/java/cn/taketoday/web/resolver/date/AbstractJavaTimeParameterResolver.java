@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 
-import cn.taketoday.core.DateTimeFormat;
+import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -58,7 +58,7 @@ public abstract class AbstractJavaTimeParameterResolver extends AbstractDatePara
   protected DateTimeFormatter getFormatter(ResolvableMethodParameter parameter) {
     final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
     if (dateTimeFormat != null) {
-      final String pattern = dateTimeFormat.value();
+      final String pattern = dateTimeFormat.pattern();
       if (StringUtils.isNotEmpty(pattern)) {
         return DateTimeFormatter.ofPattern(pattern);
       }

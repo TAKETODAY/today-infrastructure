@@ -149,7 +149,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
     if (this.properties.getConfigurationProperties() != null) {
       factory.setConfigurationProperties(this.properties.getConfigurationProperties());
     }
-    if (!ObjectUtils.isEmpty(this.interceptors)) {
+    if (ObjectUtils.isNotEmpty(this.interceptors)) {
       factory.setPlugins(this.interceptors);
     }
     if (this.databaseIdProvider != null) {
@@ -164,17 +164,18 @@ public class MybatisAutoConfiguration implements InitializingBean {
     if (StringUtils.isNotEmpty(this.properties.getTypeHandlersPackage())) {
       factory.setTypeHandlersPackage(this.properties.getTypeHandlersPackage());
     }
-    if (!ObjectUtils.isEmpty(this.typeHandlers)) {
+    if (ObjectUtils.isNotEmpty(this.typeHandlers)) {
       factory.setTypeHandlers(this.typeHandlers);
     }
-    if (!ObjectUtils.isEmpty(this.properties.resolveMapperLocations())) {
-      factory.setMapperLocations(this.properties.resolveMapperLocations());
+    Resource[] mapperLocations = properties.resolveMapperLocations();
+    if (ObjectUtils.isNotEmpty(mapperLocations)) {
+      factory.setMapperLocations(mapperLocations);
     }
 
     BeanMetadata metadata = BeanMetadata.from(SqlSessionFactoryBean.class);
     Set<String> factoryPropertyNames = metadata.getBeanProperties().keySet();
     Class<? extends LanguageDriver> defaultLanguageDriver = this.properties.getDefaultScriptingLanguageDriver();
-    if (factoryPropertyNames.contains("scriptingLanguageDrivers") && !ObjectUtils.isEmpty(this.languageDrivers)) {
+    if (factoryPropertyNames.contains("scriptingLanguageDrivers") && ObjectUtils.isNotEmpty(this.languageDrivers)) {
       // Need to mybatis-spring 2.0.2+
       factory.setScriptingLanguageDrivers(this.languageDrivers);
       if (defaultLanguageDriver == null && this.languageDrivers.length == 1) {
@@ -244,7 +245,9 @@ public class MybatisAutoConfiguration implements InitializingBean {
 
       List<String> packages = AutoConfigurationPackages.get(this.beanFactory);
       if (log.isDebugEnabled()) {
-        packages.forEach(pkg -> log.debug("Using auto-configuration base package '{}'", pkg));
+        for (String pkg : packages) {
+          log.debug("Using auto-configuration base package '{}'", pkg);
+        }
       }
 
       BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
@@ -255,11 +258,9 @@ public class MybatisAutoConfiguration implements InitializingBean {
       Set<String> propertyNames = metadata.getBeanProperties().keySet();
 
       if (propertyNames.contains("lazyInitialization")) {
-        // Need to mybatis-spring 2.0.2+
         definition.addPropertyValue("lazyInitialization", "${mybatis.lazy-initialization:false}");
       }
       if (propertyNames.contains("defaultScope")) {
-        // Need to mybatis-spring 2.0.6+
         definition.addPropertyValue("defaultScope", "${mybatis.mapper-default-scope:}");
       }
 

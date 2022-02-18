@@ -150,7 +150,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
 
     Object script = evaluateScript(scriptSource);
 
-    if (!ObjectUtils.isEmpty(actualInterfaces)) {
+    if (ObjectUtils.isNotEmpty(actualInterfaces)) {
       boolean adaptationRequired = false;
       for (Class<?> requestedIfc : actualInterfaces) {
         if (script instanceof Class ? !requestedIfc.isAssignableFrom((Class<?>) script) :

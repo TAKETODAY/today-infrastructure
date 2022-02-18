@@ -287,7 +287,7 @@ public class FreeMarkerConfigurationFactory {
       config.setSettings(props);
     }
 
-    if (!CollectionUtils.isEmpty(this.freemarkerVariables)) {
+    if (CollectionUtils.isNotEmpty(this.freemarkerVariables)) {
       config.setAllSharedVariables(new SimpleHash(this.freemarkerVariables, config.getObjectWrapper()));
     }
 

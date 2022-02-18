@@ -143,7 +143,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
     checkRequest(context);
     RequestPath path = context.getLookupPath();
 
-    if (!ObjectUtils.isEmpty(this.cacheControlMappings)) {
+    if (ObjectUtils.isNotEmpty(this.cacheControlMappings)) {
       CacheControl control = lookupCacheControl(path);
       if (control != null) {
         if (log.isTraceEnabled()) {
@@ -154,7 +154,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
       }
     }
 
-    if (!ObjectUtils.isEmpty(this.cacheMappings)) {
+    if (ObjectUtils.isNotEmpty(this.cacheMappings)) {
       Integer cacheSeconds = lookupCacheSeconds(path);
       if (cacheSeconds != null) {
         if (log.isTraceEnabled()) {

@@ -159,7 +159,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   private BindingErrorProcessor bindingErrorProcessor = new DefaultBindingErrorProcessor();
 
-  private final List<Validator> validators = new ArrayList<>();
+  private final ArrayList<Validator> validators = new ArrayList<>();
 
   /**
    * Create a new DataBinder instance, with default object name.
@@ -260,8 +260,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * Create the {@link AbstractPropertyBindingResult} instance using standard
    * JavaBean property access.
-   *
-   * @since 4.0
    */
   protected AbstractPropertyBindingResult createBeanPropertyBindingResult() {
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(getTarget(),
@@ -293,8 +291,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * Create the {@link AbstractPropertyBindingResult} instance using direct
    * field access.
-   *
-   * @since 4.0
    */
   protected AbstractPropertyBindingResult createDirectFieldBindingResult() {
     DirectFieldBindingResult result = new DirectFieldBindingResult(getTarget(),
@@ -636,7 +632,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    *
    * @param formatter the formatter to add, generically declared for a specific type
    * @see #registerCustomEditor(Class, PropertyEditor)
-   * @since 4.0
    */
   public void addCustomFormatter(Formatter<?> formatter) {
     FormatterPropertyEditorAdapter adapter = new FormatterPropertyEditorAdapter(formatter);
@@ -651,7 +646,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @param formatter the formatter to add, generically declared for a specific type
    * @param fields the fields to apply the formatter to, or none if to be applied to all
    * @see #registerCustomEditor(Class, String, PropertyEditor)
-   * @since 4.0
    */
   public void addCustomFormatter(Formatter<?> formatter, String... fields) {
     FormatterPropertyEditorAdapter adapter = new FormatterPropertyEditorAdapter(formatter);
@@ -676,16 +670,16 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @param fieldTypes the field types to apply the formatter to, or none if to be
    * derived from the given {@link Formatter} implementation class
    * @see #registerCustomEditor(Class, PropertyEditor)
-   * @since 4.0
    */
   public void addCustomFormatter(Formatter<?> formatter, Class<?>... fieldTypes) {
     FormatterPropertyEditorAdapter adapter = new FormatterPropertyEditorAdapter(formatter);
+    PropertyEditorRegistry editorRegistry = getPropertyEditorRegistry();
     if (ObjectUtils.isEmpty(fieldTypes)) {
-      getPropertyEditorRegistry().registerCustomEditor(adapter.getFieldType(), adapter);
+      editorRegistry.registerCustomEditor(adapter.getFieldType(), adapter);
     }
     else {
       for (Class<?> fieldType : fieldTypes) {
-        getPropertyEditorRegistry().registerCustomEditor(fieldType, adapter);
+        editorRegistry.registerCustomEditor(fieldType, adapter);
       }
     }
   }
@@ -751,9 +745,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #doBind(cn.taketoday.beans.PropertyValues)
    */
   public void bind(PropertyValues pvs) {
-    PropertyValues mpvs = (pvs instanceof PropertyValues ?
-                           (PropertyValues) pvs : new PropertyValues(pvs));
-    doBind(mpvs);
+    doBind(pvs);
   }
 
   /**
@@ -787,8 +779,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         mpvs.remove(pv);
         getBindingResult().recordSuppressedField(field);
         if (logger.isDebugEnabled()) {
-          logger.debug("Field [" + field + "] has been removed from PropertyValues " +
-                  "and will not be bound, because it has not been found in the list of allowed fields");
+          logger.debug("Field [{}] has been removed from PropertyValues " +
+                  "and will not be bound, because it has not been found in the list of allowed fields", field);
         }
       }
     }
@@ -813,8 +805,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   protected boolean isAllowed(String field) {
     String[] allowed = getAllowedFields();
     String[] disallowed = getDisallowedFields();
-    return ((ObjectUtils.isEmpty(allowed) || StringUtils.simpleMatch(allowed, field)) &&
-            (ObjectUtils.isEmpty(disallowed) || !StringUtils.simpleMatch(disallowed, field)));
+    return (ObjectUtils.isEmpty(allowed) || StringUtils.simpleMatch(allowed, field))
+            && (ObjectUtils.isEmpty(disallowed) || !StringUtils.simpleMatch(disallowed, field));
   }
 
   /**
@@ -828,8 +820,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    */
   protected void checkRequiredFields(PropertyValues mpvs) {
     String[] requiredFields = getRequiredFields();
-    if (!ObjectUtils.isEmpty(requiredFields)) {
-      Map<String, PropertyValue> propertyValues = new HashMap<>();
+    if (ObjectUtils.isNotEmpty(requiredFields)) {
+      HashMap<String, PropertyValue> propertyValues = new HashMap<>();
       for (PropertyValue pv : mpvs) {
         String canonicalName = PropertyAccessorUtils.canonicalPropertyName(pv.getName());
         propertyValues.put(canonicalName, pv);
@@ -908,7 +900,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @param validationHints one or more hint objects to be passed to a {@link SmartValidator}
    * @see #setValidator(Validator)
    * @see SmartValidator#validate(Object, Errors, Object...)
-   * @since 4.0
    */
   public void validate(Object... validationHints) {
     Object target = getTarget();
@@ -916,7 +907,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     BindingResult bindingResult = getBindingResult();
     // Call each validator with the same binding result
     for (Validator validator : getValidators()) {
-      if (!ObjectUtils.isEmpty(validationHints) && validator instanceof SmartValidator) {
+      if (ObjectUtils.isNotEmpty(validationHints) && validator instanceof SmartValidator) {
         ((SmartValidator) validator).validate(target, bindingResult, validationHints);
       }
       else if (validator != null) {

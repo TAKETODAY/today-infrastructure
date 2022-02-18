@@ -86,7 +86,7 @@ public abstract class ValidationUtils {
               "Validator [" + validator.getClass() + "] does not support [" + target.getClass() + "]");
     }
 
-    if (!ObjectUtils.isEmpty(validationHints) && validator instanceof SmartValidator) {
+    if (ObjectUtils.isNotEmpty(validationHints) && validator instanceof SmartValidator) {
       ((SmartValidator) validator).validate(target, errors, validationHints);
     }
     else {

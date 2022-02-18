@@ -25,14 +25,16 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Properties;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Configuration properties for MyBatis.
@@ -104,9 +106,6 @@ public class MybatisProperties {
     return this.configLocation;
   }
 
-  /**
-   * @since 1.1.0
-   */
   public void setConfigLocation(String configLocation) {
     this.configLocation = configLocation;
   }
@@ -135,16 +134,10 @@ public class MybatisProperties {
     this.typeAliasesPackage = typeAliasesPackage;
   }
 
-  /**
-   * @since 1.3.3
-   */
   public Class<?> getTypeAliasesSuperType() {
     return typeAliasesSuperType;
   }
 
-  /**
-   * @since 1.3.3
-   */
   public void setTypeAliasesSuperType(Class<?> typeAliasesSuperType) {
     this.typeAliasesSuperType = typeAliasesSuperType;
   }
@@ -165,30 +158,18 @@ public class MybatisProperties {
     this.executorType = executorType;
   }
 
-  /**
-   * @since 2.1.0
-   */
   public Class<? extends LanguageDriver> getDefaultScriptingLanguageDriver() {
     return defaultScriptingLanguageDriver;
   }
 
-  /**
-   * @since 2.1.0
-   */
   public void setDefaultScriptingLanguageDriver(Class<? extends LanguageDriver> defaultScriptingLanguageDriver) {
     this.defaultScriptingLanguageDriver = defaultScriptingLanguageDriver;
   }
 
-  /**
-   * @since 1.2.0
-   */
   public Properties getConfigurationProperties() {
     return configurationProperties;
   }
 
-  /**
-   * @since 1.2.0
-   */
   public void setConfigurationProperties(Properties configurationProperties) {
     this.configurationProperties = configurationProperties;
   }
@@ -202,16 +183,22 @@ public class MybatisProperties {
   }
 
   public Resource[] resolveMapperLocations() {
-    return Stream.of(Optional.ofNullable(this.mapperLocations).orElse(new String[0]))
-            .flatMap(location -> Stream.of(getResources(location))).toArray(Resource[]::new);
+    if (ObjectUtils.isEmpty(mapperLocations)) {
+      return Resource.EMPTY_ARRAY;
+    }
+    LinkedHashSet<Resource> resources = new LinkedHashSet<>();
+    for (String location : mapperLocations) {
+      resources.addAll(getResources(location));
+    }
+    return resources.toArray(Resource.EMPTY_ARRAY);
   }
 
-  private Resource[] getResources(String location) {
+  private Set<Resource> getResources(String location) {
     try {
-      return resourceResolver.getResourcesArray(location);
+      return resourceResolver.getResources(location);
     }
     catch (IOException e) {
-      return new Resource[0];
+      return Collections.emptySet();
     }
   }
 

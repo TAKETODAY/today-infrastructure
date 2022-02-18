@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.resolver.date;
 
-import cn.taketoday.core.DateTimeFormat;
+import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;

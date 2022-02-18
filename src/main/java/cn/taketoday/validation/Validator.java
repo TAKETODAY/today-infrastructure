@@ -66,6 +66,7 @@ package cn.taketoday.validation;
  * @see SmartValidator
  * @see Errors
  * @see ValidationUtils
+ * @since 4.0
  */
 public interface Validator {
 

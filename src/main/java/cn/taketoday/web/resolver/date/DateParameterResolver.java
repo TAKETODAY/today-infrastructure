@@ -24,7 +24,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import cn.taketoday.core.DateTimeFormat;
+import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.resolver.ParameterResolvingStrategy;
@@ -64,7 +64,7 @@ public class DateParameterResolver
   protected SimpleDateFormat getFormatter(ResolvableMethodParameter parameter) {
     final DateTimeFormat dateTimeFormat = getAnnotation(parameter);
     if (dateTimeFormat != null) {
-      final String pattern = dateTimeFormat.value();
+      final String pattern = dateTimeFormat.pattern();
       if (StringUtils.isNotEmpty(pattern)) {
         return new SimpleDateFormat(pattern);
       }

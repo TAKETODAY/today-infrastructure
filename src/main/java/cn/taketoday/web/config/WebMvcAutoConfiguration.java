@@ -77,7 +77,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Autowired(required = false)
   public void setMvcConfiguration(List<WebMvcConfiguration> mvcConfiguration) {
-    if (!CollectionUtils.isEmpty(mvcConfiguration)) {
+    if (CollectionUtils.isNotEmpty(mvcConfiguration)) {
       this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
     }
   }
