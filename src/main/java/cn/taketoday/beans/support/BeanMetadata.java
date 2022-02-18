@@ -23,7 +23,6 @@ package cn.taketoday.beans.support;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -257,10 +256,6 @@ public class BeanMetadata implements Iterable<BeanProperty> {
 
     if (collectPropertiesFromMethods) {
       ReflectionUtils.doWithMethods(beanClass, method -> {
-//        if (Modifier.isStatic(method.getModifiers())) {
-//          return;
-//        }
-
         String methodName = method.getName();
 
         BeanProperty property = null;

@@ -22,6 +22,7 @@ package cn.taketoday.beans.support;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -30,6 +31,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,10 +45,11 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.AnnotatedElementDecorator;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -58,9 +61,11 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/1/27 22:28
  * @since 3.0
  */
-public class BeanProperty extends AnnotatedElementDecorator implements Member, AnnotatedElement, Serializable {
+public class BeanProperty implements Member, AnnotatedElement, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
+
+  private static final ConcurrentReferenceHashMap<BeanProperty, Annotation[]> annotationCache = new ConcurrentReferenceHashMap<>();
 
   @Nullable
   private Field field;
@@ -98,10 +103,12 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
   /** @since 4.0 */
   private Class<?> declaringClass;
   /** @since 4.0 */
-  private boolean fieldIsNull;
+  private transient boolean fieldIsNull;
 
-  BeanProperty(String alias, @NonNull Field field) {
-    super(field);
+  @Nullable
+  private transient Annotation[] annotations;
+
+  BeanProperty(String alias, Field field) {
     this.alias = alias;
     this.field = field;
     this.propertyType = field.getType();
@@ -117,7 +124,6 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
                @Nullable Method readMethod,
                @Nullable Method writeMethod,
                @Nullable Class<?> declaringClass) {
-    super(readMethod != null ? readMethod : writeMethod);
     this.alias = alias;
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
@@ -569,6 +575,65 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
     return writeMethod;
   }
 
+  // AnnotatedElement
+
+  @Override
+  public boolean isAnnotationPresent(@NonNull Class<? extends Annotation> annotationClass) {
+    for (Annotation annotation : getAnnotations()) {
+      if (annotation.annotationType() == annotationClass) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public <T extends Annotation> T getAnnotation(@NonNull Class<T> annotationClass) {
+    for (Annotation annotation : getAnnotations()) {
+      if (annotation.annotationType() == annotationClass) {
+        return (T) annotation;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public Annotation[] getDeclaredAnnotations() {
+    return getAnnotations();
+  }
+
+  @Override
+  public Annotation[] getAnnotations() {
+    if (this.annotations == null) {
+      this.annotations = resolveAnnotations();
+    }
+    return this.annotations;
+  }
+
+  private Annotation[] resolveAnnotations() {
+    Annotation[] annotations = annotationCache.get(this);
+    if (annotations == null) {
+      Map<Class<? extends Annotation>, Annotation> annotationMap = new LinkedHashMap<>();
+      addAnnotationsToMap(annotationMap, getReadMethod());
+      addAnnotationsToMap(annotationMap, getWriteMethod());
+      addAnnotationsToMap(annotationMap, getField());
+      annotations = annotationMap.values().toArray(Constant.EMPTY_ANNOTATION_ARRAY);
+      annotationCache.put(this, annotations);
+    }
+    return annotations;
+  }
+
+  private void addAnnotationsToMap(
+          Map<Class<? extends Annotation>, Annotation> annotationMap, @Nullable AnnotatedElement object) {
+    if (object != null) {
+      for (Annotation annotation : object.getAnnotations()) {
+        annotationMap.put(annotation.annotationType(), annotation);
+      }
+    }
+  }
+
   //---------------------------------------------------------------------
   // Override method of Object
   //---------------------------------------------------------------------
@@ -589,7 +654,7 @@ public class BeanProperty extends AnnotatedElementDecorator implements Member, A
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), field);
+    return Objects.hash(super.hashCode(), field, alias, readMethod, writeMethod);
   }
 
   @Override

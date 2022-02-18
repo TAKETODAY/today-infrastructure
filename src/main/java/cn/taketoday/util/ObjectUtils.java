@@ -178,6 +178,7 @@ public abstract class ObjectUtils {
    * if the {@code Optional} is empty, or simply the given object as-is
    * @since 3.0
    */
+  @Nullable
   public static Object unwrapOptional(@Nullable Object obj) {
     if (obj instanceof Optional<?> optional) {
       if (optional.isEmpty()) {

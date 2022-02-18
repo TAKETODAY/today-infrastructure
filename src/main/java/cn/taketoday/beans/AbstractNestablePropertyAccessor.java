@@ -84,12 +84,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   private int autoGrowCollectionLimit = Integer.MAX_VALUE;
 
   @Nullable
-  Object wrappedObject;
+  protected Object wrappedObject;
 
   private String nestedPath = "";
 
   @Nullable
-  Object rootObject;
+  protected Object rootObject;
 
   /** Map with cached nested Accessors: nested path -> Accessor instance. */
   @Nullable
@@ -204,8 +204,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   public void setWrappedInstance(Object object, @Nullable String nestedPath, @Nullable Object rootObject) {
     this.wrappedObject = ObjectUtils.unwrapOptional(object);
     Assert.notNull(this.wrappedObject, "Target object must not be null");
-    this.nestedPath = (nestedPath != null ? nestedPath : "");
-    this.rootObject = (!this.nestedPath.isEmpty() ? rootObject : this.wrappedObject);
+    this.nestedPath = nestedPath != null ? nestedPath : "";
+    this.rootObject = !this.nestedPath.isEmpty() ? rootObject : this.wrappedObject;
     this.nestedPropertyAccessors = null;
     this.typeConverterDelegate = new TypeConverterDelegate(this, this.wrappedObject);
   }

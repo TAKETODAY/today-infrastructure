@@ -316,7 +316,7 @@ public class FormattingConversionService extends GenericConversionService
     @SuppressWarnings("unchecked")
     @Nullable
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-      Annotation ann = getAnnotation(sourceType, annotationType);
+      Annotation ann = getAnnotation(targetType, annotationType);
       AnnotationConverterKey converterKey = new AnnotationConverterKey(ann, targetType.getObjectType());
       GenericConverter converter = cachedParsers.get(converterKey);
       if (converter == null) {
