@@ -419,30 +419,35 @@ public class BeanDefinitionBuilder {
   }
 
   /**
-   * Add a method which annotated with {@link jakarta.annotation.PostConstruct}
+   * search init methods
+   * <p>
+   * if {@code initMethods} has overload method select Minimal parameter method
    *
    * @param beanClass Bean class
    * @param initMethods Init Method name
+   * @throws IllegalArgumentException init method not found
    * @since 2.1.7
    */
   public static Method[] computeInitMethod(@Nullable String[] initMethods, Class<?> beanClass) {
-    ArrayList<Method> methods = new ArrayList<>(2);
     if (ObjectUtils.isNotEmpty(initMethods)) {
-      // @since 4.0 use ReflectionUtils.doWithMethods
-      ReflectionUtils.doWithMethods(beanClass, method -> {
-        String name = method.getName();
-        for (String initMethod : initMethods) {
-          if (initMethod.equals(name)) { // equals
-            methods.add(method);
-          }
+      // @since 4.0 use ReflectionUtils.findMethodWithMinimalParameters
+      ArrayList<Method> methods = new ArrayList<>(2);
+      for (String initMethod : initMethods) {
+        Method method = ReflectionUtils.findMethodWithMinimalParameters(beanClass, initMethod);
+        if (method == null) {
+          throw new IllegalArgumentException("bean init-method: '" + initMethod + "' not found in '" + beanClass.getName() + "'");
         }
-      });
+        methods.add(method);
+      }
+      if (methods.isEmpty()) {
+        return EMPTY_METHOD;
+      }
+      AnnotationAwareOrderComparator.sort(methods);
+      return methods.toArray(EMPTY_METHOD);
     }
-    if (methods.isEmpty()) {
+    else {
       return EMPTY_METHOD;
     }
-    AnnotationAwareOrderComparator.sort(methods);
-    return methods.toArray(EMPTY_METHOD);
   }
 
   public static BeanDefinition empty() {

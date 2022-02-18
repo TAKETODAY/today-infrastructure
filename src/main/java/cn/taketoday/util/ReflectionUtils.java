@@ -1308,6 +1308,104 @@ public abstract class ReflectionUtils {
     return declaredMethod;
   }
 
+  /**
+   * Find a method with the given method name and minimal parameters (best case: none),
+   * declared on the given class or one of its superclasses. Prefers public methods,
+   * but will return a protected, package access, or private method too.
+   * <p>Checks {@code Class.getMethods} first, falling back to
+   * {@code findDeclaredMethodWithMinimalParameters}. This allows for finding public
+   * methods without issues even in environments with restricted Java security settings.
+   *
+   * @param clazz the class to check
+   * @param methodName the name of the method to find
+   * @return the Method object, or {@code null} if not found
+   * @throws IllegalArgumentException if methods of the given name were found but
+   * could not be resolved to a unique method with minimal parameters
+   * @see Class#getMethods
+   * @see #findDeclaredMethodWithMinimalParameters
+   * @since 4.0
+   */
+  @Nullable
+  public static Method findMethodWithMinimalParameters(Class<?> clazz, String methodName)
+          throws IllegalArgumentException {
+
+    Method targetMethod = findMethodWithMinimalParameters(clazz.getMethods(), methodName);
+    if (targetMethod == null) {
+      targetMethod = findDeclaredMethodWithMinimalParameters(clazz, methodName);
+    }
+    return targetMethod;
+  }
+
+  /**
+   * Find a method with the given method name and minimal parameters (best case: none),
+   * declared on the given class or one of its superclasses. Will return a public,
+   * protected, package access, or private method.
+   * <p>Checks {@code Class.getDeclaredMethods}, cascading upwards to all superclasses.
+   *
+   * @param clazz the class to check
+   * @param methodName the name of the method to find
+   * @return the Method object, or {@code null} if not found
+   * @throws IllegalArgumentException if methods of the given name were found but
+   * could not be resolved to a unique method with minimal parameters
+   * @see Class#getDeclaredMethods
+   * @since 4.0
+   */
+  @Nullable
+  public static Method findDeclaredMethodWithMinimalParameters(Class<?> clazz, String methodName)
+          throws IllegalArgumentException {
+
+    Method targetMethod = findMethodWithMinimalParameters(clazz.getDeclaredMethods(), methodName);
+    if (targetMethod == null && clazz.getSuperclass() != null) {
+      targetMethod = findDeclaredMethodWithMinimalParameters(clazz.getSuperclass(), methodName);
+    }
+    return targetMethod;
+  }
+
+  /**
+   * Find a method with the given method name and minimal parameters (best case: none)
+   * in the given list of methods.
+   *
+   * @param methods the methods to check
+   * @param methodName the name of the method to find
+   * @return the Method object, or {@code null} if not found
+   * @throws IllegalArgumentException if methods of the given name were found but
+   * could not be resolved to a unique method with minimal parameters
+   * @since 4.0
+   */
+  @Nullable
+  public static Method findMethodWithMinimalParameters(Method[] methods, String methodName)
+          throws IllegalArgumentException {
+
+    Method targetMethod = null;
+    int numMethodsFoundWithCurrentMinimumArgs = 0;
+    for (Method method : methods) {
+      if (method.getName().equals(methodName)) {
+        int numParams = method.getParameterCount();
+        if (targetMethod == null || numParams < targetMethod.getParameterCount()) {
+          targetMethod = method;
+          numMethodsFoundWithCurrentMinimumArgs = 1;
+        }
+        else if (!method.isBridge() && targetMethod.getParameterCount() == numParams) {
+          if (targetMethod.isBridge()) {
+            // Prefer regular method over bridge...
+            targetMethod = method;
+          }
+          else {
+            // Additional candidate with same length
+            numMethodsFoundWithCurrentMinimumArgs++;
+          }
+        }
+      }
+    }
+    if (numMethodsFoundWithCurrentMinimumArgs > 1) {
+      throw new IllegalArgumentException("Cannot resolve method '" + methodName +
+              "' to a unique method. Attempted to resolve to overloaded method with " +
+              "the least number of parameters but there were " +
+              numMethodsFoundWithCurrentMinimumArgs + " candidates.");
+    }
+    return targetMethod;
+  }
+
   // Accessor
   // --------------------------------
 
