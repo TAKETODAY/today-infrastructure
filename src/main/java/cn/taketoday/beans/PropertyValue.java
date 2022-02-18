@@ -23,7 +23,9 @@ package cn.taketoday.beans;
 import java.io.Serializable;
 import java.util.Objects;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Object to hold information and value for an individual bean property.
@@ -60,9 +62,40 @@ public class PropertyValue implements Serializable, BeanMetadataElement {
     this.value = value;
   }
 
-  public PropertyValue(PropertyValue pv) {
-    this.name = pv.name;
-    this.value = pv.value;
+  /**
+   * Copy constructor.
+   *
+   * @param original the PropertyValue to copy (never {@code null})
+   * @since 4.0
+   */
+  public PropertyValue(PropertyValue original) {
+    Assert.notNull(original, "Original must not be null");
+    this.name = original.getName();
+    this.value = original.getValue();
+    this.optional = original.isOptional();
+    this.converted = original.converted;
+    this.convertedValue = original.convertedValue;
+    this.conversionNecessary = original.conversionNecessary;
+    this.resolvedTokens = original.resolvedTokens;
+    setSource(original.getSource());
+  }
+
+  /**
+   * Constructor that exposes a new value for an original value holder.
+   * The original holder will be exposed as source of the new holder.
+   *
+   * @param original the PropertyValue to link to (never {@code null})
+   * @param newValue the new value to apply
+   * @since 4.0
+   */
+  public PropertyValue(PropertyValue original, @Nullable Object newValue) {
+    Assert.notNull(original, "Original must not be null");
+    this.name = original.getName();
+    this.value = newValue;
+    this.optional = original.isOptional();
+    this.conversionNecessary = original.conversionNecessary;
+    this.resolvedTokens = original.resolvedTokens;
+    setSource(original);
   }
 
   /**
@@ -177,17 +210,21 @@ public class PropertyValue implements Serializable, BeanMetadataElement {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
       return true;
-    if (!(o instanceof PropertyValue that))
+    }
+    if (!(other instanceof PropertyValue otherPv)) {
       return false;
-    return Objects.equals(name, that.name) && Objects.equals(value, that.value);
+    }
+    return name.equals(otherPv.name)
+            && Objects.equals(this.value, otherPv.value)
+            && Objects.equals(getSource(), otherPv.getSource());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, value);
+    return this.name.hashCode() * 29 + ObjectUtils.nullSafeHashCode(this.value);
   }
 
   @Override
