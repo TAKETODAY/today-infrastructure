@@ -247,39 +247,34 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
   @Override
   public void setPropertyValue(String propertyName, @Nullable Object value) throws BeansException {
-    AbstractNestablePropertyAccessor nestedPa;
-    try {
-      nestedPa = getPropertyAccessorForPropertyPath(propertyName);
-    }
-    catch (NotReadablePropertyException ex) {
-      throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Nested property in path '" + propertyName + "' does not exist", ex);
-    }
+    AbstractNestablePropertyAccessor nestedPa = getNestablePropertyAccessor(propertyName);
     PropertyTokenHolder tokens = getPropertyNameTokens(getFinalPath(nestedPa, propertyName));
     nestedPa.setPropertyValue(tokens, new PropertyValue(propertyName, value));
   }
 
   @Override
   public void setPropertyValue(PropertyValue pv) throws BeansException {
-    PropertyTokenHolder tokens = (PropertyTokenHolder) pv.resolvedTokens;
-    if (tokens == null) {
+    if (pv.resolvedTokens instanceof PropertyTokenHolder tokens) {
+      setPropertyValue(tokens, pv);
+    }
+    else {
       String propertyName = pv.getName();
-      AbstractNestablePropertyAccessor nestedPa;
-      try {
-        nestedPa = getPropertyAccessorForPropertyPath(propertyName);
-      }
-      catch (NotReadablePropertyException ex) {
-        throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
-                "Nested property in path '" + propertyName + "' does not exist", ex);
-      }
-      tokens = getPropertyNameTokens(getFinalPath(nestedPa, propertyName));
+      AbstractNestablePropertyAccessor nestedPa = getNestablePropertyAccessor(propertyName);
+      PropertyTokenHolder tokens = getPropertyNameTokens(getFinalPath(nestedPa, propertyName));
       if (nestedPa == this) {
         pv.getOriginalPropertyValue().resolvedTokens = tokens;
       }
       nestedPa.setPropertyValue(tokens, pv);
     }
-    else {
-      setPropertyValue(tokens, pv);
+  }
+
+  private AbstractNestablePropertyAccessor getNestablePropertyAccessor(String propertyName) {
+    try {
+      return getPropertyAccessorForPropertyPath(propertyName);
+    }
+    catch (NotReadablePropertyException ex) {
+      throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
+              "Nested property in path '" + propertyName + "' does not exist", ex);
     }
   }
 
@@ -311,8 +306,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         if (isExtractOldValueForEditor() && arrayIndex < Array.getLength(propValue)) {
           oldValue = Array.get(propValue, arrayIndex);
         }
-        Object convertedValue = convertIfNecessary(tokens.canonicalName, oldValue, pv.getValue(),
-                requiredType, ph.nested(tokens.keys.length));
+        Object convertedValue = convertIfNecessary(
+                tokens.canonicalName, oldValue, pv.getValue(), requiredType, ph.nested(tokens.keys.length));
         int length = Array.getLength(propValue);
         if (arrayIndex >= length && arrayIndex < this.autoGrowCollectionLimit) {
           Class<?> componentType = propValue.getClass().getComponentType();
@@ -596,8 +591,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   @Nullable
   private Object convertIfNecessary(
           @Nullable String propertyName, @Nullable Object oldValue,
-          @Nullable Object newValue, @Nullable Class<?> requiredType, @Nullable TypeDescriptor td)
-          throws TypeMismatchException {
+          @Nullable Object newValue, @Nullable Class<?> requiredType, @Nullable TypeDescriptor td) throws TypeMismatchException {
 
     Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
     try {
@@ -950,7 +944,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    */
   private PropertyTokenHolder getPropertyNameTokens(String propertyName) {
     String actualName = null;
-    List<String> keys = new ArrayList<>(2);
+    ArrayList<String> keys = new ArrayList<>(2);
     int searchIndex = 0;
     while (searchIndex != -1) {
       int keyStart = propertyName.indexOf(PROPERTY_KEY_PREFIX, searchIndex);
