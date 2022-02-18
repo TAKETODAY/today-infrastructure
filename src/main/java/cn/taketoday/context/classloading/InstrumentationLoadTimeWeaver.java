@@ -44,12 +44,12 @@ import cn.taketoday.util.ClassUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see InstrumentationSavingAgent
- * @since 2.0
+ * @since 4.0
  */
 public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
 
   private static final boolean AGENT_CLASS_PRESENT = ClassUtils.isPresent(
-          "cn.taketoday.instrument.InstrumentationSavingAgent",
+          "cn.taketoday.context.classloading.InstrumentationSavingAgent",
           InstrumentationLoadTimeWeaver.class.getClassLoader());
 
   @Nullable

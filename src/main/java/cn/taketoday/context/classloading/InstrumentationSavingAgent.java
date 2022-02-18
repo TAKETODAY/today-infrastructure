@@ -22,6 +22,8 @@ package cn.taketoday.context.classloading;
 
 import java.lang.instrument.Instrumentation;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Java agent that saves the {@link Instrumentation} interface from the JVM
  * for later use.
@@ -32,6 +34,7 @@ import java.lang.instrument.Instrumentation;
  */
 public final class InstrumentationSavingAgent {
 
+  @Nullable
   private static volatile Instrumentation instrumentation;
 
   private InstrumentationSavingAgent() { }
@@ -65,6 +68,7 @@ public final class InstrumentationSavingAgent {
    * JVM was started or it wasn't installed as agent using the Attach API.
    * @see InstrumentationLoadTimeWeaver#getInstrumentation()
    */
+  @Nullable
   public static Instrumentation getInstrumentation() {
     return instrumentation;
   }
