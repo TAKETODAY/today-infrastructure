@@ -30,7 +30,6 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.format.Formatter;
-import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -58,8 +57,9 @@ final class ConversionServiceArguments {
     initializer.accept(withoutDefaults);
     return Stream.of(
             Arguments.of(new NamedConversionService(withoutDefaults, "Without defaults conversion service")),
-            Arguments.of(new NamedConversionService(new ApplicationConversionService(),
-                    "Application conversion service")));
+            Arguments.of(new NamedConversionService(
+                    new ApplicationConversionService(), "Application conversion service"))
+    );
   }
 
   static boolean isApplicationConversionService(ConversionService conversionService) {
@@ -81,8 +81,33 @@ final class ConversionServiceArguments {
     }
 
     @Override
+    @Nullable
+    public GenericConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
+      return delegate.getConverter(sourceType, targetType);
+    }
+
+    @Override
+    @Nullable
+    public GenericConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
+      return delegate.getConverter(sourceObject, targetType);
+    }
+
+    @Override
+    @Nullable
+    public GenericConverter getConverter(Object sourceObject, Class<?> targetType) {
+      return delegate.getConverter(sourceObject, targetType);
+    }
+
+    @Override
+    @Nullable
+    public GenericConverter getConverter(Class<?> sourceType, Class<?> targetType) {
+      return delegate.getConverter(sourceType, targetType);
+    }
+
+    @Nullable
+    @Override
     public GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
-      return null;
+      return delegate.getConverter(sourceType, targetType);
     }
 
     @Override
@@ -100,9 +125,10 @@ final class ConversionServiceArguments {
       return this.delegate.convert(source, targetType);
     }
 
+    @Nullable
     @Override
     public <T> T convert(@Nullable Object source, TypeDescriptor targetType) {
-      return null;
+      return delegate.convert(source, targetType);
     }
 
     @Override

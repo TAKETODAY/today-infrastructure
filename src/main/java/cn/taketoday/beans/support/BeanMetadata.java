@@ -250,7 +250,10 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     ReflectionUtils.doWithFields(beanClass, declaredField -> {
       if (!shouldSkip(declaredField)) {
         String propertyName = getPropertyName(declaredField);
-        beanPropertyMap.put(propertyName, new BeanProperty(propertyName, declaredField));
+        Method readMethod = ReflectionUtils.getReadMethod(beanClass, declaredField.getType(), propertyName);
+        Method writeMethod = ReflectionUtils.getWriteMethod(beanClass, declaredField.getType(), propertyName);
+        beanPropertyMap.put(propertyName, new BeanProperty(
+                propertyName, declaredField, readMethod, writeMethod, beanClass));
       }
     });
 

@@ -93,7 +93,8 @@ class StringToDataSizeConverterTests {
   void convertWhenBadFormatShouldThrowException(ConversionService conversionService) {
     assertThatExceptionOfType(ConversionFailedException.class)
             .isThrownBy(() -> convert(conversionService, "10WB"))
-            .withMessageContaining("'10WB' is not a valid data size");
+            .havingCause()
+            .withMessage("'10WB' is not a valid data size");
   }
 
   @ConversionServiceTest

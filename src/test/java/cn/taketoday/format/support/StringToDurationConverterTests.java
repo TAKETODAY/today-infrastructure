@@ -30,6 +30,7 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.format.annotation.DurationStyle;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -125,8 +126,10 @@ class StringToDurationConverterTests {
 
   @ConversionServiceTest
   void convertWhenBadFormatShouldThrowException(ConversionService conversionService) {
-    assertThatExceptionOfType(ConversionFailedException.class).isThrownBy(() -> convert(conversionService, "10foo"))
-            .withMessageContaining("'10foo' is not a valid duration");
+    assertThatExceptionOfType(ConversionFailedException.class)
+            .isThrownBy(() -> convert(conversionService, "10foo"))
+            .havingCause()
+            .withMessage("'10foo' is not a valid duration");
   }
 
   @ConversionServiceTest
@@ -140,11 +143,14 @@ class StringToDurationConverterTests {
     assertThat(convert(conversionService, "")).isNull();
   }
 
+  @Nullable
   private Duration convert(ConversionService conversionService, String source) {
     return conversionService.convert(source, Duration.class);
   }
 
-  private Duration convert(ConversionService conversionService, String source, ChronoUnit unit, DurationStyle style) {
+  private Duration convert(
+          ConversionService conversionService,
+          @Nullable String source, @Nullable ChronoUnit unit, @Nullable DurationStyle style) {
     return (Duration) conversionService.convert(source, TypeDescriptor.fromObject(source),
             MockDurationTypeDescriptor.get(unit, style));
   }

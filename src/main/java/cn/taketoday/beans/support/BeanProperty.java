@@ -130,6 +130,18 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
     this.declaringClass = declaringClass;
   }
 
+  BeanProperty(@Nullable String alias,
+               @Nullable Field field,
+               @Nullable Method readMethod,
+               @Nullable Method writeMethod,
+               @Nullable Class<?> declaringClass) {
+    this.alias = alias;
+    this.field = field;
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
+    this.declaringClass = declaringClass;
+  }
+
   /**
    * invoke default constructor with none arguments
    *

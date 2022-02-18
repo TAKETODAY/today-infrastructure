@@ -828,13 +828,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       }
       for (String field : requiredFields) {
         PropertyValue pv = propertyValues.get(field);
-        boolean empty = (pv == null || pv.getValue() == null);
+        boolean empty = pv == null || pv.getValue() == null;
         if (!empty) {
           if (pv.getValue() instanceof String) {
             empty = !StringUtils.hasText((String) pv.getValue());
           }
           else if (pv.getValue() instanceof String[] values) {
-            empty = (values.length == 0 || !StringUtils.hasText(values[0]));
+            empty = values.length == 0 || !StringUtils.hasText(values[0]);
           }
         }
         if (empty) {

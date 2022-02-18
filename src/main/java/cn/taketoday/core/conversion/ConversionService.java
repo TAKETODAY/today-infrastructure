@@ -46,6 +46,7 @@ public interface ConversionService {
    * @return the generic converter that will perform the conversion,
    * or {@code null} if no suitable converter was found
    */
+  @Nullable
   default GenericConverter getConverter(Class<?> sourceType, TypeDescriptor targetType) {
     return getConverter(TypeDescriptor.valueOf(sourceType), targetType);
   }
@@ -61,6 +62,7 @@ public interface ConversionService {
    * @return the generic converter that will perform the conversion,
    * or {@code null} if no suitable converter was found
    */
+  @Nullable
   default GenericConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
     Assert.notNull(sourceObject, "source object must not be null");
     return getConverter(sourceObject.getClass(), targetType);
@@ -77,6 +79,7 @@ public interface ConversionService {
    * @return the generic converter that will perform the conversion,
    * or {@code null} if no suitable converter was found
    */
+  @Nullable
   default GenericConverter getConverter(Object sourceObject, Class<?> targetType) {
     return getConverter(sourceObject.getClass(), targetType);
   }
@@ -92,6 +95,7 @@ public interface ConversionService {
    * @return the generic converter that will perform the conversion,
    * or {@code null} if no suitable converter was found
    */
+  @Nullable
   GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType);
 
   /**
@@ -105,6 +109,7 @@ public interface ConversionService {
    * @return the generic converter that will perform the conversion,
    * or {@code null} if no suitable converter was found
    */
+  @Nullable
   default GenericConverter getConverter(Class<?> sourceType, Class<?> targetType) {
     return getConverter(TypeDescriptor.valueOf(sourceType), TypeDescriptor.valueOf(targetType));
   }
@@ -168,6 +173,7 @@ public interface ConversionService {
    * @throws ConversionException if a conversion exception occurred
    * @throws IllegalArgumentException if targetType is {@code null}
    */
+  @Nullable
   <T> T convert(@Nullable Object source, TypeDescriptor targetType);
 
   /**
