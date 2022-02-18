@@ -72,8 +72,10 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     Object target = obtainTarget();
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
     for (BeanProperty property : metadata) {
-      Object value = property.getValue(target);
-      entrySet.add(new Node<>(property.getPropertyName(), value));
+      if (property.isReadable() && property.isWriteable()) {
+        Object value = property.getValue(target);
+        entrySet.add(Map.entry(property.getPropertyName(), value));
+      }
     }
     return entrySet;
   }
@@ -82,42 +84,6 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   @Override
   public Set<String> keySet() {
     return Collections.unmodifiableSet(metadata.getBeanProperties().keySet());
-  }
-
-  static final class Node<K, V> implements Map.Entry<K, V> {
-    final K key;
-    V value;
-
-    Node(K key, V value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    public K getKey() { return key; }
-
-    public V getValue() { return value; }
-
-    public String toString() { return key + "=" + value; }
-
-    public int hashCode() {
-      return Objects.hashCode(key) ^ Objects.hashCode(value);
-    }
-
-    public V setValue(V newValue) {
-      V oldValue = value;
-      value = newValue;
-      return oldValue;
-    }
-
-    public boolean equals(Object o) {
-      if (o == this)
-        return true;
-      if (o instanceof Entry<?, ?> e) {
-        return Objects.equals(key, e.getKey()) &&
-                Objects.equals(value, e.getValue());
-      }
-      return false;
-    }
   }
 
   @Override
@@ -148,16 +114,16 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    */
   public Object put(Object target, String key, Object value) {
     BeanProperty beanProperty = this.metadata.obtainBeanProperty(key);
-    if (beanProperty.isReadOnly()) {
+    if (beanProperty.isWriteable() && beanProperty.isReadable()) {
+      Object property = beanProperty.getValue(target);
+      beanProperty.setValue(target, value);
+      return property;
+    }
+    else {
       if (!ignoreReadOnly) {
         throw new PropertyReadOnlyException(
                 target + " has a property: '" + beanProperty.getName() + "' that is read-only");
       }
-    }
-    else {
-      Object property = beanProperty.getValue(target);
-      beanProperty.setValue(target, value);
-      return property;
     }
     return beanProperty.getValue(target);
   }

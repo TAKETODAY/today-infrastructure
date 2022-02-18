@@ -523,7 +523,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isWriteable() {
-    return writeMethod != null || field != null;
+    return writeMethod != null || (field != null && Modifier.isFinal(field.getModifiers()));
   }
 
   /**

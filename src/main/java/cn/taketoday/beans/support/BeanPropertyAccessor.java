@@ -39,7 +39,6 @@ import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -81,6 +80,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
     this.metadata = metadata;
     this.conversionService = conversionService;
     setRootObject(metadata.newInstance());
+    registerDefaultEditors();
   }
 
   public BeanPropertyAccessor(Object rootObject) {
@@ -91,6 +91,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
     this();
     this.metadata = metadata;
     setRootObject(rootObject);
+    registerDefaultEditors();
   }
 
   // get
@@ -515,19 +516,13 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
    * @throws InvalidPropertyValueException conversion failed
    */
   public Object convertIfNecessary(Object value, BeanProperty beanProperty) {
+    TypeDescriptor typeDescriptor = beanProperty.getTypeDescriptor();
     try {
-      return doConvertInternal(value, beanProperty);
+      return doConvertInternal(value, typeDescriptor);
     }
     catch (ConversionException e) {
       throw new TypeMismatchException(value, beanProperty.getType(), e);
     }
-  }
-
-  /**
-   * @throws InvalidPropertyValueException conversion failed
-   */
-  protected Object doConvertInternal(Object value, BeanProperty beanProperty) {
-    return doConvertInternal(value, beanProperty.getTypeDescriptor());
   }
 
   /**
@@ -541,11 +536,8 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
     if (requiredType.isInstance(value)) {
       return value;
     }
-    ConversionService conversionService = getConversionService();
-    if (conversionService == null) {
-      conversionService = DefaultConversionService.getSharedInstance();
-    }
-    Object convertedValue = conversionService.convert(value, requiredType);
+
+    Object convertedValue = convertIfNecessary(value, type, requiredType);
     return BeanProperty.handleOptional(convertedValue, type);
   }
 
