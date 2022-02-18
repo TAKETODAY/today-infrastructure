@@ -32,7 +32,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.context.support.EmbeddedValueResolutionSupport;
@@ -65,7 +64,8 @@ public class Jsr310DateTimeFormatAnnotationFormatterFactory extends EmbeddedValu
           OffsetDateTime.class,
           OffsetTime.class,
           YearMonth.class,
-          MonthDay.class);
+          MonthDay.class
+  );
 
   @Override
   public final Set<Class<?>> getFieldTypes() {
@@ -99,7 +99,7 @@ public class Jsr310DateTimeFormatAnnotationFormatterFactory extends EmbeddedValu
   @Override
   @SuppressWarnings("unchecked")
   public Parser<?> getParser(DateTimeFormat annotation, Class<?> fieldType) {
-    List<String> resolvedFallbackPatterns = new ArrayList<>();
+    ArrayList<String> resolvedFallbackPatterns = new ArrayList<>();
     for (String fallbackPattern : annotation.fallbackPatterns()) {
       String resolvedFallbackPattern = resolveEmbeddedValue(fallbackPattern);
       if (StringUtils.isNotEmpty(resolvedFallbackPattern)) {
@@ -109,7 +109,7 @@ public class Jsr310DateTimeFormatAnnotationFormatterFactory extends EmbeddedValu
 
     DateTimeFormatter formatter = getFormatter(annotation, fieldType);
     return new TemporalAccessorParser((Class<? extends TemporalAccessor>) fieldType,
-            formatter, resolvedFallbackPatterns.toArray(new String[0]), annotation);
+            formatter, StringUtils.toStringArray(resolvedFallbackPatterns), annotation);
   }
 
   /**

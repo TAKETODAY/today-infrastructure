@@ -38,7 +38,7 @@ public class EmbeddedValueResolutionSupport implements EmbeddedValueResolverAwar
   private StringValueResolver embeddedValueResolver;
 
   @Override
-  public void setEmbeddedValueResolver(StringValueResolver resolver) {
+  public void setEmbeddedValueResolver(@Nullable StringValueResolver resolver) {
     this.embeddedValueResolver = resolver;
   }
 
@@ -51,7 +51,7 @@ public class EmbeddedValueResolutionSupport implements EmbeddedValueResolverAwar
    */
   @Nullable
   protected String resolveEmbeddedValue(String value) {
-    return (this.embeddedValueResolver != null ? this.embeddedValueResolver.resolveStringValue(value) : value);
+    return embeddedValueResolver != null ? embeddedValueResolver.resolveStringValue(value) : value;
   }
 
 }
