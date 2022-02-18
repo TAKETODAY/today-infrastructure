@@ -24,7 +24,10 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * A simple thread-backed {@link Scope} implementation.
@@ -42,8 +45,15 @@ import cn.taketoday.lang.Nullable;
  * @since 2.1.7
  */
 public class SimpleThreadScope implements Scope {
+  private static final Logger logger = LoggerFactory.getLogger(SimpleThreadScope.class);
 
-  private final ThreadLocal<Map<String, Object>> threadScope = ThreadLocal.withInitial(HashMap::new);
+  private final ThreadLocal<Map<String, Object>> threadScope =
+          new NamedThreadLocal<>("SimpleThreadScope") {
+            @Override
+            protected Map<String, Object> initialValue() {
+              return new HashMap<>();
+            }
+          };
 
   @Override
   public Object remove(String name) {
@@ -53,7 +63,8 @@ public class SimpleThreadScope implements Scope {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    // TODO
+    logger.warn("SimpleThreadScope does not support destruction callbacks. " +
+            "Consider using RequestScope in a web environment.");
   }
 
   @Override
