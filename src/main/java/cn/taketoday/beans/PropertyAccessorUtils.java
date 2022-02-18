@@ -40,9 +40,9 @@ public class PropertyAccessorUtils {
    * @return the actual property name, without any key elements
    */
   public static String getPropertyName(String propertyPath) {
-    int separatorIndex = (propertyPath.endsWith(PropertyAccessor.PROPERTY_KEY_SUFFIX) ?
-                          propertyPath.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) : -1);
-    return (separatorIndex != -1 ? propertyPath.substring(0, separatorIndex) : propertyPath);
+    int separatorIndex = propertyPath.endsWith(PropertyAccessor.PROPERTY_KEY_SUFFIX)
+                         ? propertyPath.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) : -1;
+    return separatorIndex != -1 ? propertyPath.substring(0, separatorIndex) : propertyPath;
   }
 
   /**

@@ -58,8 +58,8 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/17 17:46
  */
 class TypeConverterDelegate {
-
   private static final Logger logger = LoggerFactory.getLogger(TypeConverterDelegate.class);
+  private static final boolean debugEnabled = logger.isDebugEnabled();
 
   private final PropertyEditorRegistrySupport propertyEditorRegistry;
 
@@ -207,13 +207,13 @@ class TypeConverterDelegate {
             }
             catch (NoSuchMethodException ex) {
               // proceed with field lookup
-              if (logger.isTraceEnabled()) {
-                logger.trace("No String constructor found on type [" + requiredType.getName() + "]", ex);
+              if (debugEnabled) {
+                logger.trace("No String constructor found on type [{}]", requiredType.getName(), ex);
               }
             }
             catch (Exception ex) {
-              if (logger.isDebugEnabled()) {
-                logger.debug("Construction via String failed for type [" + requiredType.getName() + "]", ex);
+              if (debugEnabled) {
+                logger.debug("Construction via String failed for type [{}]", requiredType.getName(), ex);
               }
             }
           }
@@ -276,8 +276,10 @@ class TypeConverterDelegate {
       if (editor == null && !standardConversion && requiredType != null && Object.class != requiredType) {
         throw conversionAttemptEx;
       }
-      logger.debug("Original ConversionService attempt failed - ignored since " +
-              "PropertyEditor based conversion eventually succeeded", conversionAttemptEx);
+      if (debugEnabled) {
+        logger.debug("Original ConversionService attempt failed - ignored since " +
+                "PropertyEditor based conversion eventually succeeded", conversionAttemptEx);
+      }
     }
 
     return (T) convertedValue;
@@ -299,13 +301,13 @@ class TypeConverterDelegate {
           convertedValue = enumField.get(null);
         }
         catch (ClassNotFoundException ex) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Enum class [" + enumType + "] cannot be loaded", ex);
+          if (debugEnabled) {
+            logger.trace("Enum class [{}] cannot be loaded", enumType, ex);
           }
         }
         catch (Throwable ex) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Field [" + fieldName + "] isn't an enum value for type [" + enumType + "]", ex);
+          if (debugEnabled) {
+            logger.trace("Field [{}] isn't an enum value for type [{}]", fieldName, enumType, ex);
           }
         }
       }
@@ -321,8 +323,8 @@ class TypeConverterDelegate {
         convertedValue = enumField.get(null);
       }
       catch (Throwable ex) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Field [" + convertedValue + "] isn't an enum value", ex);
+        if (debugEnabled) {
+          logger.trace("Field [{}] isn't an enum value", convertedValue, ex);
         }
       }
     }
@@ -384,8 +386,8 @@ class TypeConverterDelegate {
         }
       }
       catch (Exception ex) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("PropertyEditor [" + editor.getClass().getName() + "] does not support setValue call", ex);
+        if (debugEnabled) {
+          logger.debug("PropertyEditor [{}] does not support setValue call", editor.getClass().getName(), ex);
         }
         // Swallow and proceed.
       }
@@ -397,8 +399,8 @@ class TypeConverterDelegate {
       // Convert String array to a comma-separated String.
       // Only applies if no PropertyEditor converted the String array before.
       // The CSV String will be passed into a PropertyEditor's setAsText method, if any.
-      if (logger.isTraceEnabled()) {
-        logger.trace("Converting String array to comma-delimited String [" + convertedValue + "]");
+      if (debugEnabled) {
+        logger.trace("Converting String array to comma-delimited String [{}]", convertedValue);
       }
       convertedValue = StringUtils.arrayToString((String[]) convertedValue);
     }
@@ -406,8 +408,8 @@ class TypeConverterDelegate {
     if (convertedValue instanceof String) {
       if (editor != null) {
         // Use PropertyEditor's setAsText in case of a String value.
-        if (logger.isTraceEnabled()) {
-          logger.trace("Converting String to [" + requiredType + "] using property editor [" + editor + "]");
+        if (debugEnabled) {
+          logger.trace("Converting String to [{}] using property editor [{}]", requiredType, editor);
         }
         String newTextValue = (String) convertedValue;
         return doConvertTextValue(oldValue, newTextValue, editor);
@@ -433,8 +435,8 @@ class TypeConverterDelegate {
       editor.setValue(oldValue);
     }
     catch (Exception ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("PropertyEditor [" + editor.getClass().getName() + "] does not support setValue call", ex);
+      if (debugEnabled) {
+        logger.debug("PropertyEditor [{}] does not support setValue call", editor.getClass().getName(), ex);
       }
       // Swallow and proceed.
     }
@@ -443,9 +445,8 @@ class TypeConverterDelegate {
   }
 
   private Object convertToTypedArray(Object input, @Nullable String propertyName, Class<?> componentType) {
-    if (input instanceof Collection) {
+    if (input instanceof Collection<?> coll) {
       // Convert Collection elements to array elements.
-      Collection<?> coll = (Collection<?>) input;
       Object result = Array.newInstance(componentType, coll.size());
       int i = 0;
       for (Iterator<?> it = coll.iterator(); it.hasNext(); i++) {
@@ -457,8 +458,8 @@ class TypeConverterDelegate {
     }
     else if (input.getClass().isArray()) {
       // Convert array elements, if necessary.
-      if (componentType.equals(input.getClass().getComponentType()) &&
-              !this.propertyEditorRegistry.hasCustomEditorForElement(componentType, propertyName)) {
+      if (componentType.equals(input.getClass().getComponentType())
+              && !this.propertyEditorRegistry.hasCustomEditorForElement(componentType, propertyName)) {
         return input;
       }
       int arrayLength = Array.getLength(input);
@@ -481,26 +482,27 @@ class TypeConverterDelegate {
   }
 
   @SuppressWarnings("unchecked")
-  private Collection<?> convertToTypedCollection(Collection<?> original, @Nullable String propertyName,
-                                                 Class<?> requiredType, @Nullable TypeDescriptor typeDescriptor) {
+  private Collection<?> convertToTypedCollection(
+          Collection<?> original, @Nullable String propertyName,
+          Class<?> requiredType, @Nullable TypeDescriptor typeDescriptor) {
 
     if (!Collection.class.isAssignableFrom(requiredType)) {
       return original;
     }
 
     boolean approximable = CollectionUtils.isApproximableCollectionType(requiredType);
-    if (!approximable && !canCreateCopy(requiredType)) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Custom Collection type [" + original.getClass().getName() +
-                "] does not allow for creating a copy - injecting original Collection as-is");
+    if (!approximable && cannotCreateCopy(requiredType)) {
+      if (debugEnabled) {
+        logger.debug("Custom Collection type [{}] does not allow for creating a copy - injecting original Collection as-is",
+                classNameOf(original));
       }
       return original;
     }
 
     boolean originalAllowed = requiredType.isInstance(original);
-    TypeDescriptor elementType = (typeDescriptor != null ? typeDescriptor.getElementDescriptor() : null);
-    if (elementType == null && originalAllowed &&
-            !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
+    TypeDescriptor elementType = typeDescriptor != null ? typeDescriptor.getElementDescriptor() : null;
+    if (elementType == null && originalAllowed
+            && !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
       return original;
     }
 
@@ -509,9 +511,9 @@ class TypeConverterDelegate {
       it = original.iterator();
     }
     catch (Throwable ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Cannot access Collection of type [" + original.getClass().getName() +
-                "] - injecting original Collection as-is: " + ex);
+      if (debugEnabled) {
+        logger.debug("Cannot access Collection of type [{}] - injecting original Collection as-is: {}",
+                classNameOf(original), ex.toString());
       }
       return original;
     }
@@ -527,9 +529,9 @@ class TypeConverterDelegate {
       }
     }
     catch (Throwable ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Cannot create copy of Collection type [" + original.getClass().getName() +
-                "] - injecting original Collection as-is: " + ex);
+      if (debugEnabled) {
+        logger.debug("Cannot create copy of Collection type [{}] - injecting original Collection as-is: {}",
+                classNameOf(original), ex.toString());
       }
       return original;
     }
@@ -543,39 +545,39 @@ class TypeConverterDelegate {
         convertedCopy.add(convertedElement);
       }
       catch (Throwable ex) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Collection type [" + original.getClass().getName() +
-                  "] seems to be read-only - injecting original Collection as-is: " + ex);
+        if (debugEnabled) {
+          logger.debug("Collection type [{}] seems to be read-only - injecting original Collection as-is: {}",
+                  classNameOf(original), ex.toString());
         }
         return original;
       }
       originalAllowed = originalAllowed && (element == convertedElement);
     }
-    return (originalAllowed ? original : convertedCopy);
+    return originalAllowed ? original : convertedCopy;
   }
 
   @SuppressWarnings("unchecked")
-  private Map<?, ?> convertToTypedMap(Map<?, ?> original, @Nullable String propertyName,
-                                      Class<?> requiredType, @Nullable TypeDescriptor typeDescriptor) {
+  private Map<?, ?> convertToTypedMap(
+          Map<?, ?> original, @Nullable String propertyName,
+          Class<?> requiredType, @Nullable TypeDescriptor typeDescriptor) {
 
     if (!Map.class.isAssignableFrom(requiredType)) {
       return original;
     }
 
     boolean approximable = CollectionUtils.isApproximableMapType(requiredType);
-    if (!approximable && !canCreateCopy(requiredType)) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Custom Map type [" + original.getClass().getName() +
-                "] does not allow for creating a copy - injecting original Map as-is");
+    if (!approximable && cannotCreateCopy(requiredType)) {
+      if (debugEnabled) {
+        logger.debug("Custom Map type [{}] does not allow for creating a copy - injecting original Map as-is", classNameOf(original));
       }
       return original;
     }
 
     boolean originalAllowed = requiredType.isInstance(original);
-    TypeDescriptor keyType = (typeDescriptor != null ? typeDescriptor.getMapKeyDescriptor() : null);
-    TypeDescriptor valueType = (typeDescriptor != null ? typeDescriptor.getMapValueDescriptor() : null);
-    if (keyType == null && valueType == null && originalAllowed &&
-            !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
+    TypeDescriptor keyType = typeDescriptor != null ? typeDescriptor.getMapKeyDescriptor() : null;
+    TypeDescriptor valueType = typeDescriptor != null ? typeDescriptor.getMapValueDescriptor() : null;
+    if (keyType == null && valueType == null && originalAllowed
+            && !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
       return original;
     }
 
@@ -584,9 +586,8 @@ class TypeConverterDelegate {
       it = original.entrySet().iterator();
     }
     catch (Throwable ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Cannot access Map of type [" + original.getClass().getName() +
-                "] - injecting original Map as-is: " + ex);
+      if (debugEnabled) {
+        logger.debug("Cannot access Map of type [{}] - injecting original Map as-is: {}", classNameOf(original), ex.toString());
       }
       return original;
     }
@@ -597,14 +598,12 @@ class TypeConverterDelegate {
         convertedCopy = CollectionUtils.createApproximateMap(original, original.size());
       }
       else {
-        convertedCopy = (Map<Object, Object>)
-                ReflectionUtils.accessibleConstructor(requiredType).newInstance();
+        convertedCopy = (Map<Object, Object>) ReflectionUtils.accessibleConstructor(requiredType).newInstance();
       }
     }
     catch (Throwable ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Cannot create copy of Map type [" + original.getClass().getName() +
-                "] - injecting original Map as-is: " + ex);
+      if (debugEnabled) {
+        logger.debug("Cannot create copy of Map type [{}] - injecting original Map as-is: {}", classNameOf(original), ex.toString());
       }
       return original;
     }
@@ -614,17 +613,16 @@ class TypeConverterDelegate {
       Object key = entry.getKey();
       Object value = entry.getValue();
       String keyedPropertyName = buildKeyedPropertyName(propertyName, key);
-      Object convertedKey = convertIfNecessary(keyedPropertyName, null, key,
-              (keyType != null ? keyType.getType() : null), keyType);
-      Object convertedValue = convertIfNecessary(keyedPropertyName, null, value,
-              (valueType != null ? valueType.getType() : null), valueType);
+      Object convertedKey = convertIfNecessary(
+              keyedPropertyName, null, key, (keyType != null ? keyType.getType() : null), keyType);
+      Object convertedValue = convertIfNecessary(
+              keyedPropertyName, null, value, (valueType != null ? valueType.getType() : null), valueType);
       try {
         convertedCopy.put(convertedKey, convertedValue);
       }
       catch (Throwable ex) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Map type [" + original.getClass().getName() +
-                  "] seems to be read-only - injecting original Map as-is: " + ex);
+        if (debugEnabled) {
+          logger.debug("Map type [{}] seems to be read-only - injecting original Map as-is: {}", classNameOf(original), ex.toString());
         }
         return original;
       }
@@ -633,23 +631,29 @@ class TypeConverterDelegate {
     return (originalAllowed ? original : convertedCopy);
   }
 
+  private static String classNameOf(Object original) {
+    return original.getClass().getName();
+  }
+
   @Nullable
   private String buildIndexedPropertyName(@Nullable String propertyName, int index) {
-    return (propertyName != null ?
-            propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + index + PropertyAccessor.PROPERTY_KEY_SUFFIX :
-            null);
+    return propertyName != null
+           ? propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + index + PropertyAccessor.PROPERTY_KEY_SUFFIX
+           : null;
   }
 
   @Nullable
   private String buildKeyedPropertyName(@Nullable String propertyName, Object key) {
-    return (propertyName != null ?
-            propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + key + PropertyAccessor.PROPERTY_KEY_SUFFIX :
-            null);
+    return propertyName != null
+           ? propertyName + PropertyAccessor.PROPERTY_KEY_PREFIX + key + PropertyAccessor.PROPERTY_KEY_SUFFIX
+           : null;
   }
 
-  private boolean canCreateCopy(Class<?> requiredType) {
-    return (!requiredType.isInterface() && !Modifier.isAbstract(requiredType.getModifiers()) &&
-            Modifier.isPublic(requiredType.getModifiers()) && ReflectionUtils.hasConstructor(requiredType));
+  private boolean cannotCreateCopy(Class<?> requiredType) {
+    return requiredType.isInterface()
+            || Modifier.isAbstract(requiredType.getModifiers())
+            || !Modifier.isPublic(requiredType.getModifiers())
+            || !ReflectionUtils.hasConstructor(requiredType);
   }
 
 }
