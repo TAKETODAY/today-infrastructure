@@ -266,7 +266,7 @@ public class DefaultMultiValueMap<K, V>
    * @see #putAll(Map)
    * @see DefaultMultiValueMap#DefaultMultiValueMap(Map)
    * @see #deepCopy()
-   * @since 2.1.7
+   * @since 4.0
    */
   @Override
   public DefaultMultiValueMap<K, V> clone() {
