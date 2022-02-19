@@ -143,7 +143,7 @@ import cn.taketoday.core.io.PropertySourceFactory;
  * the ordering is difficult to predict. In such cases - and if overriding is important -
  * it is recommended that the user fall back to using the programmatic PropertySource API.
  * See {@link cn.taketoday.core.env.ConfigurableEnvironment ConfigurableEnvironment} and
- * {@link cn.taketoday.core.env.PropertySources MutablePropertySources} javadocs for details.
+ * {@link cn.taketoday.core.env.PropertySources PropertySources} javadocs for details.
  *
  * <p><b>NOTE: This annotation is repeatable according to Java 8 conventions.</b>
  * However, all such {@code @PropertySource} annotations need to be declared at the same

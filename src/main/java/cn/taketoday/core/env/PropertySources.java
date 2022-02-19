@@ -55,7 +55,7 @@ public class PropertySources implements Iterable<PropertySource<?>> {
   public PropertySources() { }
 
   /**
-   * Create a new {@code MutablePropertySources} from the given propertySources
+   * Create a new {@code PropertySources} from the given propertySources
    * object, preserving the original order of contained {@code PropertySource} objects.
    */
   public PropertySources(PropertySources propertySources) {

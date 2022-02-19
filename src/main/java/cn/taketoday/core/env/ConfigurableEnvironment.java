@@ -42,7 +42,7 @@ import cn.taketoday.context.support.AbstractApplicationContext;
  * <h4>Example: adding a new property source with highest search priority</h4>
  * <pre class="code">
  * ConfigurableEnvironment environment = new StandardEnvironment();
- * MutablePropertySources propertySources = environment.getPropertySources();
+ * PropertySources propertySources = environment.getPropertySources();
  * Map&lt;String, String&gt; myMap = new HashMap&lt;&gt;();
  * myMap.put("xyz", "myValue");
  * propertySources.addFirst(new MapPropertySource("MY_MAP", myMap));
@@ -50,13 +50,13 @@ import cn.taketoday.context.support.AbstractApplicationContext;
  *
  * <h4>Example: removing the default system properties property source</h4>
  * <pre class="code">
- * MutablePropertySources propertySources = environment.getPropertySources();
+ * PropertySources propertySources = environment.getPropertySources();
  * propertySources.remove(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)
  * </pre>
  *
  * <h4>Example: mocking the system environment for testing purposes</h4>
  * <pre class="code">
- * MutablePropertySources propertySources = environment.getPropertySources();
+ * PropertySources propertySources = environment.getPropertySources();
  * MockPropertySource mockEnvVars = new MockPropertySource().withProperty("xyz", "myValue");
  * propertySources.replace(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, mockEnvVars);
  * </pre>

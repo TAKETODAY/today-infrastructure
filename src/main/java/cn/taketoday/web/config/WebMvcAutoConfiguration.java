@@ -98,8 +98,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
-    this.resourceHandlerRegistrationCustomizer = customizers.getIfAvailable();
     this.messageConvertersProvider = messageConvertersProvider;
+    this.resourceHandlerRegistrationCustomizer = customizers.getIfAvailable();
   }
 
   @Autowired(required = false)
@@ -262,7 +262,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
     @Bean
     ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
-            WebProperties webProperties) {
+            @Props(prefix = "web.") WebProperties webProperties) {
       return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.getResources());
     }
 

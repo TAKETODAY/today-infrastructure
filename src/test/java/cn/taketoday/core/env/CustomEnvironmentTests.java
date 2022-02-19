@@ -136,7 +136,7 @@ class CustomEnvironmentTests {
   }
 
   @Test
-  void withCustomMutablePropertySources() {
+  void withCustomPropertySources() {
     class CustomPropertySources extends PropertySources { }
     PropertySources propertySources = new CustomPropertySources();
     ConfigurableEnvironment env = new AbstractEnvironment(propertySources) { };

@@ -123,7 +123,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * <pre class="code">
    * public class Level1Environment extends AbstractEnvironment {
    *     &#064;Override
-   *     protected void customizePropertySources(MutablePropertySources propertySources) {
+   *     protected void customizePropertySources(PropertySources propertySources) {
    *         super.customizePropertySources(propertySources); // no-op from base class
    *         propertySources.addLast(new PropertySourceA(...));
    *         propertySources.addLast(new PropertySourceB(...));
@@ -132,7 +132,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    *
    * public class Level2Environment extends Level1Environment {
    *     &#064;Override
-   *     protected void customizePropertySources(MutablePropertySources propertySources) {
+   *     protected void customizePropertySources(PropertySources propertySources) {
    *         super.customizePropertySources(propertySources); // add all from superclass
    *         propertySources.addLast(new PropertySourceC(...));
    *         propertySources.addLast(new PropertySourceD(...));
@@ -147,7 +147,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * <pre class="code">
    * public class Level2Environment extends Level1Environment {
    *     &#064;Override
-   *     protected void customizePropertySources(MutablePropertySources propertySources) {
+   *     protected void customizePropertySources(PropertySources propertySources) {
    *         propertySources.addLast(new PropertySourceC(...));
    *         propertySources.addLast(new PropertySourceD(...));
    *         super.customizePropertySources(propertySources); // add all from superclass
