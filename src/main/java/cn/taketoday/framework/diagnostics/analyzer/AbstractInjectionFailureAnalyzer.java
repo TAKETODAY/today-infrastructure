@@ -15,17 +15,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.boot.diagnostics.FailureAnalyzer;
+import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.FailureAnalyzer;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -35,7 +35,8 @@ import cn.taketoday.util.ClassUtils;
  * @param <T> the type of exception to analyze
  * @author Andy Wilkinson
  * @author Stephane Nicoll
- * @since 1.4.1
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> extends AbstractFailureAnalyzer<T> {
 

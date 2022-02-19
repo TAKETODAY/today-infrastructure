@@ -15,10 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,11 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
+import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -40,6 +40,8 @@ import cn.taketoday.util.StringUtils;
  * {@link BeanCurrentlyInCreationException}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class BeanCurrentlyInCreationFailureAnalyzer extends AbstractFailureAnalyzer<BeanCurrentlyInCreationException>
         implements BeanFactoryAware {

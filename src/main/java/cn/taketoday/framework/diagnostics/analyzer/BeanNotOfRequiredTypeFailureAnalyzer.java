@@ -15,18 +15,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Proxy;
 
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by a
@@ -34,7 +34,8 @@ import cn.taketoday.boot.diagnostics.FailureAnalysis;
  *
  * @author Andy Wilkinson
  * @author Scott Frederick
- * @since 1.4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class BeanNotOfRequiredTypeFailureAnalyzer extends AbstractFailureAnalyzer<BeanNotOfRequiredTypeException> {
 

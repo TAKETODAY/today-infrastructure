@@ -15,19 +15,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.boot.web.embedded.tomcat.ConnectorStartFailedException;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.web.embedded.tomcat.ConnectorStartFailedException;
 
 /**
  * An {@link AbstractFailureAnalyzer} for {@link ConnectorStartFailedException}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class ConnectorStartFailureAnalyzer extends AbstractFailureAnalyzer<ConnectorStartFailedException> {
 

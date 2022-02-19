@@ -15,10 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,13 +26,13 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.boot.context.properties.bind.BindException;
-import cn.taketoday.boot.context.properties.bind.UnboundConfigurationPropertiesException;
-import cn.taketoday.boot.context.properties.bind.validation.BindValidationException;
-import cn.taketoday.boot.context.properties.source.ConfigurationProperty;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.core.convert.ConversionFailedException;
+import cn.taketoday.context.properties.bind.BindException;
+import cn.taketoday.context.properties.bind.UnboundConfigurationPropertiesException;
+import cn.taketoday.context.properties.bind.validation.BindValidationException;
+import cn.taketoday.context.properties.source.ConfigurationProperty;
+import cn.taketoday.core.conversion.ConversionFailedException;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -43,6 +43,8 @@ import cn.taketoday.util.StringUtils;
  * @author Andy Wilkinson
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class BindFailureAnalyzer extends AbstractFailureAnalyzer<BindException> {
 

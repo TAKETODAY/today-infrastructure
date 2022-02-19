@@ -15,23 +15,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySources;
-import cn.taketoday.boot.context.properties.source.InvalidConfigurationPropertyValueException;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.boot.diagnostics.FailureAnalyzer;
-import cn.taketoday.boot.origin.Origin;
-import cn.taketoday.boot.origin.OriginLookup;
-import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.properties.source.ConfigurationPropertySources;
+import cn.taketoday.context.properties.source.InvalidConfigurationPropertyValueException;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.FailureAnalyzer;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
@@ -42,6 +42,8 @@ import cn.taketoday.util.StringUtils;
  * {@link InvalidConfigurationPropertyValueException}.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class InvalidConfigurationPropertyValueFailureAnalyzer
         extends AbstractFailureAnalyzer<InvalidConfigurationPropertyValueException> implements EnvironmentAware {

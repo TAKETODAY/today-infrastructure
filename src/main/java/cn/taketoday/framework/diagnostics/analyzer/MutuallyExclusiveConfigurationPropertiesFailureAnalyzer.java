@@ -15,10 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,23 +29,25 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySources;
-import cn.taketoday.boot.context.properties.source.MutuallyExclusiveConfigurationPropertiesException;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.boot.diagnostics.FailureAnalyzer;
-import cn.taketoday.boot.origin.Origin;
-import cn.taketoday.boot.origin.OriginLookup;
-import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.properties.source.ConfigurationPropertySources;
+import cn.taketoday.context.properties.source.MutuallyExclusiveConfigurationPropertiesException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.FailureAnalyzer;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
 
 /**
  * A {@link FailureAnalyzer} that performs analysis of failures caused by an
  * {@link MutuallyExclusiveConfigurationPropertiesException}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
         extends AbstractFailureAnalyzer<MutuallyExclusiveConfigurationPropertiesException> implements EnvironmentAware {
@@ -75,7 +77,8 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
   }
 
   private List<Descriptor> getDescriptors(String propertyName) {
-    return getPropertySources().filter((source) -> source.containsProperty(propertyName))
+    return getPropertySources()
+            .filter((source) -> source.containsProperty(propertyName))
             .map((source) -> Descriptor.get(source, propertyName)).collect(Collectors.toList());
   }
 
@@ -114,16 +117,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
     return results;
   }
 
-  private static final class Descriptor {
-
-    private final String propertyName;
-
-    private final Origin origin;
-
-    private Descriptor(String propertyName, Origin origin) {
-      this.propertyName = propertyName;
-      this.origin = origin;
-    }
+  private record Descriptor(String propertyName, Origin origin) {
 
     static Descriptor get(PropertySource<?> source, String propertyName) {
       Origin origin = OriginLookup.getOrigin(source, propertyName);

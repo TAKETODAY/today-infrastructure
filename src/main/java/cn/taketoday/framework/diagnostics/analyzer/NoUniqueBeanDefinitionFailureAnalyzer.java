@@ -15,20 +15,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.util.Assert;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -36,6 +37,8 @@ import cn.taketoday.util.StringUtils;
  * by a {@link NoUniqueBeanDefinitionException}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException>
         implements BeanFactoryAware {
@@ -49,8 +52,8 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
   }
 
   @Override
-  protected FailureAnalysis analyze(Throwable rootFailure, NoUniqueBeanDefinitionException cause,
-                                    String description) {
+  protected FailureAnalysis analyze(
+          Throwable rootFailure, NoUniqueBeanDefinitionException cause, String description) {
     if (description == null) {
       return null;
     }
@@ -72,7 +75,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
 
   private void buildMessage(StringBuilder message, String beanName) {
     try {
-      BeanDefinition definition = this.beanFactory.getMergedBeanDefinition(beanName);
+      BeanDefinition definition = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
       message.append(getDefinitionDescription(beanName, definition));
     }
     catch (NoSuchBeanDefinitionException ex) {

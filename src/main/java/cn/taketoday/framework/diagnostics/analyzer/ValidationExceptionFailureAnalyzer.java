@@ -15,21 +15,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.boot.diagnostics.FailureAnalyzer;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.FailureAnalyzer;
+import cn.taketoday.lang.Nullable;
 import jakarta.validation.ValidationException;
 
 /**
  * A {@link FailureAnalyzer} that performs analysis of failures caused by a
  * {@link ValidationException}.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Andy Wilkinson
+ * @since 4.0
  */
 class ValidationExceptionFailureAnalyzer extends AbstractFailureAnalyzer<ValidationException> {
 
@@ -40,6 +43,7 @@ class ValidationExceptionFailureAnalyzer extends AbstractFailureAnalyzer<Validat
           + "Configuration, because no Jakarta Bean Validation provider could be found";
 
   @Override
+  @Nullable
   protected FailureAnalysis analyze(Throwable rootFailure, ValidationException cause) {
     if (cause.getMessage().startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
             || cause.getMessage().startsWith(JAKARTA_MISSING_IMPLEMENTATION_MESSAGE)) {

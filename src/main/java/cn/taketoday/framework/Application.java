@@ -24,12 +24,14 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -47,6 +49,7 @@ import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -643,6 +646,7 @@ public class Application {
         }
       }
       finally {
+        reportFailure(getExceptionReporters(context), exception);
         if (context != null) {
           context.close();
         }
@@ -651,6 +655,60 @@ public class Application {
     catch (Exception ex) {
       log.warn("Unable to close ApplicationContext", ex);
     }
+  }
+
+  private List<ApplicationExceptionReporter> getExceptionReporters(ConfigurableApplicationContext context) {
+    try {
+      return TodayStrategies.getStrategies(
+              ApplicationExceptionReporter.class, DependencyInjectorAwareInstantiator.forFunction(context));
+    }
+    catch (Throwable ex) {
+      return Collections.emptyList();
+    }
+  }
+
+  private void reportFailure(List<ApplicationExceptionReporter> exceptionReporters, Throwable failure) {
+    try {
+      for (ApplicationExceptionReporter reporter : exceptionReporters) {
+        if (reporter.reportException(failure)) {
+          registerLoggedException(failure);
+          return;
+        }
+      }
+    }
+    catch (Throwable ex) {
+      // Continue with normal handling of the original failure
+    }
+    if (log.isErrorEnabled()) {
+      log.error("Application run failed", failure);
+      registerLoggedException(failure);
+    }
+  }
+
+  /**
+   * Register that the given exception has been logged. By default, if the running in
+   * the main thread, this method will suppress additional printing of the stacktrace.
+   *
+   * @param exception the exception that was logged
+   */
+  protected void registerLoggedException(Throwable exception) {
+    ApplicationExceptionHandler handler = getApplicationExceptionHandler();
+    if (handler != null) {
+      handler.registerLoggedException(exception);
+    }
+  }
+
+  ApplicationExceptionHandler getApplicationExceptionHandler() {
+    if (isMainThread(Thread.currentThread())) {
+      return ApplicationExceptionHandler.forCurrentThread();
+    }
+    return null;
+  }
+
+  private boolean isMainThread(Thread currentThread) {
+    return ("main".equals(currentThread.getName())
+            || "restartedMain".equals(currentThread.getName()))
+            && "main".equals(currentThread.getThreadGroup().getName());
   }
 
   private void handleExitCode(ConfigurableApplicationContext context, Throwable exception) {

@@ -15,25 +15,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
-package cn.taketoday.diagnostics;
 
 /**
- * Reports a {@code FailureAnalysis} to the user.
- *
- * @author Andy Wilkinson
- * @since 1.4.0
+ * Internal {@link cn.taketoday.framework.diagnostics.FailureAnalyzer} implementations.
  */
-@FunctionalInterface
-public interface FailureAnalysisReporter {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.framework.diagnostics.analyzer;
 
-  /**
-   * Reports the given {@code failureAnalysis} to the user.
-   *
-   * @param analysis the analysis
-   */
-  void report(FailureAnalysis analysis);
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

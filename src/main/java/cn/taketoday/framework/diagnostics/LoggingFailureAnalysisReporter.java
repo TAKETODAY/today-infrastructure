@@ -15,10 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics;
+package cn.taketoday.framework.diagnostics;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -28,7 +28,8 @@ import cn.taketoday.util.StringUtils;
  * {@link FailureAnalysisReporter} that logs the failure analysis.
  *
  * @author Andy Wilkinson
- * @since 1.4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public final class LoggingFailureAnalysisReporter implements FailureAnalysisReporter {
 

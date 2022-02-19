@@ -15,16 +15,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics;
+package cn.taketoday.framework.diagnostics;
 
 /**
  * The result of analyzing a failure.
  *
  * @author Andy Wilkinson
- * @since 1.4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class FailureAnalysis {
 
@@ -63,6 +64,7 @@ public class FailureAnalysis {
    *
    * @return the action or {@code null}
    */
+
   public String getAction() {
     return this.action;
   }

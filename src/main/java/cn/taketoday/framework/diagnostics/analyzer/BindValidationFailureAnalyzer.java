@@ -15,18 +15,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics.analyzer;
+package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.List;
 
-import cn.taketoday.boot.context.properties.bind.BindException;
-import cn.taketoday.boot.context.properties.bind.validation.BindValidationException;
-import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.boot.diagnostics.FailureAnalysis;
-import cn.taketoday.boot.origin.Origin;
+import cn.taketoday.context.properties.bind.BindException;
+import cn.taketoday.context.properties.bind.validation.BindValidationException;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.origin.Origin;
 import cn.taketoday.validation.FieldError;
 import cn.taketoday.validation.ObjectError;
 
@@ -36,6 +36,8 @@ import cn.taketoday.validation.ObjectError;
  * {@link cn.taketoday.validation.BindException}.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
 

@@ -15,12 +15,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics;
+package cn.taketoday.framework.diagnostics;
 
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract base class for most {@code FailureAnalyzer} implementations.
@@ -28,6 +29,7 @@ import cn.taketoday.core.ResolvableType;
  * @param <T> the type of exception to analyze
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractFailureAnalyzer<T extends Throwable> implements FailureAnalyzer {
@@ -46,6 +48,7 @@ public abstract class AbstractFailureAnalyzer<T extends Throwable> implements Fa
    * @param cause the actual found cause
    * @return the analysis or {@code null}
    */
+  @Nullable
   protected abstract FailureAnalysis analyze(Throwable rootFailure, T cause);
 
   /**

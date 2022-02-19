@@ -15,10 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.diagnostics;
+package cn.taketoday.framework.diagnostics;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -26,12 +26,12 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.boot.SpringBootExceptionReporter;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.io.support.SpringFactoriesLoader;
-import cn.taketoday.core.log.LogMessage;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -49,11 +49,14 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Andy Wilkinson
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-final class FailureAnalyzers implements SpringBootExceptionReporter {
+final class FailureAnalyzers implements ApplicationExceptionReporter {
 
   private static final Logger logger = LoggerFactory.getLogger(FailureAnalyzers.class);
 
+  @Nullable
   private final ClassLoader classLoader;
 
   private final List<FailureAnalyzer> analyzers;
@@ -62,18 +65,19 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
     this(context, null);
   }
 
-  FailureAnalyzers(ConfigurableApplicationContext context, ClassLoader classLoader) {
+  FailureAnalyzers(ConfigurableApplicationContext context, @Nullable ClassLoader classLoader) {
     this.classLoader = (classLoader != null) ? classLoader : getClassLoader(context);
     this.analyzers = loadFailureAnalyzers(context, this.classLoader);
   }
 
-  private ClassLoader getClassLoader(ConfigurableApplicationContext context) {
+  @Nullable
+  private ClassLoader getClassLoader(@Nullable ConfigurableApplicationContext context) {
     return (context != null) ? context.getClassLoader() : null;
   }
 
-  private List<FailureAnalyzer> loadFailureAnalyzers(ConfigurableApplicationContext context,
-                                                     ClassLoader classLoader) {
-    List<String> classNames = SpringFactoriesLoader.loadFactoryNames(FailureAnalyzer.class, classLoader);
+  private List<FailureAnalyzer> loadFailureAnalyzers(
+          ConfigurableApplicationContext context, @Nullable ClassLoader classLoader) {
+    List<String> classNames = TodayStrategies.getStrategiesNames(FailureAnalyzer.class, classLoader);
     List<FailureAnalyzer> analyzers = new ArrayList<>();
     for (String className : classNames) {
       try {
@@ -90,7 +94,8 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
     return analyzers;
   }
 
-  private FailureAnalyzer createAnalyzer(ConfigurableApplicationContext context, String className) throws Exception {
+  @Nullable
+  private FailureAnalyzer createAnalyzer(@Nullable ConfigurableApplicationContext context, String className) throws Exception {
     Constructor<?> constructor = ClassUtils.forName(className, this.classLoader).getDeclaredConstructor();
     ReflectionUtils.makeAccessible(constructor);
     FailureAnalyzer analyzer = (FailureAnalyzer) constructor.newInstance();
@@ -115,6 +120,7 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
     return report(analysis, this.classLoader);
   }
 
+  @Nullable
   private FailureAnalysis analyze(Throwable failure, List<FailureAnalyzer> analyzers) {
     for (FailureAnalyzer analyzer : analyzers) {
       try {
@@ -130,9 +136,9 @@ final class FailureAnalyzers implements SpringBootExceptionReporter {
     return null;
   }
 
-  private boolean report(FailureAnalysis analysis, ClassLoader classLoader) {
-    List<FailureAnalysisReporter> reporters = SpringFactoriesLoader.loadFactories(FailureAnalysisReporter.class,
-            classLoader);
+  private boolean report(@Nullable FailureAnalysis analysis, ClassLoader classLoader) {
+    List<FailureAnalysisReporter> reporters = TodayStrategies.getStrategies(
+            FailureAnalysisReporter.class, classLoader);
     if (analysis == null || reporters.isEmpty()) {
       return false;
     }

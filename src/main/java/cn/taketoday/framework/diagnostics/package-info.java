@@ -15,29 +15,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
-package cn.taketoday.diagnostics;
 
 /**
- * A {@code FailureAnalyzer} is used to analyze a failure and provide diagnostic
- * information that can be displayed to the user.
+ * Support for failure analysis and reporting.
  *
- * @author Andy Wilkinson
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @see cn.taketoday.framework.diagnostics.FailureAnalyzer
+ * @see cn.taketoday.framework.diagnostics.FailureAnalysisReporter
  */
-@FunctionalInterface
-public interface FailureAnalyzer {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.framework.diagnostics;
 
-  /**
-   * Returns an analysis of the given {@code failure}, or {@code null} if no analysis
-   * was possible.
-   *
-   * @param failure the failure
-   * @return the analysis or {@code null}
-   */
-  FailureAnalysis analyze(Throwable failure);
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

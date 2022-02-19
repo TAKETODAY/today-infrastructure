@@ -15,13 +15,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
+package cn.taketoday.framework.diagnostics;
+
 /**
- * Support for failure analysis and reporting.
+ * Reports a {@code FailureAnalysis} to the user.
  *
- * @see cn.taketoday.boot.diagnostics.FailureAnalyzer
- * @see cn.taketoday.boot.diagnostics.FailureAnalysisReporter
+ * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-package cn.taketoday.diagnostics;
+@FunctionalInterface
+public interface FailureAnalysisReporter {
+
+  /**
+   * Reports the given {@code failureAnalysis} to the user.
+   *
+   * @param analysis the analysis
+   */
+  void report(FailureAnalysis analysis);
+
+}
