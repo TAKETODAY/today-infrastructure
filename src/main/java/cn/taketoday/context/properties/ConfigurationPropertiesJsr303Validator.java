@@ -20,10 +20,10 @@
 
 package cn.taketoday.context.properties;
 
-import cn.taketoday.boot.validation.MessageInterpolatorFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.validation.Errors;
+import cn.taketoday.validation.MessageInterpolatorFactory;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -32,12 +32,17 @@ import cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean;
  * Validator that supports configuration classes annotated with
  * {@link Validated @Validated}.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Phillip Webb
+ * @since 4.0
  */
 final class ConfigurationPropertiesJsr303Validator implements Validator {
 
-  private static final String[] VALIDATOR_CLASSES = { "jakarta.validation.Validator",
-          "jakarta.validation.ValidatorFactory", "jakarta.validation.bootstrap.GenericBootstrap" };
+  private static final String[] VALIDATOR_CLASSES = {
+          "jakarta.validation.Validator",
+          "jakarta.validation.ValidatorFactory",
+          "jakarta.validation.bootstrap.GenericBootstrap"
+  };
 
   private final Delegate delegate;
 
@@ -69,7 +74,7 @@ final class ConfigurationPropertiesJsr303Validator implements Validator {
 
     Delegate(ApplicationContext applicationContext) {
       setApplicationContext(applicationContext);
-      setMessageInterpolator(new MessageInterpolatorFactory(applicationContext).getObject());
+      setMessageInterpolator(new MessageInterpolatorFactory(applicationContext).get());
       afterPropertiesSet();
     }
 

@@ -104,8 +104,8 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
     ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) ConfigurationPropertySources
             .getAttached(this.propertySources);
     Iterable<ConfigurationPropertySource> attachedSource = (attached != null) ? attached.getSource() : null;
-    if ((attachedSource instanceof SpringConfigurationPropertySources)
-            && ((SpringConfigurationPropertySources) attachedSource).isUsingSources(this.propertySources)) {
+    if ((attachedSource instanceof FrameworkConfigurationPropertySources)
+            && ((FrameworkConfigurationPropertySources) attachedSource).isUsingSources(this.propertySources)) {
       return attached;
     }
     return null;

@@ -20,13 +20,15 @@
 
 package cn.taketoday.context.properties.bind.validation;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Error thrown when validation fails during a bind operation.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ValidationErrors
  * @see ValidationBindHandler
  * @since 4.0
@@ -50,7 +52,7 @@ public class BindValidationException extends RuntimeException {
     return this.validationErrors;
   }
 
-  private static String getMessage(ValidationErrors errors) {
+  private static String getMessage(@Nullable ValidationErrors errors) {
     StringBuilder message = new StringBuilder("Binding validation errors");
     if (errors != null) {
       message.append(" on ").append(errors.getName());

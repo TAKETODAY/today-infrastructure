@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import cn.taketoday.boot.context.properties.bind.Binder.Context;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.context.properties.bind.Binder.Context;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.core.ResolvableType;
 
 /**
@@ -42,8 +42,9 @@ class ArrayBinder extends IndexedElementsBinder<Object> {
   }
 
   @Override
-  protected Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
-                                 AggregateElementBinder elementBinder) {
+  protected Object bindAggregate(
+          ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
+
     IndexedCollectionSupplier result = new IndexedCollectionSupplier(ArrayList::new);
     ResolvableType aggregateType = target.getType();
     ResolvableType elementType = target.getType().getComponentType();

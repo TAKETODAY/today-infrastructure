@@ -22,16 +22,17 @@ package cn.taketoday.context.properties;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.validation.beanvalidation.MethodValidationExcludeFilter;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} for
@@ -44,8 +45,8 @@ import cn.taketoday.core.type.AnnotationMetadata;
  */
 class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegistrar {
 
-  private static final String METHOD_VALIDATION_EXCLUDE_FILTER_BEAN_NAME = Conventions
-          .getQualifiedAttributeName(EnableConfigurationPropertiesRegistrar.class, "methodValidationExcludeFilter");
+  private static final String METHOD_VALIDATION_EXCLUDE_FILTER_BEAN_NAME = Conventions.getQualifiedAttributeName(
+          EnableConfigurationPropertiesRegistrar.class, "methodValidationExcludeFilter");
 
   @Override
   public void registerBeanDefinitions(AnnotationMetadata metadata, DefinitionLoadingContext context) {
@@ -59,7 +60,7 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
   private Set<Class<?>> getTypes(AnnotationMetadata metadata) {
     return metadata.getAnnotations().stream(EnableConfigurationProperties.class)
             .flatMap((annotation) -> Arrays.stream(annotation.getClassArray(MergedAnnotation.VALUE)))
-            .filter((type) -> void.class != type).collect(Collectors.toSet());
+            .filter((Predicate<Class>) (type) -> void.class != type).collect(Collectors.toSet());
   }
 
   static void registerInfrastructureBeans(BeanDefinitionRegistry registry) {
@@ -69,10 +70,10 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
   static void registerMethodValidationExcludeFilter(BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(METHOD_VALIDATION_EXCLUDE_FILTER_BEAN_NAME)) {
-      BeanDefinition definition = BeanDefinitionBuilder
-              .genericBeanDefinition(MethodValidationExcludeFilter.class,
-                      () -> MethodValidationExcludeFilter.byAnnotation(ConfigurationProperties.class))
-              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE).getBeanDefinition();
+      BeanDefinition definition = new BeanDefinition(MethodValidationExcludeFilter.class);
+      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      definition.setInstanceSupplier(() -> MethodValidationExcludeFilter.byAnnotation(ConfigurationProperties.class));
+
       registry.registerBeanDefinition(METHOD_VALIDATION_EXCLUDE_FILTER_BEAN_NAME, definition);
     }
   }

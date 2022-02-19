@@ -20,12 +20,15 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link ConfigurationPropertySource} supporting a prefix.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class PrefixedConfigurationPropertySource implements ConfigurationPropertySource {
 
@@ -45,13 +48,18 @@ class PrefixedConfigurationPropertySource implements ConfigurationPropertySource
   }
 
   @Override
+  @Nullable
   public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
     ConfigurationProperty configurationProperty = this.source.getConfigurationProperty(getPrefixedName(name));
     if (configurationProperty == null) {
       return null;
     }
-    return ConfigurationProperty.of(configurationProperty.getSource(), name, configurationProperty.getValue(),
-            configurationProperty.getOrigin());
+    return ConfigurationProperty.of(
+            configurationProperty.getSource(),
+            name,
+            configurationProperty.getValue(),
+            configurationProperty.getOrigin()
+    );
   }
 
   private ConfigurationPropertyName getPrefixedName(ConfigurationPropertyName name) {

@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Exception thrown when a configuration property value is invalid.

@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.lang.Component;
 
 /**
  * Configures the base packages used when scanning for
@@ -41,6 +41,7 @@ import cn.taketoday.stereotype.Component;
  * picked up by this annotation.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Target(ElementType.TYPE)

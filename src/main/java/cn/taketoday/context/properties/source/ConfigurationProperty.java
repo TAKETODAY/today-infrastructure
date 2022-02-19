@@ -20,11 +20,12 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.boot.origin.Origin;
-import cn.taketoday.boot.origin.OriginProvider;
-import cn.taketoday.boot.origin.OriginTrackedValue;
-import cn.taketoday.core.style.ToStringCreator;
-import cn.taketoday.util.Assert;
+import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginProvider;
+import cn.taketoday.origin.OriginTrackedValue;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -34,6 +35,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ConfigurationProperty implements OriginProvider, Comparable<ConfigurationProperty> {
@@ -42,16 +44,19 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
 
   private final Object value;
 
+  @Nullable
   private final ConfigurationPropertySource source;
 
+  @Nullable
   private final Origin origin;
 
-  public ConfigurationProperty(ConfigurationPropertyName name, Object value, Origin origin) {
+  public ConfigurationProperty(ConfigurationPropertyName name, Object value, @Nullable Origin origin) {
     this(null, name, value, origin);
   }
 
-  private ConfigurationProperty(ConfigurationPropertySource source, ConfigurationPropertyName name, Object value,
-                                Origin origin) {
+  private ConfigurationProperty(
+          @Nullable ConfigurationPropertySource source, ConfigurationPropertyName name,
+          Object value, @Nullable Origin origin) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(value, "Value must not be null");
     this.source = source;
@@ -67,6 +72,7 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
    * @return the configuration property source
    * @since 4.0
    */
+  @Nullable
   public ConfigurationPropertySource getSource() {
     return this.source;
   }
@@ -90,6 +96,7 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
   }
 
   @Override
+  @Nullable
   public Origin getOrigin() {
     return this.origin;
   }
@@ -103,8 +110,7 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
       return false;
     }
     ConfigurationProperty other = (ConfigurationProperty) obj;
-    boolean result = true;
-    result = result && ObjectUtils.nullSafeEquals(this.name, other.name);
+    boolean result = ObjectUtils.nullSafeEquals(this.name, other.name);
     result = result && ObjectUtils.nullSafeEquals(this.value, other.value);
     return result;
   }
@@ -118,8 +124,11 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
 
   @Override
   public String toString() {
-    return new ToStringCreator(this).append("name", this.name).append("value", this.value)
-            .append("origin", this.origin).toString();
+    return new ToStringBuilder(this)
+            .append("name", this.name)
+            .append("value", this.value)
+            .append("origin", this.origin)
+            .toString();
   }
 
   @Override
@@ -127,15 +136,19 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
     return this.name.compareTo(other.name);
   }
 
-  static ConfigurationProperty of(ConfigurationPropertyName name, OriginTrackedValue value) {
+  @Nullable
+  static ConfigurationProperty of(ConfigurationPropertyName name, @Nullable OriginTrackedValue value) {
     if (value == null) {
       return null;
     }
     return new ConfigurationProperty(name, value.getValue(), value.getOrigin());
   }
 
-  static ConfigurationProperty of(ConfigurationPropertySource source, ConfigurationPropertyName name, Object value,
-                                  Origin origin) {
+  @Nullable
+  static ConfigurationProperty of(
+          @Nullable ConfigurationPropertySource source,
+          ConfigurationPropertyName name,
+          @Nullable Object value, @Nullable Origin origin) {
     if (value == null) {
       return null;
     }

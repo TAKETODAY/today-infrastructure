@@ -23,14 +23,15 @@ package cn.taketoday.context.properties.source;
 import java.util.Map;
 import java.util.Random;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName.Form;
-import cn.taketoday.boot.origin.Origin;
-import cn.taketoday.boot.origin.PropertySourceOrigin;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName.Form;
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.env.SystemEnvironmentPropertySource;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.PropertySourceOrigin;
 
 /**
  * {@link ConfigurationPropertySource} backed by a non-enumerable Spring
@@ -45,16 +46,18 @@ import cn.taketoday.util.Assert;
  * {@link ConfigurationPropertyName} to one or more {@code String} based names. This
  * allows fast property resolution for well formed property sources.
  * <p>
- * When possible the {@link SpringIterableConfigurationPropertySource} will be used in
+ * When possible the {@link FrameworkIterableConfigurationPropertySource} will be used in
  * preference to this implementation since it supports full "relaxed" style resolution.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #from(PropertySource)
  * @see PropertyMapper
- * @see SpringIterableConfigurationPropertySource
+ * @see FrameworkIterableConfigurationPropertySource
+ * @since 4.0
  */
-class SpringConfigurationPropertySource implements ConfigurationPropertySource {
+class FrameworkConfigurationPropertySource implements ConfigurationPropertySource {
 
   private static final PropertyMapper[] DEFAULT_MAPPERS = { DefaultPropertyMapper.INSTANCE };
 
@@ -66,12 +69,12 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
   private final PropertyMapper[] mappers;
 
   /**
-   * Create a new {@link SpringConfigurationPropertySource} implementation.
+   * Create a new {@link FrameworkConfigurationPropertySource} implementation.
    *
    * @param propertySource the source property source
    * @param mappers the property mappers
    */
-  SpringConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
+  FrameworkConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
     Assert.notNull(propertySource, "PropertySource must not be null");
     Assert.isTrue(mappers.length > 0, "Mappers must contain at least one item");
     this.propertySource = propertySource;
@@ -79,7 +82,7 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
   }
 
   @Override
-  public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
+  public ConfigurationProperty getConfigurationProperty(@Nullable ConfigurationPropertyName name) {
     if (name == null) {
       return null;
     }
@@ -93,8 +96,7 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
           }
         }
       }
-      catch (Exception ex) {
-      }
+      catch (Exception ignored) { }
     }
     return null;
   }
@@ -113,8 +115,8 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
     return ConfigurationPropertyState.UNKNOWN;
   }
 
-  private static ConfigurationPropertyState containsDescendantOfForRandom(String prefix,
-                                                                          ConfigurationPropertyName name) {
+  private static ConfigurationPropertyState containsDescendantOfForRandom(
+          String prefix, ConfigurationPropertyName name) {
     if (name.getNumberOfElements() > 1 && name.getElement(0, Form.DASHED).equals(prefix)) {
       return ConfigurationPropertyState.PRESENT;
     }
@@ -140,20 +142,20 @@ class SpringConfigurationPropertySource implements ConfigurationPropertySource {
   }
 
   /**
-   * Create a new {@link SpringConfigurationPropertySource} for the specified
+   * Create a new {@link FrameworkConfigurationPropertySource} for the specified
    * {@link PropertySource}.
    *
    * @param source the source Spring {@link PropertySource}
-   * @return a {@link SpringConfigurationPropertySource} or
-   * {@link SpringIterableConfigurationPropertySource} instance
+   * @return a {@link FrameworkConfigurationPropertySource} or
+   * {@link FrameworkIterableConfigurationPropertySource} instance
    */
-  static SpringConfigurationPropertySource from(PropertySource<?> source) {
+  static FrameworkConfigurationPropertySource from(PropertySource<?> source) {
     Assert.notNull(source, "Source must not be null");
     PropertyMapper[] mappers = getPropertyMappers(source);
     if (isFullEnumerable(source)) {
-      return new SpringIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
+      return new FrameworkIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
     }
-    return new SpringConfigurationPropertySource(source, mappers);
+    return new FrameworkConfigurationPropertySource(source, mappers);
   }
 
   private static PropertyMapper[] getPropertyMappers(PropertySource<?> source) {

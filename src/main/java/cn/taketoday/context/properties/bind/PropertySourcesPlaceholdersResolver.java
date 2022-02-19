@@ -24,22 +24,24 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.PropertyPlaceholderHelper;
-import cn.taketoday.util.SystemPropertyUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.PropertyPlaceholderHandler;
 
 /**
  * {@link PlaceholdersResolver} to resolve placeholders from {@link PropertySources}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver {
 
+  @Nullable
   private final Iterable<PropertySource<?>> sources;
 
-  private final PropertyPlaceholderHelper helper;
+  private final PropertyPlaceholderHandler helper;
 
   public PropertySourcesPlaceholdersResolver(Environment environment) {
     this(getSources(environment), null);
@@ -49,10 +51,14 @@ public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver
     this(sources, null);
   }
 
-  public PropertySourcesPlaceholdersResolver(Iterable<PropertySource<?>> sources, PropertyPlaceholderHelper helper) {
+  public PropertySourcesPlaceholdersResolver(
+          @Nullable Iterable<PropertySource<?>> sources, @Nullable PropertyPlaceholderHandler helper) {
     this.sources = sources;
-    this.helper = (helper != null) ? helper : new PropertyPlaceholderHelper(SystemPropertyUtils.PLACEHOLDER_PREFIX,
-            SystemPropertyUtils.PLACEHOLDER_SUFFIX, SystemPropertyUtils.VALUE_SEPARATOR, true);
+    this.helper = (helper != null) ? helper : new PropertyPlaceholderHandler(
+            PropertyPlaceholderHandler.PLACEHOLDER_PREFIX,
+            PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX,
+            PropertyPlaceholderHandler.VALUE_SEPARATOR, true
+    );
   }
 
   @Override
@@ -63,6 +69,7 @@ public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver
     return value;
   }
 
+  @Nullable
   protected String resolvePlaceholder(String placeholder) {
     if (this.sources != null) {
       for (PropertySource<?> source : this.sources) {

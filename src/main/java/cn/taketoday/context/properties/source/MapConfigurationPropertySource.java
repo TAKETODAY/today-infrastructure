@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.env.MapPropertySource;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * A {@link ConfigurationPropertySource} backed by a {@link Map} and using standard name
@@ -35,6 +35,7 @@ import cn.taketoday.util.Assert;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MapConfigurationPropertySource implements IterableConfigurationPropertySource {
@@ -61,7 +62,7 @@ public class MapConfigurationPropertySource implements IterableConfigurationProp
   public MapConfigurationPropertySource(Map<?, ?> map) {
     this.source = new LinkedHashMap<>();
     MapPropertySource mapPropertySource = new MapPropertySource("source", this.source);
-    this.delegate = new SpringIterableConfigurationPropertySource(mapPropertySource, DEFAULT_MAPPERS);
+    this.delegate = new FrameworkIterableConfigurationPropertySource(mapPropertySource, DEFAULT_MAPPERS);
     putAll(map);
   }
 

@@ -24,39 +24,43 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.factory.ListableBeanFactory;
-import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.boot.convert.ApplicationConversionService;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.convert.ConversionService;
-import cn.taketoday.core.convert.converter.Converter;
-import cn.taketoday.core.convert.converter.GenericConverter;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
+import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Utility to deduce the {@link ConversionService} to use for configuration properties
  * binding.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Phillip Webb
+ * @since 4.0
  */
 class ConversionServiceDeducer {
 
-  private final ApplicationContext applicationContext;
+  private final ApplicationContext context;
 
   ConversionServiceDeducer(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
+    this.context = applicationContext;
   }
 
+  @Nullable
   List<ConversionService> getConversionServices() {
     if (hasUserDefinedConfigurationServiceBean()) {
-      return Collections.singletonList(this.applicationContext
-              .getBean(ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+      return Collections.singletonList(
+              context.getBean(ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
     }
-    if (this.applicationContext instanceof ConfigurableApplicationContext) {
-      return getConversionServices((ConfigurableApplicationContext) this.applicationContext);
+    if (this.context instanceof ConfigurableApplicationContext) {
+      return getConversionServices((ConfigurableApplicationContext) this.context);
     }
     return null;
   }
@@ -77,8 +81,8 @@ class ConversionServiceDeducer {
 
   private boolean hasUserDefinedConfigurationServiceBean() {
     String beanName = ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME;
-    return this.applicationContext.containsBean(beanName) && this.applicationContext.getAutowireCapableBeanFactory()
-            .isTypeMatch(beanName, ConversionService.class);
+    return this.context.containsBean(beanName)
+            && this.context.getAutowireCapableBeanFactory().isTypeMatch(beanName, ConversionService.class);
   }
 
   private static class ConverterBeans {
@@ -93,14 +97,14 @@ class ConversionServiceDeducer {
 
     ConverterBeans(ConfigurableApplicationContext applicationContext) {
       ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
-      this.converters = beans(Converter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
-      this.genericConverters = beans(GenericConverter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
-      this.formatters = beans(Formatter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
+      this.converters = beans(Converter.class, beanFactory);
+      this.genericConverters = beans(GenericConverter.class, beanFactory);
+      this.formatters = beans(Formatter.class, beanFactory);
     }
 
-    private <T> List<T> beans(Class<T> type, String qualifier, ListableBeanFactory beanFactory) {
-      return new ArrayList<>(
-              BeanFactoryAnnotationUtils.qualifiedBeansOfType(beanFactory, type, qualifier).values());
+    private <T> List<T> beans(Class<T> type, BeanFactory beanFactory) {
+      return new ArrayList<>(BeanFactoryUtils.qualifiedBeansOfType(
+              beanFactory, type, ConfigurationPropertiesBinding.VALUE).values());
     }
 
     boolean isEmpty() {

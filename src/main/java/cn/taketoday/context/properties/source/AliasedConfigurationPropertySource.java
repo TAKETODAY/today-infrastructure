@@ -20,13 +20,15 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * A {@link ConfigurationPropertySource} supporting name aliases.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @since 4.0
  */
 class AliasedConfigurationPropertySource implements ConfigurationPropertySource {
 

@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.boot.origin.Origin;
-import cn.taketoday.boot.origin.OriginLookup;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySource;

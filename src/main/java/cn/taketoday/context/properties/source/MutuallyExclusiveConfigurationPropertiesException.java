@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * Exception thrown when more than one mutually exclusive configuration property has been
@@ -36,6 +36,7 @@ import cn.taketoday.util.Assert;
  *
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -53,13 +54,13 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
    * @param mutuallyExclusiveNames the names of the properties that are mutually
    * exclusive
    */
-  public MutuallyExclusiveConfigurationPropertiesException(Collection<String> configuredNames,
-                                                           Collection<String> mutuallyExclusiveNames) {
+  public MutuallyExclusiveConfigurationPropertiesException(
+          Collection<String> configuredNames, Collection<String> mutuallyExclusiveNames) {
     this(asSet(configuredNames), asSet(mutuallyExclusiveNames));
   }
 
-  private MutuallyExclusiveConfigurationPropertiesException(Set<String> configuredNames,
-                                                            Set<String> mutuallyExclusiveNames) {
+  private MutuallyExclusiveConfigurationPropertiesException(
+          Set<String> configuredNames, Set<String> mutuallyExclusiveNames) {
     super(buildMessage(mutuallyExclusiveNames, configuredNames));
     this.configuredNames = configuredNames;
     this.mutuallyExclusiveNames = mutuallyExclusiveNames;

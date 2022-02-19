@@ -20,8 +20,9 @@
 
 package cn.taketoday.context.properties.bind;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Binder that can be used by {@link AggregateBinder} implementations to recursively bind
@@ -29,6 +30,8 @@ import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @FunctionalInterface
 interface AggregateElementBinder {
@@ -40,6 +43,7 @@ interface AggregateElementBinder {
    * @param target the target bindable
    * @return a bound object or {@code null}
    */
+  @Nullable
   default Object bind(ConfigurationPropertyName name, Bindable<?> target) {
     return bind(name, target, null);
   }
@@ -53,6 +57,8 @@ interface AggregateElementBinder {
    * @param source the source of the elements or {@code null} to use all sources
    * @return a bound object or {@code null}
    */
-  Object bind(ConfigurationPropertyName name, Bindable<?> target, ConfigurationPropertySource source);
+  @Nullable
+  Object bind(ConfigurationPropertyName name,
+              Bindable<?> target, @Nullable ConfigurationPropertySource source);
 
 }

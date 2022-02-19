@@ -23,13 +23,15 @@ package cn.taketoday.context.properties;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.boot.context.TypeExcludeFilter;
-import cn.taketoday.context.annotation.ClassPathScanningCandidateComponentProvider;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
+import cn.taketoday.context.annotation.auto.TypeExcludeFilter;
+import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
@@ -37,7 +39,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.lang.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -47,6 +49,8 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegistrar {
 
@@ -60,24 +64,26 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
   }
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-    Set<String> packagesToScan = getPackagesToScan(importingClassMetadata);
-    scan(registry, packagesToScan);
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    Set<String> packagesToScan = getPackagesToScan(importMetadata);
+    scan(context.getRegistry(), packagesToScan);
   }
 
   private Set<String> getPackagesToScan(AnnotationMetadata metadata) {
-    AnnotationAttributes attributes = AnnotationAttributes
-            .fromMap(metadata.getAnnotationAttributes(ConfigurationPropertiesScan.class.getName()));
+    AnnotationAttributes attributes = AnnotationAttributes.fromMap(
+            metadata.getAnnotationAttributes(ConfigurationPropertiesScan.class.getName()));
+
     String[] basePackages = attributes.getStringArray("basePackages");
     Class<?>[] basePackageClasses = attributes.getClassArray("basePackageClasses");
-    Set<String> packagesToScan = new LinkedHashSet<>(Arrays.asList(basePackages));
+    LinkedHashSet<String> packagesToScan = new LinkedHashSet<>(Arrays.asList(basePackages));
     for (Class<?> basePackageClass : basePackageClasses) {
       packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
     }
     if (packagesToScan.isEmpty()) {
       packagesToScan.add(ClassUtils.getPackageName(metadata.getClassName()));
     }
-    packagesToScan.removeIf((candidate) -> !StringUtils.hasText(candidate));
+
+    packagesToScan.removeIf(Predicate.not(StringUtils::hasText));
     return packagesToScan;
   }
 

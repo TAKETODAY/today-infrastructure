@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
  * Provides access to {@link ConfigurationPropertySource ConfigurationPropertySources}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ConfigurationPropertySources {
@@ -47,8 +48,7 @@ public final class ConfigurationPropertySources {
    */
   private static final String ATTACHED_PROPERTY_SOURCE_NAME = "configurationProperties";
 
-  private ConfigurationPropertySources() {
-  }
+  private ConfigurationPropertySources() { }
 
   /**
    * Create a new {@link PropertyResolver} that resolves property values against an
@@ -58,7 +58,6 @@ public final class ConfigurationPropertySources {
    *
    * @param propertySources the set of {@link PropertySource} objects to use
    * @return a {@link ConfigurablePropertyResolver} implementation
-   * @since 4.0
    */
   public static ConfigurablePropertyResolver createPropertyResolver(PropertySources propertySources) {
     return new ConfigurationPropertySourcesPropertyResolver(propertySources);
@@ -96,7 +95,7 @@ public final class ConfigurationPropertySources {
     PropertySource<?> attached = getAttached(sources);
     if (attached == null || !isUsingSources(attached, sources)) {
       attached = new ConfigurationPropertySourcesPropertySource(ATTACHED_PROPERTY_SOURCE_NAME,
-              new SpringConfigurationPropertySources(sources));
+              new FrameworkConfigurationPropertySources(sources));
     }
     sources.remove(ATTACHED_PROPERTY_SOURCE_NAME);
     sources.addFirst(attached);
@@ -104,7 +103,7 @@ public final class ConfigurationPropertySources {
 
   private static boolean isUsingSources(PropertySource<?> attached, PropertySources sources) {
     return attached instanceof ConfigurationPropertySourcesPropertySource
-            && ((SpringConfigurationPropertySources) attached.getSource()).isUsingSources(sources);
+            && ((FrameworkConfigurationPropertySources) attached.getSource()).isUsingSources(sources);
   }
 
   @Nullable
@@ -125,8 +124,8 @@ public final class ConfigurationPropertySources {
   public static Iterable<ConfigurationPropertySource> get(Environment environment) {
     Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
     PropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
-    ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) sources
-            .get(ATTACHED_PROPERTY_SOURCE_NAME);
+    ConfigurationPropertySourcesPropertySource attached =
+            (ConfigurationPropertySourcesPropertySource) sources.get(ATTACHED_PROPERTY_SOURCE_NAME);
     if (attached == null) {
       return from(sources);
     }
@@ -139,7 +138,7 @@ public final class ConfigurationPropertySources {
    *
    * @param source the Spring property source to adapt
    * @return an {@link Iterable} containing a single newly adapted
-   * {@link SpringConfigurationPropertySource}
+   * {@link FrameworkConfigurationPropertySource}
    */
   public static Iterable<ConfigurationPropertySource> from(PropertySource<?> source) {
     return Collections.singleton(ConfigurationPropertySource.from(source));
@@ -157,10 +156,10 @@ public final class ConfigurationPropertySources {
    *
    * @param sources the Spring property sources to adapt
    * @return an {@link Iterable} containing newly adapted
-   * {@link SpringConfigurationPropertySource} instances
+   * {@link FrameworkConfigurationPropertySource} instances
    */
   public static Iterable<ConfigurationPropertySource> from(Iterable<PropertySource<?>> sources) {
-    return new SpringConfigurationPropertySources(sources);
+    return new FrameworkConfigurationPropertySources(sources);
   }
 
   private static Stream<PropertySource<?>> streamPropertySources(PropertySources sources) {

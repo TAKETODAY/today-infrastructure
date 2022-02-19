@@ -23,6 +23,7 @@ package cn.taketoday.context.properties.source;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -32,19 +33,22 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyMapper
- * @see SpringConfigurationPropertySource
+ * @see FrameworkConfigurationPropertySource
+ * @since 4.0
  */
 final class DefaultPropertyMapper implements PropertyMapper {
 
   public static final PropertyMapper INSTANCE = new DefaultPropertyMapper();
 
+  @Nullable
   private LastMapping<ConfigurationPropertyName, List<String>> lastMappedConfigurationPropertyName;
 
+  @Nullable
   private LastMapping<String, ConfigurationPropertyName> lastMappedPropertyName;
 
-  private DefaultPropertyMapper() {
-  }
+  private DefaultPropertyMapper() { }
 
   @Override
   public List<String> map(ConfigurationPropertyName configurationPropertyName) {
@@ -78,21 +82,11 @@ final class DefaultPropertyMapper implements PropertyMapper {
         return convertedName;
       }
     }
-    catch (Exception ex) {
-    }
+    catch (Exception ignored) { }
     return ConfigurationPropertyName.EMPTY;
   }
 
-  private static class LastMapping<T, M> {
-
-    private final T from;
-
-    private final M mapping;
-
-    LastMapping(T from, M mapping) {
-      this.from = from;
-      this.mapping = mapping;
-    }
+  private record LastMapping<T, M>(T from, M mapping) {
 
     boolean isFrom(T from) {
       return ObjectUtils.nullSafeEquals(from, this.from);

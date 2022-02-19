@@ -111,14 +111,14 @@ public interface ConfigurationPropertySource {
    * Spring {@link PropertySource} or {@code null} if the source cannot be adapted.
    *
    * @param source the Spring property source to adapt
-   * @return an adapted source or {@code null} {@link SpringConfigurationPropertySource}
+   * @return an adapted source or {@code null} {@link FrameworkConfigurationPropertySource}
    */
   @Nullable
   static ConfigurationPropertySource from(PropertySource<?> source) {
     if (source instanceof ConfigurationPropertySourcesPropertySource) {
       return null;
     }
-    return SpringConfigurationPropertySource.from(source);
+    return FrameworkConfigurationPropertySource.from(source);
   }
 
 }

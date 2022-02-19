@@ -20,12 +20,16 @@
 
 package cn.taketoday.context.properties.bind;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Binder that can be used by {@link DataObjectBinder} implementations to bind the data
  * object properties.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Madhura Bhave
+ * @since 4.0
  */
 interface DataObjectPropertyBinder {
 
@@ -37,6 +41,7 @@ interface DataObjectPropertyBinder {
    * @param target the target bindable
    * @return the bound value or {@code null}
    */
+  @Nullable
   Object bindProperty(String propertyName, Bindable<?> target);
 
 }

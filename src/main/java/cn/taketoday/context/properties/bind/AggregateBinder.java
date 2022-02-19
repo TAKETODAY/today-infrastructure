@@ -22,9 +22,10 @@ package cn.taketoday.context.properties.bind;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.boot.context.properties.bind.Binder.Context;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.context.properties.bind.Binder.Context;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Internal strategy used by {@link Binder} to bind aggregates (Maps, Lists, Arrays).
@@ -32,6 +33,8 @@ import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
  * @param <T> the type being bound
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 abstract class AggregateBinder<T> {
 
@@ -47,7 +50,7 @@ abstract class AggregateBinder<T> {
    * @param source the configuration property source or {@code null} for all sources.
    * @return if recursive binding is supported
    */
-  protected abstract boolean isAllowRecursiveBinding(ConfigurationPropertySource source);
+  protected abstract boolean isAllowRecursiveBinding(@Nullable ConfigurationPropertySource source);
 
   /**
    * Perform binding for the aggregate.
@@ -58,6 +61,7 @@ abstract class AggregateBinder<T> {
    * @return the bound aggregate or null
    */
   @SuppressWarnings("unchecked")
+  @Nullable
   final Object bind(ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
     Object result = bindAggregate(name, target, elementBinder);
     Supplier<?> value = target.getValue();
@@ -75,8 +79,9 @@ abstract class AggregateBinder<T> {
    * @param elementBinder an element binder
    * @return the bound result
    */
-  protected abstract Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
-                                          AggregateElementBinder elementBinder);
+  @Nullable
+  protected abstract Object bindAggregate(
+          ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder);
 
   /**
    * Merge any additional elements into the existing aggregate.
@@ -105,6 +110,7 @@ abstract class AggregateBinder<T> {
 
     private final Supplier<T> supplier;
 
+    @Nullable
     private T supplied;
 
     public AggregateSupplier(Supplier<T> supplier) {

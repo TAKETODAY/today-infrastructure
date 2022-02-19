@@ -23,12 +23,14 @@ package cn.taketoday.context.properties.source;
 import java.time.Duration;
 
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Interface that can be used to control configuration property source caches.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ConfigurationPropertyCaching {
@@ -75,7 +77,7 @@ public interface ConfigurationPropertyCaching {
    * must match
    * @return a caching instance that controls the matching source
    */
-  static ConfigurationPropertyCaching get(Environment environment, Object underlyingSource) {
+  static ConfigurationPropertyCaching get(Environment environment, @Nullable Object underlyingSource) {
     Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
     return get(sources, underlyingSource);
   }
@@ -100,7 +102,8 @@ public interface ConfigurationPropertyCaching {
    * must match
    * @return a caching instance that controls the matching source
    */
-  static ConfigurationPropertyCaching get(Iterable<ConfigurationPropertySource> sources, Object underlyingSource) {
+  static ConfigurationPropertyCaching get(
+          Iterable<ConfigurationPropertySource> sources, @Nullable Object underlyingSource) {
     Assert.notNull(sources, "Sources must not be null");
     if (underlyingSource == null) {
       return new ConfigurationPropertySourcesCaching(sources);

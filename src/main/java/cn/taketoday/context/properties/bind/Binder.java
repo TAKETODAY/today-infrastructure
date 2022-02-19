@@ -24,7 +24,6 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,7 +95,8 @@ public class Binder {
    * @param sources the sources used for binding
    * @param placeholdersResolver strategy to resolve any property placeholders
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources, PlaceholdersResolver placeholdersResolver) {
+  public Binder(Iterable<ConfigurationPropertySource> sources,
+                @Nullable PlaceholdersResolver placeholdersResolver) {
     this(sources, placeholdersResolver, null, null);
   }
 
@@ -108,8 +108,9 @@ public class Binder {
    * @param conversionService the conversion service to convert values (or {@code null}
    * to use {@link ApplicationConversionService})
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources, PlaceholdersResolver placeholdersResolver,
-                ConversionService conversionService) {
+  public Binder(Iterable<ConfigurationPropertySource> sources,
+                @Nullable PlaceholdersResolver placeholdersResolver,
+                @Nullable ConversionService conversionService) {
     this(sources, placeholdersResolver, conversionService, null);
   }
 
@@ -124,8 +125,10 @@ public class Binder {
    * that can convert values (or {@code null} if no initialization is required). Often
    * used to call {@link ConfigurableBeanFactory#copyRegisteredEditorsTo}.
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources, PlaceholdersResolver placeholdersResolver,
-                ConversionService conversionService, Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
+  public Binder(Iterable<ConfigurationPropertySource> sources,
+                @Nullable PlaceholdersResolver placeholdersResolver,
+                @Nullable ConversionService conversionService,
+                @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
     this(sources, placeholdersResolver, conversionService, propertyEditorInitializer, null);
   }
 
@@ -143,11 +146,16 @@ public class Binder {
    * binding
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                PlaceholdersResolver placeholdersResolver,
+                @Nullable PlaceholdersResolver placeholdersResolver,
                 @Nullable ConversionService conversionService,
-                Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-                BindHandler defaultBindHandler) {
-    this(sources, placeholdersResolver, conversionService, propertyEditorInitializer, defaultBindHandler, null);
+                @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+                @Nullable BindHandler defaultBindHandler) {
+    this(sources,
+            placeholdersResolver,
+            conversionService,
+            propertyEditorInitializer,
+            defaultBindHandler,
+            null);
   }
 
   /**
@@ -164,18 +172,20 @@ public class Binder {
    * binding
    * @param constructorProvider the constructor provider which provides the bind
    * constructor to use when binding
-   * @since 4.0
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                PlaceholdersResolver placeholdersResolver,
+                @Nullable PlaceholdersResolver placeholdersResolver,
                 @Nullable ConversionService conversionService,
-                Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-                BindHandler defaultBindHandler,
-                BindConstructorProvider constructorProvider) {
-    this(sources, placeholdersResolver,
-            (conversionService != null) ? Collections.singletonList(conversionService)
-                                        : null,
-            propertyEditorInitializer, defaultBindHandler, constructorProvider);
+                @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+                @Nullable BindHandler defaultBindHandler,
+                @Nullable BindConstructorProvider constructorProvider) {
+    this(sources,
+            placeholdersResolver,
+            conversionService != null ? Collections.singletonList(conversionService) : null,
+            propertyEditorInitializer,
+            defaultBindHandler,
+            constructorProvider
+    );
   }
 
   /**
@@ -192,27 +202,26 @@ public class Binder {
    * binding
    * @param constructorProvider the constructor provider which provides the bind
    * constructor to use when binding
-   * @since 4.0
    */
   public Binder(
           Iterable<ConfigurationPropertySource> sources,
           @Nullable PlaceholdersResolver placeholdersResolver,
-          List<ConversionService> conversionServices,
-          Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-          BindHandler defaultBindHandler,
-          BindConstructorProvider constructorProvider
+          @Nullable List<ConversionService> conversionServices,
+          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+          @Nullable BindHandler defaultBindHandler,
+          @Nullable BindConstructorProvider constructorProvider
   ) {
     Assert.notNull(sources, "Sources must not be null");
     this.sources = sources;
-    this.placeholdersResolver = (placeholdersResolver != null) ? placeholdersResolver : PlaceholdersResolver.NONE;
     this.bindConverter = BindConverter.get(conversionServices, propertyEditorInitializer);
-    this.defaultBindHandler = (defaultBindHandler != null) ? defaultBindHandler : BindHandler.DEFAULT;
+    this.defaultBindHandler = defaultBindHandler != null ? defaultBindHandler : BindHandler.DEFAULT;
+    this.placeholdersResolver = placeholdersResolver != null ? placeholdersResolver : PlaceholdersResolver.NONE;
+
     if (constructorProvider == null) {
       constructorProvider = BindConstructorProvider.DEFAULT;
     }
     ValueObjectBinder valueObjectBinder = new ValueObjectBinder(constructorProvider);
-    JavaBeanBinder javaBeanBinder = JavaBeanBinder.INSTANCE;
-    this.dataObjectBinders = Collections.unmodifiableList(Arrays.asList(valueObjectBinder, javaBeanBinder));
+    this.dataObjectBinders = List.of(valueObjectBinder, JavaBeanBinder.INSTANCE);
   }
 
   /**
@@ -267,7 +276,7 @@ public class Binder {
    * @param <T> the bound type
    * @return the binding result (never {@code null})
    */
-  public <T> BindResult<T> bind(String name, Bindable<T> target, BindHandler handler) {
+  public <T> BindResult<T> bind(String name, Bindable<T> target, @Nullable BindHandler handler) {
     return bind(ConfigurationPropertyName.of(name), target, handler);
   }
 
@@ -281,7 +290,8 @@ public class Binder {
    * @param <T> the bound type
    * @return the binding result (never {@code null})
    */
-  public <T> BindResult<T> bind(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler) {
+  public <T> BindResult<T> bind(
+          ConfigurationPropertyName name, Bindable<T> target, @Nullable BindHandler handler) {
     T bound = bind(name, target, handler, false);
     return BindResult.of(bound);
   }
@@ -296,7 +306,6 @@ public class Binder {
    * @param <T> the bound type
    * @return the bound or created object
    * @see #bind(ConfigurationPropertyName, Bindable, BindHandler)
-   * @since 4.0
    */
   public <T> T bindOrCreate(String name, Class<T> target) {
     return bindOrCreate(name, Bindable.of(target));
@@ -312,7 +321,6 @@ public class Binder {
    * @param <T> the bound type
    * @return the bound or created object
    * @see #bindOrCreate(ConfigurationPropertyName, Bindable, BindHandler)
-   * @since 4.0
    */
   public <T> T bindOrCreate(String name, Bindable<T> target) {
     return bindOrCreate(ConfigurationPropertyName.of(name), target, null);
@@ -329,7 +337,6 @@ public class Binder {
    * @param <T> the bound type
    * @return the bound or created object
    * @see #bindOrCreate(ConfigurationPropertyName, Bindable, BindHandler)
-   * @since 4.0
    */
   public <T> T bindOrCreate(String name, Bindable<T> target, BindHandler handler) {
     return bindOrCreate(ConfigurationPropertyName.of(name), target, handler);
@@ -345,13 +352,14 @@ public class Binder {
    * @param handler the bind handler (may be {@code null})
    * @param <T> the bound or created type
    * @return the bound or created object
-   * @since 4.0
    */
-  public <T> T bindOrCreate(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler) {
+  public <T> T bindOrCreate(ConfigurationPropertyName name, Bindable<T> target, @Nullable BindHandler handler) {
     return bind(name, target, handler, true);
   }
 
-  private <T> T bind(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler, boolean create) {
+  private <T> T bind(
+          ConfigurationPropertyName name,
+          Bindable<T> target, @Nullable BindHandler handler, boolean create) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(target, "Target must not be null");
     handler = (handler != null) ? handler : this.defaultBindHandler;
@@ -359,8 +367,14 @@ public class Binder {
     return bind(name, target, handler, context, false, create);
   }
 
-  private <T> T bind(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler, Context context,
-                     boolean allowRecursiveBinding, boolean create) {
+  private <T> T bind(
+          ConfigurationPropertyName name,
+          Bindable<T> target,
+          BindHandler handler,
+          Context context,
+          boolean allowRecursiveBinding,
+          boolean create
+  ) {
     try {
       Bindable<T> replacementTarget = handler.onStart(name, target, context);
       if (replacementTarget == null) {
@@ -386,12 +400,15 @@ public class Binder {
       result = create(target, context);
       result = handler.onCreate(name, target, context, result);
       result = context.getConverter().convert(result, target);
-      Assert.state(result != null, () -> "Unable to create instance for " + target.getType());
+      if (result == null) {
+        throw new IllegalStateException("Unable to create instance for " + target.getType());
+      }
     }
     handler.onFinish(name, target, context, result);
     return context.getConverter().convert(result, target);
   }
 
+  @Nullable
   private Object create(Bindable<?> target, Context context) {
     for (DataObjectBinder dataObjectBinder : this.dataObjectBinders) {
       Object instance = dataObjectBinder.create(target, context);
@@ -402,8 +419,9 @@ public class Binder {
     return null;
   }
 
-  private <T> T handleBindError(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
-                                Context context, Exception error) {
+  private <T> T handleBindError(
+          ConfigurationPropertyName name, Bindable<T> target,
+          BindHandler handler, Context context, Exception error) {
     try {
       Object result = handler.onFailure(name, target, context, error);
       return context.getConverter().convert(result, target);
@@ -416,6 +434,7 @@ public class Binder {
     }
   }
 
+  @Nullable
   private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
                                 Context context, boolean allowRecursiveBinding) {
     ConfigurationProperty property = findProperty(name, target, context);
@@ -442,6 +461,7 @@ public class Binder {
     return bindDataObject(name, target, handler, context, allowRecursiveBinding);
   }
 
+  @Nullable
   private AggregateBinder<?> getAggregateBinder(Bindable<?> target, Context context) {
     Class<?> resolvedType = target.getType().resolve(Object.class);
     if (Map.class.isAssignableFrom(resolvedType)) {
@@ -456,8 +476,10 @@ public class Binder {
     return null;
   }
 
-  private <T> Object bindAggregate(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
-                                   Context context, AggregateBinder<?> aggregateBinder) {
+  private <T> Object bindAggregate(
+          ConfigurationPropertyName name, Bindable<T> target,
+          BindHandler handler, Context context, AggregateBinder<?> aggregateBinder) {
+
     AggregateElementBinder elementBinder = (itemName, itemTarget, source) -> {
       boolean allowRecursiveBinding = aggregateBinder.isAllowRecursiveBinding(source);
       Supplier<?> supplier = () -> bind(itemName, itemTarget, handler, context, allowRecursiveBinding, false);
@@ -481,12 +503,12 @@ public class Binder {
     return null;
   }
 
+  @Nullable
   private <T> Object bindProperty(Bindable<T> target, Context context, ConfigurationProperty property) {
     context.setConfigurationProperty(property);
     Object result = property.getValue();
     result = this.placeholdersResolver.resolvePlaceholders(result);
-    result = context.getConverter().convert(result, target);
-    return result;
+    return context.getConverter().convert(result, target);
   }
 
   @Nullable
@@ -500,8 +522,8 @@ public class Binder {
     if (!allowRecursiveBinding && context.isBindingDataObject(type)) {
       return null;
     }
-    DataObjectPropertyBinder propertyBinder = (propertyName, propertyTarget) -> bind(name.append(propertyName),
-            propertyTarget, handler, context, false, false);
+    DataObjectPropertyBinder propertyBinder = (propertyName, propertyTarget)
+            -> bind(name.append(propertyName), propertyTarget, handler, context, false, false);
     return context.withDataObject(type, () -> {
       for (DataObjectBinder dataObjectBinder : this.dataObjectBinders) {
         Object instance = dataObjectBinder.bind(name, target, context, propertyBinder);
@@ -527,8 +549,8 @@ public class Binder {
     return resolved.getName().startsWith("java.");
   }
 
-  private boolean containsNoDescendantOf(Iterable<ConfigurationPropertySource> sources,
-                                         ConfigurationPropertyName name) {
+  private boolean containsNoDescendantOf(
+          Iterable<ConfigurationPropertySource> sources, ConfigurationPropertyName name) {
     for (ConfigurationPropertySource source : sources) {
       if (source.containsDescendantOf(name) != ConfigurationPropertyState.ABSENT) {
         return false;
@@ -574,9 +596,8 @@ public class Binder {
 
     private int sourcePushCount;
 
-    private final Deque<Class<?>> dataObjectBindings = new ArrayDeque<>();
-
-    private final Deque<Class<?>> constructorBindings = new ArrayDeque<>();
+    private final ArrayDeque<Class<?>> dataObjectBindings = new ArrayDeque<>();
+    private final ArrayDeque<Class<?>> constructorBindings = new ArrayDeque<>();
 
     @Nullable
     private ConfigurationProperty configurationProperty;
@@ -674,6 +695,7 @@ public class Binder {
     }
 
     @Override
+    @Nullable
     public ConfigurationProperty getConfigurationProperty() {
       return this.configurationProperty;
     }

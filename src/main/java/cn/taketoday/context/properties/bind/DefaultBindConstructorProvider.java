@@ -23,14 +23,13 @@ package cn.taketoday.context.properties.bind;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.core.KotlinDetector;
-
 /**
  * Default {@link BindConstructorProvider} implementation.
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class DefaultBindConstructorProvider implements BindConstructorProvider {
 
@@ -39,9 +38,6 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
     Class<?> type = bindable.getType().resolve();
     if (bindable.getValue() != null || type == null) {
       return null;
-    }
-    if (KotlinDetector.isKotlinPresent() && KotlinDetector.isKotlinType(type)) {
-      return getDeducedKotlinConstructor(type);
     }
     Constructor<?>[] constructors = type.getDeclaredConstructors();
     if (constructors.length == 1 && constructors[0].getParameterCount() > 0) {
@@ -58,14 +54,6 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
     }
     if (constructor != null && constructor.getParameterCount() > 0) {
       return constructor;
-    }
-    return null;
-  }
-
-  private Constructor<?> getDeducedKotlinConstructor(Class<?> type) {
-    Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(type);
-    if (primaryConstructor != null && primaryConstructor.getParameterCount() > 0) {
-      return primaryConstructor;
     }
     return null;
   }

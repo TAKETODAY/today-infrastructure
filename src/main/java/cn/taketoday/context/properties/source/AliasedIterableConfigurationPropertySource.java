@@ -30,12 +30,14 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class AliasedIterableConfigurationPropertySource extends AliasedConfigurationPropertySource
         implements IterableConfigurationPropertySource {
 
-  AliasedIterableConfigurationPropertySource(IterableConfigurationPropertySource source,
-                                             ConfigurationPropertyNameAliases aliases) {
+  AliasedIterableConfigurationPropertySource(
+          IterableConfigurationPropertySource source, ConfigurationPropertyNameAliases aliases) {
     super(source, aliases);
   }
 

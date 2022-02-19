@@ -25,7 +25,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -41,9 +42,10 @@ public final class BindResult<T> {
 
   private static final BindResult<?> UNBOUND = new BindResult<>(null);
 
+  @Nullable
   private final T value;
 
-  private BindResult(T value) {
+  private BindResult(@Nullable T value) {
     this.value = value;
   }
 
@@ -155,7 +157,7 @@ public final class BindResult<T> {
   }
 
   @SuppressWarnings("unchecked")
-  static <T> BindResult<T> of(T value) {
+  static <T> BindResult<T> of(@Nullable T value) {
     if (value == null) {
       return (BindResult<T>) UNBOUND;
     }

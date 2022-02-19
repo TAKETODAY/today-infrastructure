@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * annotation will only be used if the property is not found in the property sources used
  * by the {@link Binder}. For example, if the property is present in the
  * {@link cn.taketoday.core.env.Environment} when binding to
- * {@link cn.taketoday.boot.context.properties.ConfigurationProperties @ConfigurationProperties},
+ * {@link cn.taketoday.context.properties.ConfigurationProperties @ConfigurationProperties},
  * the default value for the property will not be used even if the property value is
  * empty.
  *

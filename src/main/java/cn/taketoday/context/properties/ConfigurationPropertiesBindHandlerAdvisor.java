@@ -20,14 +20,15 @@
 
 package cn.taketoday.context.properties;
 
-import cn.taketoday.boot.context.properties.bind.AbstractBindHandler;
-import cn.taketoday.boot.context.properties.bind.BindHandler;
+import cn.taketoday.context.properties.bind.AbstractBindHandler;
+import cn.taketoday.context.properties.bind.BindHandler;
 
 /**
  * Allows additional functionality to be applied to the {@link BindHandler} used by the
  * {@link ConfigurationPropertiesBindingPostProcessor}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractBindHandler
  * @since 4.0
  */

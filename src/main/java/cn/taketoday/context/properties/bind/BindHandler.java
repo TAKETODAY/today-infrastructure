@@ -66,7 +66,10 @@ public interface BindHandler {
    * @return the actual result that should be used (may be {@code null})
    */
   @Nullable
-  default Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+  default Object onSuccess(ConfigurationPropertyName name,
+                           Bindable<?> target,
+                           BindContext context,
+                           Object result) {
     return result;
   }
 
@@ -81,7 +84,10 @@ public interface BindHandler {
    * @param result the newly created instance (never {@code null})
    * @return the actual result that should be used (must not be {@code null})
    */
-  default Object onCreate(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+  default Object onCreate(ConfigurationPropertyName name,
+                          Bindable<?> target,
+                          BindContext context,
+                          Object result) {
     return result;
   }
 
@@ -99,8 +105,9 @@ public interface BindHandler {
    */
   @Nullable
   default Object onFailure(ConfigurationPropertyName name,
-                           Bindable<?> target, BindContext context, Exception error)
-          throws Exception {
+                           Bindable<?> target,
+                           BindContext context,
+                           Exception error) throws Exception {
     throw error;
   }
 
@@ -116,8 +123,9 @@ public interface BindHandler {
    * @throws Exception if the binding isn't valid
    */
   default void onFinish(ConfigurationPropertyName name,
-                        Bindable<?> target, BindContext context, @Nullable Object result)
-          throws Exception {
+                        Bindable<?> target,
+                        BindContext context,
+                        @Nullable Object result) throws Exception {
   }
 
 }

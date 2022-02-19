@@ -20,11 +20,14 @@
 
 package cn.taketoday.context.properties.bind.handler;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.context.properties.bind.AbstractBindHandler;
 import cn.taketoday.context.properties.bind.BindContext;
 import cn.taketoday.context.properties.bind.BindHandler;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link BindHandler} that can be used to ignore binding errors.
@@ -42,10 +45,14 @@ public class IgnoreErrorsBindHandler extends AbstractBindHandler {
     super(parent);
   }
 
+  @Nullable
   @Override
-  public Object onFailure(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Exception error)
-          throws Exception {
-    return (target.getValue() != null) ? target.getValue().get() : null;
+  public Object onFailure(ConfigurationPropertyName name,
+                          Bindable<?> target,
+                          BindContext context,
+                          Exception error) throws Exception {
+    Supplier<?> value = target.getValue();
+    return value != null ? value.get() : null;
   }
 
 }

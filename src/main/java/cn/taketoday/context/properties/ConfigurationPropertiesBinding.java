@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.annotation.Qualifier;
  * {@link ConfigurationProperties @ConfigurationProperties} (e.g. Converters).
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Qualifier(ConfigurationPropertiesBinding.VALUE)
@@ -44,6 +45,6 @@ public @interface ConfigurationPropertiesBinding {
   /**
    * Concrete value for the {@link Qualifier @Qualifier}.
    */
-  String VALUE = "cn.taketoday.boot.context.properties.ConfigurationPropertiesBinding";
+  String VALUE = "cn.taketoday.context.properties.ConfigurationPropertiesBinding";
 
 }

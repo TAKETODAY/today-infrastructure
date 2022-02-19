@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationProperty;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.context.properties.source.ConfigurationProperty;
+import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 
 /**
  * {@link BindException} thrown when {@link ConfigurationPropertySource} elements were
@@ -33,6 +33,7 @@ import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class UnboundConfigurationPropertiesException extends RuntimeException {

@@ -29,11 +29,9 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.boot.context.properties.bind.PropertySourcesPlaceholdersResolver;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -45,14 +43,17 @@ import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Bindable.BindRestriction;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.bind.BoundPropertiesTrackingBindHandler;
+import cn.taketoday.context.properties.bind.PropertySourcesPlaceholdersResolver;
 import cn.taketoday.context.properties.bind.handler.IgnoreErrorsBindHandler;
 import cn.taketoday.context.properties.bind.handler.IgnoreTopLevelConverterNotFoundBindHandler;
 import cn.taketoday.context.properties.bind.handler.NoUnboundElementsBindHandler;
 import cn.taketoday.context.properties.bind.validation.ValidationBindHandler;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.properties.source.UnboundElementsSourceFilter;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.convert.ConversionService;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.Validator;
@@ -79,12 +80,15 @@ class ConfigurationPropertiesBinder {
 
   private final PropertySources propertySources;
 
+  @Nullable
   private final Validator configurationPropertiesValidator;
 
   private final boolean jsr303Present;
 
+  @Nullable
   private volatile Validator jsr303Validator;
 
+  @Nullable
   private volatile Binder binder;
 
   ConfigurationPropertiesBinder(ApplicationContext applicationContext) {
@@ -158,24 +162,28 @@ class ConfigurationPropertiesBinder {
   }
 
   private Validator getJsr303Validator() {
-    if (this.jsr303Validator == null) {
-      this.jsr303Validator = new ConfigurationPropertiesJsr303Validator(this.applicationContext);
+    Validator jsr303Validator = this.jsr303Validator;
+
+    if (jsr303Validator == null) {
+      this.jsr303Validator = jsr303Validator = new ConfigurationPropertiesJsr303Validator(this.applicationContext);
     }
-    return this.jsr303Validator;
+    return jsr303Validator;
   }
 
   private List<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
-    return this.applicationContext.getBeanProvider(ConfigurationPropertiesBindHandlerAdvisor.class).orderedStream()
-            .collect(Collectors.toList());
+    return this.applicationContext.getObjectSupplier(
+            ConfigurationPropertiesBindHandlerAdvisor.class).orderedStream().collect(Collectors.toList());
   }
 
   private Binder getBinder() {
-    if (this.binder == null) {
-      this.binder = new Binder(getConfigurationPropertySources(), getPropertySourcesPlaceholdersResolver(),
+    Binder binder = this.binder;
+    if (binder == null) {
+      binder = new Binder(getConfigurationPropertySources(), getPropertySourcesPlaceholdersResolver(),
               getConversionServices(), getPropertyEditorInitializer(), null,
               ConfigurationPropertiesBindConstructorProvider.INSTANCE);
+      this.binder = binder;
     }
-    return this.binder;
+    return binder;
   }
 
   private Iterable<ConfigurationPropertySource> getConfigurationPropertySources() {
@@ -186,10 +194,12 @@ class ConfigurationPropertiesBinder {
     return new PropertySourcesPlaceholdersResolver(this.propertySources);
   }
 
+  @Nullable
   private List<ConversionService> getConversionServices() {
-    return new ConversionServiceDeducer(this.applicationContext).getConversionServices();
+    return new ConversionServiceDeducer(applicationContext).getConversionServices();
   }
 
+  @Nullable
   private Consumer<PropertyEditorRegistry> getPropertyEditorInitializer() {
     if (this.applicationContext instanceof ConfigurableApplicationContext) {
       return ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory()::copyRegisteredEditorsTo;
@@ -204,17 +214,18 @@ class ConfigurationPropertiesBinder {
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.FACTORY_BEAN_NAME, definition);
     }
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      BeanDefinition definition = new BeanDefinition(ConfigurationPropertiesBinder.class,
-              ((BeanFactory) registry).getBean(FACTORY_BEAN_NAME, Factory.class).create());
+      BeanDefinition definition = new BeanDefinition(ConfigurationPropertiesBinder.class);
 
-      definition.setInstanceSupplier(() ->);
+      definition.setInstanceSupplier(
+              () -> BeanFactoryUtils.requiredBean((BeanFactory) registry, FACTORY_BEAN_NAME, Factory.class).create()
+      );
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.BEAN_NAME, definition);
     }
   }
 
   static ConfigurationPropertiesBinder get(BeanFactory beanFactory) {
-    return beanFactory.getBean(BEAN_NAME, ConfigurationPropertiesBinder.class);
+    return BeanFactoryUtils.requiredBean(beanFactory, BEAN_NAME, ConfigurationPropertiesBinder.class);
   }
 
   /**

@@ -27,6 +27,7 @@ import cn.taketoday.core.env.PropertyResolver;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertySourcesPlaceholdersResolver
  * @since 4.0
  */

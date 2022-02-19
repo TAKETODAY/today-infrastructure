@@ -25,21 +25,24 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import cn.taketoday.boot.context.properties.bind.Binder.Context;
-import cn.taketoday.boot.context.properties.source.ConfigurationProperty;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName.Form;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyState;
-import cn.taketoday.boot.context.properties.source.IterableConfigurationPropertySource;
-import cn.taketoday.core.CollectionFactory;
+import cn.taketoday.context.properties.bind.Binder.Context;
+import cn.taketoday.context.properties.source.ConfigurationProperty;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName.Form;
+import cn.taketoday.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.context.properties.source.ConfigurationPropertyState;
+import cn.taketoday.context.properties.source.IterableConfigurationPropertySource;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link AggregateBinder} for Maps.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class MapBinder extends AggregateBinder<Map<Object, Object>> {
 
@@ -55,10 +58,11 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
   }
 
   @Override
-  protected Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
-                                 AggregateElementBinder elementBinder) {
-    Map<Object, Object> map = CollectionFactory
-            .createMap((target.getValue() != null) ? Map.class : target.getType().resolve(Object.class), 0);
+  protected Object bindAggregate(
+          ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
+    Map<Object, Object> map = CollectionUtils.createMap(
+            (target.getValue() != null) ? Map.class : target.getType().resolve(Object.class), 0);
+
     Bindable<?> resolvedTarget = resolveTarget(target);
     boolean hasDescendants = hasDescendants(name);
     for (ConfigurationPropertySource source : getContext().getSources()) {
@@ -108,6 +112,7 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
     }
   }
 
+  @Nullable
   private Map<Object, Object> getExistingIfPossible(Supplier<Map<Object, Object>> existing) {
     try {
       return existing.get();
@@ -127,7 +132,7 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
   }
 
   private Map<Object, Object> createNewMap(Class<?> mapClass, Map<Object, Object> map) {
-    Map<Object, Object> result = CollectionFactory.createMap(mapClass, map.size());
+    Map<Object, Object> result = CollectionUtils.createMap(mapClass, map.size());
     result.putAll(map);
     return result;
   }
@@ -154,10 +159,11 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
 
     void bindEntries(ConfigurationPropertySource source, Map<Object, Object> map) {
       if (source instanceof IterableConfigurationPropertySource) {
+        BindConverter converter = getContext().getConverter();
         for (ConfigurationPropertyName name : (IterableConfigurationPropertySource) source) {
           Bindable<?> valueBindable = getValueBindable(name);
           ConfigurationPropertyName entryName = getEntryName(source, name);
-          Object key = getContext().getConverter().convert(getKeyName(entryName), this.keyType);
+          Object key = converter.convert(getKeyName(entryName), this.keyType);
           map.computeIfAbsent(key, (k) -> this.elementBinder.bind(entryName, valueBindable));
         }
       }
@@ -170,8 +176,8 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
       return Bindable.of(this.valueType);
     }
 
-    private ConfigurationPropertyName getEntryName(ConfigurationPropertySource source,
-                                                   ConfigurationPropertyName name) {
+    private ConfigurationPropertyName getEntryName(
+            ConfigurationPropertySource source, ConfigurationPropertyName name) {
       Class<?> resolved = this.valueType.resolve(Object.class);
       if (Collection.class.isAssignableFrom(resolved) || this.valueType.isArray()) {
         return chopNameAtNumericIndex(name);

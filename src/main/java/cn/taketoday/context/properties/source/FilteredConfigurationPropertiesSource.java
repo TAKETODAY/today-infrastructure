@@ -22,13 +22,15 @@ package cn.taketoday.context.properties.source;
 
 import java.util.function.Predicate;
 
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 /**
  * A filtered {@link ConfigurationPropertySource}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class FilteredConfigurationPropertiesSource implements ConfigurationPropertySource {
 
@@ -36,8 +38,8 @@ class FilteredConfigurationPropertiesSource implements ConfigurationPropertySour
 
   private final Predicate<ConfigurationPropertyName> filter;
 
-  FilteredConfigurationPropertiesSource(ConfigurationPropertySource source,
-                                        Predicate<ConfigurationPropertyName> filter) {
+  FilteredConfigurationPropertiesSource(
+          ConfigurationPropertySource source, Predicate<ConfigurationPropertyName> filter) {
     Assert.notNull(source, "Source must not be null");
     Assert.notNull(filter, "Filter must not be null");
     this.source = source;
@@ -75,7 +77,7 @@ class FilteredConfigurationPropertiesSource implements ConfigurationPropertySour
 
   @Override
   public String toString() {
-    return this.source.toString() + " (filtered)";
+    return this.source + " (filtered)";
   }
 
 }

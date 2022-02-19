@@ -21,6 +21,7 @@
 package cn.taketoday.context.properties.source;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
@@ -34,36 +35,42 @@ import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import cn.taketoday.boot.origin.Origin;
-import cn.taketoday.boot.origin.OriginLookup;
-import cn.taketoday.boot.origin.PropertySourceOrigin;
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.env.SystemEnvironmentPropertySource;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
+import cn.taketoday.origin.PropertySourceOrigin;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link ConfigurationPropertySource} backed by an {@link EnumerablePropertySource}.
- * Extends {@link SpringConfigurationPropertySource} with full "relaxed" mapping support.
+ * Extends {@link FrameworkConfigurationPropertySource} with full "relaxed" mapping support.
  * In order to use this adapter the underlying {@link PropertySource} must be fully
  * enumerable. A security restricted {@link SystemEnvironmentPropertySource} cannot be
  * adapted.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyMapper
+ * @since 4.0
  */
-class SpringIterableConfigurationPropertySource extends SpringConfigurationPropertySource
+class FrameworkIterableConfigurationPropertySource extends FrameworkConfigurationPropertySource
         implements IterableConfigurationPropertySource, CachingConfigurationPropertySource {
 
   private final BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck;
 
   private final SoftReferenceConfigurationPropertyCache<Mappings> cache;
 
+  @Nullable
   private volatile ConfigurationPropertyName[] configurationPropertyNames;
 
-  SpringIterableConfigurationPropertySource(EnumerablePropertySource<?> propertySource, PropertyMapper... mappers) {
+  FrameworkIterableConfigurationPropertySource(
+          EnumerablePropertySource<?> propertySource, PropertyMapper... mappers) {
     super(propertySource, mappers);
     assertEnumerablePropertySource();
     this.ancestorOfCheck = getAncestorOfCheck(mappers);
@@ -72,8 +79,8 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
 
   private BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> getAncestorOfCheck(
           PropertyMapper[] mappers) {
-    BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck = mappers[0]
-            .getAncestorOfCheck();
+    BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck
+            = mappers[0].getAncestorOfCheck();
     for (int i = 1; i < mappers.length; i++) {
       ancestorOfCheck = ancestorOfCheck.or(mappers[i].getAncestorOfCheck());
     }
@@ -97,7 +104,7 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
   }
 
   @Override
-  public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
+  public ConfigurationProperty getConfigurationProperty(@Nullable ConfigurationPropertyName name) {
     if (name == null) {
       return null;
     }
@@ -167,7 +174,7 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
   }
 
   private Mappings updateMappings(Mappings mappings) {
-    mappings.updateMappings(getPropertySource()::getPropertyNames);
+    mappings.updateMappings(() -> StringUtils.toStringArray(getPropertySource().getPropertyNames()));
     return mappings;
   }
 
@@ -196,15 +203,19 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
     private final boolean immutable;
 
     private final boolean trackDescendants;
-
+    @Nullable
     private volatile Map<ConfigurationPropertyName, Set<String>> mappings;
 
+    @Nullable
     private volatile Map<String, ConfigurationPropertyName> reverseMappings;
 
+    @Nullable
     private volatile Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants;
 
+    @Nullable
     private volatile ConfigurationPropertyName[] configurationPropertyNames;
 
+    @Nullable
     private volatile String[] lastUpdated;
 
     Mappings(PropertyMapper[] mappers, boolean immutable, boolean trackDescendants) {
@@ -238,8 +249,9 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
       int size = propertyNames.length;
       Map<ConfigurationPropertyName, Set<String>> mappings = cloneOrCreate(this.mappings, size);
       Map<String, ConfigurationPropertyName> reverseMappings = cloneOrCreate(this.reverseMappings, size);
-      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants = cloneOrCreate(this.descendants,
-              size);
+      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants
+              = cloneOrCreate(this.descendants, size);
+
       for (PropertyMapper propertyMapper : this.mappers) {
         for (String propertyName : propertyNames) {
           if (!reverseMappings.containsKey(propertyName)) {
@@ -258,11 +270,12 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
       this.reverseMappings = reverseMappings;
       this.descendants = descendants;
       this.lastUpdated = this.immutable ? null : propertyNames;
-      this.configurationPropertyNames = this.immutable
-                                        ? reverseMappings.values().toArray(new ConfigurationPropertyName[0]) : null;
+      this.configurationPropertyNames =
+              this.immutable
+              ? reverseMappings.values().toArray(new ConfigurationPropertyName[0]) : null;
     }
 
-    private <K, V> Map<K, V> cloneOrCreate(Map<K, V> source, int size) {
+    private <K, V> Map<K, V> cloneOrCreate(@Nullable Map<K, V> source, int size) {
       return (source != null) ? new LinkedHashMap<>(source) : new LinkedHashMap<>(size);
     }
 
@@ -283,7 +296,7 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
       return this.mappings.getOrDefault(configurationPropertyName, Collections.emptySet());
     }
 
-    ConfigurationPropertyName[] getConfigurationPropertyNames(String[] propertyNames) {
+    ConfigurationPropertyName[] getConfigurationPropertyNames(Collection<String> propertyNames) {
       ConfigurationPropertyName[] names = this.configurationPropertyNames;
       if (names != null) {
         return names;
@@ -292,15 +305,16 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
       if (reverseMappings == null || reverseMappings.isEmpty()) {
         return EMPTY_NAMES_ARRAY;
       }
-      names = new ConfigurationPropertyName[propertyNames.length];
-      for (int i = 0; i < propertyNames.length; i++) {
-        names[i] = reverseMappings.get(propertyNames[i]);
+      names = new ConfigurationPropertyName[propertyNames.size()];
+      int i = 0;
+      for (String propertyName : propertyNames) {
+        names[i++] = reverseMappings.get(propertyName);
       }
       return names;
     }
 
-    ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name,
-                                                    BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck) {
+    ConfigurationPropertyState containsDescendantOf(
+            ConfigurationPropertyName name, BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck) {
       if (name.isEmpty() && !this.descendants.isEmpty()) {
         return ConfigurationPropertyState.PRESENT;
       }

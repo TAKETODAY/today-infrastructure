@@ -20,11 +20,15 @@
 
 package cn.taketoday.context.properties.source;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Interface used to indicate that a {@link ConfigurationPropertySource} supports
  * {@link ConfigurationPropertyCaching}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 interface CachingConfigurationPropertySource {
 
@@ -42,6 +46,7 @@ interface CachingConfigurationPropertySource {
    * @return a {@link ConfigurationPropertyCaching} instance or {@code null} if the
    * source does not support caching.
    */
+  @Nullable
   static ConfigurationPropertyCaching find(ConfigurationPropertySource source) {
     if (source instanceof CachingConfigurationPropertySource) {
       return ((CachingConfigurationPropertySource) source).getCaching();

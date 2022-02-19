@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiPredicate;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName.Form;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName.Form;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link PropertyMapper} for system environment variables. Names are mapped by removing
@@ -37,8 +38,10 @@ import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName.For
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyMapper
- * @see SpringConfigurationPropertySource
+ * @see FrameworkConfigurationPropertySource
+ * @since 4.0
  */
 final class SystemEnvironmentPropertyMapper implements PropertyMapper {
 
@@ -124,6 +127,7 @@ final class SystemEnvironmentPropertyMapper implements PropertyMapper {
     return legacyCompatibleName != null && legacyCompatibleName.isAncestorOf(candidate);
   }
 
+  @Nullable
   private ConfigurationPropertyName buildLegacyCompatibleName(ConfigurationPropertyName name) {
     StringBuilder legacyCompatibleName = new StringBuilder();
     for (int i = 0; i < name.getNumberOfElements(); i++) {

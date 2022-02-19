@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.properties;
 
-import cn.taketoday.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
 
 /**
  * A {@code FailureAnalyzer} that performs analysis of failures caused by a

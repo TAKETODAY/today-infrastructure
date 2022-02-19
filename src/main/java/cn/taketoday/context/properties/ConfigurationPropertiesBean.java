@@ -183,9 +183,6 @@ public final class ConfigurationPropertiesBean {
 
   private static boolean isConfigurationPropertiesBean(ConfigurableBeanFactory beanFactory, String beanName) {
     try {
-      if (beanFactory.getBeanDefinition(beanName).isAbstract()) {
-        return false;
-      }
       if (beanFactory.findAnnotationOnBean(beanName, ConfigurationProperties.class) != null) {
         return true;
       }
@@ -212,7 +209,8 @@ public final class ConfigurationPropertiesBean {
    * {@link ConfigurationProperties @ConfigurationProperties}
    */
   @Nullable
-  public static ConfigurationPropertiesBean get(ApplicationContext applicationContext, Object bean, String beanName) {
+  public static ConfigurationPropertiesBean get(
+          ApplicationContext applicationContext, Object bean, String beanName) {
     Method factoryMethod = findFactoryMethod(applicationContext, beanName);
     return create(beanName, bean, bean.getClass(), factoryMethod);
   }

@@ -49,8 +49,8 @@ interface DataObjectBinder {
    * @return a bound instance or {@code null}
    */
   @Nullable
-  <T> T bind(ConfigurationPropertyName name, Bindable<T> target, Context context,
-             DataObjectPropertyBinder propertyBinder);
+  <T> T bind(ConfigurationPropertyName name,
+             Bindable<T> target, Context context, DataObjectPropertyBinder propertyBinder);
 
   /**
    * Return a newly created instance or {@code null} if the {@link DataObjectBinder}

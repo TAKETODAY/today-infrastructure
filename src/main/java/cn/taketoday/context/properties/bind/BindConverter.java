@@ -39,11 +39,11 @@ import cn.taketoday.beans.propertyeditors.FileEditor;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConditionalGenericConverter;
+import cn.taketoday.core.conversion.ConversionException;
+import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.support.GenericConversionService;
-import cn.taketoday.core.convert.ConversionException;
-import cn.taketoday.core.convert.ConversionFailedException;
-import cn.taketoday.core.convert.ConverterNotFoundException;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -54,16 +54,19 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class BindConverter {
 
+  @Nullable
   private static BindConverter sharedInstance;
 
   private final List<ConversionService> delegates;
 
-  private BindConverter(List<ConversionService> conversionServices,
-                        Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
-    List<ConversionService> delegates = new ArrayList<>();
+  private BindConverter(@Nullable List<ConversionService> conversionServices,
+                        @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
+    ArrayList<ConversionService> delegates = new ArrayList<>();
     delegates.add(new TypeConverterConversionService(propertyEditorInitializer));
     boolean hasApplication = false;
     if (!CollectionUtils.isEmpty(conversionServices)) {
@@ -79,7 +82,7 @@ final class BindConverter {
   }
 
   boolean canConvert(Object source, ResolvableType targetType, Annotation... targetAnnotations) {
-    return canConvert(TypeDescriptor.forObject(source),
+    return canConvert(TypeDescriptor.fromObject(source),
             new ResolvableTypeDescriptor(targetType, targetAnnotations));
   }
 
@@ -92,16 +95,18 @@ final class BindConverter {
     return false;
   }
 
+  @Nullable
   <T> T convert(Object source, Bindable<T> target) {
     return convert(source, target.getType(), target.getAnnotations());
   }
 
   @SuppressWarnings("unchecked")
-  <T> T convert(Object source, ResolvableType targetType, Annotation... targetAnnotations) {
+  @Nullable
+  <T> T convert(@Nullable Object source, ResolvableType targetType, Annotation... targetAnnotations) {
     if (source == null) {
       return null;
     }
-    return (T) convert(source, TypeDescriptor.forObject(source),
+    return (T) convert(source, TypeDescriptor.fromObject(source),
             new ResolvableTypeDescriptor(targetType, targetAnnotations));
   }
 
@@ -119,7 +124,7 @@ final class BindConverter {
         }
       }
     }
-    throw (failure != null) ? failure : new ConverterNotFoundException(sourceType, targetType);
+    throw failure != null ? failure : new ConverterNotFoundException(sourceType, targetType);
   }
 
   static BindConverter get(
@@ -158,7 +163,7 @@ final class BindConverter {
    */
   private static class TypeConverterConversionService extends GenericConversionService {
 
-    TypeConverterConversionService(Consumer<PropertyEditorRegistry> initializer) {
+    TypeConverterConversionService(@Nullable Consumer<PropertyEditorRegistry> initializer) {
       addConverter(new TypeConverterConverter(initializer));
       ApplicationConversionService.addDelimitedStringConverters(this);
     }
@@ -166,8 +171,11 @@ final class BindConverter {
     @Override
     public boolean canConvert(TypeDescriptor sourceType, TypeDescriptor targetType) {
       // Prefer conversion service to handle things like String to char[].
-      if (targetType.isArray() && targetType.getElementTypeDescriptor().isPrimitive()) {
-        return false;
+      if (targetType.isArray()) {
+        TypeDescriptor descriptor = targetType.getElementDescriptor();
+        if (descriptor != null && descriptor.isPrimitive()) {
+          return false;
+        }
       }
       return super.canConvert(sourceType, targetType);
     }

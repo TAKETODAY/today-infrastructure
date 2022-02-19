@@ -21,18 +21,19 @@
 package cn.taketoday.context.properties;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.boot.context.properties.ConfigurationPropertiesBean.BindMethod;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link BeanPostProcessor} to bind {@link PropertySources} to beans annotated with
@@ -43,10 +44,11 @@ import cn.taketoday.util.Assert;
  * @author Christian Dupuis
  * @author Stephane Nicoll
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ConfigurationPropertiesBindingPostProcessor
-        implements BeanPostProcessor, PriorityOrdered, ApplicationContextAware, InitializingBean {
+        implements InitializationBeanPostProcessor, PriorityOrdered, ApplicationContextAware, InitializingBean {
 
   /**
    * The bean name that this post-processor is registered with.
@@ -68,8 +70,8 @@ public class ConfigurationPropertiesBindingPostProcessor
   public void afterPropertiesSet() throws Exception {
     // We can't use constructor injection of the application context because
     // it causes eager factory bean initialization
-    this.registry = (BeanDefinitionRegistry) this.applicationContext.getAutowireCapableBeanFactory();
-    this.binder = ConfigurationPropertiesBinder.get(this.applicationContext);
+    this.registry = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
+    this.binder = ConfigurationPropertiesBinder.get(applicationContext);
   }
 
   @Override
@@ -83,12 +85,14 @@ public class ConfigurationPropertiesBindingPostProcessor
     return bean;
   }
 
-  private void bind(ConfigurationPropertiesBean bean) {
+  private void bind(@Nullable ConfigurationPropertiesBean bean) {
     if (bean == null || hasBoundValueObject(bean.getName())) {
       return;
     }
-    Assert.state(bean.getBindMethod() == BindMethod.JAVA_BEAN, "Cannot bind @ConfigurationProperties for bean '"
-            + bean.getName() + "'. Ensure that @ConstructorBinding has not been applied to regular bean");
+    if (bean.getBindMethod() != BindMethod.JAVA_BEAN) {
+      throw new IllegalStateException("Cannot bind @ConfigurationProperties for bean '"
+              + bean.getName() + "'. Ensure that @ConstructorBinding has not been applied to regular bean");
+    }
     try {
       this.binder.bind(bean);
     }
@@ -98,8 +102,11 @@ public class ConfigurationPropertiesBindingPostProcessor
   }
 
   private boolean hasBoundValueObject(String beanName) {
-    return this.registry.containsBeanDefinition(beanName) && BindMethod.VALUE_OBJECT
-            .equals(this.registry.getBeanDefinition(beanName).getAttribute(BindMethod.class.getName()));
+    BeanDefinition definition = registry.getBeanDefinition(beanName);
+    if (definition != null) {
+      return BindMethod.VALUE_OBJECT.equals(definition.getAttribute(BindMethod.class.getName()));
+    }
+    return false;
   }
 
   /**
@@ -107,13 +114,11 @@ public class ConfigurationPropertiesBindingPostProcessor
    * already registered.
    *
    * @param registry the bean definition registry
-   * @since 4.0
    */
   public static void register(BeanDefinitionRegistry registry) {
     Assert.notNull(registry, "Registry must not be null");
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      BeanDefinition definition = BeanDefinitionBuilder
-              .rootBeanDefinition(ConfigurationPropertiesBindingPostProcessor.class).getBeanDefinition();
+      BeanDefinition definition = new BeanDefinition(ConfigurationPropertiesBindingPostProcessor.class);
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(BEAN_NAME, definition);
     }

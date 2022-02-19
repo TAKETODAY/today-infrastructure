@@ -27,12 +27,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-import cn.taketoday.boot.origin.OriginLookup;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySource.StubPropertySource;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ConcurrentReferenceHashMap.ReferenceType;
 
@@ -41,15 +42,17 @@ import cn.taketoday.util.ConcurrentReferenceHashMap.ReferenceType;
  * {@link ConfigurationPropertySource ConfigurationPropertySources}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-class SpringConfigurationPropertySources implements Iterable<ConfigurationPropertySource> {
+class FrameworkConfigurationPropertySources implements Iterable<ConfigurationPropertySource> {
 
   private final Iterable<PropertySource<?>> sources;
 
   private final Map<PropertySource<?>, ConfigurationPropertySource> cache = new ConcurrentReferenceHashMap<>(16,
           ReferenceType.SOFT);
 
-  SpringConfigurationPropertySources(Iterable<PropertySource<?>> sources) {
+  FrameworkConfigurationPropertySources(Iterable<PropertySource<?>> sources) {
     Assert.notNull(sources, "Sources must not be null");
     this.sources = sources;
   }
@@ -70,7 +73,7 @@ class SpringConfigurationPropertySources implements Iterable<ConfigurationProper
     if (result != null && result.getUnderlyingSource() == source) {
       return result;
     }
-    result = SpringConfigurationPropertySource.from(source);
+    result = FrameworkConfigurationPropertySource.from(source);
     if (source instanceof OriginLookup) {
       result = result.withPrefix(((OriginLookup<?>) source).getPrefix());
     }
@@ -82,6 +85,7 @@ class SpringConfigurationPropertySources implements Iterable<ConfigurationProper
 
     private final Deque<Iterator<PropertySource<?>>> iterators;
 
+    @Nullable
     private ConfigurationPropertySource next;
 
     private final Function<PropertySource<?>, ConfigurationPropertySource> adapter;
@@ -108,6 +112,7 @@ class SpringConfigurationPropertySources implements Iterable<ConfigurationProper
       return next;
     }
 
+    @Nullable
     private ConfigurationPropertySource fetchNext() {
       if (this.next == null) {
         if (this.iterators.isEmpty()) {

@@ -26,24 +26,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Maintains a mapping of {@link ConfigurationPropertyName} aliases.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationPropertySource#withAliases(ConfigurationPropertyNameAliases)
  * @since 4.0
  */
 public final class ConfigurationPropertyNameAliases implements Iterable<ConfigurationPropertyName> {
 
-  private final MultiValueMap<ConfigurationPropertyName, ConfigurationPropertyName> aliases = new LinkedMultiValueMap<>();
+  private final MultiValueMap<ConfigurationPropertyName, ConfigurationPropertyName>
+          aliases = MultiValueMap.fromLinkedHashMap();
 
-  public ConfigurationPropertyNameAliases() {
-  }
+  public ConfigurationPropertyNameAliases() { }
 
   public ConfigurationPropertyNameAliases(String name, String... aliases) {
     addAliases(name, aliases);
@@ -56,7 +57,8 @@ public final class ConfigurationPropertyNameAliases implements Iterable<Configur
   public void addAliases(String name, String... aliases) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(aliases, "Aliases must not be null");
-    addAliases(ConfigurationPropertyName.of(name),
+    addAliases(
+            ConfigurationPropertyName.of(name),
             Arrays.stream(aliases).map(ConfigurationPropertyName::of).toArray(ConfigurationPropertyName[]::new));
   }
 
@@ -70,6 +72,7 @@ public final class ConfigurationPropertyNameAliases implements Iterable<Configur
     return this.aliases.getOrDefault(name, Collections.emptyList());
   }
 
+  @Nullable
   public ConfigurationPropertyName getNameForAlias(ConfigurationPropertyName alias) {
     return this.aliases.entrySet().stream().filter((e) -> e.getValue().contains(alias)).map(Map.Entry::getKey)
             .findFirst().orElse(null);
