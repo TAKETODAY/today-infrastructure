@@ -27,22 +27,23 @@ import cn.taketoday.core.env.PropertyResolver;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
- * @since 4.0
  * @see PropertySourcesPlaceholdersResolver
+ * @since 4.0
  */
 @FunctionalInterface
 public interface PlaceholdersResolver {
 
-	/**
-	 * No-op {@link PropertyResolver}.
-	 */
-	PlaceholdersResolver NONE = (value) -> value;
+  /**
+   * No-op {@link PropertyResolver}.
+   */
+  PlaceholdersResolver NONE = (value) -> value;
 
-	/**
-	 * Called to resolve any placeholders in the given value.
-	 * @param value the source value
-	 * @return a value with placeholders resolved
-	 */
-	Object resolvePlaceholders(Object value);
+  /**
+   * Called to resolve any placeholders in the given value.
+   *
+   * @param value the source value
+   * @return a value with placeholders resolved
+   */
+  Object resolvePlaceholders(Object value);
 
 }

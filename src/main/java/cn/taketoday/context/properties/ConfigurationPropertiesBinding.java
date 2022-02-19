@@ -20,13 +20,13 @@
 
 package cn.taketoday.context.properties;
 
-import cn.taketoday.beans.factory.annotation.Qualifier;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.beans.factory.annotation.Qualifier;
 
 /**
  * Qualifier for beans that are needed to configure the binding of
@@ -41,9 +41,9 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ConfigurationPropertiesBinding {
 
-	/**
-	 * Concrete value for the {@link Qualifier @Qualifier}.
-	 */
-	String VALUE = "cn.taketoday.boot.context.properties.ConfigurationPropertiesBinding";
+  /**
+   * Concrete value for the {@link Qualifier @Qualifier}.
+   */
+  String VALUE = "cn.taketoday.boot.context.properties.ConfigurationPropertiesBinding";
 
 }

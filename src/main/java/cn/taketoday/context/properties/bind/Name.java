@@ -39,10 +39,11 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Name {
 
-	/**
-	 * The name of the property to use for binding.
-	 * @return the property name
-	 */
-	String value();
+  /**
+   * The name of the property to use for binding.
+   *
+   * @return the property name
+   */
+  String value();
 
 }

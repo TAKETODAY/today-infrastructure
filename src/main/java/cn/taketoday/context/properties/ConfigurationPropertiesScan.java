@@ -20,15 +20,15 @@
 
 package cn.taketoday.context.properties;
 
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.stereotype.Component;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.stereotype.Component;
 
 /**
  * Configures the base packages used when scanning for
@@ -50,35 +50,38 @@ import java.lang.annotation.Target;
 @EnableConfigurationProperties
 public @interface ConfigurationPropertiesScan {
 
-	/**
-	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
-	 * declarations e.g.: {@code @ConfigurationPropertiesScan("org.my.pkg")} instead of
-	 * {@code @ConfigurationPropertiesScan(basePackages="org.my.pkg")}.
-	 * @return the base packages to scan
-	 */
-	@AliasFor("basePackages")
-	String[] value() default {};
+  /**
+   * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
+   * declarations e.g.: {@code @ConfigurationPropertiesScan("org.my.pkg")} instead of
+   * {@code @ConfigurationPropertiesScan(basePackages="org.my.pkg")}.
+   *
+   * @return the base packages to scan
+   */
+  @AliasFor("basePackages")
+  String[] value() default {};
 
-	/**
-	 * Base packages to scan for configuration properties. {@link #value()} is an alias
-	 * for (and mutually exclusive with) this attribute.
-	 * <p>
-	 * Use {@link #basePackageClasses()} for a type-safe alternative to String-based
-	 * package names.
-	 * @return the base packages to scan
-	 */
-	@AliasFor("value")
-	String[] basePackages() default {};
+  /**
+   * Base packages to scan for configuration properties. {@link #value()} is an alias
+   * for (and mutually exclusive with) this attribute.
+   * <p>
+   * Use {@link #basePackageClasses()} for a type-safe alternative to String-based
+   * package names.
+   *
+   * @return the base packages to scan
+   */
+  @AliasFor("value")
+  String[] basePackages() default {};
 
-	/**
-	 * Type-safe alternative to {@link #basePackages()} for specifying the packages to
-	 * scan for configuration properties. The package of each class specified will be
-	 * scanned.
-	 * <p>
-	 * Consider creating a special no-op marker class or interface in each package that
-	 * serves no purpose other than being referenced by this attribute.
-	 * @return classes from the base packages to scan
-	 */
-	Class<?>[] basePackageClasses() default {};
+  /**
+   * Type-safe alternative to {@link #basePackages()} for specifying the packages to
+   * scan for configuration properties. The package of each class specified will be
+   * scanned.
+   * <p>
+   * Consider creating a special no-op marker class or interface in each package that
+   * serves no purpose other than being referenced by this attribute.
+   *
+   * @return classes from the base packages to scan
+   */
+  Class<?>[] basePackageClasses() default {};
 
 }

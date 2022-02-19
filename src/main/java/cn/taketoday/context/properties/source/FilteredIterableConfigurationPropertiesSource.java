@@ -30,26 +30,26 @@ import java.util.stream.Stream;
  * @author Madhura Bhave
  */
 class FilteredIterableConfigurationPropertiesSource extends FilteredConfigurationPropertiesSource
-		implements IterableConfigurationPropertySource {
+        implements IterableConfigurationPropertySource {
 
-	FilteredIterableConfigurationPropertiesSource(IterableConfigurationPropertySource source,
-			Predicate<ConfigurationPropertyName> filter) {
-		super(source, filter);
-	}
+  FilteredIterableConfigurationPropertiesSource(IterableConfigurationPropertySource source,
+                                                Predicate<ConfigurationPropertyName> filter) {
+    super(source, filter);
+  }
 
-	@Override
-	public Stream<ConfigurationPropertyName> stream() {
-		return getSource().stream().filter(getFilter());
-	}
+  @Override
+  public Stream<ConfigurationPropertyName> stream() {
+    return getSource().stream().filter(getFilter());
+  }
 
-	@Override
-	protected IterableConfigurationPropertySource getSource() {
-		return (IterableConfigurationPropertySource) super.getSource();
-	}
+  @Override
+  protected IterableConfigurationPropertySource getSource() {
+    return (IterableConfigurationPropertySource) super.getSource();
+  }
 
-	@Override
-	public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
-		return ConfigurationPropertyState.search(this, name::isAncestorOf);
-	}
+  @Override
+  public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
+    return ConfigurationPropertyState.search(this, name::isAncestorOf);
+  }
 
 }

@@ -33,35 +33,35 @@ import cn.taketoday.boot.diagnostics.FailureAnalysis;
  * @author Madhura Bhave
  */
 class UnboundConfigurationPropertyFailureAnalyzer
-		extends AbstractFailureAnalyzer<UnboundConfigurationPropertiesException> {
+        extends AbstractFailureAnalyzer<UnboundConfigurationPropertiesException> {
 
-	@Override
-	protected FailureAnalysis analyze(Throwable rootFailure, UnboundConfigurationPropertiesException cause) {
-		BindException exception = findCause(rootFailure, BindException.class);
-		return analyzeUnboundConfigurationPropertiesException(exception, cause);
-	}
+  @Override
+  protected FailureAnalysis analyze(Throwable rootFailure, UnboundConfigurationPropertiesException cause) {
+    BindException exception = findCause(rootFailure, BindException.class);
+    return analyzeUnboundConfigurationPropertiesException(exception, cause);
+  }
 
-	private FailureAnalysis analyzeUnboundConfigurationPropertiesException(BindException cause,
-			UnboundConfigurationPropertiesException exception) {
-		StringBuilder description = new StringBuilder(
-				String.format("Binding to target %s failed:%n", cause.getTarget()));
-		for (ConfigurationProperty property : exception.getUnboundProperties()) {
-			buildDescription(description, property);
-			description.append(String.format("%n    Reason: %s", exception.getMessage()));
-		}
-		return getFailureAnalysis(description, cause);
-	}
+  private FailureAnalysis analyzeUnboundConfigurationPropertiesException(BindException cause,
+                                                                         UnboundConfigurationPropertiesException exception) {
+    StringBuilder description = new StringBuilder(
+            String.format("Binding to target %s failed:%n", cause.getTarget()));
+    for (ConfigurationProperty property : exception.getUnboundProperties()) {
+      buildDescription(description, property);
+      description.append(String.format("%n    Reason: %s", exception.getMessage()));
+    }
+    return getFailureAnalysis(description, cause);
+  }
 
-	private void buildDescription(StringBuilder description, ConfigurationProperty property) {
-		if (property != null) {
-			description.append(String.format("%n    Property: %s", property.getName()));
-			description.append(String.format("%n    Value: %s", property.getValue()));
-			description.append(String.format("%n    Origin: %s", property.getOrigin()));
-		}
-	}
+  private void buildDescription(StringBuilder description, ConfigurationProperty property) {
+    if (property != null) {
+      description.append(String.format("%n    Property: %s", property.getName()));
+      description.append(String.format("%n    Value: %s", property.getValue()));
+      description.append(String.format("%n    Origin: %s", property.getOrigin()));
+    }
+  }
 
-	private FailureAnalysis getFailureAnalysis(Object description, BindException cause) {
-		return new FailureAnalysis(description.toString(), "Update your application's configuration", cause);
-	}
+  private FailureAnalysis getFailureAnalysis(Object description, BindException cause) {
+    return new FailureAnalysis(description.toString(), "Update your application's configuration", cause);
+  }
 
 }

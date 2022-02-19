@@ -45,11 +45,12 @@ import java.lang.annotation.Target;
 @Documented
 public @interface DefaultValue {
 
-	/**
-	 * The default value of the property. Can be an array of values for collection or
-	 * array-based properties.
-	 * @return the default value of the property.
-	 */
-	String[] value() default {};
+  /**
+   * The default value of the property. Can be an array of values for collection or
+   * array-based properties.
+   *
+   * @return the default value of the property.
+   */
+  String[] value() default {};
 
 }

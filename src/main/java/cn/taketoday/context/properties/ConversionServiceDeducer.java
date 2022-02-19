@@ -20,6 +20,10 @@
 
 package cn.taketoday.context.properties;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import cn.taketoday.beans.factory.ListableBeanFactory;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -32,10 +36,6 @@ import cn.taketoday.core.convert.converter.GenericConverter;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Utility to deduce the {@link ConversionService} to use for configuration properties
  * binding.
@@ -44,81 +44,81 @@ import java.util.List;
  */
 class ConversionServiceDeducer {
 
-	private final ApplicationContext applicationContext;
+  private final ApplicationContext applicationContext;
 
-	ConversionServiceDeducer(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+  ConversionServiceDeducer(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
 
-	List<ConversionService> getConversionServices() {
-		if (hasUserDefinedConfigurationServiceBean()) {
-			return Collections.singletonList(this.applicationContext
-					.getBean(ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
-		}
-		if (this.applicationContext instanceof ConfigurableApplicationContext) {
-			return getConversionServices((ConfigurableApplicationContext) this.applicationContext);
-		}
-		return null;
-	}
+  List<ConversionService> getConversionServices() {
+    if (hasUserDefinedConfigurationServiceBean()) {
+      return Collections.singletonList(this.applicationContext
+              .getBean(ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+    }
+    if (this.applicationContext instanceof ConfigurableApplicationContext) {
+      return getConversionServices((ConfigurableApplicationContext) this.applicationContext);
+    }
+    return null;
+  }
 
-	private List<ConversionService> getConversionServices(ConfigurableApplicationContext applicationContext) {
-		List<ConversionService> conversionServices = new ArrayList<>();
-		if (applicationContext.getBeanFactory().getConversionService() != null) {
-			conversionServices.add(applicationContext.getBeanFactory().getConversionService());
-		}
-		ConverterBeans converterBeans = new ConverterBeans(applicationContext);
-		if (!converterBeans.isEmpty()) {
-			ApplicationConversionService beansConverterService = new ApplicationConversionService();
-			converterBeans.addTo(beansConverterService);
-			conversionServices.add(beansConverterService);
-		}
-		return conversionServices;
-	}
+  private List<ConversionService> getConversionServices(ConfigurableApplicationContext applicationContext) {
+    List<ConversionService> conversionServices = new ArrayList<>();
+    if (applicationContext.getBeanFactory().getConversionService() != null) {
+      conversionServices.add(applicationContext.getBeanFactory().getConversionService());
+    }
+    ConverterBeans converterBeans = new ConverterBeans(applicationContext);
+    if (!converterBeans.isEmpty()) {
+      ApplicationConversionService beansConverterService = new ApplicationConversionService();
+      converterBeans.addTo(beansConverterService);
+      conversionServices.add(beansConverterService);
+    }
+    return conversionServices;
+  }
 
-	private boolean hasUserDefinedConfigurationServiceBean() {
-		String beanName = ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME;
-		return this.applicationContext.containsBean(beanName) && this.applicationContext.getAutowireCapableBeanFactory()
-				.isTypeMatch(beanName, ConversionService.class);
-	}
+  private boolean hasUserDefinedConfigurationServiceBean() {
+    String beanName = ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME;
+    return this.applicationContext.containsBean(beanName) && this.applicationContext.getAutowireCapableBeanFactory()
+            .isTypeMatch(beanName, ConversionService.class);
+  }
 
-	private static class ConverterBeans {
+  private static class ConverterBeans {
 
-		@SuppressWarnings("rawtypes")
-		private final List<Converter> converters;
+    @SuppressWarnings("rawtypes")
+    private final List<Converter> converters;
 
-		private final List<GenericConverter> genericConverters;
+    private final List<GenericConverter> genericConverters;
 
-		@SuppressWarnings("rawtypes")
-		private final List<Formatter> formatters;
+    @SuppressWarnings("rawtypes")
+    private final List<Formatter> formatters;
 
-		ConverterBeans(ConfigurableApplicationContext applicationContext) {
-			ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
-			this.converters = beans(Converter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
-			this.genericConverters = beans(GenericConverter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
-			this.formatters = beans(Formatter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
-		}
+    ConverterBeans(ConfigurableApplicationContext applicationContext) {
+      ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
+      this.converters = beans(Converter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
+      this.genericConverters = beans(GenericConverter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
+      this.formatters = beans(Formatter.class, ConfigurationPropertiesBinding.VALUE, beanFactory);
+    }
 
-		private <T> List<T> beans(Class<T> type, String qualifier, ListableBeanFactory beanFactory) {
-			return new ArrayList<>(
-					BeanFactoryAnnotationUtils.qualifiedBeansOfType(beanFactory, type, qualifier).values());
-		}
+    private <T> List<T> beans(Class<T> type, String qualifier, ListableBeanFactory beanFactory) {
+      return new ArrayList<>(
+              BeanFactoryAnnotationUtils.qualifiedBeansOfType(beanFactory, type, qualifier).values());
+    }
 
-		boolean isEmpty() {
-			return this.converters.isEmpty() && this.genericConverters.isEmpty() && this.formatters.isEmpty();
-		}
+    boolean isEmpty() {
+      return this.converters.isEmpty() && this.genericConverters.isEmpty() && this.formatters.isEmpty();
+    }
 
-		void addTo(FormatterRegistry registry) {
-			for (Converter<?, ?> converter : this.converters) {
-				registry.addConverter(converter);
-			}
-			for (GenericConverter genericConverter : this.genericConverters) {
-				registry.addConverter(genericConverter);
-			}
-			for (Formatter<?> formatter : this.formatters) {
-				registry.addFormatter(formatter);
-			}
-		}
+    void addTo(FormatterRegistry registry) {
+      for (Converter<?, ?> converter : this.converters) {
+        registry.addConverter(converter);
+      }
+      for (GenericConverter genericConverter : this.genericConverters) {
+        registry.addConverter(genericConverter);
+      }
+      for (Formatter<?> formatter : this.formatters) {
+        registry.addFormatter(formatter);
+      }
+    }
 
-	}
+  }
 
 }

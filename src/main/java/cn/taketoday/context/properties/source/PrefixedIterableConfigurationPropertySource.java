@@ -28,24 +28,24 @@ import java.util.stream.Stream;
  * @author Madhura Bhave
  */
 class PrefixedIterableConfigurationPropertySource extends PrefixedConfigurationPropertySource
-		implements IterableConfigurationPropertySource {
+        implements IterableConfigurationPropertySource {
 
-	PrefixedIterableConfigurationPropertySource(IterableConfigurationPropertySource source, String prefix) {
-		super(source, prefix);
-	}
+  PrefixedIterableConfigurationPropertySource(IterableConfigurationPropertySource source, String prefix) {
+    super(source, prefix);
+  }
 
-	@Override
-	public Stream<ConfigurationPropertyName> stream() {
-		return getSource().stream().map(this::stripPrefix);
-	}
+  @Override
+  public Stream<ConfigurationPropertyName> stream() {
+    return getSource().stream().map(this::stripPrefix);
+  }
 
-	private ConfigurationPropertyName stripPrefix(ConfigurationPropertyName name) {
-		return (getPrefix().isAncestorOf(name)) ? name.subName(getPrefix().getNumberOfElements()) : name;
-	}
+  private ConfigurationPropertyName stripPrefix(ConfigurationPropertyName name) {
+    return (getPrefix().isAncestorOf(name)) ? name.subName(getPrefix().getNumberOfElements()) : name;
+  }
 
-	@Override
-	protected IterableConfigurationPropertySource getSource() {
-		return (IterableConfigurationPropertySource) super.getSource();
-	}
+  @Override
+  protected IterableConfigurationPropertySource getSource() {
+    return (IterableConfigurationPropertySource) super.getSource();
+  }
 
 }

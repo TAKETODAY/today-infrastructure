@@ -42,16 +42,18 @@ import java.lang.annotation.Target;
 @Documented
 public @interface DeprecatedConfigurationProperty {
 
-	/**
-	 * The reason for the deprecation.
-	 * @return the deprecation reason
-	 */
-	String reason() default "";
+  /**
+   * The reason for the deprecation.
+   *
+   * @return the deprecation reason
+   */
+  String reason() default "";
 
-	/**
-	 * The field that should be used instead (if any).
-	 * @return the replacement field
-	 */
-	String replacement() default "";
+  /**
+   * The field that should be used instead (if any).
+   *
+   * @return the replacement field
+   */
+  String replacement() default "";
 
 }

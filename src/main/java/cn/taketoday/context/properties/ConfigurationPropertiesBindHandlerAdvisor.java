@@ -28,18 +28,19 @@ import cn.taketoday.boot.context.properties.bind.BindHandler;
  * {@link ConfigurationPropertiesBindingPostProcessor}.
  *
  * @author Phillip Webb
- * @since 4.0
  * @see AbstractBindHandler
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ConfigurationPropertiesBindHandlerAdvisor {
 
-	/**
-	 * Apply additional functionality to the source bind handler.
-	 * @param bindHandler the source bind handler
-	 * @return a replacement bind handler that delegates to the source and provides
-	 * additional functionality
-	 */
-	BindHandler apply(BindHandler bindHandler);
+  /**
+   * Apply additional functionality to the source bind handler.
+   *
+   * @param bindHandler the source bind handler
+   * @return a replacement bind handler that delegates to the source and provides
+   * additional functionality
+   */
+  BindHandler apply(BindHandler bindHandler);
 
 }

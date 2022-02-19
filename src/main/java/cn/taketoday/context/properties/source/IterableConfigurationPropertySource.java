@@ -20,12 +20,12 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.boot.origin.OriginTrackedValue;
-import cn.taketoday.util.StringUtils;
-
 import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import cn.taketoday.boot.origin.OriginTrackedValue;
+import cn.taketoday.util.StringUtils;
 
 /**
  * A {@link ConfigurationPropertySource} with a fully {@link Iterable} set of entries.
@@ -36,51 +36,53 @@ import java.util.stream.Stream;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
- * @since 4.0
  * @see ConfigurationPropertyName
  * @see OriginTrackedValue
  * @see #getConfigurationProperty(ConfigurationPropertyName)
  * @see #iterator()
  * @see #stream()
+ * @since 4.0
  */
 public interface IterableConfigurationPropertySource
-		extends ConfigurationPropertySource, Iterable<ConfigurationPropertyName> {
+        extends ConfigurationPropertySource, Iterable<ConfigurationPropertyName> {
 
-	/**
-	 * Return an iterator for the {@link ConfigurationPropertyName names} managed by this
-	 * source.
-	 * @return an iterator (never {@code null})
-	 */
-	@Override
-	default Iterator<ConfigurationPropertyName> iterator() {
-		return stream().iterator();
-	}
+  /**
+   * Return an iterator for the {@link ConfigurationPropertyName names} managed by this
+   * source.
+   *
+   * @return an iterator (never {@code null})
+   */
+  @Override
+  default Iterator<ConfigurationPropertyName> iterator() {
+    return stream().iterator();
+  }
 
-	/**
-	 * Returns a sequential {@code Stream} for the {@link ConfigurationPropertyName names}
-	 * managed by this source.
-	 * @return a stream of names (never {@code null})
-	 */
-	Stream<ConfigurationPropertyName> stream();
+  /**
+   * Returns a sequential {@code Stream} for the {@link ConfigurationPropertyName names}
+   * managed by this source.
+   *
+   * @return a stream of names (never {@code null})
+   */
+  Stream<ConfigurationPropertyName> stream();
 
-	@Override
-	default ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
-		return ConfigurationPropertyState.search(this, name::isAncestorOf);
-	}
+  @Override
+  default ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
+    return ConfigurationPropertyState.search(this, name::isAncestorOf);
+  }
 
-	@Override
-	default IterableConfigurationPropertySource filter(Predicate<ConfigurationPropertyName> filter) {
-		return new FilteredIterableConfigurationPropertiesSource(this, filter);
-	}
+  @Override
+  default IterableConfigurationPropertySource filter(Predicate<ConfigurationPropertyName> filter) {
+    return new FilteredIterableConfigurationPropertiesSource(this, filter);
+  }
 
-	@Override
-	default IterableConfigurationPropertySource withAliases(ConfigurationPropertyNameAliases aliases) {
-		return new AliasedIterableConfigurationPropertySource(this, aliases);
-	}
+  @Override
+  default IterableConfigurationPropertySource withAliases(ConfigurationPropertyNameAliases aliases) {
+    return new AliasedIterableConfigurationPropertySource(this, aliases);
+  }
 
-	@Override
-	default IterableConfigurationPropertySource withPrefix(String prefix) {
-		return (StringUtils.hasText(prefix)) ? new PrefixedIterableConfigurationPropertySource(this, prefix) : this;
-	}
+  @Override
+  default IterableConfigurationPropertySource withPrefix(String prefix) {
+    return (StringUtils.hasText(prefix)) ? new PrefixedIterableConfigurationPropertySource(this, prefix) : this;
+  }
 
 }

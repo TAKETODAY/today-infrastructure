@@ -27,35 +27,36 @@ import cn.taketoday.util.Assert;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
- * @since 4.0
  * @see ValidationErrors
  * @see ValidationBindHandler
+ * @since 4.0
  */
 public class BindValidationException extends RuntimeException {
 
-	private final ValidationErrors validationErrors;
+  private final ValidationErrors validationErrors;
 
-	BindValidationException(ValidationErrors validationErrors) {
-		super(getMessage(validationErrors));
-		Assert.notNull(validationErrors, "ValidationErrors must not be null");
-		this.validationErrors = validationErrors;
-	}
+  BindValidationException(ValidationErrors validationErrors) {
+    super(getMessage(validationErrors));
+    Assert.notNull(validationErrors, "ValidationErrors must not be null");
+    this.validationErrors = validationErrors;
+  }
 
-	/**
-	 * Return the validation errors that caused the exception.
-	 * @return the validationErrors the validation errors
-	 */
-	public ValidationErrors getValidationErrors() {
-		return this.validationErrors;
-	}
+  /**
+   * Return the validation errors that caused the exception.
+   *
+   * @return the validationErrors the validation errors
+   */
+  public ValidationErrors getValidationErrors() {
+    return this.validationErrors;
+  }
 
-	private static String getMessage(ValidationErrors errors) {
-		StringBuilder message = new StringBuilder("Binding validation errors");
-		if (errors != null) {
-			message.append(" on ").append(errors.getName());
-			errors.getAllErrors().forEach((error) -> message.append(String.format("%n   - %s", error)));
-		}
-		return message.toString();
-	}
+  private static String getMessage(ValidationErrors errors) {
+    StringBuilder message = new StringBuilder("Binding validation errors");
+    if (errors != null) {
+      message.append(" on ").append(errors.getName());
+      errors.getAllErrors().forEach((error) -> message.append(String.format("%n   - %s", error)));
+    }
+    return message.toString();
+  }
 
 }

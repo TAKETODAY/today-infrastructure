@@ -20,8 +20,9 @@
 
 package cn.taketoday.context.properties.bind;
 
-import cn.taketoday.boot.context.properties.bind.Binder.Context;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.context.properties.bind.Binder.Context;
+import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Internal strategy used by {@link Binder} to bind data objects. A data object is an
@@ -29,32 +30,38 @@ import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JavaBeanBinder
  * @see ValueObjectBinder
+ * @since 4.0
  */
 interface DataObjectBinder {
 
-	/**
-	 * Return a bound instance or {@code null} if the {@link DataObjectBinder} does not
-	 * support the specified {@link Bindable}.
-	 * @param name the name being bound
-	 * @param target the bindable to bind
-	 * @param context the bind context
-	 * @param propertyBinder property binder
-	 * @param <T> the source type
-	 * @return a bound instance or {@code null}
-	 */
-	<T> T bind(ConfigurationPropertyName name, Bindable<T> target, Context context,
-			DataObjectPropertyBinder propertyBinder);
+  /**
+   * Return a bound instance or {@code null} if the {@link DataObjectBinder} does not
+   * support the specified {@link Bindable}.
+   *
+   * @param name the name being bound
+   * @param target the bindable to bind
+   * @param context the bind context
+   * @param propertyBinder property binder
+   * @param <T> the source type
+   * @return a bound instance or {@code null}
+   */
+  @Nullable
+  <T> T bind(ConfigurationPropertyName name, Bindable<T> target, Context context,
+             DataObjectPropertyBinder propertyBinder);
 
-	/**
-	 * Return a newly created instance or {@code null} if the {@link DataObjectBinder}
-	 * does not support the specified {@link Bindable}.
-	 * @param target the bindable to create
-	 * @param context the bind context
-	 * @param <T> the source type
-	 * @return the created instance
-	 */
-	<T> T create(Bindable<T> target, Context context);
+  /**
+   * Return a newly created instance or {@code null} if the {@link DataObjectBinder}
+   * does not support the specified {@link Bindable}.
+   *
+   * @param target the bindable to create
+   * @param context the bind context
+   * @param <T> the source type
+   * @return the created instance
+   */
+  @Nullable
+  <T> T create(Bindable<T> target, Context context);
 
 }

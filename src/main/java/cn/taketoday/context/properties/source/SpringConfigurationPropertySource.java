@@ -20,6 +20,9 @@
 
 package cn.taketoday.context.properties.source;
 
+import java.util.Map;
+import java.util.Random;
+
 import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName.Form;
 import cn.taketoday.boot.origin.Origin;
 import cn.taketoday.boot.origin.PropertySourceOrigin;
@@ -28,9 +31,6 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.env.SystemEnvironmentPropertySource;
 import cn.taketoday.util.Assert;
-
-import java.util.Map;
-import java.util.Random;
 
 /**
  * {@link ConfigurationPropertySource} backed by a non-enumerable Spring
@@ -56,136 +56,138 @@ import java.util.Random;
  */
 class SpringConfigurationPropertySource implements ConfigurationPropertySource {
 
-	private static final PropertyMapper[] DEFAULT_MAPPERS = { DefaultPropertyMapper.INSTANCE };
+  private static final PropertyMapper[] DEFAULT_MAPPERS = { DefaultPropertyMapper.INSTANCE };
 
-	private static final PropertyMapper[] SYSTEM_ENVIRONMENT_MAPPERS = { SystemEnvironmentPropertyMapper.INSTANCE,
-			DefaultPropertyMapper.INSTANCE };
+  private static final PropertyMapper[] SYSTEM_ENVIRONMENT_MAPPERS = { SystemEnvironmentPropertyMapper.INSTANCE,
+          DefaultPropertyMapper.INSTANCE };
 
-	private final PropertySource<?> propertySource;
+  private final PropertySource<?> propertySource;
 
-	private final PropertyMapper[] mappers;
+  private final PropertyMapper[] mappers;
 
-	/**
-	 * Create a new {@link SpringConfigurationPropertySource} implementation.
-	 * @param propertySource the source property source
-	 * @param mappers the property mappers
-	 */
-	SpringConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
-		Assert.notNull(propertySource, "PropertySource must not be null");
-		Assert.isTrue(mappers.length > 0, "Mappers must contain at least one item");
-		this.propertySource = propertySource;
-		this.mappers = mappers;
-	}
+  /**
+   * Create a new {@link SpringConfigurationPropertySource} implementation.
+   *
+   * @param propertySource the source property source
+   * @param mappers the property mappers
+   */
+  SpringConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
+    Assert.notNull(propertySource, "PropertySource must not be null");
+    Assert.isTrue(mappers.length > 0, "Mappers must contain at least one item");
+    this.propertySource = propertySource;
+    this.mappers = mappers;
+  }
 
-	@Override
-	public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
-		if (name == null) {
-			return null;
-		}
-		for (PropertyMapper mapper : this.mappers) {
-			try {
-				for (String candidate : mapper.map(name)) {
-					Object value = getPropertySource().getProperty(candidate);
-					if (value != null) {
-						Origin origin = PropertySourceOrigin.get(this.propertySource, candidate);
-						return ConfigurationProperty.of(this, name, value, origin);
-					}
-				}
-			}
-			catch (Exception ex) {
-			}
-		}
-		return null;
-	}
+  @Override
+  public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
+    if (name == null) {
+      return null;
+    }
+    for (PropertyMapper mapper : this.mappers) {
+      try {
+        for (String candidate : mapper.map(name)) {
+          Object value = getPropertySource().getProperty(candidate);
+          if (value != null) {
+            Origin origin = PropertySourceOrigin.get(this.propertySource, candidate);
+            return ConfigurationProperty.of(this, name, value, origin);
+          }
+        }
+      }
+      catch (Exception ex) {
+      }
+    }
+    return null;
+  }
 
-	@Override
-	public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
-		PropertySource<?> source = getPropertySource();
-		if (source.getSource() instanceof Random) {
-			return containsDescendantOfForRandom("random", name);
-		}
-		if (source.getSource() instanceof PropertySource<?>
-				&& ((PropertySource<?>) source.getSource()).getSource() instanceof Random) {
-			// Assume wrapped random sources use the source name as the prefix
-			return containsDescendantOfForRandom(source.getName(), name);
-		}
-		return ConfigurationPropertyState.UNKNOWN;
-	}
+  @Override
+  public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
+    PropertySource<?> source = getPropertySource();
+    if (source.getSource() instanceof Random) {
+      return containsDescendantOfForRandom("random", name);
+    }
+    if (source.getSource() instanceof PropertySource<?>
+            && ((PropertySource<?>) source.getSource()).getSource() instanceof Random) {
+      // Assume wrapped random sources use the source name as the prefix
+      return containsDescendantOfForRandom(source.getName(), name);
+    }
+    return ConfigurationPropertyState.UNKNOWN;
+  }
 
-	private static ConfigurationPropertyState containsDescendantOfForRandom(String prefix,
-			ConfigurationPropertyName name) {
-		if (name.getNumberOfElements() > 1 && name.getElement(0, Form.DASHED).equals(prefix)) {
-			return ConfigurationPropertyState.PRESENT;
-		}
-		return ConfigurationPropertyState.ABSENT;
-	}
+  private static ConfigurationPropertyState containsDescendantOfForRandom(String prefix,
+                                                                          ConfigurationPropertyName name) {
+    if (name.getNumberOfElements() > 1 && name.getElement(0, Form.DASHED).equals(prefix)) {
+      return ConfigurationPropertyState.PRESENT;
+    }
+    return ConfigurationPropertyState.ABSENT;
+  }
 
-	@Override
-	public Object getUnderlyingSource() {
-		return this.propertySource;
-	}
+  @Override
+  public Object getUnderlyingSource() {
+    return this.propertySource;
+  }
 
-	protected PropertySource<?> getPropertySource() {
-		return this.propertySource;
-	}
+  protected PropertySource<?> getPropertySource() {
+    return this.propertySource;
+  }
 
-	protected final PropertyMapper[] getMappers() {
-		return this.mappers;
-	}
+  protected final PropertyMapper[] getMappers() {
+    return this.mappers;
+  }
 
-	@Override
-	public String toString() {
-		return this.propertySource.toString();
-	}
+  @Override
+  public String toString() {
+    return this.propertySource.toString();
+  }
 
-	/**
-	 * Create a new {@link SpringConfigurationPropertySource} for the specified
-	 * {@link PropertySource}.
-	 * @param source the source Spring {@link PropertySource}
-	 * @return a {@link SpringConfigurationPropertySource} or
-	 * {@link SpringIterableConfigurationPropertySource} instance
-	 */
-	static SpringConfigurationPropertySource from(PropertySource<?> source) {
-		Assert.notNull(source, "Source must not be null");
-		PropertyMapper[] mappers = getPropertyMappers(source);
-		if (isFullEnumerable(source)) {
-			return new SpringIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
-		}
-		return new SpringConfigurationPropertySource(source, mappers);
-	}
+  /**
+   * Create a new {@link SpringConfigurationPropertySource} for the specified
+   * {@link PropertySource}.
+   *
+   * @param source the source Spring {@link PropertySource}
+   * @return a {@link SpringConfigurationPropertySource} or
+   * {@link SpringIterableConfigurationPropertySource} instance
+   */
+  static SpringConfigurationPropertySource from(PropertySource<?> source) {
+    Assert.notNull(source, "Source must not be null");
+    PropertyMapper[] mappers = getPropertyMappers(source);
+    if (isFullEnumerable(source)) {
+      return new SpringIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
+    }
+    return new SpringConfigurationPropertySource(source, mappers);
+  }
 
-	private static PropertyMapper[] getPropertyMappers(PropertySource<?> source) {
-		if (source instanceof SystemEnvironmentPropertySource && hasSystemEnvironmentName(source)) {
-			return SYSTEM_ENVIRONMENT_MAPPERS;
-		}
-		return DEFAULT_MAPPERS;
-	}
+  private static PropertyMapper[] getPropertyMappers(PropertySource<?> source) {
+    if (source instanceof SystemEnvironmentPropertySource && hasSystemEnvironmentName(source)) {
+      return SYSTEM_ENVIRONMENT_MAPPERS;
+    }
+    return DEFAULT_MAPPERS;
+  }
 
-	private static boolean hasSystemEnvironmentName(PropertySource<?> source) {
-		String name = source.getName();
-		return StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME.equals(name)
-				|| name.endsWith("-" + StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
-	}
+  private static boolean hasSystemEnvironmentName(PropertySource<?> source) {
+    String name = source.getName();
+    return StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME.equals(name)
+            || name.endsWith("-" + StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
+  }
 
-	private static boolean isFullEnumerable(PropertySource<?> source) {
-		PropertySource<?> rootSource = getRootSource(source);
-		if (rootSource.getSource() instanceof Map) {
-			// Check we're not security restricted
-			try {
-				((Map<?, ?>) rootSource.getSource()).size();
-			}
-			catch (UnsupportedOperationException ex) {
-				return false;
-			}
-		}
-		return (source instanceof EnumerablePropertySource);
-	}
+  private static boolean isFullEnumerable(PropertySource<?> source) {
+    PropertySource<?> rootSource = getRootSource(source);
+    if (rootSource.getSource() instanceof Map) {
+      // Check we're not security restricted
+      try {
+        ((Map<?, ?>) rootSource.getSource()).size();
+      }
+      catch (UnsupportedOperationException ex) {
+        return false;
+      }
+    }
+    return (source instanceof EnumerablePropertySource);
+  }
 
-	private static PropertySource<?> getRootSource(PropertySource<?> source) {
-		while (source.getSource() != null && source.getSource() instanceof PropertySource) {
-			source = (PropertySource<?>) source.getSource();
-		}
-		return source;
-	}
+  private static PropertySource<?> getRootSource(PropertySource<?> source) {
+    while (source.getSource() != null && source.getSource() instanceof PropertySource) {
+      source = (PropertySource<?>) source.getSource();
+    }
+    return source;
+  }
 
 }

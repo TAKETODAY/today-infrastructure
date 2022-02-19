@@ -20,9 +20,8 @@
 
 package cn.taketoday.diagnostics;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**

@@ -40,8 +40,8 @@ import java.lang.annotation.Target;
  * {@link cn.taketoday.context.annotation.Import @Import}).
  *
  * @author Phillip Webb
- * @since 4.0
  * @see ConfigurationProperties
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.CONSTRUCTOR })
 @Retention(RetentionPolicy.RUNTIME)

@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.context.properties.bind.Bindable.BindRestriction;
 import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
@@ -44,6 +45,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A container object which Binds objects from one or more
@@ -139,10 +141,11 @@ public class Binder {
    * used to call {@link ConfigurableBeanFactory#copyRegisteredEditorsTo}.
    * @param defaultBindHandler the default bind handler to use if none is specified when
    * binding
-   * @since 4.0
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources, PlaceholdersResolver placeholdersResolver,
-                ConversionService conversionService, Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+  public Binder(Iterable<ConfigurationPropertySource> sources,
+                PlaceholdersResolver placeholdersResolver,
+                @Nullable ConversionService conversionService,
+                Consumer<PropertyEditorRegistry> propertyEditorInitializer,
                 BindHandler defaultBindHandler) {
     this(sources, placeholdersResolver, conversionService, propertyEditorInitializer, defaultBindHandler, null);
   }
@@ -163,12 +166,15 @@ public class Binder {
    * constructor to use when binding
    * @since 4.0
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources, PlaceholdersResolver placeholdersResolver,
-                ConversionService conversionService, Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-                BindHandler defaultBindHandler, BindConstructorProvider constructorProvider) {
+  public Binder(Iterable<ConfigurationPropertySource> sources,
+                PlaceholdersResolver placeholdersResolver,
+                @Nullable ConversionService conversionService,
+                Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+                BindHandler defaultBindHandler,
+                BindConstructorProvider constructorProvider) {
     this(sources, placeholdersResolver,
             (conversionService != null) ? Collections.singletonList(conversionService)
-                                        : (List<ConversionService>) null,
+                                        : null,
             propertyEditorInitializer, defaultBindHandler, constructorProvider);
   }
 
@@ -188,9 +194,14 @@ public class Binder {
    * constructor to use when binding
    * @since 4.0
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources, PlaceholdersResolver placeholdersResolver,
-                List<ConversionService> conversionServices, Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-                BindHandler defaultBindHandler, BindConstructorProvider constructorProvider) {
+  public Binder(
+          Iterable<ConfigurationPropertySource> sources,
+          @Nullable PlaceholdersResolver placeholdersResolver,
+          List<ConversionService> conversionServices,
+          Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+          BindHandler defaultBindHandler,
+          BindConstructorProvider constructorProvider
+  ) {
     Assert.notNull(sources, "Sources must not be null");
     this.sources = sources;
     this.placeholdersResolver = (placeholdersResolver != null) ? placeholdersResolver : PlaceholdersResolver.NONE;
@@ -364,8 +375,9 @@ public class Binder {
     }
   }
 
-  private <T> T handleBindResult(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
-                                 Context context, Object result, boolean create) throws Exception {
+  private <T> T handleBindResult(
+          ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
+          Context context, @Nullable Object result, boolean create) throws Exception {
     if (result != null) {
       result = handler.onSuccess(name, target, context, result);
       result = context.getConverter().convert(result, target);
@@ -454,8 +466,9 @@ public class Binder {
     return context.withIncreasedDepth(() -> aggregateBinder.bind(name, target, elementBinder));
   }
 
-  private <T> ConfigurationProperty findProperty(ConfigurationPropertyName name, Bindable<T> target,
-                                                 Context context) {
+  @Nullable
+  private <T> ConfigurationProperty findProperty(
+          ConfigurationPropertyName name, Bindable<T> target, Context context) {
     if (name.isEmpty() || target.hasBindRestriction(BindRestriction.NO_DIRECT_PROPERTY)) {
       return null;
     }
@@ -476,8 +489,10 @@ public class Binder {
     return result;
   }
 
-  private Object bindDataObject(ConfigurationPropertyName name, Bindable<?> target, BindHandler handler,
-                                Context context, boolean allowRecursiveBinding) {
+  @Nullable
+  private Object bindDataObject(
+          ConfigurationPropertyName name, Bindable<?> target,
+          BindHandler handler, Context context, boolean allowRecursiveBinding) {
     if (isUnbindableBean(name, target, context)) {
       return null;
     }
@@ -541,9 +556,8 @@ public class Binder {
    * @param defaultBindHandler the default bind handler to use if none is specified when
    * binding
    * @return a {@link Binder} instance
-   * @since 4.0
    */
-  public static Binder get(Environment environment, BindHandler defaultBindHandler) {
+  public static Binder get(Environment environment, @Nullable BindHandler defaultBindHandler) {
     Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
     PropertySourcesPlaceholdersResolver placeholdersResolver = new PropertySourcesPlaceholdersResolver(environment);
     return new Binder(sources, placeholdersResolver, null, null, defaultBindHandler);
@@ -564,6 +578,7 @@ public class Binder {
 
     private final Deque<Class<?>> constructorBindings = new ArrayDeque<>();
 
+    @Nullable
     private ConfigurationProperty configurationProperty;
 
     private void increaseDepth() {
@@ -574,7 +589,7 @@ public class Binder {
       this.depth--;
     }
 
-    private <T> T withSource(ConfigurationPropertySource source, Supplier<T> supplier) {
+    private <T> T withSource(@Nullable ConfigurationPropertySource source, Supplier<T> supplier) {
       if (source == null) {
         return supplier.get();
       }

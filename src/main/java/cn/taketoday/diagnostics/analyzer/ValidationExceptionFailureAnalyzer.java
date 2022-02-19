@@ -23,7 +23,6 @@ package cn.taketoday.diagnostics.analyzer;
 import cn.taketoday.boot.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.boot.diagnostics.FailureAnalysis;
 import cn.taketoday.boot.diagnostics.FailureAnalyzer;
-
 import jakarta.validation.ValidationException;
 
 /**
@@ -34,21 +33,21 @@ import jakarta.validation.ValidationException;
  */
 class ValidationExceptionFailureAnalyzer extends AbstractFailureAnalyzer<ValidationException> {
 
-	private static final String JAVAX_MISSING_IMPLEMENTATION_MESSAGE = "Unable to create a "
-			+ "Configuration, because no Bean Validation provider could be found";
+  private static final String JAVAX_MISSING_IMPLEMENTATION_MESSAGE = "Unable to create a "
+          + "Configuration, because no Bean Validation provider could be found";
 
-	private static final String JAKARTA_MISSING_IMPLEMENTATION_MESSAGE = "Unable to create a "
-			+ "Configuration, because no Jakarta Bean Validation provider could be found";
+  private static final String JAKARTA_MISSING_IMPLEMENTATION_MESSAGE = "Unable to create a "
+          + "Configuration, because no Jakarta Bean Validation provider could be found";
 
-	@Override
-	protected FailureAnalysis analyze(Throwable rootFailure, ValidationException cause) {
-		if (cause.getMessage().startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
-				|| cause.getMessage().startsWith(JAKARTA_MISSING_IMPLEMENTATION_MESSAGE)) {
-			return new FailureAnalysis(
-					"The Bean Validation API is on the classpath but no implementation could be found",
-					"Add an implementation, such as Hibernate Validator, to the classpath", cause);
-		}
-		return null;
-	}
+  @Override
+  protected FailureAnalysis analyze(Throwable rootFailure, ValidationException cause) {
+    if (cause.getMessage().startsWith(JAVAX_MISSING_IMPLEMENTATION_MESSAGE)
+            || cause.getMessage().startsWith(JAKARTA_MISSING_IMPLEMENTATION_MESSAGE)) {
+      return new FailureAnalysis(
+              "The Bean Validation API is on the classpath but no implementation could be found",
+              "Add an implementation, such as Hibernate Validator, to the classpath", cause);
+    }
+    return null;
+  }
 
 }

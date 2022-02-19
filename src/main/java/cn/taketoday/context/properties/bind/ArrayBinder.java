@@ -20,14 +20,14 @@
 
 package cn.taketoday.context.properties.bind;
 
-import cn.taketoday.boot.context.properties.bind.Binder.Context;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
-import cn.taketoday.core.ResolvableType;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+
+import cn.taketoday.boot.context.properties.bind.Binder.Context;
+import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.core.ResolvableType;
 
 /**
  * {@link AggregateBinder} for arrays.
@@ -37,31 +37,31 @@ import java.util.function.Supplier;
  */
 class ArrayBinder extends IndexedElementsBinder<Object> {
 
-	ArrayBinder(Context context) {
-		super(context);
-	}
+  ArrayBinder(Context context) {
+    super(context);
+  }
 
-	@Override
-	protected Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
-			AggregateElementBinder elementBinder) {
-		IndexedCollectionSupplier result = new IndexedCollectionSupplier(ArrayList::new);
-		ResolvableType aggregateType = target.getType();
-		ResolvableType elementType = target.getType().getComponentType();
-		bindIndexed(name, target, elementBinder, aggregateType, elementType, result);
-		if (result.wasSupplied()) {
-			List<Object> list = (List<Object>) result.get();
-			Object array = Array.newInstance(elementType.resolve(), list.size());
-			for (int i = 0; i < list.size(); i++) {
-				Array.set(array, i, list.get(i));
-			}
-			return array;
-		}
-		return null;
-	}
+  @Override
+  protected Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
+                                 AggregateElementBinder elementBinder) {
+    IndexedCollectionSupplier result = new IndexedCollectionSupplier(ArrayList::new);
+    ResolvableType aggregateType = target.getType();
+    ResolvableType elementType = target.getType().getComponentType();
+    bindIndexed(name, target, elementBinder, aggregateType, elementType, result);
+    if (result.wasSupplied()) {
+      List<Object> list = (List<Object>) result.get();
+      Object array = Array.newInstance(elementType.resolve(), list.size());
+      for (int i = 0; i < list.size(); i++) {
+        Array.set(array, i, list.get(i));
+      }
+      return array;
+    }
+    return null;
+  }
 
-	@Override
-	protected Object merge(Supplier<Object> existing, Object additional) {
-		return additional;
-	}
+  @Override
+  protected Object merge(Supplier<Object> existing, Object additional) {
+    return additional;
+  }
 
 }

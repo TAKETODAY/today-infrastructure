@@ -35,48 +35,48 @@ import cn.taketoday.core.env.PropertySource;
  * @author Madhura Bhave
  */
 class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable<ConfigurationPropertySource>>
-		implements OriginLookup<String> {
+        implements OriginLookup<String> {
 
-	ConfigurationPropertySourcesPropertySource(String name, Iterable<ConfigurationPropertySource> source) {
-		super(name, source);
-	}
+  ConfigurationPropertySourcesPropertySource(String name, Iterable<ConfigurationPropertySource> source) {
+    super(name, source);
+  }
 
-	@Override
-	public boolean containsProperty(String name) {
-		return findConfigurationProperty(name) != null;
-	}
+  @Override
+  public boolean containsProperty(String name) {
+    return findConfigurationProperty(name) != null;
+  }
 
-	@Override
-	public Object getProperty(String name) {
-		ConfigurationProperty configurationProperty = findConfigurationProperty(name);
-		return (configurationProperty != null) ? configurationProperty.getValue() : null;
-	}
+  @Override
+  public Object getProperty(String name) {
+    ConfigurationProperty configurationProperty = findConfigurationProperty(name);
+    return (configurationProperty != null) ? configurationProperty.getValue() : null;
+  }
 
-	@Override
-	public Origin getOrigin(String name) {
-		return Origin.from(findConfigurationProperty(name));
-	}
+  @Override
+  public Origin getOrigin(String name) {
+    return Origin.from(findConfigurationProperty(name));
+  }
 
-	private ConfigurationProperty findConfigurationProperty(String name) {
-		try {
-			return findConfigurationProperty(ConfigurationPropertyName.of(name, true));
-		}
-		catch (Exception ex) {
-			return null;
-		}
-	}
+  private ConfigurationProperty findConfigurationProperty(String name) {
+    try {
+      return findConfigurationProperty(ConfigurationPropertyName.of(name, true));
+    }
+    catch (Exception ex) {
+      return null;
+    }
+  }
 
-	ConfigurationProperty findConfigurationProperty(ConfigurationPropertyName name) {
-		if (name == null) {
-			return null;
-		}
-		for (ConfigurationPropertySource configurationPropertySource : getSource()) {
-			ConfigurationProperty configurationProperty = configurationPropertySource.getConfigurationProperty(name);
-			if (configurationProperty != null) {
-				return configurationProperty;
-			}
-		}
-		return null;
-	}
+  ConfigurationProperty findConfigurationProperty(ConfigurationPropertyName name) {
+    if (name == null) {
+      return null;
+    }
+    for (ConfigurationPropertySource configurationPropertySource : getSource()) {
+      ConfigurationProperty configurationProperty = configurationPropertySource.getConfigurationProperty(name);
+      if (configurationProperty != null) {
+        return configurationProperty;
+      }
+    }
+    return null;
+  }
 
 }

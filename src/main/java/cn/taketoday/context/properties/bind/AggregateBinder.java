@@ -20,11 +20,11 @@
 
 package cn.taketoday.context.properties.bind;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.boot.context.properties.bind.Binder.Context;
 import cn.taketoday.boot.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
-
-import java.util.function.Supplier;
 
 /**
  * Internal strategy used by {@link Binder} to bind aggregates (Maps, Lists, Arrays).
@@ -35,88 +35,93 @@ import java.util.function.Supplier;
  */
 abstract class AggregateBinder<T> {
 
-	private final Context context;
+  private final Context context;
 
-	AggregateBinder(Context context) {
-		this.context = context;
-	}
+  AggregateBinder(Context context) {
+    this.context = context;
+  }
 
-	/**
-	 * Determine if recursive binding is supported.
-	 * @param source the configuration property source or {@code null} for all sources.
-	 * @return if recursive binding is supported
-	 */
-	protected abstract boolean isAllowRecursiveBinding(ConfigurationPropertySource source);
+  /**
+   * Determine if recursive binding is supported.
+   *
+   * @param source the configuration property source or {@code null} for all sources.
+   * @return if recursive binding is supported
+   */
+  protected abstract boolean isAllowRecursiveBinding(ConfigurationPropertySource source);
 
-	/**
-	 * Perform binding for the aggregate.
-	 * @param name the configuration property name to bind
-	 * @param target the target to bind
-	 * @param elementBinder an element binder
-	 * @return the bound aggregate or null
-	 */
-	@SuppressWarnings("unchecked")
-	final Object bind(ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
-		Object result = bindAggregate(name, target, elementBinder);
-		Supplier<?> value = target.getValue();
-		if (result == null || value == null) {
-			return result;
-		}
-		return merge((Supplier<T>) value, (T) result);
-	}
+  /**
+   * Perform binding for the aggregate.
+   *
+   * @param name the configuration property name to bind
+   * @param target the target to bind
+   * @param elementBinder an element binder
+   * @return the bound aggregate or null
+   */
+  @SuppressWarnings("unchecked")
+  final Object bind(ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
+    Object result = bindAggregate(name, target, elementBinder);
+    Supplier<?> value = target.getValue();
+    if (result == null || value == null) {
+      return result;
+    }
+    return merge((Supplier<T>) value, (T) result);
+  }
 
-	/**
-	 * Perform the actual aggregate binding.
-	 * @param name the configuration property name to bind
-	 * @param target the target to bind
-	 * @param elementBinder an element binder
-	 * @return the bound result
-	 */
-	protected abstract Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
-			AggregateElementBinder elementBinder);
+  /**
+   * Perform the actual aggregate binding.
+   *
+   * @param name the configuration property name to bind
+   * @param target the target to bind
+   * @param elementBinder an element binder
+   * @return the bound result
+   */
+  protected abstract Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target,
+                                          AggregateElementBinder elementBinder);
 
-	/**
-	 * Merge any additional elements into the existing aggregate.
-	 * @param existing the supplier for the existing value
-	 * @param additional the additional elements to merge
-	 * @return the merged result
-	 */
-	protected abstract T merge(Supplier<T> existing, T additional);
+  /**
+   * Merge any additional elements into the existing aggregate.
+   *
+   * @param existing the supplier for the existing value
+   * @param additional the additional elements to merge
+   * @return the merged result
+   */
+  protected abstract T merge(Supplier<T> existing, T additional);
 
-	/**
-	 * Return the context being used by this binder.
-	 * @return the context
-	 */
-	protected final Context getContext() {
-		return this.context;
-	}
+  /**
+   * Return the context being used by this binder.
+   *
+   * @return the context
+   */
+  protected final Context getContext() {
+    return this.context;
+  }
 
-	/**
-	 * Internal class used to supply the aggregate and cache the value.
-	 *
-	 * @param <T> the aggregate type
-	 */
-	protected static class AggregateSupplier<T> {
+  /**
+   * Internal class used to supply the aggregate and cache the value.
+   *
+   * @param <T> the aggregate type
+   */
+  protected static class AggregateSupplier<T> {
 
-		private final Supplier<T> supplier;
+    private final Supplier<T> supplier;
 
-		private T supplied;
+    private T supplied;
 
-		public AggregateSupplier(Supplier<T> supplier) {
-			this.supplier = supplier;
-		}
+    public AggregateSupplier(Supplier<T> supplier) {
+      this.supplier = supplier;
+    }
 
-		public T get() {
-			if (this.supplied == null) {
-				this.supplied = this.supplier.get();
-			}
-			return this.supplied;
-		}
+    public T get() {
+      if (this.supplied == null) {
+        this.supplied = this.supplier.get();
+      }
+      return this.supplied;
+    }
 
-		public boolean wasSupplied() {
-			return this.supplied != null;
-		}
+    public boolean wasSupplied() {
+      return this.supplied != null;
+    }
 
-	}
+  }
 
 }

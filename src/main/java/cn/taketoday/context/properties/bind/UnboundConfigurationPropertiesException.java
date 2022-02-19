@@ -20,12 +20,12 @@
 
 package cn.taketoday.context.properties.bind;
 
-import cn.taketoday.boot.context.properties.source.ConfigurationProperty;
-import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.boot.context.properties.source.ConfigurationProperty;
+import cn.taketoday.boot.context.properties.source.ConfigurationPropertySource;
 
 /**
  * {@link BindException} thrown when {@link ConfigurationPropertySource} elements were
@@ -37,23 +37,23 @@ import java.util.stream.Collectors;
  */
 public class UnboundConfigurationPropertiesException extends RuntimeException {
 
-	private final Set<ConfigurationProperty> unboundProperties;
+  private final Set<ConfigurationProperty> unboundProperties;
 
-	public UnboundConfigurationPropertiesException(Set<ConfigurationProperty> unboundProperties) {
-		super(buildMessage(unboundProperties));
-		this.unboundProperties = Collections.unmodifiableSet(unboundProperties);
-	}
+  public UnboundConfigurationPropertiesException(Set<ConfigurationProperty> unboundProperties) {
+    super(buildMessage(unboundProperties));
+    this.unboundProperties = Collections.unmodifiableSet(unboundProperties);
+  }
 
-	public Set<ConfigurationProperty> getUnboundProperties() {
-		return this.unboundProperties;
-	}
+  public Set<ConfigurationProperty> getUnboundProperties() {
+    return this.unboundProperties;
+  }
 
-	private static String buildMessage(Set<ConfigurationProperty> unboundProperties) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("The elements [");
-		String message = unboundProperties.stream().map((p) -> p.getName().toString()).collect(Collectors.joining(","));
-		builder.append(message).append("] were left unbound.");
-		return builder.toString();
-	}
+  private static String buildMessage(Set<ConfigurationProperty> unboundProperties) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("The elements [");
+    String message = unboundProperties.stream().map((p) -> p.getName().toString()).collect(Collectors.joining(","));
+    builder.append(message).append("] were left unbound.");
+    return builder.toString();
+  }
 
 }

@@ -20,11 +20,11 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.core.env.EnumerablePropertySource;
-import cn.taketoday.core.env.PropertySource;
-
 import java.util.List;
 import java.util.function.BiPredicate;
+
+import cn.taketoday.core.env.EnumerablePropertySource;
+import cn.taketoday.core.env.PropertySource;
 
 /**
  * Strategy used to provide a mapping between a {@link PropertySource} and a
@@ -44,34 +44,37 @@ import java.util.function.BiPredicate;
  */
 interface PropertyMapper {
 
-	/**
-	 * The default ancestor of check.
-	 */
-	BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> DEFAULT_ANCESTOR_OF_CHECK = ConfigurationPropertyName::isAncestorOf;
+  /**
+   * The default ancestor of check.
+   */
+  BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> DEFAULT_ANCESTOR_OF_CHECK = ConfigurationPropertyName::isAncestorOf;
 
-	/**
-	 * Provide mappings from a {@link ConfigurationPropertySource}
-	 * {@link ConfigurationPropertyName}.
-	 * @param configurationPropertyName the name to map
-	 * @return the mapped names or an empty list
-	 */
-	List<String> map(ConfigurationPropertyName configurationPropertyName);
+  /**
+   * Provide mappings from a {@link ConfigurationPropertySource}
+   * {@link ConfigurationPropertyName}.
+   *
+   * @param configurationPropertyName the name to map
+   * @return the mapped names or an empty list
+   */
+  List<String> map(ConfigurationPropertyName configurationPropertyName);
 
-	/**
-	 * Provide mappings from a {@link PropertySource} property name.
-	 * @param propertySourceName the name to map
-	 * @return the mapped configuration property name or
-	 * {@link ConfigurationPropertyName#EMPTY}
-	 */
-	ConfigurationPropertyName map(String propertySourceName);
+  /**
+   * Provide mappings from a {@link PropertySource} property name.
+   *
+   * @param propertySourceName the name to map
+   * @return the mapped configuration property name or
+   * {@link ConfigurationPropertyName#EMPTY}
+   */
+  ConfigurationPropertyName map(String propertySourceName);
 
-	/**
-	 * Returns a {@link BiPredicate} that can be used to check if one name is an ancestor
-	 * of another when considering the mapping rules.
-	 * @return a predicate that can be used to check if one name is an ancestor of another
-	 */
-	default BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> getAncestorOfCheck() {
-		return DEFAULT_ANCESTOR_OF_CHECK;
-	}
+  /**
+   * Returns a {@link BiPredicate} that can be used to check if one name is an ancestor
+   * of another when considering the mapping rules.
+   *
+   * @return a predicate that can be used to check if one name is an ancestor of another
+   */
+  default BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> getAncestorOfCheck() {
+    return DEFAULT_ANCESTOR_OF_CHECK;
+  }
 
 }

@@ -31,41 +31,41 @@ import java.util.function.Consumer;
  */
 class ConfigurationPropertySourcesCaching implements ConfigurationPropertyCaching {
 
-	private final Iterable<ConfigurationPropertySource> sources;
+  private final Iterable<ConfigurationPropertySource> sources;
 
-	ConfigurationPropertySourcesCaching(Iterable<ConfigurationPropertySource> sources) {
-		this.sources = sources;
-	}
+  ConfigurationPropertySourcesCaching(Iterable<ConfigurationPropertySource> sources) {
+    this.sources = sources;
+  }
 
-	@Override
-	public void enable() {
-		forEach(ConfigurationPropertyCaching::enable);
-	}
+  @Override
+  public void enable() {
+    forEach(ConfigurationPropertyCaching::enable);
+  }
 
-	@Override
-	public void disable() {
-		forEach(ConfigurationPropertyCaching::disable);
-	}
+  @Override
+  public void disable() {
+    forEach(ConfigurationPropertyCaching::disable);
+  }
 
-	@Override
-	public void setTimeToLive(Duration timeToLive) {
-		forEach((caching) -> caching.setTimeToLive(timeToLive));
-	}
+  @Override
+  public void setTimeToLive(Duration timeToLive) {
+    forEach((caching) -> caching.setTimeToLive(timeToLive));
+  }
 
-	@Override
-	public void clear() {
-		forEach(ConfigurationPropertyCaching::clear);
-	}
+  @Override
+  public void clear() {
+    forEach(ConfigurationPropertyCaching::clear);
+  }
 
-	private void forEach(Consumer<ConfigurationPropertyCaching> action) {
-		if (this.sources != null) {
-			for (ConfigurationPropertySource source : this.sources) {
-				ConfigurationPropertyCaching caching = CachingConfigurationPropertySource.find(source);
-				if (caching != null) {
-					action.accept(caching);
-				}
-			}
-		}
-	}
+  private void forEach(Consumer<ConfigurationPropertyCaching> action) {
+    if (this.sources != null) {
+      for (ConfigurationPropertySource source : this.sources) {
+        ConfigurationPropertyCaching caching = CachingConfigurationPropertySource.find(source);
+        if (caching != null) {
+          action.accept(caching);
+        }
+      }
+    }
+  }
 
 }

@@ -28,23 +28,25 @@ package cn.taketoday.context.properties.source;
  */
 interface CachingConfigurationPropertySource {
 
-	/**
-	 * Return {@link ConfigurationPropertyCaching} for this source.
-	 * @return source caching
-	 */
-	ConfigurationPropertyCaching getCaching();
+  /**
+   * Return {@link ConfigurationPropertyCaching} for this source.
+   *
+   * @return source caching
+   */
+  ConfigurationPropertyCaching getCaching();
 
-	/**
-	 * Find {@link ConfigurationPropertyCaching} for the given source.
-	 * @param source the configuration property source
-	 * @return a {@link ConfigurationPropertyCaching} instance or {@code null} if the
-	 * source does not support caching.
-	 */
-	static ConfigurationPropertyCaching find(ConfigurationPropertySource source) {
-		if (source instanceof CachingConfigurationPropertySource) {
-			return ((CachingConfigurationPropertySource) source).getCaching();
-		}
-		return null;
-	}
+  /**
+   * Find {@link ConfigurationPropertyCaching} for the given source.
+   *
+   * @param source the configuration property source
+   * @return a {@link ConfigurationPropertyCaching} instance or {@code null} if the
+   * source does not support caching.
+   */
+  static ConfigurationPropertyCaching find(ConfigurationPropertySource source) {
+    if (source instanceof CachingConfigurationPropertySource) {
+      return ((CachingConfigurationPropertySource) source).getCaching();
+    }
+    return null;
+  }
 
 }
