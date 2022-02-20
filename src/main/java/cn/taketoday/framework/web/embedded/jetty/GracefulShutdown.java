@@ -20,8 +20,6 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 
@@ -31,9 +29,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.log.LogMessage;
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
+import cn.taketoday.logging.LogMessage;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 /**

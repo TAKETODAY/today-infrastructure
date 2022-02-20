@@ -20,12 +20,16 @@
 
 package cn.taketoday.web.context.support;
 
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.support.AbstractRefreshableConfigApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.context.ConfigurableWebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
+import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
+import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -49,11 +53,6 @@ import jakarta.servlet.ServletContext;
  * can be accessed via "file:" URLs, as implemented by
  * {@link cn.taketoday.core.io.DefaultResourceLoader}.
  *
- * <p>In addition to the special beans detected by
- * {@link cn.taketoday.context.support.AbstractApplicationContext},
- * this class detects a bean of type {@link cn.taketoday.ui.context.ThemeSource}
- * in the context, under the special bean name "themeSource".
- *
  * <p><b>This is the web context to be subclassed for a different bean definition format.</b>
  * Such a context implementation can be specified as "contextClass" context-param
  * for {@link cn.taketoday.web.context.ContextLoader} or as "contextClass"
@@ -74,7 +73,7 @@ import jakarta.servlet.ServletContext;
  * @since 4.0 2022/2/20 17:36
  */
 public abstract class AbstractRefreshableWebApplicationContext extends AbstractRefreshableConfigApplicationContext
-        implements ConfigurableWebApplicationContext {
+        implements ConfigurableWebServletApplicationContext {
 
   /** Servlet context that this context runs in. */
   @Nullable
@@ -132,6 +131,12 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
   }
 
   @Override
+  public String getContextPath() {
+    Assert.state(servletContext != null, "No servletContext.");
+    return servletContext.getContextPath();
+  }
+
+  @Override
   public String[] getConfigLocations() {
     return super.getConfigLocations();
   }
@@ -154,7 +159,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
    * Register request/session scopes, a {@link ServletContextAwareProcessor}, etc.
    */
   @Override
-  protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext, this.servletConfig));
     beanFactory.ignoreDependencyInterface(ServletContextAware.class);
     beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
@@ -174,23 +179,15 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
     return new ServletContextResource(this.servletContext, path);
   }
 
-  /**
-   * This implementation supports pattern matching in unexpanded WARs too.
-   *
-   * @see ServletContextResourcePatternResolver
-   */
-  @Override
-  protected ResourcePatternResolver getResourcePatternResolver() {
-    return new ServletContextResourcePatternResolver(this);
-  }
-
-  /**
-   * Initialize the theme capability.
-   */
-  @Override
-  protected void onRefresh() {
-    this.themeSource = UiApplicationContextUtils.initThemeSource(this);
-  }
+//  /**
+//   * This implementation supports pattern matching in unexpanded WARs too.
+//   *
+//   * @see ServletContextResourcePatternResolver
+//   */
+//  @Override
+//  protected ResourcePatternResolver getResourcePatternResolver() {
+//    return new ServletContextResourcePatternResolver(this);
+//  }
 
   /**
    * {@inheritDoc}
@@ -202,13 +199,6 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
     if (env instanceof ConfigurableWebEnvironment) {
       ((ConfigurableWebEnvironment) env).initPropertySources(this.servletContext, this.servletConfig);
     }
-  }
-
-  @Override
-  @Nullable
-  public Theme getTheme(String themeName) {
-    Assert.state(this.themeSource != null, "No ThemeSource available");
-    return this.themeSource.getTheme(themeName);
   }
 
 }

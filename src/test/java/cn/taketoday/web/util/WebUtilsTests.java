@@ -30,6 +30,8 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.mock.MockHttpServletResponse;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -161,25 +163,26 @@ public class WebUtilsTests {
 
   private boolean checkValidOrigin(String serverName, int port, String originHeader, List<String> allowed) {
     MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-    ServerHttpRequest request = new ServletServerHttpRequest(servletRequest);
     servletRequest.setServerName(serverName);
     if (port != -1) {
       servletRequest.setServerPort(port);
     }
     servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    return WebUtils.isValidOrigin(request, allowed);
+    ServletRequestContext context = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
+    return WebUtils.isValidOrigin(context, allowed);
   }
 
   private boolean checkSameOrigin(String scheme, String serverName, int port, String originHeader) {
     MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-    ServerHttpRequest request = new ServletServerHttpRequest(servletRequest);
     servletRequest.setScheme(scheme);
     servletRequest.setServerName(serverName);
     if (port != -1) {
       servletRequest.setServerPort(port);
     }
     servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    return WebUtils.isSameOrigin(request);
+
+    ServletRequestContext context = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
+    return WebUtils.isSameOrigin(context);
   }
 
   private void testWithXForwardedHeaders(String serverName, int port, String forwardedProto,

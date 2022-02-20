@@ -25,7 +25,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.type.EnabledForTestGroups;
 import cn.taketoday.scripting.Messenger;
 import cn.taketoday.scripting.ScriptCompilationException;
@@ -95,7 +95,7 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(true);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
 
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     ctx.refresh();
@@ -116,7 +116,7 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition processorBeanDefinition = createScriptFactoryPostProcessor(false);
     BeanDefinition scriptedBeanDefinition = createScriptedGroovyBean();
 
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     ctx.refresh();
@@ -138,7 +138,7 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition collaboratorBuilder = new BeanDefinition(DefaultMessengerService.class);
     collaboratorBuilder.addPropertyValue(MESSENGER_BEAN_NAME, new RuntimeBeanReference(MESSENGER_BEAN_NAME));
 
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     final String collaboratorBeanName = "collaborator";
@@ -161,7 +161,7 @@ class ScriptFactoryPostProcessorTests {
 
   @Test
   void testReferencesAcrossAContainerHierarchy() throws Exception {
-    DefaultApplicationContext businessContext = new DefaultApplicationContext();
+    GenericApplicationContext businessContext = new GenericApplicationContext();
     businessContext.registerBeanDefinition("messenger", new BeanDefinition(StubMessenger.class));
 
     businessContext.refresh();
@@ -170,7 +170,7 @@ class ScriptFactoryPostProcessorTests {
     scriptedBeanBuilder.getConstructorArgumentValues().addGenericArgumentValue(DELEGATING_SCRIPT);
     scriptedBeanBuilder.addPropertyValue("messenger", new RuntimeBeanReference("messenger"));
 
-    DefaultApplicationContext presentationCtx = new DefaultApplicationContext(businessContext);
+    GenericApplicationContext presentationCtx = new GenericApplicationContext(businessContext);
     presentationCtx.registerBeanDefinition("needsMessenger", scriptedBeanBuilder);
     presentationCtx.registerBeanDefinition("scriptProcessor", createScriptFactoryPostProcessor(true));
     presentationCtx.refresh();
@@ -183,7 +183,7 @@ class ScriptFactoryPostProcessorTests {
     BeanDefinition collaboratorBuilder = new BeanDefinition(DefaultMessengerService.class);
     collaboratorBuilder.addPropertyValue(MESSENGER_BEAN_NAME, new RuntimeBeanReference(MESSENGER_BEAN_NAME));
 
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
     ctx.registerBeanDefinition(PROCESSOR_BEAN_NAME, processorBeanDefinition);
     ctx.registerBeanDefinition(MESSENGER_BEAN_NAME, scriptedBeanDefinition);
     final String collaboratorBeanName = "collaborator";
@@ -205,7 +205,7 @@ class ScriptFactoryPostProcessorTests {
 
   @Test
   void testPrototypeScriptedBean() throws Exception {
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
     ctx.registerBeanDefinition("messenger", new BeanDefinition(StubMessenger.class));
 
     BeanDefinition scriptedBeanBuilder = new BeanDefinition(GroovyScriptFactory.class);
@@ -223,7 +223,7 @@ class ScriptFactoryPostProcessorTests {
     assertThat(messenger2).isNotSameAs(messenger1);
   }
 
-  private static StaticScriptSource getScriptSource(DefaultApplicationContext ctx) throws Exception {
+  private static StaticScriptSource getScriptSource(GenericApplicationContext ctx) throws Exception {
     ScriptFactoryPostProcessor processor = (ScriptFactoryPostProcessor) ctx.getBean(PROCESSOR_BEAN_NAME);
     BeanDefinition bd = processor.scriptBeanFactory.getBeanDefinition("scriptedObject.messenger");
     return (StaticScriptSource) bd.getConstructorArgumentValues().getIndexedArgumentValue(0, StaticScriptSource.class).getValue();

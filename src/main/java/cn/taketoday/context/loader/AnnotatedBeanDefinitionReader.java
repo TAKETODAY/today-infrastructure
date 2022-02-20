@@ -25,7 +25,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.Scope;
@@ -37,6 +36,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
@@ -44,12 +44,15 @@ import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Description;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
@@ -136,6 +139,20 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
           @Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, @Nullable BeanDefinitionCustomizer... customizers) {
     doRegisterBean(beanClass, beanName, null, supplier, customizers);
+  }
+
+  /**
+   * Register one or more component classes to be processed.
+   * <p>Calls to {@code register} are idempotent; adding the same
+   * component class more than once has no additional effect.
+   *
+   * @param componentClasses one or more component classes,
+   * e.g. {@link Configuration @Configuration} classes
+   */
+  public void register(Class<?>... componentClasses) {
+    for (Class<?> componentClass : componentClasses) {
+      registerBean(componentClass);
+    }
   }
 
   /**
@@ -570,6 +587,17 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
   public ScopeMetadataResolver getScopeMetadataResolver() {
     return scopeMetadataResolver;
+  }
+
+  /**
+   * Set the {@code Environment} to use when evaluating whether
+   * {@link Conditional @Conditional}-annotated component classes should be registered.
+   * <p>The default is a {@link StandardEnvironment}.
+   *
+   * @see #registerBean(Class, String, Class...)
+   */
+  public void setEnvironment(Environment environment) {
+    this.conditionEvaluator = new ConditionEvaluator(environment, context, registry);
   }
 
   /**

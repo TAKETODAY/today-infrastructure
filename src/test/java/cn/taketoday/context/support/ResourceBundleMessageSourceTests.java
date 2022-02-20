@@ -207,7 +207,7 @@ class ResourceBundleMessageSourceTests {
   @Test
   @SuppressWarnings("resource")
   void defaultApplicationContextMessageSource() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     ac.refresh();
     assertThat(ac.getMessage("code1", null, "default", Locale.ENGLISH)).isEqualTo("default");
     assertThat(ac.getMessage("code1", new Object[] { "value" }, "default {0}", Locale.ENGLISH)).isEqualTo("default value");
@@ -216,8 +216,8 @@ class ResourceBundleMessageSourceTests {
   @Test
   @SuppressWarnings("resource")
   void defaultApplicationContextMessageSourceWithParent() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
-    DefaultApplicationContext parent = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
+    GenericApplicationContext parent = new GenericApplicationContext();
     parent.refresh();
     ac.setParent(parent);
     ac.refresh();
@@ -241,7 +241,7 @@ class ResourceBundleMessageSourceTests {
   @SuppressWarnings("resource")
   void staticApplicationContextMessageSourceWithDefaultParent() {
     StaticApplicationContext ac = new StaticApplicationContext();
-    DefaultApplicationContext parent = new DefaultApplicationContext();
+    GenericApplicationContext parent = new GenericApplicationContext();
     parent.refresh();
     ac.setParent(parent);
     ac.refresh();

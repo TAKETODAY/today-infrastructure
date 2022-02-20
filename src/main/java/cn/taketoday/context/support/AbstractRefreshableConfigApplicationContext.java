@@ -23,17 +23,13 @@ package cn.taketoday.context.support;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.AbstractRefreshableApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
  * {@link AbstractRefreshableApplicationContext} subclass that adds common handling
- * of specified config locations. Serves as base class for XML-based application
- * context implementations such as {@link ClassPathXmlApplicationContext} and
- * {@link FileSystemXmlApplicationContext}, as well as
- * {@link cn.taketoday.web.context.support.XmlWebApplicationContext}.
+ * of specified config locations.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

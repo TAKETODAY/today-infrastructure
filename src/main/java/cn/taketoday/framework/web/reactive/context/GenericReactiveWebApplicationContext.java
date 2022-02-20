@@ -21,6 +21,7 @@
 package cn.taketoday.framework.web.reactive.context;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
 
@@ -29,39 +30,40 @@ import cn.taketoday.core.io.Resource;
  *
  * @author Stephane Nicoll
  * @author Brian Clozel
- * @since 2.0.0
+ * @since 4.0
  */
 public class GenericReactiveWebApplicationContext extends GenericApplicationContext
-		implements ConfigurableReactiveWebApplicationContext {
+        implements ConfigurableReactiveWebApplicationContext {
 
-	/**
-	 * Create a new {@link GenericReactiveWebApplicationContext}.
-	 * @see #registerBeanDefinition
-	 * @see #refresh
-	 */
-	public GenericReactiveWebApplicationContext() {
-	}
+  /**
+   * Create a new {@link GenericReactiveWebApplicationContext}.
+   *
+   * @see #registerBeanDefinition
+   * @see #refresh
+   */
+  public GenericReactiveWebApplicationContext() { }
 
-	/**
-	 * Create a new {@link GenericReactiveWebApplicationContext} with the given
-	 * StandardBeanFactory.
-	 * @param beanFactory the StandardBeanFactory instance to use for this context
-	 * @see #registerBeanDefinition
-	 * @see #refresh
-	 */
-	public GenericReactiveWebApplicationContext(StandardBeanFactory beanFactory) {
-		super(beanFactory);
-	}
+  /**
+   * Create a new {@link GenericReactiveWebApplicationContext} with the given
+   * StandardBeanFactory.
+   *
+   * @param beanFactory the StandardBeanFactory instance to use for this context
+   * @see #registerBeanDefinition
+   * @see #refresh
+   */
+  public GenericReactiveWebApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
+  }
 
-	@Override
-	protected ConfigurableEnvironment createEnvironment() {
-		return new StandardReactiveWebEnvironment();
-	}
+  @Override
+  protected ConfigurableEnvironment createEnvironment() {
+    return new StandardReactiveWebEnvironment();
+  }
 
-	@Override
-	protected Resource getResourceByPath(String path) {
-		// We must be careful not to expose classpath resources
-		return new FilteredReactiveWebContextResource(path);
-	}
+  @Override
+  protected Resource getResourceByPath(String path) {
+    // We must be careful not to expose classpath resources
+    return new FilteredReactiveWebContextResource(path);
+  }
 
 }

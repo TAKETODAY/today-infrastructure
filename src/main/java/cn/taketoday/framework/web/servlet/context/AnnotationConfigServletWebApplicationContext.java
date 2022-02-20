@@ -20,28 +20,30 @@
 
 package cn.taketoday.framework.web.servlet.context;
 
-import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
-import cn.taketoday.context.annotation.AnnotationConfigRegistry;
-import cn.taketoday.context.annotation.AnnotationConfigUtils;
-import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
-import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.ScopeMetadataResolver;
-import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.stereotype.Component;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
-
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.AnnotationConfigRegistry;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
+import cn.taketoday.context.loader.ScopeMetadataResolver;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.context.support.GenericWebApplicationContext;
 
 /**
  * {@link GenericWebApplicationContext}that accepts annotated classes as input - in
@@ -69,6 +71,7 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebAppl
 
   private final Set<Class<?>> annotatedClasses = new LinkedHashSet<>();
 
+  @Nullable
   private String[] basePackages;
 
   /**
@@ -77,7 +80,7 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebAppl
    * refreshed}.
    */
   public AnnotationConfigServletWebApplicationContext() {
-    this.reader = new AnnotatedBeanDefinitionReader(this);
+    this.reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
@@ -90,7 +93,7 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebAppl
    */
   public AnnotationConfigServletWebApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-    this.reader = new AnnotatedBeanDefinitionReader(this);
+    this.reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
@@ -134,24 +137,24 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebAppl
   }
 
   /**
-   * Provide a custom {@link BeanNameGenerator} for use with
+   * Provide a custom {@link cn.taketoday.beans.factory.BeanNamePopulator} for use with
    * {@link AnnotatedBeanDefinitionReader} and/or
    * {@link ClassPathBeanDefinitionScanner}, if any.
    * <p>
    * Default is
-   * {@link cn.taketoday.context.annotation.AnnotationBeanNameGenerator}.
+   * {@link cn.taketoday.context.annotation.AnnotationBeanNamePopulator}.
    * <p>
    * Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
-   * @param beanNameGenerator the bean name generator
-   * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator
-   * @see ClassPathBeanDefinitionScanner#setBeanNameGenerator
+   * @param BeanNamePopulator the bean name generator
+   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
+   * @see ClassPathBeanDefinitionScanner#setBeanNamePopulator
    */
-  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
-    this.reader.setBeanNameGenerator(beanNameGenerator);
-    this.scanner.setBeanNameGenerator(beanNameGenerator);
-    getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
+  public void setBeanNamePopulator(BeanNamePopulator BeanNamePopulator) {
+    this.reader.setBeanNamePopulator(BeanNamePopulator);
+    this.scanner.setBeanNamePopulator(BeanNamePopulator);
+    getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, BeanNamePopulator);
   }
 
   /**

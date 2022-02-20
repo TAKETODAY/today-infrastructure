@@ -23,6 +23,9 @@ package cn.taketoday.framework.web.servlet.error;
 import java.util.Collections;
 import java.util.Map;
 
+import cn.taketoday.framework.web.error.ErrorAttributeOptions;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -40,8 +43,6 @@ public interface ErrorAttributes {
    * Name of the {@link jakarta.servlet.http.HttpServletRequest#getAttribute(String)
    * request attribute} holding the error resolved by the {@code ErrorAttributes}
    * implementation.
-   *
-   * @since 4.0
    */
   String ERROR_ATTRIBUTE = ErrorAttributes.class.getName() + ".error";
 
@@ -50,12 +51,11 @@ public interface ErrorAttributes {
    * an error page {@link ModelAndView}, or returned as a
    * {@link ResponseBody @ResponseBody}.
    *
-   * @param webRequest the source request
+   * @param context the source request
    * @param options options for error attribute contents
    * @return a map of error attributes
-   * @since 4.0
    */
-  default Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
+  default Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
     return Collections.emptyMap();
   }
 
@@ -66,6 +66,7 @@ public interface ErrorAttributes {
    * @param webRequest the source request
    * @return the {@link Exception} that caused the error or {@code null}
    */
-  Throwable getError(WebRequest webRequest);
+  @Nullable
+  Throwable getError(RequestContext webRequest);
 
 }

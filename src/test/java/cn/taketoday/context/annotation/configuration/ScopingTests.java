@@ -37,7 +37,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -61,7 +61,7 @@ public class ScopingTests {
 
   private CustomScope customScope;
 
-  private DefaultApplicationContext ctx;
+  private GenericApplicationContext ctx;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -76,7 +76,7 @@ public class ScopingTests {
     }
   }
 
-  private DefaultApplicationContext createContext(Class<?> configClass) {
+  private GenericApplicationContext createContext(Class<?> configClass) {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     if (customScope != null) {
       beanFactory.registerScope(SCOPE, customScope);

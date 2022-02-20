@@ -20,12 +20,12 @@
 
 package cn.taketoday.framework.web.embedded.tomcat;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Set;
 
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -43,6 +43,7 @@ class TomcatStarter implements ServletContainerInitializer {
 
   private final ServletContextInitializer[] initializers;
 
+  @Nullable
   private volatile Exception startUpException;
 
   TomcatStarter(ServletContextInitializer[] initializers) {
@@ -61,12 +62,13 @@ class TomcatStarter implements ServletContainerInitializer {
       // Prevent Tomcat from logging and re-throwing when we know we can
       // deal with it in the main thread, but log for information here.
       if (logger.isErrorEnabled()) {
-        logger.error("Error starting Tomcat context. Exception: " + ex.getClass().getName() + ". Message: "
-                + ex.getMessage());
+        logger.error("Error starting Tomcat context. Exception: {}. Message: {}",
+                ex.getClass().getName(), ex.getMessage());
       }
     }
   }
 
+  @Nullable
   Exception getStartUpException() {
     return this.startUpException;
   }

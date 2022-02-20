@@ -249,7 +249,7 @@ class ServiceLocatorFactoryBeanTests {
   }
 
   @Test
-  public void testRequiresListableBeanFactoryAndChokesOnAnythingElse() throws Exception {
+  public void testRequiresBeanFactoryAndChokesOnAnythingElse() throws Exception {
     BeanFactory beanFactory = mock(BeanFactory.class);
     try {
       ServiceLocatorFactoryBean factory = new ServiceLocatorFactoryBean();

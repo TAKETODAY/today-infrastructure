@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
@@ -43,7 +43,7 @@ public class DuplicateConfigurationClassPostProcessorTests {
 
   @Test
   public void repro() {
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
     StandardBeanFactory beanFactory = ctx.getBeanFactory();
     DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, ctx);
     beanFactory.registerSingleton(loadingContext);

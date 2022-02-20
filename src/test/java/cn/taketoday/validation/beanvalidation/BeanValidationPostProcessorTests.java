@@ -26,7 +26,7 @@ import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.AsyncAnnotationAdvisor;
 import jakarta.annotation.PostConstruct;
@@ -43,7 +43,7 @@ public class BeanValidationPostProcessorTests {
 
   @Test
   public void testNotNullConstraint() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
 //    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     ac.registerBeanDefinition("bean", new BeanDefinition(NotNullConstrainedBean.class));
@@ -56,7 +56,7 @@ public class BeanValidationPostProcessorTests {
 
   @Test
   public void testNotNullConstraintSatisfied() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
 //    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     BeanDefinition bd = new BeanDefinition(NotNullConstrainedBean.class);
@@ -68,7 +68,7 @@ public class BeanValidationPostProcessorTests {
 
   @Test
   public void testNotNullConstraintAfterInitialization() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     BeanDefinition bvpp = new BeanDefinition(BeanValidationPostProcessor.class);
     bvpp.propertyValues().add("afterInitialization", true);
     ac.registerBeanDefinition("bvpp", bvpp);
@@ -80,7 +80,7 @@ public class BeanValidationPostProcessorTests {
 
   @Test
   public void testNotNullConstraintAfterInitializationWithProxy() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     BeanDefinition bvpp = new BeanDefinition(BeanValidationPostProcessor.class);
     bvpp.propertyValues().add("afterInitialization", true);
     ac.registerBeanDefinition("bvpp", bvpp);
@@ -94,7 +94,7 @@ public class BeanValidationPostProcessorTests {
 
   @Test
   public void testSizeConstraint() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
     BeanDefinition bd = new BeanDefinition(NotNullConstrainedBean.class);
     bd.propertyValues().add("testBean", new TestBean());
@@ -109,7 +109,7 @@ public class BeanValidationPostProcessorTests {
 
   @Test
   public void testSizeConstraintSatisfied() {
-    DefaultApplicationContext ac = new DefaultApplicationContext();
+    GenericApplicationContext ac = new GenericApplicationContext();
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
     BeanDefinition bd = new BeanDefinition(NotNullConstrainedBean.class);
     bd.propertyValues().add("testBean", new TestBean());

@@ -40,7 +40,7 @@ import jakarta.servlet.ServletException;
  *
  * @author Phillip Webb
  * @see WebApplicationInitializer
- * @since 1.4.0
+ * @since 4.0
  */
 @FunctionalInterface
 public interface ServletContextInitializer {

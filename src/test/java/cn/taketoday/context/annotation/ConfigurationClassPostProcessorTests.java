@@ -37,7 +37,7 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;

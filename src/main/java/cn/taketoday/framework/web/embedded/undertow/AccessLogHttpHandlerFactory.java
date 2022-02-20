@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.accesslog.AccessLogHandler;
@@ -45,15 +46,18 @@ class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
 
   private final File directory;
 
+  @Nullable
   private final String pattern;
 
+  @Nullable
   private final String prefix;
 
+  @Nullable
   private final String suffix;
 
   private final boolean rotate;
 
-  AccessLogHttpHandlerFactory(File directory, String pattern, String prefix, String suffix, boolean rotate) {
+  AccessLogHttpHandlerFactory(File directory, @Nullable String pattern, @Nullable String prefix, @Nullable String suffix, boolean rotate) {
     this.directory = directory;
     this.pattern = pattern;
     this.prefix = prefix;

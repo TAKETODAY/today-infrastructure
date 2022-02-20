@@ -27,7 +27,7 @@ import cn.taketoday.framework.web.server.WebServer;
  * {@link SmartLifecycle} to trigger {@link WebServer} graceful shutdown.
  *
  * @author Andy Wilkinson
- * @since 2.5.0
+ * @since 4.0
  */
 public final class WebServerGracefulShutdownLifecycle implements SmartLifecycle {
 

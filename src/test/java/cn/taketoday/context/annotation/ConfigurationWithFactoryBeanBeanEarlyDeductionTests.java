@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -98,7 +98,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
     beanDefinition.setBeanClass(FactoryBean.class);
     beanDefinition.setFactoryBeanName("factoryBean");
     beanDefinition.setFactoryMethodName("myBean");
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     try {
       context.registerBeanDefinition("factoryBean", factoryBeanDefinition);
       context.registerBeanDefinition("myBean", beanDefinition);

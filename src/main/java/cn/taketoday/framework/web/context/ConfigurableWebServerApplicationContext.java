@@ -28,7 +28,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
  * addition to the methods in the {WebServerApplicationContext} interface.
  *
  * @author Phillip Webb
- * @since 2.0.0
+ * @since 4.0
  */
 public interface ConfigurableWebServerApplicationContext
 		extends ConfigurableApplicationContext, WebServerApplicationContext {

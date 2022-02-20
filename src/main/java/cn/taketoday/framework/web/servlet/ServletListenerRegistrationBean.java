@@ -57,7 +57,7 @@ import jakarta.servlet.http.HttpSessionListener;
  * @param <T> the type of listener
  * @author Dave Syer
  * @author Phillip Webb
- * @since 1.4.0
+ * @since 4.0
  */
 public class ServletListenerRegistrationBean<T extends EventListener> extends RegistrationBean {
 

@@ -21,10 +21,23 @@
 package cn.taketoday.web.context.support;
 
 import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.Resource;
 import jakarta.servlet.ServletContext;
 
 /**
+ * ResourceLoader implementation that resolves paths as ServletContext
+ * resources, for use outside a WebApplicationContext (for example,
+ * in an HttpServletBean or GenericFilterBean subclass).
+ *
+ * <p>Within a WebApplicationContext, resource paths are automatically
+ * resolved as ServletContext resources by the context implementation.
+ *
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #getResourceByPath
+ * @see ServletContextResource
+ * @see cn.taketoday.web.WebApplicationContext
+ * @see cn.taketoday.web.servlet.filter.GenericFilterBean
  * @since 4.0 2022/2/20 16:16
  */
 public class ServletContextResourceLoader extends DefaultResourceLoader {

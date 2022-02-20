@@ -30,16 +30,17 @@ import cn.taketoday.core.env.StandardEnvironment;
  * initialize an instance by default.
  *
  * @author Phillip Webb
- * @since 2.0.0
+ * @since 4.0
  */
-public class StandardReactiveWebEnvironment extends StandardEnvironment implements ConfigurableReactiveWebEnvironment {
+public class StandardReactiveWebEnvironment extends StandardEnvironment
+        implements ConfigurableReactiveWebEnvironment {
 
-	public StandardReactiveWebEnvironment() {
-		super();
-	}
+  public StandardReactiveWebEnvironment() {
+    super();
+  }
 
-	protected StandardReactiveWebEnvironment(PropertySources propertySources) {
-		super(propertySources);
-	}
+  protected StandardReactiveWebEnvironment(PropertySources propertySources) {
+    super(propertySources);
+  }
 
 }

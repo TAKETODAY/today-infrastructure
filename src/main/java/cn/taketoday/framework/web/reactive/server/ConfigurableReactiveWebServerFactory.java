@@ -26,7 +26,7 @@ import cn.taketoday.framework.web.server.ConfigurableWebServerFactory;
  * Configurable {@link ReactiveWebServerFactory}.
  *
  * @author Brian Clozel
- * @since 2.0.0
+ * @since 4.0
  */
 public interface ConfigurableReactiveWebServerFactory extends ConfigurableWebServerFactory, ReactiveWebServerFactory {
 

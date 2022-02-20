@@ -45,7 +45,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.concurrent.ListenableFuture;
 
@@ -69,7 +69,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncMethods() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncMethodBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -109,7 +109,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncMethodsThroughInterface() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(SimpleAsyncMethodBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -125,7 +125,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncMethodsWithQualifier() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncMethodWithQualifierBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -146,7 +146,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncMethodsWithQualifierThroughInterface() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(SimpleAsyncMethodWithQualifierBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -167,7 +167,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncClass() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncClassBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -198,7 +198,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncClassWithPostProcessor() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncClassBean.class));
     context.registerBeanDefinition("asyncProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     context.refresh();
@@ -212,7 +212,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncClassWithInterface() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncClassBeanWithInterface.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -227,7 +227,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncClassWithInterfaceAndPostProcessor() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncClassBeanWithInterface.class));
     context.registerBeanDefinition("asyncProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     context.refresh();
@@ -241,7 +241,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncInterface() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncInterfaceBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -256,7 +256,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncInterfaceWithPostProcessor() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncInterfaceBean.class));
     context.registerBeanDefinition("asyncProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     context.refresh();
@@ -270,7 +270,7 @@ public class AsyncExecutionTests {
   @Test
   public void dynamicAsyncInterface() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(DynamicAsyncInterfaceBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -285,7 +285,7 @@ public class AsyncExecutionTests {
   @Test
   public void dynamicAsyncInterfaceWithPostProcessor() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(DynamicAsyncInterfaceBean.class));
     context.registerBeanDefinition("asyncProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     context.refresh();
@@ -299,7 +299,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncMethodsInInterface() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncMethodsInterfaceBean.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -315,7 +315,7 @@ public class AsyncExecutionTests {
   @Test
   public void asyncMethodsInInterfaceWithPostProcessor() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncMethodsInterfaceBean.class));
     context.registerBeanDefinition("asyncProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     context.refresh();
@@ -330,7 +330,7 @@ public class AsyncExecutionTests {
   @Test
   public void dynamicAsyncMethodsInInterfaceWithPostProcessor() throws Exception {
     originalThreadName = Thread.currentThread().getName();
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(DynamicAsyncMethodsInterfaceBean.class));
     context.registerBeanDefinition("asyncProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     context.refresh();
@@ -346,7 +346,7 @@ public class AsyncExecutionTests {
     // Arrange
     originalThreadName = Thread.currentThread().getName();
     listenerCalled = 0;
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncMethodListener.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -366,7 +366,7 @@ public class AsyncExecutionTests {
     originalThreadName = Thread.currentThread().getName();
     listenerCalled = 0;
     listenerConstructed = 0;
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("asyncTest", new BeanDefinition(AsyncClassListener.class));
     context.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     context.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -387,7 +387,7 @@ public class AsyncExecutionTests {
     originalThreadName = Thread.currentThread().getName();
     listenerCalled = 0;
     listenerConstructed = 0;
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     BeanDefinition listenerDef = new BeanDefinition(AsyncClassListener.class);
     listenerDef.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     context.registerBeanDefinition("asyncTest", listenerDef);

@@ -20,15 +20,14 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import cn.taketoday.util.unit.DataSize;
-
+import cn.taketoday.util.DataSize;
 import jakarta.servlet.MultipartConfigElement;
 
 /**
  * Factory that can be used to create a {@link MultipartConfigElement}.
  *
  * @author Phillip Webb
- * @since 1.4.0
+ * @since 4.0
  */
 public class MultipartConfigFactory {
 

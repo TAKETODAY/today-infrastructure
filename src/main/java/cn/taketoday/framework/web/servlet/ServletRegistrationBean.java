@@ -49,7 +49,7 @@ import jakarta.servlet.ServletRegistration;
  * @author Phillip Webb
  * @see ServletContextInitializer
  * @see ServletContext#addServlet(String, Servlet)
- * @since 1.4.0
+ * @since 4.0
  */
 public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrationBean<ServletRegistration.Dynamic> {
 

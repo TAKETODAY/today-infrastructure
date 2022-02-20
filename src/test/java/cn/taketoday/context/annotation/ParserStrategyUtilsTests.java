@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations;
 import java.io.InputStream;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.BeanInstantiationException;

@@ -37,7 +37,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
@@ -78,7 +78,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
 
   @Test
   public void invokedAsynchronouslyOnProxyTarget() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("postProcessor", new BeanDefinition(AsyncAnnotationBeanPostProcessor.class));
     TestBean tb = new TestBean();
     ProxyFactory pf = new ProxyFactory(ITestBean.class,
@@ -114,7 +114,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
 
   @Test
   public void taskExecutorByBeanType() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
 
     BeanDefinition processorDefinition = new BeanDefinition(AsyncAnnotationBeanPostProcessor.class);
     context.registerBeanDefinition("postProcessor", processorDefinition);
@@ -139,7 +139,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
 
   @Test
   public void taskExecutorByBeanName() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
 
     BeanDefinition processorDefinition = new BeanDefinition(AsyncAnnotationBeanPostProcessor.class);
     context.registerBeanDefinition("postProcessor", processorDefinition);
@@ -260,7 +260,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
   }
 
   private ConfigurableApplicationContext initContext(BeanDefinition asyncAnnotationBeanPostProcessorDefinition) {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     BeanDefinition targetDefinition = new BeanDefinition(TestBean.class);
     context.registerBeanDefinition("postProcessor", asyncAnnotationBeanPostProcessorDefinition);
     context.registerBeanDefinition("target", targetDefinition);

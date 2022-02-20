@@ -21,7 +21,7 @@
 package cn.taketoday.framework.web.servlet.filter;
 
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.filter.HiddenHttpMethodFilter;
+import cn.taketoday.web.servlet.filter.HiddenHttpMethodFilter;
 
 /**
  * {@link HiddenHttpMethodFilter} that also implements {@link Ordered}.

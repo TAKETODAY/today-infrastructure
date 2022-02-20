@@ -20,11 +20,10 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
-
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 
@@ -36,7 +35,7 @@ import jakarta.servlet.ServletException;
  * @see FilterRegistrationBean
  * @see DelegatingFilterProxyRegistrationBean
  * @see ServletListenerRegistrationBean
- * @since 1.4.0
+ * @since 4.0
  */
 public abstract class RegistrationBean implements ServletContextInitializer, Ordered {
 

@@ -30,7 +30,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -60,7 +60,7 @@ class ThreadPoolExecutorFactoryBeanTests {
 
   @Test
   void executorWithDefaultSettingsDoesNotPrestartAllCoreThreads() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBean("taskExecutor", ThreadPoolExecutorFactoryBean.class, TestThreadPoolExecutorFactoryBean::new);
     context.refresh();
     ThreadPoolExecutor threadPoolExecutor = context.getBean(ThreadPoolExecutor.class);
@@ -69,7 +69,7 @@ class ThreadPoolExecutorFactoryBeanTests {
 
   @Test
   void executorWithPrestartAllCoreThreads() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.registerBean("taskExecutor", ThreadPoolExecutorFactoryBean.class, () -> {
       TestThreadPoolExecutorFactoryBean factoryBean = new TestThreadPoolExecutorFactoryBean();
       factoryBean.setPrestartAllCoreThreads(true);

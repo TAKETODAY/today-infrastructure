@@ -35,7 +35,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.framework.context.properties.PropertyMapper;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
@@ -43,6 +42,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.PropertyMapper;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.SessionCookieConfig;

@@ -28,16 +28,18 @@ import java.util.Map;
 
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.framework.web.error.ErrorAttributeOptions;
+import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
-import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Default implementation of {@link ErrorAttributes}. Provides the following attributes
@@ -63,7 +65,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @since 4.0
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DefaultErrorAttributes implements ErrorAttributes, HandlerExceptionResolver, Ordered {
+public class DefaultErrorAttributes implements ErrorAttributes, HandlerExceptionHandler, Ordered {
 
   private static final String ERROR_INTERNAL_ATTRIBUTE = DefaultErrorAttributes.class.getName() + ".ERROR";
 
@@ -72,19 +74,19 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     return Ordered.HIGHEST_PRECEDENCE;
   }
 
+  @Nullable
   @Override
-  public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                       Exception ex) {
-    storeErrorAttributes(request, ex);
-    return null;
+  public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) {
+    storeErrorAttributes(context, ex);
+    return NONE_RETURN_VALUE;
   }
 
-  private void storeErrorAttributes(HttpServletRequest request, Exception ex) {
+  private void storeErrorAttributes(RequestContext request, Throwable ex) {
     request.setAttribute(ERROR_INTERNAL_ATTRIBUTE, ex);
   }
 
   @Override
-  public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
+  public Map<String, Object> getErrorAttributes(RequestContext webRequest, ErrorAttributeOptions options) {
     Map<String, Object> errorAttributes = getErrorAttributes(webRequest, options.isIncluded(Include.STACK_TRACE));
     if (!options.isIncluded(Include.EXCEPTION)) {
       errorAttributes.remove("exception");
@@ -101,16 +103,16 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     return errorAttributes;
   }
 
-  private Map<String, Object> getErrorAttributes(WebRequest webRequest, boolean includeStackTrace) {
+  private Map<String, Object> getErrorAttributes(RequestContext context, boolean includeStackTrace) {
     Map<String, Object> errorAttributes = new LinkedHashMap<>();
     errorAttributes.put("timestamp", new Date());
-    addStatus(errorAttributes, webRequest);
-    addErrorDetails(errorAttributes, webRequest, includeStackTrace);
-    addPath(errorAttributes, webRequest);
+    addStatus(errorAttributes, context);
+    addErrorDetails(errorAttributes, context, includeStackTrace);
+    addPath(errorAttributes, context);
     return errorAttributes;
   }
 
-  private void addStatus(Map<String, Object> errorAttributes, RequestAttributes requestAttributes) {
+  private void addStatus(Map<String, Object> errorAttributes, RequestContext requestAttributes) {
     Integer status = getAttribute(requestAttributes, RequestDispatcher.ERROR_STATUS_CODE);
     if (status == null) {
       errorAttributes.put("status", 999);
@@ -127,7 +129,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     }
   }
 
-  private void addErrorDetails(Map<String, Object> errorAttributes, WebRequest webRequest,
+  private void addErrorDetails(Map<String, Object> errorAttributes, RequestContext webRequest,
                                boolean includeStackTrace) {
     Throwable error = getError(webRequest);
     if (error != null) {
@@ -142,7 +144,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     addErrorMessage(errorAttributes, webRequest, error);
   }
 
-  private void addErrorMessage(Map<String, Object> errorAttributes, WebRequest webRequest, Throwable error) {
+  private void addErrorMessage(Map<String, Object> errorAttributes, RequestContext webRequest, Throwable error) {
     BindingResult result = extractBindingResult(error);
     if (result == null) {
       addExceptionErrorMessage(errorAttributes, webRequest, error);
@@ -152,7 +154,8 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     }
   }
 
-  private void addExceptionErrorMessage(Map<String, Object> errorAttributes, WebRequest webRequest, Throwable error) {
+  private void addExceptionErrorMessage(
+          Map<String, Object> errorAttributes, RequestContext webRequest, Throwable error) {
     errorAttributes.put("message", getMessage(webRequest, error));
   }
 
@@ -169,9 +172,8 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
    * @param webRequest current request
    * @param error current error, if any
    * @return message to include in the error attributes
-   * @since 4.0
    */
-  protected String getMessage(WebRequest webRequest, Throwable error) {
+  protected String getMessage(RequestContext webRequest, Throwable error) {
     Object message = getAttribute(webRequest, RequestDispatcher.ERROR_MESSAGE);
     if (!ObjectUtils.isEmpty(message)) {
       return message.toString();
@@ -202,7 +204,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     errorAttributes.put("trace", stackTrace.toString());
   }
 
-  private void addPath(Map<String, Object> errorAttributes, RequestAttributes requestAttributes) {
+  private void addPath(Map<String, Object> errorAttributes, RequestContext requestAttributes) {
     String path = getAttribute(requestAttributes, RequestDispatcher.ERROR_REQUEST_URI);
     if (path != null) {
       errorAttributes.put("path", path);
@@ -210,20 +212,21 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
   }
 
   @Override
-  public Throwable getError(WebRequest webRequest) {
+  @Nullable
+  public Throwable getError(RequestContext webRequest) {
     Throwable exception = getAttribute(webRequest, ERROR_INTERNAL_ATTRIBUTE);
     if (exception == null) {
       exception = getAttribute(webRequest, RequestDispatcher.ERROR_EXCEPTION);
     }
     // store the exception in a well-known attribute to make it available to metrics
     // instrumentation.
-    webRequest.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, exception, WebRequest.SCOPE_REQUEST);
+    webRequest.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, exception);
     return exception;
   }
 
   @SuppressWarnings("unchecked")
-  private <T> T getAttribute(RequestAttributes requestAttributes, String name) {
-    return (T) requestAttributes.getAttribute(name, RequestAttributes.SCOPE_REQUEST);
+  private <T> T getAttribute(RequestContext requestAttributes, String name) {
+    return (T) requestAttributes.getAttribute(name);
   }
 
 }

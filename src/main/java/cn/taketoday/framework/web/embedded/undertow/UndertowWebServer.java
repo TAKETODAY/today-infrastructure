@@ -20,8 +20,6 @@
 
 package cn.taketoday.framework.web.embedded.undertow;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.xnio.channels.BoundChannel;
 
 import java.io.Closeable;
@@ -40,6 +38,9 @@ import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import io.undertow.Undertow;
@@ -73,12 +74,15 @@ public class UndertowWebServer implements WebServer {
 
   private final boolean autoStart;
 
+  @Nullable
   private Undertow undertow;
 
   private volatile boolean started = false;
 
+  @Nullable
   private volatile GracefulShutdownHandler gracefulShutdown;
 
+  @Nullable
   private volatile List<Closeable> closeables;
 
   /**
@@ -97,7 +101,6 @@ public class UndertowWebServer implements WebServer {
    * @param builder the builder
    * @param httpHandlerFactories the handler factories
    * @param autoStart if the server should be started
-   * @since 4.0
    */
   public UndertowWebServer(Undertow.Builder builder, Iterable<HttpHandlerFactory> httpHandlerFactories,
                            boolean autoStart) {
@@ -158,7 +161,7 @@ public class UndertowWebServer implements WebServer {
     try {
       closeable.close();
     }
-    catch (Exception ex) {
+    catch (Exception ignored) {
     }
   }
 
@@ -188,7 +191,7 @@ public class UndertowWebServer implements WebServer {
   private String getPortsDescription() {
     List<Port> ports = getActualPorts();
     if (!ports.isEmpty()) {
-      return StringUtils.collectionToDelimitedString(ports, " ");
+      return StringUtils.collectionToString(ports, " ");
     }
     return "unknown";
   }
@@ -218,6 +221,7 @@ public class UndertowWebServer implements WebServer {
     return (List<BoundChannel>) ReflectionUtils.getField(channelsField, this.undertow);
   }
 
+  @Nullable
   private Port getPortFromChannel(BoundChannel channel) {
     SocketAddress socketAddress = channel.getLocalAddress();
     if (socketAddress instanceof InetSocketAddress) {
@@ -294,14 +298,15 @@ public class UndertowWebServer implements WebServer {
 
   @Override
   public void shutDownGracefully(GracefulShutdownCallback callback) {
-    if (this.gracefulShutdown == null) {
+    GracefulShutdownHandler gracefulShutdown = this.gracefulShutdown;
+    if (gracefulShutdown == null) {
       callback.shutdownComplete(GracefulShutdownResult.IMMEDIATE);
       return;
     }
     logger.info("Commencing graceful shutdown. Waiting for active requests to complete");
-    this.gracefulShutdownCallback.set(callback);
-    this.gracefulShutdown.shutdown();
-    this.gracefulShutdown.addShutdownListener((success) -> notifyGracefulCallback(success));
+    gracefulShutdownCallback.set(callback);
+    gracefulShutdown.shutdown();
+    gracefulShutdown.addShutdownListener(this::notifyGracefulCallback);
   }
 
   private void notifyGracefulCallback(boolean success) {
@@ -325,16 +330,7 @@ public class UndertowWebServer implements WebServer {
   /**
    * An active Undertow port.
    */
-  private static final class Port {
-
-    private final int number;
-
-    private final String protocol;
-
-    private Port(int number, String protocol) {
-      this.number = number;
-      this.protocol = protocol;
-    }
+  private record Port(int number, String protocol) {
 
     int getNumber() {
       return this.number;
@@ -370,11 +366,10 @@ public class UndertowWebServer implements WebServer {
   /**
    * {@link HttpHandlerFactory} to wrap a closable.
    */
-  private static final class CloseableHttpHandlerFactory implements HttpHandlerFactory {
+  private record CloseableHttpHandlerFactory(@Nullable Closeable closeable)
+          implements HttpHandlerFactory {
 
-    private final Closeable closeable;
-
-    private CloseableHttpHandlerFactory(Closeable closeable) {
+    private CloseableHttpHandlerFactory(@Nullable Closeable closeable) {
       this.closeable = closeable;
     }
 

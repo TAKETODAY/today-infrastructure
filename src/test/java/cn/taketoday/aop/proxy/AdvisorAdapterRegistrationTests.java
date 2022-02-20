@@ -37,7 +37,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -58,7 +58,7 @@ public class AdvisorAdapterRegistrationTests {
 
   @Test
   public void testAdvisorAdapterRegistrationManagerNotPresentInContext() {
-    DefaultApplicationContext beanFactory = new DefaultApplicationContext();
+    GenericApplicationContext beanFactory = new GenericApplicationContext();
     load(beanFactory);
 
     ITestBean tb = (ITestBean) beanFactory.getBean("testBean");
@@ -68,7 +68,7 @@ public class AdvisorAdapterRegistrationTests {
     assertThat(getAdviceImpl(tb).getInvocationCounter()).isZero();
   }
 
-  private void load(DefaultApplicationContext beanFactory) {
+  private void load(GenericApplicationContext beanFactory) {
     beanFactory.registerBeanDefinition(new BeanDefinition("testBeanTarget", TestBean.class));
     beanFactory.registerBeanDefinition(new BeanDefinition("simpleBeforeAdvice", SimpleBeforeAdviceImpl.class));
     beanFactory.registerBeanDefinition(new BeanDefinition("testAdvisorAdapter", SimpleBeforeAdviceAdapter.class));
@@ -88,7 +88,7 @@ public class AdvisorAdapterRegistrationTests {
 
   @Test
   public void testAdvisorAdapterRegistrationManagerPresentInContext() {
-    DefaultApplicationContext beanFactory = new DefaultApplicationContext();
+    GenericApplicationContext beanFactory = new GenericApplicationContext();
     beanFactory.registerBean(AdvisorAdapterRegistrationManager.class);
     load(beanFactory);
 

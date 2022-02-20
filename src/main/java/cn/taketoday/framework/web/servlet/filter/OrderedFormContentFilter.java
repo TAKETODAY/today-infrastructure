@@ -21,7 +21,7 @@
 package cn.taketoday.framework.web.servlet.filter;
 
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.filter.FormContentFilter;
+import cn.taketoday.web.servlet.filter.FormContentFilter;
 
 /**
  * {@link FormContentFilter} that also implements {@link Ordered}.

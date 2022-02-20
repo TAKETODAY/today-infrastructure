@@ -42,7 +42,7 @@ import jakarta.servlet.ServletContext;
  * @see ServletContextInitializer
  * @see ServletContext#addFilter(String, Filter)
  * @see DelegatingFilterProxyRegistrationBean
- * @since 1.4.0
+ * @since 4.0
  */
 public class FilterRegistrationBean<T extends Filter> extends AbstractFilterRegistrationBean<T> {
 

@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 import java.util.HashSet;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.BeansException;
@@ -39,7 +39,7 @@ import cn.taketoday.beans.factory.annotation.CustomAutowireConfigurer;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.annotation.componentscan.simple.ClassWithNestedComponents;
@@ -153,7 +153,7 @@ public class ComponentScanAnnotationIntegrationTests {
     bf.registerBeanDefinition("componentScanAnnotatedConfig",
             new BeanDefinition(ComponentScanAnnotatedConfig.class));
 
-    DefaultApplicationContext ctx = new DefaultApplicationContext(bf);
+    GenericApplicationContext ctx = new GenericApplicationContext(bf);
     DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(bf, ctx);
 
     BeanDefinition def = new BeanDefinition(

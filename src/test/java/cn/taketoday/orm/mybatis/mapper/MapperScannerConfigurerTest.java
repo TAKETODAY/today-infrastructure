@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -42,7 +42,7 @@ import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;
@@ -54,11 +54,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class MapperScannerConfigurerTest {
-  private DefaultApplicationContext applicationContext;
+  private GenericApplicationContext applicationContext;
 
   @BeforeEach
   void setupContext() {
-    applicationContext = new DefaultApplicationContext();
+    applicationContext = new GenericApplicationContext();
 
     // add the mapper scanner as a bean definition rather than explicitly setting a
     // postProcessor on the context so initialization follows the same code path as reading from
@@ -133,12 +133,12 @@ class MapperScannerConfigurerTest {
   @Test
   void testNameGenerator() {
     BeanDefinition definition = new BeanDefinition();
-    definition.setBeanClass(BeanNameGenerator.class);
-    applicationContext.registerBeanDefinition("beanNameGenerator", definition);
+    definition.setBeanClass(BeanNamePopulator.class);
+    applicationContext.registerBeanDefinition("BeanNamePopulator", definition);
 
     applicationContext.getBeanDefinition("mapperScanner")
             .propertyValues()
-            .add("namePopulator", RuntimeBeanReference.from("beanNameGenerator"));
+            .add("namePopulator", RuntimeBeanReference.from("BeanNamePopulator"));
 
     startContext();
 
@@ -431,7 +431,7 @@ class MapperScannerConfigurerTest {
     }
   }
 
-  public static class BeanNameGenerator implements BeanNamePopulator {
+  public static class BeanNamePopulator implements BeanNamePopulator {
 
     @Override
     public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {

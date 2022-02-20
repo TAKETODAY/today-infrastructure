@@ -66,7 +66,7 @@ class ConfigurationClassBeanDefinitionReader {
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
 
   private final ImportRegistry importRegistry;
-  private final BeanNamePopulator importBeanNameGenerator;
+  private final BeanNamePopulator importBeanNamePopulator;
   private final DefinitionLoadingContext loadingContext;
 
   /**
@@ -79,7 +79,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     this.loadingContext = loadingContext;
     this.importRegistry = importRegistry;
-    this.importBeanNameGenerator = beanNamePopulator;
+    this.importBeanNamePopulator = beanNamePopulator;
   }
 
   /**
@@ -127,7 +127,7 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
 
-    String configBeanName = importBeanNameGenerator.populateName(configBeanDef, loadingContext.getRegistry());
+    String configBeanName = importBeanNamePopulator.populateName(configBeanDef, loadingContext.getRegistry());
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 

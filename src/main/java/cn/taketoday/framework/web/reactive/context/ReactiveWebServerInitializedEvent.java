@@ -30,7 +30,7 @@ import cn.taketoday.framework.web.server.WebServer;
  *
  * @author Brian Clozel
  * @author Stephane Nicoll
- * @since 2.0.0
+ * @since 4.0
  */
 public class ReactiveWebServerInitializedEvent extends WebServerInitializedEvent {
 

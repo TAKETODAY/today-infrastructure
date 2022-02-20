@@ -20,8 +20,6 @@
 
 package cn.taketoday.framework.web.servlet.server;
 
-import org.apache.commons.logging.Log;
-
 import java.io.File;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -29,6 +27,8 @@ import java.net.URLConnection;
 import java.security.CodeSource;
 import java.util.Arrays;
 import java.util.Locale;
+
+import cn.taketoday.logging.Logger;
 
 /**
  * Manages a {@link ServletWebServerFactory} document root.
@@ -40,11 +40,11 @@ class DocumentRoot {
 
   private static final String[] COMMON_DOC_ROOTS = { "src/main/webapp", "public", "static" };
 
-  private final Log logger;
+  private final Logger logger;
 
   private File directory;
 
-  DocumentRoot(Log logger) {
+  DocumentRoot(Logger logger) {
     this.logger = logger;
   }
 

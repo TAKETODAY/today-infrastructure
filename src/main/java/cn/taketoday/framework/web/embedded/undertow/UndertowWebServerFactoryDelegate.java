@@ -32,8 +32,10 @@ import java.util.Set;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.Http2;
+import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -51,20 +53,28 @@ class UndertowWebServerFactoryDelegate {
 
   private Set<UndertowBuilderCustomizer> builderCustomizers = new LinkedHashSet<>();
 
+  @Nullable
   private Integer bufferSize;
 
+  @Nullable
   private Integer ioThreads;
 
+  @Nullable
   private Integer workerThreads;
 
+  @Nullable
   private Boolean directBuffers;
 
+  @Nullable
   private File accessLogDirectory;
 
+  @Nullable
   private String accessLogPattern;
 
+  @Nullable
   private String accessLogPrefix;
 
+  @Nullable
   private String accessLogSuffix;
 
   private boolean accessLogEnabled = false;
@@ -115,6 +125,7 @@ class UndertowWebServerFactoryDelegate {
     this.accessLogPrefix = accessLogPrefix;
   }
 
+  @Nullable
   String getAccessLogPrefix() {
     return this.accessLogPrefix;
   }
@@ -189,8 +200,9 @@ class UndertowWebServerFactoryDelegate {
     return factories;
   }
 
-  static List<HttpHandlerFactory> createHttpHandlerFactories(Compression compression, boolean useForwardHeaders,
-                                                             String serverHeader, Shutdown shutdown, HttpHandlerFactory... initialHttpHandlerFactories) {
+  static List<HttpHandlerFactory> createHttpHandlerFactories(
+          @Nullable Compression compression, boolean useForwardHeaders,
+          String serverHeader, Shutdown shutdown, HttpHandlerFactory... initialHttpHandlerFactories) {
     List<HttpHandlerFactory> factories = new ArrayList<>(Arrays.asList(initialHttpHandlerFactories));
     if (compression != null && compression.getEnabled()) {
       factories.add(new CompressionHttpHandlerFactory(compression));

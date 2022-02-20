@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.io.Serializable;
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -30,14 +27,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 /**
  * @author TODAY <br>
@@ -106,16 +97,6 @@ public class StandardWebServletApplicationContext
   }
 
   @Override
-  protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
-    super.registerFrameworkComponents(beanFactory);
-
-    beanFactory.registerDependency(HttpSession.class, new SessionObjectSupplier());
-    beanFactory.registerDependency(HttpServletRequest.class, new RequestObjectSupplier());
-    beanFactory.registerDependency(HttpServletResponse.class, new ResponseObjectSupplier());
-    beanFactory.registerDependency(ServletContext.class, (Supplier<?>) this::getServletContext);
-  }
-
-  @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     beanFactory.addBeanPostProcessor(new ServletContextAwareBeanPostProcessor(this));
     beanFactory.ignoreDependencyInterface(ServletContextAware.class);
@@ -136,59 +117,6 @@ public class StandardWebServletApplicationContext
   @Override
   public void setServletContext(ServletContext servletContext) {
     this.servletContext = servletContext;
-  }
-
-  /**
-   * Factory that exposes the current request object on demand.
-   */
-  @SuppressWarnings("serial")
-  private static class RequestObjectSupplier implements Supplier<ServletRequest>, Serializable {
-
-    @Override
-    public ServletRequest get() {
-      return ServletUtils.getServletRequest(RequestContextHolder.currentContext());
-    }
-
-    @Override
-    public String toString() {
-      return "Current HttpServletRequest";
-    }
-
-  }
-
-  /**
-   * Factory that exposes the current response object on demand.
-   */
-  @SuppressWarnings("serial")
-  private static class ResponseObjectSupplier implements Supplier<ServletResponse>, Serializable {
-
-    @Override
-    public ServletResponse get() {
-      return ServletUtils.getServletResponse(RequestContextHolder.currentContext());
-    }
-
-    @Override
-    public String toString() {
-      return "Current HttpServletResponse";
-    }
-  }
-
-  /**
-   * Factory that exposes the current session object on demand.
-   */
-  @SuppressWarnings("serial")
-  private static class SessionObjectSupplier implements Supplier<HttpSession>, Serializable {
-
-    @Override
-    public HttpSession get() {
-      return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
-    }
-
-    @Override
-    public String toString() {
-      return "Current HttpSession";
-    }
-
   }
 
 }

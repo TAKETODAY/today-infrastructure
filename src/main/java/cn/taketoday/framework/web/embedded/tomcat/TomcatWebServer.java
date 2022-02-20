@@ -46,6 +46,7 @@ import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -72,6 +73,7 @@ public class TomcatWebServer implements WebServer {
 
   private final boolean autoStart;
 
+  @Nullable
   private final GracefulShutdown gracefulShutdown;
 
   private volatile boolean started;
@@ -101,7 +103,6 @@ public class TomcatWebServer implements WebServer {
    * @param tomcat the underlying Tomcat server
    * @param autoStart if the server should be started
    * @param shutdown type of shutdown supported by the server
-   * @since 4.0
    */
   public TomcatWebServer(Tomcat tomcat, boolean autoStart, Shutdown shutdown) {
     Assert.notNull(tomcat, "Tomcat Server must not be null");
@@ -112,7 +113,7 @@ public class TomcatWebServer implements WebServer {
   }
 
   private void initialize() throws WebServerException {
-    logger.info("Tomcat initialized with port(s): " + getPortsDescription(false));
+    logger.info("Tomcat initialized with port(s): {}", getPortsDescription(false));
     synchronized(this.monitor) {
       try {
         addInstanceIdToEngineName();
@@ -224,15 +225,15 @@ public class TomcatWebServer implements WebServer {
         }
         checkThatConnectorsHaveStarted();
         this.started = true;
-        logger.info("Tomcat started on port(s): " + getPortsDescription(true) + " with context path '"
-                + getContextPath() + "'");
+        logger.info("Tomcat started on port(s): {} with context path '{}'",
+                getPortsDescription(true), getContextPath());
       }
       catch (ConnectorStartFailedException ex) {
         stopSilently();
         throw ex;
       }
       catch (Exception ex) {
-        PortInUseException.throwIfPortBindingException(ex, () -> this.tomcat.getConnector().getPort());
+        PortInUseException.throwIfPortBindingException(ex, tomcat.getConnector()::getPort);
         throw new WebServerException("Unable to start embedded Tomcat server", ex);
       }
       finally {

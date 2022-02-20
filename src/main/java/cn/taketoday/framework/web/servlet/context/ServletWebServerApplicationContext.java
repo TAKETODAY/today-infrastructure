@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -45,15 +46,20 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializerBeans;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ContextLoaderListener;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
+import cn.taketoday.web.context.support.ServletContextAwareProcessor;
 import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.context.support.ServletContextScope;
 import cn.taketoday.web.context.support.WebApplicationContextUtils;
 import cn.taketoday.web.servlet.ServletContextAware;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
@@ -82,18 +88,16 @@ import jakarta.servlet.ServletException;
  * automatic Servlet and Filter bean registration.
  * <p>
  * Although this context can be used directly, most developers should consider using the
- * {@link AnnotationConfigServletWebServerApplicationContext} or
- * {@link XmlServletWebServerApplicationContext} variants.
+ * {@link AnnotationConfigServletWebServerApplicationContext}
  *
  * @author Phillip Webb
  * @author Dave Syer
  * @author Scott Frederick
  * @see AnnotationConfigServletWebServerApplicationContext
- * @see XmlServletWebServerApplicationContext
  * @see ServletWebServerFactory
  * @since 4.0
  */
-public class ServletWebServerApplicationContext extends GenericWebApplicationContext
+public class ServletWebServerApplicationContext extends GenericWebServletApplicationContext
         implements ConfigurableWebServerApplicationContext {
 
   private static final Logger logger = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
@@ -106,17 +110,19 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
    */
   public static final String DISPATCHER_SERVLET_NAME = "dispatcherServlet";
 
+  @Nullable
   private volatile WebServer webServer;
 
+  @Nullable
   private ServletConfig servletConfig;
 
+  @Nullable
   private String serverNamespace;
 
   /**
    * Create a new {@link ServletWebServerApplicationContext}.
    */
-  public ServletWebServerApplicationContext() {
-  }
+  public ServletWebServerApplicationContext() { }
 
   /**
    * Create a new {@link ServletWebServerApplicationContext} with the given
@@ -177,15 +183,14 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     WebServer webServer = this.webServer;
     ServletContext servletContext = getServletContext();
     if (webServer == null && servletContext == null) {
-      StartupStep createWebServer = this.getApplicationStartup().start("spring.boot.webserver.create");
       ServletWebServerFactory factory = getWebServerFactory();
-      createWebServer.tag("factory", factory.getClass().toString());
-      this.webServer = factory.getWebServer(getSelfInitializer());
-      createWebServer.end();
-      getBeanFactory().registerSingleton("webServerGracefulShutdown",
-              new WebServerGracefulShutdownLifecycle(this.webServer));
-      getBeanFactory().registerSingleton("webServerStartStop",
-              new WebServerStartStopLifecycle(this, this.webServer));
+      webServer = factory.getWebServer(getSelfInitializer());
+
+      StandardBeanFactory beanFactory = getBeanFactory();
+      beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(this, webServer));
+      beanFactory.registerSingleton("webServerGracefulShutdown", new WebServerGracefulShutdownLifecycle(webServer));
+
+      this.webServer = webServer;
     }
     else if (servletContext != null) {
       try {
@@ -207,16 +212,19 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
    */
   protected ServletWebServerFactory getWebServerFactory() {
     // Use bean names so that we don't consider the hierarchy
-    String[] beanNames = getBeanFactory().getBeanNamesForType(ServletWebServerFactory.class);
-    if (beanNames.length == 0) {
+    StandardBeanFactory beanFactory = getBeanFactory();
+    Set<String> beanNames = beanFactory.getBeanNamesForType(ServletWebServerFactory.class);
+    if (beanNames.size() == 0) {
       throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to missing "
               + "ServletWebServerFactory bean.");
     }
-    if (beanNames.length > 1) {
+    if (beanNames.size() > 1) {
       throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to multiple "
-              + "ServletWebServerFactory beans : " + StringUtils.arrayToCommaDelimitedString(beanNames));
+              + "ServletWebServerFactory beans : " + StringUtils.collectionToString(beanNames));
     }
-    return getBeanFactory().getBean(beanNames[0], ServletWebServerFactory.class);
+
+    return BeanFactoryUtils.requiredBean(
+            beanFactory, CollectionUtils.firstElement(beanNames), ServletWebServerFactory.class);
   }
 
   /**
@@ -273,7 +281,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
    * @param servletContext the operational servlet context
    */
   protected void prepareWebApplicationContext(ServletContext servletContext) {
-    Object rootContext = servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    Object rootContext = servletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     if (rootContext != null) {
       if (rootContext == this) {
         throw new IllegalStateException(
@@ -284,10 +292,10 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     }
     servletContext.log("Initializing Spring embedded WebApplicationContext");
     try {
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
+      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
       if (logger.isDebugEnabled()) {
         logger.debug("Published root WebApplicationContext as ServletContext attribute with name ["
-                + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE + "]");
+                + WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE + "]");
       }
       setServletContext(servletContext);
       if (logger.isInfoEnabled()) {
@@ -297,7 +305,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     }
     catch (RuntimeException | Error ex) {
       logger.error("Context initialization failed", ex);
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
+      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
       throw ex;
     }
   }

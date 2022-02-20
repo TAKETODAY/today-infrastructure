@@ -21,8 +21,6 @@ package cn.taketoday.beans.factory.support;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionOverrideException;
 import cn.taketoday.core.AliasRegistry;
 import cn.taketoday.lang.Nullable;
 

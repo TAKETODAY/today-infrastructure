@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,9 +39,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.framework.context.properties.PropertyMapper;
 import cn.taketoday.framework.web.server.Cookie.SameSite;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.MimeMappings.Mapping;
@@ -50,7 +50,9 @@ import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.PropertyMapper;
 import io.undertow.Undertow.Builder;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -101,6 +103,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   private Set<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers = new LinkedHashSet<>();
 
+  @Nullable
   private ResourceLoader resourceLoader;
 
   private boolean eagerFilterInit = true;
@@ -266,7 +269,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * Return if filters should be eagerly initialized.
    *
    * @return {@code true} if filters are eagerly initialized, otherwise {@code false}.
-   * @since 4.0
    */
   public boolean isEagerFilterInit() {
     return this.eagerFilterInit;
@@ -277,7 +279,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    *
    * @param eagerFilterInit {@code true} if filters are eagerly initialized, otherwise
    * {@code false}.
-   * @since 4.0
    */
   public void setEagerFilterInit(boolean eagerFilterInit) {
     this.eagerFilterInit = eagerFilterInit;
@@ -366,7 +367,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     return (Class<? extends EventListener>) getServletClassLoader().loadClass(className);
   }
 
-  private boolean isZeroOrLess(Duration timeoutDuration) {
+  private boolean isZeroOrLess(@Nullable Duration timeoutDuration) {
     return timeoutDuration == null || timeoutDuration.isZero() || timeoutDuration.isNegative();
   }
 
@@ -375,14 +376,15 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
             (locale, charset) -> deployment.addLocaleCharsetMapping(locale.toString(), charset.toString()));
   }
 
-  private void registerServletContainerInitializerToDriveServletContextInitializers(DeploymentInfo deployment,
-                                                                                    ServletContextInitializer... initializers) {
+  private void registerServletContainerInitializerToDriveServletContextInitializers(
+          DeploymentInfo deployment, ServletContextInitializer... initializers) {
     ServletContextInitializer[] mergedInitializers = mergeInitializers(initializers);
     Initializer initializer = new Initializer(mergedInitializers);
     deployment.addServletContainerInitializer(new ServletContainerInitializerInfo(Initializer.class,
             new ImmediateInstanceFactory<ServletContainerInitializer>(initializer), NO_CLASSES));
   }
 
+  @Nullable
   private ClassLoader getServletClassLoader() {
     if (this.resourceLoader != null) {
       return this.resourceLoader.getClassLoader();
@@ -398,9 +400,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     List<ResourceManager> managers = new ArrayList<>();
     ResourceManager rootManager = (docBase.isDirectory() ? new FileResourceManager(docBase, 0)
                                                          : new JarResourceManager(docBase));
-    if (root != null) {
-      rootManager = new LoaderHidingResourceManager(rootManager);
-    }
     managers.add(rootManager);
     for (URL url : metaInfResourceUrls) {
       if ("file".equals(url.getProtocol())) {
@@ -425,7 +424,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     return new CompositeResourceManager(managers.toArray(new ResourceManager[0]));
   }
 
-  private File getCanonicalDocumentRoot(File docBase) {
+  private File getCanonicalDocumentRoot(@Nullable File docBase) {
     try {
       File root = (docBase != null) ? docBase : createTempDir("undertow-docbase");
       return root.getCanonicalFile();
@@ -490,6 +489,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     return new UndertowServletWebServer(builder, httpHandlerFactories, getContextPath(), port >= 0);
   }
 
+  @Nullable
   private HttpHandlerFactory getCookieHandlerFactory(Deployment deployment) {
     SameSite sessionSameSite = getSession().getCookie().getSameSite();
     List<CookieSameSiteSupplier> suppliers = new ArrayList<>();
@@ -507,13 +507,8 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * {@link ServletContainerInitializer} to initialize {@link ServletContextInitializer
    * ServletContextInitializers}.
    */
-  private static class Initializer implements ServletContainerInitializer {
-
-    private final ServletContextInitializer[] initializers;
-
-    Initializer(ServletContextInitializer[] initializers) {
-      this.initializers = initializers;
-    }
+  private record Initializer(ServletContextInitializer[] initializers)
+          implements ServletContainerInitializer {
 
     @Override
     public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
@@ -528,19 +523,14 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * {@link ResourceManager} that exposes resource in {@code META-INF/resources}
    * directory of nested (in {@code BOOT-INF/lib} or {@code WEB-INF/lib}) jars.
    */
-  private static final class MetaInfResourcesResourceManager implements ResourceManager {
-
-    private final List<URL> metaInfResourceJarUrls;
-
-    private MetaInfResourcesResourceManager(List<URL> metaInfResourceJarUrls) {
-      this.metaInfResourceJarUrls = metaInfResourceJarUrls;
-    }
+  private record MetaInfResourcesResourceManager(List<URL> metaInfResourceJarUrls)
+          implements ResourceManager {
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException { }
 
     @Override
+    @Nullable
     public Resource getResource(String path) {
       for (URL url : this.metaInfResourceJarUrls) {
         URLResource resource = getMetaInfResource(url, path);
@@ -557,17 +547,15 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     }
 
     @Override
-    public void registerResourceChangeListener(ResourceChangeListener listener) {
-    }
+    public void registerResourceChangeListener(ResourceChangeListener listener) { }
 
     @Override
-    public void removeResourceChangeListener(ResourceChangeListener listener) {
+    public void removeResourceChangeListener(ResourceChangeListener listener) { }
 
-    }
-
+    @Nullable
     private URLResource getMetaInfResource(URL resourceJar, String path) {
       try {
-        String urlPath = URLEncoder.encode(ENCODED_SLASH.matcher(path).replaceAll("/"), "UTF-8");
+        String urlPath = URLEncoder.encode(ENCODED_SLASH.matcher(path).replaceAll("/"), StandardCharsets.UTF_8);
         URL resourceUrl = new URL(resourceJar + "META-INF/resources" + urlPath);
         URLResource resource = new URLResource(resourceUrl, path);
         if (resource.getContentLength() < 0) {
@@ -583,60 +571,11 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
   }
 
   /**
-   * {@link ResourceManager} to hide loader classes.
-   */
-  private static final class LoaderHidingResourceManager implements ResourceManager {
-
-    private final ResourceManager delegate;
-
-    private LoaderHidingResourceManager(ResourceManager delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    public Resource getResource(String path) throws IOException {
-      if (path.startsWith("/org/springframework/boot")) {
-        return null;
-      }
-      return this.delegate.getResource(path);
-    }
-
-    @Override
-    public boolean isResourceChangeListenerSupported() {
-      return this.delegate.isResourceChangeListenerSupported();
-    }
-
-    @Override
-    public void registerResourceChangeListener(ResourceChangeListener listener) {
-      this.delegate.registerResourceChangeListener(listener);
-    }
-
-    @Override
-    public void removeResourceChangeListener(ResourceChangeListener listener) {
-      this.delegate.removeResourceChangeListener(listener);
-    }
-
-    @Override
-    public void close() throws IOException {
-      this.delegate.close();
-    }
-
-  }
-
-  /**
    * {@link HttpHandler} to apply {@link CookieSameSiteSupplier supplied}
    * {@link SameSite} cookie values.
    */
-  private static class SuppliedSameSiteCookieHandler implements HttpHandler {
-
-    private final HttpHandler next;
-
-    private final List<CookieSameSiteSupplier> suppliers;
-
-    SuppliedSameSiteCookieHandler(HttpHandler next, List<CookieSameSiteSupplier> suppliers) {
-      this.next = next;
-      this.suppliers = suppliers;
-    }
+  private record SuppliedSameSiteCookieHandler(HttpHandler next, List<CookieSameSiteSupplier> suppliers)
+          implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
@@ -666,6 +605,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
       return result;
     }
 
+    @Nullable
     private SameSite getSameSite(jakarta.servlet.http.Cookie cookie) {
       for (CookieSameSiteSupplier supplier : this.suppliers) {
         SameSite sameSite = supplier.getSameSite(cookie);

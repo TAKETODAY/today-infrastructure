@@ -43,7 +43,7 @@ import cn.taketoday.beans.factory.support.ListFactoryBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.BeanDefinitionParsingException;
@@ -593,7 +593,7 @@ public class ConfigurationClassProcessingTests {
   static class ConfigWithFunctionalRegistration {
 
     @Autowired
-    void register(DefaultApplicationContext ctx) {
+    void register(GenericApplicationContext ctx) {
       ctx.registerBean("spouse", TestBean.class,
               () -> new TestBean("functional"));
       Supplier<TestBean> testBeanSupplier = () -> new TestBean(ctx.getBean("spouse", TestBean.class));

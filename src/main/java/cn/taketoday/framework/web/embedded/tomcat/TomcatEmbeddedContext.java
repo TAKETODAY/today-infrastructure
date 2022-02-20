@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import cn.taketoday.framework.web.server.WebServerException;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import jakarta.servlet.ServletException;
 
@@ -47,6 +48,7 @@ import jakarta.servlet.ServletException;
  */
 class TomcatEmbeddedContext extends StandardContext {
 
+  @Nullable
   private TomcatStarter starter;
 
   @Override
@@ -103,7 +105,7 @@ class TomcatEmbeddedContext extends StandardContext {
    * @param classLoader the class loader to use
    * @param code the code to run
    */
-  private void doWithThreadContextClassLoader(ClassLoader classLoader, Runnable code) {
+  private void doWithThreadContextClassLoader(@Nullable ClassLoader classLoader, Runnable code) {
     ClassLoader existingLoader = (classLoader != null)
                                  ? ClassUtils.overrideThreadContextClassLoader(classLoader)
                                  : null;
@@ -117,10 +119,11 @@ class TomcatEmbeddedContext extends StandardContext {
     }
   }
 
-  void setStarter(TomcatStarter starter) {
+  void setStarter(@Nullable TomcatStarter starter) {
     this.starter = starter;
   }
 
+  @Nullable
   TomcatStarter getStarter() {
     return this.starter;
   }

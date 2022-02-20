@@ -272,7 +272,7 @@ public class MapperScannerConfigurer
   }
 
   /**
-   * Gets beanNameGenerator to be used while running the scanner.
+   * Gets BeanNamePopulator to be used while running the scanner.
    *
    * @return the BeanNamePopulator that has been configured
    */
@@ -281,9 +281,9 @@ public class MapperScannerConfigurer
   }
 
   /**
-   * Sets beanNameGenerator to be used while running the scanner.
+   * Sets BeanNamePopulator to be used while running the scanner.
    *
-   * @param namePopulator the beanNameGenerator to set
+   * @param namePopulator the BeanNamePopulator to set
    */
   public void setNamePopulator(BeanNamePopulator namePopulator) {
     this.namePopulator = namePopulator;

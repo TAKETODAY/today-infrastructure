@@ -20,14 +20,12 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.util.StringUtils;
-
 import java.util.Map;
 
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.util.StringUtils;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -46,16 +44,17 @@ class WebServletHandler extends ServletComponentHandler {
   @Override
   public void doHandle(Map<String, Object> attributes, AnnotatedBeanDefinition beanDefinition,
                        BeanDefinitionRegistry registry) {
-    BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(ServletRegistrationBean.class);
-    builder.addPropertyValue("asyncSupported", attributes.get("asyncSupported"));
-    builder.addPropertyValue("initParameters", extractInitParameters(attributes));
-    builder.addPropertyValue("loadOnStartup", attributes.get("loadOnStartup"));
+    BeanDefinition definition = new BeanDefinition(ServletRegistrationBean.class);
+
+    definition.addPropertyValue("asyncSupported", attributes.get("asyncSupported"));
+    definition.addPropertyValue("initParameters", extractInitParameters(attributes));
+    definition.addPropertyValue("loadOnStartup", attributes.get("loadOnStartup"));
     String name = determineName(attributes, beanDefinition);
-    builder.addPropertyValue("name", name);
-    builder.addPropertyValue("servlet", beanDefinition);
-    builder.addPropertyValue("urlMappings", extractUrlPatterns(attributes));
-    builder.addPropertyValue("multipartConfig", determineMultipartConfig(beanDefinition));
-    registry.registerBeanDefinition(name, builder.getBeanDefinition());
+    definition.addPropertyValue("name", name);
+    definition.addPropertyValue("servlet", beanDefinition);
+    definition.addPropertyValue("urlMappings", extractUrlPatterns(attributes));
+    definition.addPropertyValue("multipartConfig", determineMultipartConfig(beanDefinition));
+    registry.registerBeanDefinition(name, definition);
   }
 
   private String determineName(Map<String, Object> attributes, BeanDefinition beanDefinition) {

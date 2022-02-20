@@ -20,21 +20,20 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextAware;
-import cn.taketoday.context.annotation.ClassPathScanningCandidateComponentProvider;
-import cn.taketoday.web.context.WebApplicationContext;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * {@link BeanFactoryPostProcessor} that registers beans for Servlet components found via
@@ -46,15 +45,9 @@ import java.util.Set;
  */
 class ServletComponentRegisteringPostProcessor implements BeanFactoryPostProcessor, ApplicationContextAware {
 
-  private static final List<ServletComponentHandler> HANDLERS;
-
-  static {
-    List<ServletComponentHandler> servletComponentHandlers = new ArrayList<>();
-    servletComponentHandlers.add(new WebServletHandler());
-    servletComponentHandlers.add(new WebFilterHandler());
-    servletComponentHandlers.add(new WebListenerHandler());
-    HANDLERS = Collections.unmodifiableList(servletComponentHandlers);
-  }
+  private static final List<ServletComponentHandler> HANDLERS = List.of(
+          new WebServletHandler(), new WebFilterHandler(), new WebListenerHandler()
+  );
 
   private final Set<String> packagesToScan;
 
@@ -86,8 +79,8 @@ class ServletComponentRegisteringPostProcessor implements BeanFactoryPostProcess
   }
 
   private boolean isRunningInEmbeddedWebServer() {
-    return this.applicationContext instanceof WebApplicationContext
-            && ((WebApplicationContext) this.applicationContext).getServletContext() == null;
+    return this.applicationContext instanceof WebServletApplicationContext
+            && ((WebServletApplicationContext) this.applicationContext).getServletContext() == null;
   }
 
   private ClassPathScanningCandidateComponentProvider createComponentProvider() {

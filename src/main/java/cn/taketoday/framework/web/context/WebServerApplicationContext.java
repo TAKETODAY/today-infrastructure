@@ -20,8 +20,9 @@
 
 package cn.taketoday.framework.web.context;
 
-import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -29,51 +30,55 @@ import cn.taketoday.util.ObjectUtils;
  * create and manage the lifecycle of an embedded {@link WebServer}.
  *
  * @author Phillip Webb
- * @since 2.0.0
+ * @since 4.0
  */
 public interface WebServerApplicationContext extends ApplicationContext {
 
-	/**
-	 * Returns the {@link WebServer} that was created by the context or {@code null} if
-	 * the server has not yet been created.
-	 * @return the web server
-	 */
-	WebServer getWebServer();
+  /**
+   * Returns the {@link WebServer} that was created by the context or {@code null} if
+   * the server has not yet been created.
+   *
+   * @return the web server
+   */
+  @Nullable
+  WebServer getWebServer();
 
-	/**
-	 * Returns the namespace of the web server application context or {@code null} if no
-	 * namespace has been set. Used for disambiguation when multiple web servers are
-	 * running in the same application (for example a management context running on a
-	 * different port).
-	 * @return the server namespace
-	 */
-	String getServerNamespace();
+  /**
+   * Returns the namespace of the web server application context or {@code null} if no
+   * namespace has been set. Used for disambiguation when multiple web servers are
+   * running in the same application (for example a management context running on a
+   * different port).
+   *
+   * @return the server namespace
+   */
+  @Nullable
+  String getServerNamespace();
 
-	/**
-	 * Returns {@code true} if the specified context is a
-	 * {@link WebServerApplicationContext} with a matching server namespace.
-	 * @param context the context to check
-	 * @param serverNamespace the server namespace to match against
-	 * @return {@code true} if the server namespace of the context matches
-	 * @since 2.1.8
-	 */
-	static boolean hasServerNamespace(ApplicationContext context, String serverNamespace) {
-		return (context instanceof WebServerApplicationContext) && ObjectUtils
-				.nullSafeEquals(((WebServerApplicationContext) context).getServerNamespace(), serverNamespace);
-	}
+  /**
+   * Returns {@code true} if the specified context is a
+   * {@link WebServerApplicationContext} with a matching server namespace.
+   *
+   * @param context the context to check
+   * @param serverNamespace the server namespace to match against
+   * @return {@code true} if the server namespace of the context matches
+   */
+  static boolean hasServerNamespace(ApplicationContext context, String serverNamespace) {
+    return (context instanceof WebServerApplicationContext serverCtx)
+            && ObjectUtils.nullSafeEquals(serverCtx.getServerNamespace(), serverNamespace);
+  }
 
-	/**
-	 * Returns the server namespace if the specified context is a
-	 * {@link WebServerApplicationContext}.
-	 * @param context the context
-	 * @return the server namespace or {@code null} if the context is not a
-	 * {@link WebServerApplicationContext}
-	 * @since 2.6.0
-	 */
-	static String getServerNamespace(ApplicationContext context) {
-		return (context instanceof WebServerApplicationContext)
-				? ((WebServerApplicationContext) context).getServerNamespace() : null;
+  /**
+   * Returns the server namespace if the specified context is a
+   * {@link WebServerApplicationContext}.
+   *
+   * @param context the context
+   * @return the server namespace or {@code null} if the context is not a
+   * {@link WebServerApplicationContext}
+   */
+  static String getServerNamespace(ApplicationContext context) {
+    return (context instanceof WebServerApplicationContext serverCtx)
+           ? serverCtx.getServerNamespace() : null;
 
-	}
+  }
 
 }

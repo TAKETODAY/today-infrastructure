@@ -26,8 +26,6 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardWrapper;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +33,8 @@ import java.util.List;
 
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Handles Tomcat graceful shutdown.

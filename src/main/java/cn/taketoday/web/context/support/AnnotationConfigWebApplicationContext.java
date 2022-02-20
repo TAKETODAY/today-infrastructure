@@ -20,29 +20,28 @@
 
 package cn.taketoday.web.context.support;
 
-import cn.taketoday.beans.factory.support.DefaultListableBeanFactory;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
-import cn.taketoday.context.annotation.AnnotationConfigUtils;
-import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
-import cn.taketoday.util.Assert;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.ContextLoader;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.context.ContextLoader;
 
 /**
- * {@link cn.taketoday.web.context.WebApplicationContext WebApplicationContext}
+ * {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}
  * implementation which accepts <em>component classes</em> as input &mdash; in particular
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}
- * classes, but also plain {@link cn.taketoday.stereotype.Component @Component}
+ * classes, but also plain {@link cn.taketoday.lang.Component @Component}
  * classes as well as JSR-330 compliant classes using {@code jakarta.inject} annotations.
  *
  * <p>Allows for registering classes one by one (specifying class names as config
@@ -59,7 +58,7 @@ import cn.taketoday.lang.Nullable;
  * If you wish to register annotated <em>component classes</em> with a
  * {@code GenericApplicationContext} in a web environment, you may use a
  * {@code GenericWebApplicationContext} with an
- * {@link cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader
+ * {@link cn.taketoday.context.loader.AnnotatedBeanDefinitionReader
  * AnnotatedBeanDefinitionReader}. See the Javadoc for {@link GenericWebApplicationContext}
  * for details and an example.
  *
@@ -67,19 +66,6 @@ import cn.taketoday.lang.Nullable;
  * {@linkplain ContextLoader#CONTEXT_CLASS_PARAM "contextClass"} context-param for
  * ContextLoader and/or "contextClass" init-param for FrameworkServlet must be set to
  * the fully-qualified name of this class.
- *
- * <p>As of Spring 3.1, this class may also be directly instantiated and injected into
- * Spring's {@code DispatcherServlet} or {@code ContextLoaderListener} when using the
- * {@link cn.taketoday.web.WebApplicationInitializer WebApplicationInitializer}
- * code-based alternative to {@code web.xml}. See its Javadoc for details and usage examples.
- *
- * <p>Unlike {@link XmlWebApplicationContext}, no default configuration class locations
- * are assumed. Rather, it is a requirement to set the
- * {@linkplain ContextLoader#CONFIG_LOCATION_PARAM "contextConfigLocation"}
- * context-param for {@link ContextLoader} and/or "contextConfigLocation" init-param for
- * FrameworkServlet.  The param-value may contain both fully-qualified
- * class names and base packages to scan for components. See {@link #loadBeanDefinitions}
- * for exact details on how these locations are processed.
  *
  * <p>As an alternative to setting the "contextConfigLocation" parameter, users may
  * implement an {@link cn.taketoday.context.ApplicationContextInitializer
@@ -165,7 +151,7 @@ public class AnnotationConfigWebApplicationContext
    * @param componentClasses one or more component classes,
    * e.g. {@link cn.taketoday.context.annotation.Configuration @Configuration} classes
    * @see #scan(String...)
-   * @see #loadBeanDefinitions(DefaultListableBeanFactory)
+   * @see #loadBeanDefinitions(StandardBeanFactory)
    * @see #setConfigLocation(String)
    * @see #refresh()
    */
@@ -181,7 +167,7 @@ public class AnnotationConfigWebApplicationContext
    * to fully process the new classes.
    *
    * @param basePackages the packages to check for component classes
-   * @see #loadBeanDefinitions(DefaultListableBeanFactory)
+   * @see #loadBeanDefinitions(StandardBeanFactory)
    * @see #register(Class...)
    * @see #setConfigLocation(String)
    * @see #refresh()
@@ -193,7 +179,7 @@ public class AnnotationConfigWebApplicationContext
   }
 
   /**
-   * Register a {@link cn.taketoday.beans.factory.config.BeanDefinition} for
+   * Register a {@link cn.taketoday.beans.factory.support.BeanDefinition} for
    * any classes specified by {@link #register(Class...)} and scan any packages
    * specified by {@link #scan(String...)}.
    * <p>For any values specified by {@link #setConfigLocation(String)} or
@@ -216,7 +202,7 @@ public class AnnotationConfigWebApplicationContext
    * @see ClassPathBeanDefinitionScanner
    */
   @Override
-  protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) {
+  protected void loadBeanDefinitions(StandardBeanFactory beanFactory) {
     AnnotatedBeanDefinitionReader reader = getAnnotatedBeanDefinitionReader(beanFactory);
     ClassPathBeanDefinitionScanner scanner = getClassPathBeanDefinitionScanner(beanFactory);
 
@@ -234,17 +220,15 @@ public class AnnotationConfigWebApplicationContext
     }
 
     if (!this.componentClasses.isEmpty()) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Registering component classes: [" +
-                StringUtils.collectionToCommaDelimitedString(this.componentClasses) + "]");
+      if (log.isDebugEnabled()) {
+        log.debug("Registering component classes: [{}]", StringUtils.collectionToString(this.componentClasses));
       }
       reader.register(ClassUtils.toClassArray(this.componentClasses));
     }
 
     if (!this.basePackages.isEmpty()) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Scanning base packages: [" +
-                StringUtils.collectionToCommaDelimitedString(this.basePackages) + "]");
+      if (log.isDebugEnabled()) {
+        log.debug("Scanning base packages: [{}]", StringUtils.collectionToString(this.basePackages));
       }
       scanner.scan(StringUtils.toStringArray(this.basePackages));
     }
@@ -254,19 +238,19 @@ public class AnnotationConfigWebApplicationContext
       for (String configLocation : configLocations) {
         try {
           Class<?> clazz = ClassUtils.forName(configLocation, getClassLoader());
-          if (logger.isTraceEnabled()) {
-            logger.trace("Registering [" + configLocation + "]");
+          if (log.isTraceEnabled()) {
+            log.trace("Registering [{}]", configLocation);
           }
           reader.register(clazz);
         }
         catch (ClassNotFoundException ex) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Could not load class for config location [" + configLocation +
-                    "] - trying package scan. " + ex);
+          if (log.isTraceEnabled()) {
+            log.trace("Could not load class for config location [{}] - trying package scan. {}",
+                    configLocation, ex.toString());
           }
           int count = scanner.scan(configLocation);
-          if (count == 0 && logger.isDebugEnabled()) {
-            logger.debug("No component classes found for specified class/package [" + configLocation + "]");
+          if (count == 0 && log.isDebugEnabled()) {
+            log.debug("No component classes found for specified class/package [{}]", configLocation);
           }
         }
       }
@@ -282,10 +266,9 @@ public class AnnotationConfigWebApplicationContext
    * @see #getEnvironment()
    * @see #getBeanNamePopulator()
    * @see #getScopeMetadataResolver()
-   * @since 4.1.9
    */
-  protected AnnotatedBeanDefinitionReader getAnnotatedBeanDefinitionReader(DefaultListableBeanFactory beanFactory) {
-    return new AnnotatedBeanDefinitionReader(beanFactory, getEnvironment());
+  protected AnnotatedBeanDefinitionReader getAnnotatedBeanDefinitionReader(StandardBeanFactory beanFactory) {
+    return new AnnotatedBeanDefinitionReader(this, beanFactory);
   }
 
   /**
@@ -297,9 +280,8 @@ public class AnnotationConfigWebApplicationContext
    * @see #getEnvironment()
    * @see #getBeanNamePopulator()
    * @see #getScopeMetadataResolver()
-   * @since 4.1.9
    */
-  protected ClassPathBeanDefinitionScanner getClassPathBeanDefinitionScanner(DefaultListableBeanFactory beanFactory) {
+  protected ClassPathBeanDefinitionScanner getClassPathBeanDefinitionScanner(StandardBeanFactory beanFactory) {
     return new ClassPathBeanDefinitionScanner(beanFactory, true, getEnvironment());
   }
 

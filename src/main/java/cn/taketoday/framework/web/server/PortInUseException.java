@@ -71,7 +71,6 @@ public class PortInUseException extends WebServerException {
    *
    * @param ex the source exception
    * @param port a suppler used to provide the port
-   * @since 4.0
    */
   public static void throwIfPortBindingException(Exception ex, IntSupplier port) {
     ifPortBindingException(ex, (bindException) -> {
@@ -85,7 +84,6 @@ public class PortInUseException extends WebServerException {
    *
    * @param ex the source exception
    * @param action the action to perform
-   * @since 4.0
    */
   public static void ifPortBindingException(Exception ex, Consumer<BindException> action) {
     ifCausedBy(ex, BindException.class, (bindException) -> {
@@ -103,7 +101,6 @@ public class PortInUseException extends WebServerException {
    * @param ex the source exception
    * @param causedBy the required cause type
    * @param action the action to perform
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public static <E extends Exception> void ifCausedBy(Exception ex, Class<E> causedBy, Consumer<E> action) {

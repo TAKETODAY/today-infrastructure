@@ -27,7 +27,7 @@ import java.io.Closeable;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,7 +109,7 @@ public class DestroyMethodInferenceTests {
 */
   @Test
   public void xml() {
-    DefaultApplicationContext ctx = new DefaultApplicationContext();
+    GenericApplicationContext ctx = new GenericApplicationContext();
 
     ctx.registerBeanDefinition(new BeanDefinition("x1", WithLocalCloseMethod.class));
 

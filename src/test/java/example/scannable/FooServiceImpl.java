@@ -60,7 +60,7 @@ public class FooServiceImpl implements FooService {
   public BeanFactory beanFactory;
 
   @Autowired
-  public List<BeanFactory> listableBeanFactory;
+  public List<BeanFactory> BeanFactory;
 
   @Autowired
   public ResourceLoader resourceLoader;

@@ -26,7 +26,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
  * Interface to provide configuration for a reactive web application.
  *
  * @author Stephane Nicoll
- * @since 2.0.0
+ * @since 4.0
  */
 public interface ConfigurableReactiveWebApplicationContext
         extends ConfigurableApplicationContext, ReactiveWebApplicationContext {

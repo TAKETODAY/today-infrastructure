@@ -20,13 +20,13 @@
 
 package cn.taketoday.framework.web.reactive.context;
 
-import cn.taketoday.core.io.AbstractResource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.StringUtils;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import cn.taketoday.core.io.AbstractResource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * Resource implementation that replaces the
@@ -37,34 +37,35 @@ import java.io.InputStream;
  * classpath in a non-servlet environment.
  *
  * @author Brian Clozel
+ * @since 4.0
  */
 class FilteredReactiveWebContextResource extends AbstractResource {
 
-	private final String path;
+  private final String path;
 
-	FilteredReactiveWebContextResource(String path) {
-		this.path = path;
-	}
+  FilteredReactiveWebContextResource(String path) {
+    this.path = path;
+  }
 
-	@Override
-	public boolean exists() {
-		return false;
-	}
+  @Override
+  public boolean exists() {
+    return false;
+  }
 
-	@Override
-	public Resource createRelative(String relativePath) throws IOException {
-		String pathToUse = StringUtils.applyRelativePath(this.path, relativePath);
-		return new FilteredReactiveWebContextResource(pathToUse);
-	}
+  @Override
+  public Resource createRelative(String relativePath) throws IOException {
+    String pathToUse = ResourceUtils.getRelativePath(this.path, relativePath);
+    return new FilteredReactiveWebContextResource(pathToUse);
+  }
 
-	@Override
-	public String getDescription() {
-		return "ReactiveWebContext resource [" + this.path + "]";
-	}
+  @Override
+  public String toString() {
+    return "ReactiveWebContext resource [" + this.path + "]";
+  }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		throw new FileNotFoundException(getDescription() + " cannot be opened because it does not exist");
-	}
+  @Override
+  public InputStream getInputStream() throws IOException {
+    throw new FileNotFoundException(this + " cannot be opened because it does not exist");
+  }
 
 }

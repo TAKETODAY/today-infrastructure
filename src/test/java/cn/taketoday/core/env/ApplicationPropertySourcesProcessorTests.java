@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 
 /**
  * @author TODAY 2021/10/11 22:27
@@ -36,7 +36,7 @@ class ApplicationPropertySourcesProcessorTests {
   @Test
   void test() throws IOException {
 
-    try (DefaultApplicationContext context = new DefaultApplicationContext()) {
+    try (GenericApplicationContext context = new GenericApplicationContext()) {
       ApplicationPropertySourcesProcessor processor
               = new ApplicationPropertySourcesProcessor(context);
 

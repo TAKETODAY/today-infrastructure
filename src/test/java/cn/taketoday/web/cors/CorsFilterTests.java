@@ -26,11 +26,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Arrays;
 
-import cn.taketoday.http.CorsConfiguration;
-import cn.taketoday.http.CorsFilter;
+import cn.taketoday.web.servlet.filter.CorsFilter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;

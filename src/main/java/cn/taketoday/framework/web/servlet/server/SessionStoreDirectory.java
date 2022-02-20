@@ -20,11 +20,11 @@
 
 package cn.taketoday.framework.web.servlet.server;
 
-import cn.taketoday.framework.system.ApplicationHome;
-import cn.taketoday.framework.system.ApplicationTemp;
-import cn.taketoday.lang.Assert;
-
 import java.io.File;
+
+import cn.taketoday.framework.ApplicationHome;
+import cn.taketoday.framework.ApplicationUtils;
+import cn.taketoday.lang.Assert;
 
 /**
  * Manages a session store directory.
@@ -47,7 +47,7 @@ class SessionStoreDirectory {
   File getValidDirectory(boolean mkdirs) {
     File dir = getDirectory();
     if (dir == null) {
-      return new ApplicationTemp().getDir("servlet-sessions");
+      return ApplicationUtils.getTemporalDirectory(null, "servlet-sessions");
     }
     if (!dir.isAbsolute()) {
       dir = new File(new ApplicationHome().getDir(), dir.getPath());

@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +43,7 @@ public class SimpleTransactionScopeTests {
   @Test
   @SuppressWarnings("resource")
   public void getFromScope() throws Exception {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     context.getBeanFactory().registerScope("tx", new SimpleTransactionScope());
 
     BeanDefinition bd1 = new BeanDefinition();
@@ -115,7 +115,7 @@ public class SimpleTransactionScopeTests {
 
   @Test
   public void getWithTransactionManager() throws Exception {
-    try (DefaultApplicationContext context = new DefaultApplicationContext()) {
+    try (GenericApplicationContext context = new GenericApplicationContext()) {
       context.getBeanFactory().registerScope("tx", new SimpleTransactionScope());
 
       BeanDefinition bd1 = new BeanDefinition();

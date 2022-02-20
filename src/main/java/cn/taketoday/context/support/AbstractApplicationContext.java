@@ -119,7 +119,7 @@ import cn.taketoday.util.StringUtils;
 @SuppressWarnings({ "unchecked" })
 public abstract class AbstractApplicationContext
         extends DefaultResourceLoader implements ConfigurableApplicationContext, Lifecycle {
-  private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * Name of the ApplicationEventMulticaster bean in the factory.

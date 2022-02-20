@@ -21,7 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 
 /**
  * @author Mark Fisher

@@ -48,7 +48,7 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
@@ -78,7 +78,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
  */
 class ScheduledAnnotationBeanPostProcessorTests {
 
-  private final DefaultApplicationContext context = new DefaultApplicationContext();
+  private final GenericApplicationContext context = new GenericApplicationContext();
 
   @AfterEach
   void closeContextAfterTest() {
@@ -225,7 +225,7 @@ class ScheduledAnnotationBeanPostProcessorTests {
   }
 
   private void severalFixedRates(
-          DefaultApplicationContext context,
+          GenericApplicationContext context,
           BeanDefinition processorDefinition, BeanDefinition targetDefinition) {
 
     context.registerBeanDefinition("postProcessor", processorDefinition);

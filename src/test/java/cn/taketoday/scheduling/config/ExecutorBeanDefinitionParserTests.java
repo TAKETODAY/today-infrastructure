@@ -29,13 +29,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class ExecutorBeanDefinitionParserTests {
 
-  private DefaultApplicationContext context;
+  private GenericApplicationContext context;
   /*
 
 	<task:executor id="default"/>
@@ -74,7 +74,7 @@ public class ExecutorBeanDefinitionParserTests {
 
   @BeforeEach
   public void setup() {
-    this.context = new DefaultApplicationContext();
+    this.context = new GenericApplicationContext();
     context.registerBeanDefinition(new BeanDefinition("default", TaskExecutorFactoryBean.class));
     context.registerBeanDefinition(new BeanDefinition("singleSize", TaskExecutorFactoryBean.class)
             .addPropertyValue("poolSize", "42"));

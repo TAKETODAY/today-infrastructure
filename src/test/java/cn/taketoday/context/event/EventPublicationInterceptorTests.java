@@ -25,7 +25,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.event.test.TestEvent;
 import org.junit.jupiter.api.Test;
 
@@ -84,14 +84,14 @@ class EventPublicationInterceptorTests {
 		TestBean target = new TestBean();
 		final TestApplicationListener listener = new TestApplicationListener();
 
-		class TestContext extends DefaultApplicationContext {
+		class TestContext extends GenericApplicationContext {
 			@Override
 			protected void onRefresh() throws BeansException {
 				addApplicationListener(listener);
 			}
 		}
 
-		DefaultApplicationContext ctx = new TestContext();
+		GenericApplicationContext ctx = new TestContext();
 		PropertyValues pvs = new PropertyValues();
 		pvs.add("applicationEventClass", TestEvent.class.getName());
 		// should automatically receive applicationEventPublisher reference

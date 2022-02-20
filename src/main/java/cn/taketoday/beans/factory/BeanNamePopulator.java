@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 /**
  * Strategy interface for generating bean names for bean definitions.
  * <p>
- * Like Spring's BeanNameGenerator
+ * Like Spring's BeanNamePopulator
  * </p>
  *
  * @author Juergen Hoeller

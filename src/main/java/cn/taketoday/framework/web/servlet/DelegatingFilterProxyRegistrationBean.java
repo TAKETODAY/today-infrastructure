@@ -24,8 +24,8 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.context.WebApplicationContext;
-import cn.taketoday.web.filter.DelegatingFilterProxy;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.filter.DelegatingFilterProxy;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -52,7 +52,7 @@ import jakarta.servlet.ServletException;
  * @see ServletContext#addFilter(String, Filter)
  * @see FilterRegistrationBean
  * @see DelegatingFilterProxy
- * @since 1.4.0
+ * @since 4.0
  */
 public class DelegatingFilterProxyRegistrationBean extends AbstractFilterRegistrationBean<DelegatingFilterProxy>
         implements ApplicationContextAware {
@@ -69,8 +69,8 @@ public class DelegatingFilterProxyRegistrationBean extends AbstractFilterRegistr
    * application context (must not be {@code null}).
    * @param servletRegistrationBeans associate {@link ServletRegistrationBean}s
    */
-  public DelegatingFilterProxyRegistrationBean(String targetBeanName,
-                                               ServletRegistrationBean<?>... servletRegistrationBeans) {
+  public DelegatingFilterProxyRegistrationBean(
+          String targetBeanName, ServletRegistrationBean<?>... servletRegistrationBeans) {
     super(servletRegistrationBeans);
     Assert.hasLength(targetBeanName, "TargetBeanName must not be null or empty");
     this.targetBeanName = targetBeanName;
@@ -98,10 +98,10 @@ public class DelegatingFilterProxyRegistrationBean extends AbstractFilterRegistr
     };
   }
 
-  private WebApplicationContext getWebApplicationContext() {
+  private WebServletApplicationContext getWebApplicationContext() {
     Assert.notNull(this.applicationContext, "ApplicationContext be injected");
-    Assert.isInstanceOf(WebApplicationContext.class, this.applicationContext);
-    return (WebApplicationContext) this.applicationContext;
+    Assert.isInstanceOf(WebServletApplicationContext.class, this.applicationContext);
+    return (WebServletApplicationContext) this.applicationContext;
   }
 
 }

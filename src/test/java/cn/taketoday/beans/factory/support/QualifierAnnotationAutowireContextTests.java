@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldWithSingleNonQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
@@ -79,7 +79,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredMethodParameterWithSingleNonQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
@@ -104,7 +104,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredConstructorArgumentWithSingleNonQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
@@ -127,7 +127,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldWithSingleQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
@@ -142,7 +142,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredMethodParameterWithSingleQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
@@ -159,7 +159,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredMethodParameterWithStaticallyQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(QualifiedPerson.class, cavs, null);
@@ -180,7 +180,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredMethodParameterWithStaticallyQualifiedCandidateAmongOthers() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(QualifiedPerson.class, cavs, null);
@@ -200,7 +200,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredConstructorArgumentWithSingleQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
     BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
@@ -217,7 +217,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldWithMultipleNonQualifiedCandidates() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -245,7 +245,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredMethodParameterWithMultipleNonQualifiedCandidates() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -273,7 +273,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredConstructorArgumentWithMultipleNonQualifiedCandidates() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -302,7 +302,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -322,7 +322,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesMetaQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -342,7 +342,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredMethodParameterResolvesQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -363,7 +363,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredConstructorArgumentResolvesQualifiedCandidate() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -384,7 +384,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesQualifiedCandidateWithDefaultValueAndNoValueOnBeanDefinition() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -406,7 +406,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldDoesNotResolveCandidateWithDefaultValueAndConflictingValueOnBeanDefinition() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -436,7 +436,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesWithDefaultValueAndExplicitDefaultValueOnBeanDefinition() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -458,7 +458,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesWithMultipleQualifierValues() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -484,7 +484,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldDoesNotResolveWithMultipleQualifierValuesAndConflictingDefaultValue() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -520,7 +520,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesWithMultipleQualifierValuesAndExplicitDefaultValue() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -547,7 +547,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldDoesNotResolveWithMultipleQualifierValuesAndMultipleMatchingCandidates() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -583,7 +583,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesWithBaseQualifierAndDefaultValue() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -604,7 +604,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldResolvesWithBaseQualifierAndNonDefaultValue() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue("the real juergen");
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
@@ -626,7 +626,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   @Test
   public void autowiredFieldDoesNotResolveWithBaseQualifierAndNonDefaultValueAndMultipleMatchingCandidates() {
-    DefaultApplicationContext context = new DefaultApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue("the real juergen");
     BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);

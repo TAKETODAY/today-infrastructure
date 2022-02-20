@@ -20,17 +20,22 @@
 
 package cn.taketoday.framework.web.reactive.context;
 
+import java.util.Set;
+
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
 import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.web.context.WebServerGracefulShutdownLifecycle;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.WebServer;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.core.metrics.StartupStep;
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -38,138 +43,142 @@ import cn.taketoday.util.StringUtils;
  * from a contained {@link ReactiveWebServerFactory} bean.
  *
  * @author Brian Clozel
- * @since 2.0.0
+ * @since 4.0
  */
 public class ReactiveWebServerApplicationContext extends GenericReactiveWebApplicationContext
-		implements ConfigurableWebServerApplicationContext {
+        implements ConfigurableWebServerApplicationContext {
 
-	private volatile WebServerManager serverManager;
+  private volatile WebServerManager serverManager;
 
-	private String serverNamespace;
+  private String serverNamespace;
 
-	/**
-	 * Create a new {@link ReactiveWebServerApplicationContext}.
-	 */
-	public ReactiveWebServerApplicationContext() {
-	}
+  /**
+   * Create a new {@link ReactiveWebServerApplicationContext}.
+   */
+  public ReactiveWebServerApplicationContext() {
+  }
 
-	/**
-	 * Create a new {@link ReactiveWebServerApplicationContext} with the given
-	 * {@code StandardBeanFactory}.
-	 * @param beanFactory the StandardBeanFactory instance to use for this context
-	 */
-	public ReactiveWebServerApplicationContext(StandardBeanFactory beanFactory) {
-		super(beanFactory);
-	}
+  /**
+   * Create a new {@link ReactiveWebServerApplicationContext} with the given
+   * {@code StandardBeanFactory}.
+   *
+   * @param beanFactory the StandardBeanFactory instance to use for this context
+   */
+  public ReactiveWebServerApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
+  }
 
-	@Override
-	public final void refresh() throws BeansException, IllegalStateException {
-		try {
-			super.refresh();
-		}
-		catch (RuntimeException ex) {
-			WebServerManager serverManager = this.serverManager;
-			if (serverManager != null) {
-				serverManager.getWebServer().stop();
-			}
-			throw ex;
-		}
-	}
+  @Override
+  public final void refresh() throws BeansException, IllegalStateException {
+    try {
+      super.refresh();
+    }
+    catch (RuntimeException ex) {
+      WebServerManager serverManager = this.serverManager;
+      if (serverManager != null) {
+        serverManager.getWebServer().stop();
+      }
+      throw ex;
+    }
+  }
 
-	@Override
-	protected void onRefresh() {
-		super.onRefresh();
-		try {
-			createWebServer();
-		}
-		catch (Throwable ex) {
-			throw new ApplicationContextException("Unable to start reactive web server", ex);
-		}
-	}
+  @Override
+  protected void onRefresh() {
+    super.onRefresh();
+    try {
+      createWebServer();
+    }
+    catch (Throwable ex) {
+      throw new ApplicationContextException("Unable to start reactive web server", ex);
+    }
+  }
 
-	private void createWebServer() {
-		WebServerManager serverManager = this.serverManager;
-		if (serverManager == null) {
-			StartupStep createWebServer = this.getApplicationStartup().start("spring.boot.webserver.create");
-			String webServerFactoryBeanName = getWebServerFactoryBeanName();
-			ReactiveWebServerFactory webServerFactory = getWebServerFactory(webServerFactoryBeanName);
-			createWebServer.tag("factory", webServerFactory.getClass().toString());
-			boolean lazyInit = getBeanFactory().getBeanDefinition(webServerFactoryBeanName).isLazyInit();
-			this.serverManager = new WebServerManager(this, webServerFactory, this::getHttpHandler, lazyInit);
-			getBeanFactory().registerSingleton("webServerGracefulShutdown",
-					new WebServerGracefulShutdownLifecycle(this.serverManager.getWebServer()));
-			getBeanFactory().registerSingleton("webServerStartStop",
-					new WebServerStartStopLifecycle(this.serverManager));
-			createWebServer.end();
-		}
-		initPropertySources();
-	}
+  private void createWebServer() {
+    WebServerManager serverManager = this.serverManager;
+    if (serverManager == null) {
+      String webServerFactoryBeanName = getWebServerFactoryBeanName();
+      ReactiveWebServerFactory webServerFactory = getWebServerFactory(webServerFactoryBeanName);
+      StandardBeanFactory beanFactory = getBeanFactory();
+      boolean lazyInit = BeanFactoryUtils.requiredDefinition((BeanDefinitionRegistry) beanFactory, webServerFactoryBeanName).isLazyInit();
 
-	protected String getWebServerFactoryBeanName() {
-		// Use bean names so that we don't consider the hierarchy
-		String[] beanNames = getBeanFactory().getBeanNamesForType(ReactiveWebServerFactory.class);
-		if (beanNames.length == 0) {
-			throw new ApplicationContextException(
-					"Unable to start ReactiveWebApplicationContext due to missing ReactiveWebServerFactory bean.");
-		}
-		if (beanNames.length > 1) {
-			throw new ApplicationContextException("Unable to start ReactiveWebApplicationContext due to multiple "
-					+ "ReactiveWebServerFactory beans : " + StringUtils.arrayToCommaDelimitedString(beanNames));
-		}
-		return beanNames[0];
-	}
+      this.serverManager = new WebServerManager(this, webServerFactory, this::getHttpHandler, lazyInit);
+      beanFactory.registerSingleton("webServerGracefulShutdown",
+              new WebServerGracefulShutdownLifecycle(this.serverManager.getWebServer()));
+      beanFactory.registerSingleton("webServerStartStop",
+              new WebServerStartStopLifecycle(this.serverManager));
+    }
+    initPropertySources();
+  }
 
-	protected ReactiveWebServerFactory getWebServerFactory(String factoryBeanName) {
-		return getBeanFactory().getBean(factoryBeanName, ReactiveWebServerFactory.class);
-	}
+  protected String getWebServerFactoryBeanName() {
+    // Use bean names so that we don't consider the hierarchy
+    Set<String> beanNames = getBeanFactory().getBeanNamesForType(ReactiveWebServerFactory.class);
+    if (beanNames.isEmpty()) {
+      throw new ApplicationContextException(
+              "Unable to start ReactiveWebApplicationContext due to missing ReactiveWebServerFactory bean.");
+    }
+    if (beanNames.size() > 1) {
+      throw new ApplicationContextException("Unable to start ReactiveWebApplicationContext due to multiple "
+              + "ReactiveWebServerFactory beans : " + StringUtils.collectionToString(beanNames));
+    }
+    return CollectionUtils.firstElement(beanNames);
+  }
 
-	/**
-	 * Return the {@link HttpHandler} that should be used to process the reactive web
-	 * server. By default this method searches for a suitable bean in the context itself.
-	 * @return a {@link HttpHandler} (never {@code null}
-	 */
-	protected HttpHandler getHttpHandler() {
-		// Use bean names so that we don't consider the hierarchy
-		String[] beanNames = getBeanFactory().getBeanNamesForType(HttpHandler.class);
-		if (beanNames.length == 0) {
-			throw new ApplicationContextException(
-					"Unable to start ReactiveWebApplicationContext due to missing HttpHandler bean.");
-		}
-		if (beanNames.length > 1) {
-			throw new ApplicationContextException(
-					"Unable to start ReactiveWebApplicationContext due to multiple HttpHandler beans : "
-							+ StringUtils.arrayToCommaDelimitedString(beanNames));
-		}
-		return getBeanFactory().getBean(beanNames[0], HttpHandler.class);
-	}
+  protected ReactiveWebServerFactory getWebServerFactory(String factoryBeanName) {
+    return getBeanFactory().getBean(factoryBeanName, ReactiveWebServerFactory.class);
+  }
 
-	@Override
-	protected void doClose() {
-		if (isActive()) {
-			AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
-		}
-		super.doClose();
-	}
+  /**
+   * Return the {@link HttpHandler} that should be used to process the reactive web
+   * server. By default this method searches for a suitable bean in the context itself.
+   *
+   * @return a {@link HttpHandler} (never {@code null}
+   */
+  protected HttpHandler getHttpHandler() {
+    // Use bean names so that we don't consider the hierarchy
+    Set<String> beanNames = getBeanFactory().getBeanNamesForType(HttpHandler.class);
+    if (beanNames.isEmpty()) {
+      throw new ApplicationContextException(
+              "Unable to start ReactiveWebApplicationContext due to missing HttpHandler bean.");
+    }
+    if (beanNames.size() > 1) {
+      throw new ApplicationContextException(
+              "Unable to start ReactiveWebApplicationContext due to multiple HttpHandler beans : "
+                      + StringUtils.collectionToString(beanNames));
+    }
+    return getBeanFactory().getBean(CollectionUtils.firstElement(beanNames), HttpHandler.class);
+  }
 
-	/**
-	 * Returns the {@link WebServer} that was created by the context or {@code null} if
-	 * the server has not yet been created.
-	 * @return the web server
-	 */
-	@Override
-	public WebServer getWebServer() {
-		WebServerManager serverManager = this.serverManager;
-		return (serverManager != null) ? serverManager.getWebServer() : null;
-	}
+  @Override
+  protected void doClose() {
+    if (isActive()) {
+      AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
+    }
+    super.doClose();
+  }
 
-	@Override
-	public String getServerNamespace() {
-		return this.serverNamespace;
-	}
+  /**
+   * Returns the {@link WebServer} that was created by the context or {@code null} if
+   * the server has not yet been created.
+   *
+   * @return the web server
+   */
+  @Nullable
+  @Override
+  public WebServer getWebServer() {
+    WebServerManager serverManager = this.serverManager;
+    return (serverManager != null) ? serverManager.getWebServer() : null;
+  }
 
-	@Override
-	public void setServerNamespace(String serverNamespace) {
-		this.serverNamespace = serverNamespace;
-	}
+  @Nullable
+  @Override
+  public String getServerNamespace() {
+    return this.serverNamespace;
+  }
+
+  @Override
+  public void setServerNamespace(String serverNamespace) {
+    this.serverNamespace = serverNamespace;
+  }
 
 }

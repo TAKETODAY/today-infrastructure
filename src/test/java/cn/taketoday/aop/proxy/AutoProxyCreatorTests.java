@@ -48,7 +48,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.support.DefaultApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -62,7 +62,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testBeanNameAutoProxyCreator() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testInterceptor", TestInterceptor.class);
 
     BeanDefinition proxyCreator = new BeanDefinition(BeanNameAutoProxyCreator.class);
@@ -110,7 +110,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testBeanNameAutoProxyCreatorWithFactoryBeanProxy() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testInterceptor", TestInterceptor.class);
 
     BeanDefinition proxyCreator = new BeanDefinition(BeanNameAutoProxyCreator.class);
@@ -144,7 +144,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testCustomAutoProxyCreator() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testAutoProxyCreator", TestAutoProxyCreator.class);
     sac.registerSingleton("noInterfaces", NoInterfaces.class);
     sac.registerSingleton("containerCallbackInterfacesOnly", ContainerCallbackInterfacesOnly.class);
@@ -177,7 +177,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithFallbackToTargetClass() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testAutoProxyCreator", FallbackTestAutoProxyCreator.class);
     sac.registerSingleton("noInterfaces", NoInterfaces.class);
     sac.registerSingleton("containerCallbackInterfacesOnly", ContainerCallbackInterfacesOnly.class);
@@ -210,7 +210,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithFallbackToDynamicProxy() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
 
     PropertyValues pvs = new PropertyValues();
     pvs.add("proxyFactoryBean", "false");
@@ -248,7 +248,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithPackageVisibleMethod() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testAutoProxyCreator", TestAutoProxyCreator.class);
     sac.registerSingleton("packageVisibleMethodToBeProxied", PackageVisibleMethod.class);
     sac.refresh();
@@ -265,7 +265,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithFactoryBean() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testAutoProxyCreator", TestAutoProxyCreator.class);
     sac.registerSingleton("singletonFactoryToBeProxied", DummyFactory.class);
     sac.refresh();
@@ -285,7 +285,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithFactoryBeanAndPrototype() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
     sac.registerSingleton("testAutoProxyCreator", TestAutoProxyCreator.class);
 
     PropertyValues pvs = new PropertyValues();
@@ -309,7 +309,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithFactoryBeanAndProxyObjectOnly() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
 
     PropertyValues pvs = new PropertyValues();
     pvs.add("proxyFactoryBean", "false");
@@ -340,7 +340,7 @@ class AutoProxyCreatorTests {
 
   @Test
   public void testAutoProxyCreatorWithFactoryBeanAndProxyFactoryBeanOnly() {
-    DefaultApplicationContext sac = new DefaultApplicationContext();
+    GenericApplicationContext sac = new GenericApplicationContext();
 
     PropertyValues pvs = new PropertyValues();
     pvs.add("proxyObject", "false");

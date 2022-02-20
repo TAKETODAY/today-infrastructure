@@ -21,9 +21,13 @@
 package cn.taketoday.context.support;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -56,7 +60,8 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.web.context.support.AbstractRefreshableWebApplicationContext
  * @since 4.0 2022/2/20 17:36
  */
-public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
+public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext
+        implements BeanDefinitionRegistry {
 
   @Nullable
   private Boolean allowBeanDefinitionOverriding;
@@ -145,7 +150,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   }
 
   @Override
-  public final AbstractBeanFactory getBeanFactory() {
+  public final StandardBeanFactory getBeanFactory() {
     StandardBeanFactory beanFactory = this.beanFactory;
     if (beanFactory == null) {
       throw new IllegalStateException("BeanFactory not initialized or already closed - " +
@@ -214,6 +219,107 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
    */
   protected abstract void loadBeanDefinitions(StandardBeanFactory beanFactory)
           throws BeansException, IOException;
+
+  //---------------------------------------------------------------------
+  // Implementation of BeanDefinitionRegistry interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public Map<String, BeanDefinition> getBeanDefinitions() {
+    return getBeanFactory().getBeanDefinitions();
+  }
+
+  @Override
+  public void registerBeanDefinition(BeanDefinition def) {
+    getBeanFactory().registerBeanDefinition(def);
+  }
+
+  @Override
+  public void registerBeanDefinition(String beanName, BeanDefinition def) {
+    getBeanFactory().registerBeanDefinition(beanName, def);
+  }
+
+  @Override
+  public void removeBeanDefinition(String beanName) {
+    getBeanFactory().removeBeanDefinition(beanName);
+  }
+
+  @Nullable
+  @Override
+  public BeanDefinition getBeanDefinition(String beanName) {
+    return getBeanFactory().getBeanDefinition(beanName);
+  }
+
+  @Nullable
+  @Override
+  public BeanDefinition getBeanDefinition(Class<?> requiredType) {
+    return getBeanFactory().getBeanDefinition(requiredType);
+  }
+
+  @Override
+  public boolean containsBeanDefinition(Class<?> type) {
+    return getBeanFactory().containsBeanDefinition(type);
+  }
+
+  @Override
+  public boolean containsBeanDefinition(Class<?> type, boolean equals) {
+    return getBeanFactory().containsBeanDefinition(type, equals);
+  }
+
+  @Override
+  public boolean containsBeanDefinition(String beanName, Class<?> type) {
+    return getBeanFactory().containsBeanDefinition(beanName, type);
+  }
+
+  @Override
+  public boolean containsBeanDefinition(String beanName) {
+    return getBeanFactory().containsBeanDefinition(beanName);
+  }
+
+  @Override
+  public String[] getBeanDefinitionNames() {
+    return getBeanFactory().getBeanDefinitionNames();
+  }
+
+  @Override
+  public Iterator<String> getBeanNamesIterator() {
+    return getBeanFactory().getBeanNamesIterator();
+  }
+
+  @Override
+  public int getBeanDefinitionCount() {
+    return getBeanFactory().getBeanDefinitionCount();
+  }
+
+  @Override
+  public boolean isAllowBeanDefinitionOverriding() {
+    return getBeanFactory().isAllowBeanDefinitionOverriding();
+  }
+
+  @Override
+  public void registerAlias(String name, String alias) {
+    getBeanFactory().registerAlias(name, alias);
+  }
+
+  @Override
+  public void removeAlias(String alias) {
+    getBeanFactory().removeAlias(alias);
+  }
+
+  @Override
+  public boolean isAlias(String name) {
+    return getBeanFactory().isAlias(name);
+  }
+
+  @Override
+  public List<String> getAliasList(String name) {
+    return getBeanFactory().getAliasList(name);
+  }
+
+  @Override
+  public boolean isBeanNameInUse(String beanName) {
+    return getBeanFactory().isBeanNameInUse(beanName);
+  }
 
 }
 

@@ -22,6 +22,7 @@ package cn.taketoday.web.context;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.WebApplicationContext;
 
 /**
  * Interface to be implemented by configurable web application contexts.
@@ -34,7 +35,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 17:52
  */
-public interface ConfigurableWebApplicationContext extends ConfigurableApplicationContext {
+public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
 
   /**
    * Set the namespace for this web application context,

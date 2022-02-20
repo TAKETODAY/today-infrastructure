@@ -29,11 +29,12 @@ import java.net.URL;
 
 import cn.taketoday.core.io.AbstractFileResolvingResource;
 import cn.taketoday.core.io.ContextResource;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.util.WebUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -161,7 +162,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   public InputStream getInputStream() throws IOException {
     InputStream is = this.servletContext.getResourceAsStream(this.path);
     if (is == null) {
-      throw new FileNotFoundException("Could not open " + getDescription());
+      throw new FileNotFoundException("Could not open " + this);
     }
     return is;
   }
@@ -173,11 +174,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * @see jakarta.servlet.ServletContext#getResource(String)
    */
   @Override
-  public URL getURL() throws IOException {
+  public URL getLocation() throws IOException {
     URL url = this.servletContext.getResource(this.path);
     if (url == null) {
       throw new FileNotFoundException(
-              getDescription() + " cannot be resolved to URL because it does not exist");
+              this + " cannot be resolved to URL because it does not exist");
     }
     return url;
   }
@@ -198,7 +199,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
       return super.getFile();
     }
     else {
-      String realPath = WebUtils.getRealPath(this.servletContext, this.path);
+      String realPath = ServletUtils.getRealPath(this.servletContext, this.path);
       return new File(realPath);
     }
   }
@@ -207,11 +208,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation creates a ServletContextResource, applying the given path
    * relative to the path of the underlying file of this resource descriptor.
    *
-   * @see cn.taketoday.util.StringUtils#applyRelativePath(String, String)
+   * @see cn.taketoday.util.ResourceUtils#getRelativePath(String, String)
    */
   @Override
   public Resource createRelative(String relativePath) {
-    String pathToUse = StringUtils.applyRelativePath(this.path, relativePath);
+    String pathToUse = ResourceUtils.getRelativePath(this.path, relativePath);
     return new ServletContextResource(this.servletContext, pathToUse);
   }
 
@@ -223,7 +224,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   @Nullable
-  public String getFilename() {
+  public String getName() {
     return StringUtils.getFilename(this.path);
   }
 
@@ -232,7 +233,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * resource location.
    */
   @Override
-  public String getDescription() {
+  public String toString() {
     return "ServletContext resource [" + this.path + "]";
   }
 

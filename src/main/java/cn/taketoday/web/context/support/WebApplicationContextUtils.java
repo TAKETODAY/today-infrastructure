@@ -20,28 +20,31 @@
 
 package cn.taketoday.web.context.support;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.env.PropertySource.StubPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.context.annotation.SessionScope;
+import cn.taketoday.web.scope.RequestScope;
+import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -49,9 +52,6 @@ import jakarta.servlet.http.HttpSession;
  * @since 4.0 2022/2/20 17:12
  */
 public class WebApplicationContextUtils {
-
-  private static final boolean jsfPresent =
-          ClassUtils.isPresent("jakarta.faces.context.FacesContext", RequestContextHolder.class.getClassLoader());
 
   /**
    * Find the root {@code WebApplicationContext} for this web app, typically
@@ -62,7 +62,7 @@ public class WebApplicationContextUtils {
    * @param sc the ServletContext to find the web application context for
    * @return the root WebApplicationContext for this web app
    * @throws IllegalStateException if the root WebApplicationContext could not be found
-   * @see cn.taketoday.web.context.WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
+   * @see cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
   public static WebApplicationContext getRequiredWebApplicationContext(ServletContext sc) throws IllegalStateException {
     WebApplicationContext wac = getWebApplicationContext(sc);
@@ -80,11 +80,11 @@ public class WebApplicationContextUtils {
    *
    * @param sc the ServletContext to find the web application context for
    * @return the root WebApplicationContext for this web app, or {@code null} if none
-   * @see cn.taketoday.web.context.WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
+   * @see cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
   @Nullable
   public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
-    return getWebApplicationContext(sc, WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    return getWebApplicationContext(sc, WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
   }
 
   /**
@@ -130,7 +130,6 @@ public class WebApplicationContextUtils {
    * @return the desired WebApplicationContext for this web app, or {@code null} if none
    * @see #getWebApplicationContext(ServletContext)
    * @see ServletContext#getAttributeNames()
-   * @since 4.2
    */
   @Nullable
   public static WebApplicationContext findWebApplicationContext(ServletContext sc) {
@@ -169,8 +168,8 @@ public class WebApplicationContextUtils {
    * @param beanFactory the BeanFactory to configure
    * @param sc the ServletContext that we're running within
    */
-  public static void registerWebApplicationScopes(ConfigurableBeanFactory beanFactory,
-                                                  @Nullable ServletContext sc) {
+  public static void registerWebApplicationScopes(
+          ConfigurableBeanFactory beanFactory, @Nullable ServletContext sc) {
 
     beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
     beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope());
@@ -181,13 +180,11 @@ public class WebApplicationContextUtils {
       sc.setAttribute(ServletContextScope.class.getName(), appScope);
     }
 
-    beanFactory.registerResolvableDependency(ServletRequest.class, new RequestObjectFactory());
-    beanFactory.registerResolvableDependency(ServletResponse.class, new ResponseObjectFactory());
-    beanFactory.registerResolvableDependency(HttpSession.class, new SessionObjectFactory());
-    beanFactory.registerResolvableDependency(WebRequest.class, new WebRequestObjectFactory());
-    if (jsfPresent) {
-      FacesDependencyRegistrar.registerFacesDependencies(beanFactory);
-    }
+    beanFactory.registerDependency(HttpSession.class, new SessionObjectSupplier());
+    beanFactory.registerDependency(HttpServletRequest.class, new RequestObjectSupplier());
+    beanFactory.registerDependency(HttpServletResponse.class, new ResponseObjectSupplier());
+    beanFactory.registerDependency(ServletContext.class, sc);
+
   }
 
   /**
@@ -220,7 +217,7 @@ public class WebApplicationContextUtils {
       bf.registerSingleton(ConfigurableWebServletApplicationContext.SERVLET_CONFIG_BEAN_NAME, servletConfig);
     }
 
-    if (!bf.containsBean(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {
+    if (!bf.containsBean(WebServletApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {
       Map<String, String> parameterMap = new HashMap<>();
       if (servletContext != null) {
         Enumeration<?> paramNameEnum = servletContext.getInitParameterNames();
@@ -236,11 +233,11 @@ public class WebApplicationContextUtils {
           parameterMap.put(paramName, servletConfig.getInitParameter(paramName));
         }
       }
-      bf.registerSingleton(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME,
+      bf.registerSingleton(WebServletApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME,
               Collections.unmodifiableMap(parameterMap));
     }
 
-    if (!bf.containsBean(WebApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME)) {
+    if (!bf.containsBean(WebServletApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME)) {
       Map<String, Object> attributeMap = new HashMap<>();
       if (servletContext != null) {
         Enumeration<?> attrNameEnum = servletContext.getAttributeNames();
@@ -249,7 +246,7 @@ public class WebApplicationContextUtils {
           attributeMap.put(attrName, servletContext.getAttribute(attrName));
         }
       }
-      bf.registerSingleton(WebApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME,
+      bf.registerSingleton(WebServletApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME,
               Collections.unmodifiableMap(attributeMap));
     }
   }
@@ -300,16 +297,55 @@ public class WebApplicationContextUtils {
   }
 
   /**
-   * Return the current RequestAttributes instance as ServletRequestAttributes.
-   *
-   * @see RequestContextHolder#currentContext()
+   * Factory that exposes the current request object on demand.
    */
-  private static RequestContext currentRequestAttributes() {
-    RequestContext requestAttr = RequestContextHolder.get();
-    if (!(requestAttr instanceof ServletRequestAttributes)) {
-      throw new IllegalStateException("Current request is not a servlet request");
+  @SuppressWarnings("serial")
+  private static class RequestObjectSupplier implements Supplier<ServletRequest>, Serializable {
+
+    @Override
+    public ServletRequest get() {
+      return ServletUtils.getServletRequest(RequestContextHolder.currentContext());
     }
-    return (ServletRequestAttributes) requestAttr;
+
+    @Override
+    public String toString() {
+      return "Current HttpServletRequest";
+    }
+
   }
 
+  /**
+   * Factory that exposes the current response object on demand.
+   */
+  @SuppressWarnings("serial")
+  private static class ResponseObjectSupplier implements Supplier<ServletResponse>, Serializable {
+
+    @Override
+    public ServletResponse get() {
+      return ServletUtils.getServletResponse(RequestContextHolder.currentContext());
+    }
+
+    @Override
+    public String toString() {
+      return "Current HttpServletResponse";
+    }
+  }
+
+  /**
+   * Factory that exposes the current session object on demand.
+   */
+  @SuppressWarnings("serial")
+  private static class SessionObjectSupplier implements Supplier<HttpSession>, Serializable {
+
+    @Override
+    public HttpSession get() {
+      return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
+    }
+
+    @Override
+    public String toString() {
+      return "Current HttpSession";
+    }
+
+  }
 }

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;

@@ -25,7 +25,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.lang.Component;
 
 /**
  * {@link ConfigurableReactiveWebApplicationContext} that accepts annotated classes as
@@ -42,7 +42,7 @@ import cn.taketoday.stereotype.Component;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @see AnnotationConfigApplicationContext
- * @since 2.0.0
+ * @since 4.0
  */
 public class AnnotationConfigReactiveWebApplicationContext extends AnnotationConfigApplicationContext
         implements ConfigurableReactiveWebApplicationContext {
@@ -52,15 +52,13 @@ public class AnnotationConfigReactiveWebApplicationContext extends AnnotationCon
    * populated through {@link #register} calls and then manually {@linkplain #refresh
    * refreshed}.
    */
-  public AnnotationConfigReactiveWebApplicationContext() {
-  }
+  public AnnotationConfigReactiveWebApplicationContext() { }
 
   /**
    * Create a new AnnotationConfigApplicationContext with the given
    * StandardBeanFactory.
    *
    * @param beanFactory the StandardBeanFactory instance to use for this context
-   * @since 2.2.0
    */
   public AnnotationConfigReactiveWebApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
@@ -72,7 +70,6 @@ public class AnnotationConfigReactiveWebApplicationContext extends AnnotationCon
    *
    * @param annotatedClasses one or more annotated classes, e.g.
    * {@link Configuration @Configuration} classes
-   * @since 2.2.0
    */
   public AnnotationConfigReactiveWebApplicationContext(Class<?>... annotatedClasses) {
     super(annotatedClasses);
@@ -83,7 +80,6 @@ public class AnnotationConfigReactiveWebApplicationContext extends AnnotationCon
    * the given packages and automatically refreshing the context.
    *
    * @param basePackages the packages to check for annotated classes
-   * @since 2.2.0
    */
   public AnnotationConfigReactiveWebApplicationContext(String... basePackages) {
     super(basePackages);

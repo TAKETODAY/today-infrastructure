@@ -30,6 +30,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.LogMessage;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -42,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  * @author David Liu
  * @author Phillip Webb
  * @author Andy Wilkinson
- * @since 2.0.0
+ * @since 4.0
  */
 public class WebServerPortFileWriter implements ApplicationListener<WebServerInitializedEvent> {
 
@@ -50,7 +52,7 @@ public class WebServerPortFileWriter implements ApplicationListener<WebServerIni
 
   private static final String[] PROPERTY_VARIABLES = { "PORTFILE", "portfile" };
 
-  private static final Log logger = LogFactory.getLog(WebServerPortFileWriter.class);
+  private static final Logger logger = LoggerFactory.getLogger(WebServerPortFileWriter.class);
 
   private final File file;
 
