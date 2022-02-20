@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.util.CollectionUtils;
 
 /**

@@ -105,7 +105,14 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   /**
    * Return the file path for this resource.
    */
-  public final Path getPath() {
+  public final String getPath() {
+    return path;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public Path getFilePath() {
     return filePath;
   }
 
@@ -162,6 +169,14 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   @Override
   public File getFile() {
     return file != null ? file : filePath.toFile();
+  }
+
+  /**
+   * This implementation always indicates a file.
+   */
+  @Override
+  public boolean isFile() {
+    return true;
   }
 
   /**

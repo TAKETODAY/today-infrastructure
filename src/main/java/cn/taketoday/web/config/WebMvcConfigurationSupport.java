@@ -44,7 +44,7 @@ import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
-import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;

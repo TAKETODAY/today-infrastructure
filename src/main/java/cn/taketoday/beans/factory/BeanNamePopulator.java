@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 
 /**
  * Strategy interface for generating bean names for bean definitions.

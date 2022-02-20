@@ -38,12 +38,12 @@ import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.InvalidMediaTypeException;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayIterator;
-import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -57,7 +57,6 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class ServletServerHttpRequest implements ServerHttpRequest {
 
-  protected static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
   protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 
   private final HttpServletRequest servletRequest;
@@ -223,8 +222,9 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   private static boolean isFormPost(HttpServletRequest request) {
     String contentType = request.getContentType();
-    return (contentType != null && contentType.contains(FORM_CONTENT_TYPE) &&
-            HttpMethod.POST.matches(request.getMethod()));
+    return contentType != null
+            && contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            && HttpMethod.POST.matches(request.getMethod());
   }
 
   /**

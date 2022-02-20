@@ -54,7 +54,7 @@ public class BeanFactoryAdvisorRetriever {
   /**
    * Create a new BeanFactoryAdvisorRetrievalHelper for the given BeanFactory.
    *
-   * @param beanFactory the ListableBeanFactory to scan
+   * @param beanFactory the BeanFactory to scan
    */
   public BeanFactoryAdvisorRetriever(ConfigurableBeanFactory beanFactory) {
     Assert.notNull(beanFactory, "ConfigurableBeanFactory is required");

@@ -39,7 +39,7 @@ import cn.taketoday.lang.Nullable;
  * @see #registerBeanDefinition
  * @see #refresh
  */
-public class StaticApplicationContext extends DefaultApplicationContext {
+public class StaticApplicationContext extends GenericApplicationContext {
 
   private final StaticMessageSource staticMessageSource;
 

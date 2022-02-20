@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Ordered;

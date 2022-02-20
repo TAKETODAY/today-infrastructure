@@ -61,7 +61,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
@@ -178,6 +177,26 @@ public abstract class RequestContext
    * @since 3.0.1
    */
   public abstract String getScheme();
+
+  /**
+   * Returns the host name of the server to which the request was sent.
+   * It is the value of the part before ":" in the <code>Host</code>
+   * header value, if any, or the resolved server name, or the server IP address.
+   *
+   * @return a <code>String</code> containing the name of the server
+   * @since 4.0
+   */
+  public abstract String getServerName();
+
+  /**
+   * Returns the port number to which the request was sent. It is the
+   * value of the part after ":" in the <code>Host</code> header value,
+   * if any, or the server port where the client connection was accepted on.
+   *
+   * @return an integer specifying the port number
+   * @since 4.0
+   */
+  public abstract int getServerPort();
 
   /**
    * Returns the portion of the request URI that indicates the context of the
@@ -943,8 +962,7 @@ public abstract class RequestContext
    * If there isn't a {@link ModelAndView} in this {@link RequestContext},
    * <b>Create One</b>
    *
-   * @return Returns {@link ModelAndView}, never be null but except
-   * {@link ApplicationNotStartedContext}
+   * @return Returns {@link ModelAndView}
    */
   public ModelAndView modelAndView() {
     if (modelAndView == null) {

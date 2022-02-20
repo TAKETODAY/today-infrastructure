@@ -123,6 +123,19 @@ public interface Resource extends InputStreamSource {
   }
 
   /**
+   * Determine whether this resource represents a file in a file system.
+   * A value of {@code true} strongly suggests (but does not guarantee)
+   * that a {@link #getFile()} call will succeed.
+   * <p>This is conservatively {@code false} by default.
+   *
+   * @see #getFile()
+   * @since 4.0
+   */
+  default boolean isFile() {
+    return false;
+  }
+
+  /**
    * Tests whether the resource denoted by this abstract pathname is a
    * directory.
    *

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.servlet.initializer;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

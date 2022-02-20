@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;

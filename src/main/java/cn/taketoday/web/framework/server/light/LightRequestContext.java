@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,31 @@ public class LightRequestContext extends RequestContext {
   @Override
   public String getScheme() {
     return null; // TODO
+  }
+
+  @Override
+  public String getServerName() {
+    return null;
+  }
+
+  @Override
+  public int getServerPort() {
+    return config.getPort();
+  }
+
+  private InetSocketAddress inetSocketAddress() {
+    InetSocketAddress inetSocketAddress = this.inetSocketAddress;
+    if (inetSocketAddress == null) {
+      SocketAddress socketAddress = channelContext.channel().localAddress();
+      if (socketAddress instanceof InetSocketAddress address) {
+        inetSocketAddress = address;
+      }
+      else {
+        inetSocketAddress = new InetSocketAddress("localhost", 8080);
+      }
+      this.inetSocketAddress = inetSocketAddress;
+    }
+    return inetSocketAddress;
   }
 
   @Override

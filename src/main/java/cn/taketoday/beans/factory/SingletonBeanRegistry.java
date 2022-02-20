@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -53,7 +54,7 @@ public interface SingletonBeanRegistry {
    * @param singletonObject the existing singleton object
    * @see InitializingBean#afterPropertiesSet
    * @see DisposableBean#destroy
-   * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#registerBeanDefinition
+   * @see BeanDefinitionRegistry#registerBeanDefinition
    */
   void registerSingleton(String name, Object singletonObject);
 
@@ -144,7 +145,7 @@ public interface SingletonBeanRegistry {
    *
    * @return the number of singleton beans
    * @see #registerSingleton
-   * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#getBeanDefinitionCount
+   * @see BeanDefinitionRegistry#getBeanDefinitionCount
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionCount
    * @since 4.0
    */
@@ -160,7 +161,7 @@ public interface SingletonBeanRegistry {
    *
    * @return the list of names as a String array (never {@code null})
    * @see #registerSingleton
-   * @see cn.taketoday.beans.factory.BeanDefinitionRegistry#getBeanDefinitionNames
+   * @see BeanDefinitionRegistry#getBeanDefinitionNames
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionNames
    * @since 4.0
    */

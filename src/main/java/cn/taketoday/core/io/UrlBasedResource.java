@@ -42,7 +42,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY
  * @since 2.1.6 2019-05-14 22:26
  */
-public class UrlBasedResource extends AbstractResource {
+public class UrlBasedResource extends AbstractFileResolvingResource {
 
   /**
    * Original URI, if available; used for URI and File access.
@@ -204,6 +204,16 @@ public class UrlBasedResource extends AbstractResource {
     }
     else {
       return ResourceUtils.getFile(url, toString());
+    }
+  }
+
+  @Override
+  public boolean isFile() {
+    if (this.uri != null) {
+      return super.isFile(this.uri);
+    }
+    else {
+      return super.isFile();
     }
   }
 

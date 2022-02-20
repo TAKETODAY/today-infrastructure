@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
  */
 public interface ApplicationContext
         extends Closeable, HierarchicalBeanFactory, MessageSource,
-                ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
+        ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
 
   /**
    * @see Environment
@@ -125,6 +125,14 @@ public interface ApplicationContext
    * @since 4.0
    */
   String getApplicationName();
+
+  /**
+   * Return a friendly name for this context.
+   *
+   * @return a display name for this context (never {@code null})
+   * @since 4.0
+   */
+  String getDisplayName();
 
   /**
    * Return the parent context, or {@code null} if there is no parent

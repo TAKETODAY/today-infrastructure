@@ -36,7 +36,7 @@ import cn.taketoday.beans.support.BeanProperty;
  * get property descriptors, and query the readability/writability of properties.
  *
  * <p>This interface supports <b>nested properties</b> enabling the setting
- * of properties on subproperties to an unlimited depth.
+ * of properties on sub-properties to an unlimited depth.
  *
  * <p>A BeanWrapper's default for the "extractOldValueForEditor" setting
  * is "false", to avoid side effects caused by getter method invocations.

@@ -22,11 +22,12 @@ package cn.taketoday.web.interceptor;
 import java.io.IOException;
 
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.http.CorsConfiguration;
-import cn.taketoday.http.CorsConfigurationCapable;
-import cn.taketoday.http.CorsConfigurationSource;
-import cn.taketoday.http.CorsProcessor;
-import cn.taketoday.http.DefaultCorsProcessor;
+import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfigurationCapable;
+import cn.taketoday.web.cors.CorsConfigurationSource;
+import cn.taketoday.web.cors.CorsProcessor;
+import cn.taketoday.web.cors.CorsUtils;
+import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.WebUtils;
 
@@ -56,7 +57,7 @@ public class CorsHandlerInterceptor
       return true;
     }
     return getProcessor().process(corsConfiguration, context)
-            && !WebUtils.isPreFlightRequest(context);
+            && !CorsUtils.isPreFlightRequest(context);
   }
 
   protected CorsConfiguration getCorsConfiguration(final RequestContext context, Object handler) {

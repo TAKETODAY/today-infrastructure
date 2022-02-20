@@ -25,7 +25,7 @@ import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
-import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.CrossOrigin;

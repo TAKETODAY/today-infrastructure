@@ -38,7 +38,7 @@ import cn.taketoday.aop.support.SuppliedMethodInterceptor;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.core.ConfigurationException;

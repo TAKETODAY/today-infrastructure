@@ -150,6 +150,14 @@ public abstract class AbstractResource implements Resource {
     return false;
   }
 
+  /**
+   * This implementation always returns {@code false}.
+   */
+  @Override
+  public boolean isFile() {
+    return false;
+  }
+
   @Override
   public URL getLocation() throws IOException {
     throw new FileNotFoundException(this + " cannot be resolved to URL");

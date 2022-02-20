@@ -21,9 +21,9 @@ package cn.taketoday.web.registry;
 
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.http.CorsConfiguration;
-import cn.taketoday.http.CorsProcessor;
-import cn.taketoday.http.DefaultCorsProcessor;
+import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.cors.CorsProcessor;
+import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

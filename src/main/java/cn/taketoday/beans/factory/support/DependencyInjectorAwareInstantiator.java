@@ -25,7 +25,6 @@ import java.util.function.Function;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.DependencyInjectorProvider;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;

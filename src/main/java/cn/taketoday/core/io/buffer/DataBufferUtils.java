@@ -23,6 +23,7 @@ package cn.taketoday.core.io.buffer;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,7 +45,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -230,11 +230,16 @@ public abstract class DataBufferUtils {
    */
   public static Flux<DataBuffer> read(
           Resource resource, long position, DataBufferFactory bufferFactory, int bufferSize) {
-
-    if (resource instanceof FileBasedResource file) {
-      return readAsynchronousFileChannel(
-              () -> AsynchronousFileChannel.open(file.getPath(), StandardOpenOption.READ),
-              position, bufferFactory, bufferSize);
+    try {
+      if (resource.isFile()) {
+        File file = resource.getFile();
+        return readAsynchronousFileChannel(
+                () -> AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ),
+                position, bufferFactory, bufferSize);
+      }
+    }
+    catch (IOException ignore) {
+      // fallback to resource.readableChannel(), below
     }
     Flux<DataBuffer> result = readByteChannel(resource::readableChannel, bufferFactory, bufferSize);
     return position == 0 ? result : skipUntilByteCount(result, position);

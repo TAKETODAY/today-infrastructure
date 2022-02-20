@@ -83,7 +83,19 @@ public class RequestContextDecorator extends RequestContext {
   public WritableByteChannel writableChannel() throws IOException { return delegate.writableChannel(); }
 
   @Override
-  public String getScheme() { return delegate.getScheme(); }
+  public String getScheme() {
+    return delegate.getScheme();
+  }
+
+  @Override
+  public int getServerPort() {
+    return delegate.getServerPort();
+  }
+
+  @Override
+  public String getServerName() {
+    return delegate.getServerName();
+  }
 
   @Override
   public String getContextPath() { return delegate.getContextPath(); }

@@ -23,7 +23,7 @@ package cn.taketoday.web.config;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.http.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfiguration;
 
 /**
  * Assists with the creation of a {@link CorsConfiguration} instance for a given

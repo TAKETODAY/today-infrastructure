@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -35,7 +36,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Simple implementation of the {@link AliasRegistry} interface.
  * <p>Serves as base class for
- * {@link cn.taketoday.beans.factory.BeanDefinitionRegistry}
+ * {@link BeanDefinitionRegistry}
  * implementations.
  *
  * @author Juergen Hoeller

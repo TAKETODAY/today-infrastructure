@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;

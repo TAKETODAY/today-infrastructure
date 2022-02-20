@@ -223,7 +223,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
   }
 
   /**
-   * This will just scan the same base package as Spring Boot does. If you want more power,
+   * This will just scan the same base package as Framework does. If you want more power,
    * you can explicitly use {@link MapperScan} but this will get typed mappers working
    * correctly, out-of-the-box, similar to using Spring Data JPA repositories.
    */
@@ -305,7 +305,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
 
   /**
    * If mapper registering configuration or mapper scanning configuration not present, this configuration allow to scan
-   * mappers based on the same component-scanning path as Spring Boot itself.
+   * mappers based on the same component-scanning path asFramework itself.
    */
   @cn.taketoday.context.annotation.Configuration
   @Import(AutoConfiguredMapperScannerRegistrar.class)

@@ -72,9 +72,9 @@ import cn.taketoday.lang.Nullable;
  * properties file, etc. Implementations are encouraged to support references
  * amongst beans (Dependency Injection).
  * <p>
- * this interface includes operations like  {@code ListableBeanFactory}
+ * this interface includes operations like  {@code BeanFactory}
  *
- * <p>In contrast to the methods in  {@code ListableBeanFactory}, all of the
+ * <p>In contrast to the methods in  {@code BeanFactory}, all of the
  * operations in this interface will also check parent factories if this is a
  * {@link HierarchicalBeanFactory}. If a bean is not found in this factory instance,
  * the immediate parent factory will be asked. Beans in this factory instance

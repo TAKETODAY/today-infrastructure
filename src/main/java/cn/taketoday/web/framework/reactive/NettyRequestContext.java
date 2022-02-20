@@ -99,6 +99,7 @@ public class NettyRequestContext extends RequestContext {
   private FullHttpResponse response;
 
   private final int queryStringIndex; // for optimize
+  private InetSocketAddress inetSocketAddress;
 
   public NettyRequestContext(
           WebApplicationContext context, ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
@@ -113,14 +114,36 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getScheme() {
-    SocketAddress socketAddress = channelContext.channel().localAddress();
-    if (socketAddress instanceof InetSocketAddress address) {
-      int port = address.getPort();
-      if (port == 443) {
-        return Constant.HTTPS;
-      }
+    int port = inetSocketAddress().getPort();
+    if (port == 443) {
+      return Constant.HTTPS;
     }
     return Constant.HTTP;
+  }
+
+  private InetSocketAddress inetSocketAddress() {
+    InetSocketAddress inetSocketAddress = this.inetSocketAddress;
+    if (inetSocketAddress == null) {
+      SocketAddress socketAddress = channelContext.channel().localAddress();
+      if (socketAddress instanceof InetSocketAddress address) {
+        inetSocketAddress = address;
+      }
+      else {
+        inetSocketAddress = new InetSocketAddress("localhost", 8080);
+      }
+      this.inetSocketAddress = inetSocketAddress;
+    }
+    return inetSocketAddress;
+  }
+
+  @Override
+  public int getServerPort() {
+    return inetSocketAddress().getPort();
+  }
+
+  @Override
+  public String getServerName() {
+    return inetSocketAddress.getHostString();
   }
 
   @Override

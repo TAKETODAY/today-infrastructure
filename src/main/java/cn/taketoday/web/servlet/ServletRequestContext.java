@@ -84,6 +84,16 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  public String getServerName() {
+    return request.getServerName();
+  }
+
+  @Override
+  public int getServerPort() {
+    return request.getServerPort();
+  }
+
+  @Override
   protected String doGetContextPath() {
     return request.getContextPath();
   }

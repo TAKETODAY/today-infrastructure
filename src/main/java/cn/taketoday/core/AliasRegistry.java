@@ -22,9 +22,11 @@ package cn.taketoday.core;
 
 import java.util.List;
 
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+
 /**
  * Common interface for managing aliases. Serves as a super-interface for
- * {@link cn.taketoday.beans.factory.BeanDefinitionRegistry}.
+ * {@link BeanDefinitionRegistry}.
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/9/30 22:38

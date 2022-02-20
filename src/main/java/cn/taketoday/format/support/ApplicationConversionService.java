@@ -44,7 +44,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * A specialization of {@link FormattingConversionService} configured by default with
- * converters and formatters appropriate for most Spring Boot applications.
+ * converters and formatters appropriate for most applications.
  * <p>
  * Designed for direct instantiation but also exposes the static
  * {@link #addApplicationConverters} and
@@ -201,7 +201,7 @@ public class ApplicationConversionService extends FormattingConversionService {
 
   /**
    * Configure the given {@link FormatterRegistry} with formatters and converters
-   * appropriate for most Spring Boot applications.
+   * appropriate for most applications.
    *
    * @param registry the registry of converters to add to (must also be castable to
    * ConversionService, e.g. being a {@link ConfigurableConversionService})
@@ -216,7 +216,7 @@ public class ApplicationConversionService extends FormattingConversionService {
   }
 
   /**
-   * Add converters useful for most Spring Boot applications.
+   * Add converters useful for most applications.
    *
    * @param registry the registry of converters to add to (must also be castable to
    * ConversionService, e.g. being a {@link ConfigurableConversionService})
@@ -264,7 +264,7 @@ public class ApplicationConversionService extends FormattingConversionService {
   }
 
   /**
-   * Add formatters useful for most Spring Boot applications.
+   * Add formatters useful for most applications.
    *
    * @param registry the service to register default formatters with
    */

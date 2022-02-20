@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.util;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -31,10 +30,7 @@ import java.util.StringTokenizer;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -42,10 +38,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextDecorator;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.session.WebSession;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -216,33 +209,6 @@ public abstract class WebUtils {
     return null;
   }
 
-  // Utility class for CORS request handling based on the
-  // CORS W3C recommendation: https://www.w3.org/TR/cors
-  // -----------------------------------------------------
-
-  /**
-   * Returns {@code true} if the request is a valid CORS one by checking
-   * {@code Origin} header presence and ensuring that origins are different.
-   */
-  public static boolean isCorsRequest(RequestContext request) {
-    HttpHeaders httpHeaders = request.requestHeaders();
-    return httpHeaders.getOrigin() != null;
-  }
-
-  /**
-   * Returns {@code true} if the request is a valid CORS pre-flight one. To be
-   * used in combination with {@link #isCorsRequest(RequestContext)} since regular
-   * CORS checks are not invoked here for performance reasons.
-   */
-  public static boolean isPreFlightRequest(RequestContext request) {
-    if (HttpMethod.OPTIONS.name().equals(request.getMethodValue())) {
-      HttpHeaders requestHeaders = request.requestHeaders();
-      return requestHeaders.containsKey(HttpHeaders.ORIGIN)
-              && requestHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
-    }
-    return false;
-  }
-
   // checkNotModified
   // ---------------------------------------------
 
@@ -335,7 +301,7 @@ public abstract class WebUtils {
    * @return {@code true} if the request origin is valid, {@code false} otherwise
    * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454: The Web Origin Concept</a>
    */
-  public static boolean isValidOrigin(HttpRequest request, Collection<String> allowedOrigins) {
+  public static boolean isValidOrigin(RequestContext request, Collection<String> allowedOrigins) {
     Assert.notNull(request, "Request must not be null");
     Assert.notNull(allowedOrigins, "Allowed origins must not be null");
 
@@ -364,36 +330,16 @@ public abstract class WebUtils {
    * @return {@code true} if the request is a same-origin one, {@code false} in case
    * of cross-origin request
    */
-  public static boolean isSameOrigin(HttpRequest request) {
+  public static boolean isSameOrigin(RequestContext request) {
     HttpHeaders headers = request.getHeaders();
     String origin = headers.getOrigin();
     if (origin == null) {
       return true;
     }
 
-    String scheme;
-    String host;
-    int port;
-
-    if (request instanceof ServletRequestContext servletContext) {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(servletContext);
-      scheme = servletRequest.getScheme();
-      host = servletRequest.getServerName();
-      port = servletRequest.getServerPort();
-    }
-    else if (request instanceof ServletServerHttpRequest servletServerHttpRequest) {
-      // Build more efficiently if we can: we only need scheme, host, port for origin comparison
-      HttpServletRequest servletRequest = servletServerHttpRequest.getServletRequest();
-      scheme = servletRequest.getScheme();
-      host = servletRequest.getServerName();
-      port = servletRequest.getServerPort();
-    }
-    else {
-      URI uri = request.getURI();
-      scheme = uri.getScheme();
-      host = uri.getHost();
-      port = uri.getPort();
-    }
+    String scheme = request.getScheme();
+    String host = request.getServerName();
+    int port = request.getServerPort();
 
     UriComponents originUrl = UriComponentsBuilder.fromOriginHeader(origin).build();
     return Objects.equals(scheme, originUrl.getScheme())

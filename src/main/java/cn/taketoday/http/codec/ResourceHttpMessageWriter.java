@@ -22,9 +22,8 @@ package cn.taketoday.http.codec;
 
 import org.reactivestreams.Publisher;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +33,6 @@ import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.codec.ResourceDecoder;
 import cn.taketoday.core.codec.ResourceEncoder;
 import cn.taketoday.core.codec.ResourceRegionEncoder;
-import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -44,6 +42,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
@@ -51,7 +50,6 @@ import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -167,17 +165,17 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
           Resource resource, @Nullable ResourceRegion region,
           ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
-    if (message instanceof ZeroCopyHttpOutputMessage && resource instanceof FileBasedResource fileResource) {
+    if (message instanceof ZeroCopyHttpOutputMessage && resource.isFile()) {
       try {
-        Path path = fileResource.getPath();
-        long size = Files.size(path);
+        File file = resource.getFile();
+        long size = file.length();
         long pos = region != null ? region.getPosition() : 0;
         long count = region != null ? region.getCount() : size;
         if (logger.isDebugEnabled()) {
           String formatted = region != null ? "region " + pos + "-" + (count) + " of " : "";
           logger.debug("{}Zero-copy {}[{}]", Hints.getLogPrefix(hints), formatted, resource);
         }
-        return Optional.of(((ZeroCopyHttpOutputMessage) message).writeWith(path, pos, count));
+        return Optional.of(((ZeroCopyHttpOutputMessage) message).writeWith(file, pos, count));
       }
       catch (IOException ex) {
         // should not happen

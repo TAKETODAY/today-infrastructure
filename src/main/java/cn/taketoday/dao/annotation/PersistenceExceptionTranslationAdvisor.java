@@ -66,7 +66,7 @@ public class PersistenceExceptionTranslationAdvisor extends AbstractPointcutAdvi
   /**
    * Create a new PersistenceExceptionTranslationAdvisor.
    *
-   * @param beanFactory the ListableBeanFactory to obtaining all
+   * @param beanFactory the BeanFactory to obtaining all
    * PersistenceExceptionTranslators from
    * @param repositoryAnnotationType the annotation type to check for
    */

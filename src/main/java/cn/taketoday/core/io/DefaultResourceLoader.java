@@ -197,10 +197,15 @@ public class DefaultResourceLoader implements ResourceLoader {
    * ClassPathResource that explicitly expresses a context-relative path
    * through implementing the ContextResource interface.
    */
-  protected static class ClassPathContextResource extends ClassPathResource {
+  protected static class ClassPathContextResource extends ClassPathResource implements ContextResource {
 
     public ClassPathContextResource(String path, @Nullable ClassLoader classLoader) {
       super(path, classLoader);
+    }
+
+    @Override
+    public String getPathWithinContext() {
+      return getPath();
     }
 
     @Override

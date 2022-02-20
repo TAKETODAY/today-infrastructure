@@ -21,7 +21,7 @@ package cn.taketoday.context.support;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
@@ -58,7 +58,7 @@ import cn.taketoday.lang.TodayStrategies;
  * @author TODAY 2018-09-06 13:47
  */
 public class StandardApplicationContext
-        extends DefaultApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
+        extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
   private ClassPathBeanDefinitionScanner scanningReader;
   private final DefinitionLoadingContext loadingContext = createLoadingContext();

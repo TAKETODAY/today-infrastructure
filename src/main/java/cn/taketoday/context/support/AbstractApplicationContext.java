@@ -159,6 +159,9 @@ public abstract class AbstractApplicationContext
   /** Unique id for this context, if any. @since 4.0 */
   private String id = ObjectUtils.identityToString(this);
 
+  /** Display name. */
+  private String displayName = ObjectUtils.identityToString(this);
+
   /** Parent context. @since 4.0 */
   @Nullable
   private ApplicationContext parent;
@@ -279,6 +282,29 @@ public abstract class AbstractApplicationContext
   }
 
   /**
+   * Set a friendly name for this context.
+   * Typically done during initialization of concrete context implementations.
+   * <p>Default is the object id of the context instance.
+   *
+   * @since 4.0
+   */
+  public void setDisplayName(String displayName) {
+    Assert.hasLength(displayName, "Display name must not be empty");
+    this.displayName = displayName;
+  }
+
+  /**
+   * Return a friendly name for this context.
+   *
+   * @return a display name for this context (never {@code null})
+   * @since 4.0
+   */
+  @Override
+  public String getDisplayName() {
+    return this.displayName;
+  }
+
+  /**
    * Return the parent context, or {@code null} if there is no parent
    * (that is, this context is the root of the context hierarchy).
    */
@@ -289,7 +315,7 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException {
+  public AutowireCapableBeanFactory getAutowireCapableBeanFactory() {
     return unwrapFactory(AutowireCapableBeanFactory.class);
   }
 
@@ -521,7 +547,7 @@ public abstract class AbstractApplicationContext
         log.trace("Refreshing " + this);
       }
       else {
-        log.debug("Refreshing " + getApplicationName());
+        log.debug("Refreshing " + getDisplayName());
       }
     }
   }
@@ -909,10 +935,10 @@ public abstract class AbstractApplicationContext
   protected void assertBeanFactoryActive() {
     if (!refreshable && !isActive()) {
       if (this.closed.get()) {
-        throw new IllegalStateException(getApplicationName() + " has been closed already");
+        throw new IllegalStateException(getDisplayName() + " has been closed already");
       }
       else {
-        throw new IllegalStateException(getApplicationName() + " has not been refreshed yet");
+        throw new IllegalStateException(getDisplayName() + " has not been refreshed yet");
       }
     }
   }
@@ -1453,14 +1479,14 @@ public abstract class AbstractApplicationContext
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(getApplicationName());
+    StringBuilder sb = new StringBuilder(getDisplayName());
     sb.append(": state: [")
             .append(state)
             .append("], on startup date: ")
             .append(formatStartupDate());
     ApplicationContext parent = getParent();
     if (parent != null) {
-      sb.append(", parent: ").append(parent.getApplicationName());
+      sb.append(", parent: ").append(parent.getDisplayName());
     }
     return sb.toString();
   }

@@ -51,7 +51,7 @@ import cn.taketoday.lang.Nullable;
  * access to bean factory configuration methods.
  *
  * <p>
- * Like Spring's ConfigurableListableBeanFactory
+ * Like Spring's ConfigurableBeanFactory
  *
  * @author TODAY 2018-11-14 19:40
  * @see BeanFactory

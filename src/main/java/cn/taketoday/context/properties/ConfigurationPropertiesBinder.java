@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistry;
-import cn.taketoday.beans.factory.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;

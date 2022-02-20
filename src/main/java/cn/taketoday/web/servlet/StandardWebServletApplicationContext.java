@@ -31,6 +31,7 @@ import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -43,7 +44,7 @@ import jakarta.servlet.http.HttpSession;
  * 2018-07-10 1:16:17
  */
 public class StandardWebServletApplicationContext
-        extends StandardApplicationContext implements WebServletApplicationContext {
+        extends StandardApplicationContext implements ConfigurableWebServletApplicationContext {
 
   /** Servlet context */
   private ServletContext servletContext;
