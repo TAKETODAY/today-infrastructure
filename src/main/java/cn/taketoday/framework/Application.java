@@ -23,11 +23,15 @@ package cn.taketoday.framework;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
@@ -38,6 +42,7 @@ import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
@@ -137,6 +142,10 @@ public class Application {
 
   @Nullable
   private ConfigurableEnvironment environment;
+
+  private Map<String, Object> defaultProperties;
+
+  private Set<String> additionalProfiles = Collections.emptySet();
 
   private boolean headless = true;
   private boolean logStartupInfo = true;
@@ -277,7 +286,13 @@ public class Application {
     context.refresh();
   }
 
-  protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments arguments) { }
+  /**
+   * Called after the context has been refreshed.
+   *
+   * @param context the application context
+   * @param args the application arguments
+   */
+  protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
 
   private ApplicationStartupListeners getStartupListeners() {
     List<ApplicationStartupListener> strategies = TodayStrategies.getStrategies(ApplicationStartupListener.class);
@@ -290,9 +305,12 @@ public class Application {
     ConfigurableEnvironment environment = getOrCreateEnvironment();
     configureEnvironment(environment, applicationArguments.getSourceArgs());
 
+    ConfigurationPropertySources.attach(environment);
+    listeners.environmentPrepared(environment);
+    DefaultPropertiesPropertySource.moveToEnd(environment);
+
     bindToApplication(environment);
 
-    listeners.environmentPrepared(environment);
     return environment;
   }
 
@@ -441,6 +459,11 @@ public class Application {
       throw ExceptionUtils.sneakyThrow(e);
     }
 
+    PropertySources sources = environment.getPropertySources();
+    if (CollectionUtils.isNotEmpty(this.defaultProperties)) {
+      DefaultPropertiesPropertySource.addOrMerge(this.defaultProperties, sources);
+    }
+
     // load outside PropertySources
     List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
     for (EnvironmentPostProcessor postProcessor : postProcessors) {
@@ -448,7 +471,6 @@ public class Application {
     }
 
     // CommandLine
-    PropertySources sources = environment.getPropertySources();
     if (this.addCommandLineProperties && args.length > 0) {
       String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
       if (sources.contains(name)) {
@@ -634,6 +656,47 @@ public class Application {
    */
   public void setAddConversionService(boolean addConversionService) {
     this.addConversionService = addConversionService;
+  }
+
+  /**
+   * Set default environment properties which will be used in addition to those in the
+   * existing {@link Environment}.
+   *
+   * @param defaultProperties the additional properties to set
+   */
+  public void setDefaultProperties(@Nullable Map<String, Object> defaultProperties) {
+    this.defaultProperties = defaultProperties;
+  }
+
+  /**
+   * Set additional profile values to use (on top of those set in system or command line
+   * properties).
+   *
+   * @param profiles the additional profiles to set
+   */
+  public void setAdditionalProfiles(String... profiles) {
+    this.additionalProfiles = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(profiles)));
+  }
+
+  /**
+   * Return an immutable set of any additional profiles in use.
+   *
+   * @return the additional profiles
+   */
+  public Set<String> getAdditionalProfiles() {
+    return this.additionalProfiles;
+  }
+
+  /**
+   * Convenient alternative to {@link #setDefaultProperties(Map)}.
+   *
+   * @param defaultProperties some {@link Properties}
+   */
+  public void setDefaultProperties(Properties defaultProperties) {
+    this.defaultProperties = new HashMap<>();
+    for (Object key : Collections.list(defaultProperties.propertyNames())) {
+      this.defaultProperties.put((String) key, defaultProperties.get(key));
+    }
   }
 
   private void handleRunFailure(
