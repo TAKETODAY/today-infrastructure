@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Locale;
 
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.MediaType;
@@ -57,7 +58,7 @@ public class ObjectToStringHttpMessageConverterTests {
 
   @BeforeEach
   public void setup() {
-    DefaultConversionService conversionService = new DefaultConversionService();
+    ConversionService conversionService = new DefaultConversionService();
     this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
     this.servletResponse = new MockHttpServletResponse();
@@ -67,6 +68,7 @@ public class ObjectToStringHttpMessageConverterTests {
   @Test
   public void canRead() {
     assertThat(this.converter.canRead(Math.class, null)).isFalse();
+    assertThat(this.converter.canRead(Resource.class, null)).isFalse();
 
     assertThat(this.converter.canRead(Locale.class, null)).isTrue();
     assertThat(this.converter.canRead(BigInteger.class, null)).isTrue();
@@ -74,8 +76,6 @@ public class ObjectToStringHttpMessageConverterTests {
     assertThat(this.converter.canRead(BigInteger.class, MediaType.TEXT_HTML)).isFalse();
     assertThat(this.converter.canRead(BigInteger.class, MediaType.TEXT_XML)).isFalse();
     assertThat(this.converter.canRead(BigInteger.class, MediaType.APPLICATION_XML)).isFalse();
-
-    assertThat(this.converter.canRead(Resource.class, null)).isTrue();
   }
 
   @Test
@@ -95,15 +95,14 @@ public class ObjectToStringHttpMessageConverterTests {
 
   @Test
   public void defaultCharset() throws IOException {
-    this.converter.write(5, null, response);
+    this.converter.write(Integer.valueOf(5), null, response);
 
-    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
+    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("ISO-8859-1");
   }
 
   @Test
   public void defaultCharsetModified() throws IOException {
-    DefaultConversionService cs = new DefaultConversionService();
-    DefaultConversionService.addDefaultConverters(cs);
+    ConversionService cs = new DefaultConversionService();
     ObjectToStringHttpMessageConverter converter = new ObjectToStringHttpMessageConverter(cs, StandardCharsets.UTF_16);
     converter.write((byte) 31, null, this.response);
 
@@ -128,24 +127,24 @@ public class ObjectToStringHttpMessageConverterTests {
 
   @Test
   public void read() throws IOException {
-    Short shortValue = (short) 781;
+    Short shortValue = Short.valueOf((short) 781);
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setContent(shortValue.toString().getBytes(Constant.DEFAULT_CHARSET));
     assertThat(this.converter.read(Short.class, new ServletServerHttpRequest(request))).isEqualTo(shortValue);
 
-    Float floatValue = 123F;
+    Float floatValue = Float.valueOf(123);
     request = new MockHttpServletRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setCharacterEncoding("UTF-16");
-    request.setContent(floatValue.toString().getBytes(StandardCharsets.UTF_16));
+    request.setContent(floatValue.toString().getBytes("UTF-16"));
     assertThat(this.converter.read(Float.class, new ServletServerHttpRequest(request))).isEqualTo(floatValue);
 
-    Long longValue = 55819182821331L;
+    Long longValue = Long.valueOf(55819182821331L);
     request = new MockHttpServletRequest();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setCharacterEncoding("UTF-8");
-    request.setContent(longValue.toString().getBytes(StandardCharsets.UTF_8));
+    request.setContent(longValue.toString().getBytes("UTF-8"));
     assertThat(this.converter.read(Long.class, new ServletServerHttpRequest(request))).isEqualTo(longValue);
   }
 
@@ -153,7 +152,7 @@ public class ObjectToStringHttpMessageConverterTests {
   public void write() throws IOException {
     this.converter.write((byte) -8, null, this.response);
 
-    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
+    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("ISO-8859-1");
     assertThat(this.servletResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
     assertThat(this.servletResponse.getContentLength()).isEqualTo(2);
     assertThat(this.servletResponse.getContentAsByteArray()).isEqualTo(new byte[] { '-', '8' });
@@ -162,7 +161,7 @@ public class ObjectToStringHttpMessageConverterTests {
   @Test
   public void writeUtf16() throws IOException {
     MediaType contentType = new MediaType("text", "plain", StandardCharsets.UTF_16);
-    this.converter.write(958, contentType, this.response);
+    this.converter.write(Integer.valueOf(958), contentType, this.response);
 
     assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-16");
     assertThat(this.servletResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
@@ -173,8 +172,8 @@ public class ObjectToStringHttpMessageConverterTests {
 
   @Test
   public void testConversionServiceRequired() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> new ObjectToStringHttpMessageConverter(null));
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            new ObjectToStringHttpMessageConverter(null));
   }
 
 }

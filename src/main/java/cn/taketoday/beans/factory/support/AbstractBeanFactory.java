@@ -645,7 +645,14 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void registerDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
-    objectFactories.put(dependencyType, autowiredValue);
+    Assert.notNull(dependencyType, "Dependency type must not be null");
+    if (autowiredValue != null) {
+      if (!(autowiredValue instanceof Supplier<?> || dependencyType.isInstance(autowiredValue))) {
+        throw new IllegalArgumentException("Value [" + autowiredValue +
+                "] does not implement specified dependency type [" + dependencyType.getName() + "]");
+      }
+      objectFactories.put(dependencyType, autowiredValue);
+    }
   }
 
   // ---------------------------------------
