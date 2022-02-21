@@ -33,11 +33,11 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -148,7 +148,7 @@ public class ResourceUrlProviderTests {
   @Test // SPR-12592
   @SuppressWarnings("resource")
   void initializeOnce() throws Exception {
-    StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
     context.setServletContext(new MockServletContext());
     context.register(HandlerMappingConfiguration.class);
     context.refresh();
@@ -161,11 +161,11 @@ public class ResourceUrlProviderTests {
   @Test
   @SuppressWarnings("resource")
   void initializeOnCurrentContext() {
-    StandardWebServletApplicationContext parentContext = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext parentContext = new AnnotationConfigServletWebApplicationContext();
     parentContext.setServletContext(new MockServletContext());
     parentContext.register(ParentHandlerMappingConfiguration.class);
 
-    StandardWebServletApplicationContext childContext = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext childContext = new AnnotationConfigServletWebApplicationContext();
     childContext.setParent(parentContext);
     childContext.setServletContext(new MockServletContext());
     childContext.register(HandlerMappingConfiguration.class);

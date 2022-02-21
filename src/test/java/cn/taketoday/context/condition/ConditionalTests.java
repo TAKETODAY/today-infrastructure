@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
+import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
 
 /**
  * @author TODAY <br>
@@ -145,7 +145,7 @@ class ConditionalTests {
   @Test
   public void testConditionalOnProperty() throws Exception {
 
-    try (StandardWebServletApplicationContext context = new StandardWebServletApplicationContext()) {
+    try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
       ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
       processor.setPropertiesLocation("info.properties");
       processor.postProcessEnvironment();

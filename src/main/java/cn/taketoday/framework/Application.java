@@ -36,8 +36,8 @@ import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.annotation.DefaultProps;
-import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.context.properties.bind.Bindable;
+import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
@@ -47,7 +47,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
-import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
 import cn.taketoday.lang.Assert;
@@ -303,14 +302,11 @@ public class Application {
    * @param environment the environment to bind
    */
   protected void bindToApplication(ConfigurableEnvironment environment) {
-    PropsReader propsReader = new PropsReader(environment);
     try {
-      DefaultProps props = new DefaultProps();
-      props.setPrefix(PROPERTIES_BINDER_PREFIX);
-      propsReader.read(props, this);
+      Binder.get(environment).bind(PROPERTIES_BINDER_PREFIX, Bindable.ofInstance(this));
     }
     catch (Exception ex) {
-      throw new IllegalStateException("Cannot bind to SpringApplication", ex);
+      throw new IllegalStateException("Cannot bind to Application", ex);
     }
   }
 
@@ -390,7 +386,11 @@ public class Application {
     if (this.environment != null) {
       return this.environment;
     }
-    return new StandardEnvironment();
+    return switch (applicationType) {
+      case SERVLET_WEB -> new ApplicationServletEnvironment();
+      case REACTIVE_WEB -> new ApplicationReactiveWebEnvironment();
+      default -> new ApplicationEnvironment();
+    };
   }
 
   /**

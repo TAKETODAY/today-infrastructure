@@ -50,8 +50,8 @@ import cn.taketoday.lang.Component;
  * <h3>Via {@code StandardApplicationContext}</h3>
  *
  * <p>{@code @Configuration} classes are typically bootstrapped using either
- * {@link StandardApplicationContext} or its web-capable variant,
- * {@link cn.taketoday.web.servlet.StandardWebServletApplicationContext
+ * {@link AnnotationConfigApplicationContext} or its web-capable variant,
+ * {@link cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
  * StandardWebServletApplicationContext}. A simple example with the former follows:
  *
  * <pre class="code">
@@ -62,8 +62,8 @@ import cn.taketoday.lang.Component;
  * // use myBean ...
  * </pre>
  *
- * <p>See the {@link StandardApplicationContext} javadocs for further details, and see
- * {@link cn.taketoday.web.servlet.StandardWebServletApplicationContext
+ * <p>See the {@link AnnotationConfigApplicationContext} javadocs for further details, and see
+ * {@link cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
  * AnnotationConfigWebApplicationContext} for web configuration instructions in a
  * {@code Servlet} container.
  *

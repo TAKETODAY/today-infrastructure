@@ -18,28 +18,37 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.context;
+package cn.taketoday.framework;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.properties.source.ConfigurationPropertySources;
+import cn.taketoday.core.env.ConfigurablePropertyResolver;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.web.context.support.StandardServletEnvironment;
 
 /**
- * SPI interface to be implemented by most if not all {@link WebServerApplicationContext
- * web server application contexts}. Provides facilities to configure the context, in
- * addition to the methods in the {WebServerApplicationContext} interface.
+ * {@link StandardServletEnvironment} for typical use in a typical
+ * {@link Application}.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2022/2/21 22:19
  */
-public interface ConfigurableWebServerApplicationContext
-        extends ConfigurableApplicationContext, WebServerApplicationContext {
+class ApplicationServletEnvironment extends StandardServletEnvironment {
 
-  /**
-   * Set the server namespace of the context.
-   *
-   * @param serverNamespace the server namespace
-   * @see #getServerNamespace()
-   */
-  void setServerNamespace(String serverNamespace);
+  @Override
+  protected String doGetActiveProfilesProperty() {
+    return null;
+  }
+
+  @Override
+  protected String doGetDefaultProfilesProperty() {
+    return null;
+  }
+
+  @Override
+  protected ConfigurablePropertyResolver createPropertyResolver(PropertySources propertySources) {
+    return ConfigurationPropertySources.createPropertyResolver(propertySources);
+  }
 
 }
+

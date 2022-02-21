@@ -53,8 +53,8 @@ import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.framework.ServletWebServerApplicationContext;
 import cn.taketoday.web.framework.StandardWebServerApplicationContext;
 import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.framework.config.EnableTomcatHandling;
@@ -171,7 +171,7 @@ class ApplicationTests {
     Application application = new WebApplication(ExampleWebConfig.class);
     application.setApplicationType(ApplicationType.SERVLET_WEB);
     this.context = application.run();
-    assertThat(this.context).isInstanceOf(ServletWebServerApplicationContext.class);
+    assertThat(this.context).isInstanceOf(AnnotationConfigServletWebServerApplicationContext.class);
   }
 
   @Test

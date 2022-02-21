@@ -380,12 +380,15 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
     }
 
     public void restore() {
-      this.scopes.forEach((key, value) -> {
+      for (Map.Entry<String, Scope> entry : scopes.entrySet()) {
+        String key = entry.getKey();
+        Scope value = entry.getValue();
         if (logger.isInfoEnabled()) {
           logger.info("Restoring user defined scope {}", key);
         }
-        this.beanFactory.registerScope(key, value);
-      });
+        beanFactory.registerScope(key, value);
+      }
+
     }
 
   }

@@ -44,6 +44,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.context.support.GenericWebApplicationContext;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 
 /**
  * {@link GenericWebApplicationContext}that accepts annotated classes as input - in
@@ -62,7 +63,7 @@ import cn.taketoday.web.context.support.GenericWebApplicationContext;
  * @see #scan(String...)
  * @since 4.0
  */
-public class AnnotationConfigServletWebApplicationContext extends GenericWebApplicationContext
+public class AnnotationConfigServletWebApplicationContext extends GenericWebServletApplicationContext
         implements AnnotationConfigRegistry {
 
   private final AnnotatedBeanDefinitionReader reader;

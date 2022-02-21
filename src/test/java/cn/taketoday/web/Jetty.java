@@ -46,13 +46,13 @@ import javax.annotation.PreDestroy;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.framework.server.ServletWebServerApplicationLoader;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import lombok.Getter;
@@ -87,9 +87,9 @@ public class Jetty {
 
   private ThreadPool threadPool;
 
-  private StandardWebServletApplicationContext applicationContext;
+  private AnnotationConfigServletWebApplicationContext applicationContext;
 
-  protected StandardWebServletApplicationContext getApplicationContext() {
+  protected AnnotationConfigServletWebApplicationContext getApplicationContext() {
     return applicationContext;
   }
 
@@ -173,7 +173,7 @@ public class Jetty {
       getStarted().set(true);
 
       log.info("Jetty started on port(s) '{}' with context path '{}'", //
-               getActualPortsDescription(), getContextPath());
+              getActualPortsDescription(), getContextPath());
     }
     catch (Exception ex) {
       stopSilently();
@@ -234,13 +234,9 @@ public class Jetty {
   /**
    * Create a sever {@link Connector}
    *
-   * @param host
-   *         server host
-   * @param port
-   *         server port
-   * @param server
-   *         server instance
-   *
+   * @param host server host
+   * @param port server port
+   * @param server server instance
    * @return a {@link ServerConnector}
    */
   protected ServerConnector getServerConnector(final String host, final int port, final Server server) {
@@ -259,8 +255,7 @@ public class Jetty {
   /**
    * Configure the given Jetty {@link WebAppContext} for use.
    *
-   * @param context
-   *         the context to configure
+   * @param context the context to configure
    */
   protected void configureWebAppContext(final WebAppContext context) throws IOException {
     Objects.requireNonNull(context, "WebAppContext must not be null");
@@ -305,9 +300,7 @@ public class Jetty {
   /**
    * Return the Jetty {@link Configuration}s that should be applied to the server.
    *
-   * @param webAppContext
-   *         the Jetty {@link WebAppContext}
-   *
+   * @param webAppContext the Jetty {@link WebAppContext}
    * @return configurations to apply
    */
   protected Configuration[] getWebAppContextConfigurations(final WebAppContext webAppContext) {
@@ -324,9 +317,7 @@ public class Jetty {
    * {@link ServletContextInitializer}s. By default this method will return a
    * {@link ServletContextInitializerConfiguration}.
    *
-   * @param webAppContext
-   *         the Jetty {@link WebAppContext}
-   *
+   * @param webAppContext the Jetty {@link WebAppContext}
    * @return the {@link Configuration} instance
    */
   protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
@@ -369,7 +360,7 @@ public class Jetty {
           setExtendedListenerTypes(true);
           final Context servletContext = this.context.getServletContext();
           starter.onStartup(null, servletContext);
-          applicationContext = (StandardWebServletApplicationContext) starter.getApplicationContext();
+          applicationContext = (AnnotationConfigServletWebApplicationContext) starter.getApplicationContext();
         }
         finally {
           setExtendedListenerTypes(false);

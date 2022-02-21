@@ -18,22 +18,35 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.filter;
+package cn.taketoday.framework;
 
-import cn.taketoday.core.Ordered;
-import jakarta.servlet.Filter;
+import cn.taketoday.context.properties.source.ConfigurationPropertySources;
+import cn.taketoday.core.env.ConfigurablePropertyResolver;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.StandardEnvironment;
 
 /**
- * An {@link Ordered} {@link Filter}.
+ * {@link StandardEnvironment} for typical use in a typical {@link Application}.
  *
  * @author Phillip Webb
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/2/21 22:19
  */
-public interface OrderedFilter extends Filter, Ordered {
+class ApplicationEnvironment extends StandardEnvironment {
 
-  /**
-   * Filters that wrap the servlet request should be ordered less than or equal to this.
-   */
-  int REQUEST_WRAPPER_FILTER_MAX_ORDER = 0;
+  @Override
+  protected String doGetActiveProfilesProperty() {
+    return null;
+  }
+
+  @Override
+  protected String doGetDefaultProfilesProperty() {
+    return null;
+  }
+
+  @Override
+  protected ConfigurablePropertyResolver createPropertyResolver(PropertySources propertySources) {
+    return ConfigurationPropertySources.createPropertyResolver(propertySources);
+  }
 
 }

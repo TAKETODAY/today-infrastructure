@@ -28,9 +28,9 @@ import java.util.List;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,7 +61,7 @@ class ParameterResolvingRegistryTests {
   @Test
   void defaultStrategies() {
     assertThat(registry.getDefaultStrategies()).hasSize(0);
-    registry.setApplicationContext(new StandardWebServletApplicationContext(Object.class));
+    registry.setApplicationContext(new AnnotationConfigServletWebApplicationContext(Object.class));
     registry.registerDefaultStrategies();
 
     assertThat(registry.getDefaultStrategies()).isNotEmpty();
@@ -96,7 +96,7 @@ class ParameterResolvingRegistryTests {
             .isInstanceOf(ParameterResolverNotFoundException.class)
             .hasMessageStartingWith("There isn't have a parameter resolver to resolve parameter");
 
-    registry.setApplicationContext(new StandardWebServletApplicationContext(Object.class));
+    registry.setApplicationContext(new AnnotationConfigServletWebApplicationContext(Object.class));
     registry.registerDefaultStrategies();
     registry.trimToSize();
     registry.setRedirectModelManager(null);
@@ -128,7 +128,7 @@ class ParameterResolvingRegistryTests {
             .hasMessage("conversionService is required");
 
     assertThat(registry.getConversionService()).isNull();
-    registry.setApplicationContext(new StandardWebServletApplicationContext(Object.class));
+    registry.setApplicationContext(new AnnotationConfigServletWebApplicationContext(Object.class));
     registry.registerDefaultStrategies();
     registry.applyConversionService(DefaultConversionService.getSharedInstance());
     assertThat(registry.getConversionService()).isEqualTo(DefaultConversionService.getSharedInstance());

@@ -24,9 +24,9 @@ package cn.taketoday.framework.availability;
  * usually implemented on an {@code enum} type.
  *
  * @author Phillip Webb
- * @since 4.0
  * @see LivenessState
  * @see ReadinessState
+ * @since 4.0
  */
 public interface AvailabilityState {
 

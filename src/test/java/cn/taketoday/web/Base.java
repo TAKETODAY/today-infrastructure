@@ -22,9 +22,8 @@ package cn.taketoday.web;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import jakarta.servlet.ServletContext;
-
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,7 +38,7 @@ public class Base {
   protected Jetty jetty;
   protected ServletContext servletContext;
   protected long start = System.currentTimeMillis();
-  protected StandardWebServletApplicationContext context;
+  protected AnnotationConfigServletWebApplicationContext context;
 
   @BeforeEach
   public void before() {

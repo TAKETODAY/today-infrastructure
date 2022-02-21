@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfiguration;
@@ -39,7 +40,6 @@ import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.ServletException;
 
@@ -98,7 +98,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   private DispatcherServlet initDispatcherServlet(Class<?>... configClasses)
           throws ServletException {
 
-    StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
     context.register(configClasses);
     context.refresh();
 

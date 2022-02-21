@@ -30,6 +30,7 @@ import cn.taketoday.util.ObjectUtils;
  * create and manage the lifecycle of an embedded {@link WebServer}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface WebServerApplicationContext extends ApplicationContext {

@@ -34,9 +34,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.logging.Logger;

@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.session.EnableWebSession;
 import jakarta.servlet.http.HttpSession;
 
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SessionLocaleResolverTests {
 
-  StandardWebServletApplicationContext webApplicationContext = new StandardWebServletApplicationContext();
+  AnnotationConfigServletWebApplicationContext webApplicationContext = new AnnotationConfigServletWebApplicationContext();
 
   {
     webApplicationContext.register(SessionConfig.class);

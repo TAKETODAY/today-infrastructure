@@ -18,22 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.filter;
+package cn.taketoday.framework;
 
-import cn.taketoday.core.Ordered;
-import jakarta.servlet.Filter;
+import cn.taketoday.core.env.StandardEnvironment;
 
 /**
- * An {@link Ordered} {@link Filter}.
+ * Tests for {@link ApplicationEnvironment}.
  *
  * @author Phillip Webb
- * @since 4.0
  */
-public interface OrderedFilter extends Filter, Ordered {
+class ApplicationEnvironmentTests extends AbstractApplicationEnvironmentTests {
 
-  /**
-   * Filters that wrap the servlet request should be ordered less than or equal to this.
-   */
-  int REQUEST_WRAPPER_FILTER_MAX_ORDER = 0;
+	@Override
+	protected StandardEnvironment createEnvironment() {
+		return new ApplicationEnvironment();
+	}
 
 }

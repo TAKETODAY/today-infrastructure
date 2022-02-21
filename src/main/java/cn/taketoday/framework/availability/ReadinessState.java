@@ -31,14 +31,14 @@ package cn.taketoday.framework.availability;
  */
 public enum ReadinessState implements AvailabilityState {
 
-	/**
-	 * The application is ready to receive traffic.
-	 */
-	ACCEPTING_TRAFFIC,
+  /**
+   * The application is ready to receive traffic.
+   */
+  ACCEPTING_TRAFFIC,
 
-	/**
-	 * The application is not willing to receive traffic.
-	 */
-	REFUSING_TRAFFIC
+  /**
+   * The application is not willing to receive traffic.
+   */
+  REFUSING_TRAFFIC
 
 }

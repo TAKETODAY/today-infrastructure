@@ -31,10 +31,10 @@ import java.util.Set;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockMethodParameter;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,7 +130,7 @@ class ParameterResolverRegistryTests {
   @Test
   void registerDefaults() {
 
-    try (StandardWebServletApplicationContext context = new StandardWebServletApplicationContext()) {
+    try (AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext()) {
       context.refresh();
 
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
@@ -155,7 +155,7 @@ class ParameterResolverRegistryTests {
   @Test
   void lookupStrategy() {
 
-    try (StandardWebServletApplicationContext context = new StandardWebServletApplicationContext()) {
+    try (AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext()) {
       context.refresh();
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);

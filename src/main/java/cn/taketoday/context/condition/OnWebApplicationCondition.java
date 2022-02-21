@@ -29,8 +29,10 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
+import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.context.ConfigurableWebEnvironment;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
@@ -93,6 +95,9 @@ class OnWebApplicationCondition extends FilteringContextCondition {
         return ConditionOutcome.match(message.foundExactly("'session' scope"));
       }
     }
+    if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
+      return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
+    }
     if (context.getResourceLoader() instanceof WebServletApplicationContext) {
       return ConditionOutcome.match(message.foundExactly("WebApplicationContext"));
     }
@@ -103,6 +108,9 @@ class OnWebApplicationCondition extends FilteringContextCondition {
     ConditionMessage.Builder message = ConditionMessage.forCondition("");
     if (!ClassNameFilter.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
+    }
+    if (context.getEnvironment() instanceof ConfigurableReactiveWebEnvironment) {
+      return ConditionOutcome.match(message.foundExactly("ConfigurableReactiveWebEnvironment"));
     }
     ResourceLoader resourceLoader = context.getResourceLoader();
     if (resourceLoader instanceof WebApplicationContext && !(resourceLoader instanceof WebServletApplicationContext)) {

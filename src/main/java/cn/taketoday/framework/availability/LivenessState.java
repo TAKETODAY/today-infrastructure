@@ -32,14 +32,14 @@ package cn.taketoday.framework.availability;
  */
 public enum LivenessState implements AvailabilityState {
 
-	/**
-	 * The application is running and its internal state is correct.
-	 */
-	CORRECT,
+  /**
+   * The application is running and its internal state is correct.
+   */
+  CORRECT,
 
-	/**
-	 * The application is running but its internal state is broken.
-	 */
-	BROKEN
+  /**
+   * The application is running but its internal state is broken.
+   */
+  BROKEN
 
 }

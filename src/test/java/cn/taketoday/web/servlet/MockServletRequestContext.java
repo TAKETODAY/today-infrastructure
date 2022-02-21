@@ -86,6 +86,16 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
+  public String getServerName() {
+    return null;
+  }
+
+  @Override
+  public int getServerPort() {
+    return 0;
+  }
+
+  @Override
   protected String doGetContextPath() {
     return request.getContextPath();
   }

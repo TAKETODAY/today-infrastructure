@@ -20,9 +20,6 @@
 
 package cn.taketoday.framework.web.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.File;
 import java.util.Locale;
 

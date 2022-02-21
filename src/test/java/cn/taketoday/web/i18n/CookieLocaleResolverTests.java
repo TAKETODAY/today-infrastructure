@@ -30,10 +30,10 @@ import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.SimpleLocaleContext;
 import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.session.EnableWebSession;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletException;
@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 public class CookieLocaleResolverTests {
 
-  StandardWebServletApplicationContext webApplicationContext = new StandardWebServletApplicationContext();
+  AnnotationConfigServletWebApplicationContext webApplicationContext = new AnnotationConfigServletWebApplicationContext();
 
   {
     webApplicationContext.register(SessionLocaleResolverTests.SessionConfig.class);

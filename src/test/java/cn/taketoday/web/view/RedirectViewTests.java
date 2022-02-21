@@ -31,13 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -64,11 +64,13 @@ public class RedirectViewTests {
 
   @BeforeEach
   public void setUp() throws Exception {
-    StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
 
     this.request = new MockHttpServletRequest();
     this.request.setContextPath("/context");
     this.response = new MockHttpServletResponse();
+
+    context.refresh();
 
     this.context = new MockServletRequestContext(context, request, response);
   }
@@ -288,7 +290,7 @@ public class RedirectViewTests {
   private void doTest(Map<String, ?> map, String url, boolean contextRelative, String expectedUrl)
           throws Exception {
     if (this.context == null) {
-      StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+      AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
       this.context = new MockServletRequestContext(context, request, response);
     }
 

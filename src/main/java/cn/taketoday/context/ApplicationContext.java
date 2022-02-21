@@ -36,9 +36,8 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY <br>
  * 2018-06-23 16:39:36
  */
-public interface ApplicationContext
-        extends Closeable, HierarchicalBeanFactory, MessageSource,
-                ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
+public interface ApplicationContext extends Closeable, HierarchicalBeanFactory, MessageSource,
+        ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
 
   /**
    * @see Environment

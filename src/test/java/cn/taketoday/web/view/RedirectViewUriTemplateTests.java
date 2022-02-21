@@ -26,12 +26,12 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -46,10 +46,11 @@ class RedirectViewUriTemplateTests {
 
   @BeforeEach
   public void setUp() throws Exception {
-    StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
     this.request = new MockHttpServletRequest();
     this.response = new MockHttpServletResponse();
-
+    context.refresh();
+    
     this.context = new MockServletRequestContext(context, request, response);
   }
 

@@ -22,9 +22,9 @@ package cn.taketoday.framework.web.servlet;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import jakarta.servlet.annotation.WebListener;
 
 /**

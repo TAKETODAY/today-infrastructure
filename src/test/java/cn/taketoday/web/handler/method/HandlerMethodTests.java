@@ -26,8 +26,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.MockRequestContext;
@@ -38,7 +39,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +82,7 @@ public class HandlerMethodTests {
     final HandlerMethod handlerMethod = HandlerMethod.from(method);
     final HandlerMethodRequestContext context = new HandlerMethodRequestContext(null);
 
-    final StandardApplicationContext applicationContext = getApplicationContext();
+    final ApplicationContext applicationContext = getApplicationContext();
     setResultHandlers(handlerMethod, applicationContext);
   }
 
@@ -104,7 +104,7 @@ public class HandlerMethodTests {
     assertThat(produceMethod.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
     produceMethod.initParameterNameDiscovery(parameterNameDiscoverer);
 
-    final StandardApplicationContext applicationContext = getApplicationContext();
+    ApplicationContext applicationContext = getApplicationContext();
 
     final ParameterResolvingRegistryResolvableParameterFactory methodParameterBuilder
             = new ParameterResolvingRegistryResolvableParameterFactory();
@@ -119,14 +119,14 @@ public class HandlerMethodTests {
     assertThat(produceMethod).hasToString("HandlerMethodTests#produce(String name)");
   }
 
-  private StandardApplicationContext getApplicationContext() {
-    final StandardApplicationContext applicationContext = new StandardWebServletApplicationContext();
+  private ApplicationContext getApplicationContext() {
+    final AnnotationConfigServletWebApplicationContext applicationContext = new AnnotationConfigServletWebApplicationContext();
 //    applicationContext.scan("cn.taketoday.web.handler");
     applicationContext.refresh();
     return applicationContext;
   }
 
-  private void setResultHandlers(HandlerMethod produceMethod, StandardApplicationContext applicationContext) {
+  private void setResultHandlers(HandlerMethod produceMethod, ApplicationContext applicationContext) {
     final ReturnValueHandlerManager resultHandlers = new ReturnValueHandlerManager();
     resultHandlers.setApplicationContext(applicationContext);
     resultHandlers.setViewResolver(new DefaultTemplateViewResolver());

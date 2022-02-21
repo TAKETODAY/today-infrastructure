@@ -26,8 +26,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;

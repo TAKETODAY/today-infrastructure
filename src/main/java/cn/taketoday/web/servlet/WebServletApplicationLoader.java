@@ -29,9 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ExceptionUtils;
@@ -166,7 +167,7 @@ public class WebServletApplicationLoader
    * subclasses can override this method to create user customize context
    */
   protected WebServletApplicationContext createContext() {
-    return new StandardWebServletApplicationContext();
+    return new AnnotationConfigServletWebApplicationContext();
   }
 
   private WebServletApplicationContext getWebServletApplicationContext() {

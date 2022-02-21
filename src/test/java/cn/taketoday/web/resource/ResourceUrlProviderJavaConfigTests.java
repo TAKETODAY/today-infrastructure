@@ -24,12 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
-import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,7 +54,7 @@ public class ResourceUrlProviderJavaConfigTests {
   @BeforeEach
   @SuppressWarnings("resource")
   public void setup() throws Exception {
-    StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
     context.setServletContext(new MockServletContext());
     context.register(WebConfig.class);
     context.refresh();
