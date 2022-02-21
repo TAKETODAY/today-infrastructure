@@ -30,10 +30,10 @@ import cn.taketoday.context.annotation.Configuration;
 
 /**
  * Annotation that marks a method as a candidate for <i>asynchronous</i> execution.
- * Can also be used at the type level, in which case all of the type's methods are
+ *
+ * <p>Can also be used at the type level, in which case all of the type's methods are
  * considered as asynchronous. Note, however, that {@code @Async} is not supported
- * on methods declared within a
- * {@link Configuration @Configuration} class.
+ * on methods declared within a {@link Configuration @Configuration} class.
  *
  * <p>In terms of target method signatures, any parameter types are supported.
  * However, the return type is constrained to either {@code void} or
@@ -47,7 +47,7 @@ import cn.taketoday.context.annotation.Configuration;
  * {@code Future} that can be used to track the result of the asynchronous method
  * execution. However, since the target method needs to implement the same signature,
  * it will have to return a temporary {@code Future} handle that just passes a value
- * through: e.g. {@link AsyncResult}, EJB 3.1's {@link jakarta.ejb.AsyncResult},
+ * through: for example {@link AsyncResult}, EJB 3.1's {@link jakarta.ejb.AsyncResult},
  * or {@link java.util.concurrent.CompletableFuture#completedFuture(Object)}.
  *
  * @author Juergen Hoeller
@@ -56,9 +56,9 @@ import cn.taketoday.context.annotation.Configuration;
  * @see AsyncAnnotationAdvisor
  * @since 4.0
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Async {
 
   /**
@@ -68,9 +68,13 @@ public @interface Async {
    * name) of a specific {@link java.util.concurrent.Executor Executor} or
    * {@link cn.taketoday.core.task.TaskExecutor TaskExecutor}
    * bean definition.
-   * <p>When specified on a class-level {@code @Async} annotation, indicates that the
+   * <p>When specified in a class-level {@code @Async} annotation, indicates that the
    * given executor should be used for all methods within the class. Method-level use
-   * of {@code Async#value} always overrides any value set at the class level.
+   * of {@code Async#value} always overrides any qualifier value configured at
+   * the class level.
+   * <p>The qualifier value will be resolved dynamically if supplied as a SpEL
+   * expression (for example, {@code "#{environment['myExecutor']}"}) or a
+   * property placeholder (for example, {@code "${my.app.myExecutor}"}).
    */
   String value() default "";
 

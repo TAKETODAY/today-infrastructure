@@ -33,6 +33,8 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.context.expression.EmbeddedValueResolver;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
@@ -152,7 +154,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 
   /**
    * Determine the specific executor to use when executing the given method.
-   * Should preferably return an {@link AsyncListenableTaskExecutor} implementation.
+   * <p>Should preferably return an {@link AsyncListenableTaskExecutor} implementation.
    *
    * @return the executor to use (or {@code null}, but just if no default executor is available)
    */
@@ -205,6 +207,10 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
     if (beanFactory == null) {
       throw new IllegalStateException("BeanFactory must be set on " + getClass().getSimpleName() +
               " to access qualified executor '" + qualifier + "'");
+    }
+    if (beanFactory instanceof ConfigurableBeanFactory factory) {
+      EmbeddedValueResolver embeddedValueResolver = new EmbeddedValueResolver(factory);
+      qualifier = embeddedValueResolver.resolveStringValue(qualifier);
     }
     return BeanFactoryUtils.qualifiedBeanOfType(beanFactory, Executor.class, qualifier);
   }
