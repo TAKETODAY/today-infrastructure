@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;

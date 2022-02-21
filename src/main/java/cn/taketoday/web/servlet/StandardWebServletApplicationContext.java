@@ -23,21 +23,16 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 
 /**
  * @author TODAY <br>
  * 2018-07-10 1:16:17
  */
 public class StandardWebServletApplicationContext
-        extends StandardApplicationContext implements ConfigurableWebServletApplicationContext {
-
-  /** Servlet context */
-  private ServletContext servletContext;
+        extends GenericWebServletApplicationContext implements ConfigurableWebServletApplicationContext {
 
   /**
    * Default Constructor
@@ -88,27 +83,6 @@ public class StandardWebServletApplicationContext
   public StandardWebServletApplicationContext(Class<?>... components) {
     register(components);
     refresh();
-  }
-
-  public StandardWebServletApplicationContext(ServletContext servletContext) {
-    this();
-    this.servletContext = servletContext;
-  }
-
-  @Override
-  public String getContextPath() {
-    Assert.state(servletContext != null, "servletContext is not available");
-    return servletContext.getContextPath();
-  }
-
-  @Override
-  public ServletContext getServletContext() {
-    return servletContext;
-  }
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
   }
 
 }

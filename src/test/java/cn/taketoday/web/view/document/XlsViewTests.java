@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;

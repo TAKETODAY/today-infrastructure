@@ -41,7 +41,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.mock.MockHttpServletRequest;

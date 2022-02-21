@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;

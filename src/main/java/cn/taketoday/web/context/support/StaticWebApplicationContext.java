@@ -18,53 +18,53 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web;
+package cn.taketoday.web.context.support;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.context.ConfigurableWebApplicationContext;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/7 13:52
  */
-public class StaticWebApplicationContext extends StaticApplicationContext implements WebServletApplicationContext {
-
-  @Nullable
-  private ServletContext servletContext;
+public class StaticWebApplicationContext extends StaticApplicationContext implements ConfigurableWebApplicationContext {
 
   @Nullable
   private String namespace;
+  private String[] configLocations;
 
-  public StaticWebApplicationContext() {
+  public StaticWebApplicationContext() { }
+
+  @Override
+  public String getContextPath() {
+    return namespace;
   }
 
-  /**
-   * Set the ServletContext that this WebApplicationContext runs in.
-   */
   @Override
-  public void setServletContext(@Nullable ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setNamespace(@Nullable String namespace) {
+    this.namespace = namespace;
   }
 
   @Override
   @Nullable
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public String getNamespace() {
+    return namespace;
   }
 
   @Override
-  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    beanFactory.addBeanPostProcessor(new ServletContextAwareBeanPostProcessor(this));
-    beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+  public void setConfigLocation(String configLocation) {
+    this.configLocations = new String[] { configLocation };
   }
 
   @Override
-  public String getContextPath() {
-    return servletContext.getContextPath();
+  public void setConfigLocations(String... configLocations) {
+    this.configLocations = configLocations;
+  }
+
+  @Override
+  public String[] getConfigLocations() {
+    return configLocations;
   }
 
 }

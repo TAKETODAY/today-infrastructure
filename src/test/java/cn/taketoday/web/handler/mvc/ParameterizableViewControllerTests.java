@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;

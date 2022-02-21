@@ -82,6 +82,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
@@ -170,8 +171,7 @@ public abstract class AbstractApplicationContext
   private String applicationName = ObjectUtils.identityToString(this);
 
   /** @since 4.0 */
-  private final PathMatchingPatternResourceLoader patternResourceLoader
-          = new PathMatchingPatternResourceLoader(this);
+  private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
 
   /** @since 4.0 */
   private boolean refreshable;
@@ -236,6 +236,24 @@ public abstract class AbstractApplicationContext
   @Override
   public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
     patternResourceLoader.scan(locationPattern, consumer);
+  }
+
+  /**
+   * Return the ResourcePatternResolver to use for resolving location patterns
+   * into Resource instances. Default is a {@link PathMatchingPatternResourceLoader},
+   * supporting Ant-style location patterns.
+   * <p>Can be overridden in subclasses, for extended resolution strategies,
+   * for example in a web environment.
+   * <p><b>Do not call this when needing to resolve a location pattern.</b>
+   * Call the context's {@code getResources} method instead, which
+   * will delegate to the ResourcePatternResolver.
+   *
+   * @return the ResourcePatternResolver for this context
+   * @see #getResources
+   * @see PathMatchingPatternResourceLoader
+   */
+  protected PatternResourceLoader getPatternResourceLoader() {
+    return new PathMatchingPatternResourceLoader(this);
   }
 
   //---------------------------------------------------------------------

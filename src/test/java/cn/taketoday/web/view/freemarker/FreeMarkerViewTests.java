@@ -32,7 +32,7 @@ import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;

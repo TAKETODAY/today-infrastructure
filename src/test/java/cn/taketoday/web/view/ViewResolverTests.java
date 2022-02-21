@@ -35,7 +35,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.mock.MockHttpServletRequest;
