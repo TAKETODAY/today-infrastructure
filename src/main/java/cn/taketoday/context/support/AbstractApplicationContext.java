@@ -562,10 +562,10 @@ public abstract class AbstractApplicationContext
 
     if (log.isDebugEnabled()) {
       if (log.isTraceEnabled()) {
-        log.trace("Refreshing " + this);
+        log.trace("Refreshing {}", this);
       }
       else {
-        log.debug("Refreshing " + getDisplayName());
+        log.debug("Refreshing {}", getDisplayName());
       }
     }
   }

@@ -21,11 +21,13 @@
 package cn.taketoday.context.properties.source;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Exception thrown when a configuration property value is invalid.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -33,8 +35,10 @@ public class InvalidConfigurationPropertyValueException extends RuntimeException
 
   private final String name;
 
+  @Nullable
   private final Object value;
 
+  @Nullable
   private final String reason;
 
   /**
@@ -47,7 +51,7 @@ public class InvalidConfigurationPropertyValueException extends RuntimeException
    * Starts with an upper-case and ends with a dot. Several sentences and carriage
    * returns are allowed.
    */
-  public InvalidConfigurationPropertyValueException(String name, Object value, String reason) {
+  public InvalidConfigurationPropertyValueException(String name, @Nullable Object value, @Nullable String reason) {
     super("Property " + name + " with value '" + value + "' is invalid: " + reason);
     Assert.notNull(name, "Name must not be null");
     this.name = name;
@@ -69,6 +73,7 @@ public class InvalidConfigurationPropertyValueException extends RuntimeException
    *
    * @return the invalid value
    */
+  @Nullable
   public Object getValue() {
     return this.value;
   }
@@ -78,6 +83,7 @@ public class InvalidConfigurationPropertyValueException extends RuntimeException
    *
    * @return the reason
    */
+  @Nullable
   public String getReason() {
     return this.reason;
   }

@@ -25,8 +25,8 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.web.framework.ServletWebServerApplicationContext;
-import cn.taketoday.web.framework.StandardWebServerApplicationContext;
+import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 
 /**
  * Strategy interface for creating the {@link ConfigurableApplicationContext} used by a
@@ -43,11 +43,11 @@ public interface ApplicationContextFactory {
    * A default {@link ApplicationContextFactory} implementation that will create an
    * appropriate context for the {@link ApplicationType}.
    */
-  ApplicationContextFactory DEFAULT = (webApplicationType) -> {
+  ApplicationContextFactory DEFAULT = (applicationType) -> {
     try {
-      return switch (webApplicationType) {
-        case SERVLET_WEB -> new ServletWebServerApplicationContext();
-        case REACTIVE_WEB -> new StandardWebServerApplicationContext();
+      return switch (applicationType) {
+        case SERVLET_WEB -> new AnnotationConfigServletWebServerApplicationContext();
+        case REACTIVE_WEB -> new AnnotationConfigReactiveWebServerApplicationContext();
         default -> new StandardApplicationContext();
       };
     }
@@ -61,10 +61,10 @@ public interface ApplicationContextFactory {
    * Creates the {@link ConfigurableApplicationContext application context} for a
    * {@link Application}, respecting the given {@code webApplicationType}.
    *
-   * @param webApplicationType the web application type
+   * @param type the application type
    * @return the newly created application context
    */
-  ConfigurableApplicationContext create(ApplicationType webApplicationType);
+  ConfigurableApplicationContext create(ApplicationType type);
 
   /**
    * Creates an {@code ApplicationContextFactory} that will create contexts by

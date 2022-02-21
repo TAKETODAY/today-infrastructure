@@ -20,11 +20,12 @@
 
 package cn.taketoday.context.properties.source;
 
-import cn.taketoday.origin.Origin;
-import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
 
 /**
  * {@link PropertySource} that exposes {@link ConfigurationPropertySource} instances so
@@ -33,6 +34,8 @@ import cn.taketoday.core.env.PropertySource;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable<ConfigurationPropertySource>>
         implements OriginLookup<String> {
@@ -49,7 +52,7 @@ class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable
   @Override
   public Object getProperty(String name) {
     ConfigurationProperty configurationProperty = findConfigurationProperty(name);
-    return (configurationProperty != null) ? configurationProperty.getValue() : null;
+    return configurationProperty != null ? configurationProperty.getValue() : null;
   }
 
   @Override
@@ -57,6 +60,7 @@ class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable
     return Origin.from(findConfigurationProperty(name));
   }
 
+  @Nullable
   private ConfigurationProperty findConfigurationProperty(String name) {
     try {
       return findConfigurationProperty(ConfigurationPropertyName.of(name, true));
@@ -66,7 +70,8 @@ class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable
     }
   }
 
-  ConfigurationProperty findConfigurationProperty(ConfigurationPropertyName name) {
+  @Nullable
+  ConfigurationProperty findConfigurationProperty(@Nullable ConfigurationPropertyName name) {
     if (name == null) {
       return null;
     }

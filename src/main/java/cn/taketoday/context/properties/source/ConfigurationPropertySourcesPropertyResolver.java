@@ -23,6 +23,7 @@ package cn.taketoday.context.properties.source;
 import cn.taketoday.core.env.AbstractPropertyResolver;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Alternative {@link PropertySourcesPropertyResolver} implementation that recognizes
@@ -30,6 +31,7 @@ import cn.taketoday.core.env.PropertySourcesPropertyResolver;
  * underlying sources if the name is a value {@link ConfigurationPropertyName}.
  *
  * @author Phillip Webb
+ * @since 4.0
  */
 class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
@@ -51,8 +53,7 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
         try {
           return attached.findConfigurationProperty(name) != null;
         }
-        catch (Exception ex) {
-        }
+        catch (Exception ignored) { }
       }
     }
     return this.defaultResolver.containsProperty(key);
@@ -73,6 +74,7 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
     return getProperty(key, String.class, false);
   }
 
+  @Nullable
   private <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
     Object value = findPropertyValue(key);
     if (value == null) {
@@ -84,6 +86,7 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
     return convertValueIfNecessary(value, targetValueType);
   }
 
+  @Nullable
   private Object findPropertyValue(String key) {
     ConfigurationPropertySourcesPropertySource attached = getAttached();
     if (attached != null) {
@@ -93,13 +96,13 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
           ConfigurationProperty configurationProperty = attached.findConfigurationProperty(name);
           return (configurationProperty != null) ? configurationProperty.getValue() : null;
         }
-        catch (Exception ex) {
-        }
+        catch (Exception ignored) { }
       }
     }
     return this.defaultResolver.getProperty(key, Object.class, false);
   }
 
+  @Nullable
   private ConfigurationPropertySourcesPropertySource getAttached() {
     ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) ConfigurationPropertySources
             .getAttached(this.propertySources);

@@ -92,7 +92,7 @@ public interface ConfigurationPropertySource {
    * @param prefix the prefix for properties in the source
    * @return a {@link ConfigurationPropertySource} instance supporting a prefix
    */
-  default ConfigurationPropertySource withPrefix(String prefix) {
+  default ConfigurationPropertySource withPrefix(@Nullable String prefix) {
     return (StringUtils.hasText(prefix)) ? new PrefixedConfigurationPropertySource(this, prefix) : this;
   }
 

@@ -27,14 +27,15 @@ import java.util.stream.Stream;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.properties.source.InvalidConfigurationPropertyValueException;
-import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
-import cn.taketoday.framework.diagnostics.FailureAnalysis;
-import cn.taketoday.framework.diagnostics.FailureAnalyzer;
-import cn.taketoday.origin.Origin;
-import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
+import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.framework.diagnostics.FailureAnalyzer;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -48,6 +49,7 @@ import cn.taketoday.util.StringUtils;
 class InvalidConfigurationPropertyValueFailureAnalyzer
         extends AbstractFailureAnalyzer<InvalidConfigurationPropertyValueException> implements EnvironmentAware {
 
+  @Nullable
   private ConfigurableEnvironment environment;
 
   @Override
@@ -69,8 +71,10 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
   }
 
   private List<Descriptor> getDescriptors(String propertyName) {
-    return getPropertySources().filter((source) -> source.containsProperty(propertyName))
-            .map((source) -> Descriptor.get(source, propertyName)).collect(Collectors.toList());
+    return getPropertySources()
+            .filter((source) -> source.containsProperty(propertyName))
+            .map((source) -> Descriptor.get(source, propertyName))
+            .collect(Collectors.toList());
   }
 
   private Stream<PropertySource<?>> getPropertySources() {
@@ -106,6 +110,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
       message.append(
               String.format("%n%nAdditionally, this property is also set in the following property %s:%n%n",
                       (others.size() > 1) ? "sources" : "source"));
+
       for (Descriptor other : others) {
         message.append("\t- In '").append(other.getPropertySource()).append("'");
         message.append(" with the value '").append(other.getValue()).append("'");
@@ -125,19 +130,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
     return action.toString();
   }
 
-  private static final class Descriptor {
-
-    private final String propertySource;
-
-    private final Object value;
-
-    private final Origin origin;
-
-    private Descriptor(String propertySource, Object value, Origin origin) {
-      this.propertySource = propertySource;
-      this.value = value;
-      this.origin = origin;
-    }
+  private record Descriptor(String propertySource, Object value, @Nullable Origin origin) {
 
     String getPropertySource() {
       return this.propertySource;

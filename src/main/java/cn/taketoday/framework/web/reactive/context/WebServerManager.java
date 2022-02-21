@@ -35,7 +35,9 @@ import reactor.core.publisher.Mono;
  * Internal class used to manage the server and the {@link HttpHandler}, taking care not
  * to initialize the handler too early.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Andy Wilkinson
+ * @since 4.0
  */
 class WebServerManager {
 

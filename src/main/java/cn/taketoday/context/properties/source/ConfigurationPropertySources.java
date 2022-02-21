@@ -108,7 +108,7 @@ public final class ConfigurationPropertySources {
 
   @Nullable
   static PropertySource<?> getAttached(@Nullable PropertySources sources) {
-    return (sources != null) ? sources.get(ATTACHED_PROPERTY_SOURCE_NAME) : null;
+    return sources != null ? sources.get(ATTACHED_PROPERTY_SOURCE_NAME) : null;
   }
 
   /**
