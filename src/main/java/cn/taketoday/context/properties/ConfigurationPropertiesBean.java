@@ -78,11 +78,16 @@ public final class ConfigurationPropertiesBean {
   private ConfigurationPropertiesBean(
           String name, @Nullable Object instance,
           ConfigurationProperties annotation, Bindable<?> bindTarget) {
+    this(name, instance, annotation, bindTarget, BindMethod.forType(bindTarget.getType().resolve()));
+  }
+
+  private ConfigurationPropertiesBean(String name, @Nullable Object instance, ConfigurationProperties annotation,
+                                      Bindable<?> bindTarget, BindMethod bindMethod) {
     this.name = name;
     this.instance = instance;
     this.annotation = annotation;
     this.bindTarget = bindTarget;
-    this.bindMethod = BindMethod.forType(bindTarget.getType().resolve());
+    this.bindMethod = bindMethod;
   }
 
   /**
@@ -287,6 +292,9 @@ public final class ConfigurationPropertiesBean {
     if (instance != null) {
       bindTarget = bindTarget.withExistingValue(instance);
     }
+    if (factory != null) {
+      return new ConfigurationPropertiesBean(name, instance, annotation, bindTarget, BindMethod.JAVA_BEAN);
+    }
     return new ConfigurationPropertiesBean(name, instance, annotation, bindTarget);
   }
 
@@ -328,8 +336,8 @@ public final class ConfigurationPropertiesBean {
      */
     VALUE_OBJECT;
 
-    static BindMethod forType(Class<?> type) {
-      return (ConfigurationPropertiesBindConstructorProvider.INSTANCE.getBindConstructor(type, false) != null)
+    static BindMethod forType(@Nullable Class<?> type) {
+      return ConfigurationPropertiesBindConstructorProvider.INSTANCE.getBindConstructor(type, false) != null
              ? VALUE_OBJECT : JAVA_BEAN;
     }
 

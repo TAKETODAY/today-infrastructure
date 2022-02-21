@@ -62,6 +62,7 @@ public abstract class AbstractFailureAnalyzer<T extends Throwable> implements Fa
     return (Class<? extends T>) ResolvableType.fromClass(AbstractFailureAnalyzer.class, getClass()).resolveGeneric();
   }
 
+  @Nullable
   @SuppressWarnings("unchecked")
   protected final <E extends Throwable> E findCause(Throwable failure, Class<E> type) {
     while (failure != null) {

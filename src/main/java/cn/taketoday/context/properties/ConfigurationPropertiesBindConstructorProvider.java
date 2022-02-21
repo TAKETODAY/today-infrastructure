@@ -21,7 +21,9 @@
 package cn.taketoday.context.properties;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.properties.bind.BindConstructorProvider;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -35,11 +37,13 @@ import cn.taketoday.lang.Nullable;
  * @author Madhura Bhave
  * @author Phillip Webb
  */
-class ConfigurationPropertiesBindConstructorProvider implements BindConstructorProvider {
+public class ConfigurationPropertiesBindConstructorProvider implements BindConstructorProvider {
 
-  static final ConfigurationPropertiesBindConstructorProvider INSTANCE = new ConfigurationPropertiesBindConstructorProvider();
+  /**
+   * A shared singleton {@link ConfigurationPropertiesBindConstructorProvider} instance.
+   */
+  public static final ConfigurationPropertiesBindConstructorProvider INSTANCE = new ConfigurationPropertiesBindConstructorProvider();
 
-  @Nullable
   @Override
   public Constructor<?> getBindConstructor(Bindable<?> bindable, boolean isNestedConstructorBinding) {
     return getBindConstructor(bindable.getType().resolve(), isNestedConstructorBinding);
@@ -50,22 +54,91 @@ class ConfigurationPropertiesBindConstructorProvider implements BindConstructorP
     if (type == null) {
       return null;
     }
-    Constructor<?> constructor = findConstructorBindingAnnotatedConstructor(type);
-    if (constructor == null && (isConstructorBindingType(type) || isNestedConstructorBinding)) {
-      constructor = deduceBindConstructor(type);
+    Constructors constructors = Constructors.getConstructors(type);
+    if (constructors.getBind() != null || isNestedConstructorBinding) {
+      Assert.state(!constructors.hasAutowired(),
+              () -> type.getName() + " declares @ConstructorBinding and @Autowired constructor");
     }
-    return constructor;
+    return constructors.getBind();
   }
 
-  @Nullable
-  private Constructor<?> findConstructorBindingAnnotatedConstructor(Class<?> type) {
-    return findAnnotatedConstructor(type, type.getDeclaredConstructors());
-  }
+  /**
+   * Data holder for autowired and bind constructors.
+   */
+  static final class Constructors {
 
-  @Nullable
-  private Constructor<?> findAnnotatedConstructor(Class<?> type, Constructor<?>... candidates) {
-    Constructor<?> constructor = null;
-    for (Constructor<?> candidate : candidates) {
+    private final boolean hasAutowired;
+
+    @Nullable
+    private final Constructor<?> bind;
+
+    private Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
+      this.hasAutowired = hasAutowired;
+      this.bind = bind;
+    }
+
+    boolean hasAutowired() {
+      return this.hasAutowired;
+    }
+
+    @Nullable
+    Constructor<?> getBind() {
+      return this.bind;
+    }
+
+    static Constructors getConstructors(Class<?> type) {
+      Constructor<?>[] candidates = getCandidateConstructors(type);
+      Constructor<?> deducedBind = deduceBindConstructor(candidates);
+      if (deducedBind != null) {
+        return new Constructors(false, deducedBind);
+      }
+      boolean hasAutowiredConstructor = false;
+      Constructor<?> bind = null;
+      for (Constructor<?> candidate : candidates) {
+        if (isAutowired(candidate)) {
+          hasAutowiredConstructor = true;
+          continue;
+        }
+        bind = findAnnotatedConstructor(type, bind, candidate);
+      }
+      return new Constructors(hasAutowiredConstructor, bind);
+    }
+
+    private static Constructor<?>[] getCandidateConstructors(Class<?> type) {
+      if (isInnerClass(type)) {
+        return new Constructor<?>[0];
+      }
+      return Arrays.stream(type.getDeclaredConstructors())
+              .filter((constructor) -> isNonSynthetic(constructor, type)).toArray(Constructor[]::new);
+    }
+
+    private static boolean isInnerClass(Class<?> type) {
+      try {
+        return type.getDeclaredField("this$0").isSynthetic();
+      }
+      catch (NoSuchFieldException ex) {
+        return false;
+      }
+    }
+
+    private static boolean isNonSynthetic(Constructor<?> constructor, Class<?> type) {
+      return !constructor.isSynthetic();
+    }
+
+    @Nullable
+    private static Constructor<?> deduceBindConstructor(Constructor<?>[] constructors) {
+      if (constructors.length == 1 && constructors[0].getParameterCount() > 0 && !isAutowired(constructors[0])) {
+        return constructors[0];
+      }
+      return null;
+    }
+
+    private static boolean isAutowired(Constructor<?> candidate) {
+      return MergedAnnotations.from(candidate).isPresent(Autowired.class);
+    }
+
+    private static Constructor<?> findAnnotatedConstructor(Class<?> type, Constructor<?> constructor,
+                                                           Constructor<?> candidate) {
       if (MergedAnnotations.from(candidate).isPresent(ConstructorBinding.class)) {
         Assert.state(candidate.getParameterCount() > 0,
                 () -> type.getName() + " declares @ConstructorBinding on a no-args constructor");
@@ -73,31 +146,9 @@ class ConfigurationPropertiesBindConstructorProvider implements BindConstructorP
                 () -> type.getName() + " has more than one @ConstructorBinding constructor");
         constructor = candidate;
       }
+      return constructor;
     }
-    return constructor;
-  }
 
-  private boolean isConstructorBindingType(Class<?> type) {
-    return isImplicitConstructorBindingType(type) || isConstructorBindingAnnotatedType(type);
-  }
-
-  private boolean isImplicitConstructorBindingType(Class<?> type) {
-    Class<?> superclass = type.getSuperclass();
-    return (superclass != null) && "java.lang.Record".equals(superclass.getName());
-  }
-
-  private boolean isConstructorBindingAnnotatedType(Class<?> type) {
-    return MergedAnnotations.from(type, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES)
-            .isPresent(ConstructorBinding.class);
-  }
-
-  @Nullable
-  private Constructor<?> deduceBindConstructor(Class<?> type) {
-    Constructor<?>[] constructors = type.getDeclaredConstructors();
-    if (constructors.length == 1 && constructors[0].getParameterCount() > 0) {
-      return constructors[0];
-    }
-    return null;
   }
 
 }

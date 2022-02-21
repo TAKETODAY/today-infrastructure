@@ -27,15 +27,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that can be used to indicate that configuration properties should be bound
- * using constructor arguments rather than by calling setters. Can be added at the type
- * level (if there is an unambiguous constructor) or on the actual constructor to use.
+ * Annotation that can be used to indicate which constructor to use when binding
+ * configuration properties using constructor arguments rather than by calling setters. A
+ * single parameterized constructor implicitly indicates that constructor binding should
+ * be used unless the constructor is annotated with `@Autowired`.
  * <p>
  * Note: To use constructor binding the class must be enabled using
  * {@link EnableConfigurationProperties @EnableConfigurationProperties} or configuration
  * property scanning. Constructor binding cannot be used with beans that are created by
  * the regular Spring mechanisms (e.g.
- * {@link cn.taketoday.stereotype.Component @Component} beans, beans created via
+ * {@link cn.taketoday.lang.Component @Component} beans, beans created via
  * {@link cn.taketoday.context.annotation.Bean @Bean} methods or beans loaded using
  * {@link cn.taketoday.context.annotation.Import @Import}).
  *
@@ -43,9 +44,9 @@ import java.lang.annotation.Target;
  * @see ConfigurationProperties
  * @since 4.0
  */
-@Target({ ElementType.TYPE, ElementType.CONSTRUCTOR })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Target(ElementType.CONSTRUCTOR)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface ConstructorBinding {
 
 }

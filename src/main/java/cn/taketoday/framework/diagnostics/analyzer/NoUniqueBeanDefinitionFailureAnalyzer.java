@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -52,8 +53,9 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
   }
 
   @Override
+  @Nullable
   protected FailureAnalysis analyze(
-          Throwable rootFailure, NoUniqueBeanDefinitionException cause, String description) {
+          Throwable rootFailure, NoUniqueBeanDefinitionException cause, @Nullable String description) {
     if (description == null) {
       return null;
     }
@@ -69,8 +71,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
     return new FailureAnalysis(message.toString(),
             "Consider marking one of the beans as @Primary, updating the consumer to"
                     + " accept multiple beans, or using @Qualifier to identify the"
-                    + " bean that should be consumed",
-            cause);
+                    + " bean that should be consumed", cause);
   }
 
   private void buildMessage(StringBuilder message, String beanName) {
@@ -91,6 +92,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
     return String.format("\t- %s: defined in %s%n", beanName, definition.getResourceDescription());
   }
 
+  @Nullable
   private String[] extractBeanNames(NoUniqueBeanDefinitionException cause) {
     if (cause.getMessage().contains("but found")) {
       return StringUtils.commaDelimitedListToStringArray(

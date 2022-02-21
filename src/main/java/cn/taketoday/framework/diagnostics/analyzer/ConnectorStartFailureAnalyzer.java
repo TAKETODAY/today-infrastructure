@@ -22,7 +22,7 @@ package cn.taketoday.framework.diagnostics.analyzer;
 
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
-import cn.taketoday.web.embedded.tomcat.ConnectorStartFailedException;
+import cn.taketoday.framework.web.embedded.tomcat.ConnectorStartFailedException;
 
 /**
  * An {@link AbstractFailureAnalyzer} for {@link ConnectorStartFailedException}.

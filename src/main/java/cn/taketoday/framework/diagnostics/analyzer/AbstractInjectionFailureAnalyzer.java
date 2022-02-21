@@ -23,9 +23,11 @@ package cn.taketoday.framework.diagnostics.analyzer;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.framework.diagnostics.FailureAnalyzer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -45,6 +47,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
     return analyze(rootFailure, cause, getDescription(rootFailure));
   }
 
+  @Nullable
   private String getDescription(Throwable rootFailure) {
     UnsatisfiedDependencyException unsatisfiedDependency = findMostNestedCause(rootFailure,
             UnsatisfiedDependencyException.class);
@@ -59,6 +62,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
     return null;
   }
 
+  @Nullable
   @SuppressWarnings("unchecked")
   private <C extends Exception> C findMostNestedCause(Throwable root, Class<C> type) {
     Throwable candidate = root;
@@ -72,6 +76,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
     return result;
   }
 
+  @Nullable
   private String getDescription(UnsatisfiedDependencyException ex) {
     InjectionPoint injectionPoint = ex.getInjectionPoint();
     if (injectionPoint != null) {
@@ -79,16 +84,17 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
         return String.format("Field %s in %s", injectionPoint.getField().getName(),
                 injectionPoint.getField().getDeclaringClass().getName());
       }
-      if (injectionPoint.getMethodParameter() != null) {
-        if (injectionPoint.getMethodParameter().getConstructor() != null) {
+      MethodParameter parameter = injectionPoint.getMethodParameter();
+      if (parameter != null) {
+        if (parameter.getConstructor() != null) {
           return String.format("Parameter %d of constructor in %s",
-                  injectionPoint.getMethodParameter().getParameterIndex(),
-                  injectionPoint.getMethodParameter().getDeclaringClass().getName());
+                  parameter.getParameterIndex(),
+                  parameter.getDeclaringClass().getName());
         }
         return String.format("Parameter %d of method %s in %s",
-                injectionPoint.getMethodParameter().getParameterIndex(),
-                injectionPoint.getMethodParameter().getMethod().getName(),
-                injectionPoint.getMethodParameter().getDeclaringClass().getName());
+                parameter.getParameterIndex(),
+                parameter.getMethod().getName(),
+                parameter.getDeclaringClass().getName());
       }
     }
     return ex.getResourceDescription();
@@ -115,6 +121,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
    * @param description the description of the injection point or {@code null}
    * @return the analysis or {@code null}
    */
-  protected abstract FailureAnalysis analyze(Throwable rootFailure, T cause, String description);
+  @Nullable
+  protected abstract FailureAnalysis analyze(Throwable rootFailure, T cause, @Nullable String description);
 
 }

@@ -425,14 +425,14 @@ class AnnotationsScannerTests {
 
 	@Test
 	void typeHierarchyWithEnclosedStrategyOnEnclosedStaticClassScansAnnotations() {
-		Class<?> source = cn.taketoday.core.annotation.AnnotationEnclosingClassSample.EnclosedStatic.EnclosedStaticStatic.class;
+		Class<?> source = AnnotationEnclosingClassSample.EnclosedStatic.EnclosedStaticStatic.class;
 		assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES))
 				.containsExactly("0:EnclosedThree", "1:EnclosedTwo", "2:EnclosedOne");
 	}
 
 	@Test
 	void typeHierarchyWithEnclosedStrategyOnEnclosedInnerClassScansAnnotations() {
-		Class<?> source = cn.taketoday.core.annotation.AnnotationEnclosingClassSample.EnclosedInner.EnclosedInnerInner.class;
+		Class<?> source = AnnotationEnclosingClassSample.EnclosedInner.EnclosedInnerInner.class;
 		assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY_AND_ENCLOSING_CLASSES))
 				.containsExactly("0:EnclosedThree", "1:EnclosedTwo", "2:EnclosedOne");
 	}

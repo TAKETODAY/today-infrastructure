@@ -20,15 +20,16 @@
 
 package cn.taketoday.context.properties;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -53,8 +54,8 @@ final class ConfigurationPropertiesBeanRegistrar {
   }
 
   void register(Class<?> type) {
-    MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations
-            .from(type, SearchStrategy.TYPE_HIERARCHY).get(ConfigurationProperties.class);
+    MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations.from(
+            type, SearchStrategy.TYPE_HIERARCHY).get(ConfigurationProperties.class);
     register(type, annotation);
   }
 
@@ -74,12 +75,12 @@ final class ConfigurationPropertiesBeanRegistrar {
     return containsBeanDefinition(this.beanFactory, name);
   }
 
-  private boolean containsBeanDefinition(BeanFactory beanFactory, String name) {
-    if (beanFactory.containsBeanDefinition(name)) {
+  private boolean containsBeanDefinition(@Nullable BeanFactory beanFactory, String name) {
+    if (beanFactory != null && beanFactory.containsBeanDefinition(name)) {
       return true;
     }
-    if (beanFactory instanceof HierarchicalBeanFactory hierarchicalBeanFactory) {
-      return containsBeanDefinition(hierarchicalBeanFactory.getParentBeanFactory(), name);
+    if (beanFactory instanceof HierarchicalBeanFactory hbf) {
+      return containsBeanDefinition(hbf.getParentBeanFactory(), name);
     }
     return false;
   }
