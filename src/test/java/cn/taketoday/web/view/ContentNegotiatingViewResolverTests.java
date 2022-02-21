@@ -35,13 +35,13 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.accept.MappingMediaTypeFileExtensionResolver;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
+import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
@@ -63,7 +63,7 @@ public class ContentNegotiatingViewResolverTests {
   private MockHttpServletRequest request;
 
   RequestContext requestContext;
-  StaticWebApplicationContext wac = new StaticWebApplicationContext();
+  StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
 
   @BeforeEach
   public void createViewResolver() {
@@ -418,7 +418,7 @@ public class ContentNegotiatingViewResolverTests {
     request.addHeader("Accept", "application/json");
     request.setRequestURI("/test");
 
-    StaticWebApplicationContext webAppContext = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext webAppContext = new StaticWebServletApplicationContext();
     webAppContext.setServletContext(new MockServletContext());
     webAppContext.refresh();
 
@@ -493,7 +493,7 @@ public class ContentNegotiatingViewResolverTests {
 
   @Test
   public void nestedViewResolverIsNotSpringBean() throws Exception {
-    StaticWebApplicationContext webAppContext = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext webAppContext = new StaticWebServletApplicationContext();
     webAppContext.setServletContext(new MockServletContext());
     webAppContext.refresh();
 

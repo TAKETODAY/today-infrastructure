@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.cors;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -78,7 +76,7 @@ public class CorsConfigurationTests {
     assertThat(config.getAllowedMethods()).containsExactly("*");
     assertThat(config.getExposedHeaders()).containsExactly("*");
     assertThat(config.getAllowCredentials()).isTrue();
-    assertThat(config.getMaxAge()).isEqualTo(new Long(123));
+    assertThat(config.getMaxAge()).isEqualTo(Long.valueOf(123));
   }
 
   @Test
@@ -110,7 +108,7 @@ public class CorsConfigurationTests {
     assertThat(config.getAllowedHeaders()).containsExactly("header1");
     assertThat(config.getExposedHeaders()).containsExactly("header3");
     assertThat(config.getAllowedMethods()).containsExactly(HttpMethod.GET.name());
-    assertThat(config.getMaxAge()).isEqualTo(new Long(123));
+    assertThat(config.getMaxAge()).isEqualTo(Long.valueOf(123));
     assertThat(config.getAllowCredentials()).isTrue();
   }
 
@@ -281,7 +279,7 @@ public class CorsConfigurationTests {
     assertThat(config.getAllowedHeaders()).containsExactly("header1", "header2");
     assertThat(config.getExposedHeaders()).containsExactly("header3", "header4");
     assertThat(config.getAllowedMethods()).containsExactly(HttpMethod.GET.name(), HttpMethod.PUT.name());
-    assertThat(config.getMaxAge()).isEqualTo(new Long(456));
+    assertThat(config.getMaxAge()).isEqualTo(Long.valueOf(456));
     assertThat(config).isNotNull();
     assertThat(config.getAllowCredentials()).isFalse();
     assertThat(config.getAllowedOriginPatterns()).containsExactly("http://*.domain1.com", "http://*.domain2.com");

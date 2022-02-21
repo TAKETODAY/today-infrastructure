@@ -32,7 +32,7 @@ import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
@@ -157,7 +157,7 @@ public class FreeMarkerViewTests {
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
     wac.setServletContext(sc);
     wac.getBeanFactory().registerSingleton("configurer", configurer);
     wac.refresh();

@@ -40,6 +40,7 @@ import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.context.support.ServletContextResourceLoader;
 import cn.taketoday.web.context.support.ServletContextResourcePatternLoader;
 import cn.taketoday.web.context.support.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.mock.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +58,7 @@ public class ServletContextSupportTests {
     MockServletContext sc = new MockServletContext();
     sc.setAttribute("myAttr", "myValue");
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("attributeName", "myAttr");
@@ -73,7 +74,7 @@ public class ServletContextSupportTests {
   public void testServletContextAttributeFactoryBeanWithAttributeNotFound() {
     MockServletContext sc = new MockServletContext();
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("attributeName", "myAttr");
@@ -91,7 +92,7 @@ public class ServletContextSupportTests {
     MockServletContext sc = new MockServletContext();
     sc.addInitParameter("myParam", "myValue");
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("initParamName", "myParam");
@@ -107,7 +108,7 @@ public class ServletContextSupportTests {
   public void testServletContextParameterFactoryBeanWithAttributeNotFound() {
     MockServletContext sc = new MockServletContext();
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("initParamName", "myParam");

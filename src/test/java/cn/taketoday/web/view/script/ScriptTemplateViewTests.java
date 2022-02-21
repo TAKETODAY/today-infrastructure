@@ -42,7 +42,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
+import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
@@ -69,12 +69,12 @@ public class ScriptTemplateViewTests {
 
   private ScriptTemplateConfigurer configurer;
 
-  private StaticWebApplicationContext wac;
+  private StaticWebServletApplicationContext wac;
 
   @BeforeEach
   public void setup() {
     this.configurer = new ScriptTemplateConfigurer();
-    this.wac = new StaticWebApplicationContext();
+    this.wac = new StaticWebServletApplicationContext();
     this.wac.getBeanFactory().registerSingleton("scriptTemplateConfigurer", this.configurer);
     this.view = new ScriptTemplateView();
   }
