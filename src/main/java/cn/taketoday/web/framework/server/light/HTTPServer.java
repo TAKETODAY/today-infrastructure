@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -389,6 +390,7 @@ public class HTTPServer {
 
     HttpRequest req = null;
     HttpResponse resp = new HttpResponse(out);
+    InetAddress localAddress = socket.getLocalAddress();
     // create request and response and handle transaction
     try {
       req = new HttpRequest(in, socket, config);
@@ -401,7 +403,7 @@ public class HTTPServer {
         }
         else {
           WebApplicationContext webApplicationContext = httpHandler.getWebApplicationContext();
-          final LightRequestContext context = new LightRequestContext(webApplicationContext, req, resp, config);
+          final LightRequestContext context = new LightRequestContext(webApplicationContext, req, resp, config, localAddress);
           httpHandler.dispatch(context);
           context.sendIfNotCommitted();
         }

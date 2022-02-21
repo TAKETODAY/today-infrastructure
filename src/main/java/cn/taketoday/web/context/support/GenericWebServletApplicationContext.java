@@ -105,7 +105,7 @@ public class GenericWebServletApplicationContext extends GenericWebApplicationCo
    * @see #registerBeanDefinition
    * @see #refresh
    */
-  public GenericWebServletApplicationContext(ServletContext servletContext) {
+  public GenericWebServletApplicationContext(@Nullable ServletContext servletContext) {
     this.servletContext = servletContext;
   }
 
@@ -118,7 +118,7 @@ public class GenericWebServletApplicationContext extends GenericWebApplicationCo
    * @see #registerBeanDefinition
    * @see #refresh
    */
-  public GenericWebServletApplicationContext(StandardBeanFactory beanFactory, ServletContext servletContext) {
+  public GenericWebServletApplicationContext(StandardBeanFactory beanFactory, @Nullable ServletContext servletContext) {
     super(beanFactory);
     this.servletContext = servletContext;
   }

@@ -32,7 +32,6 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -164,7 +163,6 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
     });
   }
 
-  @NonNull
   protected String getPatternLocation(String input) {
     return resourcePrefix + resolveBasePackage(input) + '/' + this.resourcePattern;
   }

@@ -20,19 +20,18 @@
 
 package cn.taketoday.framework.web.servlet.server;
 
-import cn.taketoday.framework.web.server.ConfigurableWebServerFactory;
-import cn.taketoday.framework.web.server.Cookie.SameSite;
-import cn.taketoday.framework.web.server.MimeMappings;
-import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
-import cn.taketoday.framework.web.servlet.ServletContextInitializer;
-import cn.taketoday.framework.web.servlet.WebListenerRegistry;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import cn.taketoday.framework.web.server.ConfigurableWebServerFactory;
+import cn.taketoday.framework.web.server.Cookie.SameSite;
+import cn.taketoday.framework.web.server.MimeMappings;
+import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
+import cn.taketoday.framework.web.servlet.ServletContextInitializer;
+import cn.taketoday.framework.web.servlet.WebListenerRegistry;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -63,7 +62,6 @@ public interface ConfigurableServletWebServerFactory
    * Sets the display name of the application deployed in the web server.
    *
    * @param displayName the displayName to set
-   * @since 1.3.0
    */
   void setDisplayName(String displayName);
 
@@ -76,8 +74,7 @@ public interface ConfigurableServletWebServerFactory
   void setSession(Session session);
 
   /**
-   * Set if the DefaultServlet should be registered. Defaults to {@code false} since
-   * 2.4.
+   * Set if the DefaultServlet should be registered. Defaults to {@code false}
    *
    * @param registerDefaultServlet if the default servlet should be registered
    */

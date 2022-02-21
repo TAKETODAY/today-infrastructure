@@ -25,6 +25,7 @@ import org.apache.coyote.ProtocolHandler;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
 
 import cn.taketoday.framework.web.server.Compression;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -34,10 +35,10 @@ import cn.taketoday.util.StringUtils;
  * @author Brian Clozel
  */
 class CompressionConnectorCustomizer implements TomcatConnectorCustomizer {
-
+  @Nullable
   private final Compression compression;
 
-  CompressionConnectorCustomizer(Compression compression) {
+  CompressionConnectorCustomizer(@Nullable Compression compression) {
     this.compression = compression;
   }
 
@@ -46,18 +47,17 @@ class CompressionConnectorCustomizer implements TomcatConnectorCustomizer {
     if (this.compression != null && this.compression.getEnabled()) {
       ProtocolHandler handler = connector.getProtocolHandler();
       if (handler instanceof AbstractHttp11Protocol) {
-        customize((AbstractHttp11Protocol<?>) handler);
+        customize((AbstractHttp11Protocol<?>) handler, compression);
       }
     }
   }
 
-  private void customize(AbstractHttp11Protocol<?> protocol) {
-    Compression compression = this.compression;
+  private void customize(AbstractHttp11Protocol<?> protocol, Compression compression) {
     protocol.setCompression("on");
     protocol.setCompressionMinSize(getMinResponseSize(compression));
     protocol.setCompressibleMimeType(getMimeTypes(compression));
-    if (this.compression.getExcludedUserAgents() != null) {
-      protocol.setNoCompressionUserAgents(getExcludedUserAgents());
+    if (compression.getExcludedUserAgents() != null) {
+      protocol.setNoCompressionUserAgents(getExcludedUserAgents(compression));
     }
   }
 
@@ -66,11 +66,11 @@ class CompressionConnectorCustomizer implements TomcatConnectorCustomizer {
   }
 
   private String getMimeTypes(Compression compression) {
-    return StringUtils.arrayToCommaDelimitedString(compression.getMimeTypes());
+    return StringUtils.arrayToString(compression.getMimeTypes());
   }
 
-  private String getExcludedUserAgents() {
-    return StringUtils.arrayToCommaDelimitedString(this.compression.getExcludedUserAgents());
+  private String getExcludedUserAgents(Compression compression) {
+    return StringUtils.arrayToString(compression.getExcludedUserAgents());
   }
 
 }

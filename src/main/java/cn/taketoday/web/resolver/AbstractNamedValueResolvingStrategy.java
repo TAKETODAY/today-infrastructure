@@ -31,7 +31,7 @@ import cn.taketoday.web.RequestBindingException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.NamedValueInfo;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.scope.RequestScope;
+import cn.taketoday.web.context.support.RequestScope;
 
 /**
  * Abstract base class for resolving method arguments from a named value.

@@ -51,6 +51,7 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.TomcatHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.LambdaSafe;
 import cn.taketoday.util.StringUtils;
@@ -384,8 +385,8 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
    * @param uriEncoding the uri encoding to set
    */
   @Override
-  public void setUriEncoding(Charset uriEncoding) {
-    this.uriEncoding = uriEncoding;
+  public void setUriEncoding(@Nullable Charset uriEncoding) {
+    this.uriEncoding = uriEncoding == null ? DEFAULT_CHARSET : uriEncoding;
   }
 
   /**

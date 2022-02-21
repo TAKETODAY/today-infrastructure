@@ -39,6 +39,7 @@ import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -190,12 +191,13 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    *
    * @return the document root
    */
+  @Nullable
   public File getDocumentRoot() {
     return this.documentRoot.getDirectory();
   }
 
   @Override
-  public void setDocumentRoot(File documentRoot) {
+  public void setDocumentRoot(@Nullable File documentRoot) {
     this.documentRoot.setDirectory(documentRoot);
   }
 
@@ -302,6 +304,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    *
    * @return the valid document root
    */
+  @Nullable
   protected final File getValidDocumentRoot() {
     return this.documentRoot.getValidDirectory();
   }
@@ -331,13 +334,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    * {@link ServletContextInitializer} to apply appropriate parts of the {@link Session}
    * configuration.
    */
-  private static class SessionConfiguringInitializer implements ServletContextInitializer {
-
-    private final Session session;
-
-    SessionConfiguringInitializer(Session session) {
-      this.session = session;
-    }
+  private record SessionConfiguringInitializer(Session session) implements ServletContextInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
@@ -359,7 +356,8 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
       map.from(cookie::getMaxAge).asInt(Duration::getSeconds).to(config::setMaxAge);
     }
 
-    private Set<jakarta.servlet.SessionTrackingMode> unwrap(Set<Session.SessionTrackingMode> modes) {
+    @Nullable
+    private Set<jakarta.servlet.SessionTrackingMode> unwrap(@Nullable Set<Session.SessionTrackingMode> modes) {
       if (modes == null) {
         return null;
       }

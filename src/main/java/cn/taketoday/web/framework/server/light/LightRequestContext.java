@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,17 +49,21 @@ import cn.taketoday.web.resolver.ParameterReadFailedException;
 public class LightRequestContext extends RequestContext {
   private final HttpRequest request;
   private final HttpResponse response;
+  private final InetAddress localAddress;
 
   private ResponseOutputBuffer responseBody;
 
   private final LightHttpConfig config;
   private List<RequestPart> requestParts;
 
-  public LightRequestContext(WebApplicationContext webApplicationContext, HttpRequest request, HttpResponse response, LightHttpConfig config) {
+  public LightRequestContext(WebApplicationContext webApplicationContext,
+                             HttpRequest request, HttpResponse response,
+                             LightHttpConfig config, InetAddress localAddress) {
     super(webApplicationContext);
     this.config = config;
     this.request = request;
     this.response = response;
+    this.localAddress = localAddress;
   }
 
   @Override
@@ -71,27 +73,12 @@ public class LightRequestContext extends RequestContext {
 
   @Override
   public String getServerName() {
-    return null;
+    return localAddress.getHostName();
   }
 
   @Override
   public int getServerPort() {
     return config.getPort();
-  }
-
-  private InetSocketAddress inetSocketAddress() {
-    InetSocketAddress inetSocketAddress = this.inetSocketAddress;
-    if (inetSocketAddress == null) {
-      SocketAddress socketAddress = channelContext.channel().localAddress();
-      if (socketAddress instanceof InetSocketAddress address) {
-        inetSocketAddress = address;
-      }
-      else {
-        inetSocketAddress = new InetSocketAddress("localhost", 8080);
-      }
-      this.inetSocketAddress = inetSocketAddress;
-    }
-    return inetSocketAddress;
   }
 
   @Override

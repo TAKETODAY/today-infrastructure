@@ -26,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 import cn.taketoday.format.annotation.DurationUnit;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Session properties.
@@ -35,9 +36,11 @@ import cn.taketoday.format.annotation.DurationUnit;
  */
 public class Session {
 
+  @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration timeout = Duration.ofMinutes(30);
 
+  @Nullable
   private Set<SessionTrackingMode> trackingModes;
 
   private boolean persistent;
@@ -51,11 +54,12 @@ public class Session {
 
   private final SessionStoreDirectory sessionStoreDirectory = new SessionStoreDirectory();
 
+  @Nullable
   public Duration getTimeout() {
     return this.timeout;
   }
 
-  public void setTimeout(Duration timeout) {
+  public void setTimeout(@Nullable Duration timeout) {
     this.timeout = timeout;
   }
 
@@ -64,11 +68,12 @@ public class Session {
    *
    * @return the session tracking modes
    */
+  @Nullable
   public Set<SessionTrackingMode> getTrackingModes() {
     return this.trackingModes;
   }
 
-  public void setTrackingModes(Set<SessionTrackingMode> trackingModes) {
+  public void setTrackingModes(@Nullable Set<SessionTrackingMode> trackingModes) {
     this.trackingModes = trackingModes;
   }
 

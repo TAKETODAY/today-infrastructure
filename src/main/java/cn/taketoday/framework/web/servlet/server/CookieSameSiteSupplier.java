@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.framework.web.server.Cookie.SameSite;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import jakarta.servlet.http.Cookie;
 
@@ -53,6 +54,7 @@ public interface CookieSameSiteSupplier {
    * @return the {@link SameSite} value to use or {@code null} if the next supplier
    * should be checked
    */
+  @Nullable
   SameSite getSameSite(Cookie cookie);
 
   /**

@@ -1830,7 +1830,6 @@ public abstract class AbstractBeanFactory
     }
   }
 
-  @NonNull
   @Override
   @SuppressWarnings("unchecked")
   public <T> T unwrap(Class<T> requiredType) {

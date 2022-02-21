@@ -46,7 +46,7 @@ import jakarta.servlet.annotation.WebServlet;
  * @see WebServlet
  * @see WebFilter
  * @see WebListener
- * @since 1.3.0
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

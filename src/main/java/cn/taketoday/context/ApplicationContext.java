@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
  */
 public interface ApplicationContext
         extends Closeable, HierarchicalBeanFactory, MessageSource,
-        ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
+                ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
 
   /**
    * @see Environment

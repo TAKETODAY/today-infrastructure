@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,15 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.servlet;
 
-import cn.taketoday.beans.factory.Aware;
+package cn.taketoday.web.context.support;
 
 /**
- * @author TODAY <br>
- * 2019-07-10 22:30
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/19 21:40
  */
-public interface WebServletApplicationContextAware extends Aware {
+public class RequestScope extends AbstractRequestContextScope {
 
-  void setWebServletApplicationContext(WebServletApplicationContext applicationContext);
 }

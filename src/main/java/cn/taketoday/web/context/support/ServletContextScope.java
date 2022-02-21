@@ -22,12 +22,12 @@ package cn.taketoday.web.context.support;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import freemarker.template.utility.ObjectFactory;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -44,7 +44,7 @@ import jakarta.servlet.ServletContext;
  * includes ContextCleanupListener's functionality.
  *
  * <p>This scope is registered as default scope with key
- * {@link cn.taketoday.web.context.WebApplicationContext#SCOPE_APPLICATION "application"}.
+ * {@link cn.taketoday.web.WebApplicationContext#SCOPE_APPLICATION "application"}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -68,10 +68,10 @@ public class ServletContextScope implements Scope, DisposableBean {
   }
 
   @Override
-  public Object get(String name, ObjectFactory<?> objectFactory) {
+  public Object get(String name, Supplier<?> objectFactory) {
     Object scopedObject = this.servletContext.getAttribute(name);
     if (scopedObject == null) {
-      scopedObject = objectFactory.getObject();
+      scopedObject = objectFactory.get();
       this.servletContext.setAttribute(name, scopedObject);
     }
     return scopedObject;

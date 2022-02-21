@@ -20,7 +20,6 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
@@ -94,13 +93,6 @@ public class StandardWebServletApplicationContext
   public StandardWebServletApplicationContext(ServletContext servletContext) {
     this();
     this.servletContext = servletContext;
-  }
-
-  @Override
-  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    beanFactory.addBeanPostProcessor(new ServletContextAwareBeanPostProcessor(this));
-    beanFactory.ignoreDependencyInterface(ServletContextAware.class);
-    super.postProcessBeanFactory(beanFactory);
   }
 
   @Override

@@ -54,12 +54,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.channels.ReadableByteChannel;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -301,10 +297,10 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     File root = getValidDocumentRoot();
     File docBase = (root != null) ? root : createTempDir("jetty-docbase");
     try {
-      List<Resource> resources = new ArrayList<>();
-      Resource rootResource = (docBase.isDirectory() ? Resource.newResource(docBase.getCanonicalFile())
-                                                     : JarResource.newJarResource(Resource.newResource(docBase)));
-      resources.add((root != null) ? new LoaderHidingResource(rootResource) : rootResource);
+      ArrayList<Resource> resources = new ArrayList<>();
+      Resource rootResource = docBase.isDirectory() ? Resource.newResource(docBase.getCanonicalFile())
+                                                    : JarResource.newJarResource(Resource.newResource(docBase));
+      resources.add(rootResource);
       for (URL resourceJarUrl : getUrlsOfJarsWithMetaInfResources()) {
         Resource resource = createResource(resourceJarUrl);
         if (resource.exists() && resource.isDirectory()) {
@@ -392,7 +388,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     return new AbstractConfiguration() {
 
       @Override
-      public void configure(WebAppContext context) throws Exception {
+      public void configure(WebAppContext context) {
         JettyEmbeddedErrorHandler errorHandler = new JettyEmbeddedErrorHandler();
         context.setErrorHandler(errorHandler);
         addJettyErrorPages(errorHandler, getErrorPages());
@@ -410,7 +406,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     return new AbstractConfiguration() {
 
       @Override
-      public void configure(WebAppContext context) throws Exception {
+      public void configure(WebAppContext context) {
         MimeTypes mimeTypes = context.getMimeTypes();
         for (MimeMappings.Mapping mapping : getMimeMappings()) {
           mimeTypes.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
@@ -568,95 +564,6 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     }
   }
 
-  private static final class LoaderHidingResource extends Resource {
-
-    private final Resource delegate;
-
-    private LoaderHidingResource(Resource delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    @Nullable
-    public Resource addPath(String path) throws IOException {
-      if (path.startsWith("/cn/taketoday/framework")) {
-        return null;
-      }
-      return this.delegate.addPath(path);
-    }
-
-    @Override
-    public boolean isContainedIn(Resource resource) throws MalformedURLException {
-      return this.delegate.isContainedIn(resource);
-    }
-
-    @Override
-    public void close() {
-      this.delegate.close();
-    }
-
-    @Override
-    public boolean exists() {
-      return this.delegate.exists();
-    }
-
-    @Override
-    public boolean isDirectory() {
-      return this.delegate.isDirectory();
-    }
-
-    @Override
-    public long lastModified() {
-      return this.delegate.lastModified();
-    }
-
-    @Override
-    public long length() {
-      return this.delegate.length();
-    }
-
-    @Override
-    public URI getURI() {
-      return this.delegate.getURI();
-    }
-
-    @Override
-    public File getFile() throws IOException {
-      return this.delegate.getFile();
-    }
-
-    @Override
-    public String getName() {
-      return this.delegate.getName();
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-      return this.delegate.getInputStream();
-    }
-
-    @Override
-    public ReadableByteChannel getReadableByteChannel() throws IOException {
-      return this.delegate.getReadableByteChannel();
-    }
-
-    @Override
-    public boolean delete() throws SecurityException {
-      return this.delegate.delete();
-    }
-
-    @Override
-    public boolean renameTo(Resource dest) throws SecurityException {
-      return this.delegate.renameTo(dest);
-    }
-
-    @Override
-    public String[] list() {
-      return this.delegate.list();
-    }
-
-  }
-
   /**
    * {@link AbstractConfiguration} to apply {@code @WebListener} classes.
    */
@@ -708,13 +615,13 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-      HttpServletResponse wrappedResponse = new ResposeWrapper(response);
+      HttpServletResponse wrappedResponse = new ResponseWrapper(response);
       super.handle(target, baseRequest, request, wrappedResponse);
     }
 
-    class ResposeWrapper extends HttpServletResponseWrapper {
+    class ResponseWrapper extends HttpServletResponseWrapper {
 
-      ResposeWrapper(HttpServletResponse response) {
+      ResponseWrapper(HttpServletResponse response) {
         super(response);
       }
 
@@ -731,8 +638,8 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
       private String getSameSiteComment(SameSite sameSite) {
         return switch (sameSite) {
-          case NONE -> HttpCookie.SAME_SITE_NONE_COMMENT;
           case LAX -> HttpCookie.SAME_SITE_LAX_COMMENT;
+          case NONE -> HttpCookie.SAME_SITE_NONE_COMMENT;
           case STRICT -> HttpCookie.SAME_SITE_STRICT_COMMENT;
         };
       }

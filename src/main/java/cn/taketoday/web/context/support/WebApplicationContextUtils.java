@@ -35,10 +35,10 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
-import cn.taketoday.web.context.annotation.SessionScope;
-import cn.taketoday.web.scope.RequestScope;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.session.DefaultWebSessionManager;
+import cn.taketoday.web.session.WebSessionManager;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
@@ -171,8 +171,12 @@ public class WebApplicationContextUtils {
   public static void registerWebApplicationScopes(
           ConfigurableBeanFactory beanFactory, @Nullable ServletContext sc) {
 
+    WebSessionManager sessionManager = beanFactory.getBean(WebSessionManager.BEAN_NAME, WebSessionManager.class);
+    if (sessionManager == null) {
+      sessionManager = new DefaultWebSessionManager();
+    }
     beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
-    beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope());
+    beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(sessionManager));
     if (sc != null) {
       ServletContextScope appScope = new ServletContextScope(sc);
       beanFactory.registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);
@@ -184,7 +188,6 @@ public class WebApplicationContextUtils {
     beanFactory.registerDependency(HttpServletRequest.class, new RequestObjectSupplier());
     beanFactory.registerDependency(HttpServletResponse.class, new ResponseObjectSupplier());
     beanFactory.registerDependency(ServletContext.class, sc);
-
   }
 
   /**

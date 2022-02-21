@@ -294,13 +294,13 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
     try {
       servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
       if (logger.isDebugEnabled()) {
-        logger.debug("Published root WebApplicationContext as ServletContext attribute with name ["
-                + WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE + "]");
+        logger.debug("Published root WebApplicationContext as ServletContext attribute with name [{}]",
+                WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
       }
       setServletContext(servletContext);
       if (logger.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - getStartupDate();
-        logger.info("Root WebApplicationContext: initialization completed in " + elapsedTime + " ms");
+        logger.info("Root WebApplicationContext: initialization completed in {} ms", elapsedTime);
       }
     }
     catch (RuntimeException | Error ex) {

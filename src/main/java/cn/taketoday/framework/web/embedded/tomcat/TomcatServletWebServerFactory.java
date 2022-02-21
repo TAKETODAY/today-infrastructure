@@ -25,13 +25,10 @@ import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
-import org.apache.catalina.WebResource;
 import org.apache.catalina.WebResourceRoot.ResourceSetType;
-import org.apache.catalina.WebResourceSet;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.AprLifecycleListener;
@@ -39,11 +36,7 @@ import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.startup.Tomcat.FixContextListener;
-import org.apache.catalina.util.LifecycleBase;
 import org.apache.catalina.util.SessionConfig;
-import org.apache.catalina.webresources.AbstractResourceSet;
-import org.apache.catalina.webresources.EmptyResource;
-import org.apache.catalina.webresources.StandardRoot;
 import org.apache.coyote.AbstractProtocol;
 import org.apache.coyote.ProtocolHandler;
 import org.apache.coyote.http2.Http2Protocol;
@@ -52,8 +45,6 @@ import org.apache.tomcat.util.modeler.Registry;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
 
 import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -66,7 +57,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
@@ -78,10 +68,10 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LambdaSafe;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.http.Cookie;
@@ -120,6 +110,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    */
   public static final String DEFAULT_PROTOCOL = "org.apache.coyote.http11.Http11NioProtocol";
 
+  @Nullable
   private File baseDirectory;
 
   private List<Valve> engineValves = new ArrayList<>();
@@ -138,6 +129,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   private final List<Connector> additionalTomcatConnectors = new ArrayList<>();
 
+  @Nullable
   private ResourceLoader resourceLoader;
 
   private String protocol = DEFAULT_PROTOCOL;
@@ -223,9 +215,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   protected void prepareContext(Host host, ServletContextInitializer[] initializers) {
     File documentRoot = getValidDocumentRoot();
     TomcatEmbeddedContext context = new TomcatEmbeddedContext();
-    if (documentRoot != null) {
-      context.setResources(new LoaderHidingResourceRoot(context));
-    }
+    
     context.setName(getContextPath());
     context.setDisplayName(getDisplayName());
     context.setPath(getContextPath());
@@ -332,9 +322,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
       customizeProtocol((AbstractProtocol<?>) connector.getProtocolHandler());
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
-    if (getUriEncoding() != null) {
-      connector.setURIEncoding(getUriEncoding().name());
-    }
+    connector.setURIEncoding(getUriEncoding().name());
+
     // Don't bind to the socket prematurely if ApplicationContext is slow to start
     connector.setProperty("bindOnInit", "false");
     if (getHttp2() != null && getHttp2().isEnabled()) {
@@ -457,7 +446,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     return Math.max(sessionTimeout.toMinutes(), 1);
   }
 
-  private boolean isZeroOrLess(Duration sessionTimeout) {
+  private boolean isZeroOrLess(@Nullable Duration sessionTimeout) {
     return sessionTimeout == null || sessionTimeout.isNegative() || sessionTimeout.isZero();
   }
 
@@ -468,8 +457,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    *
    * @param context the Tomcat {@link Context}
    */
-  protected void postProcessContext(Context context) {
-  }
+  protected void postProcessContext(Context context) { }
 
   /**
    * Factory method called to create the {@link TomcatWebServer}. Subclasses can
@@ -735,8 +723,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   }
 
   @Override
-  public void setUriEncoding(Charset uriEncoding) {
-    this.uriEncoding = uriEncoding;
+  public void setUriEncoding(@Nullable Charset uriEncoding) {
+    this.uriEncoding = uriEncoding == null ? DEFAULT_CHARSET : uriEncoding;
   }
 
   /**
@@ -838,100 +826,6 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   }
 
-  private static final class LoaderHidingResourceRoot extends StandardRoot {
-
-    private LoaderHidingResourceRoot(TomcatEmbeddedContext context) {
-      super(context);
-    }
-
-    @Override
-    protected WebResourceSet createMainResourceSet() {
-      return new LoaderHidingWebResourceSet(super.createMainResourceSet());
-    }
-
-  }
-
-  private static final class LoaderHidingWebResourceSet extends AbstractResourceSet {
-
-    private final WebResourceSet delegate;
-
-    private final Method initInternal;
-
-    private LoaderHidingWebResourceSet(WebResourceSet delegate) {
-      this.delegate = delegate;
-      try {
-        this.initInternal = LifecycleBase.class.getDeclaredMethod("initInternal");
-        this.initInternal.setAccessible(true);
-      }
-      catch (Exception ex) {
-        throw new IllegalStateException(ex);
-      }
-    }
-
-    @Override
-    public WebResource getResource(String path) {
-      if (path.startsWith("/org/springframework/boot")) {
-        return new EmptyResource(getRoot(), path);
-      }
-      return this.delegate.getResource(path);
-    }
-
-    @Override
-    public String[] list(String path) {
-      return this.delegate.list(path);
-    }
-
-    @Override
-    public Set<String> listWebAppPaths(String path) {
-      return this.delegate.listWebAppPaths(path).stream()
-              .filter((webAppPath) -> !webAppPath.startsWith("/org/springframework/boot"))
-              .collect(Collectors.toSet());
-    }
-
-    @Override
-    public boolean mkdir(String path) {
-      return this.delegate.mkdir(path);
-    }
-
-    @Override
-    public boolean write(String path, InputStream is, boolean overwrite) {
-      return this.delegate.write(path, is, overwrite);
-    }
-
-    @Override
-    public URL getBaseUrl() {
-      return this.delegate.getBaseUrl();
-    }
-
-    @Override
-    public void setReadOnly(boolean readOnly) {
-      this.delegate.setReadOnly(readOnly);
-    }
-
-    @Override
-    public boolean isReadOnly() {
-      return this.delegate.isReadOnly();
-    }
-
-    @Override
-    public void gc() {
-      this.delegate.gc();
-    }
-
-    @Override
-    protected void initInternal() throws LifecycleException {
-      if (this.delegate instanceof LifecycleBase) {
-        try {
-          ReflectionUtils.invokeMethod(this.initInternal, this.delegate);
-        }
-        catch (Exception ex) {
-          throw new LifecycleException(ex);
-        }
-      }
-    }
-
-  }
-
   /**
    * {@link Rfc6265CookieProcessor} that supports {@link CookieSameSiteSupplier
    * supplied} {@link SameSite} values.
@@ -955,6 +849,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
       return delegate.generateHeader(cookie, request);
     }
 
+    @Nullable
     private SameSite getSameSite(Cookie cookie) {
       for (CookieSameSiteSupplier supplier : this.suppliers) {
         SameSite sameSite = supplier.getSameSite(cookie);

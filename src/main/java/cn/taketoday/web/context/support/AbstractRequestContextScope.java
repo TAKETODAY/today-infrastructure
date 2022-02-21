@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.scope;
+package cn.taketoday.web.context.support;
 
 import java.util.function.Supplier;
 
@@ -28,14 +28,27 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 
 /**
+ * Abstract {@link Scope} implementation that reads from a particular scope
+ * in the current thread-bound {@link cn.taketoday.core.AttributeAccessor} object.
+ *
+ * <p>Subclasses may wish to override the {@link #get} and {@link #remove}
+ * methods to add synchronization around the call back into this super class.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Rob Harrop
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:31
  */
-public abstract class AbstractRequestAttributesScope implements Scope {
+public abstract class AbstractRequestContextScope implements Scope {
 
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
     RequestContext context = RequestContextHolder.getRequired();
+    return get(context, beanName, objectFactory);
+  }
+
+  public Object get(RequestContext context, String beanName, Supplier<?> objectFactory) {
     Object scopedObject = getAttribute(beanName, context);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();
@@ -62,7 +75,11 @@ public abstract class AbstractRequestAttributesScope implements Scope {
 
   @Override
   public Object remove(String name) {
-    RequestContext context = RequestContextHolder.currentContext();
+    RequestContext context = RequestContextHolder.getRequired();
+    return remove(context, name);
+  }
+
+  public Object remove(RequestContext context, String name) {
     Object scopedObject = getAttribute(name, context);
     if (scopedObject != null) {
       removeAttribute(context, name);

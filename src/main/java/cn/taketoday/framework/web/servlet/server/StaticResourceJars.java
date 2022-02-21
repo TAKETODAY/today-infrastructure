@@ -35,12 +35,15 @@ import java.util.List;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Logic to extract URLs of static resource jars (those containing
  * {@code "META-INF/resources"} directories).
  *
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @since 4.0
  */
 class StaticResourceJars {
 
@@ -72,6 +75,7 @@ class StaticResourceJars {
     }
   }
 
+  @Nullable
   private File toFile(URL url) {
     try {
       return new File(url.toURI());
@@ -135,11 +139,8 @@ class StaticResourceJars {
   }
 
   private boolean isResourcesJar(JarFile jar) throws IOException {
-    try {
+    try (jar) {
       return jar.getName().endsWith(".jar") && (jar.getJarEntry("META-INF/resources") != null);
-    }
-    finally {
-      jar.close();
     }
   }
 

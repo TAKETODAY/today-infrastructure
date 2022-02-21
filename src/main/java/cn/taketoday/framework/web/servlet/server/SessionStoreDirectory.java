@@ -25,17 +25,20 @@ import java.io.File;
 import cn.taketoday.framework.ApplicationHome;
 import cn.taketoday.framework.ApplicationUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Manages a session store directory.
  *
  * @author Phillip Webb
  * @see AbstractServletWebServerFactory
+ * @since 4.0
  */
 class SessionStoreDirectory {
-
+  @Nullable
   private File directory;
 
+  @Nullable
   File getDirectory() {
     return this.directory;
   }
