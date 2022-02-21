@@ -34,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanWrapper;
+import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -798,25 +800,24 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
     }
 
-    BeanMetadata metadata = null;
-    PropertyValuesBinder binder = null;
-
+    BeanMetadata metadata;
+    BeanWrapper beanWrapper = null;
     // maybe null
     PropertyValues propertyValues = definition.getPropertyValues();
     int resolvedAutowireMode = definition.getAutowireMode();
     if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
       metadata = getMetadata(bean, definition);
-      binder = new PropertyValuesBinder(metadata, bean);
-      initPropertyValuesBinder(binder);
+      beanWrapper = new BeanWrapperImpl(bean, metadata);
+      initBeanWrapper(beanWrapper);
 
       PropertyValues newPvs = new PropertyValues(propertyValues);
       // Add property values based on autowire by name if applicable.
       if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
-        autowireByName(beanName, definition, binder, newPvs);
+        autowireByName(beanName, definition, beanWrapper, newPvs);
       }
       // Add property values based on autowire by type if applicable.
       if (resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
-        autowireByType(beanName, definition, binder, newPvs);
+        autowireByType(beanName, definition, beanWrapper, newPvs);
       }
       propertyValues = newPvs;
     }
@@ -824,10 +825,9 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (propertyValues != null) {
       Map<String, Object> map = propertyValues.asMap();
       if (CollectionUtils.isNotEmpty(map)) {
-        if (binder == null) {
+        if (beanWrapper == null) {
           metadata = getMetadata(bean, definition);
-          binder = new PropertyValuesBinder(metadata, bean);
-          initPropertyValuesBinder(binder);
+          beanWrapper = new BeanWrapperImpl(bean, metadata);
         }
 
         BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition);
@@ -838,7 +838,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           String propertyPath = entry.getKey();
 
           if (value instanceof PropertyValueRetriever retriever) {
-            value = retriever.retrieve(propertyPath, binder, this);
+            value = retriever.retrieve(propertyPath, beanWrapper, this);
             if (value == PropertyValueRetriever.DO_NOT_SET) {
               continue;
             }
@@ -847,7 +847,7 @@ public abstract class AbstractAutowireCapableBeanFactory
             value = valueResolver.resolveValueIfNecessary(propertyPath, value);
           }
 
-          binder.setProperty(bean, metadata, propertyPath, value);
+          beanWrapper.setPropertyValue(propertyPath, value);
         }
       }
     }
@@ -875,7 +875,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param pvs the PropertyValues to register wired objects with
    */
   protected void autowireByName(
-          String beanName, BeanDefinition definition, PropertyValuesBinder bw, PropertyValues pvs) {
+          String beanName, BeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, bw);
     for (String propertyName : propertyNames) {
       if (containsBean(propertyName)) {
@@ -907,8 +907,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param pvs the PropertyValues to register wired objects with
    */
   protected void autowireByType(
-          String beanName, BeanDefinition definition, PropertyValuesBinder binder, PropertyValues pvs) {
-    BeanMetadata metadata = binder.obtainMetadata();
+          String beanName, BeanDefinition definition, BeanWrapper binder, PropertyValues pvs) {
+    BeanMetadata metadata = binder.getBeanMetadata();
     LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, binder);
     for (String propertyName : propertyNames) {
@@ -921,7 +921,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           Assert.state(writeMethod != null, "No write method available");
           MethodParameter methodParam = new MethodParameter(writeMethod, 0);
           // Do not allow eager init for type matching in case of a prioritized post-processor.
-          boolean eager = !(binder.getRootObject() instanceof PriorityOrdered);
+          boolean eager = !(binder.getWrappedInstance() instanceof PriorityOrdered);
           DependencyDescriptor desc = new AutowireByTypeDependencyDescriptor(methodParam, eager);
           Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames);
           if (autowiredArgument != null) {
@@ -953,10 +953,10 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @return an array of bean property names
    * @see BeanUtils#isSimpleProperty
    */
-  protected String[] unsatisfiedNonSimpleProperties(BeanDefinition definition, PropertyValuesBinder binder) {
+  protected String[] unsatisfiedNonSimpleProperties(BeanDefinition definition, BeanWrapper binder) {
     Set<String> result = new TreeSet<>();
     PropertyValues pvs = definition.getPropertyValues();
-    HashMap<String, BeanProperty> beanProperties = binder.obtainMetadata().getBeanProperties();
+    HashMap<String, BeanProperty> beanProperties = binder.getBeanMetadata().getBeanProperties();
     for (Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
       BeanProperty property = entry.getValue();
       if (property.getWriteMethod() != null
@@ -993,14 +993,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     // fast access from cache
     return BeanMetadata.from(bean, true);
-  }
-
-  /** @since 4.0 */
-  protected void initPropertyValuesBinder(PropertyValuesBinder dataBinder) {
-    dataBinder.setConversionService(getConversionService());
-    dataBinder.setIgnoreUnknownProperty(false);
-
-//    registerCustomEditors(bw);
   }
 
   @Override

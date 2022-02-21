@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistrar;
 import cn.taketoday.beans.PropertyEditorRegistry;
@@ -1733,6 +1734,21 @@ public abstract class AbstractBeanFactory
    */
   public Set<PropertyEditorRegistrar> getPropertyEditorRegistrars() {
     return this.propertyEditorRegistrars;
+  }
+
+  /**
+   * Initialize the given BeanWrapper with the custom editors registered
+   * with this factory. To be called for BeanWrappers that will create
+   * and populate bean instances.
+   * <p>The default implementation delegates to {@link #registerCustomEditors}.
+   * Can be overridden in subclasses.
+   *
+   * @param bw the BeanWrapper to initialize
+   * @since 4.0
+   */
+  protected void initBeanWrapper(BeanWrapper bw) {
+    bw.setConversionService(getConversionService());
+    registerCustomEditors(bw);
   }
 
   @Override

@@ -95,6 +95,17 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
   }
 
   /**
+   * Create a new BeanWrapperImpl for the given object.
+   *
+   * @param object the object wrapped by this BeanWrapper
+   * @param beanMetadata the object beanMetadata
+   */
+  public BeanWrapperImpl(Object object, BeanMetadata beanMetadata) {
+    super(object);
+    this.beanMetadata = beanMetadata;
+  }
+
+  /**
    * Create a new BeanWrapperImpl, wrapping a new instance of the specified class.
    *
    * @param clazz class to instantiate and wrap
@@ -162,6 +173,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    * Obtain a lazily initialized BeanMetadata instance
    * for the wrapped object.
    */
+  @Override
   public BeanMetadata getBeanMetadata() {
     BeanMetadata beanMetadata = this.beanMetadata;
     if (beanMetadata == null) {

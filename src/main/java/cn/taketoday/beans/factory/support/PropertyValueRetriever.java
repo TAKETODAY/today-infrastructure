@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 
@@ -40,11 +41,11 @@ public interface PropertyValueRetriever {
    * retrieve property-path corresponding property-value
    *
    * @param propertyPath property name
-   * @param binder binder
+   * @param binder BeanWrapper
    * @param beanFactory own bean factory
    * @return property-value maybe {@link #DO_NOT_SET} indicates that do not set property
    * @throws NoSuchPropertyException If no such property
    */
-  Object retrieve(String propertyPath, PropertyValuesBinder binder, AutowireCapableBeanFactory beanFactory);
+  Object retrieve(String propertyPath, BeanWrapper binder, AutowireCapableBeanFactory beanFactory);
 
 }

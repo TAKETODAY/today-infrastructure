@@ -36,6 +36,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
@@ -78,6 +79,7 @@ class BeanFactoryTests {
     context.refresh();
 
     beanFactory = context.getBeanFactory();
+    beanFactory.setConversionService(new ApplicationConversionService());
   }
 
   @AfterEach

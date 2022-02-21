@@ -22,6 +22,7 @@ package cn.taketoday.beans;
 
 import java.util.List;
 
+import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 
 /**
@@ -94,4 +95,8 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
    */
   BeanProperty getBeanProperty(String propertyName) throws InvalidPropertyException;
 
+  /**
+   * Obtain BeanMetadata
+   */
+  BeanMetadata getBeanMetadata();
 }

@@ -30,8 +30,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import cn.taketoday.beans.testfixture.beans.TestBean;
-
 @SuppressWarnings("rawtypes")
 public class IndexedTestBean {
 
@@ -40,7 +38,8 @@ public class IndexedTestBean {
   private Collection<?> collection;
 
   // 暂不支持自动推断 List list
-  private List<TestBean> list;
+//  private List<TestBean> list;
+  private List list;
 
   private Set<? super Object> set;
 
@@ -90,7 +89,6 @@ public class IndexedTestBean {
     this.map.put("key4", list);
     this.map.put("key5[foo]", tb8);
   }
-
 
   public TestBean[] getArray() {
     return array;

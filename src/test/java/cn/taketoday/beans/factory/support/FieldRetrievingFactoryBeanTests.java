@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
@@ -116,7 +117,7 @@ class FieldRetrievingFactoryBeanTests {
     BeanDefinition testBeanDef = new BeanDefinition("testBean", TestBean.class);
     testBeanDef.propertyValues().add("someIntegerArray", new PropertyValueRetriever() {
       @Override
-      public Object retrieve(String propertyPath, PropertyValuesBinder binder, AutowireCapableBeanFactory beanFactory) {
+      public Object retrieve(String propertyPath, BeanWrapper binder, AutowireCapableBeanFactory beanFactory) {
         return new Integer[] {
                 (Integer) BeanDefinitionReference.from("java.sql.Connection.TRANSACTION_SERIALIZABLE", FieldRetrievingFactoryBean.class)
                         .retrieve(propertyPath, binder, beanFactory),

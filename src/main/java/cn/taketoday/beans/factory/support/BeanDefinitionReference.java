@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.lang.Nullable;
 
@@ -40,7 +41,7 @@ public class BeanDefinitionReference implements PropertyValueRetriever {
   }
 
   @Override
-  public Object retrieve(String propertyPath, PropertyValuesBinder binder, AutowireCapableBeanFactory beanFactory) {
+  public Object retrieve(String propertyPath, BeanWrapper binder, AutowireCapableBeanFactory beanFactory) {
     BeanDefinition definition = getDefinition();
     if (beanFactory instanceof AbstractAutowireCapableBeanFactory factory) {
       Object bean = factory.createBean(getBeanName(definition), definition, null);
