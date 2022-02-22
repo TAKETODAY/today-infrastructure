@@ -44,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  * <p>
  * Here are some typical examples:
  * <ul>
- * <li>{@code spring.main.banner-mode}</li>
+ * <li>{@code today.main.banner-mode}</li>
  * <li>{@code server.hosts[0].name}</li>
  * <li>{@code log[org.springboot].level}</li>
  * </ul>
@@ -190,8 +190,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private CharSequence convertElement(CharSequence element, boolean lowercase, ElementCharPredicate filter) {
-    StringBuilder result = new StringBuilder(element.length());
-    for (int i = 0; i < element.length(); i++) {
+    int length = element.length();
+    StringBuilder result = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
       char ch = lowercase ? Character.toLowerCase(element.charAt(i)) : element.charAt(i);
       if (filter.test(ch, i)) {
         result.append(ch);
@@ -605,7 +606,6 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     return (elements != null) ? new ConfigurationPropertyName(elements) : null;
   }
 
-  @Nullable
   private static Elements probablySingleElementOf(@Nullable CharSequence name) {
     return elementsOf(name, false, 1);
   }
@@ -680,8 +680,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return a {@link ConfigurationPropertyName}
    */
   static ConfigurationPropertyName adapt(
-          CharSequence name, char separator,
-          @Nullable Function<CharSequence, CharSequence> elementValueProcessor) {
+          CharSequence name, char separator, @Nullable Function<CharSequence, CharSequence> elementValueProcessor) {
     Assert.notNull(name, "Name must not be null");
     if (name.length() == 0) {
       return EMPTY;
@@ -740,45 +739,14 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * Allows access to the individual elements that make up the name. We store the
    * indexes in arrays rather than a list of object in order to conserve memory.
    */
-  private static class Elements {
+  private record Elements(CharSequence source, int size, int[] start, int[] end,
+                          ElementType[] type, @Nullable CharSequence[] resolved) {
 
     private static final int[] NO_POSITION = {};
 
     private static final ElementType[] NO_TYPE = {};
 
     public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null);
-
-    private final CharSequence source;
-
-    private final int size;
-
-    private final int[] start;
-
-    private final int[] end;
-
-    private final ElementType[] type;
-
-    /**
-     * Contains any resolved elements or can be {@code null} if there aren't any.
-     * Resolved elements allow us to modify the element values in some way (or example
-     * when adapting with a mapping function, or when append has been called). Note
-     * that this array is not used as a cache, in fact, when it's not null then
-     * {@link #canShortcutWithSource} will always return false which may hurt
-     * performance.
-     */
-    @Nullable
-    private final CharSequence[] resolved;
-
-    Elements(CharSequence source, int size, int[] start, int[] end,
-             ElementType[] type, @Nullable CharSequence[] resolved) {
-      super();
-      this.source = source;
-      this.size = size;
-      this.start = start;
-      this.end = end;
-      this.type = type;
-      this.resolved = resolved;
-    }
 
     Elements append(Elements additional) {
       int size = this.size + additional.size;
@@ -991,12 +959,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return existingType;
     }
 
-    private void add(
-            int start,
-            int end,
-            ElementType type,
-            @Nullable Function<CharSequence, CharSequence> valueProcessor
-    ) {
+    private void add(int start, int end,
+                     ElementType type, @Nullable Function<CharSequence, CharSequence> valueProcessor) {
       if ((end - start) < 1 || type == ElementType.EMPTY) {
         return;
       }

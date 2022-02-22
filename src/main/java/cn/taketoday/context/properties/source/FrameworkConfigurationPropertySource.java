@@ -59,10 +59,14 @@ import cn.taketoday.origin.PropertySourceOrigin;
  */
 class FrameworkConfigurationPropertySource implements ConfigurationPropertySource {
 
-  private static final PropertyMapper[] DEFAULT_MAPPERS = { DefaultPropertyMapper.INSTANCE };
+  private static final PropertyMapper[] DEFAULT_MAPPERS = {
+          DefaultPropertyMapper.INSTANCE
+  };
 
-  private static final PropertyMapper[] SYSTEM_ENVIRONMENT_MAPPERS = { SystemEnvironmentPropertyMapper.INSTANCE,
-          DefaultPropertyMapper.INSTANCE };
+  private static final PropertyMapper[] SYSTEM_ENVIRONMENT_MAPPERS = {
+          SystemEnvironmentPropertyMapper.INSTANCE,
+          DefaultPropertyMapper.INSTANCE
+  };
 
   private final PropertySource<?> propertySource;
 
@@ -81,6 +85,7 @@ class FrameworkConfigurationPropertySource implements ConfigurationPropertySourc
     this.mappers = mappers;
   }
 
+  @Nullable
   @Override
   public ConfigurationProperty getConfigurationProperty(@Nullable ConfigurationPropertyName name) {
     if (name == null) {

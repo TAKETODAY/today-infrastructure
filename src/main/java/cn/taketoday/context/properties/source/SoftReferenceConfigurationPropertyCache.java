@@ -26,12 +26,16 @@ import java.time.Instant;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Simple cache that uses a {@link SoftReference} to cache a value for as long as
  * possible.
  *
  * @param <T> the value type
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropertyCaching {
 
@@ -39,10 +43,12 @@ class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropert
 
   private final boolean neverExpire;
 
+  @Nullable
   private volatile Duration timeToLive;
 
-  private volatile SoftReference<T> value = new SoftReference<>(null);
+  private volatile SoftReference<T> valueRef = new SoftReference<>(null);
 
+  @Nullable
   private volatile Instant lastAccessed = now();
 
   SoftReferenceConfigurationPropertyCache(boolean neverExpire) {
@@ -60,7 +66,7 @@ class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropert
   }
 
   @Override
-  public void setTimeToLive(Duration timeToLive) {
+  public void setTimeToLive(@Nullable Duration timeToLive) {
     this.timeToLive = (timeToLive == null || timeToLive.isZero()) ? null : timeToLive;
   }
 
@@ -108,12 +114,13 @@ class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropert
     return Instant.now();
   }
 
+  @Nullable
   protected T getValue() {
-    return this.value.get();
+    return this.valueRef.get();
   }
 
   protected void setValue(T value) {
-    this.value = new SoftReference<>(value);
+    this.valueRef = new SoftReference<>(value);
   }
 
 }

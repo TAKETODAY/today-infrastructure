@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.OriginTrackedValue;
 import cn.taketoday.util.StringUtils;
 
@@ -82,8 +83,8 @@ public interface IterableConfigurationPropertySource
   }
 
   @Override
-  default IterableConfigurationPropertySource withPrefix(String prefix) {
-    return (StringUtils.hasText(prefix)) ? new PrefixedIterableConfigurationPropertySource(this, prefix) : this;
+  default IterableConfigurationPropertySource withPrefix(@Nullable String prefix) {
+    return StringUtils.hasText(prefix) ? new PrefixedIterableConfigurationPropertySource(this, prefix) : this;
   }
 
 }

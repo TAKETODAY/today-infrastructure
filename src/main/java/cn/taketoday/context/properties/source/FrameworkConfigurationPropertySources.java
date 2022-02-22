@@ -21,9 +21,7 @@
 package cn.taketoday.context.properties.source;
 
 import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
@@ -49,11 +47,11 @@ class FrameworkConfigurationPropertySources implements Iterable<ConfigurationPro
 
   private final Iterable<PropertySource<?>> sources;
 
-  private final Map<PropertySource<?>, ConfigurationPropertySource> cache = new ConcurrentReferenceHashMap<>(16,
-          ReferenceType.SOFT);
+  private final ConcurrentReferenceHashMap<PropertySource<?>, ConfigurationPropertySource> cache
+          = new ConcurrentReferenceHashMap<>(16, ReferenceType.SOFT);
 
   FrameworkConfigurationPropertySources(Iterable<PropertySource<?>> sources) {
-    Assert.notNull(sources, "Sources must not be null");
+    Assert.notNull(sources, "Sources is required");
     this.sources = sources;
   }
 
@@ -82,16 +80,13 @@ class FrameworkConfigurationPropertySources implements Iterable<ConfigurationPro
   }
 
   private static class SourcesIterator implements Iterator<ConfigurationPropertySource> {
-
-    private final Deque<Iterator<PropertySource<?>>> iterators;
+    private final ArrayDeque<Iterator<PropertySource<?>>> iterators;
+    private final Function<PropertySource<?>, ConfigurationPropertySource> adapter;
 
     @Nullable
     private ConfigurationPropertySource next;
 
-    private final Function<PropertySource<?>, ConfigurationPropertySource> adapter;
-
-    SourcesIterator(Iterator<PropertySource<?>> iterator,
-                    Function<PropertySource<?>, ConfigurationPropertySource> adapter) {
+    SourcesIterator(Iterator<PropertySource<?>> iterator, Function<PropertySource<?>, ConfigurationPropertySource> adapter) {
       this.iterators = new ArrayDeque<>(4);
       this.iterators.push(iterator);
       this.adapter = adapter;
@@ -140,8 +135,8 @@ class FrameworkConfigurationPropertySources implements Iterable<ConfigurationPro
     }
 
     private boolean isIgnored(PropertySource<?> candidate) {
-      return (candidate instanceof StubPropertySource
-              || candidate instanceof ConfigurationPropertySourcesPropertySource);
+      return candidate instanceof StubPropertySource
+              || candidate instanceof ConfigurationPropertySourcesPropertySource;
     }
 
   }

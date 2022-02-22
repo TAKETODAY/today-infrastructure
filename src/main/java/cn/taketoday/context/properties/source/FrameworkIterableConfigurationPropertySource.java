@@ -249,8 +249,7 @@ class FrameworkIterableConfigurationPropertySource extends FrameworkConfiguratio
       int size = propertyNames.length;
       Map<ConfigurationPropertyName, Set<String>> mappings = cloneOrCreate(this.mappings, size);
       Map<String, ConfigurationPropertyName> reverseMappings = cloneOrCreate(this.reverseMappings, size);
-      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants
-              = cloneOrCreate(this.descendants, size);
+      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants = cloneOrCreate(this.descendants, size);
 
       for (PropertyMapper propertyMapper : this.mappers) {
         for (String propertyName : propertyNames) {
@@ -315,10 +314,11 @@ class FrameworkIterableConfigurationPropertySource extends FrameworkConfiguratio
 
     ConfigurationPropertyState containsDescendantOf(
             ConfigurationPropertyName name, BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck) {
-      if (name.isEmpty() && !this.descendants.isEmpty()) {
+      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants = this.descendants;
+      if (name.isEmpty() && !descendants.isEmpty()) {
         return ConfigurationPropertyState.PRESENT;
       }
-      Set<ConfigurationPropertyName> candidates = this.descendants.getOrDefault(name, Collections.emptySet());
+      Set<ConfigurationPropertyName> candidates = descendants.getOrDefault(name, Collections.emptySet());
       for (ConfigurationPropertyName candidate : candidates) {
         if (ancestorOfCheck.test(name, candidate)) {
           return ConfigurationPropertyState.PRESENT;
