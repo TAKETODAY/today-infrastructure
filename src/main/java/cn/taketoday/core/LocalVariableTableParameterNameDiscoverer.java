@@ -20,6 +20,13 @@
 
 package cn.taketoday.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Executable;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Label;
@@ -31,13 +38,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Executable;
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of {@link ParameterNameDiscoverer} that uses the LocalVariableTable
@@ -74,8 +74,7 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
    * lack of debug information.
    */
   private Map<Executable, String[]> inspectClass(Class<?> clazz) {
-    ClassLoader classLoader = clazz.getClassLoader();
-    try (InputStream is = classLoader.getResourceAsStream(ClassUtils.getFullyClassFileName(clazz))) {
+    try (InputStream is = clazz.getResourceAsStream(ClassUtils.getClassFileName(clazz))) {
       if (is == null) {
         // We couldn't load the class file, which is not fatal as it
         // simply means this method of discovering parameter names won't work.
@@ -84,7 +83,7 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
         return NO_DEBUG_INFO_MAP;
       }
       ClassReader classReader = new ClassReader(is);
-      ConcurrentHashMap<Executable, String[]> map = new ConcurrentHashMap<>(32);
+      Map<Executable, String[]> map = new ConcurrentHashMap<>(32);
       classReader.accept(new ParameterNameDiscoveringVisitor(clazz, map), 0);
       return map;
     }

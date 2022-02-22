@@ -36,7 +36,7 @@ public class DefaultParameterNameDiscoverer extends CompositeParameterNameDiscov
 
   public DefaultParameterNameDiscoverer() {
     addDiscoverer(new ReflectiveParameterNameDiscoverer(),
-                  new LocalVariableTableParameterNameDiscoverer());
+            new LocalVariableTableParameterNameDiscoverer());
   }
 
 }

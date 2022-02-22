@@ -22,10 +22,7 @@ package cn.taketoday.web.validation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
@@ -42,12 +39,7 @@ public class ContextParameterNameProvider implements ParameterNameProvider {
 
   @Override
   public List<String> getParameterNames(Constructor<?> constructor) {
-    List<String> parameterNames = new ArrayList<>(constructor.getParameterCount());
-
-    for (final Parameter parameter : constructor.getParameters()) {
-      parameterNames.add(parameter.getName());
-    }
-    return Collections.unmodifiableList(parameterNames);
+    return Arrays.asList(parameterNameDiscoverer.getParameterNames(constructor));
   }
 
   @Override

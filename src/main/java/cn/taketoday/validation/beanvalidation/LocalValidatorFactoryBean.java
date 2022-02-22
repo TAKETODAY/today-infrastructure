@@ -346,8 +346,7 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
         try {
           stream.close();
         }
-        catch (IOException ignored) {
-        }
+        catch (IOException ignored) { }
       }
     }
   }
@@ -360,49 +359,46 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
    * @param configuration the Configuration object, pre-populated with
    * settings driven by LocalValidatorFactoryBean's properties
    */
-  protected void postProcessConfiguration(Configuration<?> configuration) {
-  }
+  protected void postProcessConfiguration(Configuration<?> configuration) { }
 
   @Override
   public Validator getValidator() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.getValidator();
+    return validatorFactory().getValidator();
   }
 
   @Override
   public ValidatorContext usingContext() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.usingContext();
+    return validatorFactory().usingContext();
   }
 
   @Override
   public MessageInterpolator getMessageInterpolator() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.getMessageInterpolator();
+    return validatorFactory().getMessageInterpolator();
   }
 
   @Override
   public TraversableResolver getTraversableResolver() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.getTraversableResolver();
+    return validatorFactory().getTraversableResolver();
   }
 
   @Override
   public ConstraintValidatorFactory getConstraintValidatorFactory() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.getConstraintValidatorFactory();
+    return validatorFactory().getConstraintValidatorFactory();
   }
 
   @Override
   public ParameterNameProvider getParameterNameProvider() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.getParameterNameProvider();
+    return validatorFactory().getParameterNameProvider();
+  }
+
+  private ValidatorFactory validatorFactory() {
+    Assert.state(validatorFactory != null, "No target ValidatorFactory set");
+    return validatorFactory;
   }
 
   @Override
   public ClockProvider getClockProvider() {
-    Assert.notNull(this.validatorFactory, "No target ValidatorFactory set");
-    return this.validatorFactory.getClockProvider();
+    return validatorFactory().getClockProvider();
   }
 
   @Override

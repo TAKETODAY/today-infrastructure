@@ -35,11 +35,11 @@ import java.util.Set;
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.FactoryBeanNotInitializedException;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -175,7 +175,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
    * @see #setTarget(Object)
    * @see #setTargetSource(cn.taketoday.aop.TargetSource)
    */
-  public void setTargetName(String targetName) {
+  public void setTargetName(@Nullable String targetName) {
     this.targetName = targetName;
   }
 

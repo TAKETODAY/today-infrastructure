@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -71,43 +72,13 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
     if (writeMethod != null) {
       MethodInvoker accessor = MethodInvoker.fromMethod(writeMethod);
       ReflectionUtils.makeAccessible(field);
-      return new PropertyAccessor() {
-        @Override
-        public Object get(Object obj) {
-          return ReflectionUtils.getField(field, obj);
-        }
-
-        @Override
-        public void set(Object obj, Object value) {
-          accessor.invoke(obj, new Object[] { value });
-        }
-
-        @Override
-        public Method getWriteMethod() {
-          return writeMethod;
-        }
-      };
+      return getPropertyAccessor(field, accessor, writeMethod);
     }
 
     if (readMethod != null) {
       ReflectionUtils.makeAccessible(field);
       MethodInvoker accessor = MethodInvoker.fromMethod(readMethod);
-      return new PropertyAccessor() {
-        @Override
-        public Object get(Object obj) {
-          return accessor.invoke(obj, null);
-        }
-
-        @Override
-        public void set(Object obj, Object value) {
-          ReflectionUtils.setField(field, obj, value);
-        }
-
-        @Override
-        public Method getReadMethod() {
-          return readMethod;
-        }
-      };
+      return getPropertyAccessor(accessor, field, readMethod);
     }
 
     // readMethod == null && setMethod == null
@@ -173,6 +144,75 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
       return new GetterSetterPropertyAccessor(readMethod, writeMethod);
     }
     return new ReadOnlyGetterMethodPropertyAccessor(readMethod);
+  }
+
+  /**
+   * @param field Field
+   * @return PropertyAccessor
+   * @throws NullPointerException field is null
+   */
+  public static PropertyAccessor fromField(
+          Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    boolean isReadOnly = Modifier.isFinal(field.getModifiers());
+    if (isReadOnly && readMethod != null) {
+      MethodInvoker invoker = MethodInvoker.fromMethod(readMethod);
+      return new ReadOnlyMethodAccessorPropertyAccessor(invoker);
+    }
+    if (writeMethod != null && readMethod != null) {
+      return fromMethod(readMethod, writeMethod);
+    }
+    if (writeMethod != null) {
+      MethodInvoker accessor = MethodInvoker.fromMethod(writeMethod);
+      ReflectionUtils.makeAccessible(field);
+      return getPropertyAccessor(field, accessor, writeMethod);
+    }
+
+    if (readMethod != null) {
+      ReflectionUtils.makeAccessible(field);
+      MethodInvoker accessor = MethodInvoker.fromMethod(readMethod);
+      return getPropertyAccessor(accessor, field, readMethod);
+    }
+
+    // readMethod == null && setMethod == null
+    return fromReflective(field);
+  }
+
+  private static PropertyAccessor getPropertyAccessor(Field field, MethodInvoker accessor, @NonNull Method writeMethod) {
+    return new PropertyAccessor() {
+      @Override
+      public Object get(Object obj) {
+        return ReflectionUtils.getField(field, obj);
+      }
+
+      @Override
+      public void set(Object obj, Object value) {
+        accessor.invoke(obj, new Object[] { value });
+      }
+
+      @Override
+      public Method getWriteMethod() {
+        return writeMethod;
+      }
+    };
+  }
+
+  private static PropertyAccessor getPropertyAccessor(MethodInvoker accessor, Field field, @NonNull Method readMethod) {
+    return new PropertyAccessor() {
+      @Override
+      public Object get(Object obj) {
+        return accessor.invoke(obj, null);
+      }
+
+      @Override
+      public void set(Object obj, Object value) {
+        ReflectionUtils.setField(field, obj, value);
+      }
+
+      @Override
+      public Method getReadMethod() {
+        return readMethod;
+      }
+    };
   }
 
   /**

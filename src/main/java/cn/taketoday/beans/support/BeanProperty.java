@@ -264,11 +264,10 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    // method first
-    if (readMethod != null || writeMethod != null) {
-      return PropertyAccessor.fromMethod(readMethod, writeMethod);
+    if (field != null) {
+      return PropertyAccessor.fromField(field, readMethod, writeMethod);
     }
-    return PropertyAccessor.fromField(field);
+    return PropertyAccessor.fromMethod(readMethod, writeMethod);
   }
 
   /**

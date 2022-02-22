@@ -28,8 +28,10 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Utility to deduce the {@link PropertySources} to use for configuration binding.
@@ -59,12 +61,13 @@ class PropertySourcesDeducer {
     return sources;
   }
 
+  @Nullable
   private PropertySourcesPlaceholderConfigurer getSinglePropertySourcesPlaceholderConfigurer() {
     // Take care not to cause early instantiation of all FactoryBeans
-    Map<String, PropertySourcesPlaceholderConfigurer> beans =
-            context.getBeansOfType(PropertySourcesPlaceholderConfigurer.class, false, false);
+    Map<String, PropertySourcesPlaceholderConfigurer> beans = context.getBeansOfType(
+            PropertySourcesPlaceholderConfigurer.class, false, false);
     if (beans.size() == 1) {
-      return beans.values().iterator().next();
+      return CollectionUtils.firstElement(beans.values());
     }
     if (beans.size() > 1 && logger.isWarnEnabled()) {
       logger.warn("Multiple PropertySourcesPlaceholderConfigurer beans registered {}, falling back to Environment",
@@ -73,6 +76,7 @@ class PropertySourcesDeducer {
     return null;
   }
 
+  @Nullable
   private PropertySources extractEnvironmentPropertySources() {
     Environment environment = this.context.getEnvironment();
     if (environment instanceof ConfigurableEnvironment) {

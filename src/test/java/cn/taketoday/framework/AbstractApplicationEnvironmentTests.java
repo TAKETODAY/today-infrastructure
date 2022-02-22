@@ -22,6 +22,7 @@ package cn.taketoday.framework;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
@@ -58,9 +59,10 @@ public abstract class AbstractApplicationEnvironmentTests {
   @Test
   void propertyResolverIsOptimizedForConfigurationProperties() {
     StandardEnvironment environment = createEnvironment();
-    ConfigurablePropertyResolver expected = ConfigurationPropertySources
-            .createPropertyResolver(new PropertySources());
-    assertThat(environment).extracting("propertyResolver").hasSameClassAs(expected);
+    ConfigurablePropertyResolver expected = ConfigurationPropertySources.createPropertyResolver(new PropertySources());
+    Object propertyResolver = PropertyAccessorFactory.forBeanPropertyAccess(environment)
+            .getPropertyValue("propertyResolver");
+    assertThat(propertyResolver).isInstanceOf(expected.getClass());
   }
 
   protected abstract StandardEnvironment createEnvironment();

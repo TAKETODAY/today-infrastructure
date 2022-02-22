@@ -23,6 +23,8 @@ package cn.taketoday.core;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.lang.Constant;
+
 /**
  * {@link ParameterNameDiscoverer} implementation which uses JDK 8's reflection facilities
  * for introspecting parameter names (based on the "-parameters" compiler flag).
@@ -34,8 +36,11 @@ import java.lang.reflect.Parameter;
 public class ReflectiveParameterNameDiscoverer extends ParameterNameDiscoverer {
 
   @Override
-  public String[] doGet(Executable executable) {
+  public String[] getParameterNames(Executable executable) {
     final Parameter[] parameters = executable.getParameters();
+    if (parameters.length == 0) {
+      return Constant.EMPTY_STRING_ARRAY;
+    }
     int i = 0;
     String[] parameterNames = null;
     for (final Parameter parameter : parameters) {
