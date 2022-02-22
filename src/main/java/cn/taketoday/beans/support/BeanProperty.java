@@ -40,9 +40,8 @@ import java.util.Optional;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -81,9 +80,6 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   private boolean componentResolved;
   /** if this property is array or */
   private transient BeanInstantiator componentConstructor;
-
-  @Nullable
-  private transient ConversionService conversionService;
 
   /** @since 3.0.4 */
   @Nullable
@@ -184,36 +180,28 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
     return obtainAccessor().get(object);
   }
 
-  public Object getValue(Object object, Class<?> requiredType) {
-    Object value = getValue(object);
-    if (requiredType.isInstance(value)) {
-      return value;
-    }
-    ConversionService conversionService = getConversionService();
-    if (conversionService == null) {
-      conversionService = DefaultConversionService.getSharedInstance();
-      setConversionService(conversionService);
-    }
-    return conversionService.convert(value, requiredType);
-  }
-
   /**
    * @throws PropertyReadOnlyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public final void setValue(Object obj, Object value) {
+    value = handleOptional(value, getType());
+    setDirectly(obj, value);
+  }
+
+  /**
+   * @throws PropertyReadOnlyException If this property is read only
+   * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
+   * @since 4.0
+   */
+  public final void setValue(Object obj, Object value, TypeConverter converter) {
     Class<?> propertyType = getType();
     if (value == null && propertyType == Optional.class) {
       value = Optional.empty();
     }
-    else if (!propertyType.isInstance(value)) {
-      ConversionService conversionService = getConversionService();
-      if (conversionService == null) {
-        conversionService = DefaultConversionService.getSharedInstance();
-        setConversionService(conversionService);
-      }
-      value = handleOptional(
-              conversionService.convert(value, getTypeDescriptor()), propertyType);
+    else if (!ClassUtils.isAssignableValue(propertyType, value)) {
+      Object necessary = converter.convertIfNecessary(value, propertyType, getTypeDescriptor());
+      value = handleOptional(necessary, propertyType);
     }
     setDirectly(obj, value);
   }
@@ -385,15 +373,6 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
 
   public void setPropertyAccessor(PropertyAccessor propertyAccessor) {
     this.propertyAccessor = propertyAccessor;
-  }
-
-  public void setConversionService(@Nullable ConversionService conversionService) {
-    this.conversionService = conversionService;
-  }
-
-  @Nullable
-  public ConversionService getConversionService() {
-    return conversionService;
   }
 
   public boolean isMap() {
