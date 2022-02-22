@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Singleton;
@@ -145,7 +146,7 @@ class ConditionalTests {
   @Test
   public void testConditionalOnProperty() throws Exception {
 
-    try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       ApplicationPropertySourcesProcessor processor = new ApplicationPropertySourcesProcessor(context);
       processor.setPropertiesLocation("info.properties");
       processor.postProcessEnvironment();
