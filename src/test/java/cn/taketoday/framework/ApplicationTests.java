@@ -42,6 +42,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.Ordered;
@@ -282,7 +283,6 @@ class ApplicationTests {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   void runnersAreCalledAfterStartedIsLoggedAndBeforeApplicationReadyEventIsPublished(CapturedOutput output)
           throws Exception {
     Application application = new Application(ExampleConfig.class);
@@ -396,6 +396,43 @@ class ApplicationTests {
     assertThat(new Application(NotLazyInitializationConfig.class)
             .run("--today.main.application-type=NONE_WEB", "--today.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
+  }
+
+  @Test
+  void logsActiveProfilesWithoutProfileAndSingleDefault(CapturedOutput output) {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    this.context = application.run();
+    assertThat(output).contains("No active profile set, falling back to 1 default profile: \"default\"");
+  }
+
+  @Test
+  void logsActiveProfilesWithoutProfileAndMultipleDefaults(CapturedOutput output) {
+    MockEnvironment environment = new MockEnvironment();
+    environment.setDefaultProfiles("p0,p1", "default");
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    application.setEnvironment(environment);
+    this.context = application.run();
+    assertThat(output)
+            .contains("No active profile set, falling back to 2 default profiles: \"p0,p1\", \"default\"");
+  }
+
+  @Test
+  void logsActiveProfilesWithSingleProfile(CapturedOutput output) {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    this.context = application.run("--context.profiles.active=myprofiles");
+    assertThat(output).contains("The following 1 profile is active: \"myprofiles\"");
+  }
+
+  @Test
+  void logsActiveProfilesWithMultipleProfiles(CapturedOutput output) {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    application.setAdditionalProfiles("p1,p2", "p3");
+    application.run();
+    assertThat(output).contains("The following 2 profiles are active: \"p1,p2\", \"p3\"");
   }
 
   private Condition<ConfigurableEnvironment> matchingPropertySource(
