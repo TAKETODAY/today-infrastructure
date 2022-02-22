@@ -56,9 +56,8 @@ class NotConstructorBoundInjectionFailureAnalyzer
     InjectionPoint injectionPoint = findInjectionPoint(rootFailure);
     if (isConstructorBindingConfigurationProperties(injectionPoint)) {
       String simpleName = injectionPoint.getMember().getDeclaringClass().getSimpleName();
-      String action = String.format("Update your configuration so that " + simpleName + " is defined via @"
-              + ConfigurationPropertiesScan.class.getSimpleName() + " or @"
-              + EnableConfigurationProperties.class.getSimpleName() + ".", simpleName);
+      String action = String.format(
+              "Update your configuration so that %s is defined via @ConfigurationPropertiesScan or @EnableConfigurationProperties.", simpleName);
       return new FailureAnalysis(
               simpleName + " is annotated with @" + ConstructorBinding.class.getSimpleName()
                       + " but it is defined as a regular bean which caused dependency injection to fail.",
@@ -80,8 +79,7 @@ class NotConstructorBoundInjectionFailureAnalyzer
 
   @Nullable
   private InjectionPoint findInjectionPoint(Throwable failure) {
-    UnsatisfiedDependencyException unsatisfiedDependencyException = findCause(failure,
-            UnsatisfiedDependencyException.class);
+    UnsatisfiedDependencyException unsatisfiedDependencyException = findCause(failure, UnsatisfiedDependencyException.class);
     if (unsatisfiedDependencyException == null) {
       return null;
     }

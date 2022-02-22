@@ -35,6 +35,7 @@ import java.lang.annotation.Target;
  * This annotation <strong>must</strong> be used on the getter of the deprecated element.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Target(ElementType.METHOD)

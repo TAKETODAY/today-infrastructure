@@ -24,11 +24,11 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -48,9 +48,9 @@ final class ConfigurationPropertiesBeanRegistrar {
 
   private final BeanFactory beanFactory;
 
-  ConfigurationPropertiesBeanRegistrar(BeanDefinitionRegistry registry) {
-    this.registry = registry;
-    this.beanFactory = (BeanFactory) this.registry;
+  ConfigurationPropertiesBeanRegistrar(DefinitionLoadingContext context) {
+    this.registry = context.getRegistry();
+    this.beanFactory = context.getBeanFactory();
   }
 
   void register(Class<?> type) {
@@ -87,8 +87,10 @@ final class ConfigurationPropertiesBeanRegistrar {
 
   private void registerBeanDefinition(
           String beanName, Class<?> type, MergedAnnotation<ConfigurationProperties> annotation) {
-    Assert.state(annotation.isPresent(), () -> "No " + ConfigurationProperties.class.getSimpleName()
-            + " annotation found on  '" + type.getName() + "'.");
+    if (!annotation.isPresent()) {
+      throw new IllegalStateException(
+              "No ConfigurationProperties annotation found on  '" + type.getName() + "'.");
+    }
     this.registry.registerBeanDefinition(beanName, createBeanDefinition(beanName, type));
   }
 

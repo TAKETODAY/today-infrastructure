@@ -57,7 +57,7 @@ public class ContextCleanupListener implements ServletContextListener {
   }
 
   /**
-   * Find all Spring-internal ServletContext attributes which implement
+   * Find all Frameworkinternal ServletContext attributes which implement
    * {@link DisposableBean} and invoke the destroy method on them.
    *
    * @param servletContext the ServletContext to check

@@ -20,6 +20,8 @@
 
 package cn.taketoday.framework.diagnostics;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * The result of analyzing a failure.
  *
@@ -64,7 +66,7 @@ public class FailureAnalysis {
    *
    * @return the action or {@code null}
    */
-
+  @Nullable
   public String getAction() {
     return this.action;
   }

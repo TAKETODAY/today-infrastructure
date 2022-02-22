@@ -21,11 +21,11 @@
 package cn.taketoday.context.properties;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;

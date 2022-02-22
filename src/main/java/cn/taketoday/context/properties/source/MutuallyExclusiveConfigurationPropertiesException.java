@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Exception thrown when more than one mutually exclusive configuration property has been
@@ -84,8 +85,9 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
     return this.mutuallyExclusiveNames;
   }
 
-  private static Set<String> asSet(Collection<String> collection) {
-    return (collection != null) ? new LinkedHashSet<>(collection) : null;
+  @Nullable
+  private static Set<String> asSet(@Nullable Collection<String> collection) {
+    return collection != null ? new LinkedHashSet<>(collection) : null;
   }
 
   private static String buildMessage(Set<String> mutuallyExclusiveNames, Set<String> configuredNames) {
@@ -105,10 +107,13 @@ public class MutuallyExclusiveConfigurationPropertiesException extends RuntimeEx
    * @param entries a consumer used to populate the entries to check
    */
   public static void throwIfMultipleNonNullValuesIn(Consumer<Map<String, Object>> entries) {
-    Map<String, Object> map = new LinkedHashMap<>();
+    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
     entries.accept(map);
-    Set<String> configuredNames = map.entrySet().stream().filter((entry) -> entry.getValue() != null)
-            .map(Map.Entry::getKey).collect(Collectors.toCollection(LinkedHashSet::new));
+    Set<String> configuredNames = map.entrySet()
+            .stream()
+            .filter((entry) -> entry.getValue() != null)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     if (configuredNames.size() > 1) {
       throw new MutuallyExclusiveConfigurationPropertiesException(configuredNames, map.keySet());
     }

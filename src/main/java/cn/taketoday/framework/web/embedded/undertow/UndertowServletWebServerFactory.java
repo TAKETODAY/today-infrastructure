@@ -319,7 +319,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     deployment.setClassLoader(getServletClassLoader());
     deployment.setContextPath(getContextPath());
     deployment.setDisplayName(getDisplayName());
-    deployment.setDeploymentName("spring-boot");
+    deployment.setDeploymentName("web-app");
     if (isRegisterDefaultServlet()) {
       deployment.addServlet(Servlets.servlet("default", DefaultServlet.class));
     }

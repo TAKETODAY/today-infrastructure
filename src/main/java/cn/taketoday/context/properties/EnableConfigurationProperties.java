@@ -36,6 +36,7 @@ import cn.taketoday.context.annotation.Import;
  * directly on this annotation.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Target(ElementType.TYPE)
@@ -46,8 +47,6 @@ public @interface EnableConfigurationProperties {
 
   /**
    * The bean name of the configuration properties validator.
-   *
-   * @since 4.0
    */
   String VALIDATOR_BEAN_NAME = "configurationPropertiesValidator";
 

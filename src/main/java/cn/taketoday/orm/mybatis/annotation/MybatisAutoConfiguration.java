@@ -264,7 +264,6 @@ public class MybatisAutoConfiguration implements InitializingBean {
         definition.addPropertyValue("defaultScope", "${mybatis.mapper-default-scope:}");
       }
 
-      // for spring-native
       boolean injectSqlSession = environment.getProperty(
               "mybatis.inject-sql-session-on-mapper-scan", Boolean.class, Boolean.TRUE);
       if (injectSqlSession && this.beanFactory != null) {

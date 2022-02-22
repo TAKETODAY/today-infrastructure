@@ -44,7 +44,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 final class SystemEnvironmentPropertyMapper implements PropertyMapper {
-
   public static final PropertyMapper INSTANCE = new SystemEnvironmentPropertyMapper();
 
   @Override

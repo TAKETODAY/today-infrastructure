@@ -21,6 +21,7 @@
 package cn.taketoday.context.properties.source;
 
 import cn.taketoday.core.env.AbstractPropertyResolver;
+import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.lang.Nullable;
@@ -31,6 +32,7 @@ import cn.taketoday.lang.Nullable;
  * underlying sources if the name is a value {@link ConfigurationPropertyName}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResolver {
@@ -104,11 +106,10 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
 
   @Nullable
   private ConfigurationPropertySourcesPropertySource getAttached() {
-    ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) ConfigurationPropertySources
-            .getAttached(this.propertySources);
-    Iterable<ConfigurationPropertySource> attachedSource = attached != null ? attached.getSource() : null;
+    PropertySource<?> attached = ConfigurationPropertySources.getAttached(this.propertySources);
+    Object attachedSource = attached != null ? attached.getSource() : null;
     if (attachedSource instanceof FrameworkConfigurationPropertySources cps && cps.isUsingSources(this.propertySources)) {
-      return attached;
+      return (ConfigurationPropertySourcesPropertySource) attached;
     }
     return null;
   }

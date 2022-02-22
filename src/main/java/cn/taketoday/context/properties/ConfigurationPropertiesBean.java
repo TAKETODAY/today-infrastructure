@@ -67,6 +67,7 @@ public final class ConfigurationPropertiesBean {
 
   private final String name;
 
+  @Nullable
   private final Object instance;
 
   private final ConfigurationProperties annotation;
@@ -81,8 +82,8 @@ public final class ConfigurationPropertiesBean {
     this(name, instance, annotation, bindTarget, BindMethod.forType(bindTarget.getType().resolve()));
   }
 
-  private ConfigurationPropertiesBean(String name, @Nullable Object instance, ConfigurationProperties annotation,
-                                      Bindable<?> bindTarget, BindMethod bindMethod) {
+  private ConfigurationPropertiesBean(
+          String name, @Nullable Object instance, ConfigurationProperties annotation, Bindable<?> bindTarget, BindMethod bindMethod) {
     this.name = name;
     this.instance = instance;
     this.annotation = annotation;
@@ -104,6 +105,7 @@ public final class ConfigurationPropertiesBean {
    *
    * @return the bean instance
    */
+  @Nullable
   public Object getInstance() {
     return this.instance;
   }
@@ -113,6 +115,7 @@ public final class ConfigurationPropertiesBean {
    *
    * @return the bean type
    */
+  @Nullable
   Class<?> getType() {
     return this.bindTarget.getType().resolve();
   }
@@ -271,8 +274,9 @@ public final class ConfigurationPropertiesBean {
 
   static ConfigurationPropertiesBean forValueObject(Class<?> beanClass, String beanName) {
     ConfigurationPropertiesBean propertiesBean = create(beanName, null, beanClass, null);
-    Assert.state(propertiesBean != null && propertiesBean.getBindMethod() == BindMethod.VALUE_OBJECT,
-            () -> "Bean '" + beanName + "' is not a @ConfigurationProperties value object");
+    if (!(propertiesBean != null && propertiesBean.getBindMethod() == BindMethod.VALUE_OBJECT)) {
+      throw new IllegalStateException("Bean '" + beanName + "' is not a @ConfigurationProperties value object");
+    }
     return propertiesBean;
   }
 

@@ -23,6 +23,8 @@ package cn.taketoday.context.properties.source;
 import java.time.Duration;
 import java.util.function.Consumer;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * {@link ConfigurationPropertyCaching} for an {@link Iterable iterable} set of
  * {@link ConfigurationPropertySource} instances.
@@ -33,9 +35,10 @@ import java.util.function.Consumer;
  */
 class ConfigurationPropertySourcesCaching implements ConfigurationPropertyCaching {
 
+  @Nullable
   private final Iterable<ConfigurationPropertySource> sources;
 
-  ConfigurationPropertySourcesCaching(Iterable<ConfigurationPropertySource> sources) {
+  ConfigurationPropertySourcesCaching(@Nullable Iterable<ConfigurationPropertySource> sources) {
     this.sources = sources;
   }
 

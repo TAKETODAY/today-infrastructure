@@ -44,11 +44,11 @@ import cn.taketoday.lang.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Import(ConfigurationPropertiesScanRegistrar.class)
 @EnableConfigurationProperties
+@Import(ConfigurationPropertiesScanRegistrar.class)
 public @interface ConfigurationPropertiesScan {
 
   /**

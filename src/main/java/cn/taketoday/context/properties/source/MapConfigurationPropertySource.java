@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link ConfigurationPropertySource} backed by a {@link Map} and using standard name
@@ -83,7 +84,7 @@ public class MapConfigurationPropertySource implements IterableConfigurationProp
    * @param name the name
    * @param value the value
    */
-  public void put(Object name, Object value) {
+  public void put(@Nullable Object name, Object value) {
     this.source.put((name != null) ? name.toString() : null, value);
   }
 

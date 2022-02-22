@@ -85,8 +85,7 @@ class ServletComponentRegisteringPostProcessor implements BeanFactoryPostProcess
 
   private ClassPathScanningCandidateComponentProvider createComponentProvider() {
     ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(
-            false);
-    componentProvider.setEnvironment(this.applicationContext.getEnvironment());
+            false, applicationContext.getEnvironment());
     componentProvider.setResourceLoader(this.applicationContext);
     for (ServletComponentHandler handler : HANDLERS) {
       componentProvider.addIncludeFilter(handler.getTypeFilter());

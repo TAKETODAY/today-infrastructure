@@ -21,6 +21,7 @@
 package cn.taketoday.context.properties;
 
 import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -46,6 +47,7 @@ public class ConfigurationPropertiesBindException extends BeanCreationException 
    *
    * @return the bean type
    */
+  @Nullable
   public Class<?> getBeanType() {
     return this.bean.getType();
   }

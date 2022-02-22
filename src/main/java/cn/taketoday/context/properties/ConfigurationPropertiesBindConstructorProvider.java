@@ -27,7 +27,6 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.properties.bind.BindConstructorProvider;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -36,6 +35,8 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class ConfigurationPropertiesBindConstructorProvider implements BindConstructorProvider {
 
@@ -56,8 +57,9 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
     }
     Constructors constructors = Constructors.getConstructors(type);
     if (constructors.getBind() != null || isNestedConstructorBinding) {
-      Assert.state(!constructors.hasAutowired(),
-              () -> type.getName() + " declares @ConstructorBinding and @Autowired constructor");
+      if (constructors.hasAutowired()) {
+        throw new IllegalStateException(type.getName() + " declares @ConstructorBinding and @Autowired constructor");
+      }
     }
     return constructors.getBind();
   }
@@ -65,20 +67,11 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
   /**
    * Data holder for autowired and bind constructors.
    */
-  static final class Constructors {
+  private record Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
 
-    private final boolean hasAutowired;
-
-    @Nullable
-    private final Constructor<?> bind;
-
-    private Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
+    Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
       this.hasAutowired = hasAutowired;
       this.bind = bind;
-    }
-
-    boolean hasAutowired() {
-      return this.hasAutowired;
     }
 
     @Nullable
@@ -137,13 +130,16 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
       return MergedAnnotations.from(candidate).isPresent(Autowired.class);
     }
 
-    private static Constructor<?> findAnnotatedConstructor(Class<?> type, Constructor<?> constructor,
-                                                           Constructor<?> candidate) {
+    @Nullable
+    private static Constructor<?> findAnnotatedConstructor(
+            Class<?> type, @Nullable Constructor<?> constructor, Constructor<?> candidate) {
       if (MergedAnnotations.from(candidate).isPresent(ConstructorBinding.class)) {
-        Assert.state(candidate.getParameterCount() > 0,
-                () -> type.getName() + " declares @ConstructorBinding on a no-args constructor");
-        Assert.state(constructor == null,
-                () -> type.getName() + " has more than one @ConstructorBinding constructor");
+        if (candidate.getParameterCount() <= 0) {
+          throw new IllegalStateException(type.getName() + " declares @ConstructorBinding on a no-args constructor");
+        }
+        if (constructor != null) {
+          throw new IllegalStateException(type.getName() + " has more than one @ConstructorBinding constructor");
+        }
         constructor = candidate;
       }
       return constructor;

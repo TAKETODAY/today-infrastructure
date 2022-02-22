@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistry;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;

@@ -25,11 +25,11 @@ import cn.taketoday.web.servlet.ServletContextAware;
 import jakarta.servlet.ServletContext;
 
 /**
- * Exporter that takes Spring-defined objects and exposes them as
+ * Exporter that takes Frameworkdefined objects and exposes them as
  * ServletContext attributes. Usually, bean references will be used
  * to export Framework-defined beans as ServletContext attributes.
  *
- * <p>Useful to make Spring-defined beans available to code that is
+ * <p>Useful to make Frameworkdefined beans available to code that is
  * not aware of Framework at all, but rather just of the Servlet API.
  * Client code can then use plain ServletContext attribute lookups
  * to access those objects, despite them being defined in a Spring
@@ -56,7 +56,7 @@ public class ServletContextAttributeExporter implements ServletContextAware {
    * Each key will be considered a ServletContext attributes key,
    * and each value will be used as corresponding attribute value.
    * <p>Usually, you will use bean references for the values,
-   * to export Spring-defined beans as ServletContext attributes.
+   * to export Frameworkdefined beans as ServletContext attributes.
    * Of course, it is also possible to define plain values to export.
    */
   public void setAttributes(@Nullable Map<String, Object> attributes) {

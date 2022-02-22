@@ -36,6 +36,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class PropertySourcesDeducer {
 

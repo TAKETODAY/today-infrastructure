@@ -40,7 +40,7 @@ class PrefixedIterableConfigurationPropertySource extends PrefixedConfigurationP
   }
 
   private ConfigurationPropertyName stripPrefix(ConfigurationPropertyName name) {
-    return (getPrefix().isAncestorOf(name)) ? name.subName(getPrefix().getNumberOfElements()) : name;
+    return getPrefix().isAncestorOf(name) ? name.subName(getPrefix().getNumberOfElements()) : name;
   }
 
   @Override

@@ -26,6 +26,7 @@ import java.util.List;
  * Exception thrown when {@link ConfigurationPropertyName} has invalid characters.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class InvalidConfigurationPropertyNameException extends RuntimeException {

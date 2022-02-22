@@ -42,6 +42,7 @@ import cn.taketoday.lang.Indexed;
  * values are externalized.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationPropertiesScan
  * @see ConstructorBinding
  * @see ConfigurationPropertiesBindingPostProcessor

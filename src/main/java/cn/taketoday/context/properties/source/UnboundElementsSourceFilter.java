@@ -20,9 +20,6 @@
 
 package cn.taketoday.context.properties.source;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -36,13 +33,15 @@ import cn.taketoday.core.env.StandardEnvironment;
  * unbound element failures.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class UnboundElementsSourceFilter implements Function<ConfigurationPropertySource, Boolean> {
 
-  private static final Set<String> BENIGN_PROPERTY_SOURCE_NAMES = Collections
-          .unmodifiableSet(new HashSet<>(Arrays.asList(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
-                  StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)));
+  private static final Set<String> BENIGN_PROPERTY_SOURCE_NAMES = Set.of(
+          StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
+          StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME
+  );
 
   @Override
   public Boolean apply(ConfigurationPropertySource configurationPropertySource) {

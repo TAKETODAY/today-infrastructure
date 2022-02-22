@@ -28,12 +28,14 @@ import java.util.stream.Stream;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class FilteredIterableConfigurationPropertiesSource extends FilteredConfigurationPropertiesSource
         implements IterableConfigurationPropertySource {
 
-  FilteredIterableConfigurationPropertiesSource(IterableConfigurationPropertySource source,
-                                                Predicate<ConfigurationPropertyName> filter) {
+  FilteredIterableConfigurationPropertiesSource(
+          IterableConfigurationPropertySource source, Predicate<ConfigurationPropertyName> filter) {
     super(source, filter);
   }
 

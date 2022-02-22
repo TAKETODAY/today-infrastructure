@@ -20,25 +20,24 @@
 
 package cn.taketoday.context.properties;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.auto.TypeExcludeFilter;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotationSelectors;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -55,7 +54,6 @@ import cn.taketoday.util.StringUtils;
 class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegistrar {
 
   private final Environment environment;
-
   private final ResourceLoader resourceLoader;
 
   ConfigurationPropertiesScanRegistrar(Environment environment, ResourceLoader resourceLoader) {
@@ -66,13 +64,14 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
     Set<String> packagesToScan = getPackagesToScan(importMetadata);
-    scan(context.getRegistry(), packagesToScan);
+    scan(context, packagesToScan);
   }
 
   private Set<String> getPackagesToScan(AnnotationMetadata metadata) {
-    AnnotationAttributes attributes = AnnotationAttributes.fromMap(
-            metadata.getAnnotationAttributes(ConfigurationPropertiesScan.class.getName()));
+    MergedAnnotation<ConfigurationPropertiesScan> attributes = metadata.getAnnotations().get(
+            ConfigurationPropertiesScan.class, null, MergedAnnotationSelectors.firstDirectlyDeclared());
 
+    Assert.state(attributes.isPresent(), "ConfigurationPropertiesScan not present");
     String[] basePackages = attributes.getStringArray("basePackages");
     Class<?>[] basePackageClasses = attributes.getClassArray("basePackageClasses");
     LinkedHashSet<String> packagesToScan = new LinkedHashSet<>(Arrays.asList(basePackages));
@@ -87,44 +86,42 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
     return packagesToScan;
   }
 
-  private void scan(BeanDefinitionRegistry registry, Set<String> packages) {
-    ConfigurationPropertiesBeanRegistrar registrar = new ConfigurationPropertiesBeanRegistrar(registry);
-    ClassPathScanningCandidateComponentProvider scanner = getScanner(registry);
+  private void scan(DefinitionLoadingContext context, Set<String> packages) {
+    ConfigurationPropertiesBeanRegistrar registrar = new ConfigurationPropertiesBeanRegistrar(context);
+    ClassPathScanningCandidateComponentProvider scanner = getScanner(context);
     for (String basePackage : packages) {
-      for (BeanDefinition candidate : scanner.findCandidateComponents(basePackage)) {
-        register(registrar, candidate.getBeanClassName());
+      try {
+        scanner.scanCandidateComponents(basePackage, (metadataReader, factory) -> register(registrar, metadataReader));
+      }
+      catch (IOException e) {
+        throw new IllegalStateException("ConfigurationProperties scanning failed", e);
       }
     }
   }
 
-  private ClassPathScanningCandidateComponentProvider getScanner(BeanDefinitionRegistry registry) {
-    ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-    scanner.setEnvironment(this.environment);
-    scanner.setResourceLoader(this.resourceLoader);
+  private ClassPathScanningCandidateComponentProvider getScanner(DefinitionLoadingContext context) {
+    ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false, environment);
+    scanner.setResourceLoader(resourceLoader);
     scanner.addIncludeFilter(new AnnotationTypeFilter(ConfigurationProperties.class));
     TypeExcludeFilter typeExcludeFilter = new TypeExcludeFilter();
-    typeExcludeFilter.setBeanFactory((BeanFactory) registry);
+    typeExcludeFilter.setBeanFactory(context.getBeanFactory());
     scanner.addExcludeFilter(typeExcludeFilter);
     return scanner;
   }
 
-  private void register(ConfigurationPropertiesBeanRegistrar registrar, String className) throws LinkageError {
-    try {
-      register(registrar, ClassUtils.forName(className, null));
-    }
-    catch (ClassNotFoundException ex) {
-      // Ignore
-    }
-  }
-
-  private void register(ConfigurationPropertiesBeanRegistrar registrar, Class<?> type) {
-    if (!isComponent(type)) {
-      registrar.register(type);
+  private void register(ConfigurationPropertiesBeanRegistrar registrar, MetadataReader reader) throws LinkageError {
+    AnnotationMetadata annotationMetadata = reader.getAnnotationMetadata();
+    if (!isComponent(annotationMetadata)) {
+      Class<?> objectClass = ClassUtils.load(annotationMetadata.getClassName(), null);
+      if (objectClass != null) {
+        registrar.register(objectClass);
+      }
     }
   }
 
-  private boolean isComponent(Class<?> type) {
-    return MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).isPresent(Component.class);
+  private boolean isComponent(AnnotationMetadata annotationMetadata) {
+    // MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).isPresent(Component.class)
+    return annotationMetadata.isAnnotated(Component.class.getName());
   }
 
 }

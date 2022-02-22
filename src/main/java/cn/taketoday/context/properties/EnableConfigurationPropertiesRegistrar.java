@@ -25,12 +25,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
 import cn.taketoday.core.Conventions;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.validation.beanvalidation.MethodValidationExcludeFilter;
 
@@ -53,14 +52,15 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
     BeanDefinitionRegistry registry = context.getRegistry();
     registerInfrastructureBeans(registry);
     registerMethodValidationExcludeFilter(registry);
-    ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(registry);
+    ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(context);
     getTypes(metadata).forEach(beanRegistrar::register);
   }
 
   private Set<Class<?>> getTypes(AnnotationMetadata metadata) {
     return metadata.getAnnotations().stream(EnableConfigurationProperties.class)
-            .flatMap((annotation) -> Arrays.stream(annotation.getClassArray(MergedAnnotation.VALUE)))
-            .filter((Predicate<Class>) (type) -> void.class != type).collect(Collectors.toSet());
+            .flatMap((annotation) -> Arrays.stream(annotation.getClassValueArray()))
+            .filter((Predicate<Class>) (type) -> void.class != type)
+            .collect(Collectors.toSet());
   }
 
   static void registerInfrastructureBeans(BeanDefinitionRegistry registry) {

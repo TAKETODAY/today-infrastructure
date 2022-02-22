@@ -41,6 +41,7 @@ import java.lang.annotation.Target;
  * {@link cn.taketoday.context.annotation.Import @Import}).
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationProperties
  * @since 4.0
  */

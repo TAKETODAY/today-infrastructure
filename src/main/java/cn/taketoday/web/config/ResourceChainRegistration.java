@@ -46,7 +46,7 @@ import cn.taketoday.web.resource.WebJarsResourceResolver;
  */
 public class ResourceChainRegistration {
 
-  private static final String DEFAULT_CACHE_NAME = "spring-resource-chain-cache";
+  private static final String DEFAULT_CACHE_NAME = "resource-chain-cache";
 
   private static final boolean isWebJarsAssetLocatorPresent = ClassUtils.isPresent(
           "org.webjars.WebJarAssetLocator", ResourceChainRegistration.class.getClassLoader());

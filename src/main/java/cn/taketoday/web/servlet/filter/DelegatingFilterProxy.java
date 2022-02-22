@@ -37,7 +37,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 
 /**
- * Proxy for a standard Servlet Filter, delegating to a Spring-managed bean that
+ * Proxy for a standard Servlet Filter, delegating to a Frameworkmanaged bean that
  * implements the Filter interface. Supports a "targetBeanName" filter init-param
  * in {@code web.xml}, specifying the name of the target bean in the Spring
  * application context.

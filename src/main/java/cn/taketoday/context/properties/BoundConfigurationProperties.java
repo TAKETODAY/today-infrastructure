@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
@@ -59,6 +59,7 @@ public class BoundConfigurationProperties {
    * @param name the property name
    * @return the bound property or {@code null}
    */
+  @Nullable
   public ConfigurationProperty get(ConfigurationPropertyName name) {
     return this.properties.get(name);
   }
@@ -90,10 +91,8 @@ public class BoundConfigurationProperties {
   static void register(BeanDefinitionRegistry registry) {
     Assert.notNull(registry, "Registry must not be null");
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-
       BeanDefinition definition = new BeanDefinition(BoundConfigurationProperties.class);
       definition.setInstanceSupplier(BoundConfigurationProperties::new);
-
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(BEAN_NAME, definition);
     }
