@@ -52,9 +52,8 @@ import cn.taketoday.util.ClassUtils;
  * the container. Such a DataSource can be exposed as a DataSource bean in a Framework
  * ApplicationContext via {@link cn.taketoday.jndi.JndiObjectFactoryBean},
  * for seamless switching to and from a local DataSource bean like this class.
- * For tests, you can then either set up a mock JNDI environment through
- * {@link cn.taketoday.mock.jndi.SimpleNamingContextBuilder}, or switch the
- * bean definition to a local DataSource (which is simpler and thus recommended).
+ * For tests, you can switch the bean definition to a local DataSource
+ * (which is simpler and thus recommended).
  *
  * <p>This {@code DriverManagerDataSource} class was originally designed alongside
  * <a href="https://commons.apache.org/proper/commons-dbcp">Apache Commons DBCP</a>
@@ -137,7 +136,7 @@ public class DriverManagerDataSource extends AbstractDriverBasedDataSource {
       throw new IllegalStateException("Could not load JDBC driver class [" + driverClassNameToUse + "]", ex);
     }
     if (logger.isDebugEnabled()) {
-      logger.debug("Loaded JDBC driver: " + driverClassNameToUse);
+      logger.debug("Loaded JDBC driver: {}", driverClassNameToUse);
     }
   }
 
@@ -146,7 +145,7 @@ public class DriverManagerDataSource extends AbstractDriverBasedDataSource {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
     if (logger.isDebugEnabled()) {
-      logger.debug("Creating new JDBC DriverManager Connection to [" + url + "]");
+      logger.debug("Creating new JDBC DriverManager Connection to [{}]", url);
     }
     return getConnectionFromDriverManager(url, props);
   }

@@ -171,7 +171,7 @@ public class IsolationLevelDataSourceAdapter extends UserCredentialsDataSourceAd
   @Nullable
   protected Boolean getCurrentReadOnlyFlag() {
     boolean txReadOnly = TransactionSynchronizationManager.isCurrentTransactionReadOnly();
-    return (txReadOnly ? Boolean.TRUE : null);
+    return txReadOnly ? Boolean.TRUE : null;
   }
 
 }

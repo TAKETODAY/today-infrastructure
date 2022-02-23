@@ -57,7 +57,7 @@ public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport
           @Nullable MethodParameter methodParam) throws TypeMismatchException {
 
     return convertIfNecessary(value, requiredType,
-            (methodParam != null ? new TypeDescriptor(methodParam) : TypeDescriptor.valueOf(requiredType)));
+            methodParam != null ? new TypeDescriptor(methodParam) : TypeDescriptor.valueOf(requiredType));
   }
 
   @Override
@@ -66,7 +66,7 @@ public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport
           throws TypeMismatchException {
 
     return convertIfNecessary(value, requiredType,
-            (field != null ? new TypeDescriptor(field) : TypeDescriptor.valueOf(requiredType)));
+            field != null ? new TypeDescriptor(field) : TypeDescriptor.valueOf(requiredType));
   }
 
   @Nullable

@@ -111,7 +111,6 @@ public class UserCredentialsDataSourceAdapter extends DelegatingDataSource {
    * Specify a database catalog to be applied to each retrieved Connection.
    *
    * @see Connection#setCatalog
-   * @since 4.0
    */
   public void setCatalog(String catalog) {
     this.catalog = catalog;
@@ -121,7 +120,6 @@ public class UserCredentialsDataSourceAdapter extends DelegatingDataSource {
    * Specify a database schema to be applied to each retrieved Connection.
    *
    * @see Connection#setSchema
-   * @since 4.0
    */
   public void setSchema(String schema) {
     this.schema = schema;
@@ -164,9 +162,9 @@ public class UserCredentialsDataSourceAdapter extends DelegatingDataSource {
   @Override
   public Connection getConnection() throws SQLException {
     JdbcUserCredentials threadCredentials = this.threadBoundCredentials.get();
-    Connection con = (threadCredentials != null ?
-                      doGetConnection(threadCredentials.username, threadCredentials.password) :
-                      doGetConnection(this.username, this.password));
+    Connection con = threadCredentials != null
+                     ? doGetConnection(threadCredentials.username, threadCredentials.password)
+                     : doGetConnection(this.username, this.password);
 
     if (this.catalog != null) {
       con.setCatalog(this.catalog);
@@ -211,16 +209,7 @@ public class UserCredentialsDataSourceAdapter extends DelegatingDataSource {
   /**
    * Inner class used as ThreadLocal value.
    */
-  private static final class JdbcUserCredentials {
-
-    public final String username;
-
-    public final String password;
-
-    public JdbcUserCredentials(String username, String password) {
-      this.username = username;
-      this.password = password;
-    }
+  private record JdbcUserCredentials(String username, String password) {
 
     @Override
     public String toString() {

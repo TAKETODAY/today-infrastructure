@@ -53,8 +53,7 @@ public class DelegatingDataSource implements DataSource, InitializingBean {
    *
    * @see #setTargetDataSource
    */
-  public DelegatingDataSource() {
-  }
+  public DelegatingDataSource() { }
 
   /**
    * Create a new DelegatingDataSource.
@@ -82,8 +81,6 @@ public class DelegatingDataSource implements DataSource, InitializingBean {
 
   /**
    * Obtain the target {@code DataSource} for actual use (never {@code null}).
-   *
-   * @since 4.0
    */
   protected DataSource obtainTargetDataSource() {
     DataSource dataSource = getTargetDataSource();

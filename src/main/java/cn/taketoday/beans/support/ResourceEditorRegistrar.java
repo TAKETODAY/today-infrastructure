@@ -117,9 +117,9 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
     doRegisterEditor(registry, Class.class, new ClassEditor(classLoader));
     doRegisterEditor(registry, Class[].class, new ClassArrayEditor(classLoader));
 
-    if (this.resourceLoader instanceof PatternResourceLoader) {
+    if (this.resourceLoader instanceof PatternResourceLoader patternResourceLoader) {
       doRegisterEditor(registry, Resource[].class,
-              new ResourceArrayPropertyEditor((PatternResourceLoader) this.resourceLoader, this.propertyResolver));
+              new ResourceArrayPropertyEditor(patternResourceLoader, this.propertyResolver));
     }
   }
 
@@ -127,9 +127,9 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
    * Override default editor, if possible (since that's what we really mean to do here);
    * otherwise register as a custom editor.
    */
-  private void doRegisterEditor(PropertyEditorRegistry registry, Class<?> requiredType, PropertyEditor editor) {
-    if (registry instanceof PropertyEditorRegistrySupport) {
-      ((PropertyEditorRegistrySupport) registry).overrideDefaultEditor(requiredType, editor);
+  private static void doRegisterEditor(PropertyEditorRegistry registry, Class<?> requiredType, PropertyEditor editor) {
+    if (registry instanceof PropertyEditorRegistrySupport registrySupport) {
+      registrySupport.overrideDefaultEditor(requiredType, editor);
     }
     else {
       registry.registerCustomEditor(requiredType, editor);

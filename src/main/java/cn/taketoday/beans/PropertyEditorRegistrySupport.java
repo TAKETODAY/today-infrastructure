@@ -105,19 +105,19 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   private boolean configValueEditorsActive = false;
 
   @Nullable
-  private Map<Class<?>, PropertyEditor> defaultEditors;
+  private HashMap<Class<?>, PropertyEditor> defaultEditors;
 
   @Nullable
-  private Map<Class<?>, PropertyEditor> overriddenDefaultEditors;
+  private HashMap<Class<?>, PropertyEditor> overriddenDefaultEditors;
 
   @Nullable
-  private Map<Class<?>, PropertyEditor> customEditors;
+  private LinkedHashMap<Class<?>, PropertyEditor> customEditors;
 
   @Nullable
-  private Map<String, CustomEditorHolder> customEditorsForPath;
+  private LinkedHashMap<String, CustomEditorHolder> customEditorsForPath;
 
   @Nullable
-  private Map<Class<?>, PropertyEditor> customEditorCache;
+  private HashMap<Class<?>, PropertyEditor> customEditorCache;
 
   /**
    * Specify a ConversionService to use for converting
@@ -169,10 +169,12 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * @see #registerCustomEditor(Class, PropertyEditor)
    */
   public void overrideDefaultEditor(Class<?> requiredType, PropertyEditor propertyEditor) {
-    if (this.overriddenDefaultEditors == null) {
-      this.overriddenDefaultEditors = new HashMap<>();
+    HashMap<Class<?>, PropertyEditor> editors = overriddenDefaultEditors;
+    if (editors == null) {
+      editors = new HashMap<>();
+      this.overriddenDefaultEditors = editors;
     }
-    this.overriddenDefaultEditors.put(requiredType, propertyEditor);
+    editors.put(requiredType, propertyEditor);
   }
 
   /**
@@ -185,93 +187,98 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    */
   @Nullable
   public PropertyEditor getDefaultEditor(Class<?> requiredType) {
-    if (!this.defaultEditorsActive) {
-      return null;
-    }
-    if (this.overriddenDefaultEditors != null) {
-      PropertyEditor editor = this.overriddenDefaultEditors.get(requiredType);
-      if (editor != null) {
-        return editor;
+    if (defaultEditorsActive) {
+      HashMap<Class<?>, PropertyEditor> overriddenDefaultEditors = this.overriddenDefaultEditors;
+      if (overriddenDefaultEditors != null) {
+        PropertyEditor editor = overriddenDefaultEditors.get(requiredType);
+        if (editor != null) {
+          return editor;
+        }
       }
+      HashMap<Class<?>, PropertyEditor> defaultEditors = this.defaultEditors;
+      if (defaultEditors == null) {
+        defaultEditors = createDefaultEditors();
+        this.defaultEditors = defaultEditors;
+      }
+      return defaultEditors.get(requiredType);
     }
-    if (this.defaultEditors == null) {
-      createDefaultEditors();
-    }
-    return this.defaultEditors.get(requiredType);
+    return null;
   }
 
   /**
    * Actually register the default editors for this registry instance.
    */
-  private void createDefaultEditors() {
-    this.defaultEditors = new HashMap<>(64);
+  private HashMap<Class<?>, PropertyEditor> createDefaultEditors() {
+    HashMap<Class<?>, PropertyEditor> defaultEditors = new HashMap<>(64);
 
     // Simple editors, without parameterization capabilities.
     // The JDK does not contain a default editor for any of these target types.
-    this.defaultEditors.put(Charset.class, new CharsetEditor());
-    this.defaultEditors.put(Class.class, new ClassEditor());
-    this.defaultEditors.put(Class[].class, new ClassArrayEditor());
-    this.defaultEditors.put(Currency.class, new CurrencyEditor());
-    this.defaultEditors.put(File.class, new FileEditor());
-    this.defaultEditors.put(InputStream.class, new InputStreamEditor());
-    this.defaultEditors.put(InputSource.class, new InputSourceEditor());
-    this.defaultEditors.put(Locale.class, new LocaleEditor());
-    this.defaultEditors.put(Path.class, new PathEditor());
-    this.defaultEditors.put(Pattern.class, new PatternEditor());
-    this.defaultEditors.put(Properties.class, new PropertiesEditor());
-    this.defaultEditors.put(Reader.class, new ReaderEditor());
-    this.defaultEditors.put(Resource[].class, new ResourceArrayPropertyEditor());
-    this.defaultEditors.put(TimeZone.class, new TimeZoneEditor());
-    this.defaultEditors.put(URI.class, new URIEditor());
-    this.defaultEditors.put(URL.class, new URLEditor());
-    this.defaultEditors.put(UUID.class, new UUIDEditor());
-    this.defaultEditors.put(ZoneId.class, new ZoneIdEditor());
+    defaultEditors.put(Charset.class, new CharsetEditor());
+    defaultEditors.put(Class.class, new ClassEditor());
+    defaultEditors.put(Class[].class, new ClassArrayEditor());
+    defaultEditors.put(Currency.class, new CurrencyEditor());
+    defaultEditors.put(File.class, new FileEditor());
+    defaultEditors.put(InputStream.class, new InputStreamEditor());
+    defaultEditors.put(InputSource.class, new InputSourceEditor());
+    defaultEditors.put(Locale.class, new LocaleEditor());
+    defaultEditors.put(Path.class, new PathEditor());
+    defaultEditors.put(Pattern.class, new PatternEditor());
+    defaultEditors.put(Properties.class, new PropertiesEditor());
+    defaultEditors.put(Reader.class, new ReaderEditor());
+    defaultEditors.put(Resource[].class, new ResourceArrayPropertyEditor());
+    defaultEditors.put(TimeZone.class, new TimeZoneEditor());
+    defaultEditors.put(URI.class, new URIEditor());
+    defaultEditors.put(URL.class, new URLEditor());
+    defaultEditors.put(UUID.class, new UUIDEditor());
+    defaultEditors.put(ZoneId.class, new ZoneIdEditor());
 
     // Default instances of collection editors.
     // Can be overridden by registering custom instances of those as custom editors.
-    this.defaultEditors.put(Collection.class, new CustomCollectionEditor(Collection.class));
-    this.defaultEditors.put(Set.class, new CustomCollectionEditor(Set.class));
-    this.defaultEditors.put(SortedSet.class, new CustomCollectionEditor(SortedSet.class));
-    this.defaultEditors.put(List.class, new CustomCollectionEditor(List.class));
-    this.defaultEditors.put(SortedMap.class, new CustomMapEditor(SortedMap.class));
+    defaultEditors.put(Collection.class, new CustomCollectionEditor(Collection.class));
+    defaultEditors.put(Set.class, new CustomCollectionEditor(Set.class));
+    defaultEditors.put(SortedSet.class, new CustomCollectionEditor(SortedSet.class));
+    defaultEditors.put(List.class, new CustomCollectionEditor(List.class));
+    defaultEditors.put(SortedMap.class, new CustomMapEditor(SortedMap.class));
 
     // Default editors for primitive arrays.
-    this.defaultEditors.put(byte[].class, new ByteArrayPropertyEditor());
-    this.defaultEditors.put(char[].class, new CharArrayPropertyEditor());
+    defaultEditors.put(byte[].class, new ByteArrayPropertyEditor());
+    defaultEditors.put(char[].class, new CharArrayPropertyEditor());
 
     // The JDK does not contain a default editor for char!
-    this.defaultEditors.put(char.class, new CharacterEditor(false));
-    this.defaultEditors.put(Character.class, new CharacterEditor(true));
+    defaultEditors.put(char.class, new CharacterEditor(false));
+    defaultEditors.put(Character.class, new CharacterEditor(true));
 
     // Framework's CustomBooleanEditor accepts more flag values than the JDK's default editor.
-    this.defaultEditors.put(boolean.class, new CustomBooleanEditor(false));
-    this.defaultEditors.put(Boolean.class, new CustomBooleanEditor(true));
+    defaultEditors.put(boolean.class, new CustomBooleanEditor(false));
+    defaultEditors.put(Boolean.class, new CustomBooleanEditor(true));
 
     // The JDK does not contain default editors for number wrapper types!
     // Override JDK primitive number editors with our own CustomNumberEditor.
-    this.defaultEditors.put(byte.class, new CustomNumberEditor(Byte.class, false));
-    this.defaultEditors.put(Byte.class, new CustomNumberEditor(Byte.class, true));
-    this.defaultEditors.put(short.class, new CustomNumberEditor(Short.class, false));
-    this.defaultEditors.put(Short.class, new CustomNumberEditor(Short.class, true));
-    this.defaultEditors.put(int.class, new CustomNumberEditor(Integer.class, false));
-    this.defaultEditors.put(Integer.class, new CustomNumberEditor(Integer.class, true));
-    this.defaultEditors.put(long.class, new CustomNumberEditor(Long.class, false));
-    this.defaultEditors.put(Long.class, new CustomNumberEditor(Long.class, true));
-    this.defaultEditors.put(float.class, new CustomNumberEditor(Float.class, false));
-    this.defaultEditors.put(Float.class, new CustomNumberEditor(Float.class, true));
-    this.defaultEditors.put(double.class, new CustomNumberEditor(Double.class, false));
-    this.defaultEditors.put(Double.class, new CustomNumberEditor(Double.class, true));
-    this.defaultEditors.put(BigDecimal.class, new CustomNumberEditor(BigDecimal.class, true));
-    this.defaultEditors.put(BigInteger.class, new CustomNumberEditor(BigInteger.class, true));
+    defaultEditors.put(byte.class, new CustomNumberEditor(Byte.class, false));
+    defaultEditors.put(Byte.class, new CustomNumberEditor(Byte.class, true));
+    defaultEditors.put(short.class, new CustomNumberEditor(Short.class, false));
+    defaultEditors.put(Short.class, new CustomNumberEditor(Short.class, true));
+    defaultEditors.put(int.class, new CustomNumberEditor(Integer.class, false));
+    defaultEditors.put(Integer.class, new CustomNumberEditor(Integer.class, true));
+    defaultEditors.put(long.class, new CustomNumberEditor(Long.class, false));
+    defaultEditors.put(Long.class, new CustomNumberEditor(Long.class, true));
+    defaultEditors.put(float.class, new CustomNumberEditor(Float.class, false));
+    defaultEditors.put(Float.class, new CustomNumberEditor(Float.class, true));
+    defaultEditors.put(double.class, new CustomNumberEditor(Double.class, false));
+    defaultEditors.put(Double.class, new CustomNumberEditor(Double.class, true));
+    defaultEditors.put(BigDecimal.class, new CustomNumberEditor(BigDecimal.class, true));
+    defaultEditors.put(BigInteger.class, new CustomNumberEditor(BigInteger.class, true));
 
     // Only register config value editors if explicitly requested.
     if (this.configValueEditorsActive) {
       StringArrayPropertyEditor sae = new StringArrayPropertyEditor();
-      this.defaultEditors.put(String[].class, sae);
-      this.defaultEditors.put(short[].class, sae);
-      this.defaultEditors.put(int[].class, sae);
-      this.defaultEditors.put(long[].class, sae);
+      defaultEditors.put(String[].class, sae);
+      defaultEditors.put(short[].class, sae);
+      defaultEditors.put(int[].class, sae);
+      defaultEditors.put(long[].class, sae);
     }
+
+    return defaultEditors;
   }
 
   /**
@@ -301,16 +308,20 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
       throw new IllegalArgumentException("Either requiredType or propertyPath is required");
     }
     if (propertyPath != null) {
-      if (this.customEditorsForPath == null) {
-        this.customEditorsForPath = new LinkedHashMap<>(16);
+      LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
+      if (editors == null) {
+        editors = new LinkedHashMap<>(16);
+        this.customEditorsForPath = editors;
       }
-      this.customEditorsForPath.put(propertyPath, new CustomEditorHolder(propertyEditor, requiredType));
+      editors.put(propertyPath, new CustomEditorHolder(propertyEditor, requiredType));
     }
     else {
-      if (this.customEditors == null) {
-        this.customEditors = new LinkedHashMap<>(16);
+      LinkedHashMap<Class<?>, PropertyEditor> editors = this.customEditors;
+      if (editors == null) {
+        editors = new LinkedHashMap<>(16);
+        this.customEditors = editors;
       }
-      this.customEditors.put(requiredType, propertyEditor);
+      editors.put(requiredType, propertyEditor);
       this.customEditorCache = null;
     }
   }
@@ -320,15 +331,16 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   public PropertyEditor findCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath) {
     Class<?> requiredTypeToUse = requiredType;
     if (propertyPath != null) {
-      if (this.customEditorsForPath != null) {
+      LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
+      if (editors != null) {
         // Check property-specific editor first.
-        PropertyEditor editor = getCustomEditor(propertyPath, requiredType);
+        PropertyEditor editor = getCustomEditor(editors, propertyPath, requiredType);
         if (editor == null) {
           ArrayList<String> strippedPaths = new ArrayList<>();
           addStrippedPropertyPaths(strippedPaths, "", propertyPath);
-          for (Iterator<String> it = strippedPaths.iterator(); it.hasNext() && editor == null; ) {
-            String strippedPath = it.next();
-            editor = getCustomEditor(strippedPath, requiredType);
+          Iterator<String> it = strippedPaths.iterator();
+          while (editor == null && it.hasNext()) {
+            editor = getCustomEditor(editors, /*String strippedPath =*/ it.next(), requiredType);
           }
         }
         if (editor != null) {
@@ -393,7 +405,8 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * @return the custom editor, or {@code null} if none specific for this property
    */
   @Nullable
-  private PropertyEditor getCustomEditor(String propertyName, @Nullable Class<?> requiredType) {
+  private static PropertyEditor getCustomEditor(
+          LinkedHashMap<String, CustomEditorHolder> customEditorsForPath, String propertyName, @Nullable Class<?> requiredType) {
     CustomEditorHolder holder = customEditorsForPath != null ? customEditorsForPath.get(propertyName) : null;
     return holder != null ? holder.getPropertyEditor(requiredType) : null;
   }
@@ -409,14 +422,18 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    */
   @Nullable
   private PropertyEditor getCustomEditor(@Nullable Class<?> requiredType) {
-    if (requiredType == null || customEditors == null) {
+    if (requiredType == null) {
+      return null;
+    }
+    LinkedHashMap<Class<?>, PropertyEditor> customEditors = this.customEditors;
+    if (customEditors == null) {
       return null;
     }
     // Check directly registered editor for type.
     PropertyEditor editor = customEditors.get(requiredType);
     if (editor == null) {
       // Check cached editor for type, registered for superclass or interface.
-      Map<Class<?>, PropertyEditor> customEditorCache = this.customEditorCache;
+      HashMap<Class<?>, PropertyEditor> customEditorCache = this.customEditorCache;
       if (customEditorCache != null) {
         editor = customEditorCache.get(requiredType);
       }
@@ -452,14 +469,15 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    */
   @Nullable
   protected Class<?> guessPropertyTypeFromEditors(String propertyName) {
-    if (this.customEditorsForPath != null) {
-      CustomEditorHolder editorHolder = this.customEditorsForPath.get(propertyName);
+    LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
+    if (editors != null) {
+      CustomEditorHolder editorHolder = editors.get(propertyName);
       if (editorHolder == null) {
         ArrayList<String> strippedPaths = new ArrayList<>();
         addStrippedPropertyPaths(strippedPaths, "", propertyName);
-        for (Iterator<String> it = strippedPaths.iterator(); it.hasNext() && editorHolder == null; ) {
-          String strippedName = it.next();
-          editorHolder = this.customEditorsForPath.get(strippedName);
+        Iterator<String> it = strippedPaths.iterator();
+        while (editorHolder == null && it.hasNext()) {
+          editorHolder = editors.get(/*String strippedName = */it.next());
         }
       }
       if (editorHolder != null) {

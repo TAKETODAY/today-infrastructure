@@ -148,6 +148,15 @@ public class TypeDescriptor implements Serializable {
     return ClassUtils.resolvePrimitiveIfNecessary(getType());
   }
 
+  /**
+   * The type of the backing class, method parameter, field, or property
+   * described by this TypeDescriptor.
+   * <p>Returns primitive types as-is. See {@link #getObjectType()} for a
+   * variation of this operation that resolves primitive types to their
+   * corresponding Object types if necessary.
+   *
+   * @see #getObjectType()
+   */
   public Class<?> getType() {
     return type;
   }
@@ -193,12 +202,6 @@ public class TypeDescriptor implements Serializable {
 
   public String getSimpleName() {
     return type.getSimpleName();
-  }
-
-  @Nullable
-  public TypeDescriptor getGeneric(Class<?> genericIfc) {
-    ResolvableType generic = resolvableType.as(genericIfc).getGeneric(0);
-    return getRelatedIfResolvable(this, generic);
   }
 
   /**

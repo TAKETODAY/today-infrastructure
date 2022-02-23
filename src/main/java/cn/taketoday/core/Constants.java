@@ -19,10 +19,6 @@
  */
 package cn.taketoday.core;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-
 import java.io.Serial;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,6 +27,10 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * This class can be used to parse other classes containing constant definitions
@@ -170,7 +170,7 @@ public class Constants {
    * @param namePrefix prefix of the constant names to search (may be {@code null})
    * @return the set of constant names
    */
-  public Set<String> getNames(String namePrefix) {
+  public Set<String> getNames(@Nullable String namePrefix) {
     String prefixToUse = getPrefixToUse(namePrefix);
     HashSet<String> names = new HashSet<>();
     for (String code : this.fieldCache.keySet()) {
@@ -203,7 +203,7 @@ public class Constants {
    * @param nameSuffix suffix of the constant names to search (may be {@code null})
    * @return the set of constant names
    */
-  public Set<String> getNamesForSuffix(String nameSuffix) {
+  public Set<String> getNamesForSuffix(@Nullable String nameSuffix) {
     String suffixToUse = getPrefixToUse(nameSuffix);
     HashSet<String> names = new HashSet<>();
     for (String code : this.fieldCache.keySet()) {
@@ -225,7 +225,7 @@ public class Constants {
    * @param namePrefix prefix of the constant names to search (may be {@code null})
    * @return the set of values
    */
-  public Set<Object> getValues(String namePrefix) {
+  public Set<Object> getValues(@Nullable String namePrefix) {
     String prefixToUse = getPrefixToUse(namePrefix);
     HashSet<Object> values = new HashSet<>();
     for (Map.Entry<String, Object> entry : fieldCache.entrySet()) {
@@ -260,14 +260,16 @@ public class Constants {
    * @param nameSuffix suffix of the constant names to search (may be {@code null})
    * @return the set of values
    */
-  public Set<Object> getValuesForSuffix(String nameSuffix) {
+  public Set<Object> getValuesForSuffix(@Nullable String nameSuffix) {
     String suffixToUse = getPrefixToUse(nameSuffix);
     Set<Object> values = new HashSet<>();
-    this.fieldCache.forEach((code, value) -> {
+    for (Map.Entry<String, Object> entry : fieldCache.entrySet()) {
+      String code = entry.getKey();
+      Object value = entry.getValue();
       if (code.endsWith(suffixToUse)) {
         values.add(value);
       }
-    });
+    }
     return values;
   }
 
@@ -281,7 +283,7 @@ public class Constants {
    * @return the name of the constant field
    * @throws ConstantException if the value wasn't found
    */
-  public String toCode(Object value, String namePrefix) throws ConstantException {
+  public String toCode(Object value, @Nullable String namePrefix) throws ConstantException {
     String prefixToUse = getPrefixToUse(namePrefix);
     for (Map.Entry<String, Object> entry : this.fieldCache.entrySet()) {
       if (entry.getKey().startsWith(prefixToUse) && entry.getValue().equals(value)) {
@@ -291,8 +293,7 @@ public class Constants {
     throw new ConstantException(this.className, prefixToUse, value);
   }
 
-  @NonNull
-  private static String getPrefixToUse(String namePrefix) {
+  private static String getPrefixToUse(@Nullable String namePrefix) {
     return namePrefix != null ? namePrefix.trim().toUpperCase(Locale.ENGLISH) : Constant.BLANK;
   }
 
@@ -368,6 +369,7 @@ public class Constants {
   public static class ConstantException extends IllegalArgumentException {
     @Serial
     private static final long serialVersionUID = 1L;
+
     /**
      * Thrown when an invalid constant name is requested.
      *

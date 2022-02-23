@@ -103,8 +103,6 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
   /**
    * Set the read-only status of this transaction.
    * The default is {@code false}.
-   *
-   * @since 4.0
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
@@ -112,8 +110,6 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 
   /**
    * Return the read-only status of this transaction.
-   *
-   * @since 4.0
    */
   public boolean isReadOnly() {
     return this.readOnly;

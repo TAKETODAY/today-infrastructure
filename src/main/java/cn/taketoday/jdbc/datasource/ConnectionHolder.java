@@ -41,7 +41,7 @@ import cn.taketoday.transaction.support.ResourceHolderSupport;
  * @author Juergen Hoeller
  * @see DataSourceTransactionManager
  * @see DataSourceUtils
- * @since 06.05.2003
+ * @since 4.0
  */
 public class ConnectionHolder extends ResourceHolderSupport {
 

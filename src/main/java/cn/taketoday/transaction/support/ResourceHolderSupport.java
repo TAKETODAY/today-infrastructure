@@ -35,7 +35,7 @@ import cn.taketoday.transaction.TransactionTimedOutException;
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.datasource.DataSourceTransactionManager#doBegin
  * @see cn.taketoday.jdbc.datasource.DataSourceUtils#applyTransactionTimeout
- * @since 02.02.2004
+ * @since 4.0
  */
 public abstract class ResourceHolderSupport implements ResourceHolder {
 
@@ -77,7 +77,6 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
    * keep the original resource in action, e.g. in case of a savepoint.
    *
    * @see cn.taketoday.transaction.SavepointManager#rollbackToSavepoint
-   * @since 4.0
    */
   public void resetRollbackOnly() {
     this.rollbackOnly = false;

@@ -122,14 +122,11 @@ public class TypeConverterDelegate {
   public <T> T convertIfNecessary(
           @Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
           @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
-
-    // Custom editor for this type?
-    PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
-
     ConversionFailedException conversionAttemptEx = null;
-
+    // Custom editor for this type?
+    PropertyEditor editor = propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
     // No custom editor but custom ConversionService specified?
-    ConversionService conversionService = this.propertyEditorRegistry.getConversionService();
+    ConversionService conversionService = propertyEditorRegistry.getConversionService();
     if (editor == null && conversionService != null && newValue != null && typeDescriptor != null) {
       TypeDescriptor sourceTypeDesc = TypeDescriptor.fromObject(newValue);
       if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {
@@ -147,8 +144,10 @@ public class TypeConverterDelegate {
 
     // Value not of required type?
     if (editor != null || (requiredType != null && !ClassUtils.isAssignableValue(requiredType, convertedValue))) {
-      if (typeDescriptor != null && requiredType != null && Collection.class.isAssignableFrom(requiredType) &&
-              convertedValue instanceof String) {
+      if (typeDescriptor != null
+              && requiredType != null
+              && convertedValue instanceof String
+              && Collection.class.isAssignableFrom(requiredType)) {
         TypeDescriptor elementTypeDesc = typeDescriptor.getElementDescriptor();
         if (elementTypeDesc != null) {
           Class<?> elementType = elementTypeDesc.getType();
@@ -261,8 +260,7 @@ public class TypeConverterDelegate {
         }
         if (editor != null) {
           msg.append(": PropertyEditor [").append(editor.getClass().getName()).append(
-                  "] returned inappropriate value of type '").append(
-                  ClassUtils.getDescriptiveType(convertedValue)).append('\'');
+                  "] returned inappropriate value of type '").append(ClassUtils.getDescriptiveType(convertedValue)).append('\'');
           throw new IllegalArgumentException(msg.toString());
         }
         else {
@@ -576,8 +574,8 @@ public class TypeConverterDelegate {
     boolean originalAllowed = requiredType.isInstance(original);
     TypeDescriptor keyType = typeDescriptor != null ? typeDescriptor.getMapKeyDescriptor() : null;
     TypeDescriptor valueType = typeDescriptor != null ? typeDescriptor.getMapValueDescriptor() : null;
-    if (keyType == null && valueType == null && originalAllowed
-            && !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
+    if (keyType == null && valueType == null
+            && originalAllowed && !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
       return original;
     }
 

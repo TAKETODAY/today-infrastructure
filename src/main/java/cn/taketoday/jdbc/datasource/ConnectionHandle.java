@@ -46,7 +46,6 @@ public interface ConnectionHandle {
    *
    * @param con the JDBC Connection to release
    */
-  default void releaseConnection(Connection con) {
-  }
+  default void releaseConnection(Connection con) { }
 
 }

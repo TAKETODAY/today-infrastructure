@@ -94,7 +94,6 @@ public class EmbeddedDatabaseFactory {
    * via {@link #setDatabaseName}.
    *
    * @see #setDatabaseName
-   * @since 4.0
    */
   public void setGenerateUniqueDatabaseName(boolean generateUniqueDatabaseName) {
     this.generateUniqueDatabaseName = generateUniqueDatabaseName;
@@ -187,12 +186,12 @@ public class EmbeddedDatabaseFactory {
     this.dataSource = this.dataSourceFactory.getDataSource();
 
     if (logger.isInfoEnabled()) {
-      if (this.dataSource instanceof SimpleDriverDataSource simpleDriverDataSource) {
-        logger.info(String.format("Starting embedded database: url='%s', username='%s'",
-                simpleDriverDataSource.getUrl(), simpleDriverDataSource.getUsername()));
+      if (this.dataSource instanceof SimpleDriverDataSource sdds) {
+        logger.info("Starting embedded database: url='{}', username='{}'",
+                sdds.getUrl(), sdds.getUsername());
       }
       else {
-        logger.info(String.format("Starting embedded database '%s'", this.databaseName));
+        logger.info("Starting embedded database '{}'", databaseName);
       }
     }
 

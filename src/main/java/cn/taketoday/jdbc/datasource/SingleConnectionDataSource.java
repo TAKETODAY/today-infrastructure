@@ -55,6 +55,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see #getConnection()
  * @see Connection#close()
  * @see DataSourceUtils#releaseConnection
+ * @since 4.0
  */
 public class SingleConnectionDataSource extends DriverManagerDataSource implements SmartDataSource, DisposableBean {
 

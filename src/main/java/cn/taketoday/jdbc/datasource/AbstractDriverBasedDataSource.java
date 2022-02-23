@@ -110,7 +110,6 @@ public abstract class AbstractDriverBasedDataSource extends AbstractDataSource {
    * Specify a database catalog to be applied to each Connection.
    *
    * @see Connection#setCatalog
-   * @since 4.0
    */
   public void setCatalog(@Nullable String catalog) {
     this.catalog = catalog;
@@ -118,8 +117,6 @@ public abstract class AbstractDriverBasedDataSource extends AbstractDataSource {
 
   /**
    * Return the database catalog to be applied to each Connection, if any.
-   *
-   * @since 4.0
    */
   @Nullable
   public String getCatalog() {
@@ -130,7 +127,6 @@ public abstract class AbstractDriverBasedDataSource extends AbstractDataSource {
    * Specify a database schema to be applied to each Connection.
    *
    * @see Connection#setSchema
-   * @since 4.0
    */
   public void setSchema(@Nullable String schema) {
     this.schema = schema;
@@ -138,8 +134,6 @@ public abstract class AbstractDriverBasedDataSource extends AbstractDataSource {
 
   /**
    * Return the database schema to be applied to each Connection, if any.
-   *
-   * @since 4.0
    */
   @Nullable
   public String getSchema() {

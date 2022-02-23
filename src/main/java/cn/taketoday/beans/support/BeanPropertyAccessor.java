@@ -47,6 +47,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/1/27 22:35
  * @since 3.0
  */
+@Deprecated
 public class BeanPropertyAccessor extends TypeConverterSupport implements PropertyEditorRegistry, TypeConverter {
   @Nullable
   protected Object rootObject;

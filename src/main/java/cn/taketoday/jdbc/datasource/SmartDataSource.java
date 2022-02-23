@@ -38,6 +38,7 @@ import javax.sql.DataSource;
  * @see SingleConnectionDataSource#shouldClose
  * @see DataSourceUtils#releaseConnection
  * @see cn.taketoday.jdbc.core.JdbcTemplate
+ * @since 4.0
  */
 public interface SmartDataSource extends DataSource {
 

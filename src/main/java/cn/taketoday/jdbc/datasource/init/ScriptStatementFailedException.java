@@ -56,7 +56,6 @@ public class ScriptStatementFailedException extends ScriptException {
    * @param encodedResource the resource from which the SQL statement was read
    * @return an error message suitable for an exception's <em>detail message</em>
    * or logging
-   * @since 4.0
    */
   public static String buildErrorMessage(String stmt, int stmtNumber, EncodedResource encodedResource) {
     return String.format("Failed to execute SQL script statement #%s of %s: %s", stmtNumber, encodedResource, stmt);

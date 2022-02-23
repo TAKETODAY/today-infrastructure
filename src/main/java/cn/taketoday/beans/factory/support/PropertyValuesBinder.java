@@ -38,6 +38,7 @@ import cn.taketoday.lang.Assert;
  * @see PropertyValue
  * @since 3.0
  */
+@Deprecated
 public class PropertyValuesBinder extends BeanPropertyAccessor {
   protected ArrayList<PropertyValue> propertyValues;
 

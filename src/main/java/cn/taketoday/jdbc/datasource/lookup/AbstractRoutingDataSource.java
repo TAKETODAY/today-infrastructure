@@ -119,17 +119,20 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
 
   @Override
   public void afterPropertiesSet() {
-    if (this.targetDataSources == null) {
+    if (targetDataSources == null) {
       throw new IllegalArgumentException("Property 'targetDataSources' is required");
     }
     this.resolvedDataSources = CollectionUtils.newHashMap(this.targetDataSources.size());
-    this.targetDataSources.forEach((key, value) -> {
+    for (Map.Entry<Object, Object> entry : targetDataSources.entrySet()) {
+      Object key = entry.getKey();
+      Object value = entry.getValue();
       Object lookupKey = resolveSpecifiedLookupKey(key);
       DataSource dataSource = resolveSpecifiedDataSource(value);
-      this.resolvedDataSources.put(lookupKey, dataSource);
-    });
-    if (this.defaultTargetDataSource != null) {
-      this.resolvedDefaultDataSource = resolveSpecifiedDataSource(this.defaultTargetDataSource);
+      resolvedDataSources.put(lookupKey, dataSource);
+    }
+
+    if (defaultTargetDataSource != null) {
+      this.resolvedDefaultDataSource = resolveSpecifiedDataSource(defaultTargetDataSource);
     }
   }
 
