@@ -191,7 +191,7 @@ class BeanFactoryTests {
   @Test
   void testAddBeanPostProcessor() {
 
-    AbstractBeanFactory beanFactory = (AbstractBeanFactory) getBeanFactory();
+    AbstractBeanFactory beanFactory = getBeanFactory();
 
     BeanPostProcessor beanPostProcessor = new BeanPostProcessor() { };
 

@@ -36,7 +36,7 @@ import cn.taketoday.core.type.AnnotationMetadata;
  * will add. This interface should be used when an implementation consistently results in
  * the same imports, given the same source.
  * <p>
- * Using {@link DeterminableImports} is particularly useful when working with Spring's
+ * Using {@link DeterminableImports} is particularly useful when working with Framework's
  * testing support. It allows for better generation of {@link ApplicationContext} cache
  * keys.
  *

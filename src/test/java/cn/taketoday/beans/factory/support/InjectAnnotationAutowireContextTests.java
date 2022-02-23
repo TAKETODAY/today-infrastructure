@@ -32,8 +32,8 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.support.GenericApplicationContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Qualifier;
@@ -623,7 +623,7 @@ public class InjectAnnotationAutowireContextTests {
 
   private static class QualifiedConstructorArgumentTestBean {
 
-    private Person person;
+    private final Person person;
 
     @Inject
     public QualifiedConstructorArgumentTestBean(@TestQualifier Person person) {
@@ -671,7 +671,7 @@ public class InjectAnnotationAutowireContextTests {
 
   public static class QualifiedConstructorArgumentWithBaseQualifierNonDefaultValueTestBean {
 
-    private Person person;
+    private final Person person;
 
     @Inject
     public QualifiedConstructorArgumentWithBaseQualifierNonDefaultValueTestBean(
@@ -686,7 +686,7 @@ public class InjectAnnotationAutowireContextTests {
 
   private static class Person {
 
-    private String name;
+    private final String name;
 
     public Person(String name) {
       this.name = name;

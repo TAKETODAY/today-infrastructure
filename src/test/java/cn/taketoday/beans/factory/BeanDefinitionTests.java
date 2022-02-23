@@ -19,11 +19,12 @@
  */
 package cn.taketoday.beans.factory;
 
+import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.fail;
 

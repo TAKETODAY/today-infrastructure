@@ -49,6 +49,7 @@ class DirectFieldAccessorTests extends AbstractPropertyAccessorTests {
 
     TestBean target = new TestBean() {
       @SuppressWarnings("unused")
+      final
       StringBuilder name = sb;
     };
 

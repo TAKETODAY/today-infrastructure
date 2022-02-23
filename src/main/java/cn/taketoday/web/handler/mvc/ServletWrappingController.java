@@ -39,12 +39,12 @@ import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
 /**
- * Spring Controller implementation that wraps a servlet instance which it manages
+ * Framework Controller implementation that wraps a servlet instance which it manages
  * internally. Such a wrapped servlet is not known outside of this controller;
  * its entire lifecycle is covered here (in contrast to {@link ServletForwardingController}).
  *
- * <p>Useful to invoke an existing servlet via Spring's dispatching infrastructure,
- * for example to apply Spring HandlerInterceptors to its requests.
+ * <p>Useful to invoke an existing servlet via Framework's dispatching infrastructure,
+ * for example to apply Framework HandlerInterceptors to its requests.
  *
  * <p>Note that Struts has a special requirement in that it parses {@code web.xml}
  * to find its servlet mapping. Therefore, you need to specify the DispatcherServlet's

@@ -31,9 +31,9 @@ import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.factory.support.PropertyOverrideConfigurer;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.io.Resource;
@@ -529,9 +529,9 @@ public class PropertyResourceConfigurerTests {
    */
   public static class MockPreferences extends AbstractPreferences {
 
-    private static Map<String, String> values = new HashMap<>();
+    private static final Map<String, String> values = new HashMap<>();
 
-    private static Map<String, AbstractPreferences> children = new HashMap<>();
+    private static final Map<String, AbstractPreferences> children = new HashMap<>();
 
     public MockPreferences() {
       super(null, "");

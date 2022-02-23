@@ -34,9 +34,11 @@ import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
+import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 
 /**
- * Enable auto-configuration of the Spring Application Context, attempting to guess and
+ * Enable auto-configuration of the Application Context, attempting to guess and
  * configure beans that you are likely to need. Auto-configuration classes are usually
  * applied based on your classpath and what beans you have defined. For example, if you
  * have {@code tomcat-embedded.jar} on your classpath you are likely to want a
@@ -61,7 +63,7 @@ import cn.taketoday.framework.Application;
  * not using {@code @SpringBootApplication}) in a root package so that all sub-packages
  * and classes can be searched.
  * <p>
- * Auto-configuration classes are regular Spring {@link Configuration @Configuration}
+ * Auto-configuration classes are regular Framework {@link Configuration @Configuration}
  * beans. They are located using the {@link cn.taketoday.lang.TodayStrategies} mechanism (keyed
  * against this class). Generally auto-configuration beans are
  * {@link Conditional @Conditional} beans (most often using

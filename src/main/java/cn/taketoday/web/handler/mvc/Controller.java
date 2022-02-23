@@ -73,15 +73,15 @@ import cn.taketoday.web.view.ModelAndView;
  * <p>Controllers can easily be tested by passing in mock objects for the
  * HttpServletRequest and HttpServletResponse objects as parameters to the
  * {@link #handleRequest(RequestContext) handleRequest}
- * method. As a convenience, Spring ships with a set of Servlet API mocks
+ * method. As a convenience, Framework ships with a set of Servlet API mocks
  * that are suitable for testing any kind of web components, but are particularly
- * suitable for testing Spring web controllers. In contrast to a Struts Action,
+ * suitable for testing web controllers. In contrast to a Struts Action,
  * there is no need to mock the ActionServlet or any other infrastructure;
  * mocking HttpServletRequest and HttpServletResponse is sufficient.
  *
  * <p>If Controllers need to be aware of specific environment references, they can
  * choose to implement specific awareness interfaces, just like any other bean in a
- * Spring (web) application context can do, for example:
+ * Framework (web) application context can do, for example:
  * <ul>
  * <li>{@code cn.taketoday.context.aware.ApplicationContextAware}</li>
  * <li>{@code cn.taketoday.context.aware.ResourceLoaderAware}</li>
@@ -97,7 +97,7 @@ import cn.taketoday.web.view.ModelAndView;
  * ApplicationContext reference on initialization.
  *
  * <p>
- *   like Spring's {@code cn.taketoday.web.servlet.mvc.Controller}
+ *   like Spring's {@code .servlet.mvc.Controller}
  * </p>
  *
  * @author Rod Johnson

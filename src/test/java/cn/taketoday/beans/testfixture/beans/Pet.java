@@ -52,8 +52,8 @@ public class Pet {
 
     final Pet pet = (Pet) o;
 
-		return name != null ? name.equals(pet.name) : pet.name == null;
-	}
+    return name != null ? name.equals(pet.name) : pet.name == null;
+  }
 
   @Override
   public int hashCode() {

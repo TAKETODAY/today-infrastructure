@@ -85,6 +85,7 @@ import groovy.text.markup.TemplateResolver;
  * @see GroovyMarkupView
  * @see <a href="http://groovy-lang.org/templating.html#_the_markuptemplateengine">
  * Groovy Markup Template engine documentation</a>
+ * @since 4.0
  */
 public class GroovyMarkupConfigurer extends TemplateConfiguration
         implements GroovyMarkupConfig, ApplicationContextAware, InitializingBean {

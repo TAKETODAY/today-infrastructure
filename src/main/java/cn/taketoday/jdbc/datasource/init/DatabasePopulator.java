@@ -48,7 +48,7 @@ public interface DatabasePopulator {
    * the provided {@link Connection}.
    * <p>Concrete implementations <em>may</em> throw an {@link SQLException} if
    * an error is encountered but are <em>strongly encouraged</em> to throw a
-   * specific {@link ScriptException} instead. For example, Spring's
+   * specific {@link ScriptException} instead. For example, Framework's
    * {@link ResourceDatabasePopulator} and {@link DatabasePopulator#execute} wrap
    * all {@code SQLExceptions} in {@code ScriptExceptions}.
    *

@@ -22,6 +22,6 @@ package cn.taketoday.beans.testfixture.beans;
 
 public interface INestedTestBean {
 
-	public String getCompany();
+  String getCompany();
 
 }

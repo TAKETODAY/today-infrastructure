@@ -29,6 +29,7 @@ import groovy.text.markup.MarkupTemplateEngine;
  *
  * @author Brian Clozel
  * @see GroovyMarkupConfigurer
+ * @since 4.0
  */
 public interface GroovyMarkupConfig {
 

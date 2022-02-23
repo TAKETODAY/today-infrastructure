@@ -29,11 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Singleton;
 
@@ -328,7 +328,7 @@ class FactoryBeanTests {
 
   public static class PassThroughFactoryBean<T> implements FactoryBean<T>, BeanFactoryAware {
 
-    private Class<T> type;
+    private final Class<T> type;
 
     private String instanceName;
 

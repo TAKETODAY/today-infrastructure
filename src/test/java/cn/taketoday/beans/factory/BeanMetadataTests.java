@@ -20,8 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.support.BeanMetadata;

@@ -213,7 +213,7 @@ public interface WebMvcConfiguration {
   default void addFormatters(FormatterRegistry registry) { }
 
   /**
-   * Add Spring MVC lifecycle interceptors for pre- and post-processing of
+   * Add MVC lifecycle interceptors for pre- and post-processing of
    * controller method invocations and resource handler requests.
    * Interceptors can be registered to apply to all requests or be limited
    * to a subset of URL patterns.

@@ -28,7 +28,7 @@ import cn.taketoday.core.conversion.Converter;
 /**
  * Simple converter from Java 8's {@link ZoneId} to {@link TimeZone}.
  *
- * <p>Note that Spring's default ConversionService setup understands the 'from'/'to' convention
+ * <p>Note that Framework's default ConversionService setup understands the 'from'/'to' convention
  * that the JSR-310 {@code java.time} package consistently uses. That convention is implemented
  * reflectively in {@link ObjectToObjectConverter}, not in specific JSR-310 converters.
  * It covers {@link TimeZone#toZoneId()} as well, and also

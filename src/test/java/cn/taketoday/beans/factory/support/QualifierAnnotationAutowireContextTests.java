@@ -33,8 +33,8 @@ import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.support.GenericApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -696,7 +696,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   private static class QualifiedConstructorArgumentTestBean {
 
-    private Person person;
+    private final Person person;
 
     @Autowired
     public QualifiedConstructorArgumentTestBean(@TestQualifier Person person) {
@@ -744,7 +744,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   private static class QualifiedConstructorArgumentWithBaseQualifierNonDefaultValueTestBean {
 
-    private Person person;
+    private final Person person;
 
     @Autowired
     public QualifiedConstructorArgumentWithBaseQualifierNonDefaultValueTestBean(
@@ -759,7 +759,7 @@ public class QualifierAnnotationAutowireContextTests {
 
   private static class Person {
 
-    private String name;
+    private final String name;
 
     public Person(String name) {
       this.name = name;

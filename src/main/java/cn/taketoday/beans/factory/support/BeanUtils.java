@@ -21,38 +21,41 @@
 package cn.taketoday.beans.factory.support;
 
 import java.beans.ConstructorProperties;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.DependencyInjectorProvider;
+import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/8/22 21:51
@@ -269,54 +272,6 @@ public abstract class BeanUtils {
   }
 
   /**
-   * Find a JavaBeans {@code PropertyDescriptor} for the given method,
-   * with the method either being the read method or the write method for
-   * that bean property.
-   *
-   * @param method the method to find a corresponding PropertyDescriptor for,
-   * introspecting its declaring class
-   * @return the corresponding PropertyDescriptor, or {@code null} if none
-   * @throws BeansException if PropertyDescriptor lookup fails
-   * @since 4.0
-   */
-  @Nullable
-  public static PropertyDescriptor findPropertyForMethod(Method method) throws BeansException {
-    return findPropertyForMethod(method, method.getDeclaringClass());
-  }
-
-  /**
-   * Find a JavaBeans {@code PropertyDescriptor} for the given method,
-   * with the method either being the read method or the write method for
-   * that bean property.
-   *
-   * @param method the method to find a corresponding PropertyDescriptor for
-   * @param clazz the (most specific) class to introspect for descriptors
-   * @return the corresponding PropertyDescriptor, or {@code null} if none
-   * @throws BeansException if PropertyDescriptor lookup fails
-   * @since 4.0
-   */
-  @Nullable
-  public static PropertyDescriptor findPropertyForMethod(Method method, Class<?> clazz) throws BeansException {
-    Assert.notNull(method, "Method must not be null");
-    PropertyDescriptor[] pds = getPropertyDescriptors(clazz);
-    for (PropertyDescriptor pd : pds) {
-      if (method.equals(pd.getReadMethod()) || method.equals(pd.getWriteMethod())) {
-        return pd;
-      }
-    }
-    return null;
-  }
-
-  public static PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz) throws BeansException {
-    try {
-      return Introspector.getBeanInfo(clazz).getPropertyDescriptors();
-    }
-    catch (IntrospectionException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
-  }
-
-  /**
    * Check if the given type represents a "simple" property: a simple value
    * type or an array of simple value types.
    * <p>See {@link #isSimpleValueType(Class)} for the definition of <em>simple
@@ -372,13 +327,78 @@ public abstract class BeanUtils {
   public static Class<?> findPropertyType(String propertyName, @Nullable Class<?>... beanClasses) {
     if (beanClasses != null) {
       for (Class<?> beanClass : beanClasses) {
-        BeanProperty beanProperty = BeanMetadata.from(beanClass).getBeanProperty(propertyName);
-        if (beanProperty != null) {
-          return beanProperty.getType();
+        PropertyDescriptor pd = getPropertyDescriptor(beanClass, propertyName);
+        if (pd != null) {
+          return pd.getPropertyType();
         }
       }
     }
     return Object.class;
+  }
+
+  /**
+   * Retrieve the JavaBeans {@code PropertyDescriptor}s of a given class.
+   *
+   * @param clazz the Class to retrieve the PropertyDescriptors for
+   * @return an array of {@code PropertyDescriptors} for the given class
+   * @throws BeansException if PropertyDescriptor look fails
+   * @since 4.0
+   */
+  public static PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz) throws BeansException {
+    return CachedIntrospectionResults.forClass(clazz).getPropertyDescriptors();
+  }
+
+  /**
+   * Retrieve the JavaBeans {@code PropertyDescriptors} for the given property.
+   *
+   * @param clazz the Class to retrieve the PropertyDescriptor for
+   * @param propertyName the name of the property
+   * @return the corresponding PropertyDescriptor, or {@code null} if none
+   * @throws BeansException if PropertyDescriptor lookup fails
+   * @since 4.0
+   */
+  @Nullable
+  public static PropertyDescriptor getPropertyDescriptor(Class<?> clazz, String propertyName) throws BeansException {
+    return CachedIntrospectionResults.forClass(clazz).getPropertyDescriptor(propertyName);
+  }
+
+  /**
+   * Find a JavaBeans {@code PropertyDescriptor} for the given method,
+   * with the method either being the read method or the write method for
+   * that bean property.
+   *
+   * @param method the method to find a corresponding PropertyDescriptor for,
+   * introspecting its declaring class
+   * @return the corresponding PropertyDescriptor, or {@code null} if none
+   * @throws BeansException if PropertyDescriptor lookup fails
+   * @since 4.0
+   */
+  @Nullable
+  public static PropertyDescriptor findPropertyForMethod(Method method) throws BeansException {
+    return findPropertyForMethod(method, method.getDeclaringClass());
+  }
+
+  /**
+   * Find a JavaBeans {@code PropertyDescriptor} for the given method,
+   * with the method either being the read method or the write method for
+   * that bean property.
+   *
+   * @param method the method to find a corresponding PropertyDescriptor for
+   * @param clazz the (most specific) class to introspect for descriptors
+   * @return the corresponding PropertyDescriptor, or {@code null} if none
+   * @throws BeansException if PropertyDescriptor lookup fails
+   * @since 4.0
+   */
+  @Nullable
+  public static PropertyDescriptor findPropertyForMethod(Method method, Class<?> clazz) throws BeansException {
+    Assert.notNull(method, "Method must not be null");
+    PropertyDescriptor[] pds = getPropertyDescriptors(clazz);
+    for (PropertyDescriptor pd : pds) {
+      if (method.equals(pd.getReadMethod()) || method.equals(pd.getWriteMethod())) {
+        return pd;
+      }
+    }
+    return null;
   }
 
   /**
@@ -431,6 +451,243 @@ public abstract class BeanUtils {
     }
     unknownEditorTypes.add(targetType);
     return null;
+  }
+
+  /**
+   * Parse a method signature in the form {@code methodName[([arg_list])]},
+   * where {@code arg_list} is an optional, comma-separated list of fully-qualified
+   * type names, and attempts to resolve that signature against the supplied {@code Class}.
+   * <p>When not supplying an argument list ({@code methodName}) the method whose name
+   * matches and has the least number of parameters will be returned. When supplying an
+   * argument type list, only the method whose name and argument types match will be returned.
+   * <p>Note then that {@code methodName} and {@code methodName()} are <strong>not</strong>
+   * resolved in the same way. The signature {@code methodName} means the method called
+   * {@code methodName} with the least number of arguments, whereas {@code methodName()}
+   * means the method called {@code methodName} with exactly 0 arguments.
+   * <p>If no method can be found, then {@code null} is returned.
+   *
+   * @param signature the method signature as String representation
+   * @param clazz the class to resolve the method signature against
+   * @return the resolved Method
+   * @see #findMethod
+   * @see ReflectionUtils#findMethodWithMinimalParameters
+   * @since 4.0
+   */
+  @Nullable
+  public static Method resolveSignature(String signature, Class<?> clazz) {
+    Assert.hasText(signature, "'signature' must not be empty");
+    Assert.notNull(clazz, "Class must not be null");
+    int startParen = signature.indexOf('(');
+    int endParen = signature.indexOf(')');
+    if (startParen > -1 && endParen == -1) {
+      throw new IllegalArgumentException(
+              "Invalid method signature '" + signature + "': expected closing ')' for args list");
+    }
+    else if (startParen == -1 && endParen > -1) {
+      throw new IllegalArgumentException(
+              "Invalid method signature '" + signature + "': expected opening '(' for args list");
+    }
+    else if (startParen == -1) {
+      return ReflectionUtils.findMethodWithMinimalParameters(clazz, signature);
+    }
+    else {
+      String methodName = signature.substring(0, startParen);
+      String[] parameterTypeNames =
+              StringUtils.commaDelimitedListToStringArray(signature.substring(startParen + 1, endParen));
+      Class<?>[] parameterTypes = new Class<?>[parameterTypeNames.length];
+      for (int i = 0; i < parameterTypeNames.length; i++) {
+        String parameterTypeName = parameterTypeNames[i].trim();
+        try {
+          parameterTypes[i] = ClassUtils.forName(parameterTypeName, clazz.getClassLoader());
+        }
+        catch (Throwable ex) {
+          throw new IllegalArgumentException("Invalid method signature: unable to resolve type [" +
+                  parameterTypeName + "] for argument " + i + ". Root cause: " + ex);
+        }
+      }
+      return findMethod(clazz, methodName, parameterTypes);
+    }
+  }
+
+  /**
+   * Find a method with the given method name and the given parameter types,
+   * declared on the given class or one of its superclasses. Prefers public methods,
+   * but will return a protected, package access, or private method too.
+   * <p>Checks {@code Class.getMethod} first, falling back to
+   * {@code findDeclaredMethod}. This allows to find public methods
+   * without issues even in environments with restricted Java security settings.
+   *
+   * @param clazz the class to check
+   * @param methodName the name of the method to find
+   * @param paramTypes the parameter types of the method to find
+   * @return the Method object, or {@code null} if not found
+   * @see Class#getMethod
+   * @see #findDeclaredMethod
+   * @since 4.0
+   */
+  @Nullable
+  public static Method findMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+    try {
+      return clazz.getMethod(methodName, paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      return findDeclaredMethod(clazz, methodName, paramTypes);
+    }
+  }
+
+  /**
+   * Find a method with the given method name and the given parameter types,
+   * declared on the given class or one of its superclasses. Will return a public,
+   * protected, package access, or private method.
+   * <p>Checks {@code Class.getDeclaredMethod}, cascading upwards to all superclasses.
+   *
+   * @param clazz the class to check
+   * @param methodName the name of the method to find
+   * @param paramTypes the parameter types of the method to find
+   * @return the Method object, or {@code null} if not found
+   * @see Class#getDeclaredMethod
+   * @since 4.0
+   */
+  @Nullable
+  public static Method findDeclaredMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+    try {
+      return clazz.getDeclaredMethod(methodName, paramTypes);
+    }
+    catch (NoSuchMethodException ex) {
+      if (clazz.getSuperclass() != null) {
+        return findDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Copy the property values of the given source bean into the target bean.
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   * <p>This is just a convenience method. For more complex transfer needs,
+   * consider using a full BeanWrapper.
+   *
+   * @param source the source bean
+   * @param target the target bean
+   * @throws BeansException if the copying failed
+   * @see BeanWrapper
+   * @since 4.0
+   */
+  public static void copyProperties(Object source, Object target) throws BeansException {
+    copyProperties(source, target, null, (String[]) null);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean,
+   * only setting properties defined in the given "editable" class (or interface).
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   * <p>This is just a convenience method. For more complex transfer needs,
+   * consider using a full BeanWrapper.
+   *
+   * @param source the source bean
+   * @param target the target bean
+   * @param editable the class (or interface) to restrict property setting to
+   * @throws BeansException if the copying failed
+   * @see BeanWrapper
+   * @since 4.0
+   */
+  public static void copyProperties(Object source, Object target, Class<?> editable) throws BeansException {
+    copyProperties(source, target, editable, (String[]) null);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean,
+   * ignoring the given "ignoreProperties".
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   * <p>This is just a convenience method. For more complex transfer needs,
+   * consider using a full BeanWrapper.
+   *
+   * @param source the source bean
+   * @param target the target bean
+   * @param ignoreProperties array of property names to ignore
+   * @throws BeansException if the copying failed
+   * @see BeanWrapper
+   * @since 4.0
+   */
+  public static void copyProperties(Object source, Object target, String... ignoreProperties) throws BeansException {
+    copyProperties(source, target, null, ignoreProperties);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean.
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   * <p>As of Spring Framework 5.3, this method honors generic type information
+   * when matching properties in the source and target objects.
+   *
+   * @param source the source bean
+   * @param target the target bean
+   * @param editable the class (or interface) to restrict property setting to
+   * @param ignoreProperties array of property names to ignore
+   * @throws BeansException if the copying failed
+   * @see BeanWrapper
+   * @since 4.0
+   */
+  private static void copyProperties(
+          Object source, Object target, @Nullable Class<?> editable, @Nullable String... ignoreProperties) throws BeansException {
+
+    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(target, "Target must not be null");
+
+    Class<?> actualEditable = target.getClass();
+    if (editable != null) {
+      if (!editable.isInstance(target)) {
+        throw new IllegalArgumentException("Target class [" + target.getClass().getName() +
+                "] not assignable to Editable class [" + editable.getName() + "]");
+      }
+      actualEditable = editable;
+    }
+    PropertyDescriptor[] targetPds = getPropertyDescriptors(actualEditable);
+    List<String> ignoreList = (ignoreProperties != null ? Arrays.asList(ignoreProperties) : null);
+
+    for (PropertyDescriptor targetPd : targetPds) {
+      Method writeMethod = targetPd.getWriteMethod();
+      if (writeMethod != null && (ignoreList == null || !ignoreList.contains(targetPd.getName()))) {
+        PropertyDescriptor sourcePd = getPropertyDescriptor(source.getClass(), targetPd.getName());
+        if (sourcePd != null) {
+          Method readMethod = sourcePd.getReadMethod();
+          if (readMethod != null) {
+            ResolvableType sourceResolvableType = ResolvableType.forReturnType(readMethod);
+            ResolvableType targetResolvableType = ResolvableType.forParameter(writeMethod, 0);
+
+            // Ignore generic types in assignable check if either ResolvableType has unresolvable generics.
+            boolean isAssignable =
+                    (sourceResolvableType.hasUnresolvableGenerics() || targetResolvableType.hasUnresolvableGenerics() ?
+                     ClassUtils.isAssignable(writeMethod.getParameterTypes()[0], readMethod.getReturnType()) :
+                     targetResolvableType.isAssignableFrom(sourceResolvableType));
+
+            if (isAssignable) {
+              try {
+                if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
+                  readMethod.setAccessible(true);
+                }
+                Object value = readMethod.invoke(source);
+                if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
+                  writeMethod.setAccessible(true);
+                }
+                writeMethod.invoke(target, value);
+              }
+              catch (Throwable ex) {
+                throw new FatalBeanException(
+                        "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
 }

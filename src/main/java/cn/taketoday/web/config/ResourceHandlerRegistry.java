@@ -74,7 +74,7 @@ public class ResourceHandlerRegistry {
   /**
    * Create a new resource handler registry for the given application context.
    *
-   * @param applicationContext the Spring application context
+   * @param applicationContext the application context
    */
   public ResourceHandlerRegistry(ApplicationContext applicationContext) {
     this(applicationContext, null);
@@ -83,7 +83,7 @@ public class ResourceHandlerRegistry {
   /**
    * Create a new resource handler registry for the given application context.
    *
-   * @param applicationContext the Spring application context
+   * @param applicationContext the application context
    * @param contentNegotiationManager the content negotiation manager to use
    */
   public ResourceHandlerRegistry(

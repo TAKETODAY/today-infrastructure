@@ -20,9 +20,6 @@
 
 package cn.taketoday.beans.factory;
 
-
-
-import cn.taketoday.beans.InvalidPropertyValueException;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.ParameterizedType;
@@ -32,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.InvalidPropertyValueException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanPropertyAccessor;

@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 /**
  * @author Today <br>
  *
- *         2019-01-22 19:34
+ * 2019-01-22 19:34
  */
 public interface Interface {
 

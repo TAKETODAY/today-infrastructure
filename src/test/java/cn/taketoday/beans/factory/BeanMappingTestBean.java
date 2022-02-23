@@ -521,14 +521,9 @@ public class BeanMappingTestBean implements Serializable {
   }
 
   public void setInvalidBoolean(final String invalidBoolean) {
-    if ("true".equalsIgnoreCase(invalidBoolean) ||
+    this.invalidBoolean = "true".equalsIgnoreCase(invalidBoolean) ||
             "yes".equalsIgnoreCase(invalidBoolean) ||
-            "1".equalsIgnoreCase(invalidBoolean)) {
-      this.invalidBoolean = true;
-    }
-    else {
-      this.invalidBoolean = false;
-    }
+            "1".equalsIgnoreCase(invalidBoolean);
   }
 
   /**
@@ -558,8 +553,7 @@ public class BeanMappingTestBean implements Serializable {
   /**
    * Increment the current value of the counter by the specified amount.
    *
-   * @param amount
-   *         Amount to be added to the current counter
+   * @param amount Amount to be added to the current counter
    */
   public static void incrementCounter(final int amount) {
 

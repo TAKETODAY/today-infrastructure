@@ -22,12 +22,12 @@ package cn.taketoday.beans.testfixture.beans;
 
 public interface AgeHolder {
 
-	default int age() {
-		return getAge();
-	}
+  default int age() {
+    return getAge();
+  }
 
-	int getAge();
+  int getAge();
 
-	void setAge(int age);
+  void setAge(int age);
 
 }

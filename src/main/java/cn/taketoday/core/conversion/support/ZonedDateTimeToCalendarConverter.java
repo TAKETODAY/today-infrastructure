@@ -29,7 +29,7 @@ import cn.taketoday.core.conversion.Converter;
 /**
  * Simple converter from Java 8's {@link ZonedDateTime} to {@link Calendar}.
  *
- * <p>Note that Spring's default ConversionService setup understands the 'from'/'to' convention
+ * <p>Note that Framework's default ConversionService setup understands the 'from'/'to' convention
  * that the JSR-310 {@code java.time} package consistently uses. That convention is implemented
  * reflectively in {@link ObjectToObjectConverter}, not in specific JSR-310 converters.
  * It covers {@link GregorianCalendar#toZonedDateTime()} as well, and also
@@ -37,7 +37,7 @@ import cn.taketoday.core.conversion.Converter;
  *
  * @author Juergen Hoeller
  * @see GregorianCalendar#from(ZonedDateTime)
- * @since 4.0.1
+ * @since 4.0
  */
 final class ZonedDateTimeToCalendarConverter implements Converter<ZonedDateTime, Calendar> {
 

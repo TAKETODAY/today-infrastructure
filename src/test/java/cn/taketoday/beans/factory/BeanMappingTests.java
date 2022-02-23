@@ -98,10 +98,10 @@ public class BeanMappingTests {
 
   public static class TestBeanMapBean {
     private String foo;
-    private String bar = "x";
+    private final String bar = "x";
     protected String baz;
     private int quud;
-    private int quick = 42;
+    private final int quick = 42;
     protected int quip;
 
     public String getFoo() {

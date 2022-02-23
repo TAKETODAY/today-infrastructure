@@ -33,9 +33,9 @@ import jakarta.servlet.ServletContext;
 /**
  * {@link Scope} wrapper for a ServletContext, i.e. for global web application attributes.
  *
- * <p>This differs from traditional Spring singletons in that it exposes attributes in the
+ * <p>This differs from traditional Framework singletons in that it exposes attributes in the
  * ServletContext. Those attributes will get destroyed whenever the entire application
- * shuts down, which might be earlier or later than the shutdown of the containing Spring
+ * shuts down, which might be earlier or later than the shutdown of the containing Framework
  * ApplicationContext.
  *
  * <p>The associated destruction mechanism relies on a

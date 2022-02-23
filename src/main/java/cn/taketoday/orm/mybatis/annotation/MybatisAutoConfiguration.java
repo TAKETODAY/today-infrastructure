@@ -225,7 +225,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
   /**
    * This will just scan the same base package as Framework does. If you want more power,
    * you can explicitly use {@link MapperScan} but this will get typed mappers working
-   * correctly, out-of-the-box, similar to using Spring Data JPA repositories.
+   * correctly, out-of-the-box, similar to using Framework Data JPA repositories.
    */
   public static class AutoConfiguredMapperScannerRegistrar
           implements BeanFactoryAware, EnvironmentAware, ImportBeanDefinitionRegistrar {

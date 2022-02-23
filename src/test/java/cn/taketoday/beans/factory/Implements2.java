@@ -24,9 +24,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- *
  * @author Today <br>
- *         2019-01-22 19:42
+ * 2019-01-22 19:42
  */
 @Singleton
 public class Implements2 implements Interface {

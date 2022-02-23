@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Singleton;
 

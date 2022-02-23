@@ -32,7 +32,7 @@ import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 
 /**
- * Auto-configuration specific variant of Spring Framework's {@link Order @Order}
+ * Auto-configuration specific variant of Framework's {@link Order @Order}
  * annotation. Allows auto-configuration classes to be ordered among themselves without
  * affecting the order of configuration classes passed to
  * {@link cn.taketoday.context.support.StandardApplicationContext#register(Class...)}.

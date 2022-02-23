@@ -27,7 +27,7 @@ import cn.taketoday.logging.LoggerFactory;
 /**
  * @author Today <br>
  *
- *         2018-08-08 18:20
+ * 2018-08-08 18:20
  */
 @Order(1)
 //@Singleton

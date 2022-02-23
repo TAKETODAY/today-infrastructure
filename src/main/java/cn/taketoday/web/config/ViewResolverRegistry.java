@@ -270,7 +270,7 @@ public class ViewResolverRegistry {
    * ViewResolverComposite} and follow the order of registration.
    * This property determines the order of the ViewResolverComposite itself
    * relative to any additional ViewResolver's (not registered here) present in
-   * the Spring configuration
+   * the Framework configuration
    * <p>By default this property is not set, which means the resolver is ordered
    * at {@link Ordered#LOWEST_PRECEDENCE} unless content negotiation is enabled
    * in which case the order (if not set explicitly) is changed to

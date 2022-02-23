@@ -146,14 +146,14 @@ public class WebProperties {
     }
 
     /**
-     * Configuration for the Spring Resource Handling chain.
+     * Configuration for the Framework Resource Handling chain.
      */
     public static class Chain {
 
       boolean customized = false;
 
       /**
-       * Whether to enable the Spring Resource Handling chain. By default, disabled
+       * Whether to enable the Framework Resource Handling chain. By default, disabled
        * unless at least one strategy has been enabled.
        */
       private Boolean enabled;

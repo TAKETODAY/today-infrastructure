@@ -228,7 +228,7 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
   @SuppressWarnings("unused")
   private static class Person {
 
-    private String name;
+    private final String name;
 
     public Person(String name) {
       this.name = name;

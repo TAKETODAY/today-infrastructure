@@ -32,9 +32,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Standard implementation of the
- * {@link BeanExpressionResolver}
- * interface, parsing and evaluating Spring EL using Spring's expression module.
+ * Standard implementation of the {@link BeanExpressionResolver} interface,
+ * parsing and evaluating EL using {@code cn.taketoday.expression} module.
  *
  * <p>All beans in the containing {@code BeanFactory} are made available as
  * predefined variables with their common bean name, including standard context

@@ -35,10 +35,10 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
- * {@code TodayManagedTransaction} handles the lifecycle of a JDBC connection. It retrieves a connection from Spring's
+ * {@code TodayManagedTransaction} handles the lifecycle of a JDBC connection. It retrieves a connection from Framework's
  * transaction manager and returns it back to it when it is no longer needed.
  * <p>
- * If Spring's transaction handling is active it will no-op all commit/rollback/close calls assuming that the Spring
+ * If Framework's transaction handling is active it will no-op all commit/rollback/close calls assuming that the Framework
  * transaction manager will do the job.
  * <p>
  * If it is not it will behave like {@code JdbcTransaction}.

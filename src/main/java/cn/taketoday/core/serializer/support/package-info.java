@@ -1,5 +1,5 @@
 /**
- * Support classes for Spring's serializer abstraction.
+ * Support classes for Framework's serializer abstraction.
  * Includes adapters to the Converter SPI.
  */
 @NonNullApi

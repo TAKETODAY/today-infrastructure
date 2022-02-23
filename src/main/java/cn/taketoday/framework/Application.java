@@ -863,7 +863,7 @@ public class Application {
    * Static helper that can be used to exit a {@link Application} and obtain a
    * code indicating success (0) or otherwise. Does not throw exceptions but should
    * print stack traces of any encountered. Applies the specified
-   * {@link ExitCodeGenerator} in addition to any Spring beans that implement
+   * {@link ExitCodeGenerator} in addition to any Framework beans that implement
    * {@link ExitCodeGenerator}. In the case of multiple exit codes the highest value
    * will be used (or if all values are negative, the lowest value will be used)
    *
