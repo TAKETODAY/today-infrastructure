@@ -48,6 +48,9 @@ public class BeanInstantiatorGenerator
   private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
   private static final MethodInfo newInstanceInfo = MethodInfo.from(
           ReflectionUtils.getMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
+  /** @since 4.0 */
+  private static final MethodSignature SIG_CONSTRUCTOR
+          = new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Constructor;)V");
 
   private final Constructor<?> targetConstructor;
 
@@ -64,6 +67,19 @@ public class BeanInstantiatorGenerator
   @Override
   protected int getArgsIndex() {
     return 1;
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Override
+  protected void generateConstructor(ClassEmitter ce) {
+    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, SIG_CONSTRUCTOR);
+    e.loadThis();
+    e.loadArg(0);
+    e.super_invoke_constructor(SIG_CONSTRUCTOR);
+    e.returnValue();
+    e.end_method();
   }
 
   /**
@@ -91,6 +107,16 @@ public class BeanInstantiatorGenerator
     codeEmitter.returnValue();
     codeEmitter.end_method();
     classEmitter.endClass();
+  }
+
+  /**
+   * @throws NoSuchMethodException handle in fallback {@link #fallback(Exception)}
+   * @since 4.0
+   */
+  @Override
+  protected ConstructorAccessor newInstance(Class<ConstructorAccessor> accessorClass) throws NoSuchMethodException {
+    Constructor<ConstructorAccessor> constructor = accessorClass.getDeclaredConstructor(Constructor.class);
+    return ReflectionUtils.invokeConstructor(constructor, new Object[] { this.targetConstructor });
   }
 
   @Override

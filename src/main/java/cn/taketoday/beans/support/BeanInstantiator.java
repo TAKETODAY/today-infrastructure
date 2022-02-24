@@ -45,6 +45,17 @@ import cn.taketoday.util.ReflectionUtils;
 public abstract class BeanInstantiator {
 
   /**
+   * get internal Constructor
+   *
+   * @see Constructor
+   * @since 4.0
+   */
+  @Nullable
+  public Constructor<?> getConstructor() {
+    return null;
+  }
+
+  /**
    * Invoke default {@link java.lang.reflect.Constructor}
    *
    * @return returns T

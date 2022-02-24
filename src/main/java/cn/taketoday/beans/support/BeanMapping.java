@@ -241,21 +241,12 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   // static
 
   public static <T> BeanMapping<T> from(T bean) {
-    return new BeanMapping<>(bean, BeanMetadata.from(bean, false));
+    return new BeanMapping<>(bean, BeanMetadata.from(bean));
   }
 
   @SuppressWarnings("unchecked")
   public static <T> BeanMapping<T> from(Class<T> beanClass) {
-    BeanMetadata metadata = BeanMetadata.from(beanClass, false);
-    return new BeanMapping<>((T) metadata.newInstance(), metadata);
-  }
-
-  /**
-   * @since 4.0
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> BeanMapping<T> from(Class<T> beanClass, boolean collectPropertiesFromMethods) {
-    BeanMetadata metadata = BeanMetadata.from(beanClass, collectPropertiesFromMethods);
+    BeanMetadata metadata = BeanMetadata.from(beanClass);
     return new BeanMapping<>((T) metadata.newInstance(), metadata);
   }
 

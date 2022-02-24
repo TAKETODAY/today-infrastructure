@@ -69,7 +69,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     return this.beanClass;
   }
 
-  public BeanInstantiator getConstructor() {
+  public BeanInstantiator getInstantiator() {
     BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
       constructor = createAccessor();
@@ -97,7 +97,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @return a new instance object
    */
   public Object newInstance(@Nullable Object[] args) {
-    return getConstructor().instantiate(args);
+    return getInstantiator().instantiate(args);
   }
 
   /**
@@ -223,9 +223,11 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     PropertyDescriptor[] propertyDescriptors = results.getPropertyDescriptors();
     for (PropertyDescriptor descriptor : propertyDescriptors) {
       BeanProperty property = new BeanProperty(descriptor, beanClass);
-      String alias = getAnnotatedPropertyName(descriptor.getReadMethod());
-      if (alias != null) {
-        property.setPropertyName(alias);
+      if (descriptor.getReadMethod() != null) {
+        String alias = getAnnotatedPropertyName(descriptor.getReadMethod());
+        if (alias != null) {
+          property.setPropertyName(alias);
+        }
       }
       beanPropertyMap.put(property.getPropertyName(), property);
     }

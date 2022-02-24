@@ -31,10 +31,9 @@ import cn.taketoday.beans.factory.support.BeanUtils;
  * @see Constructor#newInstance(Object...)
  */
 final class ReflectiveInstantiator extends ConstructorAccessor {
-  private final Constructor<?> constructor;
 
-  ReflectiveInstantiator(Constructor<?> constructor) {
-    this.constructor = constructor;
+  public ReflectiveInstantiator(Constructor<?> constructor) {
+    super(constructor);
   }
 
   @Override

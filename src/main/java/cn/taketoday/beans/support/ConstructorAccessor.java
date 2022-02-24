@@ -20,14 +20,25 @@
 
 package cn.taketoday.beans.support;
 
+import java.lang.reflect.Constructor;
+
 import cn.taketoday.core.reflect.Accessor;
 import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/8/27 21:41
  */
-public abstract class ConstructorAccessor
-        extends BeanInstantiator implements Accessor {
+public abstract class ConstructorAccessor extends BeanInstantiator implements Accessor {
+  protected final Constructor<?> constructor;
+
+  public ConstructorAccessor(Constructor<?> constructor) {
+    this.constructor = constructor;
+  }
+
+  @Override
+  public Constructor<?> getConstructor() {
+    return constructor;
+  }
 
   /**
    * Invoke {@link java.lang.reflect.Constructor} with given args
