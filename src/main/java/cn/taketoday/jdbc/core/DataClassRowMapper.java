@@ -24,12 +24,16 @@ import java.lang.reflect.Constructor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * {@link RowMapper} implementation that converts a row into a new instance
@@ -49,7 +53,7 @@ import cn.taketoday.lang.Nullable;
 public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
 
   @Nullable
-  private Constructor<T> mappedConstructor;
+  private BeanInstantiator mappedInstantiator;
 
   @Nullable
   private String[] constructorParameterNames;
@@ -75,52 +79,59 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
   }
 
   @Override
-  protected void initialize(Class<T> mappedClass) {
-    super.initialize(mappedClass);
-
-    this.mappedConstructor = BeanUtils.getConstructor(mappedClass);
-    int paramCount = this.mappedConstructor.getParameterCount();
-    if (paramCount > 0) {
-      this.constructorParameterNames = BeanUtils.getParameterNames(this.mappedConstructor);
-      for (String name : this.constructorParameterNames) {
-        suppressProperty(name);
+  protected void initialize(Class<T> mappedClass, BeanMetadata metadata) {
+    super.initialize(mappedClass, metadata);
+    this.mappedInstantiator = metadata.getInstantiator();
+    Constructor<?> constructor = mappedInstantiator.getConstructor();
+    if (constructor != null) {
+      int paramCount = constructor.getParameterCount();
+      if (paramCount > 0) {
+        String[] constructorParameterNames = BeanUtils.getParameterNames(constructor);
+        for (String name : constructorParameterNames) {
+          suppressProperty(name);
+        }
+        TypeDescriptor[] constructorParameterTypes = new TypeDescriptor[paramCount];
+        for (int i = 0; i < paramCount; i++) {
+          constructorParameterTypes[i] = new TypeDescriptor(new MethodParameter(constructor, i));
+        }
+        this.constructorParameterTypes = constructorParameterTypes;
+        this.constructorParameterNames = constructorParameterNames;
       }
-      this.constructorParameterTypes = new TypeDescriptor[paramCount];
-      for (int i = 0; i < paramCount; i++) {
-        this.constructorParameterTypes[i] = new TypeDescriptor(new MethodParameter(this.mappedConstructor, i));
-      }
+    }
+    else {
+      LoggerFactory.getLogger(DataClassRowMapper.class)
+              .warn("Actual 'java.lang.reflect.Constructor' cannot determine in mappedClass: '{}'", mappedClass.getName());
     }
   }
 
   @Override
-  protected T constructMappedInstance(ResultSet rs) throws SQLException {
-    Assert.state(this.mappedConstructor != null, "Mapped constructor was not initialized");
+  protected T constructMappedInstance(ResultSet rs, TypeConverter converter) throws SQLException {
+    BeanInstantiator mappedConstructor = this.mappedInstantiator;
+    Assert.state(mappedConstructor != null, "Mapped constructor was not initialized");
+    String[] constructorParameterNames = this.constructorParameterNames;
+    TypeDescriptor[] constructorParameterTypes = this.constructorParameterTypes;
 
-    Object[] args;
-    ConversionService conversionService = getConversionService();
-    if (this.constructorParameterNames != null && this.constructorParameterTypes != null) {
-      args = new Object[this.constructorParameterNames.length];
+    Object[] args = null;
+    if (constructorParameterNames != null && constructorParameterTypes != null) {
+      args = new Object[constructorParameterNames.length];
       for (int i = 0; i < args.length; i++) {
-        String name = underscoreName(this.constructorParameterNames[i]);
-        TypeDescriptor td = this.constructorParameterTypes[i];
+        String name = underscoreName(constructorParameterNames[i]);
+        TypeDescriptor td = constructorParameterTypes[i];
         Object value = getColumnValue(rs, rs.findColumn(name), td.getType());
-        args[i] = conversionService.convert(value, td);
+        args[i] = converter.convertIfNecessary(value, td.getType(), td);
       }
     }
-    else {
-      args = new Object[0];
-    }
 
-    return BeanUtils.newInstance(this.mappedConstructor, args);
+    return BeanUtils.newInstance(mappedConstructor, args);
   }
 
   /**
    * Static factory method to create a new {@code DataClassRowMapper}.
    *
    * @param mappedClass the class that each row should be mapped to
-   * @see #newInstance(Class, ConversionService)
+   * @see #create(Class, ConversionService)
    */
-  public static <T> DataClassRowMapper<T> newInstance(Class<T> mappedClass) {
+  public static <T> DataClassRowMapper<T> create(Class<T> mappedClass) {
     return new DataClassRowMapper<>(mappedClass);
   }
 
@@ -130,13 +141,13 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
    * @param mappedClass the class that each row should be mapped to
    * @param conversionService the {@link ConversionService} for binding
    * JDBC values to bean properties, or {@code null} for none
-   * @see #newInstance(Class)
+   * @see #create(Class)
    * @see #setConversionService
    */
-  public static <T> DataClassRowMapper<T> newInstance(
+  public static <T> DataClassRowMapper<T> create(
           Class<T> mappedClass, @Nullable ConversionService conversionService) {
 
-    DataClassRowMapper<T> rowMapper = newInstance(mappedClass);
+    DataClassRowMapper<T> rowMapper = create(mappedClass);
     rowMapper.setConversionService(conversionService);
     return rowMapper;
   }

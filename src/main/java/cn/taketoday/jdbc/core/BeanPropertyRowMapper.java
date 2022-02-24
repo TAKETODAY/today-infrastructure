@@ -29,11 +29,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataRetrievalFailureException;
@@ -80,22 +81,17 @@ import cn.taketoday.util.StringUtils;
  */
 public class BeanPropertyRowMapper<T> implements RowMapper<T> {
   private static final Logger log = LoggerFactory.getLogger(BeanPropertyRowMapper.class);
+  private static final boolean debugEnabled = log.isDebugEnabled();
 
   /** The class we are mapping to. */
   @Nullable
   private Class<T> mappedClass;
-  // @since 4.0
-  private final boolean collectPropertiesFromMethods;
 
   /** Whether we're strictly validating. */
   private boolean checkFullyPopulated = false;
 
   /** Whether we're defaulting primitives when mapping a null value. */
   private boolean primitivesDefaultedForNullValue = false;
-
-  /** ConversionService for binding JDBC values to bean properties. */
-  @Nullable
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   /** Map of the fields we provide mapping for. */
   @Nullable
@@ -108,8 +104,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
   @Nullable
   private BeanMetadata metadata;
 
-  @Nullable
-  protected BeanPropertyAccessor accessor;
+  protected final BeanWrapperImpl beanWrapper = new BeanWrapperImpl();
 
   /**
    * Create a new {@code BeanPropertyRowMapper} for bean-style configuration.
@@ -117,9 +112,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @see #setMappedClass
    * @see #setCheckFullyPopulated
    */
-  public BeanPropertyRowMapper() {
-    this.collectPropertiesFromMethods = false;
-  }
+  public BeanPropertyRowMapper() { }
 
   /**
    * Create a new {@code BeanPropertyRowMapper}, accepting unpopulated
@@ -128,17 +121,6 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @param mappedClass the class that each row should be mapped to
    */
   public BeanPropertyRowMapper(Class<T> mappedClass) {
-    this(mappedClass, false);
-  }
-
-  /**
-   * Create a new {@code BeanPropertyRowMapper}, accepting unpopulated
-   * properties in the target bean.
-   *
-   * @param mappedClass the class that each row should be mapped to
-   */
-  public BeanPropertyRowMapper(Class<T> mappedClass, boolean collectPropertiesFromMethods) {
-    this.collectPropertiesFromMethods = collectPropertiesFromMethods;
     initialize(mappedClass);
   }
 
@@ -150,8 +132,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * all bean properties have been mapped from corresponding database fields
    */
   public BeanPropertyRowMapper(
-          Class<T> mappedClass, boolean checkFullyPopulated, boolean collectPropertiesFromMethods) {
-    this.collectPropertiesFromMethods = collectPropertiesFromMethods;
+          Class<T> mappedClass, boolean checkFullyPopulated) {
     this.checkFullyPopulated = checkFullyPopulated;
     initialize(mappedClass);
   }
@@ -175,13 +156,9 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * Get the class that we are mapping to.
    */
   @Nullable
+  @SuppressWarnings("unchecked")
   public final Class<T> getMappedClass() {
-    return this.mappedClass;
-  }
-
-  @Nullable
-  public BeanMetadata getMetadata() {
-    return metadata;
+    return metadata != null ? (Class<T>) metadata.getType() : null;
   }
 
   /**
@@ -223,11 +200,9 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * or {@code null} for none.
    * <p>Default is a {@link DefaultConversionService}, This
    * provides support for {@code java.time} conversion and other special types.
-   *
-   * @see #initBeanPropertyAccessor(BeanPropertyAccessor)
    */
   public void setConversionService(@Nullable ConversionService conversionService) {
-    this.conversionService = conversionService;
+    beanWrapper.setConversionService(conversionService);
   }
 
   /**
@@ -236,7 +211,14 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    */
   @Nullable
   public ConversionService getConversionService() {
-    return this.conversionService;
+    return beanWrapper.getConversionService();
+  }
+
+  /**
+   * Return a {@link BeanWrapperImpl} for binding JDBC values to bean properties.
+   */
+  public BeanWrapperImpl getBeanWrapper() {
+    return beanWrapper;
   }
 
   /**
@@ -244,27 +226,30 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    *
    * @param mappedClass the mapped class
    */
-  protected void initialize(Class<T> mappedClass) {
-    this.mappedClass = mappedClass;
-    this.mappedFields = new HashMap<>();
-    this.mappedProperties = new HashSet<>();
-    BeanMetadata metadata = BeanMetadata.from(mappedClass, collectPropertiesFromMethods);
+  private void initialize(Class<T> mappedClass) {
+    BeanMetadata metadata = BeanMetadata.from(mappedClass);
+    initialize(mappedClass, metadata);
     this.metadata = metadata;
-    this.accessor = new BeanPropertyAccessor();
+  }
 
-    initBeanPropertyAccessor(accessor);
-
+  protected void initialize(Class<T> mappedClass, BeanMetadata metadata) {
+    this.mappedClass = mappedClass;
+    HashSet<String> mappedProperties = new HashSet<>();
+    HashMap<String, BeanProperty> mappedFields = new HashMap<>();
     for (BeanProperty property : metadata) {
-      if (!property.isReadOnly()) {
+      if (property.isWriteable()) {
         String lowerCaseName = lowerCaseName(property.getPropertyName());
-        this.mappedFields.put(lowerCaseName, property);
+        mappedFields.put(lowerCaseName, property);
         String underscoreName = underscoreName(property.getPropertyName());
         if (!lowerCaseName.equals(underscoreName)) {
-          this.mappedFields.put(underscoreName, property);
+          mappedFields.put(underscoreName, property);
         }
-        this.mappedProperties.add(property.getPropertyName());
+        mappedProperties.add(property.getPropertyName());
       }
     }
+
+    this.mappedFields = mappedFields;
+    this.mappedProperties = mappedProperties;
   }
 
   /**
@@ -310,7 +295,10 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    */
   @Override
   public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
-    T mappedObject = constructMappedInstance(rs);
+    BeanWrapperImpl beanWrapper = this.beanWrapper;
+
+    T mappedObject = constructMappedInstance(rs, beanWrapper);
+    beanWrapper.setBeanInstance(mappedObject);
 
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -323,16 +311,16 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
       if (property != null) {
         try {
           Object value = getColumnValue(rs, index, property);
-          if (rowNumber == 0 && log.isDebugEnabled()) {
+          if (rowNumber == 0 && debugEnabled) {
             log.debug("Mapping column '{}' to property '{}' of type '{}'",
                     column, property.getName(), ClassUtils.getQualifiedName(property.getType()));
           }
           try {
-            accessor.setProperty(mappedObject, metadata, property.getName(), value);
+            beanWrapper.setPropertyValue(property.getName(), value);
           }
           catch (TypeMismatchException ex) {
             if (value == null && this.primitivesDefaultedForNullValue) {
-              if (log.isDebugEnabled()) {
+              if (debugEnabled) {
                 log.debug("Intercepted TypeMismatchException for row {} and column '{}'" +
                                 " with null value when setting property '{}' of type '{}' on object: {}",
                         rowNumber, column, property.getName(), ClassUtils.getQualifiedName(property.getType()), mappedObject, ex);
@@ -353,7 +341,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
       }
       else {
         // No BeanProperty found
-        if (rowNumber == 0 && log.isDebugEnabled()) {
+        if (rowNumber == 0 && debugEnabled) {
           log.debug("No property found for column '{}' mapped to field '{}'", column, field);
         }
       }
@@ -371,31 +359,14 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * Construct an instance of the mapped class for the current row.
    *
    * @param rs the ResultSet to map (pre-initialized for the current row)
+   * @param converter a TypeConverter with this RowMapper's conversion service
    * @return a corresponding instance of the mapped class
    * @throws SQLException if an SQLException is encountered
    */
   @SuppressWarnings("unchecked")
-  protected T constructMappedInstance(ResultSet rs) throws SQLException {
-    Assert.state(this.mappedClass != null, "Mapped class was not specified");
+  protected T constructMappedInstance(ResultSet rs, TypeConverter converter) throws SQLException {
+    Assert.state(metadata != null, "Mapped class was not specified");
     return (T) metadata.newInstance();
-  }
-
-  /**
-   * Initialize the given BeanWrapper to be used for row mapping.
-   * To be called for each row.
-   * <p>The default implementation applies the configured {@link ConversionService},
-   * if any. Can be overridden in subclasses.
-   *
-   * @param accessor the BeanPropertyAccessor to initialize
-   * @see #getConversionService()
-   * @see BeanPropertyAccessor#setConversionService
-   */
-  protected void initBeanPropertyAccessor(BeanPropertyAccessor accessor) {
-    ConversionService cs = getConversionService();
-    if (cs != null) {
-      accessor.setConversionService(cs);
-    }
-    accessor.setMetadata(metadata);
   }
 
   /**
