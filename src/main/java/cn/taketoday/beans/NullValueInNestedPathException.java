@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
+
 /**
  * Exception thrown when navigation of a valid nested property
  * path encounters a NullPointerException.
@@ -32,8 +34,9 @@ package cn.taketoday.beans;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 17:45
  */
-@SuppressWarnings("serial")
 public class NullValueInNestedPathException extends InvalidPropertyException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Create a new NullValueInNestedPathException.

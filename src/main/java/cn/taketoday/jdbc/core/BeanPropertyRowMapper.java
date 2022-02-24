@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanWrapperImpl;
-import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.support.BeanMetadata;
@@ -334,7 +334,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
             populatedProperties.add(property.getName());
           }
         }
-        catch (PropertyReadOnlyException ex) {
+        catch (NotWritablePropertyException ex) {
           throw new DataRetrievalFailureException(
                   "Unable to map column '" + column + "' to property '" + property.getName() + "'", ex);
         }

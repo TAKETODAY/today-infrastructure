@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,7 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.reflect;
+package cn.taketoday.core.bytecode.reflect;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
 
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Type;
@@ -29,10 +33,6 @@ import cn.taketoday.core.bytecode.core.CodeEmitter;
 import cn.taketoday.core.bytecode.core.EmitUtils;
 import cn.taketoday.core.bytecode.core.KeyFactory;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
 
 import static cn.taketoday.core.bytecode.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.core.bytecode.Opcodes.JAVA_VERSION;

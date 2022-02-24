@@ -44,7 +44,7 @@ import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.NamingPolicy;
-import cn.taketoday.core.reflect.MethodAccess;
+import cn.taketoday.core.bytecode.reflect.MethodAccess;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StreamUtils;

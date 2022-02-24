@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,20 +22,19 @@ package cn.taketoday.core.reflect;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.util.ObjectUtils;
 
 /**
  * read-only PropertyAccessor
  *
  * @author TODAY 2020/9/12 15:22
- * @see PropertyReadOnlyException
+ * @see ReflectionException
  */
 abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
   public final void set(final Object obj, final Object value) {
-    throw new PropertyReadOnlyException(
+    throw new ReflectionException(
             "Can't set value '" + ObjectUtils.toHexString(value) + "' to '" + classToString(obj) + "' read only property");
   }
 
@@ -45,7 +44,7 @@ abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
   public final Method getWriteMethod() {
-    throw new PropertyReadOnlyException("read only property");
+    throw new ReflectionException("read only property");
   }
 
   @Override

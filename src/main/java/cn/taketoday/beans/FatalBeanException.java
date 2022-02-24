@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,8 +32,9 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 22:20
  */
-@SuppressWarnings("serial")
 public class FatalBeanException extends BeansException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Create a new FatalBeanException with the specified message.

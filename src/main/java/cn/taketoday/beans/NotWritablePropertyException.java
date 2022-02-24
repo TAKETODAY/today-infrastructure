@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -32,9 +34,9 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 17:44
  */
-
-@SuppressWarnings("serial")
 public class NotWritablePropertyException extends InvalidPropertyException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final String[] possibleMatches;
@@ -86,7 +88,7 @@ public class NotWritablePropertyException extends InvalidPropertyException {
    * @param possibleMatches suggestions for actual bean property names
    * that closely match the invalid property name
    */
-  public NotWritablePropertyException(Class<?> beanClass, String propertyName, String msg, String[] possibleMatches) {
+  public NotWritablePropertyException(Class<?> beanClass, String propertyName, String msg, @Nullable String[] possibleMatches) {
     super(beanClass, propertyName, msg);
     this.possibleMatches = possibleMatches;
   }

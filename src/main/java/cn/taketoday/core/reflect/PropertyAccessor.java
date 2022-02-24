@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -86,12 +85,12 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
   }
 
   /**
-   * @throws NoSuchPropertyException No property in target class
+   * @throws ReflectionException No property in target class
    */
   public static PropertyAccessor from(Class<?> targetClass, String name) {
     Field field = ReflectionUtils.findField(targetClass, name);
     if (field == null) {
-      throw new NoSuchPropertyException(targetClass, name);
+      throw new ReflectionException("No such property: '" + name + "' in class: " + targetClass);
     }
     return fromField(field);
   }

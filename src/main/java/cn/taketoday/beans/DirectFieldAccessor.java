@@ -20,14 +20,8 @@
 
 package cn.taketoday.beans;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/17 18:04
- */
-
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
@@ -39,24 +33,25 @@ import cn.taketoday.util.ReflectionUtils;
  * instance fields. Allows for direct binding to fields instead of going through
  * JavaBean setters.
  *
- * <p>As of Framework 4.2, the vast majority of the {@link BeanWrapper} features have
- * been merged to {@link AbstractPropertyAccessor}, which means that property
- * traversal as well as collections and map access is now supported here as well.
+ * <p>the vast majority of the {@link BeanWrapper} features have been merged to
+ * {@link AbstractPropertyAccessor}, which means that property traversal as well
+ * as collections and map access is now supported here as well.
  *
  * <p>A DirectFieldAccessor's default for the "extractOldValueForEditor" setting
  * is "true", since a field can always be read without side effects.
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setExtractOldValueForEditor
  * @see BeanWrapper
  * @see cn.taketoday.validation.DirectFieldBindingResult
  * @see cn.taketoday.validation.DataBinder#initDirectFieldAccess()
- * @since 2.0
+ * @since 4.0 2022/2/17 18:04
  */
 public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
 
-  private final Map<String, FieldPropertyHandler> fieldMap = new HashMap<>();
+  private final HashMap<String, FieldPropertyHandler> fieldMap = new HashMap<>();
 
   /**
    * Create a new DirectFieldAccessor for the given object.
@@ -137,7 +132,6 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
         ReflectionUtils.makeAccessible(this.field);
         return this.field.get(getWrappedInstance());
       }
-
       catch (IllegalAccessException ex) {
         throw new InvalidPropertyException(getWrappedClass(),
                 this.field.getName(), "Field is not accessible", ex);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -792,7 +792,11 @@ public class BeanDefinition
    * @throws NoSuchPropertyException If there is no property with given name
    */
   public Object getRequiredPropertyValue(String name) {
-    return propertyValues().getRequiredPropertyValue(name);
+    Object propertyValue = propertyValues().getPropertyValue(name);
+    if (propertyValue == null) {
+      throw new IllegalStateException("No propertyValue '" + name + "'");
+    }
+    return propertyValue;
   }
 
   /**

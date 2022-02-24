@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.InvalidPropertyValueException;
+import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
@@ -395,11 +395,11 @@ public class BeanPropertyAccessorTest {
     try {
       nestedBean.setProperty("nested[1].map[new].name[m]", "set2"); // type error
     }
-    catch (InvalidPropertyValueException ignored) { }
+    catch (InvalidPropertyException ignored) { }
     try {
       nestedBean.setProperty("nested[1].list[-1].name", "set2"); // -1
     }
-    catch (InvalidPropertyValueException ignored) { }
+    catch (InvalidPropertyException ignored) { }
 
     System.out.println(object);
   }

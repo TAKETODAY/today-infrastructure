@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ObjectUtils;
@@ -48,7 +48,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   private final BeanMetadata metadata;
 
   /**
-   * throws a PropertyReadOnlyException when set a read-only property
+   * throws a NotWritablePropertyException when set a read-only property
    */
   private boolean ignoreReadOnly;
 
@@ -99,7 +99,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   /**
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws NotWritablePropertyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   @Override
@@ -109,7 +109,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   /**
    * @throws NoSuchPropertyException If no such property
-   * @throws PropertyReadOnlyException If this property is read only and 'ignoreReadOnly' is false
+   * @throws NotWritablePropertyException If this property is read only and 'ignoreReadOnly' is false
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public Object put(Object target, String key, Object value) {
@@ -121,7 +121,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     }
     else {
       if (!ignoreReadOnly) {
-        throw new PropertyReadOnlyException(
+        throw new NotWritablePropertyException(metadata.getType(), beanProperty.getPropertyName(),
                 target + " has a property: '" + beanProperty.getName() + "' that is read-only");
       }
     }

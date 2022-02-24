@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -127,23 +127,6 @@ public class PropertyValues implements Iterable<PropertyValue> {
     if (propertyValues != null) {
       propertyValues.remove(propertyName);
     }
-  }
-
-  /**
-   * Get a property
-   *
-   * @param name The name of property
-   * @return Property value object
-   * @throws NoSuchPropertyException If there is no property with given name
-   */
-  public Object getRequiredPropertyValue(String name) {
-    if (propertyValues != null) {
-      Object value = propertyValues.get(name);
-      if (value != null) {
-        return value;
-      }
-    }
-    throw new NoSuchPropertyException("No such property named '" + name + "'");
   }
 
   /**

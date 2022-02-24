@@ -60,7 +60,7 @@ public abstract class AbstractApplicationEnvironmentTests {
   void propertyResolverIsOptimizedForConfigurationProperties() {
     StandardEnvironment environment = createEnvironment();
     ConfigurablePropertyResolver expected = ConfigurationPropertySources.createPropertyResolver(new PropertySources());
-    Object propertyResolver = PropertyAccessorFactory.forBeanPropertyAccess(environment)
+    Object propertyResolver = PropertyAccessorFactory.forDirectFieldAccess(environment)
             .getPropertyValue("propertyResolver");
     assertThat(propertyResolver).isInstanceOf(expected.getClass());
   }

@@ -24,7 +24,7 @@ import cn.taketoday.core.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.core.GeneratorStrategy;
 import cn.taketoday.core.bytecode.core.NamingPolicy;
-import cn.taketoday.core.reflect.MethodAccess;
+import cn.taketoday.core.bytecode.reflect.MethodAccess;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

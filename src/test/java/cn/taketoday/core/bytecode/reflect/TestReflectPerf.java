@@ -23,9 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.core.reflect.FastMethodAccessor;
-import cn.taketoday.core.reflect.MethodAccess;
-import cn.taketoday.core.reflect.MethodDelegate;
 import cn.taketoday.core.reflect.MethodInvoker;
 
 public class TestReflectPerf {

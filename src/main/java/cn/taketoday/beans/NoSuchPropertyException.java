@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,29 +19,18 @@
  */
 package cn.taketoday.beans;
 
+import java.io.Serial;
+
 /**
  * @author TODAY <br>
  * 2018-08-05 10:08
  */
-public class NoSuchPropertyException extends PropertyException {
+public class NoSuchPropertyException extends InvalidPropertyException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
-  public NoSuchPropertyException() { }
-
-  public NoSuchPropertyException(Throwable cause) {
-    super(cause);
-  }
-
-  public NoSuchPropertyException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public NoSuchPropertyException(String message) {
-    super(message);
-  }
-
   public NoSuchPropertyException(Class<?> target, String name) {
-    super("No such property: '" + name + "' in class: " + target);
+    super(target, name, "No such property: '" + name + "' in class: " + target);
   }
 
 }

@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
+
 /**
  * Exception thrown on an attempt to get the value of a property
  * that isn't readable, because there's no getter method.
@@ -28,8 +30,9 @@ package cn.taketoday.beans;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 17:56
  */
-@SuppressWarnings("serial")
 public class NotReadablePropertyException extends InvalidPropertyException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Create a new NotReadablePropertyException.

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,13 +19,18 @@
  */
 package cn.taketoday.core.reflect;
 
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
+ * Reflection operations exception
+ *
  * @author TODAY <br>
  * 2020-08-13 18:46
  */
 public class ReflectionException extends NestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public ReflectionException() { }

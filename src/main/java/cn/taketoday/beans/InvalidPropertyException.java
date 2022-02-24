@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,8 +32,9 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 17:39
  */
-@SuppressWarnings("serial")
 public class InvalidPropertyException extends FatalBeanException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Class<?> beanClass;
 

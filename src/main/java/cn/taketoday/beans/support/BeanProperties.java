@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.beans.support;
 
 import java.util.Map;
 
-import cn.taketoday.beans.InvalidPropertyValueException;
+import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -179,7 +179,7 @@ public class BeanProperties {
    * @param properties Map keyed by property name, with the
    * corresponding (String or String[]) value(s) to be set
    * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyValueException Invalid property value
+   * @throws InvalidPropertyException Invalid property value
    */
   public static void populate(Object bean, Map<String, Object> properties) {
     populate(bean, properties, true);
@@ -206,7 +206,7 @@ public class BeanProperties {
    * corresponding (String or String[]) value(s) to be set
    * @param ignoreUnknownProperty {@link BeanPropertyAccessor#ignoreUnknownProperty}
    * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyValueException Invalid property value
+   * @throws InvalidPropertyException Invalid property value
    * @see BeanPropertyAccessor
    */
   public static void populate(

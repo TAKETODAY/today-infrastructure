@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
-import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
@@ -137,7 +137,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @param root Root object
    * @param propertyName Property name
    * @param value new value to set
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws NotWritablePropertyException If this property is read only
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */

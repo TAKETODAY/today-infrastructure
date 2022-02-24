@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import java.util.Optional;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.PropertyReadOnlyException;
+import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
@@ -197,7 +197,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws NotWritablePropertyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   public final void setValue(Object obj, Object value) {
@@ -206,7 +206,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws NotWritablePropertyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    * @since 4.0
    */
@@ -233,7 +233,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   }
 
   /**
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws NotWritablePropertyException If this property is read only
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    * @since 3.0.2
    */

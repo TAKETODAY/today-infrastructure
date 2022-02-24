@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,6 @@
 
 package cn.taketoday.core.reflect;
 
-import cn.taketoday.beans.PropertyCannotReadableException;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/2 23:57
@@ -30,7 +28,7 @@ public abstract class WriteOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
   public Object get(Object obj) {
-    throw new PropertyCannotReadableException("write only property");
+    throw new ReflectionException("Cannot get property cause: write only property");
   }
 
   @Override

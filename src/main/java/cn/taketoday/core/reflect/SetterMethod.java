@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.core.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -43,12 +42,12 @@ public interface SetterMethod {
    *
    * @param obj Target obj
    * @param value property value
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws ReflectionException If this property is read only
    */
   void set(Object obj, Object value);
 
   /**
-   * @throws PropertyReadOnlyException If this property is read only
+   * @throws ReflectionException If this property is read only
    * @since 3.0
    */
   @Nullable

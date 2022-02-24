@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,10 +28,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import cn.taketoday.beans.InvalidPropertyValueException;
+import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.PropertyEditorRegistry;
-import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeConverterDelegate;
 import cn.taketoday.beans.TypeConverterSupport;
@@ -60,7 +60,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
    */
   private boolean ignoreUnknownProperty = true;
   /**
-   * throws a PropertyReadOnlyException when set a read-only property
+   * throws a NotWritablePropertyException when set a read-only property
    *
    * @see #setProperty(String, Object)
    * @since 3.0.2
@@ -110,7 +110,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
    * @throws NoSuchPropertyException If there is not a property
    * @throws IndexOutOfBoundsException if the index is out of list range
    * (<tt>index &lt; 0 || index &gt;= size()</tt>)
-   * @throws InvalidPropertyValueException conversion failed
+   * @throws InvalidPropertyException conversion failed
    * @see #getProperty(String)
    */
   public <T> T getProperty(String propertyPath, Class<T> requiredType) {
@@ -283,7 +283,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
    * @param propertyPath Property path to set
    * @param value Property value
    * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyValueException Invalid property value
+   * @throws InvalidPropertyException Invalid property value
    */
   public void setProperty(String propertyPath, Object value) {
     setProperty(getRootObject(), obtainMetadata(), propertyPath, value);
@@ -296,7 +296,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
    * @param propertyPath Property path to set
    * @param value Property value
    * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyValueException Invalid property value
+   * @throws InvalidPropertyException Invalid property value
    */
   public void setProperty(Object root, String propertyPath, Object value) {
     setProperty(root, BeanMetadata.from(root), propertyPath, value);
@@ -309,9 +309,9 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
    * @param metadata {@link BeanMetadata}
    * @param propertyPath Property path to set
    * @param value Property value
-   * @throws PropertyReadOnlyException property is read-only
+   * @throws NotWritablePropertyException property is read-only
    * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyValueException Invalid property value
+   * @throws InvalidPropertyException Invalid property value
    * @see #ignoreUnknownProperty
    * @see #throwsWhenReadOnly
    */
@@ -392,7 +392,8 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
   private void setValue(Object root, BeanProperty beanProperty, Object value) {
     if (beanProperty.isReadOnly()) {
       if (throwsWhenReadOnly) {
-        throw new PropertyReadOnlyException(
+        throw new NotWritablePropertyException(
+                obtainMetadata().getType(), beanProperty.getName(),
                 root + " has a property: '" + beanProperty.getName() + "' that is read-only");
       }
     }
@@ -464,13 +465,14 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
         CollectionUtils.setValue(list, index, convertedValue);
       }
       catch (NullPointerException ex) {
-        throw new InvalidPropertyValueException(
+        throw new InvalidPropertyException(obtainMetadata().getType(), propertyPath,
                 "Cannot set element with index " + index + " in List of size " + list.size() +
                         ", accessed using property path '" + propertyPath +
                         "': List does not support filling up gaps with null elements");
       }
       catch (IndexOutOfBoundsException ex) {
-        throw new InvalidPropertyValueException("Invalid list index in property path '" + propertyPath + "'", ex);
+        throw new InvalidPropertyException(obtainMetadata().getType(),
+                propertyPath, "Invalid list index in property path '" + propertyPath + "'", ex);
       }
     }
     else if (propValue instanceof Map) {
@@ -505,7 +507,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
         Array.set(propValue, arrayIndex, convertIfNecessary(value, componentType));
       }
       else {
-        throw new InvalidPropertyValueException(
+        throw new InvalidPropertyException(obtainMetadata().getType(), propertyPath,
                 "Property referenced in indexed property path '" + propertyPath +
                         "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
       }
@@ -514,7 +516,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
 
   /**
    * @param beanProperty property metadata
-   * @throws InvalidPropertyValueException conversion failed
+   * @throws InvalidPropertyException conversion failed
    */
   public Object convertIfNecessary(Object value, BeanProperty beanProperty) {
     TypeDescriptor typeDescriptor = beanProperty.getTypeDescriptor();
@@ -527,7 +529,7 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
   }
 
   /**
-   * @throws InvalidPropertyValueException conversion failed
+   * @throws InvalidPropertyException conversion failed
    */
   private Object doConvertInternal(Object value, TypeDescriptor requiredType) {
     Class<?> type = requiredType.getType();
