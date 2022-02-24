@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.support;
 
+import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -41,6 +42,7 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyReadOnlyException;
 import cn.taketoday.beans.TypeConverter;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Assert;
@@ -104,6 +106,8 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   @Nullable
   private transient Annotation[] annotations;
 
+  private MethodParameter methodParameter;
+
   BeanProperty(String alias, Field field) {
     this.alias = alias;
     this.field = field;
@@ -136,6 +140,16 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
     this.declaringClass = declaringClass;
+  }
+
+  BeanProperty(PropertyDescriptor descriptor, Class<?> declaringClass) {
+    this.field = null;
+    this.alias = descriptor.getName();
+    this.declaringClass = declaringClass;
+    this.readMethod = descriptor.getReadMethod();
+    this.writeMethod = descriptor.getWriteMethod();
+    this.methodParameter = resolveMethodParameter();
+    this.propertyType = descriptor.getPropertyType();
   }
 
   /**
@@ -538,6 +552,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @see #getField()
    * @since 4.0
    */
+  @Override
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
       if (field == null) {
@@ -563,6 +578,45 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   @Nullable
   public Method getWriteMethod() {
     return writeMethod;
+  }
+
+  public MethodParameter getMethodParameter() {
+    return this.methodParameter;
+  }
+
+  private MethodParameter resolveMethodParameter() {
+    MethodParameter read = resolveReadMethodParameter();
+    MethodParameter write = resolveWriteMethodParameter();
+    if (write == null) {
+      if (read == null) {
+        throw new IllegalStateException("Property is neither readable nor writeable");
+      }
+      return read;
+    }
+    if (read != null) {
+      Class<?> readType = read.getParameterType();
+      Class<?> writeType = write.getParameterType();
+      if (!writeType.equals(readType) && writeType.isAssignableFrom(readType)) {
+        return read;
+      }
+    }
+    return write;
+  }
+
+  @Nullable
+  private MethodParameter resolveReadMethodParameter() {
+    if (getReadMethod() == null) {
+      return null;
+    }
+    return new MethodParameter(getReadMethod(), -1).withContainingClass(getDeclaringClass());
+  }
+
+  @Nullable
+  private MethodParameter resolveWriteMethodParameter() {
+    if (getWriteMethod() == null) {
+      return null;
+    }
+    return new MethodParameter(getWriteMethod(), 0).withContainingClass(getDeclaringClass());
   }
 
   // AnnotatedElement

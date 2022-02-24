@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -28,8 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
@@ -121,11 +119,11 @@ public final class Property {
 
   // Package private
 
-  MethodParameter getMethodParameter() {
+  public MethodParameter getMethodParameter() {
     return this.methodParameter;
   }
 
-  Annotation[] getAnnotations() {
+  public Annotation[] getAnnotations() {
     if (this.annotations == null) {
       this.annotations = resolveAnnotations();
     }

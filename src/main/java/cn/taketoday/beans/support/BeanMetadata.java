@@ -20,9 +20,9 @@
 
 package cn.taketoday.beans.support;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
+import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.Property;
 import cn.taketoday.beans.PropertyReadOnlyException;
@@ -38,11 +39,9 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -50,10 +49,8 @@ import cn.taketoday.util.StringUtils;
  * @since 3.0
  */
 public class BeanMetadata implements Iterable<BeanProperty> {
-  private static final boolean defaultCollectPropertiesFromMethod = // @since 4.0
-          TodayStrategies.getFlag("collect.properties.methods", true);
 
-  private static final MapCache<BeanMetadataKey, BeanMetadata, ?> metadataMappings = new MapCache<>(
+  private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
 
   private final Class<?> beanClass;
@@ -64,21 +61,8 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    */
   private BeanPropertiesHolder propertyHolder;
 
-  // @since 4.0
-  private final boolean collectPropertiesFromMethods;
-
-  private BeanMetadata(BeanMetadataKey key) {
-    this.beanClass = key.beanClass;
-    this.collectPropertiesFromMethods = key.collectPropertiesFromMethods;
-  }
-
   public BeanMetadata(Class<?> beanClass) {
-    this(beanClass, defaultCollectPropertiesFromMethod);
-  }
-
-  public BeanMetadata(Class<?> beanClass, boolean collectPropertiesFromMethods) {
     this.beanClass = beanClass;
-    this.collectPropertiesFromMethods = collectPropertiesFromMethods;
   }
 
   public Class<?> getType() {
@@ -233,69 +217,19 @@ public class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   public HashMap<String, BeanProperty> createBeanProperties() {
-    return createBeanProperties(collectPropertiesFromMethods);
-  }
-
-  // @since 4.0
-  public boolean isCollectPropertiesFromMethods() {
-    return collectPropertiesFromMethods;
-  }
-
-  /**
-   * @param collectPropertiesFromMethods can collect properties from methods
-   * @since 4.0
-   */
-  public HashMap<String, BeanProperty> createBeanProperties(boolean collectPropertiesFromMethods) {
     HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
-    ReflectionUtils.doWithFields(beanClass, declaredField -> {
-      if (!shouldSkip(declaredField)) {
-        String propertyName = getPropertyName(declaredField);
-        Method readMethod = ReflectionUtils.getReadMethod(beanClass, declaredField.getType(), propertyName);
-        Method writeMethod = ReflectionUtils.getWriteMethod(beanClass, declaredField.getType(), propertyName);
-        beanPropertyMap.put(propertyName, new BeanProperty(
-                propertyName, declaredField, readMethod, writeMethod, beanClass));
+    CachedIntrospectionResults results = CachedIntrospectionResults.forClass(beanClass);
+
+    PropertyDescriptor[] propertyDescriptors = results.getPropertyDescriptors();
+    for (PropertyDescriptor descriptor : propertyDescriptors) {
+      BeanProperty property = new BeanProperty(descriptor, beanClass);
+      String alias = getAnnotatedPropertyName(descriptor.getReadMethod());
+      if (alias != null) {
+        property.setPropertyName(alias);
       }
-    });
-
-    if (collectPropertiesFromMethods) {
-      ReflectionUtils.doWithMethods(beanClass, method -> {
-        String methodName = method.getName();
-
-        BeanProperty property = null;
-        if (methodName.startsWith("get") || methodName.startsWith("is")) {
-          // find property on a getter
-          String propertyName = ReflectionUtils.getPropertyName(method, null);
-          if (!beanPropertyMap.containsKey(propertyName)) {
-            Method writeMethod = ReflectionUtils.getWriteMethod(beanClass, method.getReturnType(), propertyName);
-            property = new BeanProperty(propertyName, method, writeMethod, beanClass);
-          }
-        }
-        else if (methodName.startsWith("set")) {
-          // find property on a setter
-          String propertyName = ReflectionUtils.getPropertyName(null, method);
-          if (!beanPropertyMap.containsKey(propertyName)) {
-            Class<?>[] parameterTypes = method.getParameterTypes(); // none null
-            if (parameterTypes.length == 1) {
-              Method readMethod = ReflectionUtils.getReadMethod(beanClass, parameterTypes[0], propertyName);
-              property = new BeanProperty(propertyName, readMethod, method, beanClass);
-            }
-          }
-        }
-
-        if (property != null) {
-          String alias = getAnnotatedPropertyName(method);
-          if (alias != null) {
-            property.setPropertyName(alias);
-          }
-          beanPropertyMap.put(property.getPropertyName(), property);
-        }
-      });
+      beanPropertyMap.put(property.getPropertyName(), property);
     }
     return beanPropertyMap;
-  }
-
-  protected boolean shouldSkip(Field declaredField) {
-    return false;
   }
 
   /**
@@ -330,8 +264,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
       return true;
     if (!(o instanceof BeanMetadata that))
       return false;
-    return collectPropertiesFromMethods == that.collectPropertiesFromMethods
-            && beanClass.equals(that.beanClass);
+    return beanClass.equals(that.beanClass);
   }
 
   @Override
@@ -370,18 +303,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata from(Class<?> beanClass) {
-    return from(beanClass, defaultCollectPropertiesFromMethod);
-  }
-
-  /**
-   * Create a {@link BeanMetadata} with given bean class
-   *
-   * @param beanClass target bean class cannot be simple class
-   * @param collectPropertiesFromMethods collect properties from methods
-   * @return {@link BeanMetadata}
-   */
-  public static BeanMetadata from(Class<?> beanClass, boolean collectPropertiesFromMethods) {
-    return metadataMappings.get(new BeanMetadataKey(beanClass, collectPropertiesFromMethods));
+    return metadataMappings.get(beanClass);
   }
 
   /**
@@ -392,19 +314,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
    * @see ClassUtils#isSimpleType(Class)
    */
   public static BeanMetadata from(Object object) {
-    return from(object.getClass(), false);
-  }
-
-  /**
-   * Create a {@link BeanMetadata} with given bean class
-   *
-   * @param object target bean cannot be simple object
-   * @param collectPropertiesFromMethods collect properties from methods
-   * @return {@link BeanMetadata}
-   * @since 4.0
-   */
-  public static BeanMetadata from(Object object, boolean collectPropertiesFromMethods) {
-    return from(object.getClass(), collectPropertiesFromMethods);
+    return from(object.getClass());
   }
 
   /**
@@ -418,27 +328,6 @@ public class BeanMetadata implements Iterable<BeanProperty> {
       this.mapping = mapping;
       this.beanProperties = new ArrayList<>(mapping.values());
     }
-  }
-
-  record BeanMetadataKey(Class<?> beanClass, boolean collectPropertiesFromMethods) {
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o instanceof BeanMetadataKey that) {
-        return collectPropertiesFromMethods == that.collectPropertiesFromMethods
-                && Objects.equals(beanClass, that.beanClass);
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(beanClass, collectPropertiesFromMethods);
-    }
-
   }
 
   /**

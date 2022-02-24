@@ -989,10 +989,10 @@ public abstract class AbstractAutowireCapableBeanFactory
   @NonNull
   private BeanMetadata getMetadata(Object bean, BeanDefinition definition) {
     if (definition.isSingleton()) {
-      return new BeanMetadata(bean.getClass(), true);
+      return new BeanMetadata(bean.getClass());
     }
     // fast access from cache
-    return BeanMetadata.from(bean, true);
+    return BeanMetadata.from(bean);
   }
 
   @Override

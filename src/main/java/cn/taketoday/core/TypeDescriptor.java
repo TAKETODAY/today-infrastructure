@@ -84,10 +84,27 @@ public class TypeDescriptor implements Serializable {
     this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(field.getAnnotations());
   }
 
+  /**
+   * Create a new type descriptor from a {@link Property}.
+   * <p>Use this constructor when a source or target conversion point is a
+   * property on a Java class.
+   *
+   * @param property the property
+   * @since 4.0
+   */
+  public TypeDescriptor(Property property) {
+    Assert.notNull(property, "Property must not be null");
+    ResolvableType resolvableType = ResolvableType.forMethodParameter(property.getMethodParameter());
+    this.resolvableType = resolvableType;
+    this.type = resolvableType.resolve(property.getType());
+    this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(property.getAnnotations());
+  }
+
   public TypeDescriptor(BeanProperty property) {
-    this.type = property.getType();
+    ResolvableType resolvableType = ResolvableType.forMethodParameter(property.getMethodParameter());
     this.annotatedElement = property;
-    this.resolvableType = ResolvableType.fromProperty(property);
+    this.resolvableType = resolvableType;
+    this.type = resolvableType.resolve(property.getType());
   }
 
   /**
@@ -680,6 +697,34 @@ public class TypeDescriptor implements Serializable {
    */
   public static TypeDescriptor nested(Field field, int nestingLevel) {
     return nested(new TypeDescriptor(field), nestingLevel);
+  }
+
+  /**
+   * Create a type descriptor for a nested type declared within the property.
+   * <p>For example, if the property is a {@code List<String>} and the nesting
+   * level is 1, the nested type descriptor will be {@code String.class}.
+   * <p>If the property is a {@code List<List<String>>} and the nesting level
+   * is 2, the nested type descriptor will also be a {@code String.class}.
+   * <p>If the property is a {@code Map<Integer, String>} and the nesting level
+   * is 1, the nested type descriptor will be String, derived from the map value.
+   * <p>If the property is a {@code List<Map<Integer, String>>} and the nesting
+   * level is 2, the nested type descriptor will be String, derived from the map value.
+   * <p>Returns {@code null} if a nested type cannot be obtained because it was not
+   * declared. For example, if the property is a {@code List<?>}, the nested type
+   * descriptor returned will be {@code null}.
+   *
+   * @param property the property
+   * @param nestingLevel the nesting level of the collection/array element or
+   * map key/value declaration within the property
+   * @return the nested type descriptor at the specified nesting level, or
+   * {@code null} if it could not be obtained
+   * @throws IllegalArgumentException if the types up to the specified nesting
+   * level are not of collection, array, or map types
+   * @since 4.0
+   */
+  @Nullable
+  public static TypeDescriptor nested(Property property, int nestingLevel) {
+    return nested(new TypeDescriptor(property), nestingLevel);
   }
 
   public static TypeDescriptor nested(TypeDescriptor typeDescriptor, int nestingLevel) {
