@@ -82,7 +82,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     List<ConcretePerson> result = mock.getJdbcTemplate().query(
             "select name, age, birth_date, balance from people",
-            new BeanPropertyRowMapper<>(ConcretePerson.class, true, false));
+            new BeanPropertyRowMapper<>(ConcretePerson.class, true));
     assertThat(result.size()).isEqualTo(1);
     verifyPerson(result.get(0));
     mock.verifyClosed();
@@ -105,7 +105,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
             .isThrownBy(() -> mock.getJdbcTemplate().query("select name, age, birth_date, balance from people",
-                    new BeanPropertyRowMapper<>(ExtendedPerson.class, true, false)));
+                    new BeanPropertyRowMapper<>(ExtendedPerson.class, true)));
   }
 
   @Test
@@ -142,29 +142,29 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     mock.verifyClosed();
   }
 
-	@Test
-	void queryWithUnderscoreInColumnNameAndPersonWithMultipleAdjacentUppercaseLettersInPropertyName() throws Exception {
-		Mock mock = new Mock();
-		List<EmailPerson> result = mock.getJdbcTemplate().query(
-				"select name, age, birth_date, balance, e_mail from people",
-				new BeanPropertyRowMapper<>(EmailPerson.class));
-		assertThat(result).hasSize(1);
-		verifyPerson(result.get(0));
-		mock.verifyClosed();
-	}
+  @Test
+  void queryWithUnderscoreInColumnNameAndPersonWithMultipleAdjacentUppercaseLettersInPropertyName() throws Exception {
+    Mock mock = new Mock();
+    List<EmailPerson> result = mock.getJdbcTemplate().query(
+            "select name, age, birth_date, balance, e_mail from people",
+            new BeanPropertyRowMapper<>(EmailPerson.class));
+    assertThat(result).hasSize(1);
+    verifyPerson(result.get(0));
+    mock.verifyClosed();
+  }
 
-	@ParameterizedTest
-	@CsvSource({
-		"age, age",
-		"lastName, last_name",
-		"Name, name",
-		"FirstName, first_name",
-		"EMail, e_mail",
-		"URL, u_r_l", // likely undesirable, but that's the status quo
-	})
-	void underscoreName(String input, String expected) {
-		BeanPropertyRowMapper<?> mapper = new BeanPropertyRowMapper<>(Object.class);
-		assertThat(mapper.underscoreName(input)).isEqualTo(expected);
-	}
+  @ParameterizedTest
+  @CsvSource({
+          "age, age",
+          "lastName, last_name",
+          "Name, name",
+          "FirstName, first_name",
+          "EMail, e_mail",
+          "URL, u_r_l", // likely undesirable, but that's the status quo
+  })
+  void underscoreName(String input, String expected) {
+    BeanPropertyRowMapper<?> mapper = new BeanPropertyRowMapper<>(Object.class);
+    assertThat(mapper.underscoreName(input)).isEqualTo(expected);
+  }
 
 }

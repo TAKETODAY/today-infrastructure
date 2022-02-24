@@ -44,7 +44,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
@@ -52,6 +51,7 @@ import cn.taketoday.beans.factory.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ApplicationListener;
@@ -109,11 +109,9 @@ import cn.taketoday.util.StringUtils;
  * @see AsyncAnnotationBeanPostProcessor
  * @since 4.0
  */
-public class ScheduledAnnotationBeanPostProcessor
-        implements ScheduledTaskHolder, Ordered,
-                   DestructionBeanPostProcessor, InitializationBeanPostProcessor,
-                   BeanNameAware, DisposableBean, BeanFactoryAware, ApplicationContextAware,
-                   EmbeddedValueResolverAware, SmartInitializingSingleton, ApplicationListener<ContextRefreshedEvent> {
+public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder, Ordered, DestructionBeanPostProcessor,
+        InitializationBeanPostProcessor, BeanNameAware, DisposableBean, BeanFactoryAware, ApplicationContextAware,
+        EmbeddedValueResolverAware, SmartInitializingSingleton, ApplicationListener<ContextRefreshedEvent> {
 
   /**
    * The default name of the {@link cn.taketoday.scheduling.TaskScheduler} bean to pick up: {@value}.
@@ -158,7 +156,6 @@ public class ScheduledAnnotationBeanPostProcessor
    *
    * @param registrar the ScheduledTaskRegistrar to register {@code @Scheduled}
    * tasks on
-   * @since 4.0
    */
   public ScheduledAnnotationBeanPostProcessor(ScheduledTaskRegistrar registrar) {
     Assert.notNull(registrar, "ScheduledTaskRegistrar is required");
