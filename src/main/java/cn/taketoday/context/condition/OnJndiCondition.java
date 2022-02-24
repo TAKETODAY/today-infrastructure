@@ -45,7 +45,7 @@ class OnJndiCondition extends ContextCondition implements Ordered {
     }
     JndiLocator locator = getJndiLocator(locations);
     String location = locator.lookupFirstLocation();
-    String details = "(" + StringUtils.arrayToString(locations) + ")";
+    String details = "(" + StringUtils.arrayToCommaDelimitedString(locations) + ")";
     if (location != null) {
       return ConditionOutcome.match(
               ConditionMessage.forCondition(ConditionalOnJndi.class, details)

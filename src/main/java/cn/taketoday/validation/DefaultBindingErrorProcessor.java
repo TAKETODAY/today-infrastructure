@@ -76,7 +76,7 @@ public class DefaultBindingErrorProcessor implements BindingErrorProcessor {
     Object[] arguments = getArgumentsForBindError(bindingResult.getObjectName(), field);
     Object rejectedValue = ex.getValue();
     if (ObjectUtils.isArray(rejectedValue)) {
-      rejectedValue = StringUtils.arrayToString(ObjectUtils.toObjectArray(rejectedValue));
+      rejectedValue = StringUtils.arrayToCommaDelimitedString(ObjectUtils.toObjectArray(rejectedValue));
     }
     FieldError error = new FieldError(bindingResult.getObjectName(), field, rejectedValue, true,
             codes, arguments, ex.getLocalizedMessage());

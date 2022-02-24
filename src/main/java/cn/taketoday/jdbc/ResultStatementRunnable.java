@@ -17,20 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc.support;
 
-import cn.taketoday.jdbc.JdbcConnection;
-import cn.taketoday.jdbc.JdbcOperations;
-import cn.taketoday.lang.NonNull;
+package cn.taketoday.jdbc;
+
 import cn.taketoday.lang.Nullable;
 
 /**
  * Represents a method with a {@link JdbcConnection} and an optional argument.
  * Implementations of this interface be used as a parameter to one of the
- * {@link JdbcOperations#runInTransaction(StatementRunnable) Sql2o.runInTransaction}
- * overloads, to run code safely in a transaction.
+ * {@link JdbcOperations#runInTransaction(ResultStatementRunnable<V>)}
+ * JdbcOperations.runInTransaction} overloads, to run code safely in a transaction.
  */
-public interface StatementRunnable {
+public interface ResultStatementRunnable<V> {
 
-  void run(@NonNull JdbcConnection connection, @Nullable Object argument) throws Throwable;
+  V run(JdbcConnection connection, @Nullable Object argument) throws Throwable;
 }

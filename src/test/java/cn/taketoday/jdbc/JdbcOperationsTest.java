@@ -36,8 +36,6 @@ import cn.taketoday.jdbc.result.LazyTable;
 import cn.taketoday.jdbc.result.ResultSetIterable;
 import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
-import cn.taketoday.jdbc.support.ResultStatementRunnable;
-import cn.taketoday.jdbc.support.StatementRunnable;
 import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;

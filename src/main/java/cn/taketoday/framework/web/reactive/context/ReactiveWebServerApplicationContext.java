@@ -119,7 +119,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     }
     if (beanNames.size() > 1) {
       throw new ApplicationContextException("Unable to start ReactiveWebApplicationContext due to multiple "
-              + "ReactiveWebServerFactory beans : " + StringUtils.collectionToString(beanNames));
+              + "ReactiveWebServerFactory beans : " + StringUtils.collectionToCommaDelimitedString(beanNames));
     }
     return CollectionUtils.firstElement(beanNames);
   }
@@ -144,7 +144,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     if (beanNames.size() > 1) {
       throw new ApplicationContextException(
               "Unable to start ReactiveWebApplicationContext due to multiple HttpHandler beans : "
-                      + StringUtils.collectionToString(beanNames));
+                      + StringUtils.collectionToCommaDelimitedString(beanNames));
     }
     return getBeanFactory().getBean(CollectionUtils.firstElement(beanNames), HttpHandler.class);
   }

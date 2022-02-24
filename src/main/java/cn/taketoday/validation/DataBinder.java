@@ -491,7 +491,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   public void setRequiredFields(@Nullable String... requiredFields) {
     this.requiredFields = PropertyAccessorUtils.canonicalPropertyNames(requiredFields);
     if (logger.isDebugEnabled()) {
-      logger.debug("DataBinder requires binding of required fields [{}]", StringUtils.arrayToString(requiredFields));
+      logger.debug("DataBinder requires binding of required fields [{}]", StringUtils.arrayToCommaDelimitedString(requiredFields));
     }
   }
 

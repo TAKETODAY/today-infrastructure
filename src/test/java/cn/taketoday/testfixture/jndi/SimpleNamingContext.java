@@ -143,7 +143,7 @@ public class SimpleNamingContext implements Context {
       }
       throw new NameNotFoundException(
               "Name [" + this.root + lookupName + "] not bound; " + this.boundObjects.size() + " bindings: [" +
-                      StringUtils.collectionToString(this.boundObjects.keySet(), ",") + "]");
+                      StringUtils.collectionToDelimitedString(this.boundObjects.keySet(), ",") + "]");
     }
     return found;
   }

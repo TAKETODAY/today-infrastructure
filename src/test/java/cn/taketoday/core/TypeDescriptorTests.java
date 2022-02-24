@@ -203,7 +203,7 @@ public class TypeDescriptorTests {
     BeanProperty property = BeanProperty.valueOf(
             genericBean.getClass().getMethod("getProperty"),
             genericBean.getClass().getMethod("setProperty", Integer.class));
-    TypeDescriptor desc = new TypeDescriptor(property);
+    TypeDescriptor desc = property.getTypeDescriptor();
     assertThat(desc.getType()).isEqualTo(Integer.class);
   }
 
@@ -213,7 +213,7 @@ public class TypeDescriptorTests {
     BeanProperty property = BeanProperty.valueOf(
             genericBean.getClass().getMethod("getProperty"),
             genericBean.getClass().getMethod("setProperty", Number.class));
-    TypeDescriptor desc = new TypeDescriptor(property);
+    TypeDescriptor desc = property.getTypeDescriptor();
     assertThat(desc.getType()).isEqualTo(Integer.class);
   }
 
@@ -223,7 +223,7 @@ public class TypeDescriptorTests {
     BeanProperty property = BeanProperty.valueOf(
             genericBean.getClass().getMethod("getListProperty"),
             genericBean.getClass().getMethod("setListProperty", List.class));
-    TypeDescriptor desc = new TypeDescriptor(property);
+    TypeDescriptor desc = property.getTypeDescriptor();
     assertThat(desc.getType()).isEqualTo(List.class);
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
   }
@@ -234,7 +234,7 @@ public class TypeDescriptorTests {
     BeanProperty property = BeanProperty.valueOf(
             genericBean.getClass().getMethod("getListProperty"),
             genericBean.getClass().getMethod("setListProperty", List.class), IntegerClass.class);
-    TypeDescriptor desc = new TypeDescriptor(property);
+    TypeDescriptor desc = property.getTypeDescriptor();
     assertThat(desc.getType()).isEqualTo(List.class);
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getAnnotation(MethodAnnotation1.class)).isNotNull();
@@ -245,7 +245,7 @@ public class TypeDescriptorTests {
   public void property() throws Exception {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
-    TypeDescriptor desc = new TypeDescriptor(property);
+    TypeDescriptor desc = property.getTypeDescriptor();
 
     assertThat(desc.getType()).isEqualTo(Map.class);
 
@@ -712,7 +712,7 @@ public class TypeDescriptorTests {
   public void upCast() throws Exception {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
-    TypeDescriptor typeDescriptor = new TypeDescriptor(property);
+    TypeDescriptor typeDescriptor = property.getTypeDescriptor();
     TypeDescriptor upCast = typeDescriptor.upcast(Object.class);
     assertThat(upCast.getAnnotation(MethodAnnotation3.class) != null).isTrue();
   }
@@ -721,7 +721,7 @@ public class TypeDescriptorTests {
   public void upCastNotSuper() throws Exception {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
-    TypeDescriptor descriptor = new TypeDescriptor(property);
+    TypeDescriptor descriptor = property.getTypeDescriptor();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> descriptor.upcast(Collection.class))
             .withMessage("interface java.util.Map is not assignable to interface java.util.Collection");

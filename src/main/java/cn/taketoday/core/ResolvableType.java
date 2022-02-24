@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.SerializableTypeWrapper.MethodParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.ParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
@@ -1016,7 +1015,7 @@ public class ResolvableType implements Serializable {
       }
     }
     if (hasGenerics()) {
-      return this.resolved.getName() + '<' + StringUtils.arrayToString(getGenerics(), ", ") + '>';
+      return this.resolved.getName() + '<' + StringUtils.arrayToDelimitedString(getGenerics(), ", ") + '>';
     }
     return this.resolved.getName();
   }
@@ -1432,29 +1431,6 @@ public class ResolvableType implements Serializable {
     Assert.notNull(field, "Field is required");
     ResolvableType owner = fromType(implementationClass).as(field.getDeclaringClass());
     return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(field), owner.asVariableResolver()).getNested(nestingLevel);
-  }
-
-  /**
-   * Return a {@link ResolvableType} for the specified {@link Field}.
-   *
-   * @param property the source field
-   * @return a {@link ResolvableType} for the specified field
-   * @see #fromField(Field, Class)
-   * @since 4.0
-   */
-  public static ResolvableType fromProperty(BeanProperty property) {
-    Assert.notNull(property, "property must not be null");
-    Method readMethod = property.getReadMethod();
-    if (readMethod != null) {
-      return forReturnType(readMethod, property.getDeclaringClass());
-    }
-    Method writeMethod = property.getWriteMethod();
-    if (writeMethod != null) {
-      return forParameter(writeMethod, 0, property.getDeclaringClass());
-    }
-    Field propertyField = property.getField();
-    Assert.state(propertyField != null, "BeanProperty is not valid");
-    return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(propertyField), null);
   }
 
   /**

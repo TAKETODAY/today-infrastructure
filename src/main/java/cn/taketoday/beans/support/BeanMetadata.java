@@ -21,8 +21,6 @@
 package cn.taketoday.beans.support;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,23 +30,19 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.Property;
 import cn.taketoday.beans.NotWritablePropertyException;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
-import cn.taketoday.util.StringUtils;
 
 /**
  * @author TODAY 2021/1/27 22:26
  * @since 3.0
  */
-public class BeanMetadata implements Iterable<BeanProperty> {
+public final class BeanMetadata implements Iterable<BeanProperty> {
 
   private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
@@ -78,7 +72,7 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     return constructor;
   }
 
-  protected BeanInstantiator createAccessor() {
+  private BeanInstantiator createAccessor() {
     return BeanInstantiator.fromConstructor(beanClass);
   }
 
@@ -223,41 +217,9 @@ public class BeanMetadata implements Iterable<BeanProperty> {
     PropertyDescriptor[] propertyDescriptors = results.getPropertyDescriptors();
     for (PropertyDescriptor descriptor : propertyDescriptors) {
       BeanProperty property = new BeanProperty(descriptor, beanClass);
-      if (descriptor.getReadMethod() != null) {
-        String alias = getAnnotatedPropertyName(descriptor.getReadMethod());
-        if (alias != null) {
-          property.setPropertyName(alias);
-        }
-      }
-      beanPropertyMap.put(property.getPropertyName(), property);
+      beanPropertyMap.put(descriptor.getName(), property);
     }
     return beanPropertyMap;
-  }
-
-  /**
-   * get alias property-name
-   *
-   * @param declaredField {@link Field}
-   */
-  protected String getPropertyName(Field declaredField) {
-    String propertyName = getAnnotatedPropertyName(declaredField);
-    if (propertyName == null) {
-      propertyName = declaredField.getName();
-    }
-    return propertyName;
-  }
-
-  @Nullable
-  protected String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
-    // just alias name, cannot override its getter,setter
-    MergedAnnotation<Property> annotation = MergedAnnotations.from(propertyElement).get(Property.class);
-    if (annotation.isPresent()) {
-      String name = annotation.getStringValue();
-      if (StringUtils.isNotEmpty(name)) {
-        return name;
-      }
-    }
-    return null;
   }
 
   @Override

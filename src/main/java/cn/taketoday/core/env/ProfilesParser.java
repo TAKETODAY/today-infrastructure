@@ -196,7 +196,7 @@ final class ProfilesParser {
 
     @Override
     public String toString() {
-      return StringUtils.collectionToString(this.expressions, " or ");
+      return StringUtils.collectionToDelimitedString(this.expressions, " or ");
     }
 
   }

@@ -191,7 +191,7 @@ public class UndertowWebServer implements WebServer {
   private String getPortsDescription() {
     List<Port> ports = getActualPorts();
     if (!ports.isEmpty()) {
-      return StringUtils.collectionToString(ports, " ");
+      return StringUtils.collectionToDelimitedString(ports, " ");
     }
     return "unknown";
   }

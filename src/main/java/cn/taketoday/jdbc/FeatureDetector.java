@@ -23,7 +23,7 @@ package cn.taketoday.jdbc;
 import cn.taketoday.util.ClassUtils;
 
 /**
- * Detects whether optional sql2o features are available.
+ * Detects whether optional features are available.
  *
  * @author Alden Quimby
  */

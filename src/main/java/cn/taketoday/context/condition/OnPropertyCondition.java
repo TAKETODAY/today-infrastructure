@@ -175,7 +175,7 @@ class OnPropertyCondition extends ContextCondition {
       }
       else {
         result.append("[");
-        result.append(StringUtils.arrayToString(this.names));
+        result.append(StringUtils.arrayToCommaDelimitedString(this.names));
         result.append("]");
       }
       if (StringUtils.isNotEmpty(this.havingValue)) {

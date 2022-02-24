@@ -428,7 +428,7 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
       return "(this Map)";
     }
     if (value instanceof Object[]) {
-      return "[" + StringUtils.arrayToString((Object[]) value, ", ") + "]";
+      return "[" + StringUtils.arrayToDelimitedString((Object[]) value, ", ") + "]";
     }
     return String.valueOf(value);
   }

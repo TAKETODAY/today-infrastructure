@@ -400,7 +400,7 @@ public class TypeConverterDelegate {
       if (debugEnabled) {
         logger.trace("Converting String array to comma-delimited String [{}]", convertedValue);
       }
-      convertedValue = StringUtils.arrayToString((String[]) convertedValue);
+      convertedValue = StringUtils.arrayToCommaDelimitedString((String[]) convertedValue);
     }
 
     if (convertedValue instanceof String) {

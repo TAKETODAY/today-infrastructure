@@ -158,8 +158,8 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
    */
   protected final String resolvableToString() {
     StringBuilder result = new StringBuilder(64);
-    result.append("codes [").append(StringUtils.arrayToString(this.codes, ","));
-    result.append("]; arguments [").append(StringUtils.arrayToString(this.arguments, ","));
+    result.append("codes [").append(StringUtils.arrayToDelimitedString(this.codes, ","));
+    result.append("]; arguments [").append(StringUtils.arrayToDelimitedString(this.arguments, ","));
     result.append("]; default message [").append(this.defaultMessage).append(']');
     return result.toString();
   }

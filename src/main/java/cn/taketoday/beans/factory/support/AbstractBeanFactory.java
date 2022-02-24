@@ -1271,7 +1271,7 @@ public abstract class AbstractBeanFactory
     // ObjectUtils.toHexString(this)
     StringBuilder sb = new StringBuilder(ObjectUtils.identityToString(this));
     sb.append(": defining beans [");
-    sb.append(StringUtils.arrayToString(getBeanDefinitionNames()));
+    sb.append(StringUtils.arrayToCommaDelimitedString(getBeanDefinitionNames()));
     sb.append("]; ");
     BeanFactory parent = getParentBeanFactory();
     if (parent == null) {

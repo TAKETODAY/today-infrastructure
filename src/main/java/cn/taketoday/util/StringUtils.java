@@ -28,12 +28,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -370,77 +372,97 @@ public abstract class StringUtils {
   }
 
   /**
-   * Use default delimiter:',' append array to a string
+   * Convert a {@code String} array into a delimited {@code String} (e.g. CSV).
+   * <p>Useful for {@code toString()} implementations.
    *
-   * @param array Input array object
+   * @param arr the array to display (potentially {@code null} or empty)
+   * @param delim the delimiter to use (typically a ",")
+   * @return the delimited {@code String}
    */
-  public static String arrayToString(Object[] array) {
-    return arrayToString(array, ",");
+  public static String arrayToDelimitedString(@Nullable Object[] arr, String delim) {
+    if (ObjectUtils.isEmpty(arr)) {
+      return "";
+    }
+    if (arr.length == 1) {
+      return ObjectUtils.nullSafeToString(arr[0]);
+    }
+
+    StringJoiner sj = new StringJoiner(delim);
+    for (Object elem : arr) {
+      sj.add(String.valueOf(elem));
+    }
+    return sj.toString();
   }
 
   /**
-   * Array to string
+   * Convert a {@code String} array into a comma delimited {@code String}
+   * (i.e., CSV).
+   * <p>Useful for {@code toString()} implementations.
    *
-   * @param array Input array object
-   * @param delimiter Delimiter string
+   * @param arr the array to display (potentially {@code null} or empty)
+   * @return the delimited {@code String}
    */
-  public static String arrayToString(final Object[] array, final String delimiter) {
-    if (array == null) {
-      return null;
-    }
-    final int length = array.length;
-    if (length == 1) {
-      return array[0].toString();
-    }
-
-    final StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < length; i++) {
-      builder.append(array[i]);
-      if (i != length - 1) {
-        builder.append(delimiter);
-      }
-    }
-    return builder.toString();
+  public static String arrayToCommaDelimitedString(@Nullable Object[] arr) {
+    return arrayToDelimitedString(arr, ",");
   }
 
   /**
-   * {@link Collection} to string
+   * Convert a {@link Collection} to a delimited {@code String} (e.g. CSV).
+   * <p>Useful for {@code toString()} implementations.
    *
-   * @param collection Input {@link Collection} object
+   * @param coll the {@code Collection} to convert (potentially {@code null} or empty)
+   * @param delim the delimiter to use (typically a ",")
+   * @param prefix the {@code String} to start each element with
+   * @param suffix the {@code String} to end each element with
+   * @return the delimited {@code String}
    * @since 2.1.7
    */
-  public static <T> String collectionToString(final Collection<T> collection) {
-    return collectionToString(collection, ",");
+  public static String collectionToDelimitedString(
+          @Nullable Collection<?> coll, String delim, String prefix, String suffix) {
+
+    if (CollectionUtils.isEmpty(coll)) {
+      return "";
+    }
+
+    int totalLength = coll.size() * (prefix.length() + suffix.length()) + (coll.size() - 1) * delim.length();
+    for (Object element : coll) {
+      totalLength += String.valueOf(element).length();
+    }
+
+    StringBuilder sb = new StringBuilder(totalLength);
+    Iterator<?> it = coll.iterator();
+    while (it.hasNext()) {
+      sb.append(prefix).append(it.next()).append(suffix);
+      if (it.hasNext()) {
+        sb.append(delim);
+      }
+    }
+    return sb.toString();
   }
 
   /**
-   * {@link Collection} to string
+   * Convert a {@code Collection} into a delimited {@code String} (e.g. CSV).
+   * <p>Useful for {@code toString()} implementations.
    *
-   * @param coll Input {@link Collection} object
-   * @param delimiter Delimiter string
+   * @param coll the {@code Collection} to convert (potentially {@code null} or empty)
+   * @param delim the delimiter to use (typically a ",")
+   * @return the delimited {@code String}
+   * @since 4.0
+   */
+  public static String collectionToDelimitedString(@Nullable Collection<?> coll, String delim) {
+    return collectionToDelimitedString(coll, delim, "", "");
+  }
+
+  /**
+   * Convert a {@code Collection} into a delimited {@code String} (e.g., CSV).
+   * <p>Useful for {@code toString()} implementations.
+   *
+   * @param coll the {@code Collection} to convert (potentially {@code null} or empty)
+   * @return the delimited {@code String}
    * @since 2.1.7
    */
-  public static <T> String collectionToString(final Collection<T> coll, final String delimiter) {
-    if (coll == null) {
-      return null;
-    }
-    final int length = coll.size();
-    if (length == 1) {
-      final T target = coll instanceof List ? ((List<T>) coll).get(0) : coll.iterator().next();
-      return target != null ? target.toString() : null;
-    }
-
-    final StringBuilder builder = new StringBuilder();
-
-    int i = 0;
-    for (T target : coll) {
-      builder.append(target);
-      if (i++ != length - 1) {
-        builder.append(delimiter);
-      }
-    }
-
-    return builder.toString();
+  public static String collectionToCommaDelimitedString(@Nullable Collection<?> coll) {
+    return collectionToDelimitedString(coll, ",");
   }
 
   /**
@@ -551,7 +573,7 @@ else */
       pathElements.add(0, CURRENT_PATH);
     }
 
-    return prefix.concat(collectionToString(pathElements, FOLDER_SEPARATOR));
+    return prefix.concat(collectionToDelimitedString(pathElements, FOLDER_SEPARATOR));
   }
 
   /**

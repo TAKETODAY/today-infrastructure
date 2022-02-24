@@ -275,7 +275,7 @@ public abstract class CommandLinePropertySource<T> extends EnumerablePropertySou
         return null;
       }
       else {
-        return StringUtils.collectionToString(nonOptionArguments);
+        return StringUtils.collectionToCommaDelimitedString(nonOptionArguments);
       }
     }
     Collection<String> optionValues = getOptionValues(name);
@@ -283,7 +283,7 @@ public abstract class CommandLinePropertySource<T> extends EnumerablePropertySou
       return null;
     }
     else {
-      return StringUtils.collectionToString(optionValues);
+      return StringUtils.collectionToCommaDelimitedString(optionValues);
     }
   }
 

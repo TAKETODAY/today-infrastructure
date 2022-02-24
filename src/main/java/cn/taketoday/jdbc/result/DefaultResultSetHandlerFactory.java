@@ -25,7 +25,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
@@ -87,12 +86,12 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return new ObjectResultHandler<>(metadata, accessors, columnCount);
   }
 
-  private JdbcPropertyAccessor getAccessor(String propertyPath, JdbcBeanMetadata metadata) {
-    int index = propertyPath.indexOf('.');
+  private JdbcPropertyAccessor getAccessor(String propertyName, JdbcBeanMetadata metadata) {
+    int index = propertyName.indexOf('.');
 
     if (index <= 0) {
       // Simple path - fast way
-      BeanProperty beanProperty = metadata.getBeanProperty(propertyPath);
+      BeanProperty beanProperty = metadata.getBeanProperty(propertyName);
       // behavior change: do not throw if POJO contains less properties
       if (beanProperty == null) {
         return null;
@@ -107,14 +106,13 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
       @Override
       public Object get(Object obj) {
-        return BeanPropertyAccessor.getProperty(obj, metadata, propertyPath);
+        return metadata.getProperty(obj, propertyName);
       }
 
       @Override
       public void set(Object obj, ResultSet resultSet, int columnIndex) throws SQLException {
         Object result = typeHandler.getResult(resultSet, columnIndex);
-        BeanPropertyAccessor accessor = new BeanPropertyAccessor(metadata, obj);
-        accessor.setProperty(propertyPath, result);
+        metadata.setProperty(obj, propertyName, result);
       }
     }
 
@@ -122,8 +120,8 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   }
 
   private static class Key {
-    final String stringKey;
-    final DefaultResultSetHandlerFactory factory;
+    public final String stringKey;
+    public final DefaultResultSetHandlerFactory factory;
 
     private Key(String stringKey, DefaultResultSetHandlerFactory f) {
       this.stringKey = stringKey;

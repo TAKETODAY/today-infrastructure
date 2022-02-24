@@ -130,7 +130,7 @@ public final class ConditionMessage {
    */
   public Builder andCondition(String condition, Object... details) {
     Assert.notNull(condition, "Condition must not be null");
-    String detail = StringUtils.arrayToString(details, " ");
+    String detail = StringUtils.arrayToDelimitedString(details, " ");
     if (StringUtils.isNotEmpty(detail)) {
       return new Builder(condition + " " + detail);
     }
@@ -417,7 +417,7 @@ public final class ConditionMessage {
         message.append(" ").append(this.plural);
       }
       if (items != null && !items.isEmpty()) {
-        message.append(" ").append(StringUtils.collectionToString(items, ", "));
+        message.append(" ").append(StringUtils.collectionToDelimitedString(items, ", "));
       }
       return this.condition.because(message.toString());
     }

@@ -354,7 +354,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
       throw new ServletException(
               "Initialization from FilterConfig for filter '" + config.getFilterName() +
                       "' failed; the following required properties were missing: " +
-                      StringUtils.collectionToString(missingProps, ", "));
+                      StringUtils.collectionToDelimitedString(missingProps, ", "));
     }
     return propertyValues;
   }

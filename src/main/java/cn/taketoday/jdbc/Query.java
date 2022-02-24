@@ -69,6 +69,7 @@ import cn.taketoday.util.ObjectUtils;
  */
 public final class Query implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
+  private static final boolean debugEnabled = log.isDebugEnabled();
 
   private final JdbcConnection connection;
 
@@ -345,6 +346,7 @@ public final class Query implements AutoCloseable {
 
   @SuppressWarnings("unchecked")
   public Query bind(final Object pojo) {
+    HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     for (BeanProperty property : BeanMetadata.from(pojo)) {
       final String name = property.getName();
       try {
@@ -464,7 +466,7 @@ public final class Query implements AutoCloseable {
     public void close() {
       try {
         JdbcUtils.close(rs);
-        if (log.isDebugEnabled()) {
+        if (debugEnabled) {
           long afterClose = System.currentTimeMillis();
           log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
                   afterClose - start, afterExecQuery - start,
@@ -656,7 +658,7 @@ public final class Query implements AutoCloseable {
       closeConnectionIfNecessary();
     }
 
-    if (log.isDebugEnabled()) {
+    if (debugEnabled) {
       log.debug("total: {} ms; executed update [{}]", System.currentTimeMillis() - start, obtainName());
     }
     return connection;
@@ -700,7 +702,7 @@ public final class Query implements AutoCloseable {
 
       if (rs.next()) {
         final T ret = typeHandler.getResult(rs, 1);
-        if (log.isDebugEnabled()) {
+        if (debugEnabled) {
           log.debug("total: {} ms; executed scalar [{}]", System.currentTimeMillis() - start, obtainName());
         }
         return ret;
@@ -840,7 +842,7 @@ public final class Query implements AutoCloseable {
     finally {
       closeConnectionIfNecessary();
     }
-    if (log.isDebugEnabled()) {
+    if (debugEnabled) {
       log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
     }
     return connection;
@@ -894,7 +896,7 @@ public final class Query implements AutoCloseable {
   }
 
   private void logExecution() {
-    if (log.isDebugEnabled()) {
+    if (debugEnabled) {
       log.debug("Executing query:{}{}", System.lineSeparator(), parsedQuery);
     }
   }

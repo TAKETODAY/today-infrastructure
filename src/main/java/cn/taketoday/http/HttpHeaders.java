@@ -853,7 +853,7 @@ public abstract class HttpHeaders
    * the {@code Allow} header.
    */
   public void setAllow(Collection<HttpMethod> allowedMethods) {
-    set(ALLOW, StringUtils.collectionToString(allowedMethods)); // special case
+    set(ALLOW, StringUtils.collectionToCommaDelimitedString(allowedMethods)); // special case
   }
 
   /**
@@ -1532,7 +1532,7 @@ public abstract class HttpHeaders
    * @param requestHeaders the request header names
    */
   public void setVary(Collection<String> requestHeaders) {
-    set(VARY, StringUtils.collectionToString(requestHeaders, ", "));
+    set(VARY, StringUtils.collectionToDelimitedString(requestHeaders, ", "));
   }
 
   /**
@@ -1543,7 +1543,7 @@ public abstract class HttpHeaders
    * @param requestHeaders the request header names
    */
   public void setVary(String... requestHeaders) {
-    set(VARY, StringUtils.arrayToString(requestHeaders, ", "));
+    set(VARY, StringUtils.arrayToDelimitedString(requestHeaders, ", "));
   }
 
   /**

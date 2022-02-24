@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,36 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.jdbc;
 
-package cn.taketoday.beans;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Experimental;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Property alias name
- * <p>
- * just alias name, cannot override its getter,setter
- * </p>
- *
- * @author TODAY 2021/1/27 22:32
+ * Represents a method with a {@link JdbcConnection} and an optional argument.
+ * Implementations of this interface be used as a parameter to one of the
+ * {@link JdbcOperations#runInTransaction(StatementRunnable) JdbcOperations.runInTransaction}
+ * overloads, to run code safely in a transaction.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER })
-@Experimental
-public @interface Property {
+public interface StatementRunnable {
 
-  /** Property name */
-  @AliasFor("name")
-  String value() default Constant.BLANK;
-
-  @AliasFor("value")
-  String name() default Constant.BLANK;
-
+  void run(JdbcConnection connection, @Nullable Object argument) throws Throwable;
 }

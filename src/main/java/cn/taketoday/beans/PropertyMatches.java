@@ -50,50 +50,6 @@ public abstract class PropertyMatches {
   /** Default maximum property distance: 2. */
   public static final int DEFAULT_MAX_DISTANCE = 2;
 
-  // Static factory methods
-
-  /**
-   * Create PropertyMatches for the given bean property.
-   *
-   * @param propertyName the name of the property to find possible matches for
-   * @param beanClass the bean class to search for matches
-   */
-  public static PropertyMatches forProperty(String propertyName, Class<?> beanClass) {
-    return forProperty(propertyName, beanClass, DEFAULT_MAX_DISTANCE);
-  }
-
-  /**
-   * Create PropertyMatches for the given bean property.
-   *
-   * @param propertyName the name of the property to find possible matches for
-   * @param beanClass the bean class to search for matches
-   * @param maxDistance the maximum property distance allowed for matches
-   */
-  public static PropertyMatches forProperty(String propertyName, Class<?> beanClass, int maxDistance) {
-    return new BeanPropertyMatches(propertyName, beanClass, maxDistance);
-  }
-
-  /**
-   * Create PropertyMatches for the given field property.
-   *
-   * @param propertyName the name of the field to find possible matches for
-   * @param beanClass the bean class to search for matches
-   */
-  public static PropertyMatches forField(String propertyName, Class<?> beanClass) {
-    return forField(propertyName, beanClass, DEFAULT_MAX_DISTANCE);
-  }
-
-  /**
-   * Create PropertyMatches for the given field property.
-   *
-   * @param propertyName the name of the field to find possible matches for
-   * @param beanClass the bean class to search for matches
-   * @param maxDistance the maximum property distance allowed for matches
-   */
-  public static PropertyMatches forField(String propertyName, Class<?> beanClass, int maxDistance) {
-    return new FieldPropertyMatches(propertyName, beanClass, maxDistance);
-  }
-
   // Instance state
 
   private final String propertyName;
@@ -187,6 +143,50 @@ public abstract class PropertyMatches {
     return d[s1.length()][s2.length()];
   }
 
+  // Static factory methods
+
+  /**
+   * Create PropertyMatches for the given bean property.
+   *
+   * @param propertyName the name of the property to find possible matches for
+   * @param beanClass the bean class to search for matches
+   */
+  public static PropertyMatches forProperty(String propertyName, Class<?> beanClass) {
+    return forProperty(propertyName, beanClass, DEFAULT_MAX_DISTANCE);
+  }
+
+  /**
+   * Create PropertyMatches for the given bean property.
+   *
+   * @param propertyName the name of the property to find possible matches for
+   * @param beanClass the bean class to search for matches
+   * @param maxDistance the maximum property distance allowed for matches
+   */
+  public static PropertyMatches forProperty(String propertyName, Class<?> beanClass, int maxDistance) {
+    return new BeanPropertyMatches(propertyName, beanClass, maxDistance);
+  }
+
+  /**
+   * Create PropertyMatches for the given field property.
+   *
+   * @param propertyName the name of the field to find possible matches for
+   * @param beanClass the bean class to search for matches
+   */
+  public static PropertyMatches forField(String propertyName, Class<?> beanClass) {
+    return forField(propertyName, beanClass, DEFAULT_MAX_DISTANCE);
+  }
+
+  /**
+   * Create PropertyMatches for the given field property.
+   *
+   * @param propertyName the name of the field to find possible matches for
+   * @param beanClass the bean class to search for matches
+   * @param maxDistance the maximum property distance allowed for matches
+   */
+  public static PropertyMatches forField(String propertyName, Class<?> beanClass, int maxDistance) {
+    return new FieldPropertyMatches(propertyName, beanClass, maxDistance);
+  }
+
   // Concrete subclasses
 
   private static class BeanPropertyMatches extends PropertyMatches {
@@ -221,8 +221,9 @@ public abstract class PropertyMatches {
     @Override
     public String buildErrorMessage() {
       StringBuilder msg = new StringBuilder(160);
-      msg.append("Bean property '").append(getPropertyName()).append(
-              "' is not writable or has an invalid setter method. ");
+      msg.append("Bean property '")
+              .append(getPropertyName())
+              .append("' is not writable or has an invalid setter method. ");
       if (ObjectUtils.isNotEmpty(getPossibleMatches())) {
         appendHintMessage(msg);
       }
@@ -254,7 +255,9 @@ public abstract class PropertyMatches {
     @Override
     public String buildErrorMessage() {
       StringBuilder msg = new StringBuilder(80);
-      msg.append("Bean property '").append(getPropertyName()).append("' has no matching field.");
+      msg.append("Bean property '")
+              .append(getPropertyName())
+              .append("' has no matching field.");
       if (ObjectUtils.isNotEmpty(getPossibleMatches())) {
         msg.append(' ');
         appendHintMessage(msg);

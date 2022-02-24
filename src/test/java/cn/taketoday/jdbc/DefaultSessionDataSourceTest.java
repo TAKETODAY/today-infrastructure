@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.jdbc.support.StatementRunnable;
 import cn.taketoday.lang.NonNull;
 
 /**

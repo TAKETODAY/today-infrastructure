@@ -43,6 +43,7 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.lang.Assert;
@@ -64,20 +65,17 @@ import cn.taketoday.util.StringUtils;
  * @see #isReadable()
  * @since 3.0
  */
-public class BeanProperty implements Member, AnnotatedElement, Serializable {
+public sealed class BeanProperty implements Member, AnnotatedElement, Serializable permits FieldBeanProperty {
   @Serial
   private static final long serialVersionUID = 1L;
 
   private static final ConcurrentReferenceHashMap<BeanProperty, Annotation[]> annotationCache = new ConcurrentReferenceHashMap<>();
 
-  @Nullable
-  private Field field;
+  // Nullable
+  protected transient Field field;
 
   private transient BeanInstantiator constructor;
   private transient PropertyAccessor propertyAccessor;
-
-  @Nullable
-  private transient Type[] genericClass;
 
   @Nullable
   private transient Type componentType;
@@ -88,7 +86,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   /** @since 3.0.4 */
   @Nullable
   private transient TypeDescriptor typeDescriptor;
-  private String alias;
+  private final String alias;
 
   /** @since 4.0 */
   @Nullable
@@ -103,12 +101,14 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   /** @since 4.0 */
   private Class<?> declaringClass;
   /** @since 4.0 */
-  private transient boolean fieldIsNull;
+  private boolean fieldIsNull;
 
   @Nullable
   private transient Annotation[] annotations;
 
   private MethodParameter methodParameter;
+
+  private ResolvableType resolvableType;
 
   BeanProperty(String alias, Field field) {
     this.alias = alias;
@@ -126,26 +126,17 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
                @Nullable Method readMethod,
                @Nullable Method writeMethod,
                @Nullable Class<?> declaringClass) {
-    this.alias = alias;
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
     this.declaringClass = declaringClass;
-  }
-
-  BeanProperty(@Nullable String alias,
-               @Nullable Field field,
-               @Nullable Method readMethod,
-               @Nullable Method writeMethod,
-               @Nullable Class<?> declaringClass) {
+    if (alias == null) {
+      alias = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+      Assert.state(alias != null, "Property is neither readable nor writeable");
+    }
     this.alias = alias;
-    this.field = field;
-    this.readMethod = readMethod;
-    this.writeMethod = writeMethod;
-    this.declaringClass = declaringClass;
   }
 
   BeanProperty(PropertyDescriptor descriptor, Class<?> declaringClass) {
-    this.field = null;
     this.alias = descriptor.getName();
     this.declaringClass = declaringClass;
     this.readMethod = descriptor.getReadMethod();
@@ -242,35 +233,60 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
   }
 
   /**
+   * Returns {@link TypeDescriptor} for this property
+   *
    * @since 3.0.4
    */
-  public TypeDescriptor getTypeDescriptor() {
+  public final TypeDescriptor getTypeDescriptor() {
     TypeDescriptor typeDescriptor = this.typeDescriptor;
     if (typeDescriptor == null) {
-      typeDescriptor = new TypeDescriptor(this);
+      typeDescriptor = createDescriptor();
       this.typeDescriptor = typeDescriptor;
     }
     return typeDescriptor;
   }
 
+  protected TypeDescriptor createDescriptor() {
+    ResolvableType resolvableType = ResolvableType.forMethodParameter(methodParameter);
+    return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
+  }
+
+  public ResolvableType getResolvableType() {
+    ResolvableType resolvableType = this.resolvableType;
+    if (resolvableType == null) {
+      resolvableType = createResolvableType();
+      this.resolvableType = resolvableType;
+    }
+    return resolvableType;
+  }
+
+  protected ResolvableType createResolvableType() {
+    Method readMethod = getReadMethod();
+    if (readMethod != null) {
+      return ResolvableType.forReturnType(readMethod, getDeclaringClass());
+    }
+    Method writeMethod = getWriteMethod();
+    if (writeMethod != null) {
+      return ResolvableType.forParameter(writeMethod, 0, getDeclaringClass());
+    }
+    throw new IllegalStateException("never get here");
+  }
+
   // PropertyAccessor
 
-  public PropertyAccessor obtainAccessor() {
-    PropertyAccessor propertyAccessor = this.propertyAccessor;
-    if (propertyAccessor == null) {
-      propertyAccessor = createAccessor();
-      this.propertyAccessor = propertyAccessor;
+  public final PropertyAccessor obtainAccessor() {
+    PropertyAccessor accessor = this.propertyAccessor;
+    if (accessor == null) {
+      accessor = createAccessor();
+      this.propertyAccessor = accessor;
     }
-    return propertyAccessor;
+    return accessor;
   }
 
   /**
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    if (field != null) {
-      return PropertyAccessor.fromField(field, readMethod, writeMethod);
-    }
     return PropertyAccessor.fromMethod(readMethod, writeMethod);
   }
 
@@ -291,35 +307,15 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    */
   @Nullable
   public Object newComponentInstance(@Nullable Object[] args) {
-    BeanInstantiator componentConstructor = this.componentConstructor;
-    if (componentConstructor == null) {
+    BeanInstantiator constructor = this.componentConstructor;
+    if (constructor == null) {
       Class<?> componentClass = getComponentClass();
-      componentConstructor = componentClass == null
-                             ? NullInstantiator.INSTANCE
-                             : BeanInstantiator.fromConstructor(componentClass);
-      this.componentConstructor = componentConstructor;
+      constructor = componentClass == null
+                    ? NullInstantiator.INSTANCE
+                    : BeanInstantiator.fromConstructor(componentClass);
+      this.componentConstructor = constructor;
     }
-    return componentConstructor.instantiate(args);
-  }
-
-  //
-  @Nullable
-  public Type[] getGenerics() {
-    Type[] genericClass = this.genericClass;
-    if (genericClass == null) {
-      genericClass = ClassUtils.getGenericTypes(field);
-      this.genericClass = genericClass;
-    }
-    return genericClass;
-  }
-
-  @Nullable
-  public Type getGeneric(int index) {
-    Type[] generics = getGenerics();
-    if (generics != null && generics.length > index) {
-      return generics[index];
-    }
-    return null;
+    return constructor.instantiate(args);
   }
 
   /**
@@ -336,10 +332,10 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
       setComponentType(type.getComponentType());
     }
     else if (Map.class.isAssignableFrom(type)) {
-      setComponentType(getGeneric(1));
+      setComponentType(getResolvableType().resolveGeneric(1));
     }
     else {
-      setComponentType(getGeneric(0));
+      setComponentType(getResolvableType().resolveGeneric(0));
     }
     return componentType;
   }
@@ -405,11 +401,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
 
   public Class<?> getType() {
     if (propertyType == null) {
-      Field field = getField();
-      if (field != null) {
-        propertyType = field.getType();
-      }
-      else if (readMethod != null) {
+      if (readMethod != null) {
         propertyType = readMethod.getReturnType();
       }
       else if (writeMethod != null) {
@@ -454,17 +446,11 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    */
   @Override
   public String getName() {
-    if (field != null) {
-      return field.getName();
-    }
     return getPropertyName();
   }
 
   @Override
   public int getModifiers() {
-    if (field != null) {
-      return field.getModifiers();
-    }
     if (readMethod != null) {
       return readMethod.getModifiers();
     }
@@ -476,9 +462,11 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
 
   @Override
   public boolean isSynthetic() {
-    Field field = getField();
-    if (field != null) {
-      return field.isSynthetic();
+    if (readMethod != null) {
+      return readMethod.isSynthetic();
+    }
+    else if (writeMethod != null) {
+      return writeMethod.isSynthetic();
     }
     return true;
   }
@@ -489,26 +477,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @since 3.0.2
    */
   public boolean isReadOnly() {
-    if (writeMethod == null) {
-      // search field and apply
-      Field field = getField();
-      if (field == null) {
-        return true;
-      }
-      return Modifier.isFinal(field.getModifiers());
-    }
-    else {
-      return false;
-    }
-  }
-
-  /**
-   * just write cannot read
-   *
-   * @since 4.0
-   */
-  public boolean isWriteOnly() {
-    return writeMethod != null && readMethod == null;
+    return writeMethod == null;
   }
 
   /**
@@ -517,7 +486,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isWriteable() {
-    return writeMethod != null || (field != null && Modifier.isFinal(field.getModifiers()));
+    return writeMethod != null;
   }
 
   /**
@@ -526,7 +495,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isReadable() {
-    return readMethod != null || field != null;
+    return readMethod != null;
   }
 
   /**
@@ -536,37 +505,23 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public String getPropertyName() {
-    if (alias == null) {
-      alias = ReflectionUtils.getPropertyName(readMethod, writeMethod); // never be null
-    }
     return alias;
-  }
-
-  // since 4.0
-  public void setPropertyName(String alias) {
-    this.alias = alias;
   }
 
   /**
    * Returns the {@code Class} object representing the class or interface
    * that declares the field represented by this {@code Field} object.
    *
-   * @see #getField()
    * @since 4.0
    */
   @Override
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
-      if (field == null) {
-        if (readMethod != null) {
-          declaringClass = readMethod.getDeclaringClass();
-        }
-        else if (writeMethod != null) {
-          declaringClass = writeMethod.getDeclaringClass();
-        }
+      if (readMethod != null) {
+        declaringClass = readMethod.getDeclaringClass();
       }
-      else {
-        declaringClass = field.getDeclaringClass();
+      else if (writeMethod != null) {
+        declaringClass = writeMethod.getDeclaringClass();
       }
     }
     return declaringClass;
@@ -582,6 +537,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
     return writeMethod;
   }
 
+  @Nullable
   public MethodParameter getMethodParameter() {
     return this.methodParameter;
   }
@@ -689,8 +645,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
     if (this == o)
       return true;
     if (o instanceof BeanProperty property) {
-      return Objects.equals(field, property.field)
-              && Objects.equals(alias, property.alias)
+      return Objects.equals(alias, property.alias)
               && Objects.equals(readMethod, property.readMethod)
               && Objects.equals(writeMethod, property.writeMethod)
               && Objects.equals(propertyType, property.propertyType);
@@ -715,7 +670,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
    */
   public static BeanProperty valueOf(Field field) {
     Assert.notNull(field, "field must not be null");
-    return new BeanProperty(field);
+    return new FieldBeanProperty(field);
   }
 
   /**
@@ -726,7 +681,7 @@ public class BeanProperty implements Member, AnnotatedElement, Serializable {
     if (field == null) {
       throw new NoSuchPropertyException(targetClass, name);
     }
-    return new BeanProperty(field);
+    return new FieldBeanProperty(field);
   }
 
   /**

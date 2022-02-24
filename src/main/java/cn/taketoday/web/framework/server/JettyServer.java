@@ -206,7 +206,7 @@ public class JettyServer
 
   private String getProtocols(Connector connector) {
     List<String> protocols = connector.getProtocols();
-    return " (" + StringUtils.collectionToString(protocols) + ")";
+    return " (" + StringUtils.collectionToCommaDelimitedString(protocols) + ")";
   }
 
   @Override

@@ -36,7 +36,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Dave Syer
  * @see cn.taketoday.util.StringUtils#delimitedListToStringArray
- * @see cn.taketoday.util.StringUtils#arrayToString(Object[])
+ * @see cn.taketoday.util.StringUtils#arrayToCommaDelimitedString(Object[])
  * @since 4.0
  */
 public class StringArrayPropertyEditor extends PropertyEditorSupport {
@@ -149,7 +149,7 @@ public class StringArrayPropertyEditor extends PropertyEditorSupport {
 
   @Override
   public String getAsText() {
-    return StringUtils.arrayToString(ObjectUtils.toObjectArray(getValue()), this.separator);
+    return StringUtils.arrayToDelimitedString(ObjectUtils.toObjectArray(getValue()), this.separator);
   }
 
 }

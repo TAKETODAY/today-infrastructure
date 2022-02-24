@@ -66,7 +66,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
    */
   public NoUniqueBeanDefinitionException(Class<?> type, Collection<String> beanNamesFound) {
     super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
-            StringUtils.collectionToString(beanNamesFound));
+            StringUtils.collectionToCommaDelimitedString(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
     this.beanNamesFound = beanNamesFound;
   }
@@ -89,7 +89,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
    */
   public NoUniqueBeanDefinitionException(ResolvableType type, Collection<String> beanNamesFound) {
     super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
-            StringUtils.collectionToString(beanNamesFound));
+            StringUtils.collectionToCommaDelimitedString(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
     this.beanNamesFound = beanNamesFound;
   }

@@ -664,7 +664,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
     @Override
     public String toString() {
-      return StringUtils.collectionToString(this.converters);
+      return StringUtils.collectionToCommaDelimitedString(this.converters);
     }
   }
 

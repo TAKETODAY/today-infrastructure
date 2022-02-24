@@ -589,7 +589,7 @@ final class ConstructorResolver {
             argTypes.add(argType);
           }
         }
-        String argDesc = StringUtils.collectionToString(argTypes);
+        String argDesc = StringUtils.collectionToCommaDelimitedString(argTypes);
         throw new BeanCreationException(mbd.getResourceDescription(), beanName,
                 "No matching factory method found on class [" + factoryClass.getName() + "]: " +
                         (mbd.getFactoryBeanName() != null ?

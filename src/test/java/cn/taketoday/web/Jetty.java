@@ -194,7 +194,7 @@ public class Jetty {
 
   private String getProtocols(Connector connector) {
     List<String> protocols = connector.getProtocols();
-    return " (" + StringUtils.arrayToString(protocols.toArray(new String[protocols.size()])) + ")";
+    return " (" + StringUtils.arrayToCommaDelimitedString(protocols.toArray(new String[protocols.size()])) + ")";
   }
 
   @PreDestroy

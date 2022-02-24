@@ -273,7 +273,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       reason.append("did not find any beans ");
       reason.append(description);
       reason.append(" ");
-      reason.append(StringUtils.collectionToString(unmatched, ", "));
+      reason.append(StringUtils.collectionToDelimitedString(unmatched, ", "));
     }
   }
 
@@ -286,7 +286,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
         reason.append(" and ");
       }
       reason.append("found beans named ");
-      reason.append(StringUtils.collectionToString(matchResult.getMatchedNames(), ", "));
+      reason.append(StringUtils.collectionToDelimitedString(matchResult.getMatchedNames(), ", "));
     }
     return reason.toString();
   }
@@ -303,7 +303,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
         reason.append(" '");
         reason.append(entry.getKey());
         reason.append("' ");
-        reason.append(StringUtils.collectionToString(entry.getValue(), ", "));
+        reason.append(StringUtils.collectionToDelimitedString(entry.getValue(), ", "));
       }
     }
   }
@@ -560,17 +560,17 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       string.append("(");
       if (hasNames) {
         string.append("names: ");
-        string.append(StringUtils.collectionToString(this.names));
+        string.append(StringUtils.collectionToCommaDelimitedString(this.names));
         string.append(hasTypes ? " " : "; ");
       }
       if (hasTypes) {
         string.append("types: ");
-        string.append(StringUtils.collectionToString(this.types));
+        string.append(StringUtils.collectionToCommaDelimitedString(this.types));
         string.append(hasIgnoredTypes ? " " : "; ");
       }
       if (hasIgnoredTypes) {
         string.append("ignored: ");
-        string.append(StringUtils.collectionToString(this.ignoredTypes));
+        string.append(StringUtils.collectionToCommaDelimitedString(this.ignoredTypes));
         string.append("; ");
       }
 
@@ -608,7 +608,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       if (getTypes().size() != 1) {
         throw new IllegalArgumentException(
                 getAnnotationName() + " annotations must specify only one type (got "
-                        + StringUtils.collectionToString(getTypes()) + ")");
+                        + StringUtils.collectionToCommaDelimitedString(getTypes()) + ")");
       }
     }
 

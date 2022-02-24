@@ -385,7 +385,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
       return "PropertyValues: length=0";
     }
     return "PropertyValues: length=" + propertyValues.size() + "; "
-            + StringUtils.collectionToString(propertyValues.entrySet(), "; ");
+            + StringUtils.collectionToDelimitedString(propertyValues.entrySet(), "; ");
   }
 }
 

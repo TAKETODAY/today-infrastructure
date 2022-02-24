@@ -221,14 +221,14 @@ public class AnnotationConfigWebApplicationContext
 
     if (!this.componentClasses.isEmpty()) {
       if (log.isDebugEnabled()) {
-        log.debug("Registering component classes: [{}]", StringUtils.collectionToString(this.componentClasses));
+        log.debug("Registering component classes: [{}]", StringUtils.collectionToCommaDelimitedString(this.componentClasses));
       }
       reader.register(ClassUtils.toClassArray(this.componentClasses));
     }
 
     if (!this.basePackages.isEmpty()) {
       if (log.isDebugEnabled()) {
-        log.debug("Scanning base packages: [{}]", StringUtils.collectionToString(this.basePackages));
+        log.debug("Scanning base packages: [{}]", StringUtils.collectionToCommaDelimitedString(this.basePackages));
       }
       scanner.scan(StringUtils.toStringArray(this.basePackages));
     }

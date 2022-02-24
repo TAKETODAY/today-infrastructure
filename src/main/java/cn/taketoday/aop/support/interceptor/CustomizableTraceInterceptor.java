@@ -323,7 +323,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
       }
       else if (PLACEHOLDER_ARGUMENTS.equals(match)) {
         matcher.appendReplacement(output,
-                Matcher.quoteReplacement(StringUtils.arrayToString(methodInvocation.getArguments())));
+                Matcher.quoteReplacement(StringUtils.arrayToCommaDelimitedString(methodInvocation.getArguments())));
       }
       else if (PLACEHOLDER_ARGUMENT_TYPES.equals(match)) {
         appendArgumentTypes(methodInvocation, matcher, output);
@@ -386,7 +386,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
       argumentTypeShortNames[i] = ClassUtils.getShortName(argumentTypes[i]);
     }
     matcher.appendReplacement(output,
-            Matcher.quoteReplacement(StringUtils.arrayToString(argumentTypeShortNames)));
+            Matcher.quoteReplacement(StringUtils.arrayToCommaDelimitedString(argumentTypeShortNames)));
   }
 
   /**

@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
@@ -98,13 +97,6 @@ public class TypeDescriptor implements Serializable {
     this.resolvableType = resolvableType;
     this.type = resolvableType.resolve(property.getType());
     this.annotatedElement = new TypeDescriptorAnnotatedElementAdapter(property.getAnnotations());
-  }
-
-  public TypeDescriptor(BeanProperty property) {
-    ResolvableType resolvableType = ResolvableType.forMethodParameter(property.getMethodParameter());
-    this.annotatedElement = property;
-    this.resolvableType = resolvableType;
-    this.type = resolvableType.resolve(property.getType());
   }
 
   /**

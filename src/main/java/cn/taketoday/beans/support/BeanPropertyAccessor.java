@@ -21,7 +21,6 @@
 package cn.taketoday.beans.support;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,7 @@ import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeConverterDelegate;
 import cn.taketoday.beans.TypeConverterSupport;
 import cn.taketoday.beans.TypeMismatchException;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
@@ -455,8 +455,8 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
   ) {
     if (propValue instanceof List<?> list) {
       Object convertedValue = value;
-      Type valueType = beanProperty.getGeneric(0);
-      if (valueType instanceof Class) {
+      Class<?> valueType = beanProperty.getResolvableType().resolveGeneric(0);
+      if (valueType != null) {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
 
@@ -478,12 +478,13 @@ public class BeanPropertyAccessor extends TypeConverterSupport implements Proper
     else if (propValue instanceof Map) {
       Object convertedKey = key;
       Object convertedValue = value;
-      Type keyType = beanProperty.getGeneric(0);
-      if (keyType instanceof Class) {
+      ResolvableType resolvableType = beanProperty.getResolvableType();
+      Class<?> keyType = resolvableType.resolveGeneric(0);
+      if (keyType != null) {
         convertedKey = convertIfNecessary(convertedKey, (Class<?>) keyType);
       }
-      Type valueType = beanProperty.getGeneric(1);
-      if (valueType instanceof Class) {
+      Class<?> valueType = resolvableType.resolveGeneric(1);
+      if (valueType != null) {
         convertedValue = convertIfNecessary(convertedValue, (Class<?>) valueType);
       }
       ((Map) propValue).put(convertedKey, convertedValue);

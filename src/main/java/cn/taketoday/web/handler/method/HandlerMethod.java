@@ -326,7 +326,7 @@ public class HandlerMethod {
             .append('(');
 
     if (ObjectUtils.isNotEmpty(parameters)) {
-      builder.append(StringUtils.arrayToString(parameters, ", "));
+      builder.append(StringUtils.arrayToDelimitedString(parameters, ", "));
     }
 
     builder.append(')');

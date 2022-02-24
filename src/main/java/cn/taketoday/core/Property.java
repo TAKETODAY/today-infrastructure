@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
@@ -77,7 +78,12 @@ public final class Property {
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
     this.methodParameter = resolveMethodParameter();
-    this.name = (name != null ? name : resolveName());
+
+    if (name == null) {
+      name = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+      Assert.state(name != null, "Property is neither readable nor writeable");
+    }
+    this.name = name;
   }
 
   /**

@@ -346,10 +346,10 @@ public class TomcatServer extends AbstractServletWebServer {
     }
     protocol.setCompression(compression.getLevel());
     protocol.setCompressionMinSize((int) compression.getMinResponseSize().toBytes());
-    protocol.setCompressibleMimeType(StringUtils.arrayToString(compression.getMimeTypes()));
+    protocol.setCompressibleMimeType(StringUtils.arrayToCommaDelimitedString(compression.getMimeTypes()));
 
     if (ObjectUtils.isNotEmpty(compression.getExcludeUserAgents())) {
-      protocol.setNoCompressionUserAgents(StringUtils.arrayToString(compression.getExcludeUserAgents()));
+      protocol.setNoCompressionUserAgents(StringUtils.arrayToCommaDelimitedString(compression.getExcludeUserAgents()));
     }
   }
 

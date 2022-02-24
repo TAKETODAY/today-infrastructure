@@ -220,7 +220,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
     }
     if (beanNames.size() > 1) {
       throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to multiple "
-              + "ServletWebServerFactory beans : " + StringUtils.collectionToString(beanNames));
+              + "ServletWebServerFactory beans : " + StringUtils.collectionToCommaDelimitedString(beanNames));
     }
 
     return BeanFactoryUtils.requiredBean(

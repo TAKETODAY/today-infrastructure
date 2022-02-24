@@ -196,7 +196,7 @@ class AutoConfigurationSorterTests {
       items.add(type.getName());
     }
     Collections.addAll(items, name);
-    return StringUtils.collectionToString(items);
+    return StringUtils.collectionToCommaDelimitedString(items);
   }
 
   @AutoConfigureOrder

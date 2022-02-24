@@ -1116,7 +1116,7 @@ final class HierarchicalUriComponents extends UriComponents {
     public Object getValue(@Nullable String name) {
       Object value = delegate.getValue(name);
       if (ObjectUtils.isArray(value)) {
-        value = StringUtils.arrayToString(ObjectUtils.toObjectArray(value));
+        value = StringUtils.arrayToCommaDelimitedString(ObjectUtils.toObjectArray(value));
       }
       return value;
     }

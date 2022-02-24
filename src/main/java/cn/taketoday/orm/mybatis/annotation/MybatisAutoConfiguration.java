@@ -253,7 +253,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
       BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
       definition.addPropertyValue("processPropertyPlaceHolders", true);
       definition.addPropertyValue("annotationClass", Mapper.class);
-      definition.addPropertyValue("basePackage", StringUtils.collectionToString(packages));
+      definition.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(packages));
       BeanMetadata metadata = BeanMetadata.from(MapperScannerConfigurer.class);
       Set<String> propertyNames = metadata.getBeanProperties().keySet();
 

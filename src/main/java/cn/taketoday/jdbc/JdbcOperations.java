@@ -34,8 +34,6 @@ import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.DataSourceConnectionSource;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
-import cn.taketoday.jdbc.support.ResultStatementRunnable;
-import cn.taketoday.jdbc.support.StatementRunnable;
 import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
@@ -307,7 +305,7 @@ public class JdbcOperations {
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V withConnection(ResultStatementRunnable<V> runnable, Object argument) {
+  public <V> V withConnection(ResultStatementRunnable<V> runnable, @Nullable Object argument) {
     try (JdbcConnection connection = open()) {
       return runnable.run(connection, argument);
     }

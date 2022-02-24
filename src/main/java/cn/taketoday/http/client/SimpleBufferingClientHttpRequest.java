@@ -107,7 +107,7 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
       String headerName = entry.getKey();
       List<String> headerValues = entry.getValue();
       if (HttpHeaders.COOKIE.equalsIgnoreCase(headerName)) {  // RFC 6265
-        String headerValue = StringUtils.collectionToString(headerValues, "; ");
+        String headerValue = StringUtils.collectionToDelimitedString(headerValues, "; ");
         connection.setRequestProperty(headerName, headerValue);
       }
       else {

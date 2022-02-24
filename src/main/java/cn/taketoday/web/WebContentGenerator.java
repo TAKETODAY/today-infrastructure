@@ -161,7 +161,7 @@ public abstract class WebContentGenerator extends WebApplicationContextSupport {
       allowedMethods.add(HttpMethod.OPTIONS.name());
 
     }
-    this.allowHeader = StringUtils.collectionToString(allowedMethods);
+    this.allowHeader = StringUtils.collectionToCommaDelimitedString(allowedMethods);
   }
 
   /**

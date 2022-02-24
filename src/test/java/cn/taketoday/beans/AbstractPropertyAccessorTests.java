@@ -544,7 +544,7 @@ abstract class AbstractPropertyAccessorTests {
       @Override
       public void setValue(Object value) {
         if (value instanceof String[]) {
-          setValue(StringUtils.arrayToString(((String[]) value), "-"));
+          setValue(StringUtils.arrayToDelimitedString(((String[]) value), "-"));
         }
         else {
           super.setValue(value != null ? value : "");

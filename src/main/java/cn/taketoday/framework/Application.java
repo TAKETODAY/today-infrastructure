@@ -574,12 +574,12 @@ public class Application {
         String message = String.format("%s default %s: ", defaultProfiles.size(),
                 (defaultProfiles.size() <= 1) ? "profile" : "profiles");
         log.info("No active profile set, falling back to " + message
-                + StringUtils.collectionToString(defaultProfiles, ", "));
+                + StringUtils.collectionToDelimitedString(defaultProfiles, ", "));
       }
       else {
         String message = (activeProfiles.size() == 1) ? "1 profile is active: "
                                                       : activeProfiles.size() + " profiles are active: ";
-        log.info("The following " + message + StringUtils.collectionToString(activeProfiles, ", "));
+        log.info("The following " + message + StringUtils.collectionToDelimitedString(activeProfiles, ", "));
       }
     }
   }

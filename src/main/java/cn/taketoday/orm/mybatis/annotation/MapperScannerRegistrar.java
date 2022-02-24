@@ -127,7 +127,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
       definition.addPropertyValue("defaultScope", defaultScope);
     }
 
-    definition.addPropertyValue("basePackage", StringUtils.collectionToString(basePackages));
+    definition.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(basePackages));
 
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 

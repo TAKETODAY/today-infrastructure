@@ -27,7 +27,7 @@ import java.util.Locale;
 
 import cn.taketoday.lang.Constant;
 
-import static cn.taketoday.util.StringUtils.collectionToString;
+import static cn.taketoday.util.StringUtils.collectionToDelimitedString;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -77,10 +77,10 @@ class StringUtilsTests {
   void testArrayToString() {
 
     String[] split = StringUtils.split("today;yhj,take");
-    assert StringUtils.arrayToString(split).equals("today,yhj,take");
-    assert StringUtils.arrayToString(null) == null;
+    assert StringUtils.arrayToCommaDelimitedString(split).equals("today,yhj,take");
+    assert StringUtils.arrayToCommaDelimitedString(null) == null;
 
-    assert StringUtils.arrayToString(new String[] { "today" }).equals("today");
+    assert StringUtils.arrayToCommaDelimitedString(new String[] { "today" }).equals("today");
   }
 
   @Test
@@ -109,17 +109,17 @@ class StringUtilsTests {
   void testListToString() {
 
     final List<String> asList = asList("i", "take", "today");
-    final String listToString = collectionToString(asList);
+    final String listToString = StringUtils.collectionToCommaDelimitedString(asList);
     assertEquals(listToString, "i,take,today");
 
-    assertEquals(listToString, collectionToString(asList, ","));
+    assertEquals(listToString, StringUtils.collectionToDelimitedString(asList, ","));
 
-    assertEquals(collectionToString(asList("i"), ","), "i");
+    assertEquals(StringUtils.collectionToDelimitedString(asList("i"), ","), "i");
 
-    assertNull(collectionToString(null));
+    assertNull(StringUtils.collectionToCommaDelimitedString(null));
 
     //Set
-    assertEquals(collectionToString(new HashSet<String>() {
+    assertEquals(StringUtils.collectionToCommaDelimitedString(new HashSet<String>() {
       private static final long serialVersionUID = 1L;
 
       {

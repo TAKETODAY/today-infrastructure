@@ -79,7 +79,7 @@ final class PackagesAnnotationFilter implements AnnotationFilter {
 
   @Override
   public String toString() {
-    return "Packages annotation filter: " + StringUtils.arrayToString(this.prefixes);
+    return "Packages annotation filter: " + StringUtils.arrayToCommaDelimitedString(this.prefixes);
   }
 
 }

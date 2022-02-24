@@ -99,7 +99,7 @@ public class WebServletApplicationLoader
       if (dir.exists()) {
         log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
         scanConfigLocation(dir, paths, pathname -> pathname.isDirectory() || pathname.getName().endsWith(".xml"));
-        return StringUtils.collectionToString(paths);
+        return StringUtils.collectionToCommaDelimitedString(paths);
       }
       return null;
     }

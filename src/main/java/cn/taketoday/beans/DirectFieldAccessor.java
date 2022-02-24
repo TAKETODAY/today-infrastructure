@@ -21,6 +21,7 @@
 package cn.taketoday.beans;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 import cn.taketoday.core.ResolvableType;
@@ -100,23 +101,38 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
             matches.buildErrorMessage(), matches.getPossibleMatches());
   }
 
-  private class FieldPropertyHandler extends PropertyHandler {
+  private final class FieldPropertyHandler extends PropertyHandler {
 
     private final Field field;
 
+    private TypeDescriptor typeDescriptor;
+    private ResolvableType resolvableType;
+
     public FieldPropertyHandler(Field field) {
-      super(field.getType(), true, true);
+      super(field.getType(), true, !Modifier.isFinal(field.getModifiers()));
       this.field = field;
     }
 
-    @Override
+    /**
+     * Returns {@link TypeDescriptor} for this property
+     */
     public TypeDescriptor toTypeDescriptor() {
-      return new TypeDescriptor(this.field);
+      TypeDescriptor typeDescriptor = this.typeDescriptor;
+      if (typeDescriptor == null) {
+        typeDescriptor = new TypeDescriptor(this.field);
+        this.typeDescriptor = typeDescriptor;
+      }
+      return typeDescriptor;
     }
 
     @Override
     public ResolvableType getResolvableType() {
-      return ResolvableType.fromField(this.field);
+      ResolvableType resolvableType = this.resolvableType;
+      if (resolvableType == null) {
+        resolvableType = ResolvableType.fromField(this.field);
+        this.resolvableType = resolvableType;
+      }
+      return resolvableType;
     }
 
     @Override

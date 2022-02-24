@@ -197,7 +197,7 @@ public abstract class AutoConfigurationPackages {
         }
         else {
           if (log.isDebugEnabled()) {
-            String packageNames = StringUtils.collectionToString(packages);
+            String packageNames = StringUtils.collectionToCommaDelimitedString(packages);
             log.debug("@EnableAutoConfiguration was declared on a class in the package '{}'." +
                     " Automatic @Repository and @Entity scanning is enabled.", packageNames);
           }

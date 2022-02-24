@@ -61,7 +61,7 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
   @Override
   public boolean hasValue(String paramName) {
     BeanProperty beanProperty = accessor.obtainMetadata().getBeanProperty(paramName);
-    return beanProperty != null && !beanProperty.isWriteOnly();
+    return beanProperty != null && beanProperty.isReadable();
   }
 
   @Override
@@ -101,7 +101,7 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
     if (this.propertyNames == null) {
       ArrayList<String> names = new ArrayList<>();
       for (BeanProperty property : accessor.obtainMetadata()) {
-        if (!property.isWriteOnly()) {
+        if (property.isReadable()) {
           names.add(property.getName());
         }
       }

@@ -253,7 +253,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
     @Override
     public ResolvableType getResolvableType() {
-      return ResolvableType.fromProperty(property);
+      return property.getResolvableType();
     }
 
     @Override

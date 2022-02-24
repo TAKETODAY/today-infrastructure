@@ -104,7 +104,7 @@ public enum TestGroup {
         throw new IllegalArgumentException(String.format(
                 "Unable to find test group '%s' when parsing testGroups value: '%s'. " +
                         "Available groups include: [%s]", group.trim(), originalValue,
-                StringUtils.arrayToString(TestGroup.values())));
+                StringUtils.arrayToCommaDelimitedString(TestGroup.values())));
       }
     }
     return groups;
