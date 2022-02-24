@@ -98,5 +98,5 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
   /**
    * Obtain BeanMetadata
    */
-  BeanMetadata getBeanMetadata();
+  BeanMetadata getMetadata();
 }

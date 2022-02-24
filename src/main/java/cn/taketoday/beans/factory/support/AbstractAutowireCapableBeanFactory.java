@@ -908,7 +908,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   protected void autowireByType(
           String beanName, BeanDefinition definition, BeanWrapper binder, PropertyValues pvs) {
-    BeanMetadata metadata = binder.getBeanMetadata();
+    BeanMetadata metadata = binder.getMetadata();
     LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, binder);
     for (String propertyName : propertyNames) {
@@ -956,7 +956,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected String[] unsatisfiedNonSimpleProperties(BeanDefinition definition, BeanWrapper binder) {
     Set<String> result = new TreeSet<>();
     PropertyValues pvs = definition.getPropertyValues();
-    HashMap<String, BeanProperty> beanProperties = binder.getBeanMetadata().getBeanProperties();
+    HashMap<String, BeanProperty> beanProperties = binder.getMetadata().getBeanProperties();
     for (Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
       BeanProperty property = entry.getValue();
       if (property.getWriteMethod() != null
