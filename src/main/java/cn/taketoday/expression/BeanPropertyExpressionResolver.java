@@ -275,6 +275,10 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
         throw new ExpressionException(message.toString(), ex);
       }
     }
+    else if (!ignoreUnknownProperty) {
+      throw new PropertyNotFoundException(
+              "The class '" + base.getClass().getName() + "' does not have the property '" + property + "'.");
+    }
   }
 
   /**
@@ -396,7 +400,7 @@ public class BeanPropertyExpressionResolver extends ExpressionResolver {
 
   @Nullable
   private BeanProperty getProperty(Object base, Object prop) throws PropertyNotFoundException {
-    BeanProperty beanProperty = BeanMetadata.from(base, true).getBeanProperty(prop.toString());
+    BeanProperty beanProperty = BeanMetadata.from(base).getBeanProperty(prop.toString());
     if (beanProperty == null && !ignoreUnknownProperty) {
       throw new PropertyNotFoundException(
               "The class '" + base.getClass().getName() + "' does not have the property '" + prop + "'.");
