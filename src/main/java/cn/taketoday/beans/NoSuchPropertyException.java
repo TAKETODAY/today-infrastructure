@@ -30,7 +30,7 @@ public class NoSuchPropertyException extends InvalidPropertyException {
   private static final long serialVersionUID = 1L;
 
   public NoSuchPropertyException(Class<?> target, String name) {
-    super(target, name, "No such property: '" + name + "' in class: " + target);
+    super(target, name, "Property not found");
   }
 
 }

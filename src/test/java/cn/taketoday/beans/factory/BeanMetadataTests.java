@@ -53,7 +53,7 @@ public class BeanMetadataTests {
 
     assertThatThrownBy(() -> {
       beanMetadata.obtainBeanProperty("1243");
-    }).hasMessageStartingWith(String.format("No such property: '%s' in class: %s", "1243", BeanMappingTestBean.class));
+    }).hasMessageStartingWith(String.format("Invalid property '1243' of bean class [%s]: Property not found", BeanMappingTestBean.class.getName()));
 
   }
 }
