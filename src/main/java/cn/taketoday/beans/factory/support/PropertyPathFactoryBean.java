@@ -19,17 +19,19 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link FactoryBean} that evaluates a property path on a given target object.
@@ -78,7 +80,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
   private static final Logger logger = LoggerFactory.getLogger(PropertyPathFactoryBean.class);
 
   @Nullable
-  private BeanPropertyAccessor propertyAccessor;
+  private BeanWrapper targetBeanWrapper;
 
   @Nullable
   private String targetBeanName;
@@ -104,7 +106,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * @see #setTargetBeanName
    */
   public void setTargetObject(Object targetObject) {
-    this.propertyAccessor = BeanPropertyAccessor.ofObject(targetObject);
+    this.targetBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(targetObject);
   }
 
   /**
@@ -115,7 +117,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * containing bean factory (e.g. "testBean")
    * @see #setTargetObject
    */
-  public void setTargetBeanName(String targetBeanName) {
+  public void setTargetBeanName(@Nullable String targetBeanName) {
     this.targetBeanName = targetBeanName;
   }
 
@@ -125,7 +127,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * @param propertyPath the property path, potentially nested
    * (e.g. "age" or "spouse.age")
    */
-  public void setPropertyPath(String propertyPath) {
+  public void setPropertyPath(@Nullable String propertyPath) {
     this.propertyPath = propertyPath;
   }
 
@@ -138,7 +140,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    *
    * @param resultType the result type, for example "java.lang.Integer"
    */
-  public void setResultType(Class<?> resultType) {
+  public void setResultType(@Nullable Class<?> resultType) {
     this.resultType = resultType;
   }
 
@@ -150,67 +152,66 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    */
   @Override
   public void setBeanName(String beanName) {
-    this.beanName = BeanFactoryUtils.originalBeanName(beanName);
+    this.beanName = StringUtils.trimAllWhitespace(BeanFactoryUtils.originalBeanName(beanName));
   }
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
 
-    if (this.propertyAccessor != null && this.targetBeanName != null) {
+    if (targetBeanWrapper != null && targetBeanName != null) {
       throw new IllegalArgumentException("Specify either 'targetObject' or 'targetBeanName', not both");
     }
 
-    if (this.propertyAccessor == null && this.targetBeanName == null) {
-      if (this.propertyPath != null) {
+    if (targetBeanWrapper == null && targetBeanName == null) {
+      if (propertyPath != null) {
         throw new IllegalArgumentException(
                 "Specify 'targetObject' or 'targetBeanName' in combination with 'propertyPath'");
       }
-
       // No other properties specified: check bean name.
-      int dotIndex = (this.beanName != null ? this.beanName.indexOf('.') : -1);
+      int dotIndex = (beanName != null ? beanName.indexOf('.') : -1);
       if (dotIndex == -1) {
         throw new IllegalArgumentException(
                 "Neither 'targetObject' nor 'targetBeanName' specified, and PropertyPathFactoryBean " +
-                        "bean name '" + this.beanName + "' does not follow 'beanName.property' syntax");
+                        "bean name '" + beanName + "' does not follow 'beanName.property' syntax");
       }
-      this.targetBeanName = this.beanName.substring(0, dotIndex);
-      this.propertyPath = this.beanName.substring(dotIndex + 1);
+      this.targetBeanName = beanName.substring(0, dotIndex);
+      this.propertyPath = beanName.substring(dotIndex + 1);
     }
-    else if (this.propertyPath == null) {
+    else if (propertyPath == null) {
       // either targetObject or targetBeanName specified
       throw new IllegalArgumentException("'propertyPath' is required");
     }
 
-    if (this.propertyAccessor == null && this.beanFactory.isSingleton(this.targetBeanName)) {
+    if (targetBeanWrapper == null && beanFactory.isSingleton(targetBeanName)) {
       // Eagerly fetch singleton target bean, and determine result type.
-      Object bean = this.beanFactory.getBean(this.targetBeanName);
-      this.propertyAccessor = BeanPropertyAccessor.ofObject(bean);
-      this.resultType = this.propertyAccessor.obtainMetadata().getPropertyClass(this.propertyPath);
+      Object bean = beanFactory.getBean(targetBeanName);
+      this.targetBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
+      this.resultType = targetBeanWrapper.getPropertyType(propertyPath);
     }
   }
 
   @Override
   @Nullable
   public Object getObject() throws BeansException {
-    BeanPropertyAccessor target = this.propertyAccessor;
+    BeanWrapper target = this.targetBeanWrapper;
     if (target != null) {
-      if (logger.isWarnEnabled() && this.targetBeanName != null
-              && this.beanFactory instanceof ConfigurableBeanFactory configurable
-              && configurable.isCurrentlyInCreation(this.targetBeanName)) {
+      if (logger.isWarnEnabled() && targetBeanName != null
+              && beanFactory instanceof ConfigurableBeanFactory configurable
+              && configurable.isCurrentlyInCreation(targetBeanName)) {
         logger.warn("Target bean '{}' is still in creation due to a circular " +
                 "reference - obtained value for property '{}' may be outdated!", targetBeanName, propertyPath);
       }
     }
     else {
       // Fetch prototype target bean...
-      Assert.state(this.beanFactory != null, "No BeanFactory available");
-      Assert.state(this.targetBeanName != null, "No target bean name specified");
-      Object bean = this.beanFactory.getBean(this.targetBeanName);
-      target = BeanPropertyAccessor.ofObject(bean);
+      Assert.state(beanFactory != null, "No BeanFactory available");
+      Assert.state(targetBeanName != null, "No target bean name specified");
+      Object bean = beanFactory.getBean(targetBeanName);
+      target = PropertyAccessorFactory.forBeanPropertyAccess(bean);
     }
-    Assert.state(this.propertyPath != null, "No property path specified");
-    return target.getProperty(this.propertyPath);
+    Assert.state(propertyPath != null, "No property path specified");
+    return target.getPropertyValue(propertyPath);
   }
 
   @Override
