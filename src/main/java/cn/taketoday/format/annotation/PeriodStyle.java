@@ -34,6 +34,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Eddú Meléndez
  * @author Edson Chávez
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Period
  * @since 4.0
  */
@@ -42,8 +43,7 @@ public enum PeriodStyle {
   /**
    * Simple formatting, for example '1d'.
    */
-  SIMPLE("^" + "(?:([-+]?[0-9]+)Y)?" + "(?:([-+]?[0-9]+)M)?" + "(?:([-+]?[0-9]+)W)?" + "(?:([-+]?[0-9]+)D)?" + "$",
-          Pattern.CASE_INSENSITIVE) {
+  SIMPLE("^" + "(?:([-+]?[0-9]+)Y)?" + "(?:([-+]?[0-9]+)M)?" + "(?:([-+]?[0-9]+)W)?" + "(?:([-+]?[0-9]+)D)?" + "$", Pattern.CASE_INSENSITIVE) {
     @Override
     public Period parse(String value, @Nullable ChronoUnit unit) {
       try {
@@ -52,7 +52,11 @@ public enum PeriodStyle {
         }
         Matcher matcher = matcher(value);
         Assert.state(matcher.matches(), "Does not match simple period pattern");
-        Assert.isTrue(hasAtLeastOneGroupValue(matcher), () -> "'" + value + "' is not a valid simple period");
+
+        if (!hasAtLeastOneGroupValue(matcher)) {
+          throw new IllegalArgumentException("'" + value + "' is not a valid simple period");
+        }
+
         int years = parseInt(matcher, 1);
         int months = parseInt(matcher, 2);
         int weeks = parseInt(matcher, 3);
@@ -248,11 +252,12 @@ public enum PeriodStyle {
 
     private final String suffix;
 
+    @Nullable
     private final Function<Period, Integer> intValue;
 
     private final Function<Integer, Period> factory;
 
-    Unit(ChronoUnit chronoUnit, String suffix, Function<Period, Integer> intValue,
+    Unit(ChronoUnit chronoUnit, String suffix, @Nullable Function<Period, Integer> intValue,
          Function<Integer, Period> factory) {
       this.chronoUnit = chronoUnit;
       this.suffix = suffix;
@@ -273,8 +278,10 @@ public enum PeriodStyle {
     }
 
     private int intValue(Period value) {
-      Assert.notNull(this.intValue, () -> "intValue cannot be extracted from " + this.name());
-      return this.intValue.apply(value);
+      if (intValue == null) {
+        throw new IllegalArgumentException("intValue cannot be extracted from " + name());
+      }
+      return intValue.apply(value);
     }
 
     private static Unit fromChronoUnit(@Nullable ChronoUnit chronoUnit) {
