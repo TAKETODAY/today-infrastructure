@@ -1428,7 +1428,7 @@ public abstract class ReflectionUtils {
    * @since 3.0.2
    */
   @Nullable
-  public static Method getReadMethod(Class<?> declaredClass, Class<?> type, String name) {
+  public static Method getReadMethod(Class<?> declaredClass, @Nullable Class<?> type, String name) {
     String getterName = getterPropertyName(name, type);
     return findMethod(declaredClass, getterName, Constant.EMPTY_CLASS_ARRAY);
   }
@@ -1452,8 +1452,11 @@ public abstract class ReflectionUtils {
    * @since 3.0.2
    */
   @Nullable
-  public static Method getWriteMethod(Class<?> declaredClass, Class<?> type, String name) {
+  public static Method getWriteMethod(Class<?> declaredClass, @Nullable Class<?> type, String name) {
     String setterName = setterPropertyName(name, type);
+    if (type == null) {
+      return getMethodIfAvailable(declaredClass, setterName, (Class<?>[]) null);
+    }
     return findMethod(declaredClass, setterName, type);
   }
 
@@ -1463,7 +1466,7 @@ public abstract class ReflectionUtils {
    *   setterPropertyName("isName", String.class); -> setIsName
    * </pre>
    */
-  static String setterPropertyName(String name, Class<?> type) {
+  static String setterPropertyName(String name, @Nullable Class<?> type) {
     if (type == boolean.class && name.startsWith("is")) {
       name = name.substring(2);
     }
@@ -1476,7 +1479,7 @@ public abstract class ReflectionUtils {
    * getterPropertyName("isName", String.class); -> getIsName
    * </pre>
    */
-  static String getterPropertyName(String name, Class<?> type) {
+  static String getterPropertyName(String name, @Nullable Class<?> type) {
     if (type == boolean.class) {
       if (name.startsWith("is")) {
         return name;
