@@ -21,6 +21,7 @@
 package cn.taketoday.beans;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * @author TODAY 2021/1/27 22:26
@@ -214,7 +216,21 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
       BeanProperty property = new BeanProperty(descriptor, beanClass);
       beanPropertyMap.put(descriptor.getName(), property);
     }
+
+    ReflectionUtils.doWithFields(beanClass, field -> {
+      String propertyName = getPropertyName(field);
+      if (!beanPropertyMap.containsKey(propertyName)) {
+        BeanProperty property = new FieldBeanProperty(field);
+        beanPropertyMap.put(propertyName, property);
+      }
+    });
+
     return beanPropertyMap;
+  }
+
+  private String getPropertyName(Field field) {
+    // todo maybe start with 'm,_'
+    return field.getName();
   }
 
   @Override
