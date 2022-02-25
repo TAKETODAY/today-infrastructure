@@ -31,8 +31,8 @@ import java.util.Map;
 
 import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.support.BeanProperty;
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.BeanPropertyAccessor;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -19,8 +19,8 @@ package cn.taketoday.expression;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.lang.Nullable;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;

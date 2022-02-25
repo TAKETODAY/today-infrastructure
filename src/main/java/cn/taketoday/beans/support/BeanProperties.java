@@ -22,6 +22,9 @@ package cn.taketoday.beans.support;
 
 import java.util.Map;
 
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.BeanPropertyAccessor;
 import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.lang.Assert;
@@ -130,7 +133,7 @@ public class BeanProperties {
     else {
       BeanMetadata sourceMetadata = BeanMetadata.from(source);
       for (BeanProperty property : sourceMetadata) {
-        String propertyName = property.getPropertyName();
+        String propertyName = property.getName();
         if (allowCopy(ignoreProperties, propertyName)) {
           BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
           if (beanProperty != null && !beanProperty.isReadOnly()) {

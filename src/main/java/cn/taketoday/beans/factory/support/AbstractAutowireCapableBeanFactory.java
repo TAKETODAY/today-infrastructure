@@ -34,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeanWrapperImpl;
@@ -61,8 +63,6 @@ import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;

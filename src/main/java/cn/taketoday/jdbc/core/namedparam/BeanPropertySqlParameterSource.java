@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.NotReadablePropertyException;
 import cn.taketoday.beans.PropertyAccessorFactory;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.jdbc.core.StatementCreatorUtils;
 import cn.taketoday.lang.NonNull;

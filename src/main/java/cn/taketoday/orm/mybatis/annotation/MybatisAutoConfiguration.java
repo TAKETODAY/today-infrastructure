@@ -42,7 +42,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;

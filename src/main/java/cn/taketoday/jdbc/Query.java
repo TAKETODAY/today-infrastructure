@@ -37,8 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;

@@ -24,7 +24,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
-import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;

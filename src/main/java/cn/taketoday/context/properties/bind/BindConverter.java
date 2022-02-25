@@ -30,9 +30,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.SimpleTypeConverter;
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.propertyeditors.CustomBooleanEditor;
 import cn.taketoday.beans.propertyeditors.CustomNumberEditor;
 import cn.taketoday.beans.propertyeditors.FileEditor;
@@ -95,7 +95,6 @@ final class BindConverter {
     return false;
   }
 
-  @Nullable
   <T> T convert(Object source, Bindable<T> target) {
     return convert(source, target.getType(), target.getAnnotations());
   }

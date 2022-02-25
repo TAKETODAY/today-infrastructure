@@ -22,8 +22,8 @@ package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;

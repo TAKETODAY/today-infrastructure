@@ -25,11 +25,11 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Conversion Service
- * <p>
- * Use {@link Converter} to convert
- * </p>
+ * A service interface for type conversion. This is the entry point into the convert system.
+ * Call {@link #convert(Object, Class)} to perform a thread-safe type conversion using this system.
  *
+ * @author Keith Donald
+ * @author Phillip Webb
  * @author TODAY 2021/3/19 20:59
  * @since 3.0
  */

@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanMetadataElement;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;

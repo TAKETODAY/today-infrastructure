@@ -33,8 +33,8 @@ import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataRetrievalFailureException;
@@ -238,13 +238,13 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     HashMap<String, BeanProperty> mappedFields = new HashMap<>();
     for (BeanProperty property : metadata) {
       if (property.isWriteable()) {
-        String lowerCaseName = lowerCaseName(property.getPropertyName());
+        String lowerCaseName = lowerCaseName(property.getName());
         mappedFields.put(lowerCaseName, property);
-        String underscoreName = underscoreName(property.getPropertyName());
+        String underscoreName = underscoreName(property.getName());
         if (!lowerCaseName.equals(underscoreName)) {
           mappedFields.put(underscoreName, property);
         }
-        mappedProperties.add(property.getPropertyName());
+        mappedProperties.add(property.getName());
       }
     }
 

@@ -22,9 +22,6 @@ package cn.taketoday.beans;
 
 import java.util.List;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
-
 /**
  * The central interface of Framework's low-level JavaBeans infrastructure.
  *

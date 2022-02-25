@@ -26,7 +26,7 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.DependencyResolvingContext;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsDependencyResolver;

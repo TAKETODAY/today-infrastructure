@@ -47,7 +47,6 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;

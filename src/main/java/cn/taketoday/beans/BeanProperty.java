@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.beans;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
@@ -37,11 +37,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.NotWritablePropertyException;
-import cn.taketoday.beans.TypeConverter;
+import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.beans.support.NullInstantiator;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
@@ -150,7 +147,9 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
     this.readMethod = descriptor.getReadMethod();
     this.writeMethod = descriptor.getWriteMethod();
     this.propertyType = descriptor.getPropertyType();
-    this.writeMethodParameter = BeanUtils.getWriteMethodParameter(descriptor);
+    if (writeMethod != null && descriptor instanceof GenericTypeAwarePropertyDescriptor generic) {
+      this.writeMethodParameter = generic.getWriteMethodParameter();
+    }
   }
 
   /**
@@ -442,7 +441,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    */
   @Override
   public String getName() {
-    return getPropertyName();
+    return name;
   }
 
   @Override
@@ -492,14 +491,6 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    */
   public boolean isReadable() {
     return readMethod != null;
-  }
-
-  /**
-   * @since 4.0
-   */
-  @Deprecated
-  public String getPropertyName() {
-    return name;
   }
 
   /**

@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanMetadata;
+import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;

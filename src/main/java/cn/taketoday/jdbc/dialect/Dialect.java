@@ -23,7 +23,7 @@ package cn.taketoday.jdbc.dialect;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -88,7 +88,7 @@ public abstract class Dialect {
     for (BeanProperty property : beanMetadata) {
       Object value = property.getValue(model);
       if (value != null) {
-        columnNames.append(",").append(" ").append(property.getPropertyName());
+        columnNames.append(",").append(" ").append(property.getName());
         placeholder.append(", ?");
       }
     }
@@ -119,7 +119,7 @@ public abstract class Dialect {
           if (value == null) {
             continue;
           }
-          setSQL.append(property.getPropertyName()).append(" = ?, ");
+          setSQL.append(property.getName()).append(" = ?, ");
         }
       }
     }
@@ -146,7 +146,7 @@ public abstract class Dialect {
           if (value == null) {
             continue;
           }
-          columnNames.append(property.getPropertyName()).append(" = ? and ");
+          columnNames.append(property.getName()).append(" = ? and ");
         }
         if (columnNames.length() > 0) {
           sql.append(" WHERE ").append(columnNames.substring(0, columnNames.length() - 5));
@@ -162,7 +162,7 @@ public abstract class Dialect {
     StringBuilder sql = new StringBuilder();
     JdbcBeanMetadata beanMetadata = new JdbcBeanMetadata(model);
     for (BeanProperty property : beanMetadata) {
-      String alias = property.getPropertyName();
+      String alias = property.getName();
       if (excludedColumns.contains(alias)) {
         sql.append(alias).append(',');
       }

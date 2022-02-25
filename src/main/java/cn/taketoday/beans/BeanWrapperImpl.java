@@ -22,8 +22,6 @@ package cn.taketoday.beans;
 
 import java.util.List;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;

@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.lang.Assert;
@@ -74,7 +76,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     for (BeanProperty property : metadata) {
       if (property.isReadable() && property.isWriteable()) {
         Object value = property.getValue(target);
-        entrySet.add(Map.entry(property.getPropertyName(), value));
+        entrySet.add(Map.entry(property.getName(), value));
       }
     }
     return entrySet;
@@ -121,7 +123,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     }
     else {
       if (!ignoreReadOnly) {
-        throw new NotWritablePropertyException(metadata.getType(), beanProperty.getPropertyName(),
+        throw new NotWritablePropertyException(metadata.getType(), beanProperty.getName(),
                 target + " has a property: '" + beanProperty.getName() + "' that is read-only");
       }
     }
@@ -176,7 +178,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
       Object target = obtainTarget();
       for (BeanProperty property : metadata) {
         Object value = property.getValue(target);
-        if (!ObjectUtils.nullSafeEquals(value, other.get(property.getPropertyName()))) {
+        if (!ObjectUtils.nullSafeEquals(value, other.get(property.getName()))) {
           return false;
         }
       }

@@ -30,8 +30,8 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;

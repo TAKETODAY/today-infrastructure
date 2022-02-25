@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.support;
+package cn.taketoday.beans;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -27,14 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import cn.taketoday.beans.InvalidPropertyException;
-import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.NotWritablePropertyException;
-import cn.taketoday.beans.PropertyEditorRegistry;
-import cn.taketoday.beans.TypeConverter;
-import cn.taketoday.beans.TypeConverterDelegate;
-import cn.taketoday.beans.TypeConverterSupport;
-import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;

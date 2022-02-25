@@ -34,8 +34,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;

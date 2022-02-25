@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.reflect.PropertyAccessor;
 
 import static org.assertj.core.api.Assertions.assertThat;

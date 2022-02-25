@@ -26,10 +26,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
-import cn.taketoday.beans.support.BeanMetadata;
-import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -176,13 +176,13 @@ public class PropsReader {
   private String computeKey(BeanProperty property, String prefix) {
     String key;
     if (StringUtils.matchesLast(prefix, '.')) {
-      key = prefix.concat(property.getPropertyName());
+      key = prefix.concat(property.getName());
     }
     else if (StringUtils.isEmpty(prefix)) {
-      key = property.getPropertyName();
+      key = property.getName();
     }
     else {
-      key = prefix + '.' + property.getPropertyName();
+      key = prefix + '.' + property.getName();
     }
     return key;
   }

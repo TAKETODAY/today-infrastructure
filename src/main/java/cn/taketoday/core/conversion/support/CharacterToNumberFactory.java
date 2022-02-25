@@ -49,13 +49,7 @@ final class CharacterToNumberFactory implements ConverterFactory<Character, Numb
     return new CharacterToNumber<>(targetType);
   }
 
-  private static final class CharacterToNumber<T extends Number> implements Converter<Character, T> {
-
-    private final Class<T> targetType;
-
-    public CharacterToNumber(Class<T> targetType) {
-      this.targetType = targetType;
-    }
+  private record CharacterToNumber<T extends Number>(Class<T> targetType) implements Converter<Character, T> {
 
     @Override
     public T convert(Character source) {

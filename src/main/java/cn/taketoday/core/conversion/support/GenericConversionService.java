@@ -36,7 +36,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConditionalConverter;
 import cn.taketoday.core.conversion.ConditionalGenericConverter;
-import cn.taketoday.core.conversion.ConfigurableConversionService;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
@@ -55,7 +54,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Base {@link ConversionService} implementation suitable for use in most environments.
  * Indirectly implements {@link ConverterRegistry} as registration API through the
- * {@link cn.taketoday.core.conversion.ConfigurableConversionService} interface.
+ * {@link ConfigurableConversionService} interface.
  *
  * @author Keith Donald
  * @author Juergen Hoeller

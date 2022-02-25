@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import cn.taketoday.beans.support.BeanProperty;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
