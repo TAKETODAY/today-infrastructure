@@ -25,7 +25,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -71,7 +70,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   // Nullable
   protected transient Field field;
 
-  private transient BeanInstantiator constructor;
+  private transient BeanInstantiator instantiator;
   private transient PropertyAccessor propertyAccessor;
 
   @Nullable
@@ -168,26 +167,15 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    * @return new object
    */
   public Object newInstance(@Nullable Object[] args) {
-    BeanInstantiator constructor = this.constructor;
+    BeanInstantiator constructor = this.instantiator;
     if (constructor == null) {
       if (BeanUtils.isSimpleValueType(propertyType)) {
         throw new BeanInstantiationException(propertyType, "Cannot be instantiated a simple type");
       }
       constructor = BeanInstantiator.fromConstructor(propertyType);
-      this.constructor = constructor;
+      this.instantiator = constructor;
     }
     return constructor.instantiate(args);
-  }
-
-  /**
-   * new a array object with given length
-   */
-  public Object newArrayInstance(int length) {
-    Class<?> type = this.propertyType;
-    if (type.isArray()) {
-      type = type.getComponentType();
-    }
-    return Array.newInstance(type, length);
   }
 
   public Object getValue(Object object) {
@@ -302,7 +290,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    *
    * @return component object
    */
-  @Nullable
+  @Deprecated
   public Object newComponentInstance() {
     return newComponentInstance(null);
   }
@@ -312,7 +300,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    *
    * @return component object
    */
-  @Nullable
+  @Deprecated
   public Object newComponentInstance(@Nullable Object[] args) {
     BeanInstantiator constructor = this.componentConstructor;
     if (constructor == null) {
@@ -330,6 +318,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    *
    * @return {@link Type}
    */
+  @Deprecated
   public Type getComponentType() {
     if (componentResolved) {
       return componentType;
@@ -352,6 +341,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    *
    * @return {@link Class}
    */
+  @Deprecated
   @Nullable
   public Class<?> getComponentClass() {
     Type componentType = getComponentType();
@@ -371,8 +361,8 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
     return getType().isInstance(value);
   }
 
-  public BeanInstantiator getConstructor() {
-    return constructor;
+  public BeanInstantiator getInstantiator() {
+    return instantiator;
   }
 
   public PropertyAccessor getPropertyAccessor() {
@@ -386,8 +376,8 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
     }
   }
 
-  public void setConstructor(BeanInstantiator constructor) {
-    this.constructor = constructor;
+  public void setInstantiator(BeanInstantiator instantiator) {
+    this.instantiator = instantiator;
   }
 
   public void setPropertyAccessor(PropertyAccessor propertyAccessor) {
