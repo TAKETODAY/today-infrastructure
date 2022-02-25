@@ -180,6 +180,49 @@ public interface PropertyAccessor {
   void setPropertyValues(Map<?, ?> map) throws BeansException;
 
   /**
+   * Perform a batch update from a Map.
+   * <p>Bulk updates from PropertyValues are more powerful: This method is
+   * provided for convenience. Behavior will be identical to that of
+   * the {@link #setPropertyValues(PropertyValues)} method.
+   *
+   * @param map a Map to take properties from. Contains property value objects,
+   * keyed by property name
+   * @param ignoreUnknown should we ignore unknown properties (not found in the bean)
+   * @throws InvalidPropertyException if there is no such property or
+   * if the property isn't writable
+   * @throws PropertyBatchUpdateException if one or more PropertyAccessExceptions
+   * occurred for specific properties during the batch update. This exception bundles
+   * all individual PropertyAccessExceptions. All other properties will have been
+   * successfully updated.
+   */
+  void setPropertyValues(Map<?, ?> map, boolean ignoreUnknown)
+          throws BeansException;
+
+  /**
+   * Perform a batch update from a Map.
+   * <p>Note that performing a batch update differs from performing a single update,
+   * in that an implementation of this class will continue to update properties
+   * if a <b>recoverable</b> error (such as a type mismatch, but <b>not</b> an
+   * invalid field name or the like) is encountered, throwing a
+   * {@link PropertyBatchUpdateException} containing all the individual errors.
+   * This exception can be examined later to see all binding errors.
+   * Properties that were successfully updated remain changed.
+   *
+   * @param map a Map to take properties from. Contains property value objects,
+   * keyed by property name
+   * @param ignoreUnknown should we ignore unknown properties (not found in the bean)
+   * @param ignoreInvalid should we ignore invalid properties (found but not accessible)
+   * @throws InvalidPropertyException if there is no such property or
+   * if the property isn't writable
+   * @throws PropertyBatchUpdateException if one or more PropertyAccessExceptions
+   * occurred for specific properties during the batch update. This exception bundles
+   * all individual PropertyAccessExceptions. All other properties will have been
+   * successfully updated.
+   */
+  void setPropertyValues(Map<?, ?> map, boolean ignoreUnknown, boolean ignoreInvalid)
+          throws BeansException;
+
+  /**
    * The preferred way to perform a batch update.
    * <p>Note that performing a batch update differs from performing a single update,
    * in that an implementation of this class will continue to update properties

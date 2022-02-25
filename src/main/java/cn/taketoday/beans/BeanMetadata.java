@@ -22,6 +22,7 @@ package cn.taketoday.beans;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -213,15 +214,19 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
     PropertyDescriptor[] propertyDescriptors = results.getPropertyDescriptors();
     for (PropertyDescriptor descriptor : propertyDescriptors) {
-      BeanProperty property = new BeanProperty(descriptor, beanClass);
-      beanPropertyMap.put(descriptor.getName(), property);
+      if (descriptor.getReadMethod() != null || descriptor.getWriteMethod() != null) {
+        BeanProperty property = new BeanProperty(descriptor, beanClass);
+        beanPropertyMap.put(descriptor.getName(), property);
+      }
     }
 
     ReflectionUtils.doWithFields(beanClass, field -> {
-      String propertyName = getPropertyName(field);
-      if (!beanPropertyMap.containsKey(propertyName)) {
-        BeanProperty property = new FieldBeanProperty(field);
-        beanPropertyMap.put(propertyName, property);
+      if (!Modifier.isStatic(field.getModifiers())) {
+        String propertyName = getPropertyName(field);
+        if (!beanPropertyMap.containsKey(propertyName)) {
+          BeanProperty property = new FieldBeanProperty(field);
+          beanPropertyMap.put(propertyName, property);
+        }
       }
     });
 

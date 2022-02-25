@@ -26,10 +26,10 @@ package cn.taketoday.beans;
  */
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Abstract implementation of the {@link PropertyAccessor} interface.
@@ -77,7 +77,12 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 
   @Override
   public void setPropertyValues(Map<?, ?> map) throws BeansException {
-    setPropertyValues(new PropertyValues(map));
+    setPropertyValues(map, false, false);
+  }
+
+  @Override
+  public void setPropertyValues(Map<?, ?> map, boolean ignoreUnknown) throws BeansException {
+    setPropertyValues(map, ignoreUnknown, false);
   }
 
   @Override
@@ -91,22 +96,24 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
   }
 
   @Override
-  public void setPropertyValues(PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid)
+  public void setPropertyValues(Map<?, ?> map, boolean ignoreUnknown, boolean ignoreInvalid)
           throws BeansException {
+    if (CollectionUtils.isEmpty(map)) {
+      return;
+    }
 
-    List<PropertyAccessException> propertyAccessExceptions = null;
-    List<PropertyValue> propertyValues = pvs.asList();
-
+    ArrayList<PropertyAccessException> propertyAccessExceptions = null;
     if (ignoreUnknown) {
       this.suppressNotWritablePropertyException = true;
     }
+
     try {
-      for (PropertyValue pv : propertyValues) {
+      for (Map.Entry<?, ?> entry : map.entrySet()) {
         // setPropertyValue may throw any BeansException, which won't be caught
         // here, if there is a critical failure such as no matching field.
         // We can attempt to deal only with less serious exceptions.
         try {
-          setPropertyValue(pv);
+          setPropertyValue(new PropertyValue(String.valueOf(entry.getKey()), entry.getValue()));
         }
         catch (NotWritablePropertyException ex) {
           if (!ignoreUnknown) {
@@ -139,6 +146,12 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
       PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
       throw new PropertyBatchUpdateException(paeArray);
     }
+  }
+
+  @Override
+  public void setPropertyValues(
+          PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid) throws BeansException {
+    setPropertyValues(pvs.asMap(), ignoreUnknown, ignoreInvalid);
   }
 
   // Redefined with public visibility.

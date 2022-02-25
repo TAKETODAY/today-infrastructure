@@ -24,9 +24,10 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.BeanPropertyAccessor;
+import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -116,29 +117,31 @@ public class BeanProperties {
    */
   @SuppressWarnings("unchecked")
   private static void copy(
-          Object source, BeanMetadata destinationMetadata,
+          Object source, BeanMetadata destination,
           Object destinationInstance, @Nullable String[] ignoreProperties) {
     if (source instanceof Map) {
+      SimpleTypeConverter converter = new SimpleTypeConverter();
       for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
         String propertyName = entry.getKey();
         if (allowCopy(ignoreProperties, propertyName)) {
-          BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
-          if (beanProperty != null && !beanProperty.isReadOnly()) {
-            Object value = entry.getValue();
-            beanProperty.setValue(destinationInstance, value);
+          BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+          if (beanProperty != null && beanProperty.isWriteable()) {
+            beanProperty.setValue(destinationInstance, entry.getValue(), converter);
           }
         }
       }
     }
     else {
+      SimpleTypeConverter converter = new SimpleTypeConverter();
       BeanMetadata sourceMetadata = BeanMetadata.from(source);
       for (BeanProperty property : sourceMetadata) {
-        String propertyName = property.getName();
-        if (allowCopy(ignoreProperties, propertyName)) {
-          BeanProperty beanProperty = destinationMetadata.getBeanProperty(propertyName);
-          if (beanProperty != null && !beanProperty.isReadOnly()) {
-            Object value = property.getValue(source);
-            beanProperty.setValue(destinationInstance, value);
+        if (property.isReadable()) {
+          String propertyName = property.getName();
+          if (allowCopy(ignoreProperties, propertyName)) {
+            BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+            if (beanProperty != null && beanProperty.isWriteable()) {
+              beanProperty.setValue(destinationInstance, property.getValue(source), converter);
+            }
           }
         }
       }
@@ -207,24 +210,18 @@ public class BeanProperties {
    * @param bean JavaBean whose properties are being populated
    * @param properties Map keyed by property name, with the
    * corresponding (String or String[]) value(s) to be set
-   * @param ignoreUnknownProperty {@link BeanPropertyAccessor#ignoreUnknownProperty}
    * @throws NoSuchPropertyException If no such property
    * @throws InvalidPropertyException Invalid property value
-   * @see BeanPropertyAccessor
+   * @see BeanWrapperImpl
    */
   public static void populate(
-          Object bean, Map<String, Object> properties, boolean ignoreUnknownProperty) {
+          Object bean, Map<String, Object> properties, boolean ignoreUnknown) {
     Assert.notNull(bean, "target bean must not be null");
     Assert.notNull(properties, "properties must not be null");
-    BeanMetadata metadata = BeanMetadata.from(bean);
-    BeanPropertyAccessor accessor = BeanPropertyAccessor.from(metadata, bean);
-    accessor.setIgnoreUnknownProperty(ignoreUnknownProperty);
-    accessor.setThrowsWhenReadOnly(false);
-    for (Map.Entry<String, Object> entry : properties.entrySet()) {
-      String key = entry.getKey();
-      Object value = entry.getValue();
-      accessor.setProperty(bean, metadata, key, value);
-    }
+    BeanWrapperImpl beanWrapper = new BeanWrapperImpl(bean);
+    beanWrapper.setAutoGrowNestedPaths(true);
+
+    beanWrapper.setPropertyValues(properties, ignoreUnknown, true);
   }
 
 }

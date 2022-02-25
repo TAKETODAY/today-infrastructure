@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,13 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans.support;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.BeanMappingTestBean;
 import cn.taketoday.beans.support.BeanProperties;
 import lombok.Data;
 
@@ -402,7 +403,7 @@ public class BeanPropertiesTests {
     map.put("doubleProperty", "432.0");
     // floatProperty is left at 123.0
     map.put("intProperty", "543");
-    map.put("longProperty", ""); // null
+//    map.put("longProperty", ""); // null
     map.put("nullProperty", null);
     map.put("shortProperty", "654");
     // stringProperty is left at "This is a string"
