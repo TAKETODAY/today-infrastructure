@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.util.ClassUtils;

@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;

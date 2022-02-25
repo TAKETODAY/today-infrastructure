@@ -22,7 +22,7 @@ package cn.taketoday.web.view.script;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.DirectFieldAccessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,8 +38,8 @@ public class ScriptTemplateViewResolverTests {
     ScriptTemplateViewResolver resolver = new ScriptTemplateViewResolver();
     assertThat(resolver.requiredViewClass()).isEqualTo(ScriptTemplateView.class);
 
-    BeanPropertyAccessor viewAccessor = BeanPropertyAccessor.ofObject(resolver);
-    Class<?> viewClass = (Class<?>) viewAccessor.getProperty("viewClass");
+    DirectFieldAccessor viewAccessor = new DirectFieldAccessor(resolver);
+    Class<?> viewClass = (Class<?>) viewAccessor.getPropertyValue("viewClass");
     assertThat(viewClass).isEqualTo(ScriptTemplateView.class);
   }
 

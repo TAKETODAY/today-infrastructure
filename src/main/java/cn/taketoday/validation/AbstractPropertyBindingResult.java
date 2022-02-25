@@ -25,7 +25,7 @@ import java.beans.PropertyEditor;
 import cn.taketoday.beans.ConfigurablePropertyAccessor;
 import cn.taketoday.beans.PropertyAccessorUtils;
 import cn.taketoday.beans.PropertyEditorRegistry;
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.ConvertingPropertyEditorAdapter;

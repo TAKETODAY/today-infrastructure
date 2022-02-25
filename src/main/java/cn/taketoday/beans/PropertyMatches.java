@@ -24,7 +24,6 @@ import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;

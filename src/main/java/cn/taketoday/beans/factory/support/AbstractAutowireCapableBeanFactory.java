@@ -20,20 +20,21 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serial;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
@@ -67,7 +68,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
@@ -878,8 +878,8 @@ public abstract class AbstractAutowireCapableBeanFactory
           String beanName, BeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, bw);
     for (String propertyName : propertyNames) {
-      if (containsBean(propertyName)) {
-        Object bean = getBean(propertyName);
+      Object bean = getBean(propertyName);
+      if (bean != null) {
         pvs.add(propertyName, bean);
         registerDependentBean(propertyName, beanName);
         if (log.isTraceEnabled()) {
@@ -903,26 +903,31 @@ public abstract class AbstractAutowireCapableBeanFactory
    *
    * @param beanName the name of the bean to autowire by type
    * @param definition the merged bean definition to update through autowiring
-   * @param binder the BeanWrapper from which we can obtain information about the bean
+   * @param wrapper the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
   protected void autowireByType(
-          String beanName, BeanDefinition definition, BeanWrapper binder, PropertyValues pvs) {
-    BeanMetadata metadata = binder.getMetadata();
+          String beanName, BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
+    BeanMetadata metadata = wrapper.getMetadata();
     LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
-    String[] propertyNames = unsatisfiedNonSimpleProperties(definition, binder);
+
+    String[] propertyNames = unsatisfiedNonSimpleProperties(definition, wrapper);
     for (String propertyName : propertyNames) {
       try {
         BeanProperty beanProperty = metadata.obtainBeanProperty(propertyName);
         // Don't try autowiring by type for type Object: never makes sense,
-        // even if it technically is a unsatisfied, non-simple property.
-        if (Object.class != beanProperty.getType()) {
-          Method writeMethod = beanProperty.getWriteMethod();
-          Assert.state(writeMethod != null, "No write method available");
-          MethodParameter methodParam = new MethodParameter(writeMethod, 0);
+        // even if it technically is an unsatisfied, non-simple property, non-writeable.
+        if (Object.class != beanProperty.getType() && beanProperty.isWriteable()) {
           // Do not allow eager init for type matching in case of a prioritized post-processor.
-          boolean eager = !(binder.getWrappedInstance() instanceof PriorityOrdered);
-          DependencyDescriptor desc = new AutowireByTypeDependencyDescriptor(methodParam, eager);
+          boolean eager = !(wrapper.getWrappedInstance() instanceof PriorityOrdered);
+          DependencyDescriptor desc;
+          MethodParameter methodParam = beanProperty.getWriteMethodParameter();
+          if (methodParam != null) {
+            desc = new AutowireByTypeDependencyDescriptor(methodParam, eager);
+          }
+          else {
+            desc = new AutowireByTypeDependencyDescriptor(beanProperty.getField(), eager);
+          }
           Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames);
           if (autowiredArgument != null) {
             pvs.add(propertyName, autowiredArgument);
@@ -949,17 +954,15 @@ public abstract class AbstractAutowireCapableBeanFactory
    * factory. Does not include simple properties like primitives or Strings.
    *
    * @param definition the merged bean definition the bean was created with
-   * @param binder the BeanWrapper the bean was created with
+   * @param wrapper the BeanWrapper the bean was created with
    * @return an array of bean property names
    * @see BeanUtils#isSimpleProperty
    */
-  protected String[] unsatisfiedNonSimpleProperties(BeanDefinition definition, BeanWrapper binder) {
-    Set<String> result = new TreeSet<>();
+  protected String[] unsatisfiedNonSimpleProperties(BeanDefinition definition, BeanWrapper wrapper) {
+    TreeSet<String> result = new TreeSet<>();
     PropertyValues pvs = definition.getPropertyValues();
-    HashMap<String, BeanProperty> beanProperties = binder.getMetadata().getBeanProperties();
-    for (Map.Entry<String, BeanProperty> entry : beanProperties.entrySet()) {
-      BeanProperty property = entry.getValue();
-      if (property.getWriteMethod() != null
+    for (BeanProperty property : wrapper.getBeanProperties()) {
+      if (property.isWriteable()
               && !isExcludedFromDependencyCheck(property)
               && (pvs == null || !pvs.contains(property.getName()))
               && !BeanUtils.isSimpleProperty(property.getType())) {
@@ -981,9 +984,9 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #ignoreDependencyInterface(Class)
    */
   protected boolean isExcludedFromDependencyCheck(BeanProperty property) {
-    return AutowireUtils.isExcludedFromDependencyCheck(property)
-            || this.ignoredDependencyTypes.contains(property.getType())
-            || AutowireUtils.isSetterDefinedInInterface(property, this.ignoredDependencyInterfaces);
+    return ignoredDependencyTypes.contains(property.getType())
+            || AutowireUtils.isExcludedFromDependencyCheck(property)
+            || AutowireUtils.isSetterDefinedInInterface(property, ignoredDependencyInterfaces);
   }
 
   @NonNull
@@ -1604,11 +1607,16 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Special DependencyDescriptor variant for Framework's good old autowire="byType" mode.
    * Always optional; never considering the parameter name for choosing a primary candidate.
    */
-  @SuppressWarnings("serial")
   private static class AutowireByTypeDependencyDescriptor extends DependencyDescriptor {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public AutowireByTypeDependencyDescriptor(MethodParameter methodParameter, boolean eager) {
       super(methodParameter, false, eager);
+    }
+
+    public AutowireByTypeDependencyDescriptor(Field field, boolean eager) {
+      super(field, false, eager);
     }
 
     @Override

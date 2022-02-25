@@ -37,7 +37,7 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabase;

@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.lang.Nullable;
 

@@ -114,9 +114,9 @@ public final class Query implements AutoCloseable {
     this.parsedQuery = operations.parse(queryText, queryParameters);
   }
 
-  // ------------------------------------------------
-  // ------------- Getter/Setters -------------------
-  // ------------------------------------------------
+  //---------------------------------------------------------------------
+  // Getter/Setters
+  //---------------------------------------------------------------------
 
   public boolean isCaseSensitive() {
     return caseSensitive;
@@ -162,9 +162,9 @@ public final class Query implements AutoCloseable {
     return queryParameters;
   }
 
-  // ------------------------------------------------
-  // ------------- Add Parameters -------------------
-  // ------------------------------------------------
+  //---------------------------------------------------------------------
+  // Add Parameters
+  //---------------------------------------------------------------------
 
   public void addParameter(String name, ParameterBinder parameterBinder) {
     QueryParameter queryParameter = queryParameters.get(name);
@@ -375,9 +375,9 @@ public final class Query implements AutoCloseable {
     }
   }
 
-  // ------------------------------------------------
-  // -------------------- Execute -------------------
-  // ------------------------------------------------
+  //---------------------------------------------------------------------
+  // Execute
+  //---------------------------------------------------------------------
 
   // visible for testing
   PreparedStatement buildPreparedStatement() {
@@ -437,63 +437,6 @@ public final class Query implements AutoCloseable {
     }
     catch (SQLException ex) {
       throw new PersistenceException("Error preparing statement - " + ex.getMessage(), ex);
-    }
-  }
-
-  /**
-   * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
-   */
-  private abstract class AbstractResultSetIterable<T> implements ResultSetIterable<T> {
-    private final long start;
-    private final long afterExecQuery;
-    protected final ResultSet rs;
-
-    boolean autoCloseConnection = false;
-
-    AbstractResultSetIterable() {
-      try {
-        start = System.currentTimeMillis();
-        logExecution();
-        rs = buildPreparedStatement().executeQuery();
-        afterExecQuery = System.currentTimeMillis();
-      }
-      catch (SQLException ex) {
-        throw new PersistenceException("Database error: " + ex.getMessage(), ex);
-      }
-    }
-
-    @Override
-    public void close() {
-      try {
-        JdbcUtils.close(rs);
-        if (debugEnabled) {
-          long afterClose = System.currentTimeMillis();
-          log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                  afterClose - start, afterExecQuery - start,
-                  afterClose - afterExecQuery, name);
-        }
-      }
-      catch (SQLException ex) {
-        throw new PersistenceException("Error closing ResultSet.", ex);
-      }
-      finally {
-        if (isAutoCloseConnection()) {
-          connection.close();
-        }
-        else {
-          closeConnectionIfNecessary();
-        }
-      }
-    }
-
-    @Override
-    public boolean isAutoCloseConnection() {
-      return this.autoCloseConnection;
-    }
-
-    @Override
-    public void setAutoCloseConnection(boolean autoCloseConnection) {
-      this.autoCloseConnection = autoCloseConnection;
     }
   }
 
@@ -725,7 +668,9 @@ public final class Query implements AutoCloseable {
     return name == null ? "No name" : name;
   }
 
-  //************** batch stuff *******************/
+  //---------------------------------------------------------------------
+  // batch stuff
+  //---------------------------------------------------------------------
 
   /**
    * Sets the number of batched commands this Query allows to be added before
@@ -848,7 +793,9 @@ public final class Query implements AutoCloseable {
     return connection;
   }
 
-  /*********** column mapping ****************/
+  //---------------------------------------------------------------------
+  // column mapping
+  //---------------------------------------------------------------------
 
   public Map<String, String> getColumnMappings() {
     if (isCaseSensitive()) {
@@ -882,7 +829,9 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  /************** private stuff ***************/
+  //---------------------------------------------------------------------
+  // private stuff
+  //---------------------------------------------------------------------
 
   private void closeConnectionIfNecessary() {
     try {
@@ -919,7 +868,9 @@ public final class Query implements AutoCloseable {
     return parsedQuery;
   }
 
+  //---------------------------------------------------------------------
   // ParameterSetter
+  //---------------------------------------------------------------------
 
   final class ArrayParameterBinder extends ParameterBinder {
     final Object[] values;
@@ -950,6 +901,63 @@ public final class Query implements AutoCloseable {
           typeHandler.setParameter(statement, paramIdx++, value);
         }
       }
+    }
+  }
+
+  /**
+   * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
+   */
+  private abstract class AbstractResultSetIterable<T> implements ResultSetIterable<T> {
+    private final long start;
+    private final long afterExecQuery;
+    protected final ResultSet rs;
+
+    boolean autoCloseConnection = false;
+
+    AbstractResultSetIterable() {
+      try {
+        start = System.currentTimeMillis();
+        logExecution();
+        rs = buildPreparedStatement().executeQuery();
+        afterExecQuery = System.currentTimeMillis();
+      }
+      catch (SQLException ex) {
+        throw new PersistenceException("Database error: " + ex.getMessage(), ex);
+      }
+    }
+
+    @Override
+    public void close() {
+      try {
+        JdbcUtils.close(rs);
+        if (debugEnabled) {
+          long afterClose = System.currentTimeMillis();
+          log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
+                  afterClose - start, afterExecQuery - start,
+                  afterClose - afterExecQuery, name);
+        }
+      }
+      catch (SQLException ex) {
+        throw new PersistenceException("Error closing ResultSet.", ex);
+      }
+      finally {
+        if (isAutoCloseConnection()) {
+          connection.close();
+        }
+        else {
+          closeConnectionIfNecessary();
+        }
+      }
+    }
+
+    @Override
+    public boolean isAutoCloseConnection() {
+      return this.autoCloseConnection;
+    }
+
+    @Override
+    public void setAutoCloseConnection(boolean autoCloseConnection) {
+      this.autoCloseConnection = autoCloseConnection;
     }
   }
 

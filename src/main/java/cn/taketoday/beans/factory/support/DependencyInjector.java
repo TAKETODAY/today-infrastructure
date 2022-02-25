@@ -29,6 +29,7 @@ import java.lang.reflect.Parameter;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.core.MethodParameter;

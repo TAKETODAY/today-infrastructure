@@ -33,12 +33,12 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.TypeConverter;
@@ -86,7 +86,8 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   /** @since 3.0.4 */
   @Nullable
   private transient TypeDescriptor typeDescriptor;
-  private final String alias;
+
+  private final String name;
 
   /** @since 4.0 */
   @Nullable
@@ -106,12 +107,17 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   @Nullable
   private transient Annotation[] annotations;
 
-  private MethodParameter methodParameter;
-
+  // @since 4.0
   private ResolvableType resolvableType;
 
-  BeanProperty(String alias, Field field) {
-    this.alias = alias;
+  // @since 4.0
+  private transient MethodParameter methodParameter;
+
+  // @since 4.0
+  private transient MethodParameter writeMethodParameter;
+
+  BeanProperty(String name, Field field) {
+    this.name = name;
     this.field = field;
     this.propertyType = field.getType();
     this.readMethod = null;
@@ -122,27 +128,29 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
     this(field.getName(), field);
   }
 
-  BeanProperty(@Nullable String alias,
+  BeanProperty(@Nullable String name,
                @Nullable Method readMethod,
                @Nullable Method writeMethod,
                @Nullable Class<?> declaringClass) {
+    if (readMethod == null && writeMethod == null) {
+      throw new IllegalArgumentException("Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
+    }
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
     this.declaringClass = declaringClass;
-    if (alias == null) {
-      alias = ReflectionUtils.getPropertyName(readMethod, writeMethod);
-      Assert.state(alias != null, "Property is neither readable nor writeable");
+    if (name == null) {
+      name = ReflectionUtils.getPropertyName(readMethod, writeMethod);
     }
-    this.alias = alias;
+    this.name = name;
   }
 
   BeanProperty(PropertyDescriptor descriptor, Class<?> declaringClass) {
-    this.alias = descriptor.getName();
+    this.name = descriptor.getName();
     this.declaringClass = declaringClass;
     this.readMethod = descriptor.getReadMethod();
     this.writeMethod = descriptor.getWriteMethod();
-    this.methodParameter = resolveMethodParameter();
     this.propertyType = descriptor.getPropertyType();
+    this.writeMethodParameter = BeanUtils.getWriteMethodParameter(descriptor);
   }
 
   /**
@@ -163,7 +171,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   public Object newInstance(@Nullable Object[] args) {
     BeanInstantiator constructor = this.constructor;
     if (constructor == null) {
-      if (ClassUtils.primitiveTypes.contains(propertyType)) {
+      if (BeanUtils.isSimpleValueType(propertyType)) {
         throw new BeanInstantiationException(propertyType, "Cannot be instantiated a simple type");
       }
       constructor = BeanInstantiator.fromConstructor(propertyType);
@@ -247,7 +255,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   }
 
   protected TypeDescriptor createDescriptor() {
-    ResolvableType resolvableType = ResolvableType.forMethodParameter(methodParameter);
+    ResolvableType resolvableType = ResolvableType.forMethodParameter(getMethodParameter());
     return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
   }
 
@@ -387,18 +395,6 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
     this.propertyAccessor = propertyAccessor;
   }
 
-  public boolean isMap() {
-    return Map.class.isAssignableFrom(getType());
-  }
-
-  public boolean isList() {
-    return List.class.isAssignableFrom(getType());
-  }
-
-  public boolean isArray() {
-    return getType().isArray();
-  }
-
   public Class<?> getType() {
     if (propertyType == null) {
       if (readMethod != null) {
@@ -499,13 +495,11 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   }
 
   /**
-   * Mapping name
-   *
-   * @see cn.taketoday.beans.Property
    * @since 4.0
    */
+  @Deprecated
   public String getPropertyName() {
-    return alias;
+    return name;
   }
 
   /**
@@ -538,16 +532,34 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
   }
 
   @Nullable
+  public MethodParameter getWriteMethodParameter() {
+    MethodParameter writeMethodParameter = this.writeMethodParameter;
+    if (writeMethodParameter == null && getWriteMethod() != null) {
+      writeMethodParameter = new MethodParameter(getWriteMethod(), 0).withContainingClass(getDeclaringClass());
+      this.writeMethodParameter = writeMethodParameter;
+    }
+    return writeMethodParameter;
+  }
+
+  /**
+   * If method based bean-property
+   */
+  @Nullable
   public MethodParameter getMethodParameter() {
-    return this.methodParameter;
+    MethodParameter methodParameter = this.methodParameter;
+    if (methodParameter == null) {
+      methodParameter = resolveMethodParameter();
+      this.methodParameter = methodParameter;
+    }
+    return methodParameter;
   }
 
   private MethodParameter resolveMethodParameter() {
     MethodParameter read = resolveReadMethodParameter();
-    MethodParameter write = resolveWriteMethodParameter();
+    MethodParameter write = getWriteMethodParameter();
     if (write == null) {
       if (read == null) {
-        throw new IllegalStateException("Property is neither readable nor writeable");
+        throw new IllegalStateException("Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
       }
       return read;
     }
@@ -567,14 +579,6 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
       return null;
     }
     return new MethodParameter(getReadMethod(), -1).withContainingClass(getDeclaringClass());
-  }
-
-  @Nullable
-  private MethodParameter resolveWriteMethodParameter() {
-    if (getWriteMethod() == null) {
-      return null;
-    }
-    return new MethodParameter(getWriteMethod(), 0).withContainingClass(getDeclaringClass());
   }
 
   // AnnotatedElement
@@ -645,7 +649,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
     if (this == o)
       return true;
     if (o instanceof BeanProperty property) {
-      return Objects.equals(alias, property.alias)
+      return Objects.equals(name, property.name)
               && Objects.equals(readMethod, property.readMethod)
               && Objects.equals(writeMethod, property.writeMethod)
               && Objects.equals(propertyType, property.propertyType);
@@ -655,7 +659,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), field, alias, readMethod, writeMethod);
+    return Objects.hash(super.hashCode(), field, name, readMethod, writeMethod);
   }
 
   @Override

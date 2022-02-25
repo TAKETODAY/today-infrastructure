@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;

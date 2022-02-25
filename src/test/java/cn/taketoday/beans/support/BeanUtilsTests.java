@@ -22,7 +22,7 @@ package cn.taketoday.beans.support;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.ToString;
 

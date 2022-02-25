@@ -20,8 +20,6 @@
 
 package cn.taketoday.beans;
 
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -33,9 +31,9 @@ import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Extension of the standard JavaBeans {@link PropertyDescriptor} class,
@@ -76,31 +74,30 @@ final class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
     super(propertyName, null, null);
     this.beanClass = beanClass;
 
-    Method readMethodToUse = (readMethod != null ? BridgeMethodResolver.findBridgedMethod(readMethod) : null);
-    Method writeMethodToUse = (writeMethod != null ? BridgeMethodResolver.findBridgedMethod(writeMethod) : null);
-    if (writeMethodToUse == null && readMethodToUse != null) {
+    readMethod = readMethod != null ? BridgeMethodResolver.findBridgedMethod(readMethod) : null;
+    writeMethod = writeMethod != null ? BridgeMethodResolver.findBridgedMethod(writeMethod) : null;
+    if (writeMethod == null && readMethod != null) {
       // Fallback: Original JavaBeans introspection might not have found matching setter
       // method due to lack of bridge method resolution, in case of the getter using a
       // covariant return type whereas the setter is defined for the concrete property type.
-      Method candidate = ReflectionUtils.getMethodIfAvailable(
-              this.beanClass, "set" + StringUtils.capitalize(getName()), (Class<?>[]) null);
+      Method candidate = ReflectionUtils.getWriteMethod(beanClass, null, propertyName);
       if (candidate != null && candidate.getParameterCount() == 1) {
-        writeMethodToUse = candidate;
+        writeMethod = candidate;
       }
     }
-    this.readMethod = readMethodToUse;
-    this.writeMethod = writeMethodToUse;
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
 
-    if (this.writeMethod != null) {
-      if (this.readMethod == null) {
+    if (writeMethod != null) {
+      if (readMethod == null) {
         // Write method not matched against read method: potentially ambiguous through
         // several overloaded variants, in which case an arbitrary winner has been chosen
         // by the JDK's JavaBeans Introspector...
         HashSet<Method> ambiguousCandidates = new HashSet<>();
         for (Method method : beanClass.getMethods()) {
-          if (method.getName().equals(writeMethodToUse.getName())
-                  && !method.equals(writeMethodToUse) && !method.isBridge()
-                  && method.getParameterCount() == writeMethodToUse.getParameterCount()) {
+          if (method.getName().equals(writeMethod.getName())
+                  && !method.equals(writeMethod) && !method.isBridge()
+                  && method.getParameterCount() == writeMethod.getParameterCount()) {
             ambiguousCandidates.add(method);
           }
         }
@@ -111,10 +108,10 @@ final class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
       this.writeMethodParameter = new MethodParameter(this.writeMethod, 0).withContainingClass(this.beanClass);
     }
 
-    if (this.readMethod != null) {
-      this.propertyType = GenericTypeResolver.resolveReturnType(this.readMethod, this.beanClass);
+    if (readMethod != null) {
+      this.propertyType = GenericTypeResolver.resolveReturnType(readMethod, this.beanClass);
     }
-    else if (this.writeMethodParameter != null) {
+    else if (writeMethodParameter != null) {
       this.propertyType = this.writeMethodParameter.getParameterType();
     }
 
@@ -142,15 +139,15 @@ final class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
     Set<Method> ambiguousCandidates = this.ambiguousWriteMethods;
     if (ambiguousCandidates != null) {
       this.ambiguousWriteMethods = null;
-      LogFactory.getLog(GenericTypeAwarePropertyDescriptor.class).debug("Non-unique JavaBean property '" +
-              getName() + "' being accessed! Ambiguous write methods found next to actually used [" +
-              this.writeMethod + "]: " + ambiguousCandidates);
+      LoggerFactory.getLogger(GenericTypeAwarePropertyDescriptor.class)
+              .debug("Non-unique JavaBean property '{}' being accessed! Ambiguous write methods found next to actually used [{}]: {}",
+                      getName(), writeMethod, ambiguousCandidates);
     }
     return this.writeMethod;
   }
 
+  @Nullable
   public MethodParameter getWriteMethodParameter() {
-    Assert.state(this.writeMethodParameter != null, "No write method available");
     return this.writeMethodParameter;
   }
 

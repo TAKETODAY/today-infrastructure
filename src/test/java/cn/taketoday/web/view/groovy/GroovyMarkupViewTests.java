@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -86,8 +86,8 @@ public class GroovyMarkupViewTests {
     view.setTemplateEngine(new TestTemplateEngine());
     view.setApplicationContext(this.webAppContext);
 
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(view);
-    TemplateEngine engine = (TemplateEngine) accessor.getProperty("engine");
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
+    TemplateEngine engine = (TemplateEngine) accessor.getPropertyValue("engine");
     assertThat(engine).isNotNull();
     assertThat(engine.getClass()).isEqualTo(TestTemplateEngine.class);
   }
@@ -98,8 +98,8 @@ public class GroovyMarkupViewTests {
     view.setTemplateEngine(new TestTemplateEngine());
     view.setApplicationContext(this.webAppContext);
 
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(view);
-    TemplateEngine engine = (TemplateEngine) accessor.getProperty("engine");
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
+    TemplateEngine engine = (TemplateEngine) accessor.getPropertyValue("engine");
     assertThat(engine).isNotNull();
     assertThat(engine.getClass()).isEqualTo(TestTemplateEngine.class);
   }

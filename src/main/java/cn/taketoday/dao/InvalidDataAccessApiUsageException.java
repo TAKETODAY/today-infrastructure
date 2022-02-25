@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,8 @@ package cn.taketoday.dao;
  * not the underlying data access infrastructure.
  *
  * @author Rod Johnson
+ * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 @SuppressWarnings("serial")
 public class InvalidDataAccessApiUsageException extends NonTransientDataAccessException {

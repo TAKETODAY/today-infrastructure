@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.SimpleTypeConverter;
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.propertyeditors.CustomBooleanEditor;
 import cn.taketoday.beans.propertyeditors.CustomNumberEditor;
 import cn.taketoday.beans.propertyeditors.FileEditor;

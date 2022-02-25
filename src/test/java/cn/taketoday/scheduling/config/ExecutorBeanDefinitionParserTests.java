@@ -28,13 +28,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
-import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.DirectFieldAccessor;
+import cn.taketoday.beans.PropertyAccessorFactory;
+import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.support.BeanPropertyAccessor;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.task.TaskExecutor;
@@ -230,23 +231,23 @@ public class ExecutorBeanDefinitionParserTests {
   }
 
   private int getCorePoolSize(Object executor) {
-    return (Integer) BeanPropertyAccessor.ofObject(executor).getProperty("corePoolSize");
+    return (Integer) new DirectFieldAccessor(executor).getPropertyValue("corePoolSize");
   }
 
   private int getMaxPoolSize(Object executor) {
-    return (Integer) BeanPropertyAccessor.ofObject(executor).getProperty("maxPoolSize");
+    return (Integer) PropertyAccessorFactory.forDirectFieldAccess(executor).getPropertyValue("maxPoolSize");
   }
 
   private int getQueueCapacity(Object executor) {
-    return (Integer) BeanPropertyAccessor.ofObject(executor).getProperty("queueCapacity");
+    return (Integer) PropertyAccessorFactory.forDirectFieldAccess(executor).getPropertyValue("queueCapacity");
   }
 
   private int getKeepAliveSeconds(Object executor) {
-    return (Integer) BeanPropertyAccessor.ofObject(executor).getProperty("keepAliveSeconds");
+    return (Integer) PropertyAccessorFactory.forDirectFieldAccess(executor).getPropertyValue("keepAliveSeconds");
   }
 
   private boolean getAllowCoreThreadTimeOut(Object executor) {
-    return (Boolean) BeanPropertyAccessor.ofObject(executor).getProperty("allowCoreThreadTimeOut");
+    return (Boolean) PropertyAccessorFactory.forDirectFieldAccess(executor).getPropertyValue("allowCoreThreadTimeOut");
   }
 
 }

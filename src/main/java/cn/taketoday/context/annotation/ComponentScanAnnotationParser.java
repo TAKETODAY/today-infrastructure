@@ -27,7 +27,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;

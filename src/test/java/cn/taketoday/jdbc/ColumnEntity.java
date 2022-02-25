@@ -1,11 +1,9 @@
 package cn.taketoday.jdbc;
 
-import cn.taketoday.beans.Property;
-
 public class ColumnEntity {
 
   private int id;
-  @Property("text_col")
+  @Column("text_col")
   private String text;
 
   public int getId() {

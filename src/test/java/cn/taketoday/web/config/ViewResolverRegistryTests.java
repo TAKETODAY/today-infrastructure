@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
@@ -203,10 +203,10 @@ class ViewResolverRegistryTests {
   }
 
   private void checkPropertyValues(ViewResolver resolver, Object... nameValuePairs) {
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(resolver);
+    DirectFieldAccessor accessor = new DirectFieldAccessor(resolver);
     for (int i = 0; i < nameValuePairs.length; i++, i++) {
       Object expected = nameValuePairs[i + 1];
-      Object actual = accessor.getProperty((String) nameValuePairs[i]);
+      Object actual = accessor.getPropertyValue((String) nameValuePairs[i]);
       assertThat(actual).isEqualTo(expected);
     }
   }

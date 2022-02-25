@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.support;
+package cn.taketoday.beans;
 
 import java.beans.ConstructorProperties;
 import java.beans.PropertyDescriptor;
@@ -35,19 +35,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.BeanWrapper;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.CachedIntrospectionResults;
-import cn.taketoday.beans.DependencyInjectorProvider;
-import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
@@ -58,6 +54,20 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Static convenience methods for JavaBeans: for instantiating beans,
+ * checking bean property types, copying bean properties, etc.
+ *
+ * <p>Mainly for internal use within the framework, but to some degree also
+ * useful for application classes. Consider
+ * <a href="https://commons.apache.org/proper/commons-beanutils/">Apache Commons BeanUtils</a>,
+ * <a href="https://hotelsdotcom.github.io/bull/">BULL - Bean Utils Light Library</a>,
+ * or similar third-party frameworks for more comprehensive bean utilities.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author Sam Brannen
+ * @author Sebastien Deleuze
  * @author TODAY 2021/8/22 21:51
  * @since 4.0
  */
@@ -68,16 +78,6 @@ public abstract class BeanUtils {
 
   private static final Set<Class<?>> unknownEditorTypes =
           Collections.newSetFromMap(new ConcurrentReferenceHashMap<>(64));
-
-  private static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES = Map.of(
-          boolean.class, false,
-          byte.class, (byte) 0,
-          short.class, (short) 0,
-          int.class, 0,
-          long.class, 0L,
-          float.class, 0F,
-          double.class, 0D,
-          char.class, '\0');
 
   /**
    * Get instance with bean class use default {@link Constructor}
@@ -244,6 +244,24 @@ public abstract class BeanUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * Obtain a new MethodParameter object for the write method of the
+   * specified property.
+   *
+   * @param pd the PropertyDescriptor for the property
+   * @return a corresponding MethodParameter object
+   */
+  public static MethodParameter getWriteMethodParameter(PropertyDescriptor pd) {
+    if (pd instanceof GenericTypeAwarePropertyDescriptor) {
+      return new MethodParameter(((GenericTypeAwarePropertyDescriptor) pd).getWriteMethodParameter());
+    }
+    else {
+      Method writeMethod = pd.getWriteMethod();
+      Assert.state(writeMethod != null, "No write method available");
+      return new MethodParameter(writeMethod, 0);
+    }
   }
 
   /**

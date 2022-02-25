@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.DirectFieldAccessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,8 +40,8 @@ public class GroovyMarkupViewResolverTests {
   public void viewClass() throws Exception {
     GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
     assertThat(resolver.requiredViewClass()).isEqualTo(GroovyMarkupView.class);
-    BeanPropertyAccessor viewAccessor = new BeanPropertyAccessor(resolver);
-    Class<?> viewClass = (Class<?>) viewAccessor.getProperty("viewClass");
+    DirectFieldAccessor viewAccessor = new DirectFieldAccessor(resolver);
+    Class<?> viewClass = (Class<?>) viewAccessor.getPropertyValue("viewClass");
     assertThat(viewClass).isEqualTo(GroovyMarkupView.class);
   }
 

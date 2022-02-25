@@ -29,16 +29,16 @@ import cn.taketoday.lang.Nullable;
 /**
  * Map cache
  *
- * @param <K> key type
- * @param <T> param type
- * @param <V> value type
+ * @param <Key> key type
+ * @param <Param> param type, extra computing param type
+ * @param <Value> value type
  * @author TODAY 2021/1/27 23:02
  * @since 3.0
  */
-public class MapCache<K, V, T> {
-  private final Map<K, V> mapping;
+public class MapCache<Key, Value, Param> {
+  private final Map<Key, Value> mapping;
   /** default mapping function */
-  private volatile Function<K, V> mappingFunction;
+  private volatile Function<Key, Value> mappingFunction;
 
   public MapCache() {
     this(new HashMap<>());
@@ -51,18 +51,18 @@ public class MapCache<K, V, T> {
   /**
    * @param mapping allows to define your own map implementation
    */
-  public MapCache(Map<K, V> mapping) {
+  public MapCache(Map<Key, Value> mapping) {
     this.mapping = mapping;
   }
 
-  public MapCache(Function<K, V> mappingFunction) {
+  public MapCache(Function<Key, Value> mappingFunction) {
     this(new HashMap<>(), mappingFunction);
   }
 
   /**
    * @param mapping allows to define your own map implementation
    */
-  public MapCache(Map<K, V> mapping, Function<K, V> mappingFunction) {
+  public MapCache(Map<Key, Value> mapping, Function<Key, Value> mappingFunction) {
     this.mapping = mapping;
     this.mappingFunction = mappingFunction;
   }
@@ -79,10 +79,10 @@ public class MapCache<K, V, T> {
    * @param param createValue's param
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
-   * @see #createValue(Object, T)
+   * @see #createValue(Object, Param)
    */
-  public final V get(K key, T param) {
-    V value = mapping.get(key);
+  public final Value get(Key key, Param param) {
+    Value value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
         value = mapping.get(key);
@@ -104,8 +104,8 @@ public class MapCache<K, V, T> {
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  public final V get(K key) {
-    return get(key, (Function<K, V>) null);
+  public final Value get(Key key) {
+    return get(key, (Function<Key, Value>) null);
   }
 
   /**
@@ -118,8 +118,8 @@ public class MapCache<K, V, T> {
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  public final V get(K key, @Nullable Function<K, V> mappingFunction) {
-    V value = mapping.get(key);
+  public final Value get(Key key, @Nullable Function<Key, Value> mappingFunction) {
+    Value value = mapping.get(key);
     if (value == null) {
       synchronized(mapping) {
         value = mapping.get(key);
@@ -142,16 +142,16 @@ public class MapCache<K, V, T> {
     return value;
   }
 
-  protected V createValue(K key, @Nullable T param) {
+  protected Value createValue(Key key, @Nullable Param param) {
     return null;
   }
 
   synchronized
-  public void setMappingFunction(Function<K, V> mappingFunction) {
+  public void setMappingFunction(Function<Key, Value> mappingFunction) {
     this.mappingFunction = mappingFunction;
   }
 
-  public V put(K key, V value) {
+  public Value put(Key key, Value value) {
     synchronized(mapping) {
       return mapping.put(key, value);
     }
@@ -163,7 +163,7 @@ public class MapCache<K, V, T> {
     }
   }
 
-  public V remove(K key) {
+  public Value remove(Key key) {
     synchronized(mapping) {
       return mapping.remove(key);
     }

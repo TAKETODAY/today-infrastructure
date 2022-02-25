@@ -28,6 +28,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -38,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ConcurrentBeanWrapperTests {
 
-  private final Log logger = LogFactory.getLog(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final Set<TestRun> set = ConcurrentHashMap.newKeySet();
 

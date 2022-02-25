@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpHeaders;
@@ -108,15 +108,15 @@ public class ScriptTemplateViewTests {
     this.configurer.setContentType(MediaType.TEXT_PLAIN_VALUE);
     this.configurer.setCharset(StandardCharsets.ISO_8859_1);
     this.configurer.setSharedEngine(true);
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
 
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(this.view);
     this.view.setApplicationContext(this.wac);
-    assertThat(accessor.getProperty("engine")).isEqualTo(engine);
-    assertThat(accessor.getProperty("renderObject")).isEqualTo("Template");
-    assertThat(accessor.getProperty("renderFunction")).isEqualTo("render");
-    assertThat(accessor.getProperty("contentType")).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
-    assertThat(accessor.getProperty("charset")).isEqualTo(StandardCharsets.ISO_8859_1);
-    assertThat(accessor.getProperty("sharedEngine")).asInstanceOf(BOOLEAN).isTrue();
+    assertThat(accessor.getPropertyValue("engine")).isEqualTo(engine);
+    assertThat(accessor.getPropertyValue("renderObject")).isEqualTo("Template");
+    assertThat(accessor.getPropertyValue("renderFunction")).isEqualTo("render");
+    assertThat(accessor.getPropertyValue("contentType")).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+    assertThat(accessor.getPropertyValue("charset")).isEqualTo(StandardCharsets.ISO_8859_1);
+    assertThat(accessor.getPropertyValue("sharedEngine")).asInstanceOf(BOOLEAN).isTrue();
   }
 
   @Test
@@ -125,14 +125,14 @@ public class ScriptTemplateViewTests {
     this.configurer.setRenderObject("Template");
     this.configurer.setRenderFunction("render");
 
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(this.view);
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
     this.view.setApplicationContext(this.wac);
-    assertThat(accessor.getProperty("engineName")).isEqualTo("nashorn");
-    assertThat(accessor.getProperty("engine")).isNotNull();
-    assertThat(accessor.getProperty("renderObject")).isEqualTo("Template");
-    assertThat(accessor.getProperty("renderFunction")).isEqualTo("render");
-    assertThat(accessor.getProperty("contentType")).isEqualTo(MediaType.TEXT_HTML_VALUE);
-    assertThat(accessor.getProperty("charset")).isEqualTo(StandardCharsets.UTF_8);
+    assertThat(accessor.getPropertyValue("engineName")).isEqualTo("nashorn");
+    assertThat(accessor.getPropertyValue("engine")).isNotNull();
+    assertThat(accessor.getPropertyValue("renderObject")).isEqualTo("Template");
+    assertThat(accessor.getPropertyValue("renderFunction")).isEqualTo("render");
+    assertThat(accessor.getPropertyValue("contentType")).isEqualTo(MediaType.TEXT_HTML_VALUE);
+    assertThat(accessor.getPropertyValue("charset")).isEqualTo(StandardCharsets.UTF_8);
   }
 
   @Test
@@ -145,10 +145,10 @@ public class ScriptTemplateViewTests {
     engine = this.view.getEngine();
     assertThat(engine).isNotNull();
     assertThat(engine.get("key")).isEqualTo("value");
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(this.view);
-    assertThat(accessor.getProperty("renderObject")).isNull();
-    assertThat(accessor.getProperty("renderFunction")).isEqualTo("render");
-    assertThat(accessor.getProperty("charset")).isEqualTo(StandardCharsets.UTF_8);
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
+    assertThat(accessor.getPropertyValue("renderObject")).isNull();
+    assertThat(accessor.getPropertyValue("renderFunction")).isEqualTo("render");
+    assertThat(accessor.getPropertyValue("charset")).isEqualTo(StandardCharsets.UTF_8);
   }
 
   @Test
@@ -294,15 +294,15 @@ public class ScriptTemplateViewTests {
     this.configurer.setRenderFunction("render");
     this.configurer.setSharedEngine(true);
 
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(this.view);
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
     this.view.setApplicationContext(this.wac);
     ScriptEngine engine1 = this.view.getEngine();
     ScriptEngine engine2 = this.view.getEngine();
     assertThat(engine1).isNotNull();
     assertThat(engine2).isNotNull();
-    assertThat(accessor.getProperty("renderObject")).isEqualTo("Template");
-    assertThat(accessor.getProperty("renderFunction")).isEqualTo("render");
-    assertThat(accessor.getProperty("sharedEngine")).asInstanceOf(BOOLEAN).isTrue();
+    assertThat(accessor.getPropertyValue("renderObject")).isEqualTo("Template");
+    assertThat(accessor.getPropertyValue("renderFunction")).isEqualTo("render");
+    assertThat(accessor.getPropertyValue("sharedEngine")).asInstanceOf(BOOLEAN).isTrue();
   }
 
   @Test  // gh-23258
@@ -312,15 +312,15 @@ public class ScriptTemplateViewTests {
     this.configurer.setRenderFunction("render");
     this.configurer.setSharedEngine(false);
 
-    BeanPropertyAccessor accessor = new BeanPropertyAccessor(this.view);
+    DirectFieldAccessor accessor = new DirectFieldAccessor(view);
     this.view.setApplicationContext(this.wac);
     ScriptEngine engine1 = this.view.getEngine();
     ScriptEngine engine2 = this.view.getEngine();
     assertThat(engine1).isNotNull();
     assertThat(engine2).isNotNull();
-    assertThat(accessor.getProperty("renderObject")).isEqualTo("Template");
-    assertThat(accessor.getProperty("renderFunction")).isEqualTo("render");
-    assertThat(accessor.getProperty("sharedEngine")).asInstanceOf(BOOLEAN).isFalse();
+    assertThat(accessor.getPropertyValue("renderObject")).isEqualTo("Template");
+    assertThat(accessor.getPropertyValue("renderFunction")).isEqualTo("render");
+    assertThat(accessor.getPropertyValue("sharedEngine")).asInstanceOf(BOOLEAN).isFalse();
   }
 
   private interface InvocableScriptEngine extends ScriptEngine, Invocable {

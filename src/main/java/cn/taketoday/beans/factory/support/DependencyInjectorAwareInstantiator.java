@@ -24,15 +24,16 @@ import java.lang.reflect.Constructor;
 import java.util.function.Function;
 
 import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.SingletonSupplier;
 
 /**
@@ -69,12 +70,12 @@ public class DependencyInjectorAwareInstantiator {
    * @return bean class 's instance
    * @throws BeanInstantiationException if any reflective operation exception occurred
    * @throws ConstructorNotFoundException If beanClass has no suitable constructor
-   * @see BeanUtils#obtainConstructor(Class)
+   * @see #obtainConstructor(Class)
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
+    Constructor<T> constructor = obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
     }
@@ -88,7 +89,7 @@ public class DependencyInjectorAwareInstantiator {
           Class<T> beanClass,
           DependencyInjector injector,
           BeanInstantiatorFactory instantiatorFactory, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
+    Constructor<T> constructor = obtainConstructor(beanClass);
     Object[] args = injector.resolveArguments(constructor, providedArgs);
 
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
@@ -157,6 +158,61 @@ public class DependencyInjectorAwareInstantiator {
     }
     else {
       return beanFactory.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+    }
+    return null;
+  }
+
+  /**
+   * Obtain a suitable {@link Constructor}.
+   * <p>
+   * Look for the default constructor, if there is no default constructor, then
+   * get all the constructors, if there is only one constructor then use this
+   * constructor, if not more than one use the @Autowired constructor if there is
+   * no suitable {@link Constructor} will throw an exception
+   * <p>
+   *
+   * @param <T> Target type
+   * @param beanClass target bean class
+   * @return Suitable constructor
+   * @throws ConstructorNotFoundException If there is no suitable constructor
+   * @since 2.1.7
+   */
+  public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
+    final Constructor<T> ret = getConstructor(beanClass);
+    if (ret == null) {
+      throw new ConstructorNotFoundException(beanClass);
+    }
+    return ret;
+  }
+
+  /**
+   * Get a suitable {@link Constructor}.
+   * <p>
+   * Look for the default constructor, if there is no default constructor, then
+   * get all the constructors, if there is only one constructor then use this
+   * constructor, if not more than one use the @Autowired constructor if there is
+   * no suitable {@link Constructor} will throw an exception
+   * <p>
+   *
+   * @param <T> Target type
+   * @param beanClass target bean class
+   * @return Suitable constructor If there isn't a suitable {@link Constructor}
+   * returns null
+   * @since 2.1.7
+   */
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
+    Assert.notNull(beanClass, "bean-class must not be null");
+    Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
+    if (constructors.length == 1) {
+      return ReflectionUtils.makeAccessible(constructors[0]);
+    }
+    for (final Constructor<T> constructor : constructors) {
+      if (constructor.getParameterCount() == 0 // default constructor
+              || constructor.isAnnotationPresent(Autowired.class)) {
+        return ReflectionUtils.makeAccessible(constructor);
+      }
     }
     return null;
   }

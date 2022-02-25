@@ -48,8 +48,9 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/22 21:32
  */
-@SuppressWarnings("serial")
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Class<?> declaringClass;
 

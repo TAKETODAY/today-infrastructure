@@ -22,7 +22,7 @@ package cn.taketoday.jdbc.object;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.jdbc.core.RowMapper;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

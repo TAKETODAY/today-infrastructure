@@ -29,7 +29,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import cn.taketoday.beans.support.BeanPropertyAccessor;
+import cn.taketoday.beans.BeanWrapper;
+import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.jdbc.core.test.ConcretePerson;
 import cn.taketoday.jdbc.core.test.ConstructorPerson;
 import cn.taketoday.jdbc.core.test.DatePerson;
@@ -94,15 +95,15 @@ public abstract class AbstractRowMapperTests {
   }
 
   protected void verifyPersonViaBeanWrapper(Object person) {
-    BeanPropertyAccessor accessor = BeanPropertyAccessor.ofObject(person);
-    assertThat(accessor.getProperty("name")).isEqualTo("Bubba");
-    assertThat(accessor.getProperty("age")).isEqualTo(22L);
+    BeanWrapper accessor = PropertyAccessorFactory.forBeanPropertyAccess(person);
+    assertThat(accessor.getPropertyValue("name")).isEqualTo("Bubba");
+    assertThat(accessor.getPropertyValue("age")).isEqualTo(22L);
 
-    assertThat((Date) accessor.getProperty("birth_date"))
+    assertThat((Date) accessor.getPropertyValue("birth_date"))
             .usingComparator(Date::compareTo)
             .isEqualTo(new Date(1221222L));
 
-    assertThat(accessor.getProperty("balance")).isEqualTo(new BigDecimal("1234.56"));
+    assertThat(accessor.getPropertyValue("balance")).isEqualTo(new BigDecimal("1234.56"));
   }
 
   protected void verifyPerson(EmailPerson person) {

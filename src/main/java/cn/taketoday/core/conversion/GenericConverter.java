@@ -100,11 +100,11 @@ public interface GenericConverter {
       if (this == other) {
         return true;
       }
-      if (other == null || other.getClass() != ConvertiblePair.class) {
-        return false;
+      if (other instanceof ConvertiblePair otherPair) {
+        return sourceType == otherPair.sourceType
+                && targetType == otherPair.targetType;
       }
-      ConvertiblePair otherPair = (ConvertiblePair) other;
-      return (this.sourceType == otherPair.sourceType && this.targetType == otherPair.targetType);
+      return false;
     }
 
     @Override

@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -46,6 +47,8 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public class InjectionPoint implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * It shows that the value is not set

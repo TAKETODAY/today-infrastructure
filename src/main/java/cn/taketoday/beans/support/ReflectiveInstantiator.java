@@ -22,7 +22,7 @@ package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 
 /**
  * based on java reflect

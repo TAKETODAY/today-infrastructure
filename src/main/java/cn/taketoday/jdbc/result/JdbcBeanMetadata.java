@@ -29,13 +29,14 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-import cn.taketoday.beans.Property;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanMetadata;
 import cn.taketoday.beans.support.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.dao.InvalidDataAccessApiUsageException;
+import cn.taketoday.jdbc.Column;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
@@ -166,7 +167,7 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
 
   public Object getProperty(Object root, String propertyName) { return beanMetadata.getProperty(root, propertyName); }
 
-  public Class<?> getPropertyClass(String propertyName) { return beanMetadata.getPropertyClass(propertyName); }
+  public Class<?> getPropertyClass(String propertyName) { return beanMetadata.getPropertyType(propertyName); }
 
   @NonNull
   public HashMap<String, BeanProperty> getBeanProperties() { return beanMetadata.getBeanProperties(); }
@@ -218,7 +219,7 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
   @Nullable
   static String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
     // just alias name, cannot override its getter,setter
-    MergedAnnotation<Property> annotation = MergedAnnotations.from(propertyElement).get(Property.class);
+    MergedAnnotation<Column> annotation = MergedAnnotations.from(propertyElement).get(Column.class);
     if (annotation.isPresent()) {
       String name = annotation.getStringValue();
       if (StringUtils.isNotEmpty(name)) {
@@ -233,6 +234,9 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
 
     @Override
     protected HashMap<String, BeanProperty> createValue(Class<?> key, BeanMetadata beanMetadata) {
+      if (beanMetadata == null) {
+        throw new InvalidDataAccessApiUsageException("beanMetadata is required");
+      }
       HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
       for (BeanProperty property : beanMetadata) {
         String propertyName_ = getPropertyName(property);

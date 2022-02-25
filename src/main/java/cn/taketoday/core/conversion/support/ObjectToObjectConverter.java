@@ -26,7 +26,6 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
@@ -70,7 +69,7 @@ import cn.taketoday.util.ReflectionUtils;
 final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
   // Cache for the latest to-method resolved on a given Class
-  private static final Map<Class<?>, Member> conversionMemberCache =
+  private static final ConcurrentReferenceHashMap<Class<?>, Member> conversionMemberCache =
           new ConcurrentReferenceHashMap<>(32);
 
   @Override
@@ -80,8 +79,8 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return (sourceType.getType() != targetType.getType() &&
-            hasConversionMethodOrConstructor(targetType.getType(), sourceType.getType()));
+    return sourceType.getType() != targetType.getType()
+            && hasConversionMethodOrConstructor(targetType.getType(), sourceType.getType());
   }
 
   @Override
@@ -152,13 +151,12 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
   private static boolean isApplicable(Member member, Class<?> sourceClass) {
     if (member instanceof Method method) {
-      return (!Modifier.isStatic(method.getModifiers()) ?
-              ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass) :
-              method.getParameterTypes()[0] == sourceClass);
+      return !Modifier.isStatic(method.getModifiers())
+             ? ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass)
+             : method.getParameterTypes()[0] == sourceClass;
     }
-    else if (member instanceof Constructor) {
-      Constructor<?> ctor = (Constructor<?>) member;
-      return (ctor.getParameterTypes()[0] == sourceClass);
+    else if (member instanceof Constructor<?> ctor) {
+      return ctor.getParameterTypes()[0] == sourceClass;
     }
     else {
       return false;
@@ -173,8 +171,8 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
     }
 
     Method method = ReflectionUtils.getMethodIfAvailable(sourceClass, "to" + targetClass.getSimpleName());
-    return (method != null && !Modifier.isStatic(method.getModifiers()) &&
-                    ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null);
+    return method != null && !Modifier.isStatic(method.getModifiers())
+                   && ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null;
   }
 
   @Nullable

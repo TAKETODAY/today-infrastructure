@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistrar;
@@ -72,7 +73,6 @@ import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -1063,7 +1063,6 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
 
   /** @since 4.0 */
-  @NonNull
   @Override
   public DependencyInjector getInjector() {
     if (dependencyInjector == null) {

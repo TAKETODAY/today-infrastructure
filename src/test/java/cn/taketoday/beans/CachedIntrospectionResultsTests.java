@@ -22,7 +22,6 @@ import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.OverridingClassLoader;
 

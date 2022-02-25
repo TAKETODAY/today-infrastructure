@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.properties.bind.Binder.Context;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;

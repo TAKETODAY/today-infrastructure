@@ -34,7 +34,7 @@ import cn.taketoday.core.reflect.PropertyAccessor;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/24 15:16
  */
-final class FieldBeanProperty extends BeanProperty {
+public final class FieldBeanProperty extends BeanProperty {
 
   FieldBeanProperty(Field field) {
     super(field);
@@ -53,11 +53,6 @@ final class FieldBeanProperty extends BeanProperty {
   @Override
   protected ResolvableType createResolvableType() {
     return ResolvableType.fromField(field);
-  }
-
-  @Override
-  public String getName() {
-    return field.getName();
   }
 
   @Override

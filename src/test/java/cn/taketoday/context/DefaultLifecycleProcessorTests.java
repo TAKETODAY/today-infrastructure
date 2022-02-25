@@ -1,5 +1,6 @@
 package cn.taketoday.context;
 
+import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.support.BeanPropertyAccessor;
@@ -22,7 +23,7 @@ class DefaultLifecycleProcessorTests {
   public void defaultLifecycleProcessorInstance() {
     GenericApplicationContext context = new GenericApplicationContext();
     context.refresh();
-    Object lifecycleProcessor = BeanPropertyAccessor.ofObject(context).getProperty("lifecycleProcessor");
+    Object lifecycleProcessor = new DirectFieldAccessor(context).getPropertyValue("lifecycleProcessor");
     assertThat(lifecycleProcessor).isNotNull();
     assertThat(lifecycleProcessor.getClass()).isEqualTo(DefaultLifecycleProcessor.class);
   }
@@ -35,10 +36,10 @@ class DefaultLifecycleProcessorTests {
     context.registerBeanDefinition("lifecycleProcessor", beanDefinition);
     context.refresh();
     LifecycleProcessor bean = context.getBean("lifecycleProcessor", LifecycleProcessor.class);
-    Object contextLifecycleProcessor = BeanPropertyAccessor.ofObject(context).getProperty("lifecycleProcessor");
+    Object contextLifecycleProcessor = new DirectFieldAccessor(context).getPropertyValue("lifecycleProcessor");
     assertThat(contextLifecycleProcessor).isNotNull();
     assertThat(contextLifecycleProcessor).isSameAs(bean);
-    assertThat(BeanPropertyAccessor.ofObject(contextLifecycleProcessor).getProperty(
+    assertThat(new DirectFieldAccessor(contextLifecycleProcessor).getPropertyValue(
             "timeoutPerShutdownPhase")).isEqualTo(1000L);
   }
 

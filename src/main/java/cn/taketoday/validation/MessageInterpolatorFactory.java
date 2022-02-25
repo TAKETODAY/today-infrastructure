@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;

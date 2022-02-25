@@ -25,7 +25,7 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 

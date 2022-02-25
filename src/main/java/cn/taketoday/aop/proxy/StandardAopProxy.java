@@ -32,7 +32,7 @@ import cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator;
 import cn.taketoday.aop.proxy.std.GeneratorContext;
 import cn.taketoday.aop.proxy.std.NoneProxyMethodGenerator;
 import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
-import cn.taketoday.beans.factory.support.BeanUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;

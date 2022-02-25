@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.util.Map;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.AbstractFactoryBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;

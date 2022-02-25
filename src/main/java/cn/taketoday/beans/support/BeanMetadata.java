@@ -49,7 +49,8 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   private final Class<?> beanClass;
 
-  private BeanInstantiator constructor;
+  private BeanInstantiator instantiator;
+
   /**
    * @since 4.0
    */
@@ -64,16 +65,12 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   public BeanInstantiator getInstantiator() {
-    BeanInstantiator constructor = this.constructor;
-    if (constructor == null) {
-      constructor = createAccessor();
-      this.constructor = constructor;
+    BeanInstantiator instantiator = this.instantiator;
+    if (instantiator == null) {
+      instantiator = BeanInstantiator.fromConstructor(beanClass);
+      this.instantiator = instantiator;
     }
-    return constructor;
-  }
-
-  private BeanInstantiator createAccessor() {
-    return BeanInstantiator.fromConstructor(beanClass);
+    return instantiator;
   }
 
   /**
@@ -158,7 +155,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
-  public Class<?> getPropertyClass(String propertyName) {
+  public Class<?> getPropertyType(String propertyName) {
     return obtainBeanProperty(propertyName).getType();
   }
 
@@ -212,7 +209,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   public HashMap<String, BeanProperty> createBeanProperties() {
     HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
-    CachedIntrospectionResults results = CachedIntrospectionResults.forClass(beanClass);
+    CachedIntrospectionResults results = new CachedIntrospectionResults(beanClass);
 
     PropertyDescriptor[] propertyDescriptors = results.getPropertyDescriptors();
     for (PropertyDescriptor descriptor : propertyDescriptors) {

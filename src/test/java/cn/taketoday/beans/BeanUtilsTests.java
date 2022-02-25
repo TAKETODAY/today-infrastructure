@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanUtils;
 import cn.taketoday.beans.propertyeditors.CustomDateEditor;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
