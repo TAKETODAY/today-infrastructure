@@ -47,7 +47,7 @@ public abstract class FreeMarkerTemplateUtils {
    * @return the result as String
    * @throws IOException if the template wasn't found or couldn't be read
    * @throws freemarker.template.TemplateException if rendering failed
-   * @see cn.taketoday.mail.MailPreparationException
+   * @see cn.taketoday.context.support.mail.MailPreparationException
    */
   public static String processTemplateIntoString(Template template, Object model)
           throws IOException, TemplateException {

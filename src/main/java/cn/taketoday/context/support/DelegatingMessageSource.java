@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @see AbstractApplicationContext
- * @since 1.1.5
+ * @since 4.0
  */
 public class DelegatingMessageSource extends MessageSourceSupport implements HierarchicalMessageSource {
 
