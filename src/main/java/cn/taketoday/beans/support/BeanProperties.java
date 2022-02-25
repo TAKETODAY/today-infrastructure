@@ -21,13 +21,13 @@
 package cn.taketoday.beans.support;
 
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -119,44 +119,58 @@ public class BeanProperties {
   private static void copy(
           Object source, BeanMetadata destination,
           Object destinationInstance, @Nullable String[] ignoreProperties) {
-    if (source instanceof Map) {
-      SimpleTypeConverter converter = new SimpleTypeConverter();
-      for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
-        String propertyName = entry.getKey();
-        if (allowCopy(ignoreProperties, propertyName)) {
-          BeanProperty beanProperty = destination.getBeanProperty(propertyName);
-          if (beanProperty != null && beanProperty.isWriteable()) {
-            beanProperty.setValue(destinationInstance, entry.getValue(), converter);
+    if (ObjectUtils.isNotEmpty(ignoreProperties)) {
+      Set<String> ignorePropertiesSet = Set.of(ignoreProperties);
+      if (source instanceof Map) {
+        for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
+          String propertyName = entry.getKey();
+          if (!ignorePropertiesSet.contains(propertyName)) {
+            BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+            if (beanProperty != null && beanProperty.isWriteable()) {
+              beanProperty.setValue(destinationInstance, entry.getValue());
+            }
           }
         }
       }
-    }
-    else {
-      SimpleTypeConverter converter = new SimpleTypeConverter();
-      BeanMetadata sourceMetadata = BeanMetadata.from(source);
-      for (BeanProperty property : sourceMetadata) {
-        if (property.isReadable()) {
-          String propertyName = property.getName();
-          if (allowCopy(ignoreProperties, propertyName)) {
-            BeanProperty beanProperty = destination.getBeanProperty(propertyName);
-            if (beanProperty != null && beanProperty.isWriteable()) {
-              beanProperty.setValue(destinationInstance, property.getValue(source), converter);
+      else {
+        BeanMetadata sourceMetadata = BeanMetadata.from(source);
+        for (BeanProperty property : sourceMetadata) {
+          if (property.isReadable()) {
+            String propertyName = property.getName();
+            if (!ignorePropertiesSet.contains(propertyName)) {
+              BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+              if (beanProperty != null && beanProperty.isWriteable()) {
+                beanProperty.setValue(destinationInstance, property.getValue(source));
+              }
             }
           }
         }
       }
     }
-  }
-
-  private static boolean allowCopy(@Nullable String[] ignoreProperties, String propertyName) {
-    if (ObjectUtils.isNotEmpty(ignoreProperties)) {
-      for (String ignoreProperty : ignoreProperties) {
-        if (propertyName.equals(ignoreProperty)) {
-          return false;
+    else {
+      if (source instanceof Map) {
+        for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
+          String propertyName = entry.getKey();
+          BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+          if (beanProperty != null && beanProperty.isWriteable()) {
+            beanProperty.setValue(destinationInstance, entry.getValue());
+          }
+        }
+      }
+      else {
+        BeanMetadata sourceMetadata = BeanMetadata.from(source);
+        for (BeanProperty property : sourceMetadata) {
+          if (property.isReadable()) {
+            String propertyName = property.getName();
+            BeanProperty beanProperty = destination.getBeanProperty(propertyName);
+            if (beanProperty != null && beanProperty.isWriteable()) {
+              beanProperty.setValue(destinationInstance, property.getValue(source));
+            }
+          }
         }
       }
     }
-    return true;
+
   }
 
   //
