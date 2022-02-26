@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.jdbc.ParameterBinder;
-import cn.taketoday.lang.NonNull;
 
 /**
  * @author TODAY 2021/6/8 23:53
@@ -79,7 +78,6 @@ final class ListParameterIndexApplier extends ParameterIndexHolder {
   // Implementation of Iterable interface
   //---------------------------------------------------------------------
 
-  @NonNull
   @Override
   public Iterator<Integer> iterator() {
     return indices.iterator();

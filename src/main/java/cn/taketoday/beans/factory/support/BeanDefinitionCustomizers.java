@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
@@ -82,7 +81,6 @@ public class BeanDefinitionCustomizers {
     this.customizers = customizers;
   }
 
-  @NonNull
   private List<BeanDefinitionCustomizer> customizers() {
     if (customizers == null) {
       customizers = new ArrayList<>();

@@ -57,18 +57,9 @@ public class ReactiveAdapterRegistry {
   @Nullable
   private static volatile ReactiveAdapterRegistry sharedInstance;
 
-  private static final boolean reactorPresent;
-
-  private static final boolean rxjava3Present;
-
-  private static final boolean mutinyPresent;
-
-  static {
-    ClassLoader classLoader = ReactiveAdapterRegistry.class.getClassLoader();
-    reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Flux", classLoader);
-    rxjava3Present = ClassUtils.isPresent("io.reactivex.rxjava3.core.Flowable", classLoader);
-    mutinyPresent = ClassUtils.isPresent("io.smallrye.mutiny.Multi", classLoader);
-  }
+  private static final boolean mutinyPresent = isPresent("io.smallrye.mutiny.Multi");
+  private static final boolean reactorPresent = isPresent("reactor.core.publisher.Flux");
+  private static final boolean rxjava3Present = isPresent("io.reactivex.rxjava3.core.Flowable");
 
   private final ArrayList<ReactiveAdapter> adapters = new ArrayList<>();
 
@@ -144,8 +135,11 @@ public class ReactiveAdapterRegistry {
       return null;
     }
 
-    Object sourceToUse = (source instanceof Optional ? ((Optional<?>) source).orElse(null) : source);
-    Class<?> clazz = (sourceToUse != null ? sourceToUse.getClass() : reactiveType);
+    if (source instanceof Optional<?> optional) {
+      source = optional.orElse(null);
+    }
+
+    Class<?> clazz = source != null ? source.getClass() : reactiveType;
     if (clazz == null) {
       return null;
     }
@@ -184,6 +178,10 @@ public class ReactiveAdapterRegistry {
       }
     }
     return registry;
+  }
+
+  private static boolean isPresent(String className) {
+    return ClassUtils.isPresent(className, ReactiveAdapterRegistry.class.getClassLoader());
   }
 
   /**

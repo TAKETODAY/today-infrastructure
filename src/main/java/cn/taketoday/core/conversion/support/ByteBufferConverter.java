@@ -38,15 +38,15 @@ import cn.taketoday.lang.Nullable;
  */
 final class ByteBufferConverter implements ConditionalGenericConverter {
 
-  private static final TypeDescriptor BYTE_BUFFER_TYPE = TypeDescriptor.valueOf(ByteBuffer.class);
-
   private static final TypeDescriptor BYTE_ARRAY_TYPE = TypeDescriptor.valueOf(byte[].class);
+  private static final TypeDescriptor BYTE_BUFFER_TYPE = TypeDescriptor.valueOf(ByteBuffer.class);
 
   private static final Set<ConvertiblePair> CONVERTIBLE_PAIRS = Set.of(
           new ConvertiblePair(ByteBuffer.class, byte[].class),
           new ConvertiblePair(byte[].class, ByteBuffer.class),
           new ConvertiblePair(ByteBuffer.class, Object.class),
-          new ConvertiblePair(Object.class, ByteBuffer.class));
+          new ConvertiblePair(Object.class, ByteBuffer.class)
+  );
 
   private final ConversionService conversionService;
 
@@ -63,19 +63,19 @@ final class ByteBufferConverter implements ConditionalGenericConverter {
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
     boolean byteBufferTarget = targetType.isAssignableTo(BYTE_BUFFER_TYPE);
     if (sourceType.isAssignableTo(BYTE_BUFFER_TYPE)) {
-      return (byteBufferTarget || matchesFromByteBuffer(targetType));
+      return byteBufferTarget || matchesFromByteBuffer(targetType);
     }
-    return (byteBufferTarget && matchesToByteBuffer(sourceType));
+    return byteBufferTarget && matchesToByteBuffer(sourceType);
   }
 
   private boolean matchesFromByteBuffer(TypeDescriptor targetType) {
-    return (targetType.isAssignableTo(BYTE_ARRAY_TYPE) ||
-            this.conversionService.canConvert(BYTE_ARRAY_TYPE, targetType));
+    return targetType.isAssignableTo(BYTE_ARRAY_TYPE)
+            || conversionService.canConvert(BYTE_ARRAY_TYPE, targetType);
   }
 
   private boolean matchesToByteBuffer(TypeDescriptor sourceType) {
-    return (sourceType.isAssignableTo(BYTE_ARRAY_TYPE) ||
-            this.conversionService.canConvert(sourceType, BYTE_ARRAY_TYPE));
+    return sourceType.isAssignableTo(BYTE_ARRAY_TYPE)
+            || conversionService.canConvert(sourceType, BYTE_ARRAY_TYPE);
   }
 
   @Override
@@ -83,7 +83,7 @@ final class ByteBufferConverter implements ConditionalGenericConverter {
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     boolean byteBufferTarget = targetType.isAssignableTo(BYTE_BUFFER_TYPE);
     if (source instanceof ByteBuffer buffer) {
-      return (byteBufferTarget ? buffer.duplicate() : convertFromByteBuffer(buffer, targetType));
+      return byteBufferTarget ? buffer.duplicate() : convertFromByteBuffer(buffer, targetType);
     }
     if (byteBufferTarget) {
       return convertToByteBuffer(source, sourceType);
@@ -100,12 +100,12 @@ final class ByteBufferConverter implements ConditionalGenericConverter {
     if (targetType.isAssignableTo(BYTE_ARRAY_TYPE)) {
       return bytes;
     }
-    return this.conversionService.convert(bytes, BYTE_ARRAY_TYPE, targetType);
+    return conversionService.convert(bytes, BYTE_ARRAY_TYPE, targetType);
   }
 
   private Object convertToByteBuffer(@Nullable Object source, TypeDescriptor sourceType) {
     byte[] bytes = (byte[]) (source instanceof byte[] ? source :
-                             this.conversionService.convert(source, sourceType, BYTE_ARRAY_TYPE));
+                             conversionService.convert(source, sourceType, BYTE_ARRAY_TYPE));
 
     if (bytes == null) {
       return ByteBuffer.wrap(new byte[0]);

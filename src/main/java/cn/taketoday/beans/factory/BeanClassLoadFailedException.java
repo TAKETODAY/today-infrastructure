@@ -34,7 +34,6 @@ import cn.taketoday.lang.NonNull;
 @SuppressWarnings("serial")
 public class BeanClassLoadFailedException extends BeansException {
 
-  @NonNull
   private final BeanDefinition beanDefinition;
 
   /**
@@ -59,7 +58,6 @@ public class BeanClassLoadFailedException extends BeansException {
     this.beanDefinition = def;
   }
 
-  @NonNull
   public BeanDefinition getBeanDefinition() {
     return beanDefinition;
   }

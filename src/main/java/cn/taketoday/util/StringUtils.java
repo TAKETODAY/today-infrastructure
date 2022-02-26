@@ -42,7 +42,6 @@ import java.util.UUID;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -73,7 +72,7 @@ public abstract class StringUtils {
    * @return if source is null this will returns
    * {@link Constant#EMPTY_STRING_ARRAY}
    */
-  @NonNull
+
   public static String[] split(String source) {
     if (source == null) {
       return Constant.EMPTY_STRING_ARRAY;
@@ -90,7 +89,7 @@ public abstract class StringUtils {
    * @see Collections#emptyList()
    * @since 4.0
    */
-  @NonNull
+
   public static List<String> splitAsList(String source) {
     if (source == null) {
       return Collections.emptyList();
@@ -220,7 +219,6 @@ public abstract class StringUtils {
    * @see String#trim()
    * @see #delimitedListToStringArray
    */
-  @NonNull
   public static String[] tokenizeToStringArray(final String str, final String delimiters) {
     return tokenizeToStringArray(str, delimiters, true, true);
   }
@@ -245,7 +243,6 @@ public abstract class StringUtils {
    * @see String#trim()
    * @see #delimitedListToStringArray
    */
-  @NonNull
   public static String[] tokenizeToStringArray(
           String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
     if (str == null) {
@@ -762,7 +759,7 @@ else */
    * @param str the input {@code String} (potentially {@code null} or empty)
    * @return an array of strings, or the empty array in case of empty input
    */
-  @NonNull
+
   public static String[] commaDelimitedListToStringArray(@Nullable String str) {
     return delimitedListToStringArray(str, ",");
   }
@@ -782,7 +779,6 @@ else */
    * @return an array of the tokens in the list
    * @see #tokenizeToStringArray
    */
-  @NonNull
   public static String[] delimitedListToStringArray(@Nullable String str, @Nullable String delimiter) {
     return delimitedListToStringArray(str, delimiter, null);
   }
@@ -805,7 +801,6 @@ else */
    * @return an array of the tokens in the list
    * @see #tokenizeToStringArray
    */
-  @NonNull
   public static String[] delimitedListToStringArray(
           @Nullable String str, @Nullable String delimiter, @Nullable String charsToDelete) {
 

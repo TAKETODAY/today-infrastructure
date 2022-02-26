@@ -69,7 +69,6 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -801,7 +800,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     BeanMetadata metadata;
-    BeanWrapper beanWrapper = null;
+    BeanWrapperImpl beanWrapper = null;
     // maybe null
     PropertyValues propertyValues = definition.getPropertyValues();
     int resolvedAutowireMode = definition.getAutowireMode();
@@ -828,6 +827,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         if (beanWrapper == null) {
           metadata = getMetadata(bean, definition);
           beanWrapper = new BeanWrapperImpl(bean, metadata);
+          initBeanWrapper(beanWrapper);
         }
 
         BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition);
@@ -989,7 +989,6 @@ public abstract class AbstractAutowireCapableBeanFactory
             || AutowireUtils.isSetterDefinedInInterface(property, ignoredDependencyInterfaces);
   }
 
-  @NonNull
   private BeanMetadata getMetadata(Object bean, BeanDefinition definition) {
     if (definition.isSingleton()) {
       return new BeanMetadata(bean.getClass());

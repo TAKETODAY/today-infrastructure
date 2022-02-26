@@ -57,7 +57,6 @@ import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -490,7 +489,6 @@ public final class Query implements AutoCloseable {
    */
   public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandler<T> handler) {
     final class HandlerResultSetIterable extends AbstractResultSetIterable<T> {
-      @NonNull
       @Override
       public Iterator<T> iterator() {
         return new ResultSetHandlerIterator<>(rs, handler);
@@ -557,7 +555,6 @@ public final class Query implements AutoCloseable {
   public LazyTable fetchLazyTable(@Nullable ConversionService conversionService) {
     final LazyTable lt = new LazyTable();
     final class RowResultSetIterable extends AbstractResultSetIterable<Row> {
-      @NonNull
       @Override
       public Iterator<Row> iterator() {
         return new TableResultSetIterator(rs, isCaseSensitive(), lt, conversionService);

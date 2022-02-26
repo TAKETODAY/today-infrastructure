@@ -21,7 +21,6 @@
 package cn.taketoday.core.conversion.support;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
@@ -35,9 +34,8 @@ import cn.taketoday.lang.Nullable;
  */
 final class StringToBooleanConverter implements Converter<String, Boolean> {
 
-  private static final Set<String> trueValues = new HashSet<>(8);
-
-  private static final Set<String> falseValues = new HashSet<>(8);
+  private static final HashSet<String> trueValues = new HashSet<>(8);
+  private static final HashSet<String> falseValues = new HashSet<>(8);
 
   static {
     trueValues.add("true");

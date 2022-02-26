@@ -56,8 +56,8 @@ final class StringToArrayConverter implements ConditionalGenericConverter {
 
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return ConversionUtils.canConvertElements(sourceType, targetType.getElementDescriptor(),
-            this.conversionService);
+    return ConversionUtils.canConvertElements(
+            sourceType, targetType.getElementDescriptor(), conversionService);
   }
 
   @Override
@@ -73,7 +73,7 @@ final class StringToArrayConverter implements ConditionalGenericConverter {
     Object target = Array.newInstance(targetElementType.getType(), fields.length);
     for (int i = 0; i < fields.length; i++) {
       String sourceElement = fields[i];
-      Object targetElement = this.conversionService.convert(sourceElement.trim(), sourceType, targetElementType);
+      Object targetElement = conversionService.convert(sourceElement.trim(), sourceType, targetElementType);
       Array.set(target, i, targetElement);
     }
     return target;

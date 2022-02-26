@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import cn.taketoday.jdbc.ParameterBinder;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -76,7 +75,6 @@ final class DefaultParameterIndexHolder extends ParameterIndexHolder {
   // Implementation of Iterable interface
   //---------------------------------------------------------------------
 
-  @NonNull
   @Override
   public Iterator<Integer> iterator() {
     return CollectionUtils.singletonIterator(index);

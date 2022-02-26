@@ -24,7 +24,6 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.GenericConverter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -75,15 +74,6 @@ abstract class ConversionUtils {
     }
     // no
     return false;
-  }
-
-  public static Class<?> getEnumType(Class<?> targetType) {
-    Class<?> enumType = targetType;
-    while (enumType != null && !enumType.isEnum()) {
-      enumType = enumType.getSuperclass();
-    }
-    Assert.notNull(enumType, () -> "The target type " + targetType.getName() + " does not refer to an enum");
-    return enumType;
   }
 
 }

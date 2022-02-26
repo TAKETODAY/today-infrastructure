@@ -38,7 +38,7 @@ final class StringToUUIDConverter implements Converter<String, UUID> {
   @Override
   @Nullable
   public UUID convert(String source) {
-    return (StringUtils.hasText(source) ? UUID.fromString(source.trim()) : null);
+    return StringUtils.hasText(source) ? UUID.fromString(source.trim()) : null;
   }
 
 }

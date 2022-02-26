@@ -43,7 +43,6 @@ import cn.taketoday.core.SerializableTypeWrapper.MethodParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.ParameterTypeProvider;
 import cn.taketoday.core.SerializableTypeWrapper.TypeProvider;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -831,7 +830,6 @@ public class ResolvableType implements Serializable {
    * @see #resolveGeneric(int...)
    * @see #resolveGenerics()
    */
-  @NonNull
   public Class<?> resolve(Class<?> fallback) {
     return this.resolved != null ? this.resolved : fallback;
   }

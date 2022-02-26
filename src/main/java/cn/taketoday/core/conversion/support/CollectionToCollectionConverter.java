@@ -58,7 +58,7 @@ final class CollectionToCollectionConverter implements ConditionalGenericConvert
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
     return ConversionUtils.canConvertElements(
-            sourceType.getElementDescriptor(), targetType.getElementDescriptor(), this.conversionService);
+            sourceType.getElementDescriptor(), targetType.getElementDescriptor(), conversionService);
   }
 
   @Override
@@ -88,7 +88,7 @@ final class CollectionToCollectionConverter implements ConditionalGenericConvert
     }
     else {
       for (Object sourceElement : sourceCollection) {
-        Object targetElement = this.conversionService.convert(sourceElement,
+        Object targetElement = conversionService.convert(sourceElement,
                 sourceType.elementDescriptor(sourceElement), elementDesc);
         target.add(targetElement);
         if (sourceElement != targetElement) {

@@ -29,15 +29,14 @@ import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.reflect.PropertyAccessor;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.Column;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
@@ -169,7 +168,6 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
 
   public Class<?> getPropertyClass(String propertyName) { return beanMetadata.getPropertyType(propertyName); }
 
-  @NonNull
   public HashMap<String, BeanProperty> getBeanProperties() { return beanMetadata.getBeanProperties(); }
 
   public ArrayList<BeanProperty> beanProperties() { return beanMetadata.beanProperties(); }

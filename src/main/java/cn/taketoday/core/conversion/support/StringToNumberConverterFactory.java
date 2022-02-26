@@ -50,13 +50,7 @@ final class StringToNumberConverterFactory implements ConverterFactory<String, N
     return new StringToNumber<>(targetType);
   }
 
-  private static final class StringToNumber<T extends Number> implements Converter<String, T> {
-
-    private final Class<T> targetType;
-
-    public StringToNumber(Class<T> targetType) {
-      this.targetType = targetType;
-    }
+  private record StringToNumber<T extends Number>(Class<T> targetType) implements Converter<String, T> {
 
     @Override
     @Nullable

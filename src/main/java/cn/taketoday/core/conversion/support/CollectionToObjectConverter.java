@@ -51,7 +51,7 @@ final class CollectionToObjectConverter implements ConditionalGenericConverter {
 
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return ConversionUtils.canConvertElements(sourceType.getElementDescriptor(), targetType, this.conversionService);
+    return ConversionUtils.canConvertElements(sourceType.getElementDescriptor(), targetType, conversionService);
   }
 
   @Override
@@ -68,7 +68,7 @@ final class CollectionToObjectConverter implements ConditionalGenericConverter {
       return null;
     }
     Object firstElement = sourceCollection.iterator().next();
-    return this.conversionService.convert(firstElement, sourceType.elementDescriptor(firstElement), targetType);
+    return conversionService.convert(firstElement, sourceType.elementDescriptor(firstElement), targetType);
   }
 
 }

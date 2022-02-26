@@ -41,7 +41,6 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -266,7 +265,6 @@ public class BeanDefinitionBuilder {
   // build
   //---------------------------------------------------------------------
 
-  @NonNull
   private BeanDefinition create() {
 
     if (annotationMetadata != null) {

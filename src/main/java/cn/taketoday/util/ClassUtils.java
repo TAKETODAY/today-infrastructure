@@ -1248,7 +1248,7 @@ public abstract class ClassUtils {
     }
     if (enumType == null) {
       throw new IllegalArgumentException(
-              "The target type " + targetType.getName() + " does not refer to an enum");
+              "The target " + targetType + " does not refer to an enum");
     }
     return enumType;
   }

@@ -23,6 +23,8 @@ package cn.taketoday.core.conversion.support;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterFactory;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Converts from a String to a {@link Enum} by calling {@link Enum#valueOf(Class, String)}.
@@ -36,21 +38,15 @@ final class StringToEnumConverterFactory implements ConverterFactory<String, Enu
 
   @Override
   public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
-    return new StringToEnum(ConversionUtils.getEnumType(targetType));
+    return new StringToEnum(ClassUtils.getEnumType(targetType));
   }
 
-  private static class StringToEnum<T extends Enum> implements Converter<String, T> {
-
-    private final Class<T> enumType;
-
-    StringToEnum(Class<T> enumType) {
-      this.enumType = enumType;
-    }
+  private record StringToEnum<T extends Enum>(Class<T> enumType) implements Converter<String, T> {
 
     @Override
     @Nullable
     public T convert(String source) {
-      if (source.isEmpty()) {
+      if (StringUtils.isEmpty(source)) {
         // It's an empty enum identifier: reset the enum value to null.
         return null;
       }

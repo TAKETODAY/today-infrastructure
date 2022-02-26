@@ -124,7 +124,7 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
   }
 
   static boolean hasConversionMethodOrConstructor(Class<?> targetClass, Class<?> sourceClass) {
-    return (getValidatedMember(targetClass, sourceClass) != null);
+    return getValidatedMember(targetClass, sourceClass) != null;
   }
 
   @Nullable
@@ -149,7 +149,7 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
     return member;
   }
 
-  private static boolean isApplicable(Member member, Class<?> sourceClass) {
+  private static boolean isApplicable(@Nullable Member member, Class<?> sourceClass) {
     if (member instanceof Method method) {
       return !Modifier.isStatic(method.getModifiers())
              ? ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass)

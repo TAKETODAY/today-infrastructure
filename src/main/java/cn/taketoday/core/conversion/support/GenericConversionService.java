@@ -458,28 +458,30 @@ public class GenericConversionService implements ConfigurableConversionService {
       if (!(other instanceof ConverterCacheKey otherKey)) {
         return false;
       }
-      return (this.sourceType.equals(otherKey.sourceType)) &&
-              this.targetType.equals(otherKey.targetType);
+      return sourceType.equals(otherKey.sourceType)
+              && targetType.equals(otherKey.targetType);
     }
 
     @Override
     public int hashCode() {
-      return (this.sourceType.hashCode() * 29 + this.targetType.hashCode());
+      return sourceType.hashCode() * 29 + this.targetType.hashCode();
     }
 
     @Override
     public String toString() {
-      return ("ConverterCacheKey [sourceType = " + this.sourceType +
-              ", targetType = " + this.targetType + "]");
+      return "ConverterCacheKey [sourceType = "
+              + sourceType + ", targetType = " + targetType + "]";
     }
 
     @Override
     public int compareTo(ConverterCacheKey other) {
-      int result = this.sourceType.getResolvableType().toString()
-              .compareTo(other.sourceType.getResolvableType().toString());
+      int result = sourceType.getResolvableType().toString().compareTo(
+              other.sourceType.getResolvableType().toString()
+      );
       if (result == 0) {
-        result = this.targetType.getResolvableType().toString()
-                .compareTo(other.targetType.getResolvableType().toString());
+        result = targetType.getResolvableType().toString().compareTo(
+                other.targetType.getResolvableType().toString()
+        );
       }
       return result;
     }
@@ -488,7 +490,7 @@ public class GenericConversionService implements ConfigurableConversionService {
   /**
    * Manages all converters registered with the service.
    */
-  private static class Converters {
+  private final static class Converters {
 
     private final CopyOnWriteArraySet<GenericConverter> globalConverters
             = new CopyOnWriteArraySet<>();

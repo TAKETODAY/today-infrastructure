@@ -20,10 +20,6 @@
 
 package cn.taketoday.core;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
@@ -41,6 +37,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Unmodifiable wrapper for {@link MultiValueMap}.
@@ -268,7 +267,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
     throw new UnsupportedOperationException();
   }
 
-
   private static class UnmodifiableEntrySet<K, V> implements Set<Map.Entry<K, List<V>>>, Serializable {
     @Serial
     private static final long serialVersionUID = 2407578793783925203L;
@@ -302,7 +300,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
       return this.delegate.containsAll(c);
     }
 
-    @NonNull
     @Override
     public Iterator<Map.Entry<K, List<V>>> iterator() {
       Iterator<? extends Map.Entry<? extends K, ? extends List<? extends V>>> iterator = this.delegate.iterator();
@@ -319,7 +316,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
       };
     }
 
-    @NonNull
     @Override
     public Object[] toArray() {
       Object[] result = this.delegate.toArray();
@@ -327,7 +323,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
       return result;
     }
 
-    @NonNull
     @Override
     public <T> T[] toArray(T[] a) {
       T[] result = this.delegate.toArray(a);
@@ -422,7 +417,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
     public void clear() {
       throw new UnsupportedOperationException();
     }
-
 
     private static class UnmodifiableEntrySpliterator<K, V> implements Spliterator<Map.Entry<K, List<V>>> {
 
@@ -566,7 +560,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
       return result;
     }
 
-    @NonNull
     @Override
     public <T> T[] toArray(T[] a) {
       T[] result = this.delegate.toArray(a);
@@ -582,7 +575,6 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
       }
     }
 
-    @NonNull
     @Override
     public Iterator<List<V>> iterator() {
       Iterator<List<V>> iterator = this.delegate.iterator();

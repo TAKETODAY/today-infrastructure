@@ -68,7 +68,6 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     this.metadata = metadata;
   }
 
-  @NonNull
   @Override
   public Set<Entry<String, Object>> entrySet() {
     Object target = obtainTarget();

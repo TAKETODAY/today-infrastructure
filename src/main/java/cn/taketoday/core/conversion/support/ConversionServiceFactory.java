@@ -39,8 +39,7 @@ import cn.taketoday.lang.Nullable;
  */
 public final class ConversionServiceFactory {
 
-  private ConversionServiceFactory() {
-  }
+  private ConversionServiceFactory() { }
 
   /**
    * Register the given Converter objects with the given target ConverterRegistry.

@@ -53,8 +53,8 @@ final class ObjectToArrayConverter implements ConditionalGenericConverter {
 
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return ConversionUtils.canConvertElements(sourceType, targetType.getElementDescriptor(),
-            this.conversionService);
+    return ConversionUtils.canConvertElements(
+            sourceType, targetType.getElementDescriptor(), conversionService);
   }
 
   @Override
@@ -66,7 +66,7 @@ final class ObjectToArrayConverter implements ConditionalGenericConverter {
     TypeDescriptor targetElementType = targetType.getElementDescriptor();
     Assert.state(targetElementType != null, "No target element type");
     Object target = Array.newInstance(targetElementType.getType(), 1);
-    Object targetElement = this.conversionService.convert(source, sourceType, targetElementType);
+    Object targetElement = conversionService.convert(source, sourceType, targetElementType);
     Array.set(target, 0, targetElement);
     return target;
   }

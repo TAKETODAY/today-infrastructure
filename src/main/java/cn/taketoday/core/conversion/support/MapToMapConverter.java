@@ -22,7 +22,6 @@ package cn.taketoday.core.conversion.support;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,7 +78,7 @@ final class MapToMapConverter implements ConditionalGenericConverter {
     TypeDescriptor keyDesc = targetType.getMapKeyDescriptor();
     TypeDescriptor valueDesc = targetType.getMapValueDescriptor();
 
-    List<MapEntry> targetEntries = new ArrayList<>(sourceMap.size());
+    ArrayList<MapEntry> targetEntries = new ArrayList<>(sourceMap.size());
     for (Map.Entry<Object, Object> entry : sourceMap.entrySet()) {
       Object sourceKey = entry.getKey();
       Object sourceValue = entry.getValue();
@@ -94,8 +93,8 @@ final class MapToMapConverter implements ConditionalGenericConverter {
       return sourceMap;
     }
 
-    Map<Object, Object> targetMap = CollectionUtils.createMap(targetType.getType(),
-            (keyDesc != null ? keyDesc.getType() : null), sourceMap.size());
+    Map<Object, Object> targetMap = CollectionUtils.createMap(
+            targetType.getType(), keyDesc != null ? keyDesc.getType() : null, sourceMap.size());
 
     for (MapEntry entry : targetEntries) {
       entry.addToMap(targetMap);
@@ -106,13 +105,19 @@ final class MapToMapConverter implements ConditionalGenericConverter {
   // internal helpers
 
   private boolean canConvertKey(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return ConversionUtils.canConvertElements(sourceType.getMapKeyDescriptor(),
-            targetType.getMapKeyDescriptor(), this.conversionService);
+    return ConversionUtils.canConvertElements(
+            sourceType.getMapKeyDescriptor(),
+            targetType.getMapKeyDescriptor(),
+            conversionService
+    );
   }
 
   private boolean canConvertValue(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return ConversionUtils.canConvertElements(sourceType.getMapValueDescriptor(),
-            targetType.getMapValueDescriptor(), this.conversionService);
+    return ConversionUtils.canConvertElements(
+            sourceType.getMapValueDescriptor(),
+            targetType.getMapValueDescriptor(),
+            conversionService
+    );
   }
 
   @Nullable
@@ -120,7 +125,7 @@ final class MapToMapConverter implements ConditionalGenericConverter {
     if (targetType == null) {
       return sourceKey;
     }
-    return this.conversionService.convert(sourceKey, sourceType.getMapKeyDescriptor(sourceKey), targetType);
+    return conversionService.convert(sourceKey, sourceType.getMapKeyDescriptor(sourceKey), targetType);
   }
 
   @Nullable
@@ -128,18 +133,12 @@ final class MapToMapConverter implements ConditionalGenericConverter {
     if (targetType == null) {
       return sourceValue;
     }
-    return this.conversionService.convert(sourceValue, sourceType.getMapValueDescriptor(sourceValue), targetType);
+    return conversionService.convert(sourceValue, sourceType.getMapValueDescriptor(sourceValue), targetType);
   }
 
-  private static class MapEntry {
+  private record MapEntry(@Nullable Object key, @Nullable Object value) {
 
-    @Nullable
-    private final Object key;
-
-    @Nullable
-    private final Object value;
-
-    public MapEntry(@Nullable Object key, @Nullable Object value) {
+    private MapEntry(@Nullable Object key, @Nullable Object value) {
       this.key = key;
       this.value = value;
     }

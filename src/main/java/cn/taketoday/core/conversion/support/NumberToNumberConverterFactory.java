@@ -56,18 +56,13 @@ final class NumberToNumberConverterFactory implements ConverterFactory<Number, N
     return !sourceType.equals(targetType);
   }
 
-  private static final class NumberToNumber<T extends Number> implements Converter<Number, T> {
-
-    private final Class<T> targetType;
-
-    NumberToNumber(Class<T> targetType) {
-      this.targetType = targetType;
-    }
+  private record NumberToNumber<T extends Number>(Class<T> targetType) implements Converter<Number, T> {
 
     @Override
     public T convert(Number source) {
-      return NumberUtils.convertNumberToTargetClass(source, this.targetType);
+      return NumberUtils.convertNumberToTargetClass(source, targetType);
     }
+
   }
 
 }

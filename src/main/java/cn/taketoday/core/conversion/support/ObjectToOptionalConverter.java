@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.conversion.support;
 
+import java.io.Serial;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -76,9 +77,10 @@ final class ObjectToOptionalConverter implements ConditionalGenericConverter {
       return source;
     }
     else if (targetType.getResolvableType().hasGenerics()) {
-      Object target = this.conversionService.convert(source, sourceType, new GenericTypeDescriptor(targetType));
-      if (target == null || (target.getClass().isArray() && Array.getLength(target) == 0) ||
-              (target instanceof Collection && ((Collection<?>) target).isEmpty())) {
+      Object target = conversionService.convert(source, sourceType, new GenericTypeDescriptor(targetType));
+      if (target == null
+              || (target.getClass().isArray() && Array.getLength(target) == 0)
+              || (target instanceof Collection collection && collection.isEmpty())) {
         return Optional.empty();
       }
       return Optional.of(target);
@@ -88,8 +90,9 @@ final class ObjectToOptionalConverter implements ConditionalGenericConverter {
     }
   }
 
-  @SuppressWarnings("serial")
   private static class GenericTypeDescriptor extends TypeDescriptor {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public GenericTypeDescriptor(TypeDescriptor typeDescriptor) {
       super(typeDescriptor.getResolvableType().getGeneric(), null, typeDescriptor.getAnnotations());
