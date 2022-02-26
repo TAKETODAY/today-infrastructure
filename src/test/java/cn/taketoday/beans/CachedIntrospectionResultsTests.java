@@ -43,7 +43,8 @@ public class CachedIntrospectionResultsTests {
     BeanWrapper bw = new BeanWrapperImpl(TestBean.class);
     assertThat(bw.isWritableProperty("name")).isTrue();
     assertThat(bw.isWritableProperty("age")).isTrue();
-    assertThat(CachedIntrospectionResults.strongClassCache.containsKey(TestBean.class)).isTrue();
+    // BeanMetadata use CachedIntrospectionResults to collect bean properties
+    assertThat(CachedIntrospectionResults.strongClassCache.containsKey(TestBean.class)).isFalse();
 
     ClassLoader child = new OverridingClassLoader(getClass().getClassLoader());
     Class<?> tbClass = child.loadClass("cn.taketoday.beans.testfixture.beans.TestBean");
@@ -52,11 +53,11 @@ public class CachedIntrospectionResultsTests {
     bw = new BeanWrapperImpl(tbClass);
     assertThat(bw.isWritableProperty("name")).isTrue();
     assertThat(bw.isWritableProperty("age")).isTrue();
-    assertThat(CachedIntrospectionResults.strongClassCache.containsKey(tbClass)).isTrue();
+    assertThat(CachedIntrospectionResults.strongClassCache.containsKey(tbClass)).isFalse();
     CachedIntrospectionResults.clearClassLoader(child);
     assertThat(CachedIntrospectionResults.strongClassCache.containsKey(tbClass)).isFalse();
 
-    assertThat(CachedIntrospectionResults.strongClassCache.containsKey(TestBean.class)).isTrue();
+    assertThat(CachedIntrospectionResults.strongClassCache.containsKey(TestBean.class)).isFalse();
   }
 
   @Test
