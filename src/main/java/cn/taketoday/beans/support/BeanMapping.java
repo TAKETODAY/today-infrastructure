@@ -33,6 +33,8 @@ import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.KeyValueHolder;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -73,9 +75,12 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     Object target = obtainTarget();
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
     for (BeanProperty property : metadata) {
-      if (property.isReadable() && property.isWriteable()) {
+      if (property.isReadable()) {
         Object value = property.getValue(target);
-        entrySet.add(Map.entry(property.getName(), value));
+        entrySet.add(new KeyValueHolder<>(property.getName(), value));
+      }
+      else {
+        entrySet.add(new KeyValueHolder<>(property.getName(), null));
       }
     }
     return entrySet;
@@ -104,6 +109,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
   @Override
+  @Nullable
   public Object put(String key, Object value) {
     return put(obtainTarget(), key, value);
   }
@@ -113,17 +119,21 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    * @throws NotWritablePropertyException If this property is read only and 'ignoreReadOnly' is false
    * @see cn.taketoday.core.reflect.SetterMethod#set(Object, Object)
    */
+  @Nullable
   public Object put(Object target, String key, Object value) {
     BeanProperty beanProperty = this.metadata.obtainBeanProperty(key);
-    if (beanProperty.isWriteable() && beanProperty.isReadable()) {
-      Object property = beanProperty.getValue(target);
+    if (beanProperty.isWriteable()) {
+      Object old = null;
+      if (beanProperty.isReadable()) {
+        old = beanProperty.getValue(target);
+      }
       beanProperty.setValue(target, value);
-      return property;
+      return old;
     }
     else {
       if (!ignoreReadOnly) {
         throw new NotWritablePropertyException(metadata.getType(), beanProperty.getName(),
-                target + " has a property: '" + beanProperty.getName() + "' that is read-only");
+                target + " has a property: '" + beanProperty.getName() + "' that is not-writeable");
       }
     }
     return beanProperty.getValue(target);

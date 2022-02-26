@@ -28,6 +28,8 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
+import cn.taketoday.beans.SimpleTypeConverter;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -50,11 +52,25 @@ public class BeanProperties {
    * @param destination destination object
    */
   public static void copy(Object source, Object destination) {
+    copy(source, destination, (TypeConverter) null);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean.
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   *
+   * @param source source object
+   * @param destination destination object
+   * @param converter type-converter to convert bean-properties
+   */
+  public static void copy(Object source, Object destination, @Nullable TypeConverter converter) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
-    copy(source, destinationMetadata, destination, null);
+    copy(source, destinationMetadata, destination, converter, null);
   }
 
   /**
@@ -67,11 +83,27 @@ public class BeanProperties {
    * @param ignoreProperties array of property names to ignore
    */
   public static void copy(Object source, Object destination, @Nullable String... ignoreProperties) {
+    copy(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean.
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   *
+   * @param source the source bean
+   * @param converter type-converter to convert bean-properties
+   * @param ignoreProperties array of property names to ignore
+   */
+  public static void copy(
+          Object source, Object destination,
+          @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
-    copy(source, destinationMetadata, destination, ignoreProperties);
+    copy(source, destinationMetadata, destination, converter, ignoreProperties);
   }
 
   /**
@@ -84,14 +116,29 @@ public class BeanProperties {
    * @param destination destination class
    * @return returns a destination type object
    */
-  @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination) {
+    return copy(source, destination, (TypeConverter) null);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean.
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   *
+   * @param source source object
+   * @param destination destination class
+   * @param converter type-converter to convert bean-properties
+   * @return returns a destination type object
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination class must not be null");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
-    copy(source, destinationMetadata, destinationInstance, null);
+    copy(source, destinationMetadata, destinationInstance, converter, null);
     return (T) destinationInstance;
   }
 
@@ -101,14 +148,28 @@ public class BeanProperties {
    * from each other, as long as the properties match. Any bean properties that the
    * source bean exposes but the target bean does not will silently be ignored.
    */
+  public static <T> T copy(Object source, Class<T> destination, @Nullable String... ignoreProperties) {
+    return copy(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Copy the property values of the given source bean into the given target bean.
+   * <p>Note: The source and target classes do not have to match or even be derived
+   * from each other, as long as the properties match. Any bean properties that the
+   * source bean exposes but the target bean does not will silently be ignored.
+   *
+   * @param converter type-converter to convert bean-properties
+   */
   @SuppressWarnings("unchecked")
-  public static <T> T copy(Object source, Class<T> destination, String... ignoreProperties) {
+  public static <T> T copy(
+          Object source, Class<T> destination,
+          @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination class must not be null");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
-    copy(source, destinationMetadata, destinationInstance, ignoreProperties);
+    copy(source, destinationMetadata, destinationInstance, converter, ignoreProperties);
     return (T) destinationInstance;
   }
 
@@ -118,7 +179,10 @@ public class BeanProperties {
   @SuppressWarnings("unchecked")
   private static void copy(
           Object source, BeanMetadata destination,
-          Object destinationInstance, @Nullable String[] ignoreProperties) {
+          Object destinationInstance, @Nullable TypeConverter converter, @Nullable String[] ignoreProperties) {
+    if (converter == null) {
+      converter = new SimpleTypeConverter();
+    }
     if (ObjectUtils.isNotEmpty(ignoreProperties)) {
       Set<String> ignorePropertiesSet = Set.of(ignoreProperties);
       if (source instanceof Map) {
@@ -127,7 +191,7 @@ public class BeanProperties {
           if (!ignorePropertiesSet.contains(propertyName)) {
             BeanProperty beanProperty = destination.getBeanProperty(propertyName);
             if (beanProperty != null && beanProperty.isWriteable()) {
-              beanProperty.setValue(destinationInstance, entry.getValue());
+              beanProperty.setValue(destinationInstance, entry.getValue(), converter);
             }
           }
         }
@@ -140,7 +204,7 @@ public class BeanProperties {
             if (!ignorePropertiesSet.contains(propertyName)) {
               BeanProperty beanProperty = destination.getBeanProperty(propertyName);
               if (beanProperty != null && beanProperty.isWriteable()) {
-                beanProperty.setValue(destinationInstance, property.getValue(source));
+                beanProperty.setValue(destinationInstance, property.getValue(source), converter);
               }
             }
           }
@@ -153,7 +217,7 @@ public class BeanProperties {
           String propertyName = entry.getKey();
           BeanProperty beanProperty = destination.getBeanProperty(propertyName);
           if (beanProperty != null && beanProperty.isWriteable()) {
-            beanProperty.setValue(destinationInstance, entry.getValue());
+            beanProperty.setValue(destinationInstance, entry.getValue(), converter);
           }
         }
       }
@@ -164,7 +228,7 @@ public class BeanProperties {
             String propertyName = property.getName();
             BeanProperty beanProperty = destination.getBeanProperty(propertyName);
             if (beanProperty != null && beanProperty.isWriteable()) {
-              beanProperty.setValue(destinationInstance, property.getValue(source));
+              beanProperty.setValue(destinationInstance, property.getValue(source), converter);
             }
           }
         }

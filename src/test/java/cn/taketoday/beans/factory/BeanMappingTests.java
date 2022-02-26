@@ -141,11 +141,8 @@ public class BeanMappingTests {
   public void testBeanMap() {
     TestBeanMapBean bean = new TestBeanMapBean();
     BeanMapping<TestBeanMapBean> map = BeanMapping.from(bean);
-    BeanMapping<TestBeanMapBean> map2 = BeanMapping.from(bean);
-    assertEquals(map.getClass(), map2.getClass(),
-            "BeanMap.create should use exactly the same bean class when called multiple times");
 
-    assertEquals(6, map.size());
+    assertEquals(7, map.size());
     assertNull(map.get("foo"));
     map.put("foo", "FOO");
     assertEquals("FOO", map.get("foo"));
@@ -218,7 +215,7 @@ public class BeanMappingTests {
     TestBeanFullGetters bean = new TestBeanFullGetters();
     TestBeanFullGetters bean1 = new TestBeanFullGetters();
     BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
-    assertEquals(map.size(), 6);
+    assertEquals(map.size(), 7);
 
     BeanMap map1 = BeanMap.create(bean1);
 

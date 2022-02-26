@@ -46,6 +46,7 @@ import cn.taketoday.beans.propertyeditors.CustomDateEditor;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceEditor;
 import cn.taketoday.lang.Nullable;
@@ -69,14 +70,14 @@ class BeanUtilsTests {
 
   @Test
   void newInstanceGivenInterface() {
-    assertThatExceptionOfType(FatalBeanException.class).isThrownBy(() ->
-            BeanUtils.newInstance(List.class));
+    assertThatExceptionOfType(ConstructorNotFoundException.class)
+            .isThrownBy(() -> BeanUtils.newInstance(List.class));
   }
 
   @Test
   void newInstanceGivenClassWithoutDefaultConstructor() {
-    assertThatExceptionOfType(FatalBeanException.class).isThrownBy(() ->
-            BeanUtils.newInstance(CustomDateEditor.class));
+    assertThatExceptionOfType(ConstructorNotFoundException.class)
+            .isThrownBy(() -> BeanUtils.newInstance(CustomDateEditor.class));
   }
 
   @Test
@@ -113,7 +114,9 @@ class BeanUtilsTests {
   void newInstanceWithOptionalPrimitiveTypes() throws NoSuchMethodException {
     Constructor<BeanWithPrimitiveTypes> constructor = getBeanWithPrimitiveTypesConstructor();
 
-    BeanWithPrimitiveTypes bean = BeanUtils.newInstance(constructor, new Object[] { null, null, null, null, null, null, null, null, "foo" });
+    BeanWithPrimitiveTypes bean = BeanUtils.newInstance(constructor, new Object[] {
+            null, null, null, null, null, null, null, null, "foo" }
+    );
 
     assertSoftly(softly -> {
       softly.assertThat(bean.isFlag()).isFalse();

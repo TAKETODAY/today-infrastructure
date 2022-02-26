@@ -22,17 +22,15 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.BeanPropertyAccessor;
 import cn.taketoday.beans.InvalidPropertyException;
 import cn.taketoday.beans.NoSuchPropertyException;
-import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.BeanPropertyAccessor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -304,16 +302,6 @@ public class BeanPropertyAccessorTest {
     String name;
     List<String> list;
     List<List<String>> listList;
-  }
-
-  @Test
-  public void testBeanProperty() throws NoSuchFieldException {
-    BeanProperty beanProperty = BeanProperty.valueOf(BeanPropertyTest.class, "listList");
-    BeanProperty listBeanProperty = BeanProperty.valueOf(BeanPropertyTest.class, "list");
-
-    assertThat(beanProperty.getResolvableType().resolveGeneric(0)).isInstanceOf(ParameterizedType.class);
-    ParameterizedType generic = (ParameterizedType) beanProperty.getResolvableType().getGeneric(0).getType();
-    assertThat(listBeanProperty.getResolvableType().resolveGeneric(0)).isInstanceOf(Class.class).isEqualTo(generic.getActualTypeArguments()[0]);
   }
 
   // set

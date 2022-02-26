@@ -197,7 +197,15 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
    * @since 4.0
    */
   public final void setValue(Object obj, Object value, TypeConverter converter) {
-    Class<?> propertyType = getType();
+    Class<?> propertyType;
+    // write-method parameter type
+    MethodParameter writeMethodParameter = getWriteMethodParameter();
+    if (writeMethodParameter != null) {
+      propertyType = writeMethodParameter.getParameterType();
+    }
+    else {
+      propertyType = getType();
+    }
     if (value == null && propertyType == Optional.class) {
       value = Optional.empty();
     }
