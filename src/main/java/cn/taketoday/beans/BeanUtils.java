@@ -48,6 +48,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -653,57 +654,86 @@ public abstract class BeanUtils {
    */
   private static void copyProperties(
           Object source, Object target, @Nullable Class<?> editable, @Nullable String... ignoreProperties) throws BeansException {
-
     Assert.notNull(source, "Source must not be null");
     Assert.notNull(target, "Target must not be null");
-
-    Class<?> actualEditable = target.getClass();
+    Class<?> actualEditable;
     if (editable != null) {
       if (!editable.isInstance(target)) {
-        throw new IllegalArgumentException("Target class [" + target.getClass().getName() +
-                "] not assignable to Editable class [" + editable.getName() + "]");
+        throw new IllegalArgumentException("Target class [" + target.getClass().getName()
+                + "] not assignable to Editable class [" + editable.getName() + "]");
       }
       actualEditable = editable;
     }
+    else {
+      actualEditable = target.getClass();
+    }
+
     PropertyDescriptor[] targetPds = getPropertyDescriptors(actualEditable);
-    Set<String> ignoreSet = ignoreProperties != null ? Set.of(ignoreProperties) : Collections.emptySet();
+    Set<String> ignoreSet =
+            ObjectUtils.isNotEmpty(ignoreProperties) ? Set.of(ignoreProperties) : Collections.emptySet();
 
-    for (PropertyDescriptor targetPd : targetPds) {
-      Method writeMethod = targetPd.getWriteMethod();
-      if (writeMethod != null && !ignoreSet.contains(targetPd.getName())) {
-        PropertyDescriptor sourcePd = getPropertyDescriptor(source.getClass(), targetPd.getName());
-        if (sourcePd != null) {
-          Method readMethod = sourcePd.getReadMethod();
+    if (source.getClass() == actualEditable) {
+      for (PropertyDescriptor targetPd : targetPds) {
+        Method writeMethod = targetPd.getWriteMethod();
+        // filter
+        if (writeMethod != null && !ignoreSet.contains(targetPd.getName())) {
+          Method readMethod = targetPd.getReadMethod();
           if (readMethod != null) {
-            ResolvableType sourceResolvableType = ResolvableType.forReturnType(readMethod);
-            ResolvableType targetResolvableType = ResolvableType.forParameter(writeMethod, 0);
-
-            // Ignore generic types in assignable check if either ResolvableType has unresolvable generics.
-            boolean isAssignable =
-                    (sourceResolvableType.hasUnresolvableGenerics() || targetResolvableType.hasUnresolvableGenerics() ?
-                     ClassUtils.isAssignable(writeMethod.getParameterTypes()[0], readMethod.getReturnType()) :
-                     targetResolvableType.isAssignableFrom(sourceResolvableType));
-
-            if (isAssignable) {
-              try {
-                if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
-                  readMethod.setAccessible(true);
-                }
-                Object value = readMethod.invoke(source);
-                if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
-                  writeMethod.setAccessible(true);
-                }
-                writeMethod.invoke(target, value);
-              }
-              catch (Throwable ex) {
-                throw new FatalBeanException(
-                        "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
-              }
+            write(source, target, targetPd, writeMethod, readMethod);
+          }
+        }
+      }
+    }
+    else {
+      CachedIntrospectionResults sourceResults =
+              CachedIntrospectionResults.forClass(source.getClass());
+      for (PropertyDescriptor targetPd : targetPds) {
+        Method writeMethod = targetPd.getWriteMethod();
+        // filter
+        if (writeMethod != null && !ignoreSet.contains(targetPd.getName())) {
+          // not a same type
+          PropertyDescriptor sourcePd = sourceResults.getPropertyDescriptor(targetPd.getName());
+          if (sourcePd != null) {
+            Method readMethod = sourcePd.getReadMethod();
+            if (readMethod != null) {
+              write(source, target, targetPd, writeMethod, readMethod);
             }
           }
         }
       }
     }
+  }
+
+  private static void write(
+          Object source, Object target,
+          PropertyDescriptor targetPd, Method writeMethod, Method readMethod) {
+    if (isAssignable(writeMethod, readMethod)) {
+      try {
+        if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
+          readMethod.setAccessible(true);
+        }
+        Object value = readMethod.invoke(source);
+        if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
+          writeMethod.setAccessible(true);
+        }
+        writeMethod.invoke(target, value);
+      }
+      catch (Throwable ex) {
+        throw new FatalBeanException(
+                "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
+      }
+    }
+  }
+
+  private static boolean isAssignable(Method writeMethod, Method readMethod) {
+    ResolvableType sourceResolvableType = ResolvableType.forReturnType(readMethod);
+    ResolvableType targetResolvableType = ResolvableType.forParameter(writeMethod, 0);
+
+    // Ignore generic types in assignable check if either ResolvableType has unresolvable generics.
+    return (sourceResolvableType.hasUnresolvableGenerics()
+            || targetResolvableType.hasUnresolvableGenerics())
+           ? ClassUtils.isAssignable(writeMethod.getParameterTypes()[0], readMethod.getReturnType())
+           : targetResolvableType.isAssignableFrom(sourceResolvableType);
   }
 
 }

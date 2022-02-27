@@ -27,7 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.util.ReflectionUtils;
@@ -68,7 +67,7 @@ public abstract class CglibReflectUtils {
   }
 
   public static Method[] getPropertyMethods(PropertyDescriptor[] properties, boolean read, boolean write) {
-    final Set<Method> methods = new HashSet<>();
+    final HashSet<Method> methods = new HashSet<>();
     for (PropertyDescriptor pd : properties) {
       if (read) {
         methods.add(pd.getReadMethod());

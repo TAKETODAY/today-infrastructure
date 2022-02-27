@@ -79,10 +79,9 @@ public class URLEditorTests {
   }
 
   @Test
-  public void testWithNonExistentResource() throws Exception {
+  public void testWithNonExistentResource() {
     PropertyEditor urlEditor = new URLEditor();
-    assertThatIllegalArgumentException().isThrownBy(() ->
-            urlEditor.setAsText("gonna:/freak/in/the/morning/freak/in/the.evening"));
+    urlEditor.setAsText("gonna:/freak/in/the/morning/freak/in/the.evening");
   }
 
   @Test

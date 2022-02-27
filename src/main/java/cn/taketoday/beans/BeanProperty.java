@@ -648,7 +648,7 @@ public sealed class BeanProperty implements Member, AnnotatedElement, Serializab
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), field, name, readMethod, writeMethod);
+    return Objects.hash(field, name, readMethod, writeMethod);
   }
 
   @Override

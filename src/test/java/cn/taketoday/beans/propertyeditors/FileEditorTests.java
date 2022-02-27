@@ -28,7 +28,6 @@ import java.io.File;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Thomas Risberg
@@ -51,14 +50,20 @@ public class FileEditorTests {
 
   @Test
   public void testWithNonExistentResource() throws Exception {
-    PropertyEditor propertyEditor = new FileEditor();
-    assertThatIllegalArgumentException().isThrownBy(() ->
-            propertyEditor.setAsText("classpath:no_way_this_file_is_found.doc"));
+    FileEditor fileEditor = new FileEditor();
+    fileEditor.setAsText("classpath:no_way_this_file_is_found.doc");
+
+    Object value = fileEditor.getValue();
+    boolean condition1 = value instanceof File;
+    assertThat(condition1).isTrue();
+    File file = (File) value;
+    boolean condition = !file.exists();
+    assertThat(condition).isTrue();
   }
 
   @Test
   public void testWithNonExistentFile() throws Exception {
-    PropertyEditor fileEditor = new FileEditor();
+    FileEditor fileEditor = new FileEditor();
     fileEditor.setAsText("file:no_way_this_file_is_found.doc");
     Object value = fileEditor.getValue();
     boolean condition1 = value instanceof File;

@@ -22,12 +22,11 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.support.BeanMapping;
 import cn.taketoday.core.bytecode.beans.BeanMap;
-import cn.taketoday.core.bytecode.proxy.CallbackFilter;
 import cn.taketoday.core.bytecode.proxy.Dispatcher;
 import cn.taketoday.core.bytecode.proxy.Enhancer;
 
@@ -70,6 +69,9 @@ public class BeanMappingTests {
 
     beanMap.put("stringProperty", "stringProperty value"); // testBean.setStringProperty("stringProperty value");
     System.out.println(beanMap);
+
+    beanMapping.get("stringProperty");
+    beanMap.get("stringProperty");
 
     long start = System.currentTimeMillis();
     int times = 1_0000_0000_0;
@@ -216,10 +218,12 @@ public class BeanMappingTests {
     TestBeanFullGetters bean1 = new TestBeanFullGetters();
     BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
     assertEquals(map.size(), 7);
+    HashMap<Object, Object> map2 = new HashMap<>(map);
+    map2.remove("class");
 
     BeanMap map1 = BeanMap.create(bean1);
 
-    assertEquals(map, map1);
+    assertEquals(map2, map1);
     assertNotEquals(map, null);
     assertNotEquals(map1, null);
     map1.put("foo", "");
@@ -234,20 +238,8 @@ public class BeanMappingTests {
     e.setSuperclass(bean.getClass());
     e.setInterfaces(Map.class);
     final Map map = BeanMapping.from(bean);
-    e.setCallbackFilter(new CallbackFilter() {
-      public int accept(Method method) {
-        return method.getDeclaringClass().equals(Map.class) ? 1 : 0;
-      }
-    });
-    e.setCallbacks(new Dispatcher() {
-      public Object loadObject() {
-        return bean;
-      }
-    }, new Dispatcher() {
-      public Object loadObject() {
-        return map;
-      }
-    });
+    e.setCallbackFilter(method -> method.getDeclaringClass().equals(Map.class) ? 1 : 0);
+    e.setCallbacks((Dispatcher) () -> bean, (Dispatcher) () -> map);
     return e.create();
   }
 

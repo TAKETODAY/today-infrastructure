@@ -31,7 +31,6 @@ import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.KeyValueHolder;
@@ -72,7 +71,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   @Override
   public Set<Entry<String, Object>> entrySet() {
-    Object target = obtainTarget();
+    Object target = this.target;
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
     for (BeanProperty property : metadata) {
       if (property.isReadable()) {
@@ -95,7 +94,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   @Override
   public Object get(Object key) {
     if (key instanceof String) {
-      return get(obtainTarget(), (String) key);
+      return get(target, (String) key);
     }
     throw new IllegalArgumentException("key must be a string");
   }
@@ -111,7 +110,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   @Override
   @Nullable
   public Object put(String key, Object value) {
-    return put(obtainTarget(), key, value);
+    return put(target, key, value);
   }
 
   /**
@@ -184,7 +183,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
       if (propertySize != other.size()) {
         return false;
       }
-      Object target = obtainTarget();
+      Object target = getTarget();
       for (BeanProperty property : metadata) {
         Object value = property.getValue(target);
         if (!ObjectUtils.nullSafeEquals(value, other.get(property.getName()))) {
@@ -195,13 +194,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     return true;
   }
 
-  public Object getTarget() {
-    return target;
-  }
-
-  private Object obtainTarget() {
-    Object target = getTarget();
-    Assert.state(target != null, "No target");
+  public T getTarget() {
     return target;
   }
 

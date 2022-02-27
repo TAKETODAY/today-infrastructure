@@ -71,20 +71,26 @@ public class URLEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
-    this.resourceEditor.setAsText(text);
-    Resource resource = (Resource) this.resourceEditor.getValue();
-    try {
-      setValue(resource != null ? resource.getLocation() : null);
+    resourceEditor.setAsText(text);
+    if (resourceEditor.getValue() instanceof Resource resource) {
+      try {
+        setValue(resource.getLocation());
+      }
+      catch (IOException ex) {
+        throw new IllegalArgumentException("Could not retrieve URL for " + resource + ": " + ex.getMessage());
+      }
     }
-    catch (IOException ex) {
-      throw new IllegalArgumentException("Could not retrieve URL for " + resource + ": " + ex.getMessage());
+    else {
+      setValue(null);
     }
   }
 
   @Override
   public String getAsText() {
-    URL value = (URL) getValue();
-    return (value != null ? value.toExternalForm() : "");
+    if (getValue() instanceof URL value) {
+      return value.toExternalForm();
+    }
+    return "";
   }
 
 }
