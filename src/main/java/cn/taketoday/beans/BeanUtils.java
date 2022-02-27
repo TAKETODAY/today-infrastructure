@@ -593,7 +593,7 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static void copyProperties(Object source, Object target) throws BeansException {
-    copyProperties(source, target, null, (String[]) null);
+    copyProperties(source, target, null, null);
   }
 
   /**
@@ -612,8 +612,9 @@ public abstract class BeanUtils {
    * @see BeanWrapper
    * @since 4.0
    */
-  public static void copyProperties(Object source, Object target, Class<?> editable) throws BeansException {
-    copyProperties(source, target, editable, (String[]) null);
+  public static void copyProperties(
+          Object source, Object target, Class<?> editable) throws BeansException {
+    copyProperties(source, target, editable, null);
   }
 
   /**
@@ -632,7 +633,8 @@ public abstract class BeanUtils {
    * @see BeanWrapper
    * @since 4.0
    */
-  public static void copyProperties(Object source, Object target, String... ignoreProperties) throws BeansException {
+  public static void copyProperties(
+          Object source, Object target, String... ignoreProperties) throws BeansException {
     copyProperties(source, target, null, ignoreProperties);
   }
 
@@ -641,8 +643,8 @@ public abstract class BeanUtils {
    * <p>Note: The source and target classes do not have to match or even be derived
    * from each other, as long as the properties match. Any bean properties that the
    * source bean exposes but the target bean does not will silently be ignored.
-   * <p>As of Spring Framework 5.3, this method honors generic type information
-   * when matching properties in the source and target objects.
+   * <p>this method honors generic type information when matching properties
+   * in the source and target objects.
    *
    * @param source the source bean
    * @param target the target bean
@@ -652,8 +654,8 @@ public abstract class BeanUtils {
    * @see BeanWrapper
    * @since 4.0
    */
-  private static void copyProperties(
-          Object source, Object target, @Nullable Class<?> editable, @Nullable String... ignoreProperties) throws BeansException {
+  private static void copyProperties(Object source, Object target,
+          @Nullable Class<?> editable, @Nullable String[] ignoreProperties) throws BeansException {
     Assert.notNull(source, "Source must not be null");
     Assert.notNull(target, "Target must not be null");
     Class<?> actualEditable;
@@ -678,8 +680,14 @@ public abstract class BeanUtils {
         // filter
         if (writeMethod != null && !ignoreSet.contains(targetPd.getName())) {
           Method readMethod = targetPd.getReadMethod();
-          if (readMethod != null) {
-            write(source, target, targetPd, writeMethod, readMethod);
+          if (readMethod != null && isAssignable(writeMethod, readMethod)) {
+            try {
+              doCopy(source, target, writeMethod, readMethod);
+            }
+            catch (Throwable ex) {
+              throw new FatalBeanException(
+                      "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
+            }
           }
         }
       }
@@ -695,8 +703,14 @@ public abstract class BeanUtils {
           PropertyDescriptor sourcePd = sourceResults.getPropertyDescriptor(targetPd.getName());
           if (sourcePd != null) {
             Method readMethod = sourcePd.getReadMethod();
-            if (readMethod != null) {
-              write(source, target, targetPd, writeMethod, readMethod);
+            if (readMethod != null && isAssignable(writeMethod, readMethod)) {
+              try {
+                doCopy(source, target, writeMethod, readMethod);
+              }
+              catch (Throwable ex) {
+                throw new FatalBeanException(
+                        "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
+              }
             }
           }
         }
@@ -704,25 +718,16 @@ public abstract class BeanUtils {
     }
   }
 
-  private static void write(
-          Object source, Object target,
-          PropertyDescriptor targetPd, Method writeMethod, Method readMethod) {
-    if (isAssignable(writeMethod, readMethod)) {
-      try {
-        if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
-          readMethod.setAccessible(true);
-        }
-        Object value = readMethod.invoke(source);
-        if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
-          writeMethod.setAccessible(true);
-        }
-        writeMethod.invoke(target, value);
-      }
-      catch (Throwable ex) {
-        throw new FatalBeanException(
-                "Could not copy property '" + targetPd.getName() + "' from source to target", ex);
-      }
+  private static void doCopy(
+          Object source, Object target, Method writeMethod, Method readMethod) throws Exception {
+    if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
+      readMethod.setAccessible(true);
     }
+    Object value = readMethod.invoke(source);
+    if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
+      writeMethod.setAccessible(true);
+    }
+    writeMethod.invoke(target, value);
   }
 
   private static boolean isAssignable(Method writeMethod, Method readMethod) {
