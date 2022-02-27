@@ -23,6 +23,7 @@ package cn.taketoday.beans;
 import java.beans.ConstructorProperties;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,9 +36,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.DependencyInjector;
-import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
@@ -78,6 +77,9 @@ public abstract class BeanUtils {
   private static final Set<Class<?>> unknownEditorTypes =
           Collections.newSetFromMap(new ConcurrentReferenceHashMap<>(64));
 
+  private static final Class<? extends Annotation> Autowired = ClassUtils.resolveClassName(
+          "cn.taketoday.beans.factory.annotation.Autowired", BeanUtils.class.getClassLoader());
+
   /**
    * Get instance with bean class use default {@link Constructor}
    *
@@ -102,38 +104,6 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
     return newInstance(ClassUtils.forName(beanClassName));
-  }
-
-  /**
-   * use obtainConstructor to get {@link Constructor} to create bean instance.
-   *
-   * @param beanClass target bean class
-   * @param beanFactory bean factory
-   * @return bean class 's instance
-   * @throws BeanInstantiationException if any reflective operation exception occurred
-   * @see #obtainConstructor(Class)
-   */
-  public static <T> T newInstance(final Class<T> beanClass, final DependencyInjectorProvider beanFactory) {
-    return newInstance(beanClass, beanFactory, null);
-  }
-
-  /**
-   * use obtainConstructor to get {@link Constructor} to create bean instance.
-   *
-   * @param beanClass target bean class
-   * @param providedArgs User provided arguments
-   * @return bean class 's instance
-   * @throws BeanInstantiationException if any reflective operation exception occurred
-   * @see #obtainConstructor(Class)
-   */
-  public static <T> T newInstance(
-          Class<T> beanClass, @Nullable DependencyInjectorProvider injectorProvider, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = obtainConstructor(beanClass);
-    if (constructor.getParameterCount() == 0) {
-      return newInstance(constructor, null);
-    }
-    Assert.notNull(injectorProvider, "resolverProvider is required");
-    return injectorProvider.getInjector().inject(constructor, providedArgs);
   }
 
   /**
@@ -232,14 +202,31 @@ public abstract class BeanUtils {
   @SuppressWarnings("unchecked")
   public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
     Assert.notNull(beanClass, "bean-class must not be null");
-    Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
-    if (constructors.length == 1) {
-      return ReflectionUtils.makeAccessible(constructors[0]);
+    Constructor<?>[] ctors = beanClass.getConstructors();
+    if (ctors.length == 1) {
+      // A single public constructor
+      return (Constructor<T>) ctors[0];
     }
-    for (final Constructor<T> constructor : constructors) {
+    else if (ctors.length == 0) {
+      ctors = beanClass.getDeclaredConstructors();
+      if (ctors.length == 1) {
+        // A single non-public constructor, e.g. from a non-public record type
+        return (Constructor<T>) ctors[0];
+      }
+    }
+
+    // Several constructors -> let's try to take the default constructor
+    try {
+      return beanClass.getDeclaredConstructor();
+    }
+    catch (NoSuchMethodException ex) {
+      // Giving up...
+    }
+
+    for (final Constructor<?> constructor : ctors) {
       if (constructor.getParameterCount() == 0 // default constructor
-              || constructor.isAnnotationPresent(Autowired.class)) {
-        return ReflectionUtils.makeAccessible(constructor);
+              || constructor.isAnnotationPresent(Autowired)) {
+        return (Constructor<T>) ReflectionUtils.makeAccessible(constructor);
       }
     }
     return null;

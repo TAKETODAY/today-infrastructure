@@ -24,16 +24,15 @@ import java.lang.reflect.Constructor;
 import java.util.function.Function;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.SingletonSupplier;
 
 /**
@@ -59,7 +58,7 @@ public class DependencyInjectorAwareInstantiator {
   }
 
   public <T> T instantiate(Class<T> beanClass) {
-    return instantiate(beanClass, null);
+    return instantiate(beanClass, (Object[]) null);
   }
 
   /**
@@ -70,12 +69,12 @@ public class DependencyInjectorAwareInstantiator {
    * @return bean class 's instance
    * @throws BeanInstantiationException if any reflective operation exception occurred
    * @throws ConstructorNotFoundException If beanClass has no suitable constructor
-   * @see #obtainConstructor(Class)
+   * @see BeanUtils#obtainConstructor(Class)
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = obtainConstructor(beanClass);
+    Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
     }
@@ -85,11 +84,9 @@ public class DependencyInjectorAwareInstantiator {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T instantiate(
-          Class<T> beanClass,
-          DependencyInjector injector,
+  public <T> T instantiate(Class<T> beanClass, DependencyInjector injector,
           BeanInstantiatorFactory instantiatorFactory, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = obtainConstructor(beanClass);
+    Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
     Object[] args = injector.resolveArguments(constructor, providedArgs);
 
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
@@ -163,58 +160,35 @@ public class DependencyInjectorAwareInstantiator {
   }
 
   /**
-   * Obtain a suitable {@link Constructor}.
-   * <p>
-   * Look for the default constructor, if there is no default constructor, then
-   * get all the constructors, if there is only one constructor then use this
-   * constructor, if not more than one use the @Autowired constructor if there is
-   * no suitable {@link Constructor} will throw an exception
-   * <p>
+   * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
-   * @param <T> Target type
    * @param beanClass target bean class
-   * @return Suitable constructor
-   * @throws ConstructorNotFoundException If there is no suitable constructor
-   * @since 2.1.7
+   * @param beanFactory bean factory
+   * @return bean class 's instance
+   * @throws BeanInstantiationException if any reflective operation exception occurred
+   * @see BeanUtils#obtainConstructor(Class)
    */
-  public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) {
-    final Constructor<T> ret = getConstructor(beanClass);
-    if (ret == null) {
-      throw new ConstructorNotFoundException(beanClass);
-    }
-    return ret;
+  public static <T> T instantiate(Class<T> beanClass, @Nullable DependencyInjectorProvider beanFactory) {
+    return instantiate(beanClass, beanFactory, null);
   }
 
   /**
-   * Get a suitable {@link Constructor}.
-   * <p>
-   * Look for the default constructor, if there is no default constructor, then
-   * get all the constructors, if there is only one constructor then use this
-   * constructor, if not more than one use the @Autowired constructor if there is
-   * no suitable {@link Constructor} will throw an exception
-   * <p>
+   * use obtainConstructor to get {@link Constructor} to create bean instance.
    *
-   * @param <T> Target type
    * @param beanClass target bean class
-   * @return Suitable constructor If there isn't a suitable {@link Constructor}
-   * returns null
-   * @since 2.1.7
+   * @param providedArgs User provided arguments
+   * @return bean class 's instance
+   * @throws BeanInstantiationException if any reflective operation exception occurred
+   * @see BeanUtils#obtainConstructor(Class)
    */
-  @Nullable
-  @SuppressWarnings("unchecked")
-  public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
-    Assert.notNull(beanClass, "bean-class must not be null");
-    Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
-    if (constructors.length == 1) {
-      return ReflectionUtils.makeAccessible(constructors[0]);
+  public static <T> T instantiate(Class<T> beanClass,
+          @Nullable DependencyInjectorProvider injectorProvider, @Nullable Object[] providedArgs) {
+    Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
+    if (constructor.getParameterCount() == 0) {
+      return BeanUtils.newInstance(constructor, null);
     }
-    for (final Constructor<T> constructor : constructors) {
-      if (constructor.getParameterCount() == 0 // default constructor
-              || constructor.isAnnotationPresent(Autowired.class)) {
-        return ReflectionUtils.makeAccessible(constructor);
-      }
-    }
-    return null;
+    Assert.notNull(injectorProvider, "resolverProvider is required");
+    return injectorProvider.getInjector().inject(constructor, providedArgs);
   }
 
 }

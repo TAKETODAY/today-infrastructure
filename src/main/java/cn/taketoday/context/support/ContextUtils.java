@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -148,7 +148,7 @@ public abstract class ContextUtils {
     Set<Class<?>> classes = loadFromMetaInfo(resource);
     Set<T> ret = new HashSet<>();
     for (Class<?> aClass : classes) {
-      Object obj = BeanUtils.newInstance(aClass, beanFactory);
+      Object obj = DependencyInjectorAwareInstantiator.instantiate(aClass, beanFactory);
       ret.add((T) obj);
     }
     return ret;

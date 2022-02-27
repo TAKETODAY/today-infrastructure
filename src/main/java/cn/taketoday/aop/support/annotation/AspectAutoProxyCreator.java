@@ -35,12 +35,12 @@ import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.SuppliedMethodInterceptor;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -176,7 +176,7 @@ public class AspectAutoProxyCreator extends DefaultAdvisorAutoProxyCreator {
     }
 
     // dynamic parameters -> aspectMethod, beanName, beanFactory
-    MethodInterceptor ret = BeanUtils.newInstance(
+    MethodInterceptor ret = DependencyInjectorAwareInstantiator.instantiate(
             interceptor, beanFactory, new Object[] { aspectMethod, aspectDef.getBeanName(), beanFactory });
 
     if (beanFactory instanceof AutowireCapableBeanFactory) {

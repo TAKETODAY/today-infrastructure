@@ -62,7 +62,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Constant;
@@ -406,7 +406,8 @@ public class TomcatServer extends AbstractServletWebServer {
               ClassUtils.load("org.apache.jasper.servlet.JasperInitializer");
       if (jasperInitializer != null) {
         context.addServletContainerInitializer(
-                BeanUtils.newInstance(jasperInitializer, getApplicationContext()), null);
+                DependencyInjectorAwareInstantiator.instantiate(
+                        jasperInitializer, getApplicationContext()), null);
       }
       else {
         throw new ConfigurationException("no 'org.apache.jasper.servlet.JasperInitializer in classpath");

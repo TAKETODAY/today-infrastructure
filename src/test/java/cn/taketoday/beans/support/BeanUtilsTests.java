@@ -23,6 +23,7 @@ package cn.taketoday.beans.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.ToString;
 
@@ -52,7 +53,8 @@ class BeanUtilsTests {
     try (StandardApplicationContext context = new StandardApplicationContext()) {
       context.refresh();
       TestNewInstanceBeanProvidedArgs providedArgs =
-              BeanUtils.newInstance(TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
+              DependencyInjectorAwareInstantiator.instantiate(
+                      TestNewInstanceBeanProvidedArgs.class, context, new Object[] { 1, "TODAY" });
 
       assertThat(providedArgs).isNotNull();
       assertThat(providedArgs.integer).isNotNull().isEqualTo(1);

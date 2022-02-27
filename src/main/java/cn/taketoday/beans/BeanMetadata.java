@@ -68,7 +68,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   public BeanInstantiator getInstantiator() {
     BeanInstantiator instantiator = this.instantiator;
     if (instantiator == null) {
-      instantiator = BeanInstantiator.fromConstructor(beanClass);
+      instantiator = BeanInstantiator.fromClass(beanClass);
       this.instantiator = instantiator;
     }
     return instantiator;
