@@ -81,6 +81,13 @@ class PathMatchingPatternResourceLoaderTests {
           "ClassRelativeResourceLoader$ClassRelativeContextResource.class",
           "DefaultPropertySourceFactory.class",
           "JarEntryResource$JarEntryInputStream.class", //
+          "ResourceEditor.class",
+          "FileSystemResourceLoader.class",
+          "ResourceArrayPropertyEditorTests.class",
+          "ContextResource.class",
+          "AbstractFileResolvingResource.class",
+          "FileSystemResourceLoader$FileSystemContextResource.class",
+          "ResourceArrayPropertyEditor.class",
   };
 
   private static final String[] CLASSES_IN_JUNIT_RUNNER = new String[] { //

@@ -27,12 +27,10 @@ import java.util.Locale;
 
 import cn.taketoday.lang.Constant;
 
-import static cn.taketoday.util.StringUtils.collectionToDelimitedString;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Today <br>
@@ -78,7 +76,7 @@ class StringUtilsTests {
 
     String[] split = StringUtils.split("today;yhj,take");
     assert StringUtils.arrayToCommaDelimitedString(split).equals("today,yhj,take");
-    assert StringUtils.arrayToCommaDelimitedString(null) == null;
+    assert StringUtils.isEmpty(StringUtils.arrayToCommaDelimitedString(null));
 
     assert StringUtils.arrayToCommaDelimitedString(new String[] { "today" }).equals("today");
   }
@@ -116,7 +114,8 @@ class StringUtilsTests {
 
     assertEquals(StringUtils.collectionToDelimitedString(asList("i"), ","), "i");
 
-    assertNull(StringUtils.collectionToCommaDelimitedString(null));
+    assertThat(StringUtils.collectionToCommaDelimitedString(null))
+            .isEmpty();
 
     //Set
     assertEquals(StringUtils.collectionToCommaDelimitedString(new HashSet<String>() {

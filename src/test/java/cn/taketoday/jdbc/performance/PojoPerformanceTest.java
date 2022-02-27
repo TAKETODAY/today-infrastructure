@@ -140,14 +140,14 @@ public class PojoPerformanceTest {
     try {
       Field f = FeatureDetector.class.getDeclaredField("oracleAvailable");
       f.setAccessible(true);
-      f.set(null, b);
+//      f.set(null, b);
     }
     catch (NoSuchFieldException e) {
       e.printStackTrace();
     }
-    catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
+//    catch (IllegalAccessException e) {
+//      e.printStackTrace();
+//    }
   }
 
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")

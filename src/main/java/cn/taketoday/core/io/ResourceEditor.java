@@ -52,7 +52,6 @@ import cn.taketoday.util.StringUtils;
  * @see PropertyResolver#resolvePlaceholders
  * @since 4.0 2022/2/17 17:49
  */
-
 public class ResourceEditor extends PropertyEditorSupport {
 
   private final ResourceLoader resourceLoader;
@@ -91,7 +90,7 @@ public class ResourceEditor extends PropertyEditorSupport {
    * if no corresponding property could be found in the given {@code propertyResolver}
    */
   public ResourceEditor(ResourceLoader resourceLoader, @Nullable PropertyResolver propertyResolver,
-                        boolean ignoreUnresolvablePlaceholders) {
+          boolean ignoreUnresolvablePlaceholders) {
     Assert.notNull(resourceLoader, "ResourceLoader must not be null");
     this.resourceLoader = resourceLoader;
     this.propertyResolver = propertyResolver;
