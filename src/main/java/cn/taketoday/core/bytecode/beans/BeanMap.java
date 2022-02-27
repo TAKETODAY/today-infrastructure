@@ -77,7 +77,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
     return gen.create();
   }
 
-  public static class Generator extends AbstractClassGenerator {
+  final static class Generator extends AbstractClassGenerator {
     private static final BeanMapKey KEY_FACTORY = KeyFactory.create(BeanMapKey.class, KeyFactory.CLASS_BY_NAME);
 
     interface BeanMapKey {
@@ -286,10 +286,9 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
   @Override
   public boolean equals(Object o) {
     if (o != this) {
-      if (!(o instanceof Map)) {
+      if (!(o instanceof Map other)) {
         return false;
       }
-      Map other = (Map) o;
       if (size() != other.size()) {
         return false;
       }

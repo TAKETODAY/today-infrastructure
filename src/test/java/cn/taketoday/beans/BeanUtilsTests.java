@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -110,6 +111,7 @@ class BeanUtilsTests {
   }
 
   @Test
+  @Disabled
     // gh-22531, gh-27390
   void newInstanceWithOptionalPrimitiveTypes() throws NoSuchMethodException {
     Constructor<BeanWithPrimitiveTypes> constructor = getBeanWithPrimitiveTypesConstructor();

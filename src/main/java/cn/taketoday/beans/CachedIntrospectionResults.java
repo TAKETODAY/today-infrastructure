@@ -220,12 +220,12 @@ public final class CachedIntrospectionResults {
 
   private void introspectPlainAccessors(Class<?> beanClass, HashSet<String> readMethodNames)
           throws IntrospectionException {
-
+    Map<String, PropertyDescriptor> descriptors = this.propertyDescriptors;
     for (Method method : beanClass.getMethods()) {
-      if (!propertyDescriptors.containsKey(method.getName())
+      if (!descriptors.containsKey(method.getName())
               && !readMethodNames.contains((method.getName()))
               && isPlainAccessor(method)) {
-        propertyDescriptors.put(method.getName(),
+        descriptors.put(method.getName(),
                 new GenericTypeAwarePropertyDescriptor(beanClass, method.getName(), method, null, null));
         readMethodNames.add(method.getName());
       }
