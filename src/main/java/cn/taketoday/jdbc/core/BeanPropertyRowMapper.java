@@ -26,19 +26,19 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataRetrievalFailureException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -95,7 +95,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
 
   /** Map of the fields we provide mapping for. */
   @Nullable
-  private Map<String, BeanProperty> mappedFields;
+  private HashMap<String, BeanProperty> mappedFields;
 
   /** Set of bean properties we provide mapping for. */
   @Nullable
@@ -234,6 +234,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
 
   protected void initialize(Class<T> mappedClass, BeanMetadata metadata) {
     this.mappedClass = mappedClass;
+    setConversionService(ApplicationConversionService.getSharedInstance());
+
     HashSet<String> mappedProperties = new HashSet<>();
     HashMap<String, BeanProperty> mappedFields = new HashMap<>();
     for (BeanProperty property : metadata) {
@@ -304,13 +306,15 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     int columnCount = rsmd.getColumnCount();
     Set<String> populatedProperties = isCheckFullyPopulated() ? new HashSet<>() : null;
 
+    HashMap<String, BeanProperty> mappedFields = this.mappedFields;
     for (int index = 1; index <= columnCount; index++) {
       String column = JdbcUtils.lookupColumnName(rsmd, index);
       String field = lowerCaseName(StringUtils.delete(column, " "));
-      BeanProperty property = this.mappedFields != null ? this.mappedFields.get(field) : null;
+
+      BeanProperty property = mappedFields != null ? mappedFields.get(field) : null;
       if (property != null) {
         try {
-          Object value = getColumnValue(rs, index, property);
+          Object value = getColumnValue(rs, index, property); // TODO using TypeHandler
           if (rowNumber == 0 && debugEnabled) {
             log.debug("Mapping column '{}' to property '{}' of type '{}'",
                     column, property.getName(), ClassUtils.getQualifiedName(property.getType()));

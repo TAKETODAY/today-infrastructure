@@ -106,7 +106,6 @@ class ControllerTests {
     StaticWebServletApplicationContext sac = new StaticWebServletApplicationContext();
     sac.setServletContext(context);
     sfc.setApplicationContext(sac);
-    sac.refresh();
 
     sfc.setServletContext(context);
 

@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
@@ -209,8 +208,8 @@ public class WebApplicationContextUtils {
    * @param servletContext the ServletContext that we're running within
    * @param servletConfig the ServletConfig
    */
-  public static void registerEnvironmentBeans(
-          ConfigurableBeanFactory bf, @Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
+  public static void registerEnvironmentBeans(ConfigurableBeanFactory bf,
+          @Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
 
     if (servletContext != null && !bf.containsBean(WebServletApplicationContext.SERVLET_CONTEXT_BEAN_NAME)) {
       bf.registerSingleton(WebServletApplicationContext.SERVLET_CONTEXT_BEAN_NAME, servletContext);
@@ -221,18 +220,18 @@ public class WebApplicationContextUtils {
     }
 
     if (!bf.containsBean(WebServletApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {
-      Map<String, String> parameterMap = new HashMap<>();
+      HashMap<String, String> parameterMap = new HashMap<>();
       if (servletContext != null) {
-        Enumeration<?> paramNameEnum = servletContext.getInitParameterNames();
+        Enumeration<String> paramNameEnum = servletContext.getInitParameterNames();
         while (paramNameEnum.hasMoreElements()) {
-          String paramName = (String) paramNameEnum.nextElement();
+          String paramName = paramNameEnum.nextElement();
           parameterMap.put(paramName, servletContext.getInitParameter(paramName));
         }
       }
       if (servletConfig != null) {
-        Enumeration<?> paramNameEnum = servletConfig.getInitParameterNames();
+        Enumeration<String> paramNameEnum = servletConfig.getInitParameterNames();
         while (paramNameEnum.hasMoreElements()) {
-          String paramName = (String) paramNameEnum.nextElement();
+          String paramName = paramNameEnum.nextElement();
           parameterMap.put(paramName, servletConfig.getInitParameter(paramName));
         }
       }
@@ -241,11 +240,11 @@ public class WebApplicationContextUtils {
     }
 
     if (!bf.containsBean(WebServletApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME)) {
-      Map<String, Object> attributeMap = new HashMap<>();
+      HashMap<String, Object> attributeMap = new HashMap<>();
       if (servletContext != null) {
-        Enumeration<?> attrNameEnum = servletContext.getAttributeNames();
+        Enumeration<String> attrNameEnum = servletContext.getAttributeNames();
         while (attrNameEnum.hasMoreElements()) {
-          String attrName = (String) attrNameEnum.nextElement();
+          String attrName = attrNameEnum.nextElement();
           attributeMap.put(attrName, servletContext.getAttribute(attrName));
         }
       }
