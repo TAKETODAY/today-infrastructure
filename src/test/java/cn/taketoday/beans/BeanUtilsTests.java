@@ -671,7 +671,7 @@ class BeanUtilsTests {
 
     @SuppressWarnings("unused")
     public BeanWithPrimitiveTypes(boolean flag, byte byteCount, short shortCount, int intCount, long longCount,
-                                  float floatCount, double doubleCount, char character, String text) {
+            float floatCount, double doubleCount, char character, String text) {
 
       this.flag = flag;
       this.byteCount = byteCount;

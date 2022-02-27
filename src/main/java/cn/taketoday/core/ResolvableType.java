@@ -150,7 +150,7 @@ public class ResolvableType implements Serializable {
    * with upfront resolution and a pre-calculated hash.
    */
   private ResolvableType(Type type, TypeProvider typeProvider,
-                         VariableResolver variableResolver, Integer hash) {
+          VariableResolver variableResolver, Integer hash) {
     this.type = type;
     this.typeProvider = typeProvider;
     this.variableResolver = variableResolver;
@@ -164,7 +164,7 @@ public class ResolvableType implements Serializable {
    * with upfront resolution but lazily calculated hash.
    */
   private ResolvableType(Type type, TypeProvider typeProvider,
-                         VariableResolver variableResolver, ResolvableType componentType) {
+          VariableResolver variableResolver, ResolvableType componentType) {
 
     this.type = type;
     this.typeProvider = typeProvider;
@@ -307,10 +307,10 @@ public class ResolvableType implements Serializable {
     boolean exactMatch = matchedBefore != null;  // We're checking nested generic variables now...
     boolean checkGenerics = true;
     Class<?> ourResolved = null;
-    if (this.type instanceof TypeVariable<?> variable) {
+    if (type instanceof TypeVariable<?> variable) {
       // Try default variable resolution
-      if (this.variableResolver != null) {
-        ResolvableType resolved = this.variableResolver.resolveVariable(variable);
+      if (variableResolver != null) {
+        ResolvableType resolved = variableResolver.resolveVariable(variable);
         if (resolved != null) {
           ourResolved = resolved.resolve();
         }
@@ -335,7 +335,7 @@ public class ResolvableType implements Serializable {
 
     // We need an exact type match for generics
     // List<CharSequence> is not assignable from List<String>
-    if (exactMatch ? !ourResolved.equals(otherResolved) : !ourResolved.isAssignableFrom(otherResolved)) {
+    if (exactMatch ? !ourResolved.equals(otherResolved) : !ClassUtils.isAssignable(ourResolved, otherResolved)) {
       return false;
     }
 
@@ -349,7 +349,7 @@ public class ResolvableType implements Serializable {
       if (matchedBefore == null) {
         matchedBefore = new IdentityHashMap<>(1);
       }
-      matchedBefore.put(this.type, other.type);
+      matchedBefore.put(type, other.type);
       for (int i = 0; i < ourGenerics.length; i++) {
         if (!ourGenerics[i].isAssignableFrom(typeGenerics[i], matchedBefore)) {
           return false;
