@@ -175,7 +175,8 @@ public abstract class ExpressionResolver {
    * constructor.
    * @since EL 2.2
    */
-  public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+  public Object invoke(ExpressionContext context,
+          Object base, Object method, Class<?>[] paramTypes, Object[] params) {
     return null;
   }
 

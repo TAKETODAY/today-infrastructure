@@ -27,6 +27,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.format.support.ApplicationConversionService;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -396,21 +397,22 @@ public abstract class ExpressionContext {
       if (targetType.isInstance(obj)) {
         return obj;
       }
-      // @since 3.0.4
-      final TypeDescriptor targetDescriptor = TypeDescriptor.valueOf(targetType);
-
-      if (conversionService == null) { // @since 4.0
-        conversionService = DefaultConversionService.getSharedInstance();
-      }
-      final GenericConverter converter = conversionService.getConverter(obj, targetDescriptor);
-      if (converter != null) {
-        return converter.convert(obj, TypeDescriptor.fromObject(obj), targetDescriptor);
-      }
-      final ExpressionResolver elResolver = getResolver();
+      ExpressionResolver elResolver = getResolver();
       if (elResolver != null) {
         Object res = elResolver.convertToType(this, obj, targetType);
         if (isPropertyResolved()) {
           return res;
+        }
+      }
+      else {
+        // @since 3.0.4
+        TypeDescriptor targetDescriptor = TypeDescriptor.valueOf(targetType);
+        if (conversionService == null) { // @since 4.0
+          conversionService = ApplicationConversionService.getSharedInstance();
+        }
+        GenericConverter converter = conversionService.getConverter(obj, targetDescriptor);
+        if (converter != null) {
+          return converter.convert(obj, TypeDescriptor.fromObject(obj), targetDescriptor);
         }
       }
     }

@@ -329,7 +329,7 @@ public class TypeDescriptor implements Serializable {
   }
 
   private boolean isNestedAssignable(TypeDescriptor nestedTypeDescriptor,
-                                     TypeDescriptor otherNestedTypeDescriptor) {
+          TypeDescriptor otherNestedTypeDescriptor) {
 
     return (nestedTypeDescriptor == null || otherNestedTypeDescriptor == null ||
             nestedTypeDescriptor.isAssignableTo(otherNestedTypeDescriptor));
@@ -551,8 +551,9 @@ public class TypeDescriptor implements Serializable {
    * @param source the source object
    * @return the type descriptor
    */
-  public static TypeDescriptor fromObject(Object source) {
-    return (source != null ? valueOf(source.getClass()) : null);
+  @Nullable
+  public static TypeDescriptor fromObject(@Nullable Object source) {
+    return source != null ? valueOf(source.getClass()) : null;
   }
 
   /**

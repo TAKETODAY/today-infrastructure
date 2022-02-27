@@ -70,6 +70,8 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
           return evalContext.getObject(beanName);
         }
       }));
+      context.addResolver(new EnvironmentExpressionResolver());
+      context.addResolver(new StandardTypeConverter());
 
       return expressionFactory.createValueExpression(context, value, Object.class).getValue(context);
     }

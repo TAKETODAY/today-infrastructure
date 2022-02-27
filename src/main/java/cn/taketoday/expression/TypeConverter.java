@@ -64,7 +64,6 @@ package cn.taketoday.expression;
  *
  * @since EL 3.0
  */
-
 public abstract class TypeConverter extends ExpressionResolver {
 
   @Override
@@ -99,5 +98,5 @@ public abstract class TypeConverter extends ExpressionResolver {
    * @throws ExpressionException thrown if errors occur.
    */
   @Override
-  abstract public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);
+  public abstract Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);
 }
