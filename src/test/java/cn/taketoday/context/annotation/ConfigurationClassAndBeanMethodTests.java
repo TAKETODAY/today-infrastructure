@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -144,7 +144,7 @@ class ConfigurationClassAndBeanMethodTests {
 
   private static ConfigurationClassParser newParser() {
     StandardApplicationContext context = new StandardApplicationContext();
-    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(context.getBeanFactory(), context);
+    BootstrapContext loadingContext = new BootstrapContext(context.getBeanFactory(), context);
     return new ConfigurationClassParser(loadingContext);
   }
 

@@ -35,9 +35,12 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -46,6 +49,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Generic ApplicationContext implementation that holds a single internal
@@ -99,6 +103,8 @@ public class GenericApplicationContext
   private ResourceLoader resourceLoader;
   private boolean customClassLoader = false;
 
+  protected final BootstrapContext loadingContext = createLoadingContext();
+
   protected final StandardBeanFactory beanFactory;
 
   /**
@@ -148,6 +154,11 @@ public class GenericApplicationContext
     setParent(parent);
   }
 
+  @Override
+  protected BootstrapContext createLoadingContext() {
+    return new BootstrapContext(beanFactory, this);
+  }
+
   /**
    * Set the parent of this application context, also setting
    * the parent of the internal BeanFactory accordingly.
@@ -161,7 +172,16 @@ public class GenericApplicationContext
   }
 
   @Override
-  protected void refreshBeanFactory() throws BeansException, IllegalStateException { }
+  protected void refreshBeanFactory() throws BeansException, IllegalStateException {
+    List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
+            BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
+
+    if (!strategies.isEmpty()) {
+      for (BeanDefinitionLoader loader : strategies) {
+        loader.loadBeanDefinitions(loadingContext);
+      }
+    }
+  }
 
   @Override
   public StandardBeanFactory getBeanFactory() {

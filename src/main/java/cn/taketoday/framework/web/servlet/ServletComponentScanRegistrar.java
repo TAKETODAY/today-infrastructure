@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.util.ClassUtils;
@@ -46,7 +46,7 @@ class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
   private static final String BEAN_NAME = "servletComponentRegisteringPostProcessor";
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
     BeanDefinitionRegistry registry = context.getRegistry();
 
     Set<String> packagesToScan = getPackagesToScan(importMetadata);

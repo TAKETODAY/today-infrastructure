@@ -41,11 +41,11 @@ public class ScanningBeanDefinitionReader {
   private static final Logger log = LoggerFactory.getLogger(ScanningBeanDefinitionReader.class);
 
   private final BeanDefinitionRegistry registry;
-  private final DefinitionLoadingContext loadingContext;
+  private final BootstrapContext loadingContext;
   private final BeanDefinitionLoadingStrategies scanningStrategies;
   private final ClassPathScanningComponentProvider componentProvider;
 
-  public ScanningBeanDefinitionReader(DefinitionLoadingContext loadingContext) {
+  public ScanningBeanDefinitionReader(BootstrapContext loadingContext) {
     this.registry = loadingContext.getRegistry();
     this.loadingContext = loadingContext;
     this.componentProvider = new ClassPathScanningComponentProvider();

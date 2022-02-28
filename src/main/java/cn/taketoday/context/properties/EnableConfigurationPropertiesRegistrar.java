@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.validation.beanvalidation.MethodValidationExcludeFilter;
@@ -48,7 +48,7 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
           EnableConfigurationPropertiesRegistrar.class, "methodValidationExcludeFilter");
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata metadata, DefinitionLoadingContext context) {
+  public void registerBeanDefinitions(AnnotationMetadata metadata, BootstrapContext context) {
     BeanDefinitionRegistry registry = context.getRegistry();
     registerInfrastructureBeans(registry);
     registerMethodValidationExcludeFilter(registry);

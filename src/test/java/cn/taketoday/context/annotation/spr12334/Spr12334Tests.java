@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.type.AnnotationMetadata;
 
@@ -59,7 +59,7 @@ public class Spr12334Tests {
     private static boolean scanned = false;
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
       if (scanned) {
         throw new IllegalStateException("Already scanned");
       }

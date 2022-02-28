@@ -52,7 +52,7 @@ import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -234,7 +234,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
     private Environment environment;
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
 
       if (!AutoConfigurationPackages.has(this.beanFactory)) {
         log.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");

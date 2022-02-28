@@ -35,12 +35,12 @@ public interface AnnotationBeanDefinitionRegistrar<A extends Annotation>
 
   @Override
   default void registerBeanDefinitions(
-          AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+          AnnotationMetadata importMetadata, BootstrapContext context) {
     final A target = getAnnotation(importMetadata);
     registerBeanDefinitions(target, importMetadata, context);
   }
 
   void registerBeanDefinitions(
-          A target, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context);
+          A target, AnnotationMetadata annotatedMetadata, BootstrapContext context);
 
 }

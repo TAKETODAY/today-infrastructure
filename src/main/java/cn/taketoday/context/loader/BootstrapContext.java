@@ -69,8 +69,8 @@ import cn.taketoday.util.ExceptionUtils;
  * @since 4.0
  */
 @Experimental
-public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
-  public static final String BEAN_NAME = "definitionLoadingContext";
+public class BootstrapContext extends BeanDefinitionCustomizers {
+  public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
   private final BeanDefinitionRegistry registry;
   private final ApplicationContext applicationContext;
@@ -90,13 +90,13 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
 
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
-  public DefinitionLoadingContext(BeanDefinitionRegistry registry, @NonNull ApplicationContext context) {
+  public BootstrapContext(BeanDefinitionRegistry registry, @NonNull ApplicationContext context) {
     this.registry = registry;
     this.resourceLoader = context;
     this.applicationContext = context;
   }
 
-  public DefinitionLoadingContext(
+  public BootstrapContext(
           BeanDefinitionRegistry registry,
           @Nullable ConditionEvaluator conditionEvaluator, @NonNull ApplicationContext context) {
     this.registry = registry;
@@ -427,14 +427,14 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   // static
 
   // this method mainly for internal use
-  public static DefinitionLoadingContext from(BeanFactory beanFactory) {
+  public static BootstrapContext from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
-    DefinitionLoadingContext context = getContext(beanFactory);
+    BootstrapContext context = getContext(beanFactory);
     if (context == null) {
       synchronized(beanFactory) {
         context = getContext(beanFactory);
         if (context == null) {
-          context = new DefinitionLoadingContext(deduceRegistry(beanFactory), deduceContext(beanFactory));
+          context = new BootstrapContext(deduceRegistry(beanFactory), deduceContext(beanFactory));
           context.unwrapFactory(SingletonBeanRegistry.class)
                   .registerSingleton(BEAN_NAME, context);
         }
@@ -458,14 +458,14 @@ public class DefinitionLoadingContext extends BeanDefinitionCustomizers {
   }
 
   @Nullable
-  private static DefinitionLoadingContext getContext(BeanFactory beanFactory) {
+  private static BootstrapContext getContext(BeanFactory beanFactory) {
     if (beanFactory instanceof ConfigurableBeanFactory configurable) {
       if (configurable.containsLocalBean(BEAN_NAME)) {
-        return configurable.getBean(BEAN_NAME, DefinitionLoadingContext.class);
+        return configurable.getBean(BEAN_NAME, BootstrapContext.class);
       }
     }
     else {
-      return beanFactory.getBean(BEAN_NAME, DefinitionLoadingContext.class);
+      return beanFactory.getBean(BEAN_NAME, BootstrapContext.class);
     }
     return null;
   }

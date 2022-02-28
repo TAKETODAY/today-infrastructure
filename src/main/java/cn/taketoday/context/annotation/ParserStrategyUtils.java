@@ -34,7 +34,7 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
@@ -61,7 +61,7 @@ abstract class ParserStrategyUtils {
    */
   @SuppressWarnings("unchecked")
   static <T> T instantiateClass(
-          Class<?> clazz, Class<T> assignableTo, DefinitionLoadingContext loadingContext) {
+          Class<?> clazz, Class<T> assignableTo, BootstrapContext loadingContext) {
 
     Assert.notNull(clazz, "Class must not be null");
     Assert.isAssignable(assignableTo, clazz);

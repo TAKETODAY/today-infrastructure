@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -198,7 +198,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
   static class AttributeClassRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
       BeanDefinition definition = new BeanDefinition(RawWithAbstractObjectTypeFactoryBean.class);
       definition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, MyBean.class);
       context.registerBeanDefinition("myBean", definition);

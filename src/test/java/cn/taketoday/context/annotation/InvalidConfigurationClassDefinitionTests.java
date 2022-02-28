@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -41,13 +41,13 @@ public class InvalidConfigurationClassDefinitionTests {
 
   private StandardBeanFactory beanFactory;
 
-  private DefinitionLoadingContext loadingContext;
+  private BootstrapContext loadingContext;
 
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
     beanFactory = context.getBeanFactory();
-    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    loadingContext = new BootstrapContext(beanFactory, context);
   }
 
   @Test

@@ -152,7 +152,7 @@ class ImportTests {
     }
 
     @Override
-    public void registerBeanDefinitions(EnableAop enableAop, AnnotationMetadata annotatedMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(EnableAop enableAop, AnnotationMetadata annotatedMetadata, BootstrapContext context) {
       this.enableAop = enableAop;
       this.context.unwrapFactory(SingletonBeanRegistry.class).registerSingleton(this);
     }

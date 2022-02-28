@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 
 /**
  * Unit test proving that ASM-based {@link ConfigurationClassParser} correctly detects
@@ -35,13 +35,13 @@ import cn.taketoday.context.loader.DefinitionLoadingContext;
 public class AsmCircularImportDetectionTests extends AbstractCircularImportDetectionTests {
   private StandardBeanFactory beanFactory;
 
-  private DefinitionLoadingContext loadingContext;
+  private BootstrapContext loadingContext;
 
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
     beanFactory = context.getBeanFactory();
-    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    loadingContext = new BootstrapContext(beanFactory, context);
   }
 
   @Override

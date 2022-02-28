@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -193,12 +193,12 @@ public class BeanAnnotationAttributePropagationTests {
 
   private StandardBeanFactory beanFactory;
 
-  private DefinitionLoadingContext loadingContext;
+  private BootstrapContext loadingContext;
 
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
     beanFactory = context.getBeanFactory();
-    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    loadingContext = new BootstrapContext(beanFactory, context);
   }
 }

@@ -71,6 +71,7 @@ import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAwareProcessor;
 import cn.taketoday.core.ResolvableType;
@@ -209,6 +210,8 @@ public abstract class AbstractApplicationContext
   @Nullable
   private MessageSource messageSource;
 
+  protected final BootstrapContext loadingContext = createLoadingContext();
+
   /**
    * Create a new AbstractApplicationContext with no parent.
    */
@@ -223,6 +226,14 @@ public abstract class AbstractApplicationContext
     this();
     setParent(parent);
   }
+
+  /**
+   * Return the DefinitionLoadingContext to use for loading this context
+   *
+   * @return the DefinitionLoadingContext for this context
+   * @since 4.0
+   */
+  protected abstract BootstrapContext createLoadingContext();
 
   //---------------------------------------------------------------------
   // Implementation of PatternResourceLoader interface
@@ -369,8 +380,8 @@ public abstract class AbstractApplicationContext
    */
   @Nullable
   protected BeanFactory getInternalParentBeanFactory() {
-    return (getParent() instanceof ConfigurableApplicationContext ?
-            ((ConfigurableApplicationContext) getParent()).getBeanFactory() : getParent());
+    ApplicationContext parent = getParent();
+    return parent instanceof ConfigurableApplicationContext cac ? cac.getBeanFactory() : parent;
   }
 
   //---------------------------------------------------------------------
@@ -412,8 +423,8 @@ public abstract class AbstractApplicationContext
    */
   @Nullable
   protected MessageSource getInternalParentMessageSource() {
-    return getParent() instanceof AbstractApplicationContext ?
-           ((AbstractApplicationContext) getParent()).messageSource : getParent();
+    ApplicationContext parent = getParent();
+    return parent instanceof AbstractApplicationContext abc ? abc.messageSource : parent;
   }
 
   /**
@@ -429,6 +440,7 @@ public abstract class AbstractApplicationContext
     ReflectionUtils.clearCache();
     AnnotationUtils.clearCache();
     ResolvableType.clearCache();
+    loadingContext.clearCache();
   }
 
   /**
@@ -586,6 +598,7 @@ public abstract class AbstractApplicationContext
 
     // @since 4.0 ArgumentsResolver
     beanFactory.registerSingleton(getInjector());
+    beanFactory.registerSingleton(BootstrapContext.BEAN_NAME, loadingContext);
 
     // Register default environment beans.
     if (!beanFactory.containsLocalBean(Environment.ENVIRONMENT_BEAN_NAME)) {

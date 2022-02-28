@@ -56,7 +56,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -82,13 +82,13 @@ class ConfigurationClassPostProcessorTests {
 
   private StandardBeanFactory beanFactory;
 
-  private DefinitionLoadingContext loadingContext;
+  private BootstrapContext loadingContext;
 
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
     beanFactory = context.getBeanFactory();
-    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    loadingContext = new BootstrapContext(beanFactory, context);
 
     QualifierAnnotationAutowireCandidateResolver acr = new QualifierAnnotationAutowireCandidateResolver();
     acr.setBeanFactory(this.beanFactory);

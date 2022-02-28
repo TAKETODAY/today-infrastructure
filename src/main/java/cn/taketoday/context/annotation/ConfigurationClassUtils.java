@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.event.EventListenerFactory;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
@@ -67,7 +67,7 @@ abstract class ConfigurationClassUtils {
   );
 
   public static boolean checkConfigurationClassCandidate(
-          BeanDefinition beanDef, DefinitionLoadingContext loadingContext) {
+          BeanDefinition beanDef, BootstrapContext loadingContext) {
     return checkConfigurationClassCandidate(beanDef, loadingContext.getMetadataReaderFactory());
   }
 

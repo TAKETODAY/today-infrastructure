@@ -34,7 +34,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.aware.ImportAware;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -265,7 +265,7 @@ public class ImportAwareTests {
     static boolean called;
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
 
       BeanDefinition beanDefinition = new BeanDefinition();
       beanDefinition.setBeanClassName(String.class.getName());

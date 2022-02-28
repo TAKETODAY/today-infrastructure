@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -67,14 +67,14 @@ class ConfigurationClassBeanDefinitionReader {
 
   private final ImportRegistry importRegistry;
   private final BeanNamePopulator importBeanNamePopulator;
-  private final DefinitionLoadingContext loadingContext;
+  private final BootstrapContext loadingContext;
 
   /**
    * Create a new {@link ConfigurationClassBeanDefinitionReader} instance
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
   ConfigurationClassBeanDefinitionReader(
-          DefinitionLoadingContext loadingContext,
+          BootstrapContext loadingContext,
           BeanNamePopulator beanNamePopulator, ImportRegistry importRegistry) {
 
     this.loadingContext = loadingContext;

@@ -33,7 +33,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 
 /**
  * System tests covering use of AspectJ {@link Aspect}s in conjunction with {@link Configuration} classes.
@@ -52,13 +52,13 @@ public class ConfigurationClassAspectIntegrationTests {
 
   private StandardBeanFactory beanFactory;
 
-  private DefinitionLoadingContext loadingContext;
+  private BootstrapContext loadingContext;
 
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
     beanFactory = context.getBeanFactory();
-    loadingContext = new DefinitionLoadingContext(beanFactory, context);
+    loadingContext = new BootstrapContext(beanFactory, context);
   }
 
 //  @Test

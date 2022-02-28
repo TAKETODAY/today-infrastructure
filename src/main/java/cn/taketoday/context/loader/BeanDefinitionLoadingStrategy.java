@@ -32,6 +32,6 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 public interface BeanDefinitionLoadingStrategy {
 
   void loadBeanDefinitions(
-          MetadataReader metadata, DefinitionLoadingContext loadingContext);
+          MetadataReader metadata, BootstrapContext loadingContext);
 
 }

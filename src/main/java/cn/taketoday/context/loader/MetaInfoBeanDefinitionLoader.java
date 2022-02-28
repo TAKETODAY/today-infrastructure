@@ -47,7 +47,7 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
    * @since 2.1.6
    */
   @Override
-  public void loadBeanDefinitions(DefinitionLoadingContext context) {
+  public void loadBeanDefinitions(BootstrapContext context) {
     try {
       loadMetaInfoBeans(context);
     }
@@ -63,7 +63,7 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
    * @see Constant#META_INFO_beans
    * @since 2.1.6
    */
-  public void loadMetaInfoBeans(DefinitionLoadingContext context) throws IOException {
+  public void loadMetaInfoBeans(BootstrapContext context) throws IOException {
     log.debug("Loading META-INF/beans");
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------

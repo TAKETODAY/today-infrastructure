@@ -28,7 +28,7 @@ import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 
 /**
  * Corners the bug originally reported by SPR-8824, where the presence of two
@@ -45,7 +45,7 @@ public class DuplicateConfigurationClassPostProcessorTests {
   public void repro() {
     GenericApplicationContext ctx = new GenericApplicationContext();
     StandardBeanFactory beanFactory = ctx.getBeanFactory();
-    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, ctx);
+    BootstrapContext loadingContext = new BootstrapContext(beanFactory, ctx);
     beanFactory.registerSingleton(loadingContext);
     ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class, BeanDefinition.AUTOWIRE_CONSTRUCTOR));
     ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class, BeanDefinition.AUTOWIRE_CONSTRUCTOR));

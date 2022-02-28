@@ -31,7 +31,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.filter.AbstractTypeHierarchyTraversingFilter;
@@ -50,9 +50,9 @@ import cn.taketoday.util.StringUtils;
  */
 class ComponentScanAnnotationParser {
 
-  private final DefinitionLoadingContext loadingContext;
+  private final BootstrapContext loadingContext;
 
-  public ComponentScanAnnotationParser(DefinitionLoadingContext loadingContext) {
+  public ComponentScanAnnotationParser(BootstrapContext loadingContext) {
     this.loadingContext = loadingContext;
   }
 

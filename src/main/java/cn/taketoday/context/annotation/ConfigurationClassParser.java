@@ -46,7 +46,7 @@ import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NestedIOException;
@@ -125,13 +125,13 @@ class ConfigurationClassParser {
 
   private final SourceClass objectSourceClass = new SourceClass(Object.class);
 
-  private final DefinitionLoadingContext loadingContext;
+  private final BootstrapContext loadingContext;
 
   /**
    * Create a new {@link ConfigurationClassParser} instance that will be used
    * to populate the set of configuration classes.
    */
-  public ConfigurationClassParser(DefinitionLoadingContext loadingContext) {
+  public ConfigurationClassParser(BootstrapContext loadingContext) {
     this.loadingContext = loadingContext;
     this.componentScanParser = new ComponentScanAnnotationParser(loadingContext);
   }

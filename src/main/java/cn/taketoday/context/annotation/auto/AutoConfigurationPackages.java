@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
@@ -110,7 +110,7 @@ public abstract class AutoConfigurationPackages {
   static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImports {
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata metadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata metadata, BootstrapContext context) {
       String[] packageNames = StringUtils.toStringArray(new PackageImports(metadata).getPackageNames());
       register(context.getRegistry(), packageNames);
     }

@@ -27,7 +27,7 @@ import java.util.Set;
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -71,7 +71,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
    * the same.
    */
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
     BeanDefinitionRegistry registry = context.getRegistry();
 
     boolean candidateFound = false;

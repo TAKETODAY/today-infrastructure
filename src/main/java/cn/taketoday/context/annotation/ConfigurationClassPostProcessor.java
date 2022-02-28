@@ -46,7 +46,7 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
@@ -85,7 +85,7 @@ public class ConfigurationClassPostProcessor
   public static final AnnotationBeanNamePopulator IMPORT_BEAN_NAME_GENERATOR =
           FullyQualifiedAnnotationBeanNamePopulator.INSTANCE;
 
-  private final DefinitionLoadingContext loadingContext;
+  private final BootstrapContext loadingContext;
 
   private final Set<Integer> registriesPostProcessed = new HashSet<>();
 
@@ -101,7 +101,7 @@ public class ConfigurationClassPostProcessor
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  public ConfigurationClassPostProcessor(DefinitionLoadingContext loadingContext) {
+  public ConfigurationClassPostProcessor(BootstrapContext loadingContext) {
     this.loadingContext = loadingContext;
   }
 

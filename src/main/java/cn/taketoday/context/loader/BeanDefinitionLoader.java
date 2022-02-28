@@ -27,6 +27,6 @@ package cn.taketoday.context.loader;
  */
 public interface BeanDefinitionLoader {
 
-  void loadBeanDefinitions(DefinitionLoadingContext loadingContext);
+  void loadBeanDefinitions(BootstrapContext loadingContext);
 
 }

@@ -46,7 +46,7 @@ import cn.taketoday.context.annotation.componentscan.simple.ClassWithNestedCompo
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
@@ -154,7 +154,7 @@ public class ComponentScanAnnotationIntegrationTests {
             new BeanDefinition(ComponentScanAnnotatedConfig.class));
 
     GenericApplicationContext ctx = new GenericApplicationContext(bf);
-    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(bf, ctx);
+    BootstrapContext loadingContext = new BootstrapContext(bf, ctx);
 
     BeanDefinition def = new BeanDefinition(
             "configurationClassPostProcessor",

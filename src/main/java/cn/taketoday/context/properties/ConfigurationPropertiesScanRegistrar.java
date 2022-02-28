@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.auto.TypeExcludeFilter;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotationSelectors;
 import cn.taketoday.core.env.Environment;
@@ -62,7 +62,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
   }
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
     Set<String> packagesToScan = getPackagesToScan(importMetadata);
     scan(context, packagesToScan);
   }
@@ -86,7 +86,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
     return packagesToScan;
   }
 
-  private void scan(DefinitionLoadingContext context, Set<String> packages) {
+  private void scan(BootstrapContext context, Set<String> packages) {
     ConfigurationPropertiesBeanRegistrar registrar = new ConfigurationPropertiesBeanRegistrar(context);
     ClassPathScanningCandidateComponentProvider scanner = getScanner(context);
     for (String basePackage : packages) {
@@ -99,7 +99,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
     }
   }
 
-  private ClassPathScanningCandidateComponentProvider getScanner(DefinitionLoadingContext context) {
+  private ClassPathScanningCandidateComponentProvider getScanner(BootstrapContext context) {
     ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false, environment);
     scanner.setResourceLoader(resourceLoader);
     scanner.addIncludeFilter(new AnnotationTypeFilter(ConfigurationProperties.class));

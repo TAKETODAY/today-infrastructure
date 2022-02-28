@@ -20,7 +20,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
 
@@ -75,6 +75,6 @@ public interface ImportBeanDefinitionRegistrar {
    * @param importMetadata annotation metadata of the importing class
    * @param context Bean definition loading context
    */
-  void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context);
+  void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context);
 
 }

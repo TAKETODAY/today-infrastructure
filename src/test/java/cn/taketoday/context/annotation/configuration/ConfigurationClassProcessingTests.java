@@ -53,7 +53,7 @@ import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import jakarta.annotation.Resource;
 import jakarta.inject.Provider;
@@ -338,7 +338,7 @@ public class ConfigurationClassProcessingTests {
       beanFactory.registerBeanDefinition(configBeanName, new BeanDefinition(configClass));
     }
     ConfigurationClassPostProcessor ccpp = new ConfigurationClassPostProcessor(
-            new DefinitionLoadingContext(beanFactory, ac));
+            new BootstrapContext(beanFactory, ac));
     ccpp.postProcessBeanDefinitionRegistry(beanFactory);
     ccpp.postProcessBeanFactory(beanFactory);
     beanFactory.freezeConfiguration();

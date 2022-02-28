@@ -35,7 +35,7 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -67,7 +67,7 @@ public class ParserStrategyUtilsTests {
   private PatternResourceLoader resourceLoader;
 
   @Mock
-  DefinitionLoadingContext loadingContext;
+  BootstrapContext loadingContext;
 
   @BeforeEach
   void setup() {

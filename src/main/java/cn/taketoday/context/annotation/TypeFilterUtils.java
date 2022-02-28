@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import cn.taketoday.context.annotation.ComponentScan.Filter;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -73,7 +73,7 @@ public abstract class TypeFilterUtils {
    */
   @SuppressWarnings("unchecked")
   public static List<TypeFilter> createTypeFiltersFor(
-          MergedAnnotation<Filter> filterAnnotation, DefinitionLoadingContext loadingContext) {
+          MergedAnnotation<Filter> filterAnnotation, BootstrapContext loadingContext) {
 
     ArrayList<TypeFilter> typeFilters = new ArrayList<>();
     FilterType filterType = filterAnnotation.getEnum("type", FilterType.class);

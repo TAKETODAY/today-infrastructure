@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -48,7 +48,7 @@ final class ConfigurationPropertiesBeanRegistrar {
 
   private final BeanFactory beanFactory;
 
-  ConfigurationPropertiesBeanRegistrar(DefinitionLoadingContext context) {
+  ConfigurationPropertiesBeanRegistrar(BootstrapContext context) {
     this.registry = context.getRegistry();
     this.beanFactory = context.getBeanFactory();
   }

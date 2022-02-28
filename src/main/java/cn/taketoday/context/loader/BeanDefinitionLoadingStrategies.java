@@ -41,7 +41,7 @@ public class BeanDefinitionLoadingStrategies implements BeanDefinitionLoadingStr
 
   @Override
   public void loadBeanDefinitions(
-          MetadataReader metadata, DefinitionLoadingContext loadingContext) {
+          MetadataReader metadata, BootstrapContext loadingContext) {
     for (BeanDefinitionLoadingStrategy strategy : loadingStrategies) {
       strategy.loadBeanDefinitions(metadata, loadingContext);
     }

@@ -30,7 +30,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -318,7 +318,7 @@ public class ConfigurationClassWithConditionTests {
     }
 
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
 
     }
 

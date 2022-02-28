@@ -43,7 +43,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DeferredImportSelector;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -461,7 +461,7 @@ public class AutoConfigurationImportSelector
     }
 
     private MetadataReaderFactory getMetadataReaderFactory() {
-      DefinitionLoadingContext context = DefinitionLoadingContext.from(beanFactory);
+      BootstrapContext context = BootstrapContext.from(beanFactory);
       return context.getMetadataReaderFactory();
     }
 

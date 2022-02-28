@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.support;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanNamePopulator;
@@ -27,7 +26,6 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
@@ -43,14 +41,12 @@ import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator
 import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
 import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Standard {@link ApplicationContext}
@@ -64,8 +60,6 @@ public class StandardApplicationContext
 
   private AnnotatedBeanDefinitionReader reader;
   private ClassPathBeanDefinitionScanner scanningReader;
-
-  private final DefinitionLoadingContext loadingContext = createLoadingContext();
 
   /**
    * Default Constructor
@@ -134,25 +128,8 @@ public class StandardApplicationContext
   //---------------------------------------------------------------------
 
   @Override
-  protected void resetCommonCaches() {
-    super.resetCommonCaches();
-    if (loadingContext != null) {
-      loadingContext.clearCache();
-    }
-  }
-
-  @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-
-    List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
-            BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
-
-    if (!strategies.isEmpty()) {
-      for (BeanDefinitionLoader loader : strategies) {
-        loader.loadBeanDefinitions(loadingContext);
-      }
-    }
 
     if (!containsBeanDefinition(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(
@@ -161,8 +138,6 @@ public class StandardApplicationContext
       registerBeanDefinition(def);
       def.getConstructorArgumentValues().addGenericArgumentValue(loadingContext);
     }
-
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(loadingContext.getRegistry());
   }
 
   @Override
@@ -224,13 +199,13 @@ public class StandardApplicationContext
 
   /**
    * Provide a custom {@link BeanNamePopulator} for use with {@link AnnotatedBeanDefinitionReader}
-   * and/or {@link DefinitionLoadingContext}, if any.
+   * and/or {@link BootstrapContext}, if any.
    * <p>Default is {@link AnnotationBeanNamePopulator}.
    * <p>Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
    * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
-   * @see DefinitionLoadingContext#setBeanNamePopulator
+   * @see BootstrapContext#setBeanNamePopulator
    * @see AnnotationBeanNamePopulator
    * @see FullyQualifiedAnnotationBeanNamePopulator
    */
@@ -289,13 +264,6 @@ public class StandardApplicationContext
       reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
     }
     return reader;
-  }
-
-  private DefinitionLoadingContext createLoadingContext() {
-    DefinitionLoadingContext context = DefinitionLoadingContext.from(this);
-    DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, this);
-    getBeanFactory().registerSingleton(DefinitionLoadingContext.BEAN_NAME, loadingContext);
-    return loadingContext;
   }
 
 }

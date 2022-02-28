@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.orm.mybatis.mapper.ClassPathMapperScanner;
@@ -55,7 +55,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
    * {@inheritDoc}
    */
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importMetadata, DefinitionLoadingContext context) {
+  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
     MergedAnnotation<MapperScan> mapperScan = importMetadata.getAnnotation(MapperScan.class);
     if (mapperScan.isPresent()) {
       registerBeanDefinitions(importMetadata, mapperScan,
@@ -152,7 +152,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
      * {@inheritDoc}
      */
     @Override
-    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, DefinitionLoadingContext context) {
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BootstrapContext context) {
       MergedAnnotation<MapperScans> annotation = importingClassMetadata.getAnnotation(MapperScans.class);
       if (annotation.isPresent()) {
 

@@ -99,11 +99,14 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
 
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
     this.registry = registry;
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
+
   }
 
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, boolean enableConditionEvaluation) {
     this.registry = registry;
     this.enableConditionEvaluation = enableConditionEvaluation;
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
   }
 
   public AnnotatedBeanDefinitionReader(
