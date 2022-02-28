@@ -44,8 +44,10 @@ import cn.taketoday.context.annotation.DeferredImportSelector;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.DefinitionLoadingContext;
+import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -72,7 +74,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class AutoConfigurationImportSelector
         implements DeferredImportSelector, BeanClassLoaderAware,
-                   ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {
+        ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
@@ -253,11 +255,12 @@ public class AutoConfigurationImportSelector
     if (environment == null) {
       return Collections.emptyList();
     }
-//    if (environment instanceof ConfigurableEnvironment) {
-//      Binder binder = Binder.get(environment);
-//      return binder.bind(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class).map(Arrays::asList)
-//              .orElse(Collections.emptyList());
-//    }
+    if (environment instanceof ConfigurableEnvironment) {
+      Binder binder = Binder.get(environment);
+      return binder.bind(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class)
+              .map(Arrays::asList)
+              .orElse(Collections.emptyList());
+    }
     String[] excludes = environment.getProperty(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class);
     return excludes != null ? Arrays.asList(excludes) : Collections.emptyList();
   }

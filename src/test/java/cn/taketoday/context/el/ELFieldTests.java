@@ -91,7 +91,7 @@ class ELFieldTests {
       processor.setPropertiesLocation("info.properties");
       processor.postProcessEnvironment();
 
-      applicationContext.registerBean(user);
+      applicationContext.registerSingleton(user);
       applicationContext.register(ELFieldTests.class);
       applicationContext.refresh();
 

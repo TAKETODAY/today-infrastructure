@@ -23,10 +23,11 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.ApplicationStartedEvent;
@@ -42,7 +43,6 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
@@ -61,8 +61,6 @@ public class WebApplicationLoader
   public static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private DispatcherHandler dispatcher;
-  // @since 4.0
-  private AnnotatedBeanDefinitionReader definitionReader;
 
   public void onStartup() throws Throwable {
     onStartup(obtainApplicationContext());
@@ -216,7 +214,6 @@ public class WebApplicationLoader
     dispatcherHandler.setExceptionHandler(exceptionHandler);
   }
 
-
   private void configureReturnValueHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
     configureReturnValueHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
   }
@@ -300,7 +297,7 @@ public class WebApplicationLoader
    * @throws Throwable If any initialize exception occurred
    */
   protected void initializerStartup(WebApplicationContext context,
-                                    WebMvcConfiguration mvcConfiguration) throws Throwable //
+          WebMvcConfiguration mvcConfiguration) throws Throwable //
   {
     List<WebApplicationInitializer> initializers = context.getBeans(WebApplicationInitializer.class);
     configureInitializer(initializers, mvcConfiguration);
@@ -336,7 +333,7 @@ public class WebApplicationLoader
    * @throws Throwable if any Throwable occurred
    */
   protected ViewControllerHandlerRegistry configViewControllerHandlerRegistry(
-          ViewControllerHandlerRegistry registry) throws Throwable {
+          @Nullable ViewControllerHandlerRegistry registry) throws Throwable {
     // find the configure file
     log.info("TODAY WEB Framework Is Looking For ViewController Configuration File.");
     String webMvcConfigLocation = getWebMvcConfigLocation();
@@ -345,8 +342,10 @@ public class WebApplicationLoader
       return registry;
     }
     if (registry == null) {
-      definitionReader().registerBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
-      registry = obtainApplicationContext().getBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
+      WebApplicationContext context = obtainApplicationContext();
+      context.unwrap(BeanDefinitionRegistrar.class)
+              .registerBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
+      registry = context.getBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
     }
     registry.configure(webMvcConfigLocation);
     return registry;
@@ -376,19 +375,12 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        definitionReader().registerBean(DispatcherHandler.BEAN_NAME, dispatcherHandler);
+        context.unwrap(BeanDefinitionRegistrar.class)
+                .registerSingleton(DispatcherHandler.BEAN_NAME, dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;
     }
     return dispatcher;
-  }
-
-  protected final AnnotatedBeanDefinitionReader definitionReader() {
-    if (definitionReader == null) {
-      definitionReader = new AnnotatedBeanDefinitionReader(obtainApplicationContext());
-      definitionReader.setEnableConditionEvaluation(false);
-    }
-    return definitionReader;
   }
 
   protected DispatcherHandler createDispatcher(WebApplicationContext context) {

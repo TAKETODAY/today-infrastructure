@@ -40,6 +40,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluator;
@@ -93,6 +94,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     if (context instanceof BeanDefinitionRegistry registry) {
       this.registry = registry;
     }
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
   }
 
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
@@ -325,7 +327,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
    * @throws BeanDefinitionStoreException If can't store a bean
    */
   @Override
-  public void registerBean(Object obj) {
+  public void registerSingleton(Object obj) {
     Assert.notNull(obj, "bean-instance must not be null");
     BeanDefinition definition = new BeanDefinition(obj.getClass());
     String name = beanNamePopulator.populateName(definition, registry);
@@ -333,25 +335,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     definition.setSynthetic(true);
 
     register(definition);
-    getSingletonRegistry().registerSingleton(name, obj);
-  }
-
-  /**
-   * Register a bean with the given name and bean instance
-   *
-   * @param name bean name (must not be null)
-   * @param obj bean instance (must not be null)
-   * @throws BeanDefinitionStoreException If can't store a bean
-   */
-  @Override
-  public void registerBean(String name, Object obj) {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(obj, "bean-instance must not be null");
-
-    BeanDefinition definition = new BeanDefinition(name, obj.getClass());
-    definition.setSynthetic(true);
-    register(definition);
-
     getSingletonRegistry().registerSingleton(name, obj);
   }
 

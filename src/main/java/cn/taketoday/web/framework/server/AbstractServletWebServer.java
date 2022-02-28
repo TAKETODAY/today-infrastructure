@@ -189,7 +189,7 @@ public abstract class AbstractServletWebServer
         }
 
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
-        reader.registerBean(new ServletSecurityElement(servletSecurity));
+        reader.registerSingleton(new ServletSecurityElement(servletSecurity));
       }
     }
 

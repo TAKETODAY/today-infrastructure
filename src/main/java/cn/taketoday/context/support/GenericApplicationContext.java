@@ -29,13 +29,14 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -99,7 +100,6 @@ public class GenericApplicationContext
   private boolean customClassLoader = false;
 
   protected final StandardBeanFactory beanFactory;
-  private AnnotatedBeanDefinitionReader beanDefinitionReader;
 
   /**
    * Default Constructor
@@ -331,7 +331,7 @@ public class GenericApplicationContext
    */
   @Override
   public void registerSingleton(String name, Object obj) {
-    getBeanDefinitionReader().registerSingleton(name, obj);
+    getBeanFactory().registerSingleton(name, obj);
   }
 
   /**
@@ -383,13 +383,8 @@ public class GenericApplicationContext
   }
 
   @Override
-  public void registerBean(Object obj) {
-    getBeanDefinitionReader().registerBean(obj);
-  }
-
-  @Override
-  public void registerBean(String name, Object obj) {
-    getBeanDefinitionReader().registerBean(name, obj);
+  public void registerSingleton(Object obj) {
+    getBeanFactory().registerSingleton(obj);
   }
 
   /**
@@ -402,10 +397,18 @@ public class GenericApplicationContext
    * @throws BeanDefinitionStoreException If can't store a bean
    * @since 4.0
    */
-  public <T> void registerBean(
-          Class<T> clazz, Supplier<T> supplier,
+  public <T> void registerBean(Class<T> clazz, @Nullable Supplier<T> supplier,
           boolean prototype, boolean ignoreAnnotation) throws BeanDefinitionStoreException {
-    getBeanDefinitionReader().registerBean(clazz, supplier, prototype, ignoreAnnotation);
+
+    BeanDefinition definition = new BeanDefinition(clazz);
+    if (prototype) {
+      definition.setScope(Scope.PROTOTYPE);
+    }
+
+    definition.setBeanName(BeanDefinitionBuilder.defaultBeanName(clazz));
+    definition.setInstanceSupplier(supplier);
+
+    registerBeanDefinition(definition);
   }
 
   /**
@@ -438,7 +441,12 @@ public class GenericApplicationContext
   @Override
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
-    getBeanDefinitionReader().registerBean(beanName, beanClass, constructorArgs);
+    registerBean(beanName, beanClass, (Supplier<T>) null,
+            bd -> {
+              for (Object arg : constructorArgs) {
+                bd.getConstructorArgumentValues().addGenericArgumentValue(arg);
+              }
+            });
   }
 
   /**
@@ -460,14 +468,17 @@ public class GenericApplicationContext
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-    getBeanDefinitionReader().registerBean(beanName, beanClass, supplier, customizers);
-  }
 
-  public final AnnotatedBeanDefinitionReader getBeanDefinitionReader() {
-    if (beanDefinitionReader == null) {
-      beanDefinitionReader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    BeanDefinition beanDefinition = new BeanDefinition(beanClass);
+    if (supplier != null) {
+      beanDefinition.setInstanceSupplier(supplier);
     }
-    return beanDefinitionReader;
+    for (BeanDefinitionCustomizer customizer : customizers) {
+      customizer.customize(beanDefinition);
+    }
+    String nameToUse = beanName != null ? beanName : BeanDefinitionBuilder.defaultBeanName(beanClass);
+    beanDefinition.setBeanName(nameToUse);
+    registerBeanDefinition(nameToUse, beanDefinition);
   }
 
   //---------------------------------------------------------------------

@@ -192,16 +192,7 @@ public interface BeanDefinitionRegistrar {
    * @param obj bean instance
    * @throws BeanDefinitionStoreException If can't store a bean
    */
-  void registerBean(Object obj);
-
-  /**
-   * Register a bean with the given name and bean instance
-   *
-   * @param name bean name (must not be null)
-   * @param obj bean instance (must not be null)
-   * @throws BeanDefinitionStoreException If can't store a bean
-   */
-  void registerBean(String name, Object obj);
+  void registerSingleton(Object obj);
 
   //---------------------------------------------------------------------
   // Manual prototype
@@ -214,7 +205,7 @@ public interface BeanDefinitionRegistrar {
    * @param supplier bean instance supplier
    * @throws BeanDefinitionStoreException If can't store a bean
    */
-  default <T> void registerBean(Class<T> clazz, Supplier<T> supplier) throws BeanDefinitionStoreException {
+  default <T> void registerBean(Class<T> clazz, @Nullable Supplier<T> supplier) throws BeanDefinitionStoreException {
     registerBean(clazz, supplier, false);
   }
 
@@ -227,7 +218,7 @@ public interface BeanDefinitionRegistrar {
    * @throws BeanDefinitionStoreException If can't store a bean
    */
   default <T> void registerBean(
-          Class<T> clazz, Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
+          Class<T> clazz, @Nullable Supplier<T> supplier, boolean prototype) throws BeanDefinitionStoreException {
     registerBean(clazz, supplier, prototype, true);
   }
 
@@ -241,7 +232,7 @@ public interface BeanDefinitionRegistrar {
    * @throws BeanDefinitionStoreException If can't store a bean
    */
   <T> void registerBean(
-          Class<T> clazz, Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
+          Class<T> clazz, @Nullable Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation)
           throws BeanDefinitionStoreException;
 
 }

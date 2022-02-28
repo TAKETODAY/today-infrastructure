@@ -20,10 +20,12 @@
 package cn.taketoday.context.support;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
@@ -60,7 +62,9 @@ import cn.taketoday.lang.TodayStrategies;
 public class StandardApplicationContext
         extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
+  private AnnotatedBeanDefinitionReader reader;
   private ClassPathBeanDefinitionScanner scanningReader;
+
   private final DefinitionLoadingContext loadingContext = createLoadingContext();
 
   /**
@@ -200,7 +204,7 @@ public class StandardApplicationContext
   @Override
   public void register(Class<?>... components) {
     Assert.notEmpty(components, "At least one component class must be specified");
-    getBeanDefinitionReader().registerBean(components);
+    getReader().registerBean(components);
   }
 
   /**
@@ -235,7 +239,7 @@ public class StandardApplicationContext
 
     loadingContext.setBeanNamePopulator(beanNamePopulator);
     scanningReader().setBeanNamePopulator(beanNamePopulator);
-    getBeanDefinitionReader().setBeanNamePopulator(beanNamePopulator);
+    getReader().setBeanNamePopulator(beanNamePopulator);
 
     getBeanFactory().registerSingleton(
             AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);
@@ -250,7 +254,7 @@ public class StandardApplicationContext
   public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
     loadingContext.setScopeMetadataResolver(scopeMetadataResolver);
     scanningReader().setScopeMetadataResolver(scopeMetadataResolver);
-    getBeanDefinitionReader().setScopeMetadataResolver(scopeMetadataResolver);
+    getReader().setScopeMetadataResolver(scopeMetadataResolver);
   }
 
   /**
@@ -263,6 +267,16 @@ public class StandardApplicationContext
     scanningReader().setEnvironment(environment);
   }
 
+  //---------------------------------------------------------------------
+  // Adapt superclass registerBean calls to AnnotatedBeanDefinitionReader
+  //---------------------------------------------------------------------
+
+  @Override
+  public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
+          @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
+    reader.registerBean(beanClass, beanName, supplier, customizers);
+  }
+
   private ClassPathBeanDefinitionScanner scanningReader() {
     if (scanningReader == null) {
       scanningReader = new ClassPathBeanDefinitionScanner(this);
@@ -270,7 +284,15 @@ public class StandardApplicationContext
     return scanningReader;
   }
 
+  AnnotatedBeanDefinitionReader getReader() {
+    if (reader == null) {
+      reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
+    }
+    return reader;
+  }
+
   private DefinitionLoadingContext createLoadingContext() {
+    DefinitionLoadingContext context = DefinitionLoadingContext.from(this);
     DefinitionLoadingContext loadingContext = new DefinitionLoadingContext(beanFactory, this);
     getBeanFactory().registerSingleton(DefinitionLoadingContext.BEAN_NAME, loadingContext);
     return loadingContext;
