@@ -223,23 +223,9 @@ class ClassUtilsTests {
 
   @Test
   void testOther() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
-    final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
-    ReflectionUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
-
     assert BeanUtils.newInstance(ClassUtilsTests.class.getName()) != null;
-
     try {
       BeanUtils.newInstance("not found");
-      assert false;
-    }
-    catch (Exception e) {
-      assert true;
-    }
-    try {
-
-      final Method throwing = AutowiredOnConstructor.class.getDeclaredMethod("throwing");
-      ReflectionUtils.accessInvokeMethod(throwing, new AutowiredOnConstructor(null));
-
       assert false;
     }
     catch (Exception e) {

@@ -599,10 +599,6 @@ public abstract class ReflectionUtils {
     throw new IllegalStateException("Should never get here");
   }
 
-  public static Object accessInvokeMethod(Method method, Object target, Object... args) {
-    return invokeMethod(makeAccessible(method), target, args);
-  }
-
   /**
    * Determine whether the given method explicitly declares the given exception or
    * one of its superclasses, which means that an exception of that type can be
