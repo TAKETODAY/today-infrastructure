@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -85,6 +86,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
    */
   public AbstractRefreshableApplicationContext(@Nullable ApplicationContext parent) {
     super(parent);
+  }
+
+  @Override
+  protected BootstrapContext createLoadingContext() {
+    return new BootstrapContext(this, this);
   }
 
   /**
