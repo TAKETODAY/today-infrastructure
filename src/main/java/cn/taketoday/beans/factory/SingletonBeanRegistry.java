@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.lang.Nullable;
 
@@ -66,7 +67,7 @@ public interface SingletonBeanRegistry {
    * </p>
    *
    * @param bean bean instance
-   * @see cn.taketoday.util.ClassUtils#getShortName(Class)
+   * @see BeanDefinitionBuilder#defaultBeanName(Class)
    * @since 2.1.2
    */
   void registerSingleton(Object bean);

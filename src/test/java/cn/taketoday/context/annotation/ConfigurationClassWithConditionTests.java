@@ -29,9 +29,9 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;

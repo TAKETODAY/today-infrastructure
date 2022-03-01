@@ -103,7 +103,7 @@ public class GenericApplicationContext
   private ResourceLoader resourceLoader;
   private boolean customClassLoader = false;
 
-  protected final BootstrapContext loadingContext = createLoadingContext();
+  protected final BootstrapContext loadingContext = createBootstrapContext();
 
   protected final StandardBeanFactory beanFactory;
 
@@ -155,7 +155,7 @@ public class GenericApplicationContext
   }
 
   @Override
-  protected BootstrapContext createLoadingContext() {
+  protected BootstrapContext createBootstrapContext() {
     return new BootstrapContext(beanFactory, this);
   }
 

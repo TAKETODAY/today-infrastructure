@@ -63,7 +63,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 
 /**
- * Startup Context
+ * Startup(Refresh) Context
  *
  * @author TODAY 2021/10/19 22:22
  * @since 4.0

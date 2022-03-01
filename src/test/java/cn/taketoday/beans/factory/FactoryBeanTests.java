@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.aware.ApplicationContextSupport;
-import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Singleton;

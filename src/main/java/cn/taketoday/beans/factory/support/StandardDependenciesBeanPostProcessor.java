@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -117,9 +116,8 @@ import cn.taketoday.util.StringUtils;
  * @see Autowired
  * @since 4.0 2021/12/26 14:51
  */
-public class StandardDependenciesBeanPostProcessor
-        implements DependenciesBeanPostProcessor, SmartInstantiationAwareBeanPostProcessor,
-                   BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
+public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor,
+        SmartInstantiationAwareBeanPostProcessor, BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -130,8 +128,8 @@ public class StandardDependenciesBeanPostProcessor
 
   private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
-  private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
-  private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
 
   private DependencyInjector dependencyInjector;
 

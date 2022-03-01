@@ -31,7 +31,6 @@ import java.util.Set;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
@@ -42,11 +41,12 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.ImportAware;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
@@ -85,7 +85,7 @@ public class ConfigurationClassPostProcessor
   public static final AnnotationBeanNamePopulator IMPORT_BEAN_NAME_GENERATOR =
           FullyQualifiedAnnotationBeanNamePopulator.INSTANCE;
 
-  private final BootstrapContext loadingContext;
+  private final BootstrapContext bootstrapContext;
 
   private final Set<Integer> registriesPostProcessed = new HashSet<>();
 
@@ -101,8 +101,8 @@ public class ConfigurationClassPostProcessor
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-  public ConfigurationClassPostProcessor(BootstrapContext loadingContext) {
-    this.loadingContext = loadingContext;
+  public ConfigurationClassPostProcessor(BootstrapContext bootstrapContext) {
+    this.bootstrapContext = bootstrapContext;
   }
 
   @Override
@@ -117,7 +117,7 @@ public class ConfigurationClassPostProcessor
    * and would be reported as a problem. Defaults to {@link FailFastProblemReporter}.
    */
   public void setProblemReporter(@Nullable ProblemReporter problemReporter) {
-    loadingContext.setProblemReporter(problemReporter);
+    bootstrapContext.setProblemReporter(problemReporter);
   }
 
   /**
@@ -139,7 +139,7 @@ public class ConfigurationClassPostProcessor
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator must not be null");
     this.localBeanNamePopulatorSet = true;
-    loadingContext.setBeanNamePopulator(beanNamePopulator);
+    bootstrapContext.setBeanNamePopulator(beanNamePopulator);
     this.importBeanNamePopulator = beanNamePopulator;
   }
 
@@ -204,7 +204,7 @@ public class ConfigurationClassPostProcessor
           log.debug("Bean definition has already been processed as a configuration class: " + beanDef);
         }
       }
-      else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, loadingContext)) {
+      else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, bootstrapContext)) {
         configCandidates.add(beanDef);
       }
     }
@@ -235,7 +235,7 @@ public class ConfigurationClassPostProcessor
     }
 
     // Parse each @Configuration class
-    ConfigurationClassParser parser = new ConfigurationClassParser(loadingContext);
+    ConfigurationClassParser parser = new ConfigurationClassParser(bootstrapContext);
 
     LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>(configCandidates);
     HashSet<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
@@ -249,7 +249,7 @@ public class ConfigurationClassPostProcessor
       // Read the model and create bean definitions based on its content
       if (this.reader == null) {
         this.reader = new ConfigurationClassBeanDefinitionReader(
-                loadingContext, importBeanNamePopulator, parser.getImportRegistry());
+                bootstrapContext, importBeanNamePopulator, parser.getImportRegistry());
       }
       this.reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);
@@ -265,7 +265,7 @@ public class ConfigurationClassPostProcessor
         for (String candidateName : newCandidateNames) {
           if (!oldCandidateNames.contains(candidateName)) {
             BeanDefinition bd = registry.getBeanDefinition(candidateName);
-            if (bd != null && ConfigurationClassUtils.checkConfigurationClassCandidate(bd, loadingContext)
+            if (bd != null && ConfigurationClassUtils.checkConfigurationClassCandidate(bd, bootstrapContext)
                     && !alreadyParsedClasses.contains(bd.getBeanClassName())) {
               candidates.add(bd);
             }
@@ -281,7 +281,7 @@ public class ConfigurationClassPostProcessor
       sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.getImportRegistry());
     }
 
-    loadingContext.clearCache();
+    bootstrapContext.clearCache();
   }
 
   /**

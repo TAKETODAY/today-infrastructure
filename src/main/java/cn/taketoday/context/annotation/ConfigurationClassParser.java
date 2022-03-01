@@ -125,15 +125,15 @@ class ConfigurationClassParser {
 
   private final SourceClass objectSourceClass = new SourceClass(Object.class);
 
-  private final BootstrapContext loadingContext;
+  private final BootstrapContext bootstrapContext;
 
   /**
    * Create a new {@link ConfigurationClassParser} instance that will be used
    * to populate the set of configuration classes.
    */
-  public ConfigurationClassParser(BootstrapContext loadingContext) {
-    this.loadingContext = loadingContext;
-    this.componentScanParser = new ComponentScanAnnotationParser(loadingContext);
+  public ConfigurationClassParser(BootstrapContext bootstrapContext) {
+    this.bootstrapContext = bootstrapContext;
+    this.componentScanParser = new ComponentScanAnnotationParser(bootstrapContext);
   }
 
   public void parse(Set<BeanDefinition> configCandidates) {
@@ -163,7 +163,7 @@ class ConfigurationClassParser {
 
   protected final void parse(@Nullable String className, String beanName) throws IOException {
     Assert.notNull(className, "No bean class name for configuration class bean definition");
-    MetadataReader reader = loadingContext.getMetadataReader(className);
+    MetadataReader reader = bootstrapContext.getMetadataReader(className);
     processConfigurationClass(new ConfigurationClass(reader, beanName), DEFAULT_EXCLUSION_FILTER);
   }
 
@@ -181,7 +181,7 @@ class ConfigurationClassParser {
    * @see ConfigurationClass#validate
    */
   public void validate() {
-    ProblemReporter problemReporter = loadingContext.getProblemReporter();
+    ProblemReporter problemReporter = bootstrapContext.getProblemReporter();
     for (ConfigurationClass configClass : this.configurationClasses.keySet()) {
       configClass.validate(problemReporter);
     }
@@ -192,7 +192,7 @@ class ConfigurationClassParser {
   }
 
   protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
-    if (loadingContext.passCondition(
+    if (bootstrapContext.passCondition(
             configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
       ConfigurationClass existingClass = this.configurationClasses.get(configClass);
       if (existingClass != null) {
@@ -241,7 +241,7 @@ class ConfigurationClassParser {
     }
 
     // Process any @PropertySource annotations
-    Environment environment = loadingContext.getEnvironment();
+    Environment environment = bootstrapContext.getEnvironment();
     for (MergedAnnotation<PropertySource> propertySource : repeatable(
             sourceClass.getMetadata().getAnnotations(), PropertySource.class, PropertySources.class)) {
       if (environment instanceof ConfigurableEnvironment) {
@@ -259,14 +259,14 @@ class ConfigurationClassParser {
             sourceClass.getMetadata().getAnnotations(), ComponentScan.class, ComponentScans.class);
 
     if (!componentScans.isEmpty()
-            && loadingContext.passCondition(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
+            && bootstrapContext.passCondition(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
       for (MergedAnnotation<ComponentScan> componentScan : componentScans) {
         // The config class is annotated with @ComponentScan -> perform the scan immediately
         Set<BeanDefinition> scannedBeanDefinitions =
                 componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
         // Check the set of scanned definitions for any further config classes and parse recursively if needed
         for (BeanDefinition definition : scannedBeanDefinitions) {
-          if (ConfigurationClassUtils.checkConfigurationClassCandidate(definition, loadingContext)) {
+          if (ConfigurationClassUtils.checkConfigurationClassCandidate(definition, bootstrapContext)) {
             parse(definition.getBeanClassName(), definition.getBeanName());
           }
         }
@@ -306,7 +306,7 @@ class ConfigurationClassParser {
   private void processMemberClasses(
           ConfigurationClass configClass, SourceClass sourceClass,
           Predicate<String> filter) throws IOException {
-    ProblemReporter problemReporter = loadingContext.getProblemReporter();
+    ProblemReporter problemReporter = bootstrapContext.getProblemReporter();
     Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();
     if (!memberClasses.isEmpty()) {
       List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
@@ -361,7 +361,7 @@ class ConfigurationClassParser {
       // Unfortunately, the JVM's standard reflection returns methods in arbitrary
       // order, even between different runs of the same application on the same JVM.
       try {
-        AnnotationMetadata asm = loadingContext.getAnnotationMetadata(original.getClassName());
+        AnnotationMetadata asm = bootstrapContext.getAnnotationMetadata(original.getClassName());
         Set<MethodMetadata> asmMethods = asm.getAnnotatedMethods(Component.class.getName());
         if (asmMethods.size() >= componentMethods.size()) {
           LinkedHashSet<MethodMetadata> selectedMethods = new LinkedHashSet<>(asmMethods.size());
@@ -407,12 +407,12 @@ class ConfigurationClassParser {
     Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
     PropertySourceFactory factory =
             factoryClass == PropertySourceFactory.class
-            ? loadingContext.getPropertySourceFactory() : loadingContext.instantiate(factoryClass);
+            ? bootstrapContext.getPropertySourceFactory() : bootstrapContext.instantiate(factoryClass);
 
     for (String location : locations) {
       try {
-        String resolvedLocation = loadingContext.evaluateExpression(location);
-        Resource resource = loadingContext.getResource(resolvedLocation);
+        String resolvedLocation = bootstrapContext.evaluateExpression(location);
+        Resource resource = bootstrapContext.getResource(resolvedLocation);
         addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
       }
       catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
@@ -434,7 +434,7 @@ class ConfigurationClassParser {
 
   private void addPropertySource(cn.taketoday.core.env.PropertySource<?> propertySource) {
     String name = propertySource.getName();
-    Environment environment = loadingContext.getEnvironment();
+    Environment environment = bootstrapContext.getEnvironment();
     cn.taketoday.core.env.PropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
 
     if (this.propertySourceNames.contains(name)) {
@@ -554,7 +554,7 @@ class ConfigurationClassParser {
     }
 
     if (checkForCircularImports && isChainedImportOnStack(configClass)) {
-      loadingContext.reportError(new CircularImportProblem(configClass, this.importStack));
+      bootstrapContext.reportError(new CircularImportProblem(configClass, this.importStack));
     }
     else {
       this.importStack.push(configClass);
@@ -564,7 +564,7 @@ class ConfigurationClassParser {
             // Candidate class is an ImportSelector -> delegate to it to determine imports
             Class<?> candidateClass = candidate.loadClass();
             ImportSelector selector = ParserStrategyUtils.instantiateClass(
-                    candidateClass, ImportSelector.class, loadingContext);
+                    candidateClass, ImportSelector.class, bootstrapContext);
             Predicate<String> selectorFilter = selector.getExclusionFilter();
             if (selectorFilter != null) {
               exclusionFilter = exclusionFilter.or(selectorFilter);
@@ -584,7 +584,7 @@ class ConfigurationClassParser {
             Class<?> candidateClass = candidate.loadClass();
             ImportBeanDefinitionRegistrar registrar =
                     ParserStrategyUtils.instantiateClass(
-                            candidateClass, ImportBeanDefinitionRegistrar.class, loadingContext);
+                            candidateClass, ImportBeanDefinitionRegistrar.class, bootstrapContext);
             configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
           }
           else {
@@ -681,13 +681,13 @@ class ConfigurationClassParser {
     if (className.startsWith("java")) {
       // Never use ASM for core java types
       try {
-        return new SourceClass(ClassUtils.forName(className, loadingContext.getClassLoader()));
+        return new SourceClass(ClassUtils.forName(className, bootstrapContext.getClassLoader()));
       }
       catch (ClassNotFoundException ex) {
         throw new NestedIOException("Failed to load class [" + className + "]", ex);
       }
     }
-    return new SourceClass(loadingContext.getMetadataReader(className));
+    return new SourceClass(bootstrapContext.getMetadataReader(className));
   }
 
   @SuppressWarnings("serial")
@@ -823,7 +823,7 @@ class ConfigurationClassParser {
 
     private Group createGroup(@Nullable Class<? extends Group> type) {
       Class<? extends Group> effectiveType = type != null ? type : DefaultDeferredImportSelectorGroup.class;
-      return ParserStrategyUtils.instantiateClass(effectiveType, Group.class, loadingContext);
+      return ParserStrategyUtils.instantiateClass(effectiveType, Group.class, bootstrapContext);
     }
   }
 
@@ -935,7 +935,7 @@ class ConfigurationClassParser {
         return (Class<?>) this.source;
       }
       String className = ((MetadataReader) this.source).getClassMetadata().getClassName();
-      return ClassUtils.forName(className, loadingContext.getClassLoader());
+      return ClassUtils.forName(className, bootstrapContext.getClassLoader());
     }
 
     public boolean isAssignable(Class<?> clazz) throws IOException {
@@ -943,7 +943,7 @@ class ConfigurationClassParser {
         return clazz.isAssignableFrom((Class<?>) this.source);
       }
       return new AssignableTypeFilter(clazz)
-              .match((MetadataReader) this.source, loadingContext.getMetadataReaderFactory());
+              .match((MetadataReader) this.source, bootstrapContext.getMetadataReaderFactory());
     }
 
     public ConfigurationClass asConfigClass(ConfigurationClass importedBy) {
@@ -967,7 +967,7 @@ class ConfigurationClassParser {
         catch (NoClassDefFoundError err) {
           // getDeclaredClasses() failed because of non-resolvable dependencies
           // -> fall back to ASM below
-          sourceToProcess = loadingContext.getMetadataReader(sourceClass.getName());
+          sourceToProcess = bootstrapContext.getMetadataReader(sourceClass.getName());
         }
       }
 
@@ -1069,7 +1069,7 @@ class ConfigurationClassParser {
           if (className.startsWith("java")) {
             throw new NestedIOException("Failed to load class [" + className + "]", ex);
           }
-          return new SourceClass(loadingContext.getMetadataReader(className));
+          return new SourceClass(bootstrapContext.getMetadataReader(className));
         }
       }
       return asSourceClass(className, DEFAULT_EXCLUSION_FILTER);

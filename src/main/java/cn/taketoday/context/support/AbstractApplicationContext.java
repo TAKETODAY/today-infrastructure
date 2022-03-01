@@ -38,7 +38,6 @@ import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
-import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjector;
@@ -211,8 +210,9 @@ public abstract class AbstractApplicationContext
   @Nullable
   private MessageSource messageSource;
 
+  @Nullable
   @Experimental
-  protected final BootstrapContext loadingContext = createLoadingContext();
+  private BootstrapContext bootstrapContext;
 
   /**
    * Create a new AbstractApplicationContext with no parent.
@@ -229,6 +229,10 @@ public abstract class AbstractApplicationContext
     setParent(parent);
   }
 
+  //---------------------------------------------------------------------
+  // BootstrapContext @since 4.0
+  //---------------------------------------------------------------------
+
   /**
    * Return the DefinitionLoadingContext to use for loading this context
    *
@@ -236,7 +240,28 @@ public abstract class AbstractApplicationContext
    * @since 4.0
    */
   @Experimental
-  protected abstract BootstrapContext createLoadingContext();
+  protected abstract BootstrapContext createBootstrapContext();
+
+  /**
+   * set BootstrapContext
+   *
+   * @param bootstrapContext BootstrapContext
+   * @since 4.0
+   */
+  public void setBootstrapContext(@Nullable BootstrapContext bootstrapContext) {
+    this.bootstrapContext = bootstrapContext;
+  }
+
+  /**
+   * Returns BootstrapContext
+   *
+   * @return Returns BootstrapContext
+   * @since 4.0
+   */
+  @Nullable
+  public BootstrapContext getBootstrapContext() {
+    return bootstrapContext;
+  }
 
   //---------------------------------------------------------------------
   // Implementation of PatternResourceLoader interface
@@ -443,7 +468,9 @@ public abstract class AbstractApplicationContext
     ReflectionUtils.clearCache();
     AnnotationUtils.clearCache();
     ResolvableType.clearCache();
-    loadingContext.clearCache();
+    if (bootstrapContext != null) {
+      bootstrapContext.clearCache();
+    }
   }
 
   /**
@@ -599,10 +626,13 @@ public abstract class AbstractApplicationContext
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.debug("Registering framework components");
 
-    // @since 4.0 ArgumentsResolver
+    if (bootstrapContext == null) {
+      bootstrapContext = createBootstrapContext();
+    }
     beanFactory.registerSingleton(getInjector());
-    beanFactory.registerSingleton(BootstrapContext.BEAN_NAME, loadingContext);
-
+    if (!beanFactory.containsLocalBean(BootstrapContext.BEAN_NAME)) {
+      beanFactory.registerSingleton(BootstrapContext.BEAN_NAME, bootstrapContext);
+    }
     // Register default environment beans.
     if (!beanFactory.containsLocalBean(Environment.ENVIRONMENT_BEAN_NAME)) {
       beanFactory.registerSingleton(Environment.ENVIRONMENT_BEAN_NAME, getEnvironment());
@@ -1504,7 +1534,7 @@ public abstract class AbstractApplicationContext
    * @see #closeBeanFactory()
    */
   @Override
-  public abstract AbstractBeanFactory getBeanFactory();
+  public abstract ConfigurableBeanFactory getBeanFactory();
 
   // Object
 

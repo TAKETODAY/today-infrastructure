@@ -38,6 +38,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/17 15:38
  */
+@Deprecated
 public class PropsDependencyResolver
         extends AnnotationDependencyResolvingStrategy implements DependencyResolvingStrategy {
 

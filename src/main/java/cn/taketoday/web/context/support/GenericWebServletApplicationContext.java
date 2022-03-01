@@ -22,6 +22,7 @@ package cn.taketoday.web.context.support;
 
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
@@ -49,7 +50,7 @@ import jakarta.servlet.ServletContext;
  *
  * <p>If you wish to register annotated <em>component classes</em> with a
  * {@code GenericWebApplicationContext}, you can use an
- * {@link cn.taketoday.context.loader.AnnotatedBeanDefinitionReader
+ * {@link AnnotatedBeanDefinitionReader
  * AnnotatedBeanDefinitionReader}, as demonstrated in the following example.
  * Component classes include in particular
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}

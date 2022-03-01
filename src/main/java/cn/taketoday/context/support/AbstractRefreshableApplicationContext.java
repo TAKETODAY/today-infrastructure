@@ -89,7 +89,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   }
 
   @Override
-  protected BootstrapContext createLoadingContext() {
+  protected BootstrapContext createBootstrapContext() {
     return new BootstrapContext(this, this);
   }
 

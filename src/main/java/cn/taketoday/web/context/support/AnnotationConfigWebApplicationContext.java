@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
-import cn.taketoday.context.loader.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.lang.Assert;
@@ -58,7 +58,7 @@ import cn.taketoday.web.context.ContextLoader;
  * If you wish to register annotated <em>component classes</em> with a
  * {@code GenericApplicationContext} in a web environment, you may use a
  * {@code GenericWebApplicationContext} with an
- * {@link cn.taketoday.context.loader.AnnotatedBeanDefinitionReader
+ * {@link AnnotatedBeanDefinitionReader
  * AnnotatedBeanDefinitionReader}. See the Javadoc for {@link GenericWebApplicationContext}
  * for details and an example.
  *

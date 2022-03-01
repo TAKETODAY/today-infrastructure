@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -39,17 +39,9 @@ import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
-import cn.taketoday.context.annotation.AnnotationConfigUtils;
-import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
-import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluator;
-import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.DependsOn;
-import cn.taketoday.context.annotation.Description;
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.Role;
+import cn.taketoday.context.loader.BeanDefinitionRegistrar;
+import cn.taketoday.context.loader.ScopeMetadata;
+import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.env.Environment;
