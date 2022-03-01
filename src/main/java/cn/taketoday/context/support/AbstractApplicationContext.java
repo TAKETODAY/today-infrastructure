@@ -692,10 +692,9 @@ public abstract class AbstractApplicationContext
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
     // Configure the bean factory with context callbacks.
-    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this, obtainBootstrapContext()));
+    beanFactory.addBeanPostProcessor(new ContextAwareProcessor(this, obtainBootstrapContext()));
     // Register early post-processor for detecting inner beans as ApplicationListeners.
     beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
-    beanFactory.addBeanPostProcessor(new BootstrapContextAwareProcessor(obtainBootstrapContext()));
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found.
     if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {

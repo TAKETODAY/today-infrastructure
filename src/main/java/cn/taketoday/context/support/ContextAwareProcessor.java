@@ -60,7 +60,7 @@ import cn.taketoday.lang.Nullable;
  * @see AbstractApplicationContext#refresh()
  * @since 4.0
  */
-final class ApplicationContextAwareProcessor implements InitializationBeanPostProcessor {
+final class ContextAwareProcessor implements InitializationBeanPostProcessor {
   private final ConfigurableApplicationContext context;
   private final EmbeddedValueResolver embeddedValueResolver;
   private final BootstrapContext bootstrapContext;
@@ -68,7 +68,7 @@ final class ApplicationContextAwareProcessor implements InitializationBeanPostPr
   /**
    * Create a new ApplicationContextAwareProcessor for the given context.
    */
-  public ApplicationContextAwareProcessor(
+  public ContextAwareProcessor(
           ConfigurableApplicationContext applicationContext, BootstrapContext bootstrapContext) {
     this.context = applicationContext;
     this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext.getBeanFactory());
