@@ -38,6 +38,7 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnWebApplication;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
@@ -75,6 +76,7 @@ import cn.taketoday.web.view.ViewResolver;
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+@EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
 @Import({ JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
@@ -91,8 +93,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   public WebMvcAutoConfiguration(
           BeanFactory beanFactory,
-          @Props(prefix = "web.mvc.") WebMvcProperties mvcProperties,
-          @Props(prefix = "web.") WebProperties webProperties,
+          WebProperties webProperties,
+          WebMvcProperties mvcProperties,
           ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
           ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
     this.beanFactory = beanFactory;

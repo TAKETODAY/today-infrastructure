@@ -28,10 +28,9 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -77,7 +76,7 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
    * {@linkplain #refresh refreshed}.
    */
   public AnnotationConfigServletWebServerApplicationContext() {
-    this.reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
+    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
@@ -90,7 +89,7 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
    */
   public AnnotationConfigServletWebServerApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-    this.reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
+    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 

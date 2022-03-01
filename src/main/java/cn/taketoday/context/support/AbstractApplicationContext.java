@@ -41,6 +41,7 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -70,6 +71,7 @@ import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAwareProcessor;
@@ -91,6 +93,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -175,6 +178,7 @@ public abstract class AbstractApplicationContext
   private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
 
   /** @since 4.0 */
+  @Experimental
   private boolean refreshable;
 
   /** @since 4.0 */
@@ -260,6 +264,16 @@ public abstract class AbstractApplicationContext
    */
   @Nullable
   public BootstrapContext getBootstrapContext() {
+    return bootstrapContext;
+  }
+
+  // @since 4.0
+  protected final BootstrapContext obtainBootstrapContext() {
+    BootstrapContext bootstrapContext = getBootstrapContext();
+    if (bootstrapContext == null) {
+      bootstrapContext = createBootstrapContext();
+      setBootstrapContext(bootstrapContext);
+    }
     return bootstrapContext;
   }
 
@@ -626,9 +640,8 @@ public abstract class AbstractApplicationContext
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.debug("Registering framework components");
 
-    if (bootstrapContext == null) {
-      bootstrapContext = createBootstrapContext();
-    }
+    BootstrapContext bootstrapContext = obtainBootstrapContext();
+
     beanFactory.registerSingleton(getInjector());
     if (!beanFactory.containsLocalBean(BootstrapContext.BEAN_NAME)) {
       beanFactory.registerSingleton(BootstrapContext.BEAN_NAME, bootstrapContext);
@@ -706,6 +719,17 @@ public abstract class AbstractApplicationContext
     beanFactory.registerDependency(ResourceLoader.class, this);
     beanFactory.registerDependency(ApplicationEventPublisher.class, this);
     beanFactory.registerDependency(ApplicationContext.class, this);
+
+    // loading some outside beans
+    List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
+            BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
+
+    if (!strategies.isEmpty()) {
+      BootstrapContext bootstrapContext = getBootstrapContext();
+      for (BeanDefinitionLoader loader : strategies) {
+        loader.loadBeanDefinitions(bootstrapContext);
+      }
+    }
   }
 
   // post-processor
@@ -982,6 +1006,7 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  @Experimental
   public void setRefreshable(boolean refreshable) {
     this.refreshable = refreshable;
   }

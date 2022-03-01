@@ -33,7 +33,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
@@ -96,17 +96,6 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
   @Override
   public void setBeanClassLoader(ClassLoader beanClassLoader) {
     this.classLoader = beanClassLoader;
-  }
-
-  // @since 4.0
-  private AnnotatedBeanDefinitionReader definitionReader;
-
-  protected final AnnotatedBeanDefinitionReader definitionReader() {
-    if (definitionReader == null) {
-      definitionReader = new AnnotatedBeanDefinitionReader(obtainApplicationContext());
-      definitionReader.setEnableConditionEvaluation(false);
-    }
-    return definitionReader;
   }
 
   public final ViewController getViewController(String pattern) {
@@ -296,7 +285,8 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
       else {
         Class<?> beanClass = ClassUtils.resolveClassName(className, classLoader);
         if ((controllerBean = context.getBean(name, beanClass)) == null) {
-          definitionReader().registerBean(name, beanClass);
+          context.unwrap(BeanDefinitionRegistrar.class)
+                  .registerBean(name, beanClass);
           controllerBean = context.getBean(name, beanClass);
         }
       }
@@ -304,7 +294,8 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
     else if (StringUtils.isNotEmpty(className)) {
       Class<?> beanClass = ClassUtils.load(className);
       if ((controllerBean = context.getBean(beanClass)) == null) {
-        definitionReader().registerBean(beanClass);
+        context.unwrap(BeanDefinitionRegistrar.class)
+                .registerBean(beanClass);
         controllerBean = context.getBean(beanClass);
       }
     }
@@ -312,9 +303,9 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
   }
 
   protected void processAction(String prefix,
-                               String suffix,
-                               Element action,
-                               Object controller) //
+          String suffix,
+          Element action,
+          Object controller) //
   {
 
     String name = action.getAttribute(ATTR_NAME); // action name

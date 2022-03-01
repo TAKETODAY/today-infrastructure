@@ -25,14 +25,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.util.PropertyMapper;
 
 /**
+ * {@link ConfigurationProperties Configuration properties} for general web concerns.
+ *
+ * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/16 15:38
  */
+@ConfigurationProperties("web")
 public class WebProperties {
 
   /**

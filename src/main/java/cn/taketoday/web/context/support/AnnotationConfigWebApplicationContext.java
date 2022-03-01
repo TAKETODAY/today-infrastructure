@@ -27,8 +27,9 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
-import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.lang.Assert;
@@ -92,7 +93,7 @@ public class AnnotationConfigWebApplicationContext
         extends AbstractRefreshableWebApplicationContext implements AnnotationConfigRegistry {
 
   @Nullable
-  private BeanNamePopulator BeanNamePopulator;
+  private BeanNamePopulator beanNamePopulator;
 
   @Nullable
   private ScopeMetadataResolver scopeMetadataResolver;
@@ -106,11 +107,13 @@ public class AnnotationConfigWebApplicationContext
    * and/or {@link ClassPathBeanDefinitionScanner}.
    * <p>Default is {@link cn.taketoday.context.annotation.AnnotationBeanNamePopulator}.
    *
-   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
-   * @see ClassPathBeanDefinitionScanner#setBeanNamePopulator
+   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator(BeanNamePopulator)
+   * @see ClassPathBeanDefinitionScanner#setBeanNamePopulator(BeanNamePopulator)
+   * @see BootstrapContext#setBeanNamePopulator(BeanNamePopulator)
    */
-  public void setBeanNamePopulator(@Nullable BeanNamePopulator BeanNamePopulator) {
-    this.BeanNamePopulator = BeanNamePopulator;
+  public void setBeanNamePopulator(@Nullable BeanNamePopulator beanNamePopulator) {
+    this.beanNamePopulator = beanNamePopulator;
+    obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
   }
 
   /**
@@ -119,7 +122,7 @@ public class AnnotationConfigWebApplicationContext
    */
   @Nullable
   protected BeanNamePopulator getBeanNamePopulator() {
-    return this.BeanNamePopulator;
+    return this.beanNamePopulator;
   }
 
   /**
@@ -206,11 +209,11 @@ public class AnnotationConfigWebApplicationContext
     AnnotatedBeanDefinitionReader reader = getAnnotatedBeanDefinitionReader(beanFactory);
     ClassPathBeanDefinitionScanner scanner = getClassPathBeanDefinitionScanner(beanFactory);
 
-    BeanNamePopulator BeanNamePopulator = getBeanNamePopulator();
-    if (BeanNamePopulator != null) {
-      reader.setBeanNamePopulator(BeanNamePopulator);
-      scanner.setBeanNamePopulator(BeanNamePopulator);
-      beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, BeanNamePopulator);
+    BeanNamePopulator namePopulator = getBeanNamePopulator();
+    if (namePopulator != null) {
+      reader.setBeanNamePopulator(namePopulator);
+      scanner.setBeanNamePopulator(namePopulator);
+      beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, namePopulator);
     }
 
     ScopeMetadataResolver scopeMetadataResolver = getScopeMetadataResolver();
@@ -219,16 +222,16 @@ public class AnnotationConfigWebApplicationContext
       scanner.setScopeMetadataResolver(scopeMetadataResolver);
     }
 
-    if (!this.componentClasses.isEmpty()) {
+    if (!componentClasses.isEmpty()) {
       if (log.isDebugEnabled()) {
-        log.debug("Registering component classes: [{}]", StringUtils.collectionToCommaDelimitedString(this.componentClasses));
+        log.debug("Registering component classes: [{}]", StringUtils.collectionToCommaDelimitedString(componentClasses));
       }
-      reader.register(ClassUtils.toClassArray(this.componentClasses));
+      reader.register(ClassUtils.toClassArray(componentClasses));
     }
 
-    if (!this.basePackages.isEmpty()) {
+    if (!basePackages.isEmpty()) {
       if (log.isDebugEnabled()) {
-        log.debug("Scanning base packages: [{}]", StringUtils.collectionToCommaDelimitedString(this.basePackages));
+        log.debug("Scanning base packages: [{}]", StringUtils.collectionToCommaDelimitedString(basePackages));
       }
       scanner.scan(StringUtils.toStringArray(this.basePackages));
     }

@@ -58,7 +58,7 @@ public class StandardApplicationContext
         extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
   private AnnotatedBeanDefinitionReader reader;
-  private ClassPathBeanDefinitionScanner scanningReader;
+  private ClassPathBeanDefinitionScanner scanner;
 
   /**
    * Default Constructor
@@ -127,11 +127,6 @@ public class StandardApplicationContext
   //---------------------------------------------------------------------
 
   @Override
-  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    super.postProcessBeanFactory(beanFactory);
-  }
-
-  @Override
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
     super.registerBeanPostProcessors(beanFactory);
 
@@ -170,7 +165,7 @@ public class StandardApplicationContext
   @Override
   public void register(Class<?>... components) {
     Assert.notEmpty(components, "At least one component class must be specified");
-    getReader().registerBean(components);
+    reader().registerBean(components);
   }
 
   /**
@@ -185,7 +180,7 @@ public class StandardApplicationContext
   @Override
   public void scan(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
-    scanningReader().scan(basePackages);
+    scanner().scan(basePackages);
   }
 
   /**
@@ -195,17 +190,17 @@ public class StandardApplicationContext
    * <p>Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
-   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
-   * @see BootstrapContext#setBeanNamePopulator
    * @see AnnotationBeanNamePopulator
    * @see FullyQualifiedAnnotationBeanNamePopulator
+   * @see BootstrapContext#setBeanNamePopulator(BeanNamePopulator)
+   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator(BeanNamePopulator)
    */
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator is required");
 
-    loadingContext.setBeanNamePopulator(beanNamePopulator);
-    scanningReader().setBeanNamePopulator(beanNamePopulator);
-    getReader().setBeanNamePopulator(beanNamePopulator);
+    reader().setBeanNamePopulator(beanNamePopulator);
+    scanner().setBeanNamePopulator(beanNamePopulator);
+    obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
 
     getBeanFactory().registerSingleton(
             AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);
@@ -218,9 +213,9 @@ public class StandardApplicationContext
    * and/or {@link #scan(String...)}.
    */
   public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
-    loadingContext.setScopeMetadataResolver(scopeMetadataResolver);
-    scanningReader().setScopeMetadataResolver(scopeMetadataResolver);
-    getReader().setScopeMetadataResolver(scopeMetadataResolver);
+    reader().setScopeMetadataResolver(scopeMetadataResolver);
+    scanner().setScopeMetadataResolver(scopeMetadataResolver);
+    obtainBootstrapContext().setScopeMetadataResolver(scopeMetadataResolver);
   }
 
   /**
@@ -230,7 +225,7 @@ public class StandardApplicationContext
   @Override
   public void setEnvironment(ConfigurableEnvironment environment) {
     super.setEnvironment(environment);
-    scanningReader().setEnvironment(environment);
+    scanner().setEnvironment(environment);
   }
 
   //---------------------------------------------------------------------
@@ -240,19 +235,19 @@ public class StandardApplicationContext
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-    reader.registerBean(beanClass, beanName, supplier, customizers);
+    reader().registerBean(beanClass, beanName, supplier, customizers);
   }
 
-  private ClassPathBeanDefinitionScanner scanningReader() {
-    if (scanningReader == null) {
-      scanningReader = new ClassPathBeanDefinitionScanner(this);
+  ClassPathBeanDefinitionScanner scanner() {
+    if (scanner == null) {
+      scanner = new ClassPathBeanDefinitionScanner(this);
     }
-    return scanningReader;
+    return scanner;
   }
 
-  AnnotatedBeanDefinitionReader getReader() {
+  AnnotatedBeanDefinitionReader reader() {
     if (reader == null) {
-      reader = new AnnotatedBeanDefinitionReader((ApplicationContext) this);
+      reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
     }
     return reader;
   }

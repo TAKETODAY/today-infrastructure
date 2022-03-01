@@ -28,10 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Constant;
@@ -187,9 +187,8 @@ public abstract class AbstractServletWebServer
           log.info("Multiple: [{}] Overriding its bean definition",
                   ServletSecurityElement.class.getName());
         }
-
-        AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
-        reader.registerSingleton(new ServletSecurityElement(servletSecurity));
+        context.unwrap(BeanDefinitionRegistrar.class)
+                .registerSingleton(new ServletSecurityElement(servletSecurity));
       }
     }
 

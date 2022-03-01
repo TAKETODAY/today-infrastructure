@@ -35,10 +35,8 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.io.DefaultResourceLoader;
@@ -49,7 +47,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Generic ApplicationContext implementation that holds a single internal
@@ -102,8 +99,6 @@ public class GenericApplicationContext
   @Nullable
   private ResourceLoader resourceLoader;
   private boolean customClassLoader = false;
-
-  protected final BootstrapContext loadingContext = createBootstrapContext();
 
   protected final StandardBeanFactory beanFactory;
 
@@ -172,16 +167,7 @@ public class GenericApplicationContext
   }
 
   @Override
-  protected void refreshBeanFactory() throws BeansException, IllegalStateException {
-    List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
-            BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
-
-    if (!strategies.isEmpty()) {
-      for (BeanDefinitionLoader loader : strategies) {
-        loader.loadBeanDefinitions(loadingContext);
-      }
-    }
-  }
+  protected void refreshBeanFactory() throws BeansException, IllegalStateException { }
 
   @Override
   public StandardBeanFactory getBeanFactory() {

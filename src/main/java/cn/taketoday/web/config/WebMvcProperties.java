@@ -24,19 +24,27 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.validation.DefaultMessageCodesResolver;
 
 /**
+ * @author Phillip Webb
+ * @author Sébastien Deleuze
+ * @author Stephane Nicoll
+ * @author Eddú Meléndez
+ * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/16 15:34
  */
+@ConfigurationProperties(prefix = "web.mvc")
 public class WebMvcProperties {
 
   /**
    * Formatting strategy for message codes. For instance, 'PREFIX_ERROR_CODE'.
    */
-  private Format messageCodesResolverFormat;
+  private DefaultMessageCodesResolver.Format messageCodesResolverFormat;
 
   private final Format format = new Format();
 
@@ -92,11 +100,11 @@ public class WebMvcProperties {
 
   private final Contentnegotiation contentnegotiation = new Contentnegotiation();
 
-  public Format getMessageCodesResolverFormat() {
+  public DefaultMessageCodesResolver.Format getMessageCodesResolverFormat() {
     return this.messageCodesResolverFormat;
   }
 
-  public void setMessageCodesResolverFormat(Format messageCodesResolverFormat) {
+  public void setMessageCodesResolverFormat(DefaultMessageCodesResolver.Format messageCodesResolverFormat) {
     this.messageCodesResolverFormat = messageCodesResolverFormat;
   }
 
@@ -268,12 +276,12 @@ public class WebMvcProperties {
   public static class View {
 
     /**
-     * MVC view prefix.
+     * Spring MVC view prefix.
      */
     private String prefix;
 
     /**
-     * MVC view suffix.
+     * Spring MVC view suffix.
      */
     private String suffix;
 

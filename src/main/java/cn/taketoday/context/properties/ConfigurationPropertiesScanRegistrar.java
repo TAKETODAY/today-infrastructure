@@ -28,8 +28,8 @@ import java.util.function.Predicate;
 
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.auto.TypeExcludeFilter;
-import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotationSelectors;
 import cn.taketoday.core.env.Environment;

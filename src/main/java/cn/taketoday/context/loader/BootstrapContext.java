@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
@@ -90,7 +91,13 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
-  public BootstrapContext(BeanDefinitionRegistry registry, @NonNull ApplicationContext context) {
+  public BootstrapContext(ApplicationContext context) {
+    this(new DefaultBeanDefinitionRegistry(), context);
+  }
+
+  public BootstrapContext(BeanDefinitionRegistry registry, ApplicationContext context) {
+    Assert.notNull(context, "ApplicationContext is required");
+    Assert.notNull(registry, "registry is required");
     this.registry = registry;
     this.resourceLoader = context;
     this.applicationContext = context;

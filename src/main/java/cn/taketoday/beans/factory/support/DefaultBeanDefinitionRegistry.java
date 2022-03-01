@@ -40,8 +40,7 @@ public class DefaultBeanDefinitionRegistry
         extends DefaultAliasRegistry implements BeanDefinitionRegistry {
 
   /** Map of bean definition objects, keyed by bean name. */
-  private final ConcurrentHashMap<String, BeanDefinition>
-          beanDefinitionMap = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;

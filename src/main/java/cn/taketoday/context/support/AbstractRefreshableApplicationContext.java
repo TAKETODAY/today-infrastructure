@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -90,7 +91,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
   @Override
   protected BootstrapContext createBootstrapContext() {
-    return new BootstrapContext(this, this);
+    return new BootstrapContext(Objects.requireNonNullElse(beanFactory, this), this);
   }
 
   /**
@@ -141,10 +142,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
   @Override
   protected final void closeBeanFactory() {
-    StandardBeanFactory beanFactory = this.beanFactory;
-    if (beanFactory != null) {
-      this.beanFactory = null;
-    }
+    this.beanFactory = null;
   }
 
   /**
@@ -152,7 +150,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
    * i.e. has been refreshed at least once and not been closed yet.
    */
   protected final boolean hasBeanFactory() {
-    return (this.beanFactory != null);
+    return beanFactory != null;
   }
 
   @Override

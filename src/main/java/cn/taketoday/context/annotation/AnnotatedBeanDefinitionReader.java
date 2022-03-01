@@ -92,7 +92,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
     this.registry = registry;
     AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
-
   }
 
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, boolean enableConditionEvaluation) {
@@ -105,6 +104,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
           ApplicationContext context, BeanDefinitionRegistry registry) {
     this.context = context;
     this.registry = registry;
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
   }
 
   //---------------------------------------------------------------------

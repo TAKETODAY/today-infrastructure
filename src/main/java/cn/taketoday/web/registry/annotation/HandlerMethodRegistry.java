@@ -27,13 +27,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanSupplier;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -75,9 +75,6 @@ public class HandlerMethodRegistry
 
   /** @since 3.0 */
   private AnnotationHandlerFactory<ActionMappingAnnotationHandler> annotationHandlerFactory;
-
-  // @since 4.0
-  private AnnotatedBeanDefinitionReader definitionReader;
 
   private BeanDefinitionRegistry registry;
 
@@ -360,10 +357,12 @@ public class HandlerMethodRegistry
     }
     int i = 0;
     HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
+
+    BeanDefinitionRegistrar registrar = obtainApplicationContext().unwrap(BeanDefinitionRegistrar.class);
     for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
       if (!registry.containsBeanDefinition(interceptor, true)) {
         try {
-          definitionReader().registerBean(interceptor);
+          registrar.registerBean(interceptor);
         }
         catch (BeanDefinitionStoreException e) {
           throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
@@ -399,14 +398,6 @@ public class HandlerMethodRegistry
 
   public AnnotationHandlerFactory<ActionMappingAnnotationHandler> getAnnotationHandlerFactory() {
     return annotationHandlerFactory;
-  }
-
-  protected final AnnotatedBeanDefinitionReader definitionReader() {
-    if (definitionReader == null) {
-      definitionReader = new AnnotatedBeanDefinitionReader(obtainApplicationContext());
-      definitionReader.setEnableConditionEvaluation(false);
-    }
-    return definitionReader;
   }
 
   /**

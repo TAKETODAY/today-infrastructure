@@ -102,6 +102,7 @@ public class ConfigurationClassPostProcessor
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   public ConfigurationClassPostProcessor(BootstrapContext bootstrapContext) {
+    Assert.notNull(bootstrapContext, "BootstrapContext is required");
     this.bootstrapContext = bootstrapContext;
   }
 
