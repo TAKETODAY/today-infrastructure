@@ -115,6 +115,12 @@ public class ConfigurationClassPostProcessor
     this.bootstrapContext = context;
   }
 
+  // @since 4.0
+  protected final BootstrapContext obtainBootstrapContext() {
+    Assert.state(bootstrapContext != null, "BootstrapContext is required");
+    return bootstrapContext;
+  }
+
   @Override
   public int getOrder() {
     return Ordered.LOWEST_PRECEDENCE;  // within PriorityOrdered
@@ -127,8 +133,7 @@ public class ConfigurationClassPostProcessor
    * and would be reported as a problem. Defaults to {@link FailFastProblemReporter}.
    */
   public void setProblemReporter(@Nullable ProblemReporter problemReporter) {
-    Assert.state(bootstrapContext != null, "BootstrapContext is required");
-    bootstrapContext.setProblemReporter(problemReporter);
+    obtainBootstrapContext().setProblemReporter(problemReporter);
   }
 
   /**
@@ -150,8 +155,7 @@ public class ConfigurationClassPostProcessor
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator must not be null");
     this.localBeanNamePopulatorSet = true;
-    Assert.state(bootstrapContext != null, "BootstrapContext is required");
-    bootstrapContext.setBeanNamePopulator(beanNamePopulator);
+    obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
     this.importBeanNamePopulator = beanNamePopulator;
   }
 
@@ -211,6 +215,7 @@ public class ConfigurationClassPostProcessor
   public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
     List<BeanDefinition> configCandidates = new ArrayList<>();
     String[] candidateNames = registry.getBeanDefinitionNames();
+    BootstrapContext bootstrapContext = obtainBootstrapContext();
 
     for (String beanName : candidateNames) {
       BeanDefinition beanDef = BeanFactoryUtils.requiredDefinition(registry, beanName);
