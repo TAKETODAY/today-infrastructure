@@ -720,6 +720,10 @@ public abstract class AbstractAutowireCapableBeanFactory
           return ctors;
         }
       }
+      Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
+      if (constructor != null) {
+        return new Constructor<?>[] { constructor };
+      }
     }
     return null;
   }

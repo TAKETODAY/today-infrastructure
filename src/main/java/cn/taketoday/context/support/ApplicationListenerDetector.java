@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.event;
+package cn.taketoday.context.support;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +27,8 @@ import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.context.support.AbstractApplicationContext;
+import cn.taketoday.context.event.ApplicationEventMulticaster;
+import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -46,7 +47,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public final class ApplicationListenerDetector
+final class ApplicationListenerDetector
         implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor, InitializationBeanPostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicationListenerDetector.class);

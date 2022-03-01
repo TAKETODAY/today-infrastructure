@@ -47,6 +47,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Generic ApplicationContext implementation that holds a single internal
@@ -479,8 +480,10 @@ public class GenericApplicationContext
     if (supplier != null) {
       beanDefinition.setInstanceSupplier(supplier);
     }
-    for (BeanDefinitionCustomizer customizer : customizers) {
-      customizer.customize(beanDefinition);
+    if (ObjectUtils.isNotEmpty(customizers)) {
+      for (BeanDefinitionCustomizer customizer : customizers) {
+        customizer.customize(beanDefinition);
+      }
     }
     String nameToUse = beanName != null ? beanName : BeanDefinitionBuilder.defaultBeanName(beanClass);
     beanDefinition.setBeanName(nameToUse);

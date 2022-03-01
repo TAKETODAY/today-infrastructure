@@ -54,7 +54,6 @@ import cn.taketoday.context.MessageSourceAware;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.ApplicationContextAwareProcessor;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
@@ -62,7 +61,6 @@ import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.ApplicationListener;
-import cn.taketoday.context.event.ApplicationListenerDetector;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
@@ -694,9 +692,10 @@ public abstract class AbstractApplicationContext
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
     // Configure the bean factory with context callbacks.
-    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this, obtainBootstrapContext()));
     // Register early post-processor for detecting inner beans as ApplicationListeners.
     beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
+    beanFactory.addBeanPostProcessor(new BootstrapContextAwareProcessor(obtainBootstrapContext()));
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found.
     if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {

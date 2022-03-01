@@ -44,6 +44,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
+import cn.taketoday.context.aware.BootstrapContextAware;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
@@ -76,7 +77,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0 2021/12/7 21:36
  */
 public class ConfigurationClassPostProcessor
-        implements BeanDefinitionRegistryPostProcessor, PriorityOrdered, BeanClassLoaderAware {
+        implements BeanDefinitionRegistryPostProcessor, PriorityOrdered, BeanClassLoaderAware, BootstrapContextAware {
   private static final Logger log = LoggerFactory.getLogger(ConfigurationClassPostProcessor.class);
 
   private static final String IMPORT_REGISTRY_BEAN_NAME =
@@ -85,7 +86,8 @@ public class ConfigurationClassPostProcessor
   public static final AnnotationBeanNamePopulator IMPORT_BEAN_NAME_GENERATOR =
           FullyQualifiedAnnotationBeanNamePopulator.INSTANCE;
 
-  private final BootstrapContext bootstrapContext;
+  @Nullable
+  private BootstrapContext bootstrapContext;
 
   private final Set<Integer> registriesPostProcessed = new HashSet<>();
 
@@ -101,9 +103,16 @@ public class ConfigurationClassPostProcessor
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
+  public ConfigurationClassPostProcessor() { }
+
   public ConfigurationClassPostProcessor(BootstrapContext bootstrapContext) {
-    Assert.notNull(bootstrapContext, "BootstrapContext is required");
-    this.bootstrapContext = bootstrapContext;
+    setBootstrapContext(bootstrapContext);
+  }
+
+  @Override
+  public void setBootstrapContext(BootstrapContext context) {
+    Assert.notNull(context, "BootstrapContext is required");
+    this.bootstrapContext = context;
   }
 
   @Override
@@ -118,6 +127,7 @@ public class ConfigurationClassPostProcessor
    * and would be reported as a problem. Defaults to {@link FailFastProblemReporter}.
    */
   public void setProblemReporter(@Nullable ProblemReporter problemReporter) {
+    Assert.state(bootstrapContext != null, "BootstrapContext is required");
     bootstrapContext.setProblemReporter(problemReporter);
   }
 
@@ -140,6 +150,7 @@ public class ConfigurationClassPostProcessor
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator must not be null");
     this.localBeanNamePopulatorSet = true;
+    Assert.state(bootstrapContext != null, "BootstrapContext is required");
     bootstrapContext.setBeanNamePopulator(beanNamePopulator);
     this.importBeanNamePopulator = beanNamePopulator;
   }
@@ -174,6 +185,9 @@ public class ConfigurationClassPostProcessor
    */
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    if (bootstrapContext == null) {
+      bootstrapContext = BootstrapContext.from(beanFactory);
+    }
     int factoryId = System.identityHashCode(beanFactory);
     if (this.factoriesPostProcessed.contains(factoryId)) {
       throw new IllegalStateException(
@@ -363,8 +377,9 @@ public class ConfigurationClassPostProcessor
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
       if (bean instanceof ImportAware importAware) {
-        ImportRegistry ir = beanFactory.getBean(IMPORT_REGISTRY_BEAN_NAME, ImportRegistry.class);
-        AnnotationMetadata importingClass = ir.getImportingClassFor(ClassUtils.getUserClass(bean).getName());
+        ImportRegistry registry = BeanFactoryUtils.requiredBean(
+                beanFactory, IMPORT_REGISTRY_BEAN_NAME, ImportRegistry.class);
+        AnnotationMetadata importingClass = registry.getImportingClassFor(ClassUtils.getUserClass(bean).getName());
         if (importingClass != null) {
           importAware.setImportMetadata(importingClass);
         }

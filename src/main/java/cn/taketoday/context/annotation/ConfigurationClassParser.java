@@ -25,20 +25,17 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
@@ -48,7 +45,6 @@ import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
@@ -74,7 +70,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -119,7 +114,7 @@ class ConfigurationClassParser {
 
   private final List<String> propertySourceNames = new ArrayList<>();
 
-  private final ImportStack importStack = new ImportStack();
+  private final ImportRegistry importStack = new ImportRegistry();
 
   private final DeferredImportSelectorHandler deferredImportSelectorHandler = new DeferredImportSelectorHandler();
 
@@ -688,52 +683,6 @@ class ConfigurationClassParser {
       }
     }
     return new SourceClass(bootstrapContext.getMetadataReader(className));
-  }
-
-  @SuppressWarnings("serial")
-  private static class ImportStack extends ArrayDeque<ConfigurationClass> implements ImportRegistry {
-
-    private final MultiValueMap<String, AnnotationMetadata> imports = MultiValueMap.fromLinkedHashMap();
-
-    public void registerImport(AnnotationMetadata importingClass, String importedClass) {
-      this.imports.add(importedClass, importingClass);
-    }
-
-    @Override
-    @Nullable
-    public AnnotationMetadata getImportingClassFor(String importedClass) {
-      return CollectionUtils.lastElement(this.imports.get(importedClass));
-    }
-
-    @Override
-    public void removeImportingClass(String importingClass) {
-      for (List<AnnotationMetadata> list : this.imports.values()) {
-        for (Iterator<AnnotationMetadata> iterator = list.iterator(); iterator.hasNext(); ) {
-          if (iterator.next().getClassName().equals(importingClass)) {
-            iterator.remove();
-            break;
-          }
-        }
-      }
-    }
-
-    /**
-     * Given a stack containing (in order)
-     * <ul>
-     * <li>com.acme.Foo</li>
-     * <li>com.acme.Bar</li>
-     * <li>com.acme.Baz</li>
-     * </ul>
-     * return "[Foo->Bar->Baz]".
-     */
-    @Override
-    public String toString() {
-      StringJoiner joiner = new StringJoiner("->", "[", "]");
-      for (ConfigurationClass configurationClass : this) {
-        joiner.add(configurationClass.getSimpleName());
-      }
-      return joiner.toString();
-    }
   }
 
   private class DeferredImportSelectorHandler {

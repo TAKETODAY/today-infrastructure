@@ -37,7 +37,6 @@ import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.event.ApplicationListenerDetector;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;

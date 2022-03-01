@@ -20,20 +20,65 @@
 
 package cn.taketoday.context.annotation;
 
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringJoiner;
+
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Registry of imported class {@link AnnotationMetadata}.
+ * ImportStack
  *
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @since 4.0
  */
-interface ImportRegistry {
+final class ImportRegistry extends ArrayDeque<ConfigurationClass> {
+
+  private final MultiValueMap<String, AnnotationMetadata> imports = MultiValueMap.fromLinkedHashMap();
+
+  public void registerImport(AnnotationMetadata importingClass, String importedClass) {
+    this.imports.add(importedClass, importingClass);
+  }
 
   @Nullable
-  AnnotationMetadata getImportingClassFor(String importedClass);
+  public AnnotationMetadata getImportingClassFor(String importedClass) {
+    return CollectionUtils.lastElement(imports.get(importedClass));
+  }
 
-  void removeImportingClass(String importingClass);
+  public void removeImportingClass(String importingClass) {
+    for (List<AnnotationMetadata> list : imports.values()) {
+      Iterator<AnnotationMetadata> iterator = list.iterator();
+      while (iterator.hasNext()) {
+        if (iterator.next().getClassName().equals(importingClass)) {
+          iterator.remove();
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Given a stack containing (in order)
+   * <ul>
+   * <li>com.acme.Foo</li>
+   * <li>com.acme.Bar</li>
+   * <li>com.acme.Baz</li>
+   * </ul>
+   * return "[Foo->Bar->Baz]".
+   */
+  @Override
+  public String toString() {
+    StringJoiner joiner = new StringJoiner("->", "[", "]");
+    for (ConfigurationClass configurationClass : this) {
+      joiner.add(configurationClass.getSimpleName());
+    }
+    return joiner.toString();
+  }
 
 }

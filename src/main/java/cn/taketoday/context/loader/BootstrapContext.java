@@ -272,7 +272,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
       this.resourceLoader = applicationContext;
       // try to bind ResourceLoader to MetadataReaderFactory
       if (this.metadataReaderFactory == null) {
-        this.metadataReaderFactory = new CachingMetadataReaderFactory(applicationContext);
+        this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
       }
     }
     return this.resourceLoader;
@@ -296,8 +296,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     if (this.metadataReaderFactory == null) {
       // try to bind ResourceLoader to MetadataReaderFactory
       if (this.resourceLoader == null) {
-        this.metadataReaderFactory = new CachingMetadataReaderFactory(applicationContext);
         this.resourceLoader = applicationContext;
+        this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
       }
       else {
         ResourceLoader resourceLoader;
@@ -459,6 +459,10 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   static ApplicationContext deduceContext(BeanFactory beanFactory) {
     if (beanFactory instanceof ApplicationContext context) {
+      return context;
+    }
+    ApplicationContext context = beanFactory.getBean(ApplicationContext.class);
+    if (context != null) {
       return context;
     }
     throw new IllegalArgumentException("Expect a ApplicationContext");

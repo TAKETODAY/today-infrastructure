@@ -24,16 +24,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,11 +59,12 @@ public class ImportTests {
   private StandardBeanFactory processConfigurationClasses(Class<?>... classes) {
     StandardApplicationContext context = new StandardApplicationContext();
     StandardBeanFactory beanFactory = context.getBeanFactory();
-    BootstrapContext loadingContext = new BootstrapContext(beanFactory, context);
+    BootstrapContext loadingContext = BootstrapContext.from(beanFactory);
     for (Class<?> clazz : classes) {
       beanFactory.registerBeanDefinition(clazz.getSimpleName(), new BeanDefinition(clazz));
     }
-    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    pp.setBootstrapContext(loadingContext);
     pp.postProcessBeanFactory(beanFactory);
     return beanFactory;
   }
