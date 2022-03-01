@@ -68,7 +68,7 @@ final class ContextAwareProcessor implements InitializationBeanPostProcessor {
   /**
    * Create a new ApplicationContextAwareProcessor for the given context.
    */
-  public ContextAwareProcessor(
+  ContextAwareProcessor(
           ConfigurableApplicationContext applicationContext, BootstrapContext bootstrapContext) {
     this.context = applicationContext;
     this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext.getBeanFactory());

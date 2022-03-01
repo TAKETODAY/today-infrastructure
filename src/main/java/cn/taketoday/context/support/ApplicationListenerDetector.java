@@ -56,7 +56,7 @@ final class ApplicationListenerDetector
 
   private final transient Map<String, Boolean> singletonNames = new ConcurrentHashMap<>(256);
 
-  public ApplicationListenerDetector(AbstractApplicationContext applicationContext) {
+  ApplicationListenerDetector(AbstractApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
