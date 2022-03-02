@@ -108,7 +108,7 @@ class BeanDefinitionValueResolver {
     else if (value instanceof DependencyDescriptor dependencyDescriptor) {
       LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
       Object result = beanFactory.resolveDependency(
-              dependencyDescriptor, beanName, autowiredBeanNames);
+              dependencyDescriptor, beanName, autowiredBeanNames, typeConverter);
       for (String autowiredBeanName : autowiredBeanNames) {
         if (beanFactory.containsBean(autowiredBeanName)) {
           beanFactory.registerDependentBean(autowiredBeanName, beanName);
