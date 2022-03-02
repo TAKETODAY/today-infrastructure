@@ -20,20 +20,16 @@
 
 package cn.taketoday.origin;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.nio.channels.ReadableByteChannel;
+import java.io.Writer;
+import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceFilter;
+import cn.taketoday.core.io.ResourceDecorator;
 import cn.taketoday.core.io.WritableResource;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Decorator that can be used to add {@link Origin} information to a {@link Resource} or
@@ -41,15 +37,13 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #of(Resource, Origin)
- * @see #of(WritableResource, Origin)
+ * @see #from(Resource, Origin)
+ * @see #from(WritableResource, Origin)
  * @see OriginProvider
  * @since 4.0
  */
-public class OriginTrackedResource implements Resource, OriginProvider {
-
-  private final Resource resource;
-
+public class OriginTrackedResource extends ResourceDecorator implements Resource, OriginProvider {
+  @Nullable
   private final Origin origin;
 
   /**
@@ -58,91 +52,12 @@ public class OriginTrackedResource implements Resource, OriginProvider {
    * @param resource the resource to track
    * @param origin the origin of the resource
    */
-  OriginTrackedResource(Resource resource, Origin origin) {
-    Assert.notNull(resource, "Resource must not be null");
-    this.resource = resource;
+  OriginTrackedResource(Resource resource, @Nullable Origin origin) {
+    super(resource);
     this.origin = origin;
   }
 
-  @Override
-  public InputStream getInputStream() throws IOException {
-    return getResource().getInputStream();
-  }
-
-  @Override
-  public boolean exists() {
-    return getResource().exists();
-  }
-
-  @Override
-  public boolean isReadable() {
-    return getResource().isReadable();
-  }
-
-  @Override
-  public boolean isOpen() {
-    return getResource().isOpen();
-  }
-
-  @Override
-  public URL getLocation() throws IOException {
-    return getResource().getLocation();
-  }
-
-  @Override
-  public URI getURI() throws IOException {
-    return getResource().getURI();
-  }
-
-  @Override
-  public File getFile() throws IOException {
-    return getResource().getFile();
-  }
-
-  @Override
-  public ReadableByteChannel readableChannel() throws IOException {
-    return getResource().readableChannel();
-  }
-
-  @Override
-  public long contentLength() throws IOException {
-    return getResource().contentLength();
-  }
-
-  @Override
-  public long lastModified() throws IOException {
-    return getResource().lastModified();
-  }
-
-  @Override
-  public Resource createRelative(String relativePath) throws IOException {
-    return getResource().createRelative(relativePath);
-  }
-
-  @Override
-  public String getName() {
-    return getResource().getName();
-  }
-
-  @Override
-  public boolean isDirectory() throws IOException {
-    return getResource().isDirectory();
-  }
-
-  @Override
-  public String[] list() throws IOException {
-    return getResource().list();
-  }
-
-  @Override
-  public Resource[] list(@Nullable ResourceFilter filter) throws IOException {
-    return getResource().list(filter);
-  }
-
-  public Resource getResource() {
-    return this.resource;
-  }
-
+  @Nullable
   @Override
   public Origin getOrigin() {
     return this.origin;
@@ -157,20 +72,17 @@ public class OriginTrackedResource implements Resource, OriginProvider {
       return false;
     }
     OriginTrackedResource other = (OriginTrackedResource) obj;
-    return this.resource.equals(other) && ObjectUtils.nullSafeEquals(this.origin, other.origin);
+    return this.delegate.equals(other.delegate) && Objects.equals(origin, other.origin);
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = this.resource.hashCode();
-    result = prime * result + ObjectUtils.nullSafeHashCode(this.origin);
-    return result;
+    return this.delegate.hashCode() * 31 + Objects.hashCode(this.origin);
   }
 
   @Override
   public String toString() {
-    return this.resource.toString();
+    return this.delegate.toString();
   }
 
   /**
@@ -181,8 +93,8 @@ public class OriginTrackedResource implements Resource, OriginProvider {
    * @param origin the origin of the resource
    * @return a {@link OriginTrackedWritableResource} instance
    */
-  public static OriginTrackedWritableResource of(WritableResource resource, Origin origin) {
-    return (OriginTrackedWritableResource) of((Resource) resource, origin);
+  public static OriginTrackedWritableResource from(WritableResource resource, @Nullable Origin origin) {
+    return new OriginTrackedWritableResource(resource, origin);
   }
 
   /**
@@ -193,7 +105,7 @@ public class OriginTrackedResource implements Resource, OriginProvider {
    * @param origin the origin of the resource
    * @return a {@link OriginTrackedResource} instance
    */
-  public static OriginTrackedResource of(Resource resource, Origin origin) {
+  public static OriginTrackedResource from(Resource resource, @Nullable Origin origin) {
     if (resource instanceof WritableResource) {
       return new OriginTrackedWritableResource((WritableResource) resource, origin);
     }
@@ -211,18 +123,33 @@ public class OriginTrackedResource implements Resource, OriginProvider {
      * @param resource the resource to track
      * @param origin the origin of the resource
      */
-    OriginTrackedWritableResource(WritableResource resource, Origin origin) {
+    OriginTrackedWritableResource(WritableResource resource, @Nullable Origin origin) {
       super(resource, origin);
     }
 
     @Override
-    public WritableResource getResource() {
-      return (WritableResource) super.getResource();
+    public WritableResource getDelegate() {
+      return (WritableResource) super.getDelegate();
+    }
+
+    @Override
+    public boolean isWritable() {
+      return getDelegate().isWritable();
     }
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-      return getResource().getOutputStream();
+      return getDelegate().getOutputStream();
+    }
+
+    @Override
+    public WritableByteChannel writableChannel() throws IOException {
+      return getDelegate().writableChannel();
+    }
+
+    @Override
+    public Writer getWriter() throws IOException {
+      return getDelegate().getWriter();
     }
 
   }

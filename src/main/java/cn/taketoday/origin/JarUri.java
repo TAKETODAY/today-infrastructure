@@ -22,6 +22,8 @@ package cn.taketoday.origin;
 
 import java.net.URI;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Simple class that understands Jar URLs can can provide short descriptions.
  *
@@ -74,10 +76,12 @@ final class JarUri {
     return this.uri;
   }
 
+  @Nullable
   static JarUri from(URI uri) {
     return from(uri.toString());
   }
 
+  @Nullable
   static JarUri from(String uri) {
     if (uri.startsWith(JAR_SCHEME) && uri.contains(JAR_EXTENSION)) {
       return new JarUri(uri);

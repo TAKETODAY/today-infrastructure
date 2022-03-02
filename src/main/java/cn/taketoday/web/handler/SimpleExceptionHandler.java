@@ -30,12 +30,13 @@ import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.view.ModelAndView;
 
 /**
@@ -59,8 +60,8 @@ public class SimpleExceptionHandler
       if (handler instanceof ViewController) {
         return handleViewControllerInternal(target, context, (ViewController) handler);
       }
-      if (handler instanceof ResourceRequestHandler) {
-        return handleResourceHandlerInternal(target, context, (ResourceRequestHandler) handler);
+      if (handler instanceof ResourceHttpRequestHandler) {
+        return handleResourceHandlerInternal(target, context, (ResourceHttpRequestHandler) handler);
       }
       return handleExceptionInternal(target, context);
     }
@@ -95,15 +96,15 @@ public class SimpleExceptionHandler
   }
 
   /**
-   * Resolve {@link ResourceRequestHandler} exception
+   * Resolve {@link ResourceHttpRequestHandler} exception
    *
    * @param ex Target {@link Throwable}
    * @param context Current request context
-   * @param handler {@link ResourceRequestHandler}
+   * @param handler {@link ResourceHttpRequestHandler}
    * @throws Throwable If any {@link Exception} occurred
    */
   protected Object handleResourceHandlerInternal(
-          Throwable ex, RequestContext context, ResourceRequestHandler handler) throws Throwable {
+          Throwable ex, RequestContext context, ResourceHttpRequestHandler handler) throws Throwable {
     return handleExceptionInternal(ex, context);
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,16 +19,10 @@
  */
 package cn.taketoday.core.io;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.net.URI;
 import java.net.URL;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
@@ -48,13 +42,11 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY
  * @since 2019-05-14 21:47
  */
-public class ClassPathResource implements Resource, WritableResource {
+public class ClassPathResource extends WritableResourceDecorator {
 
   private final String location;
   private Class<?> resourceClass;
   private ClassLoader classLoader;
-
-  private Resource resource;
 
   /**
    * Create a new {@code ClassPathResource} for {@code ClassLoader} usage.
@@ -106,8 +98,9 @@ public class ClassPathResource implements Resource, WritableResource {
     this.resourceClass = clazz;
   }
 
-  private Resource getResource() {
-    if (resource == null) {
+  @Override
+  public final Resource getDelegate() {
+    if (delegate == null) {
       URL url;
       if (resourceClass != null) {
         url = resourceClass.getResource(location);
@@ -119,13 +112,13 @@ public class ClassPathResource implements Resource, WritableResource {
         url = ClassLoader.getSystemResource(location);
       }
       if (url != null) {
-        resource = ResourceUtils.getResource(url);
+        delegate = ResourceUtils.getResource(url);
       }
       else {
-        resource = new FileBasedResource(location);
+        delegate = new FileBasedResource(location);
       }
     }
-    return resource;
+    return delegate;
   }
 
   @Override
@@ -147,98 +140,16 @@ public class ClassPathResource implements Resource, WritableResource {
   }
 
   @Override
-  public long contentLength() throws IOException {
-    return getResource().contentLength();
-  }
-
-  @Override
   public String getName() {
     return StringUtils.getFilename(location);
   }
 
   @Override
-  public long lastModified() throws IOException {
-    return getResource().lastModified();
-  }
-
-  @Override
-  public URL getLocation() throws IOException {
-    return getResource().getLocation();
-  }
-
-  @Override
-  public File getFile() throws IOException {
-    return getResource().getFile();
-  }
-
-  @Override
-  public boolean exists() {
-    return getResource().exists();
-  }
-
-  @Override
-  public boolean isReadable() {
-    return getResource().isReadable();
-  }
-
-  @Override
-  public Reader getReader() throws IOException {
-    return getResource().getReader();
-  }
-
-  @Override
-  public Reader getReader(String encoding) throws IOException {
-    return getResource().getReader(encoding);
-  }
-
-  @Override
-  public boolean isOpen() {
-    return getResource().isOpen();
-  }
-
-  @Override
-  public boolean isDirectory() throws IOException {
-    return getResource().isDirectory();
-  }
-
-  @Override
-  public String[] list() throws IOException {
-    return getResource().list();
-  }
-
-  @Override
   public Resource createRelative(String relativePath) throws IOException {
     final String pathToUse = ResourceUtils.getRelativePath(location, relativePath);
-    return (this.resourceClass != null ? new ClassPathResource(pathToUse, this.resourceClass) :
-            new ClassPathResource(pathToUse, this.classLoader));
-  }
-
-  @Override
-  public OutputStream getOutputStream() throws IOException {
-    final Resource resource = this.getResource();
-    if (resource instanceof OutputStreamSource) {
-      return ((OutputStreamSource) resource).getOutputStream();
-    }
-    throw new IOException("Writable operation is not supported");
-  }
-
-  @Override
-  public ReadableByteChannel readableChannel() throws IOException {
-    return getResource().readableChannel();
-  }
-
-  @Override
-  public WritableByteChannel writableChannel() throws IOException {
-    final Resource resource = this.getResource();
-    if (resource instanceof OutputStreamSource) {
-      return ((OutputStreamSource) resource).writableChannel();
-    }
-    throw new UnsupportedOperationException("Writable operation is not supported");
-  }
-
-  @Override
-  public Resource[] list(ResourceFilter filter) throws IOException {
-    return getResource().list(filter);
+    return resourceClass != null
+           ? new ClassPathResource(pathToUse, resourceClass)
+           : new ClassPathResource(pathToUse, classLoader);
   }
 
   @Override
@@ -263,11 +174,7 @@ public class ClassPathResource implements Resource, WritableResource {
    * @return Original {@link Resource}
    */
   public final Resource getOriginalResource() {
-    return getResource();
-  }
-
-  public URI getURI() throws IOException {
-    return getResource().getURI();
+    return getDelegate();
   }
 
   /**

@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -40,12 +41,13 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public class TextResourceOrigin implements Origin {
-
+  @Nullable
   private final Resource resource;
 
+  @Nullable
   private final Location location;
 
-  public TextResourceOrigin(Resource resource, Location location) {
+  public TextResourceOrigin(@Nullable Resource resource, @Nullable Location location) {
     this.resource = resource;
     this.location = location;
   }
@@ -55,6 +57,7 @@ public class TextResourceOrigin implements Origin {
    *
    * @return the text resource or {@code null}
    */
+  @Nullable
   public Resource getResource() {
     return this.resource;
   }
@@ -64,6 +67,7 @@ public class TextResourceOrigin implements Origin {
    *
    * @return the location or {@code null}
    */
+  @Nullable
   public Location getLocation() {
     return this.location;
   }
@@ -106,9 +110,9 @@ public class TextResourceOrigin implements Origin {
     return result.toString();
   }
 
-  private String getResourceDescription(Resource resource) {
+  private String getResourceDescription(@Nullable Resource resource) {
     if (resource instanceof OriginTrackedResource) {
-      return getResourceDescription(((OriginTrackedResource) resource).getResource());
+      return getResourceDescription(((OriginTrackedResource) resource).getDelegate());
     }
     if (resource == null) {
       return "unknown resource [?]";
