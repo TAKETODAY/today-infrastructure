@@ -80,8 +80,9 @@ public class URLEditorTests {
 
   @Test
   public void testWithNonExistentResource() {
-    URLEditor urlEditor = new URLEditor();
-    urlEditor.setAsText("gonna:/freak/in/the/morning/freak/in/the.evening");
+    PropertyEditor urlEditor = new URLEditor();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> urlEditor.setAsText("gonna:/freak/in/the/morning/freak/in/the.evening"));
   }
 
   @Test

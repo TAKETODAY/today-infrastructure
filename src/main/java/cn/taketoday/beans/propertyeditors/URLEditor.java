@@ -76,7 +76,7 @@ public class URLEditor extends PropertyEditorSupport {
       try {
         setValue(resource.getLocation());
       }
-      catch (IOException ex) {
+      catch (Exception ex) {
         throw new IllegalArgumentException("Could not retrieve URL for " + resource + ": " + ex.getMessage());
       }
     }

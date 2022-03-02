@@ -59,8 +59,8 @@ import cn.taketoday.lang.Nullable;
 public class StandardApplicationContext
         extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
-  private AnnotatedBeanDefinitionReader reader;
-  private ClassPathBeanDefinitionScanner scanner;
+  private final ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this);
+  private final AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
 
   /**
    * Default Constructor
@@ -167,7 +167,7 @@ public class StandardApplicationContext
   @Override
   public void register(Class<?>... components) {
     Assert.notEmpty(components, "At least one component class must be specified");
-    reader().registerBean(components);
+    reader.registerBean(components);
   }
 
   /**
@@ -182,7 +182,7 @@ public class StandardApplicationContext
   @Override
   public void scan(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
-    scanner().scan(basePackages);
+    scanner.scan(basePackages);
   }
 
   /**
@@ -200,8 +200,8 @@ public class StandardApplicationContext
   public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
     Assert.notNull(beanNamePopulator, "BeanNamePopulator is required");
 
-    reader().setBeanNamePopulator(beanNamePopulator);
-    scanner().setBeanNamePopulator(beanNamePopulator);
+    reader.setBeanNamePopulator(beanNamePopulator);
+    scanner.setBeanNamePopulator(beanNamePopulator);
     obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
 
     getBeanFactory().registerSingleton(
@@ -215,8 +215,8 @@ public class StandardApplicationContext
    * and/or {@link #scan(String...)}.
    */
   public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
-    reader().setScopeMetadataResolver(scopeMetadataResolver);
-    scanner().setScopeMetadataResolver(scopeMetadataResolver);
+    reader.setScopeMetadataResolver(scopeMetadataResolver);
+    scanner.setScopeMetadataResolver(scopeMetadataResolver);
     obtainBootstrapContext().setScopeMetadataResolver(scopeMetadataResolver);
   }
 
@@ -227,7 +227,7 @@ public class StandardApplicationContext
   @Override
   public void setEnvironment(ConfigurableEnvironment environment) {
     super.setEnvironment(environment);
-    scanner().setEnvironment(environment);
+    scanner.setEnvironment(environment);
   }
 
   //---------------------------------------------------------------------
@@ -237,7 +237,7 @@ public class StandardApplicationContext
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-    reader().registerBean(beanName, beanClass, supplier, customizers);
+    reader.registerBean(beanName, beanClass, supplier, customizers);
   }
 
   @Override
@@ -248,26 +248,12 @@ public class StandardApplicationContext
     }
     else {
       if (prototype) {
-        reader().registerBean(null, clazz, supplier, definition -> definition.setScope(Scope.PROTOTYPE));
+        reader.registerBean(null, clazz, supplier, definition -> definition.setScope(Scope.PROTOTYPE));
       }
       else {
-        reader().registerBean((String) null, clazz, supplier);
+        reader.registerBean((String) null, clazz, supplier);
       }
     }
-  }
-
-  ClassPathBeanDefinitionScanner scanner() {
-    if (scanner == null) {
-      scanner = new ClassPathBeanDefinitionScanner(this);
-    }
-    return scanner;
-  }
-
-  AnnotatedBeanDefinitionReader reader() {
-    if (reader == null) {
-      reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
-    }
-    return reader;
   }
 
 }
