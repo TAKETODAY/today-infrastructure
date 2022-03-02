@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
 import java.net.URI;
 
 import cn.taketoday.core.NestedRuntimeException;
@@ -43,8 +44,9 @@ import cn.taketoday.util.ExceptionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 13:35
  */
-@SuppressWarnings("serial")
 public class ErrorResponseException extends NestedRuntimeException implements ErrorResponse {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final int status;
 

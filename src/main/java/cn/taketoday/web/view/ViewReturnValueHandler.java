@@ -26,12 +26,14 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
@@ -68,6 +70,7 @@ public class ViewReturnValueHandler
     return handler.isReturnTypeAssignableTo(View.class);
   }
 
+  @Experimental
   public static boolean supportsLambda(@Nullable Object handler) {
     if (handler != null) {
       Class<?> handlerClass = handler.getClass();
@@ -90,22 +93,28 @@ public class ViewReturnValueHandler
     return false;
   }
 
+  /**
+   * @param context Current HTTP request context
+   * @param handler Target HTTP handler
+   * @param returnValue Handler execution result
+   * Or {@link HandlerExceptionHandler} return value
+   * @throws ViewRenderingException Could not resolve view with given name
+   */
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Exception {
-    View view;
+          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof String viewName) {
       Locale locale = RequestContextUtils.getLocale(context);
-      view = viewResolver.resolveViewName(viewName, locale);
+      View view = viewResolver.resolveViewName(viewName, locale);
       if (view == null) {
         throw new ViewRenderingException(
                 "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
       }
+      renderView(context, view);
     }
-    else {
-      view = (View) returnValue;
+    else if (returnValue instanceof View view) {
+      renderView(context, view);
     }
-    renderView(context, view);
   }
 
   public void renderView(RequestContext context, View view) throws Exception {
