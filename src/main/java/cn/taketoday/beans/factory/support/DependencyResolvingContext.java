@@ -24,6 +24,7 @@ import java.lang.reflect.Executable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
 
@@ -49,6 +50,8 @@ public class DependencyResolvingContext {
   private boolean dependencyResolved;
 
   private Set<String> dependentBeans;
+
+  private TypeConverter typeConverter;
 
   public DependencyResolvingContext(
           @Nullable Executable executable, @Nullable BeanFactory beanFactory) {
@@ -114,7 +117,14 @@ public class DependencyResolvingContext {
     return dependency != null;
   }
 
-  // dependentBeans
+  public void setTypeConverter(TypeConverter typeConverter) {
+    this.typeConverter = typeConverter;
+  }
+
+  public TypeConverter getTypeConverter() {
+    return typeConverter;
+  }
+// dependentBeans
 
   void setDependentBeans(Set<String> dependentBeans) {
     this.dependentBeans = dependentBeans;

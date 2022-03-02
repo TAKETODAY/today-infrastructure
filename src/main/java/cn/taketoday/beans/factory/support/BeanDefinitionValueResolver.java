@@ -30,14 +30,13 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.NamedBeanHolder;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -65,17 +64,21 @@ class BeanDefinitionValueResolver {
   private final BeanDefinition beanDefinition;
   private final AbstractAutowireCapableBeanFactory beanFactory;
 
+  private final TypeConverter typeConverter;
+
   /**
    * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition.
    *
    * @param beanFactory the BeanFactory to resolve against
    * @param beanDefinition the BeanDefinition of the bean that we work on
+   * @param typeConverter the TypeConverter to use for resolving TypedStringValues
    */
   public BeanDefinitionValueResolver(
-          AbstractAutowireCapableBeanFactory beanFactory, BeanDefinition beanDefinition) {
+          AbstractAutowireCapableBeanFactory beanFactory, BeanDefinition beanDefinition, TypeConverter typeConverter) {
     this.beanFactory = beanFactory;
     this.beanDefinition = beanDefinition;
     this.beanName = beanDefinition.getBeanName();
+    this.typeConverter = typeConverter;
   }
 
   /**
@@ -219,11 +222,7 @@ class BeanDefinitionValueResolver {
   }
 
   private Object convertIfNecessary(Object source, Class<?> targetType) {
-    ConversionService conversionService = beanFactory.getConversionService();
-    if (conversionService == null) {
-      conversionService = DefaultConversionService.getSharedInstance();
-    }
-    return conversionService.convert(source, targetType);
+    return this.typeConverter.convertIfNecessary(source, targetType);
   }
 
   /**

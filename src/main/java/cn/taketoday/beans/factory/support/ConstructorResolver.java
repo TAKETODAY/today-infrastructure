@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanMetadataElement;
+import cn.taketoday.beans.BeanWrapper;
+import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
@@ -123,6 +125,10 @@ final class ConstructorResolver {
    */
   public Object autowireConstructor(
           BeanDefinition definition, @Nullable Constructor<?>[] chosenCtors, @Nullable Object[] explicitArgs) {
+
+    BeanWrapperImpl wrapper = new BeanWrapperImpl();
+    this.beanFactory.initBeanWrapper(wrapper);
+
     String beanName = definition.getBeanName();
 
     Constructor<?> constructorToUse = null;
@@ -145,7 +151,7 @@ final class ConstructorResolver {
         }
       }
       if (argsToResolve != null) {
-        argsToUse = resolvePreparedArguments(beanName, definition, constructorToUse, argsToResolve);
+        argsToUse = resolvePreparedArguments(beanName, definition, constructorToUse, argsToResolve, wrapper);
       }
     }
 
@@ -190,7 +196,7 @@ final class ConstructorResolver {
       else {
         ConstructorArgumentValues cargs = definition.getConstructorArgumentValues();
         resolvedValues = new ConstructorArgumentValues();
-        minNrOfArgs = resolveConstructorArguments(definition, cargs, resolvedValues);
+        minNrOfArgs = resolveConstructorArguments(definition, wrapper, cargs, resolvedValues);
       }
 
       AutowireUtils.sortConstructors(candidates);
@@ -222,7 +228,7 @@ final class ConstructorResolver {
               }
             }
             argsHolder = createArgumentArray(definition, resolvedValues, paramTypes, paramNames,
-                    getUserDeclaredConstructor(candidate), autowiring, candidates.length == 1);
+                    getUserDeclaredConstructor(candidate), wrapper, autowiring, candidates.length == 1);
           }
           catch (UnsatisfiedDependencyException ex) {
             if (log.isTraceEnabled()) {
@@ -375,8 +381,10 @@ final class ConstructorResolver {
    * @return a BeanWrapper for the new instance
    */
   public Object instantiateUsingFactoryMethod(BeanDefinition mbd, @Nullable Object[] explicitArgs) {
-    String beanName = mbd.getBeanName();
+    BeanWrapperImpl wrapper = new BeanWrapperImpl();
+    this.beanFactory.initBeanWrapper(wrapper);
 
+    String beanName = mbd.getBeanName();
     boolean isStatic;
     Object factoryBean;
     Class<?> factoryClass;
@@ -426,7 +434,7 @@ final class ConstructorResolver {
         }
       }
       if (argsToResolve != null) {
-        argsToUse = resolvePreparedArguments(beanName, mbd, factoryMethodToUse, argsToResolve);
+        argsToUse = resolvePreparedArguments(beanName, mbd, factoryMethodToUse, argsToResolve, wrapper);
       }
     }
 
@@ -486,7 +494,7 @@ final class ConstructorResolver {
         if (mbd.hasConstructorArgumentValues()) {
           ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
           resolvedValues = new ConstructorArgumentValues();
-          minNrOfArgs = resolveConstructorArguments(mbd, cargs, resolvedValues);
+          minNrOfArgs = resolveConstructorArguments(mbd, wrapper, cargs, resolvedValues);
         }
         else {
           minNrOfArgs = 0;
@@ -518,7 +526,7 @@ final class ConstructorResolver {
                 paramNames = pnd.getParameterNames(candidate);
               }
               argsHolder = createArgumentArray(mbd, resolvedValues,
-                      paramTypes, paramNames, candidate, autowiring, candidates.size() == 1);
+                      paramTypes, paramNames, candidate, wrapper, autowiring, candidates.size() == 1);
             }
             catch (UnsatisfiedDependencyException ex) {
               if (log.isTraceEnabled()) {
@@ -638,9 +646,13 @@ final class ConstructorResolver {
    * This may involve looking up other beans.
    * <p>This method is also used for handling invocations of static factory methods.
    */
-  private int resolveConstructorArguments(
-          BeanDefinition mbd, ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
-    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, mbd);
+  private int resolveConstructorArguments(BeanDefinition mbd, BeanWrapper bw,
+          ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
+
+    TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
+    TypeConverter converter = (customConverter != null ? customConverter : bw);
+
+    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, mbd, converter);
     int minNrOfArgs = cargs.getArgumentCount();
     for (Map.Entry<Integer, ValueHolder> entry : cargs.getIndexedArgumentValues().entrySet()) {
       int index = entry.getKey();
@@ -686,10 +698,13 @@ final class ConstructorResolver {
    * Create an array of arguments to invoke a constructor or factory method,
    * given the resolved constructor argument values.
    */
-  private ArgumentsHolder createArgumentArray(
-          BeanDefinition definition, @Nullable ConstructorArgumentValues resolvedValues,
-          Class<?>[] paramTypes, @Nullable String[] paramNames, Executable executable,
+  private ArgumentsHolder createArgumentArray(BeanDefinition definition,
+          @Nullable ConstructorArgumentValues resolvedValues, Class<?>[] paramTypes,
+          @Nullable String[] paramNames, Executable executable, BeanWrapper wrapper,
           boolean autowiring, boolean fallback) throws UnsatisfiedDependencyException {
+
+    TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
+    TypeConverter converter = customConverter != null ? customConverter : wrapper;
 
     String beanName = definition.getBeanName();
 
@@ -755,7 +770,7 @@ final class ConstructorResolver {
 //        }
         try {
           Object autowiredArgument = resolveAutowiredArgument(
-                  methodParam, beanName, autowiredBeanNames, fallback);
+                  methodParam, beanName, autowiredBeanNames, converter, fallback);
 
           args.resolveNecessary = true;
           args.arguments[paramIndex] = autowiredArgument;
@@ -795,10 +810,13 @@ final class ConstructorResolver {
    * Resolve the prepared arguments stored in the given bean definition.
    */
   private Object[] resolvePreparedArguments(
-          String beanName, BeanDefinition mbd, Executable executable, Object[] argsToResolve) {
+          String beanName, BeanDefinition mbd, Executable executable, Object[] argsToResolve, BeanWrapper bw) {
+
+    TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
+    TypeConverter converter = customConverter != null ? customConverter : bw;
 
     BeanDefinitionValueResolver valueResolver =
-            new BeanDefinitionValueResolver(beanFactory, mbd);
+            new BeanDefinitionValueResolver(beanFactory, mbd, converter);
     Class<?>[] paramTypes = executable.getParameterTypes();
 
     Object[] resolvedArgs = new Object[argsToResolve.length];
@@ -806,7 +824,7 @@ final class ConstructorResolver {
       Object argValue = argsToResolve[argIndex];
       MethodParameter methodParam = MethodParameter.forExecutable(executable, argIndex);
       if (argValue == autowiredArgumentMarker) {
-        argValue = resolveAutowiredArgument(methodParam, beanName, null, true);
+        argValue = resolveAutowiredArgument(methodParam, beanName, null, converter, true);
       }
       else if (argValue instanceof BeanMetadataElement) {
         argValue = valueResolver.resolveValueIfNecessary("constructor argument", argValue);
@@ -847,9 +865,8 @@ final class ConstructorResolver {
    * Template method for resolving the specified argument which is supposed to be autowired.
    */
   @Nullable
-  private Object resolveAutowiredArgument(
-          MethodParameter param, String beanName,
-          @Nullable Set<String> autowiredBeanNames, boolean fallback) {
+  private Object resolveAutowiredArgument(MethodParameter param, String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter, boolean fallback) {
 
     Class<?> paramType = param.getParameterType();
     if (InjectionPoint.class.isAssignableFrom(paramType)) {
@@ -860,7 +877,10 @@ final class ConstructorResolver {
       return injectionPoint;
     }
     try {
-      return injector.resolveValue(new DependencyDescriptor(param, true), beanName, autowiredBeanNames);
+      DependencyResolvingContext context = new DependencyResolvingContext(param.getExecutable(), beanFactory, beanName);
+      context.setTypeConverter(typeConverter);
+      context.setDependentBeans(autowiredBeanNames);
+      return injector.resolveValue(new DependencyDescriptor(param, true), context);
     }
     catch (NoUniqueBeanDefinitionException ex) {
       throw ex;

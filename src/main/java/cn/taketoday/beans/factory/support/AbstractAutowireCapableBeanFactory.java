@@ -41,6 +41,7 @@ import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
@@ -720,10 +721,6 @@ public abstract class AbstractAutowireCapableBeanFactory
           return ctors;
         }
       }
-      Constructor<?> constructor = BeanUtils.getConstructor(beanClass);
-      if (constructor != null) {
-        return new Constructor<?>[] { constructor };
-      }
     }
     return null;
   }
@@ -834,7 +831,12 @@ public abstract class AbstractAutowireCapableBeanFactory
           initBeanWrapper(beanWrapper);
         }
 
-        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition);
+        TypeConverter typeConverter = getCustomTypeConverter();
+        if (typeConverter == null) {
+          typeConverter = beanWrapper;
+        }
+
+        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition, typeConverter);
 
         // property-path -> property-value (maybe PropertyValueRetriever)
         for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -932,7 +934,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           else {
             desc = new AutowireByTypeDependencyDescriptor(beanProperty.getField(), eager);
           }
-          Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames);
+          Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames, null);
           if (autowiredArgument != null) {
             pvs.add(propertyName, autowiredArgument);
           }

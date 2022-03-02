@@ -84,7 +84,7 @@ public class BeanFactoryDependencyResolvingStrategy
       String beanName = context.getBeanName();
       try {
         // resolve dependency and check required
-        Object dependency = factory.resolveDependency(descriptor, beanName, context.getDependentBeans());
+        Object dependency = factory.resolveDependency(descriptor, beanName, context.getDependentBeans(), context.getTypeConverter());
         if (dependency == null) {
           // not required dependency
           dependency = DependencyDescriptor.DO_NOT_SET;

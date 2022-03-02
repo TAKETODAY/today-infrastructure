@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
@@ -330,7 +331,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws NoSuchBeanDefinitionException if no matching bean was found
    * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
    * @throws BeansException if dependency resolution failed for any other reason
-   * @see #resolveDependency(DependencyDescriptor, String, Set)
+   * @see #resolveDependency(DependencyDescriptor, String, Set, TypeConverter)
    * @since 4.0
    */
   @Nullable
@@ -343,6 +344,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @param requestingBeanName the name of the bean which declares the given dependency
    * @param autowiredBeanNames a Set that all names of autowired beans (used for
    * resolving the given dependency) are supposed to be added to
+   * @param typeConverter the TypeConverter to use for populating arrays and collections
    * @return the resolved object, or {@code null} if none found
    * @throws NoSuchBeanDefinitionException if no matching bean was found
    * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
@@ -351,8 +353,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @since 4.0
    */
   @Nullable
-  Object resolveDependency(
-          DependencyDescriptor descriptor, @Nullable String requestingBeanName,
-          @Nullable Set<String> autowiredBeanNames) throws BeansException;
+  Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException;
 
 }

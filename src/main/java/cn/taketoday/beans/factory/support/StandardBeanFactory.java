@@ -39,6 +39,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -59,7 +60,6 @@ import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -1198,18 +1198,14 @@ public class StandardBeanFactory
 
   @Nullable
   @Override
-  public Object resolveDependency(
-          DependencyDescriptor descriptor,
-          @Nullable String requestingBeanName) throws BeansException {
-    return resolveDependency(descriptor, requestingBeanName, null);
+  public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName) throws BeansException {
+    return resolveDependency(descriptor, requestingBeanName, null, null);
   }
 
-  @Override
   @Nullable
-  public Object resolveDependency(
-          DependencyDescriptor descriptor,
-          @Nullable String requestingBeanName,
-          @Nullable Set<String> autowiredBeanNames) throws BeansException {
+  @Override
+  public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
 
     descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
 
@@ -1229,7 +1225,7 @@ public class StandardBeanFactory
       Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
               descriptor, requestingBeanName);
       if (result == null) {
-        result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames);
+        result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
       }
       return result;
     }
@@ -1238,7 +1234,7 @@ public class StandardBeanFactory
   @Nullable
   public Object doResolveDependency(
           DependencyDescriptor descriptor, @Nullable String beanName,
-          @Nullable Set<String> autowiredBeanNames) throws BeansException {
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
     InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
     try {
       Object shortcut = descriptor.resolveShortcut(this);
@@ -1255,10 +1251,19 @@ public class StandardBeanFactory
                               ? obtainLocalBeanDefinition(beanName) : null;
           value = evaluateBeanDefinitionString(strVal, bd);
         }
-        return convertIfNecessary(value, type, descriptor.getTypeDescriptor());
+        TypeConverter converter = typeConverter != null ? typeConverter : getTypeConverter();
+        try {
+          return converter.convertIfNecessary(value, type, descriptor.getTypeDescriptor());
+        }
+        catch (UnsupportedOperationException ex) {
+          // A custom TypeConverter which does not support TypeDescriptor resolution...
+          return descriptor.getField() != null
+                 ? converter.convertIfNecessary(value, type, descriptor.getField())
+                 : converter.convertIfNecessary(value, type, descriptor.getMethodParameter());
+        }
       }
 
-      Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames);
+      Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);
       if (multipleBeans != null) {
         return multipleBeans;
       }
@@ -1320,27 +1325,22 @@ public class StandardBeanFactory
   }
 
   @Nullable
-  public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType) {
-    return convertIfNecessary(value, requiredType, TypeDescriptor.valueOf(requiredType));
-  }
-
-  @Nullable
   @SuppressWarnings("unchecked")
   private <T> T convertIfNecessary(
-          @Nullable Object bean, @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) {
-
+          @Nullable Object bean, @Nullable Class<?> requiredType, @Nullable TypeConverter converter) {
     // Check if required type matches the type of the actual bean instance.
-    if (bean != null && requiredType != null && !requiredType.isInstance(bean)) {
-      return getTypeConverter().convertIfNecessary(bean, requiredType, typeDescriptor);
+    if (bean != null && requiredType != null && !ClassUtils.isAssignableValue(requiredType, bean)) {
+      if (converter == null) {
+        converter = getTypeConverter();
+      }
+      bean = converter.convertIfNecessary(bean, requiredType);
     }
     return (T) bean;
   }
 
   @Nullable
-  private Object resolveMultipleBeans(
-          DependencyDescriptor descriptor,
-          @Nullable String beanName,
-          @Nullable Set<String> autowiredBeanNames) {
+  private Object resolveMultipleBeans(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
 
     Class<?> type = descriptor.getDependencyType();
 
@@ -1375,7 +1375,9 @@ public class StandardBeanFactory
       if (autowiredBeanNames != null) {
         autowiredBeanNames.addAll(matchingBeans.keySet());
       }
-      Object result = convertIfNecessary(matchingBeans.values(), resolvedArrayType);
+//      TypeConverter converter = (typeConverter != null ? typeConverter : getTypeConverter());
+//      Object result = converter.convertIfNecessary(matchingBeans.values(), resolvedArrayType);
+      Object result = convertIfNecessary(matchingBeans.values(), resolvedArrayType, typeConverter);
       if (result instanceof Object[]) {
         Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
         if (comparator != null) {
@@ -1397,7 +1399,7 @@ public class StandardBeanFactory
       if (autowiredBeanNames != null) {
         autowiredBeanNames.addAll(matchingBeans.keySet());
       }
-      Object result = convertIfNecessary(matchingBeans.values(), type);
+      Object result = convertIfNecessary(matchingBeans.values(), type, typeConverter);
       if (result instanceof List) {
         if (((List<?>) result).size() > 1) {
           Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
@@ -1785,7 +1787,7 @@ public class StandardBeanFactory
       }
     };
 
-    Object result = doResolveDependency(descriptorToUse, beanName, null);
+    Object result = doResolveDependency(descriptorToUse, beanName, null, null);
     return result instanceof Optional ? (Optional<?>) result : Optional.ofNullable(result);
   }
 
@@ -1850,7 +1852,7 @@ public class StandardBeanFactory
         return createOptionalDependency(this.descriptor, this.beanName);
       }
       else {
-        Object result = doResolveDependency(this.descriptor, this.beanName, null);
+        Object result = doResolveDependency(this.descriptor, this.beanName, null, null);
         if (result == null) {
           throw new NoSuchBeanDefinitionException(this.descriptor.getResolvableType());
         }
@@ -1870,7 +1872,7 @@ public class StandardBeanFactory
             return beanFactory.getBean(beanName, args);
           }
         };
-        Object result = doResolveDependency(descriptorToUse, this.beanName, null);
+        Object result = doResolveDependency(descriptorToUse, this.beanName, null, null);
         if (result == null) {
           throw new NoSuchBeanDefinitionException(this.descriptor.getResolvableType());
         }
@@ -1892,7 +1894,7 @@ public class StandardBeanFactory
               return false;
             }
           };
-          return doResolveDependency(descriptorToUse, this.beanName, null);
+          return doResolveDependency(descriptorToUse, this.beanName, null, null);
         }
       }
       catch (ScopeNotActiveException ex) {
@@ -1934,7 +1936,7 @@ public class StandardBeanFactory
           return createOptionalDependency(descriptorToUse, this.beanName);
         }
         else {
-          return doResolveDependency(descriptorToUse, this.beanName, null);
+          return doResolveDependency(descriptorToUse, this.beanName, null, null);
         }
       }
       catch (ScopeNotActiveException ex) {
@@ -1962,7 +1964,7 @@ public class StandardBeanFactory
         return createOptionalDependency(this.descriptor, this.beanName);
       }
       else {
-        return doResolveDependency(this.descriptor, this.beanName, null);
+        return doResolveDependency(this.descriptor, this.beanName, null, null);
       }
     }
 
@@ -1979,7 +1981,7 @@ public class StandardBeanFactory
     @SuppressWarnings("unchecked")
     private Stream<Object> resolveStream(boolean ordered) {
       DependencyDescriptor descriptorToUse = new StreamDependencyDescriptor(this.descriptor, ordered);
-      Object result = doResolveDependency(descriptorToUse, this.beanName, null);
+      Object result = doResolveDependency(descriptorToUse, this.beanName, null, null);
       return result instanceof Stream ? (Stream<Object>) result : Stream.of(result);
     }
 

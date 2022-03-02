@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.core.MethodParameter;
@@ -99,22 +100,21 @@ public class DependencyInjector {
   }
 
   @Nullable
-  public Object resolveValue(
-          DependencyDescriptor descriptor, DependencyResolvingContext context) {
+  public Object resolveValue(DependencyDescriptor descriptor, DependencyResolvingContext context) {
     Object resolved = resolve(descriptor, context);
     return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
   }
 
   @Nullable
   public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName) {
-    return resolveValue(descriptor, beanName, null);
+    return resolveValue(descriptor, beanName, null, null);
   }
 
   @Nullable
-  public Object resolveValue(
-          DependencyDescriptor descriptor,
-          @Nullable String beanName, @Nullable Set<String> autowiredBeanNames) {
+  public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
     DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
+    context.setTypeConverter(typeConverter);
     context.setDependentBeans(autowiredBeanNames);
     return resolveValue(descriptor, context);
   }
@@ -162,8 +162,7 @@ public class DependencyInjector {
    * @see InjectionPoint#DO_NOT_SET
    */
   @Nullable
-  public Object resolve(
-          DependencyDescriptor descriptor, DependencyResolvingContext context) {
+  public Object resolve(DependencyDescriptor descriptor, DependencyResolvingContext context) {
     getResolvingStrategies().resolveDependency(descriptor, context);
     if (context.isDependencyResolved()) {
       return context.getDependency();
