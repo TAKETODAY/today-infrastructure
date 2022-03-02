@@ -143,6 +143,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   @Override
   protected final void closeBeanFactory() {
     this.beanFactory = null;
+    this.setBootstrapContext(null);
   }
 
   /**
