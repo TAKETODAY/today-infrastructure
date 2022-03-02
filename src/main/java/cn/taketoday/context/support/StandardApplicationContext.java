@@ -21,7 +21,9 @@ package cn.taketoday.context.support;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -235,7 +237,23 @@ public class StandardApplicationContext
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-    reader().registerBean(beanClass, beanName, supplier, customizers);
+    reader().registerBean(beanName, beanClass, supplier, customizers);
+  }
+
+  @Override
+  public <T> void registerBean(
+          Class<T> clazz, @Nullable Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation) throws BeanDefinitionStoreException {
+    if (ignoreAnnotation) {
+      super.registerBean(clazz, supplier, prototype, true);
+    }
+    else {
+      if (prototype) {
+        reader().registerBean(null, clazz, supplier, definition -> definition.setScope(Scope.PROTOTYPE));
+      }
+      else {
+        reader().registerBean((String) null, clazz, supplier);
+      }
+    }
   }
 
   ClassPathBeanDefinitionScanner scanner() {
