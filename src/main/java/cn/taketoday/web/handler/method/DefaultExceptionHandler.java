@@ -41,7 +41,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleExceptionHandler;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -229,7 +229,7 @@ public class DefaultExceptionHandler
       if (status == null) {
         Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
         if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
-          HttpStatus httpStatus = ((HttpStatusCapable) attribute).getHttpStatus();
+          HttpStatus httpStatus = ((HttpStatusCapable) attribute).getStatus();
           context.setStatus(httpStatus);
         }
         else if (attribute instanceof Throwable) {

@@ -21,8 +21,12 @@
 package cn.taketoday.web;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Exception thrown when the request handler cannot generate a response that is acceptable by the client.
@@ -35,21 +39,38 @@ import cn.taketoday.http.MediaType;
 public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException {
 
   /**
-   * Create a new HttpMediaTypeNotAcceptableException.
+   * Constructor for when the {@code Accept} header cannot be parsed.
    *
-   * @param message the exception message
+   * @param message the parse error message
    */
   public HttpMediaTypeNotAcceptableException(String message) {
     super(message);
+    getBody().setDetail("Could not parse Accept header.");
   }
 
   /**
    * Create a new HttpMediaTypeNotSupportedException.
    *
-   * @param supportedMediaTypes the list of supported media types
+   * @param mediaTypes the list of supported media types
    */
-  public HttpMediaTypeNotAcceptableException(List<MediaType> supportedMediaTypes) {
-    super("Could not find acceptable representation", supportedMediaTypes);
+  public HttpMediaTypeNotAcceptableException(List<MediaType> mediaTypes) {
+    super("No acceptable representation", mediaTypes);
+    getBody().setDetail("Acceptable representations: " +
+            mediaTypes.stream().map(MediaType::toString).collect(Collectors.joining(", ", "'", "'")) + ".");
   }
 
+  @Override
+  public int getRawStatusCode() {
+    return HttpStatus.NOT_ACCEPTABLE.value();
+  }
+
+  @Override
+  public HttpHeaders getHeaders() {
+    if (CollectionUtils.isEmpty(getSupportedMediaTypes())) {
+      return HttpHeaders.EMPTY;
+    }
+    HttpHeaders headers = HttpHeaders.create();
+    headers.setAccept(this.getSupportedMediaTypes());
+    return headers;
+  }
 }

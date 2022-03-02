@@ -24,9 +24,13 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -39,12 +43,14 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @since 4.0 2022/1/29 10:29
  */
 @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-public class HttpRequestMethodNotSupportedException extends WebNestedRuntimeException {
+public class HttpRequestMethodNotSupportedException extends NestedRuntimeException implements ErrorResponse {
 
   private final String method;
 
   @Nullable
   private final String[] supportedMethods;
+
+  private final ProblemDetail body;
 
   /**
    * Create a new HttpRequestMethodNotSupportedException.
@@ -82,7 +88,7 @@ public class HttpRequestMethodNotSupportedException extends WebNestedRuntimeExce
    * @param supportedMethods the actually supported HTTP methods (may be {@code null})
    */
   public HttpRequestMethodNotSupportedException(String method, @Nullable String[] supportedMethods) {
-    this(method, supportedMethods, "Request method '" + method + "' not supported");
+    this(method, supportedMethods, "Request method '" + method + "' is not supported");
   }
 
   /**
@@ -96,6 +102,9 @@ public class HttpRequestMethodNotSupportedException extends WebNestedRuntimeExce
     super(msg);
     this.method = method;
     this.supportedMethods = supportedMethods;
+
+    String detail = "Method '" + method + "' is not supported.";
+    this.body = ProblemDetail.forRawStatusCode(getRawStatusCode()).withDetail(detail);
   }
 
   /**
@@ -128,6 +137,26 @@ public class HttpRequestMethodNotSupportedException extends WebNestedRuntimeExce
       supportedMethods.add(method);
     }
     return supportedMethods;
+  }
+
+  @Override
+  public int getRawStatusCode() {
+    return HttpStatus.METHOD_NOT_ALLOWED.value();
+  }
+
+  @Override
+  public HttpHeaders getHeaders() {
+    if (ObjectUtils.isEmpty(this.supportedMethods)) {
+      return HttpHeaders.EMPTY;
+    }
+    HttpHeaders headers = HttpHeaders.create();
+    headers.add(HttpHeaders.ALLOW, StringUtils.arrayToDelimitedString(this.supportedMethods, ", "));
+    return headers;
+  }
+
+  @Override
+  public ProblemDetail getBody() {
+    return this.body;
   }
 
 }

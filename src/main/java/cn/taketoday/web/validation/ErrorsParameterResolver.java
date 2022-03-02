@@ -25,7 +25,7 @@ import java.util.Set;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY <br>

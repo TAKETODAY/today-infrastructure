@@ -456,7 +456,7 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
   private Object resolvedCachedArgument(@Nullable String beanName, @Nullable Object cachedArgument) {
     if (cachedArgument instanceof DependencyDescriptor descriptor) {
       Assert.state(beanFactory != null, "No BeanFactory available");
-      return beanFactory.resolveDependency(descriptor, beanName, null);
+      return beanFactory.resolveDependency(descriptor, beanName, null, null);
     }
     else {
       return cachedArgument;

@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.security;
 
-import cn.taketoday.http.AccessForbiddenException;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.annotation.ResponseStatus;
+import java.io.Serial;
+
+import cn.taketoday.web.AccessForbiddenException;
 
 /**
  * This exception is thrown by the CSRF token validation fails.
@@ -33,8 +33,8 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY 2021/10/4 14:25
  * @since 4.0
  */
-@ResponseStatus(HttpStatus.FORBIDDEN)
 public class CsrfValidationException extends AccessForbiddenException {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /**

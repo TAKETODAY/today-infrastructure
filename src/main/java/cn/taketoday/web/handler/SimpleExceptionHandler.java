@@ -172,14 +172,14 @@ public class SimpleExceptionHandler
 
   /**
    * Get error http status value, if target throwable is {@link HttpStatusCapable}
-   * its return from {@link HttpStatusCapable#getHttpStatus()}
+   * its return from {@link HttpStatusCapable#getStatus()}
    *
    * @param ex Throwable that occurred in request handler
    * @return Http status code
    */
   public int getErrorStatusValue(Throwable ex) {
     if (ex instanceof HttpStatusCapable) { // @since 3.0.1
-      HttpStatus httpStatus = ((HttpStatusCapable) ex).getHttpStatus();
+      HttpStatus httpStatus = ((HttpStatusCapable) ex).getStatus();
       return httpStatus.value();
     }
     return HandlerMethod.getStatusValue(ex);

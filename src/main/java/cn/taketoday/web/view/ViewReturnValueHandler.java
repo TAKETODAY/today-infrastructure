@@ -34,7 +34,6 @@ import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.view.template.TemplateRenderingException;
 
 /**
  * view-name or {@link View} ReturnValueHandler
@@ -99,7 +98,7 @@ public class ViewReturnValueHandler
       Locale locale = RequestContextUtils.getLocale(context);
       view = viewResolver.resolveViewName(viewName, locale);
       if (view == null) {
-        throw new TemplateRenderingException(
+        throw new ViewRenderingException(
                 "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
       }
     }

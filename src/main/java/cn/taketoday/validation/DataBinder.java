@@ -752,16 +752,16 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * Actual implementation of the binding process, working with the
    * passed-in PropertyValues instance.
    *
-   * @param mpvs the property values to bind,
+   * @param values the property values to bind,
    * as PropertyValues instance
    * @see #checkAllowedFields
    * @see #checkRequiredFields
    * @see #applyPropertyValues
    */
-  protected void doBind(PropertyValues mpvs) {
-    checkAllowedFields(mpvs);
-    checkRequiredFields(mpvs);
-    applyPropertyValues(mpvs);
+  protected void doBind(PropertyValues values) {
+    checkAllowedFields(values);
+    checkRequiredFields(values);
+    applyPropertyValues(values);
   }
 
   /**

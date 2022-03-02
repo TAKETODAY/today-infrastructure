@@ -26,5 +26,5 @@ package cn.taketoday.http;
  */
 public interface HttpStatusCapable {
 
-  HttpStatus getHttpStatus();
+  HttpStatus getStatus();
 }

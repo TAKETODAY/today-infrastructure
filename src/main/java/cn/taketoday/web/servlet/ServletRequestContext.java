@@ -42,8 +42,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
-import cn.taketoday.web.resolver.MultipartParsingException;
-import cn.taketoday.web.resolver.NotMultipartRequestException;
+import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAttributes;
 import jakarta.servlet.ServletException;
@@ -384,7 +384,7 @@ public final class ServletRequestContext extends RequestContext {
       return multipartFiles;
     }
     catch (IOException e) {
-      throw new MultipartParsingException("MultipartFile parsing failed.", e);
+      throw new MultipartException("MultipartFile parsing failed.", e);
     }
     catch (ServletException e) {
       throw new NotMultipartRequestException("This is not a multipart request", e);

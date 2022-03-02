@@ -21,7 +21,7 @@
 package cn.taketoday.web.handler.method;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 
 /**
  * ParameterResolvingRegistry ResolvableParameterFactory

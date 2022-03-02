@@ -20,13 +20,15 @@
 
 package cn.taketoday.web;
 
+import cn.taketoday.core.NestedRuntimeException;
+
 /**
  * For Framework Configuration errors
  *
  * @author TODAY 2021/4/26 22:20
  * @since 3.0
  */
-public class FrameworkConfigurationException extends WebNestedRuntimeException {
+public class FrameworkConfigurationException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   public FrameworkConfigurationException() {

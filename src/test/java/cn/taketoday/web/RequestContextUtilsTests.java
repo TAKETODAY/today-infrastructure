@@ -22,6 +22,7 @@ package cn.taketoday.web;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
 

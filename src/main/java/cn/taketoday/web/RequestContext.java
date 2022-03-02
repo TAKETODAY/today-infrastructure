@@ -61,6 +61,8 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
@@ -95,7 +97,6 @@ public abstract class RequestContext
   protected String contextPath;
   protected Object requestBody;
   protected HttpCookie[] cookies;
-  protected String[] pathVariables;
   protected ModelAndView modelAndView;
 
   protected PrintWriter writer;
@@ -600,6 +601,18 @@ public abstract class RequestContext
   // -----------------------------------------------------
 
   /**
+   * @return return whether this request is multipart
+   * @since 4.0
+   */
+  public boolean isMultipart() {
+    if (!"POST".equals(getMethodValue())) {
+      return false;
+    }
+    String contentType = getContentType();
+    return contentType != null && contentType.toLowerCase().startsWith("multipart/");
+  }
+
+  /**
    * Get all {@link MultipartFile}s from current request
    */
   public MultiValueMap<String, MultipartFile> multipartFiles() {
@@ -613,8 +626,8 @@ public abstract class RequestContext
    * template method for different MultipartFile parsing strategy
    *
    * @return map list {@link MultipartFile}
-   * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
+   * @throws NotMultipartRequestException if this request is not of type multipart/form-data
+   * @throws MultipartException multipart parse failed
    */
   protected abstract MultiValueMap<String, MultipartFile> parseMultipartFiles();
 
@@ -682,7 +695,7 @@ public abstract class RequestContext
    * and HTTP status when applicable.
    * <p>Typical usage:
    * <pre class="code">
-   * public String myHandleMethod(WebRequest request, Model model) {
+   * public String myHandleMethod(RequestContext request, Model model) {
    *   long lastModified = // application-specific calculation
    *   if (request.checkNotModified(lastModified)) {
    *     // shortcut exit - no further processing necessary
@@ -723,7 +736,7 @@ public abstract class RequestContext
    * and HTTP status when applicable.
    * <p>Typical usage:
    * <pre class="code">
-   * public String myHandleMethod(WebRequest request, Model model) {
+   * public String myHandleMethod(RequestContext request, Model model) {
    *   String eTag = // application-specific calculation
    *   if (request.checkNotModified(eTag)) {
    *     // shortcut exit - no further processing necessary
@@ -758,7 +771,7 @@ public abstract class RequestContext
    * response headers, and HTTP status when applicable.
    * <p>Typical usage:
    * <pre class="code">
-   * public String myHandleMethod(WebRequest request, Model model) {
+   * public String myHandleMethod(RequestContext request, Model model) {
    *   String eTag = // application-specific calculation
    *   long lastModified = // application-specific calculation
    *   if (request.checkNotModified(eTag, lastModified)) {

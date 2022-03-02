@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.MultiValueMap;
@@ -111,6 +110,18 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     super(body, headers);
     Assert.notNull(status, "HttpStatus must not be null");
     this.status = status;
+  }
+
+  /**
+   * Create a {@code ResponseEntity} with a body, headers, and a raw status code.
+   *
+   * @param body the entity body
+   * @param headers the entity headers
+   * @param rawStatus the status code value
+   * @since 4.0
+   */
+  public ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, int rawStatus) {
+    this(body, headers, (Object) rawStatus);
   }
 
   /**
@@ -248,6 +259,28 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   }
 
   /**
+   * Create a builder for a {@code ResponseEntity} with the given
+   * {@link ProblemDetail} as the body, also matching to its
+   * {@link ProblemDetail#getStatus() status}. An {@code @ExceptionHandler}
+   * method can use to add response headers, or otherwise it can return
+   * {@code ProblemDetail}.
+   *
+   * @param body the details for an HTTP error response
+   * @return the created builder
+   * @since 4.0
+   */
+  public static HeadersBuilder<?> of(ProblemDetail body) {
+    return new DefaultBuilder(body.getStatus()) {
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public <T> ResponseEntity<T> build() {
+        return (ResponseEntity<T>) body(body);
+      }
+    };
+  }
+
+  /**
    * Create a new builder with a {@linkplain HttpStatus#CREATED CREATED} status
    * and a location header set to the given URI.
    *
@@ -348,7 +381,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      *
      * @param allowedMethods the allowed methods
      * @return this builder
-     * @see HttpHeaders#setAllow(Set)
+     * @see HttpHeaders#setAllow(java.util.Collection)
      */
     B allow(HttpMethod... allowedMethods);
 

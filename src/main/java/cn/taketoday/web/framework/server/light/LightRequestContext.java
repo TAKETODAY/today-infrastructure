@@ -38,10 +38,11 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.resolver.MultipartParsingException;
-import cn.taketoday.web.resolver.ParameterReadFailedException;
+import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
 
 /**
  * @author TODAY 2021/4/13 11:35
@@ -162,8 +163,8 @@ public class LightRequestContext extends RequestContext {
   /**
    * map list MultipartFile
    *
-   * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
+   * @throws NotMultipartRequestException if this request is not of type multipart/form-data
+   * @throws MultipartException multipart parse failed
    */
   @Override
   protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
@@ -199,7 +200,7 @@ public class LightRequestContext extends RequestContext {
         requestParts = parts;
       }
       catch (IOException e) {
-        throw new MultipartParsingException("multipart read failed", e);
+        throw new MultipartException("multipart read failed", e);
       }
     }
     return requestParts;

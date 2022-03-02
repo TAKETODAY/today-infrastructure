@@ -129,9 +129,9 @@
 - 修复@Application 空指针
 - [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/servlet/ViewDispatcher.java)
 - [重构 `DispatcherServlet`](/cn/taketoday/web/servlet/DispatcherServlet.java)
-- [优化 path variable 参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L337)
-- [修复exception resolver InvocationTargetException](/src/main/java/cn/taketoday/web/resolver/DefaultExceptionResolver.java#L49)
-- [优化requestBody注解参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L304)
+- [优化 path variable 参数注入](/cn/taketoday/web/bind/resolver/DefaultParameterResolver.java#L337)
+- [修复exception resolver InvocationTargetException](/cn/taketoday/web/bind/resolver/DefaultExceptionResolver.java#L49)
+- [优化requestBody注解参数注入](/cn/taketoday/web/bind/resolver/DefaultParameterResolver.java#L304)
 - [优化MultipartResolver](/src/main/java/cn/taketoday/web/multipart/CommonsMultipartResolver.java#L80)
 - [update web-configuration-2.3.0.dtd](/src/main/resources/web-configuration-2.3.0.dtd)
 - [增加WebMvcConfigLocation，自定义web-mvc配置文件路径，加快启动速度](/cn/taketoday/web/Constant.java#L51)

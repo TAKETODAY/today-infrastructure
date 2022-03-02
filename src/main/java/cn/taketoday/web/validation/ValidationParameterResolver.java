@@ -30,8 +30,8 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2019-07-20 17:00

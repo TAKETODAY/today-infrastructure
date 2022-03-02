@@ -23,7 +23,9 @@ package cn.taketoday.web;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.ProblemDetail;
 
 /**
  * Abstract base for exceptions related to media types. Adds a list of supported {@link MediaType MediaTypes}.
@@ -32,9 +34,11 @@ import cn.taketoday.http.MediaType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 20:03
  */
-public abstract class HttpMediaTypeException extends WebNestedRuntimeException {
+public abstract class HttpMediaTypeException extends NestedRuntimeException implements ErrorResponse {
 
   private final List<MediaType> supportedMediaTypes;
+
+  private final ProblemDetail body = ProblemDetail.forRawStatusCode(getRawStatusCode());
 
   /**
    * Create a new HttpMediaTypeException.
@@ -61,6 +65,11 @@ public abstract class HttpMediaTypeException extends WebNestedRuntimeException {
    */
   public List<MediaType> getSupportedMediaTypes() {
     return this.supportedMediaTypes;
+  }
+
+  @Override
+  public ProblemDetail getBody() {
+    return this.body;
   }
 
 }

@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.validation;
 
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 
 /**
  * @author TODAY 2019-07-21 14:22

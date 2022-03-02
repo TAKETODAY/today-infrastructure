@@ -188,6 +188,11 @@ public class RequestContextDecorator extends RequestContext {
   public MultiValueMap<String, MultipartFile> multipartFiles() { return delegate.multipartFiles(); }
 
   @Override
+  public boolean isMultipart() {
+    return delegate.isMultipart();
+  }
+
+  @Override
   public MultiValueMap<String, MultipartFile> parseMultipartFiles() { return delegate.parseMultipartFiles(); }
 
   @Override

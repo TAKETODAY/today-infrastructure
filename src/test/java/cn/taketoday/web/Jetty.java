@@ -118,7 +118,7 @@ public class Jetty {
     catch (Throwable ex) {
       // Ensure process isn't left running
       stopSilently();
-      throw new WebNestedRuntimeException("Unable to start embedded Jetty web server", ex);
+      throw new InternalServerException("Unable to start embedded Jetty web server", ex);
     }
   }
 
@@ -177,7 +177,7 @@ public class Jetty {
     }
     catch (Exception ex) {
       stopSilently();
-      throw new WebNestedRuntimeException("Unable to start embedded Jetty server", ex);
+      throw new InternalServerException("Unable to start embedded Jetty server", ex);
     }
   }
 
@@ -209,7 +209,7 @@ public class Jetty {
       Thread.currentThread().interrupt();
     }
     catch (Exception ex) {
-      throw new WebNestedRuntimeException("Unable to stop embedded Jetty server", ex);
+      throw new InternalServerException("Unable to stop embedded Jetty server", ex);
     }
   }
 

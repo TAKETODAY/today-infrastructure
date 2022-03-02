@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.resolver.AbstractNamedValueResolvingStrategy;
+import cn.taketoday.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 
 /**
  * @author TODAY <br>

@@ -86,8 +86,8 @@ import cn.taketoday.web.registry.AbstractHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
@@ -179,7 +179,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
 
   /**
    * Provides access to the shared {@link HttpMessageConverter HttpMessageConverters}
-   * used by the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
+   * used by the {@link ParameterResolvingStrategy} and the
    * {@link ReturnValueHandlerManager}.
    * <p>This method cannot be overridden; use {@link #configureMessageConverters} instead.
    * Also see {@link #addDefaultHttpMessageConverters} for adding default message converters.
@@ -198,7 +198,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
 
   /**
    * Override this method to add custom {@link HttpMessageConverter HttpMessageConverters}
-   * to use with the {@link cn.taketoday.web.resolver.ParameterResolvingStrategy} and the
+   * to use with the {@link ParameterResolvingStrategy} and the
    * {@link ReturnValueHandlerManager}.
    * <p>Adding converters to the list turns off the default converters that would
    * otherwise be registered by default. Also see {@link #addDefaultHttpMessageConverters}

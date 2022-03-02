@@ -31,8 +31,8 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.resolver.MultipartParsingException;
-import cn.taketoday.web.resolver.NotMultipartRequestException;
+import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.bind.NotMultipartRequestException;
 
 /**
  * The {@code MultipartIterator} iterates over the parts of a multipart/form-data request.
@@ -69,7 +69,7 @@ public class MultipartIterator {
     }
     final String boundary = contentType.getParameter("boundary"); // should be US-ASCII
     if (boundary == null) {
-      throw new MultipartParsingException("Content-Type is missing boundary");
+      throw new MultipartException("Content-Type is missing boundary");
     }
     inputStream = new MultipartInputStream(req.getBody(), boundary.getBytes()); // todo charset
   }
@@ -87,8 +87,8 @@ public class MultipartIterator {
   }
 
   /**
-   * @throws cn.taketoday.web.resolver.NotMultipartRequestException if this request is not of type multipart/form-data
-   * @throws cn.taketoday.web.resolver.MultipartParsingException multipart parse failed
+   * @throws NotMultipartRequestException if this request is not of type multipart/form-data
+   * @throws MultipartException multipart parse failed
    */
   public RequestPart obtainNext(LightHttpConfig config, MultipartConfiguration multipartConfig) throws IOException {
     hasNext = false;

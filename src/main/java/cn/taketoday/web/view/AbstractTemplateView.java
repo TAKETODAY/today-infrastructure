@@ -26,7 +26,6 @@ import java.util.Map;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 
@@ -101,9 +100,8 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
       while (en.hasNext()) {
         String attribute = en.next();
         if (model.containsKey(attribute) && !allowRequestOverride) {
-          throw new WebNestedRuntimeException(
-                  "Cannot expose request attribute '" + attribute +
-                          "' because of an existing model object of the same name");
+          throw new ViewRenderingException("Cannot expose request attribute '" + attribute +
+                  "' because of an existing model object of the same name");
         }
         Object attributeValue = context.getAttribute(attribute);
         if (log.isDebugEnabled()) {
@@ -138,8 +136,8 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
         Map<String, Object> exposed = null;
         String[] attributeNames = session.getAttributeNames();
         for (String attribute : attributeNames) {
-          if (model.containsKey(attribute) && !this.allowSessionOverride) {
-            throw new WebNestedRuntimeException("Cannot expose session attribute '" + attribute +
+          if (model.containsKey(attribute) && !allowSessionOverride) {
+            throw new ViewRenderingException("Cannot expose session attribute '" + attribute +
                     "' because of an existing model object of the same name");
           }
           Object attributeValue = session.getAttribute(attribute);

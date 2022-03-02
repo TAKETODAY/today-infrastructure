@@ -170,14 +170,6 @@ public abstract class WebUtils {
   }
 
   // ---
-  public static boolean isMultipart(RequestContext requestContext) {
-
-    if (!"POST".equals(requestContext.getMethodValue())) {
-      return false;
-    }
-    String contentType = requestContext.getContentType();
-    return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
-  }
 
   /**
    * Is ajax request

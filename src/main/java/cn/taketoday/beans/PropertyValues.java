@@ -20,14 +20,12 @@
 package cn.taketoday.beans;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -357,26 +355,27 @@ public class PropertyValues implements Iterable<PropertyValue> {
    * Return the underlying List of PropertyValue objects in its raw form.
    */
   public List<PropertyValue> asList() {
-    if (CollectionUtils.isEmpty(propertyValues)) {
-      return Collections.emptyList();
-    }
-    return propertyValues.entrySet().stream()
-            .map(property -> new PropertyValue(property.getKey(), property.getValue()))
+    return stream()
             .collect(Collectors.toList());
   }
 
   @Override
   public Iterator<PropertyValue> iterator() {
-    return asList().iterator();
+    return stream().iterator();
   }
 
   @Override
   public Spliterator<PropertyValue> spliterator() {
-    return Spliterators.spliterator(asList(), 0);
+    return stream().spliterator();
   }
 
   public Stream<PropertyValue> stream() {
-    return asList().stream();
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      return Stream.empty();
+    }
+    return propertyValues.entrySet()
+            .stream()
+            .map(PropertyValue::new);
   }
 
   @Override

@@ -28,7 +28,7 @@ import java.lang.reflect.Type;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.resolver.ParameterReadFailedException;
+import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketSession;

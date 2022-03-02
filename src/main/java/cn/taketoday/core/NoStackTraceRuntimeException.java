@@ -66,7 +66,7 @@ public class NoStackTraceRuntimeException extends NestedRuntimeException {
    */
   @Override
   public final Throwable fillInStackTrace() {
-    return super.fillInStackTrace();
+    return this;
   }
 
 }

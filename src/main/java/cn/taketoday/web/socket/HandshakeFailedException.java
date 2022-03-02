@@ -20,13 +20,13 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.web.WebNestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * @author TODAY 2021/4/5 23:05
  * @since 3.0
  */
-public class HandshakeFailedException extends WebNestedRuntimeException {
+public class HandshakeFailedException extends NestedRuntimeException {
 
   public HandshakeFailedException() {
     super();

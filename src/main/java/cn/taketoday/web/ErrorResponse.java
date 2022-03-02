@@ -1,0 +1,78 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.web;
+
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.http.ProblemDetail;
+import cn.taketoday.http.ResponseEntity;
+
+/**
+ * Representation of a complete RFC 7807 error response including status,
+ * headers, and an RFC 7808 formatted {@link ProblemDetail} body. Allows any
+ * exception to expose HTTP error response information.
+ *
+ * <p>{@link ErrorResponseException} is a default implementation of this
+ * interface and a convenient base class for other exceptions to use.
+ *
+ * <p>An {@code @ExceptionHandler} method can use {@link ResponseEntity#of(ProblemDetail)}
+ * to map an {@code ErrorResponse} to a {@code ResponseEntity}.
+ *
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ErrorResponseException
+ * @see ResponseEntity#of(ProblemDetail)
+ * @since 4.0 2022/3/2 13:34
+ */
+public interface ErrorResponse extends HttpStatusCapable {
+
+  /**
+   * Return the HTTP status to use for the response.
+   *
+   * @throws IllegalArgumentException for an unknown HTTP status code
+   */
+  @Override
+  default HttpStatus getStatus() {
+    return HttpStatus.valueOf(getRawStatusCode());
+  }
+
+  /**
+   * Return the HTTP status value for the response, potentially non-standard
+   * and not resolvable via {@link HttpStatus}.
+   */
+  int getRawStatusCode();
+
+  /**
+   * Return headers to use for the response.
+   */
+  default HttpHeaders getHeaders() {
+    return HttpHeaders.EMPTY;
+  }
+
+  /**
+   * Return the body for the response, formatted as an RFC 7807
+   * {@link ProblemDetail} whose {@link ProblemDetail#getStatus() status}
+   * should match the response status.
+   */
+  ProblemDetail getBody();
+
+}

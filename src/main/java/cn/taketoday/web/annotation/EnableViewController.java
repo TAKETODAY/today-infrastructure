@@ -31,7 +31,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.handler.method.ParameterResolvingRegistryResolvableParameterFactory;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 
 /**
  * @author TODAY 2020-03-30 21:38

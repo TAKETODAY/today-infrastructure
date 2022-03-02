@@ -21,6 +21,7 @@
 package cn.taketoday.beans;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
@@ -60,6 +61,10 @@ public class PropertyValue implements Serializable, BeanMetadataElement {
   public PropertyValue(String name, Object value) {
     this.name = name;
     this.value = value;
+  }
+
+  PropertyValue(Map.Entry<String, Object> entry) {
+    this(entry.getKey(), entry.getValue());
   }
 
   /**

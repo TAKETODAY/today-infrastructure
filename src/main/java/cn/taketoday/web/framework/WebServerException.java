@@ -21,13 +21,13 @@ package cn.taketoday.web.framework;
 
 import java.io.Serial;
 
-import cn.taketoday.web.WebNestedRuntimeException;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
  * @author TODAY <br>
  * 2019-02-14 21:09
  */
-public class WebServerException extends WebNestedRuntimeException {
+public class WebServerException extends NestedRuntimeException {
   @Serial
   private static final long serialVersionUID = 1L;
 

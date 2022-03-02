@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.lang.Constant;
+import cn.taketoday.web.bind.resolver.MissingRequestBodyException;
 
 /**
  * @author TODAY <br>
@@ -43,7 +44,7 @@ public @interface RequestBody {
    * If required == true when request parameter is null, will be return bad
    * request.
    *
-   * @see cn.taketoday.web.resolver.MissingRequestBodyException
+   * @see MissingRequestBodyException
    * @since 3.0
    */
   boolean required() default true;

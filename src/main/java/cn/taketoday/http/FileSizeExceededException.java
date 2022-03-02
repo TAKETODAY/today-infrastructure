@@ -19,8 +19,10 @@
  */
 package cn.taketoday.http;
 
+import java.io.Serial;
+
+import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.util.DataSize;
-import cn.taketoday.web.WebNestedRuntimeException;
 import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
@@ -28,8 +30,9 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * 2018-07-10 21:42:16
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class FileSizeExceededException extends WebNestedRuntimeException {
+public class FileSizeExceededException extends NestedRuntimeException {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   /** The actual size of the request. */

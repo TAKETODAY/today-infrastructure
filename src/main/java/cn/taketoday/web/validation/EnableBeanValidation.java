@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import jakarta.validation.Configuration;
 import jakarta.validation.Validation;
 import jakarta.validation.spi.ValidationProvider;
