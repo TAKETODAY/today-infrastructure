@@ -26,13 +26,13 @@ import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
 
 /**
@@ -125,6 +125,13 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void configureExceptionHandlers(final List<HandlerExceptionHandler> handlers) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureExceptionHandlers(handlers);
+    }
+  }
+
+  @Override
+  public void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.extendExceptionHandlers(handlers);
     }
   }
 

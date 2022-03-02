@@ -187,7 +187,7 @@ public class HandlerMethodRegistry
   protected ActionMappingAnnotationHandler createHandler(String beanName, Class<?> beanClass, Method method) {
     BeanSupplier<Object> beanSupplier = BeanSupplier.from(beanFactory, beanName);
     List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
-    return annotationHandlerFactory.create(beanSupplier, method, interceptors);
+    return annotationHandlerFactory.create(beanSupplier, method, beanClass, interceptors);
   }
 
   /**

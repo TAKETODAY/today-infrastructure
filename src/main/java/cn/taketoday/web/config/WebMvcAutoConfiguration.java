@@ -54,6 +54,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.config.WebProperties.Resources;
 import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -188,6 +189,16 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void addViewControllers(ViewControllerRegistry registry) {
     mvcConfiguration.addViewControllers(registry);
+  }
+
+  @Override
+  protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+    mvcConfiguration.configureExceptionHandlers(handlers);
+  }
+
+  @Override
+  protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+    mvcConfiguration.extendExceptionHandlers(handlers);
   }
 
   @Override

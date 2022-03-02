@@ -221,7 +221,7 @@ public class ConfigurationClassPostProcessor
       BeanDefinition beanDef = BeanFactoryUtils.requiredDefinition(registry, beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
         if (log.isDebugEnabled()) {
-          log.debug("Bean definition has already been processed as a configuration class: " + beanDef);
+          log.debug("Bean definition has already been processed as a configuration class: {}", beanDef);
         }
       }
       else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, bootstrapContext)) {
@@ -345,10 +345,10 @@ public class ConfigurationClassPostProcessor
       }
       if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
         if (log.isInfoEnabled() && beanFactory.containsSingleton(beanName)) {
-          log.info("Cannot enhance @Configuration bean definition '" + beanName +
-                  "' since its singleton instance has been created too early. The typical cause " +
+          log.info("Cannot enhance @Configuration bean definition '{}' " +
+                  "since its singleton instance has been created too early. The typical cause " +
                   "is a non-static @Component method with a BeanDefinitionRegistryPostProcessor " +
-                  "return type: Consider declaring such methods as 'static'.");
+                  "return type: Consider declaring such methods as 'static'.", beanName);
         }
         configBeanDefs.put(beanName, beanDef);
       }
@@ -368,8 +368,8 @@ public class ConfigurationClassPostProcessor
       Class<?> enhancedClass = enhancer.enhance(configClass, this.beanClassLoader);
       if (configClass != enhancedClass) {
         if (log.isTraceEnabled()) {
-          log.trace(String.format("Replacing bean definition '%s' existing class '%s' with " +
-                  "enhanced class '%s'", entry.getKey(), configClass.getName(), enhancedClass.getName()));
+          log.trace("Replacing bean definition '{}' existing class '{}' with " +
+                  "enhanced class '{}'", entry.getKey(), configClass.getName(), enhancedClass.getName());
         }
         beanDef.setBeanClass(enhancedClass);
       }

@@ -20,14 +20,21 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanSupplier;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -37,12 +44,10 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
-import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.SimpleExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.util.WebUtils;
+import cn.taketoday.web.handler.AbstractActionMappingMethodExceptionHandler;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.method.ExceptionHandlerMethodResolver.ExceptionHandlerMappingHandler;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -53,12 +58,19 @@ import cn.taketoday.web.util.WebUtils;
  * @author TODAY 2019-06-22 19:17
  * @since 2.3.7
  */
-public class DefaultExceptionHandler
-        extends SimpleExceptionHandler implements WebApplicationInitializer {
+public class ExceptionHandlerAnnotationExceptionHandler
+        extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
 
-  private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(ExceptionHandlerAnnotationExceptionHandler.class);
+
   private final HashMap<Class<? extends Throwable>, ExceptionHandlerMappingHandler>
           exceptionHandlers = new HashMap<>();
+
+  private final Map<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
+          new ConcurrentHashMap<>(64);
+
+  private final Map<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
+          new LinkedHashMap<>();
 
   /** @since 3.0 */
   private boolean inheritable;
@@ -66,12 +78,17 @@ public class DefaultExceptionHandler
   /** @since 3.0 */
   private ExceptionHandlerMappingHandler globalHandler;
 
+  @Nullable
+  private ApplicationContext applicationContext;
+
+  @Nullable
   @Override
-  public Object handleException(RequestContext context, Throwable target, Object handler) {
+  protected Object handleInternal(RequestContext context,
+          @Nullable ActionMappingAnnotationHandler annotationHandler, Throwable target) {
     // catch all handlers
     ExceptionHandlerMappingHandler exHandler = lookupExceptionHandler(target);
     if (exHandler == null) {
-      return super.handleException(context, target, handler);
+      return null; // next
     }
 
     logCatchThrowable(target);
@@ -103,26 +120,50 @@ public class DefaultExceptionHandler
   }
 
   /**
-   * Looking for exception handler mapping
+   * Find an {@code @ExceptionHandler} method for the given exception. The default
+   * implementation searches methods in the class hierarchy of the controller first
+   * and if not found, it continues searching for additional {@code @ExceptionHandler}
+   * methods assuming some {@linkplain ControllerAdvice @ControllerAdvice}
+   * Spring-managed beans were detected.
    *
-   * @param ex Target {@link Exception}
-   * @return Mapped {@link Exception} handler mapping
+   * @param exception the raised exception
+   * @return a method to handle the exception, or {@code null} if none
    */
-  protected ExceptionHandlerMappingHandler lookupExceptionHandler(Throwable ex) {
-    ExceptionHandlerMappingHandler ret = exceptionHandlers.get(ex.getClass());
-    if (ret == null) {
-      if (inheritable) {
-        Class<? extends Throwable> runtimeEx = ex.getClass();
-        for (var entry : exceptionHandlers.entrySet()) {
-          Class<? extends Throwable> entryKey = entry.getKey();
-          if (entryKey != Throwable.class && entryKey.isAssignableFrom(runtimeEx)) {
-            return entry.getValue();
-          }
+  @Nullable
+  protected ActionMappingAnnotationHandler lookupExceptionHandler(
+          @Nullable ActionMappingAnnotationHandler annotationHandler, Throwable exception) {
+
+    Class<?> handlerType = null;
+
+    if (annotationHandler != null) {
+      // Local exception handler methods on the controller class itself.
+      // To be invoked through the proxy, even in case of an interface-based proxy.
+      handlerType = annotationHandler.getBeanType();
+      ExceptionHandlerMethodResolver resolver = exceptionHandlerCache.computeIfAbsent(
+              handlerType, ExceptionHandlerMethodResolver::new);
+      ActionMappingAnnotationHandler handler = resolver.lookupHandler(exception);
+      if (handler != null) {
+        return handler;
+      }
+      // For advice applicability check below (involving base packages, assignable types
+      // and annotation presence), use target class instead of interface-based proxy.
+      if (Proxy.isProxyClass(handlerType)) {
+        handlerType = AopUtils.getTargetClass(annotationHandler.getHandlerObject());
+      }
+    }
+
+    for (Map.Entry<ControllerAdviceBean, ExceptionHandlerMethodResolver> entry : exceptionHandlerAdviceCache.entrySet()) {
+      ControllerAdviceBean advice = entry.getKey();
+      if (advice.isApplicableToBeanType(handlerType)) {
+        ExceptionHandlerMethodResolver resolver = entry.getValue();
+        ActionMappingAnnotationHandler handler = resolver.lookupHandler(exception);
+        if (handler != null) {
+          return handler;
         }
       }
-      return globalHandler; // Global exception handler
     }
-    return ret;
+
+    return null;
   }
 
   //
@@ -140,9 +181,53 @@ public class DefaultExceptionHandler
     this.globalHandler = globalHandler;
   }
 
-  // WebApplicationInitializer
+  @Override
+  public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
+
+  @Nullable
+  public ApplicationContext getApplicationContext() {
+    return this.applicationContext;
+  }
 
   @Override
+  public void afterPropertiesSet() {
+    ApplicationContext context = getApplicationContext();
+    if (context != null) {
+      initExceptionHandlerAdviceCache(context);
+    }
+  }
+
+  private void initExceptionHandlerAdviceCache(ApplicationContext applicationContext) {
+    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(applicationContext);
+    for (ControllerAdviceBean adviceBean : adviceBeans) {
+      Class<?> beanType = adviceBean.getBeanType();
+      if (beanType == null) {
+        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
+      }
+      ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(beanType);
+      if (resolver.hasExceptionMappings()) {
+        this.exceptionHandlerAdviceCache.put(adviceBean, resolver);
+      }
+      if (ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
+        this.responseBodyAdvice.add(adviceBean);
+      }
+    }
+
+    if (logger.isDebugEnabled()) {
+      int handlerSize = this.exceptionHandlerAdviceCache.size();
+      int adviceSize = this.responseBodyAdvice.size();
+      if (handlerSize == 0 && adviceSize == 0) {
+        logger.debug("ControllerAdvice beans: none");
+      }
+      else {
+        logger.debug("ControllerAdvice beans: " +
+                handlerSize + " @ExceptionHandler, " + adviceSize + " ResponseBodyAdvice");
+      }
+    }
+  }
+
   public void onStartup(WebApplicationContext context) {
     log.info("Initialize @ExceptionHandler");
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
@@ -160,7 +245,7 @@ public class DefaultExceptionHandler
             // @since 3.0
             BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
             ExceptionHandlerMappingHandler handler = getHandler(
-                    handlerBean, parameterFactory, method, manager);
+                    handlerBean, parameterFactory, method, manager, errorHandlerType);
 
             ExceptionHandlerMappingHandler oldHandler = exceptionHandlers.put(exceptionType, handler);
             if (oldHandler != null && !method.equals(oldHandler.getJavaMethod())) {
@@ -182,9 +267,10 @@ public class DefaultExceptionHandler
 
   private ExceptionHandlerMappingHandler getHandler(
           BeanSupplier<Object> handlerBean, ResolvableParameterFactory parameterFactory,
-          Method method, ReturnValueHandlerManager manager) {
+          Method method, ReturnValueHandlerManager manager, Class<?> errorHandlerType) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
-    ExceptionHandlerMappingHandler handler = new ExceptionHandlerMappingHandler(handlerBean, handlerMethod, parameterFactory.createArray(method));
+    ExceptionHandlerMappingHandler handler = new ExceptionHandlerMappingHandler(
+            handlerBean, handlerMethod, parameterFactory.createArray(method), errorHandlerType);
     handler.setReturnValueHandlers(manager);
     return handler;
   }
@@ -212,37 +298,6 @@ public class DefaultExceptionHandler
       }
     }
     return catchExClasses;
-  }
-
-  // exception handler
-
-  protected static class ExceptionHandlerMappingHandler extends SuppliedActionMappingAnnotationHandler {
-
-    ExceptionHandlerMappingHandler(
-            BeanSupplier<Object> beanSupplier, HandlerMethod method, @Nullable ResolvableMethodParameter[] parameters) {
-      super(beanSupplier, method, parameters);
-    }
-
-    @Override
-    protected void applyResponseStatus(RequestContext context) {
-      ResponseStatus status = getMethod().getResponseStatus();
-      if (status == null) {
-        Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-        if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
-          HttpStatus httpStatus = ((HttpStatusCapable) attribute).getStatus();
-          context.setStatus(httpStatus);
-        }
-        else if (attribute instanceof Throwable) {
-          ResponseStatus runtimeErrorStatus = HandlerMethod.getResponseStatus((Throwable) attribute);
-          applyResponseStatus(context, runtimeErrorStatus);
-        }
-      }
-      else {
-        // Annotated with @ResponseStatus
-        super.applyResponseStatus(context, status);
-      }
-    }
-
   }
 
 }

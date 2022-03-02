@@ -24,6 +24,7 @@ import java.util.Set;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -46,7 +47,7 @@ import cn.taketoday.web.RequestContext;
  */
 public abstract class AbstractHandlerExceptionHandler extends OrderedSupport implements HandlerExceptionHandler {
 
-  private static final String HEADER_CACHE_CONTROL = "Cache-Control";
+  private static final String HEADER_CACHE_CONTROL = HttpHeaders.CACHE_CONTROL;
 
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -93,7 +94,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * to the logger's configuration. If {@code null} or empty String is passed, warn logging
    * is turned off.
    * <p>By default there is no warn logging although subclasses like
-   * {@link SimpleExceptionHandler}
+   * {@link SimpleHandlerExceptionHandler}
    * can change that default. Specify this setting to activate warn logging into a specific
    * category. Alternatively, override the {@link #logException} method for custom logging.
    *
@@ -118,14 +119,14 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * Check whether this resolver is supposed to apply (i.e. if the supplied handler
    * matches any of the configured {@linkplain #setMappedHandlers handlers} or
    * {@linkplain #setMappedHandlerClasses handler classes}), and then delegate
-   * to the {@link #doResolveException} template method.
+   * to the {@link #handleInternal} template method.
    */
   @Nullable
   @Override
   public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) {
     if (shouldApplyTo(context, handler)) {
       prepareResponse(ex, context);
-      Object result = doResolveException(context, handler, ex);
+      Object result = handleInternal(context, handler, ex);
       if (result != null) {
         // Print debug message when warn logger is not enabled.
         if (logger.isDebugEnabled() && (warnLogger == null || !warnLogger.isWarnEnabled())) {
@@ -208,6 +209,27 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   }
 
   /**
+   * record exception log occurred in target request handler
+   *
+   * @param target Throwable occurred in target request handler
+   */
+  protected void logCatchThrowable(Throwable target) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Catch Throwable: [{}]", target.toString(), target);
+    }
+  }
+
+  /**
+   * record log when an exception occurred in this exception handler
+   *
+   * @param target Throwable that occurred in request handler
+   * @param handlerException Throwable occurred in this exception handler
+   */
+  protected void logResultedInException(Throwable target, Throwable handlerException) {
+    logger.warn("Failure while trying to resolve exception [{}]", target.getClass().getName(), handlerException);
+  }
+
+  /**
    * Prepare the response for the exceptional case.
    * <p>The default implementation prevents the response from being cached,
    * if the {@link #setPreventResponseCaching "preventResponseCaching"} property
@@ -249,7 +271,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * or {@code null} for default processing in the resolution chain
    */
   @Nullable
-  protected abstract Object doResolveException(
+  protected abstract Object handleInternal(
           RequestContext request, @Nullable Object handler, Throwable ex);
 
 }

@@ -31,13 +31,14 @@ class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHand
   private final BeanSupplier<Object> beanSupplier;
 
   SuppliedActionMappingAnnotationHandler(
-          BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters) {
-    super(handlerMethod, parameters);
+          BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod,
+          @Nullable ResolvableMethodParameter[] parameters, Class<?> beanType) {
+    super(handlerMethod, parameters, beanType);
     this.beanSupplier = beanSupplier;
   }
 
   @Override
-  protected Object getHandlerBean() {
+  public Object getHandlerObject() {
     return beanSupplier.get();
   }
 

@@ -28,8 +28,8 @@ class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHan
   private final Object handlerBean;
 
   SingletonActionMappingAnnotationHandler(
-          Object handlerBean, HandlerMethod handlerMethod, ResolvableMethodParameter[] parameters) {
-    super(handlerMethod, parameters);
+          Object handlerBean, HandlerMethod handlerMethod, ResolvableMethodParameter[] parameters, Class<?> beanType) {
+    super(handlerMethod, parameters, beanType);
     this.handlerBean = handlerBean;
   }
 
@@ -39,7 +39,7 @@ class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHan
   }
 
   @Override
-  protected Object getHandlerBean() {
+  public Object getHandlerObject() {
     return handlerBean;
   }
 

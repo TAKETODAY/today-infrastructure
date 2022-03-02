@@ -29,10 +29,10 @@ import java.util.List;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
+import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
@@ -88,9 +88,9 @@ class ReturnValueHandlerManagerTests {
     Mockito.when(handler.isReturn(HttpStatus.class))
             .thenReturn(true);
 
-    ActionMappingAnnotationHandler annotationHandler = new ActionMappingAnnotationHandler(handler, null) {
+    ActionMappingAnnotationHandler annotationHandler = new ActionMappingAnnotationHandler(handler, null, beanType) {
       @Override
-      protected Object getHandlerBean() {
+      public Object getHandlerObject() {
         return null;
       }
     };

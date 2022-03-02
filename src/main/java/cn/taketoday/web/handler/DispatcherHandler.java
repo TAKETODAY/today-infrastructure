@@ -43,7 +43,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.handler.method.DefaultExceptionHandler;
+import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
@@ -229,7 +229,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   /**
    * Initialize the HandlerExceptionHandler used by this class.
    * <p>If no HandlerExceptionHandler beans are defined in the BeanFactory for this namespace,
-   * we default to {@link DefaultExceptionHandler}.
+   * we default to {@link ExceptionHandlerAnnotationExceptionHandler}.
    *
    * @see HandlerExceptionHandler
    */
@@ -256,7 +256,7 @@ public class DispatcherHandler implements ApplicationContextAware {
         exceptionHandler = context.getBean(HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
       }
       if (exceptionHandler == null) {
-        DefaultExceptionHandler exceptionHandler = new DefaultExceptionHandler();
+        ExceptionHandlerAnnotationExceptionHandler exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
         exceptionHandler.onStartup(getWebApplicationContext());
         this.exceptionHandler = exceptionHandler;
       }

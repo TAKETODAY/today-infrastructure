@@ -44,7 +44,6 @@ import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
-import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
@@ -70,13 +69,19 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundRequestAdapter;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
+import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
-import cn.taketoday.web.handler.method.DefaultExceptionHandler;
+import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
@@ -86,8 +91,6 @@ import cn.taketoday.web.registry.AbstractHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
@@ -466,14 +469,87 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     return new NotFoundRequestAdapter();
   }
 
+  // HandlerExceptionHandler
+
   /**
-   * default {@link HandlerExceptionHandler}
+   * Returns a {@link CompositeHandlerExceptionHandler} containing a list of exception
+   * resolvers obtained either through {@link #configureExceptionHandlers} or
+   * through {@link #addDefaultHandlerExceptionHandlers}.
+   * <p><strong>Note:</strong> This method cannot be made final due to CGLIB constraints.
+   * Rather than overriding it, consider overriding {@link #configureExceptionHandlers}
+   * which allows for providing a list of resolvers.
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(HandlerExceptionHandler.class)
-  DefaultExceptionHandler defaultExceptionHandler() {
-    return new DefaultExceptionHandler();
+  public HandlerExceptionHandler handlerExceptionHandler() {
+    ArrayList<HandlerExceptionHandler> handlers = new ArrayList<>();
+    configureExceptionHandlers(handlers);
+    if (handlers.isEmpty()) {
+      addDefaultHandlerExceptionHandlers(handlers);
+    }
+    extendExceptionHandlers(handlers);
+    CompositeHandlerExceptionHandler composite = new CompositeHandlerExceptionHandler();
+    composite.setOrder(0);
+    composite.setExceptionHandlers(handlers);
+    return composite;
+  }
+
+  /**
+   * Override this method to configure the list of
+   * {@link HandlerExceptionHandler HandlerExceptionHandlers} to use.
+   * <p>Adding resolvers to the list turns off the default resolvers that would otherwise
+   * be registered by default. Also see {@link #addDefaultHandlerExceptionHandlers}
+   * that can be used to add the default exception resolvers.
+   *
+   * @param handlers a list to add exception handlers to (initially an empty list)
+   */
+  protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+
+  /**
+   * Override this method to extend or modify the list of
+   * {@link HandlerExceptionHandler HandlerExceptionHandlers} after it has been configured.
+   * <p>This may be useful for example to allow default resolvers to be registered
+   * and then insert a custom one through this method.
+   *
+   * @param handlers the list of configured resolvers to extend.
+   */
+  protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+
+  /**
+   * A method available to subclasses for adding default
+   * {@link HandlerExceptionHandler HandlerExceptionHandlers}.
+   * <p>Adds the following exception resolvers:
+   * <ul>
+   * <li>{@link ExceptionHandlerAnnotationExceptionHandler} for handling exceptions through
+   * {@link cn.taketoday.web.annotation.ExceptionHandler} methods.
+   * <li>{@link ResponseStatusExceptionHandler} for exceptions annotated with
+   * {@link cn.taketoday.web.annotation.ResponseStatus}.
+   * <li>{@link SimpleHandlerExceptionHandler} for resolving known Spring exception types
+   * </ul>
+   */
+  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+
+    ExceptionHandlerAnnotationExceptionHandler handler = createExceptionHandlerAnnotationExceptionHandler();
+
+    if (this.applicationContext != null) {
+      handler.setApplicationContext(this.applicationContext);
+    }
+    handler.afterPropertiesSet();
+    handlers.add(handler);
+
+    ResponseStatusExceptionHandler responseStatusResolver = new ResponseStatusExceptionHandler();
+    responseStatusResolver.setMessageSource(this.applicationContext);
+    handlers.add(responseStatusResolver);
+
+    handlers.add(new SimpleHandlerExceptionHandler());
+  }
+
+  /**
+   * Protected method for plugging in a custom subclass of
+   * {@link ExceptionHandlerAnnotationExceptionHandler}.
+   */
+  protected ExceptionHandlerAnnotationExceptionHandler createExceptionHandlerAnnotationExceptionHandler() {
+    return new ExceptionHandlerAnnotationExceptionHandler();
   }
 
   // HandlerRegistry

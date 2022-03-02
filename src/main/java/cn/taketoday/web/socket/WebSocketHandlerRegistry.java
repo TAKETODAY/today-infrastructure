@@ -120,7 +120,7 @@ public class WebSocketHandlerRegistry
         onClose = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
       }
       else if (isAfterHandshakeHandler(declaredMethod, definition)) {
-        afterHandshake = factory.create(handlerBean, declaredMethod, null);
+        afterHandshake = factory.create(handlerBean, declaredMethod, endpointClass, null);
       }
       else if (isOnErrorHandler(declaredMethod, definition)) {
         onError = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);

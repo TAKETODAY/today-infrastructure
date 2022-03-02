@@ -61,14 +61,17 @@ public abstract class ActionMappingAnnotationHandler
   // resolvable parameters
   @Nullable
   private final ResolvableMethodParameter[] resolvableParameters;
+  private final Class<?> beanType;
 
   public ActionMappingAnnotationHandler(
-          HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters) {
+          HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters, Class<?> beanType) {
     this.resolvableParameters = parameters;
     this.handlerMethod = handlerMethod;
+    this.beanType = beanType;
   }
 
   public ActionMappingAnnotationHandler(ActionMappingAnnotationHandler handler) {
+    this.beanType = handler.beanType;
     this.handlerMethod = handler.handlerMethod;
     this.handlerInvoker = handler.handlerInvoker;
     this.returnValueHandlerManager = handler.returnValueHandlerManager;
@@ -108,7 +111,7 @@ public abstract class ActionMappingAnnotationHandler
       }
     }
 
-    Object handlerBean = getHandlerBean();
+    Object handlerBean = getHandlerObject();
     ResolvableMethodParameter[] parameters = getResolvableParameters();
     if (ObjectUtils.isEmpty(parameters)) {
       return handlerInvoker.invoke(handlerBean, null);
@@ -122,7 +125,11 @@ public abstract class ActionMappingAnnotationHandler
     return handlerInvoker.invoke(handlerBean, args);
   }
 
-  protected abstract Object getHandlerBean();
+  public abstract Object getHandlerObject();
+
+  public Class<?> getBeanType() {
+    return beanType;
+  }
 
   // HandlerAdapter
 
@@ -205,17 +212,17 @@ public abstract class ActionMappingAnnotationHandler
   //---------------------------------------------------------------------
 
   public static ActionMappingAnnotationHandler from(
-          Object handlerBean, Method method, ResolvableParameterFactory parameterFactory) {
+          Object handlerBean, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
     ResolvableMethodParameter[] parameters = parameterFactory.createArray(handlerMethod);
-    return new SingletonActionMappingAnnotationHandler(handlerBean, handlerMethod, parameters);
+    return new SingletonActionMappingAnnotationHandler(handlerBean, handlerMethod, parameters, beanType);
   }
 
   public static ActionMappingAnnotationHandler from(
-          BeanSupplier<Object> beanSupplier, Method method, ResolvableParameterFactory parameterFactory) {
+          BeanSupplier<Object> beanSupplier, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {
     HandlerMethod handlerMethod = HandlerMethod.from(method);
     ResolvableMethodParameter[] parameters = parameterFactory.createArray(handlerMethod);
-    return new SuppliedActionMappingAnnotationHandler(beanSupplier, handlerMethod, parameters);
+    return new SuppliedActionMappingAnnotationHandler(beanSupplier, handlerMethod, parameters, beanType);
   }
 
 }

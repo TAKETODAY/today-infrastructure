@@ -25,19 +25,19 @@ import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
-import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.Multipart;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.View;
 
@@ -136,11 +136,27 @@ public interface WebMvcConfiguration {
 
   /**
    * Configure {@link HandlerExceptionHandler}
+   * <p>
+   * Override this method to configure the list of
+   * {@link HandlerExceptionHandler HandlerExceptionHandlers} to use.
+   * <p>Adding handlers to the list turns off the default resolvers that would otherwise
+   * be registered by default.
    *
-   * @param handlers HandlerExceptionHandlers
+   * @param handlers a list to add exception handlers to (initially an empty list)
    * @since 3.0
    */
   default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+
+  /**
+   * Override this method to extend or modify the list of
+   * {@link HandlerExceptionHandler HandlerExceptionHandlers} after it has been configured.
+   * <p>This may be useful for example to allow default handlers to be registered
+   * and then insert a custom one through this method.
+   *
+   * @param handlers the list of configured resolvers to extend.
+   * @since 4.0
+   */
+  default void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
 
   /**
    * Configure {@link WebValidator}
