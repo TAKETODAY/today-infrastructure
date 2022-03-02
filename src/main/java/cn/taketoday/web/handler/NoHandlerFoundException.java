@@ -21,6 +21,9 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.ProblemDetail;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.FrameworkConfigurationException;
 
 /**
@@ -36,13 +39,15 @@ import cn.taketoday.web.FrameworkConfigurationException;
  * @since 4.0 2022/1/28 23:19
  */
 @SuppressWarnings("serial")
-public class NoHandlerFoundException extends FrameworkConfigurationException {
+public class NoHandlerFoundException extends FrameworkConfigurationException implements ErrorResponse {
 
   private final String httpMethod;
 
   private final String requestURL;
 
   private final HttpHeaders headers;
+
+  private final ProblemDetail body;
 
   /**
    * Constructor for NoHandlerFoundException.
@@ -52,10 +57,16 @@ public class NoHandlerFoundException extends FrameworkConfigurationException {
    * @param headers the HTTP request headers
    */
   public NoHandlerFoundException(String httpMethod, String requestURL, HttpHeaders headers) {
-    super("No handler found for " + httpMethod + " " + requestURL);
+    super("No endpoint " + httpMethod + " " + requestURL + ".");
     this.httpMethod = httpMethod;
     this.requestURL = requestURL;
     this.headers = headers;
+    this.body = ProblemDetail.forRawStatusCode(getRawStatusCode()).withDetail(getMessage());
+  }
+
+  @Override
+  public int getRawStatusCode() {
+    return HttpStatus.NOT_FOUND.value();
   }
 
   public String getHttpMethod() {
@@ -68,6 +79,11 @@ public class NoHandlerFoundException extends FrameworkConfigurationException {
 
   public HttpHeaders getHeaders() {
     return this.headers;
+  }
+
+  @Override
+  public ProblemDetail getBody() {
+    return this.body;
   }
 
 }
