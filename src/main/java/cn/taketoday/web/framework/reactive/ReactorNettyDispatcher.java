@@ -59,7 +59,6 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
     RequestContextHolder.set(nettyContext);
     try {
       doDispatch(nettyContext);
-      nettyContext.sendIfNotCommitted();
     }
     finally {
       RequestContextHolder.remove();
@@ -74,7 +73,9 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
               Object handler = tuple.getT2();
               Object returnValue = tuple.getT1();
               return handleReturnValue(nettyContext, handler, returnValue);
-            }).onErrorResume(new Function<Throwable, Mono<? extends Void>>() {
+            })
+            .doOnNext(v -> nettyContext.sendIfNotCommitted())
+            .onErrorResume(new Function<Throwable, Mono<? extends Void>>() {
               @Override
               public Mono<? extends Void> apply(Throwable throwable) {
 //                dispatcherHandler.handleException();
@@ -119,7 +120,7 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
 
   private Mono<Object> invokeHandler(NettyRequestContext nettyContext, Object handler) {
     try {
-      HandlerAdapter adapter = dispatcherHandler.lookupHandlerAdapter(nettyContext);
+      HandlerAdapter adapter = dispatcherHandler.lookupHandlerAdapter(handler);
       return Mono.just(adapter.handle(nettyContext, handler));
     }
     catch (Throwable e) {
