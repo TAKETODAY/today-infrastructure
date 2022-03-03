@@ -39,7 +39,7 @@ abstract class FilteringContextCondition extends ContextCondition {
     if (CollectionUtils.isEmpty(classNames)) {
       return Collections.emptyList();
     }
-    List<String> matches = new ArrayList<>(classNames.size());
+    ArrayList<String> matches = new ArrayList<>(classNames.size());
     for (String candidate : classNames) {
       if (classNameFilter.matches(candidate, classLoader)) {
         matches.add(candidate);

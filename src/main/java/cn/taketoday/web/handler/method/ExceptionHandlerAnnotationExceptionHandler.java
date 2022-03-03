@@ -22,8 +22,6 @@ package cn.taketoday.web.handler.method;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -60,6 +58,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
   private final LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
           new LinkedHashMap<>();
 
+  // TODO optimise
   private final ConcurrentHashMap<Method, ActionMappingAnnotationHandler> exceptionHandlerMapping =
           new ConcurrentHashMap<>(64);
 
@@ -73,7 +72,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
   protected Object handleInternal(RequestContext context,
           @Nullable ActionMappingAnnotationHandler annotationHandler, Throwable target) {
     // catch all handlers
-    ActionMappingAnnotationHandler exHandler = lookupExceptionHandler(annotationHandler, target);
+    var exHandler = lookupExceptionHandler(annotationHandler, target);
     if (exHandler == null) {
       return null; // next
     }
@@ -126,8 +125,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
       // Local exception handler methods on the controller class itself.
       // To be invoked through the proxy, even in case of an interface-based proxy.
       handlerType = annotationHandler.getBeanType();
-      ExceptionHandlerMethodResolver resolver = exceptionHandlerCache.computeIfAbsent(
-              handlerType, ExceptionHandlerMethodResolver::new);
+      var resolver = exceptionHandlerCache.computeIfAbsent(handlerType, ExceptionHandlerMethodResolver::new);
       Method method = resolver.resolveMethod(exception);
       if (method != null) {
         return exceptionHandlerMapping.computeIfAbsent(method,
@@ -140,7 +138,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
       }
     }
 
-    for (Map.Entry<ControllerAdviceBean, ExceptionHandlerMethodResolver> entry : exceptionHandlerAdviceCache.entrySet()) {
+    for (var entry : exceptionHandlerAdviceCache.entrySet()) {
       ControllerAdviceBean advice = entry.getKey();
       if (advice.isApplicableToBeanType(handlerType)) {
         ExceptionHandlerMethodResolver resolver = entry.getValue();
@@ -157,7 +155,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
 
   private ActionMappingAnnotationHandler getHandler(
           Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
-    return handlerFactory.create(handlerBean, method, errorHandlerType);
+    return handlerFactory.create(handlerBean, method, errorHandlerType, null);
   }
 
   //
@@ -189,20 +187,20 @@ public class ExceptionHandlerAnnotationExceptionHandler
   }
 
   private void initExceptionHandlerAdviceCache(ApplicationContext applicationContext) {
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(applicationContext);
+    var adviceBeans = ControllerAdviceBean.findAnnotatedBeans(applicationContext);
     for (ControllerAdviceBean adviceBean : adviceBeans) {
       Class<?> beanType = adviceBean.getBeanType();
       if (beanType == null) {
         throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
       }
-      ExceptionHandlerMethodResolver resolver = new ExceptionHandlerMethodResolver(beanType);
+      var resolver = new ExceptionHandlerMethodResolver(beanType);
       if (resolver.hasExceptionMappings()) {
-        this.exceptionHandlerAdviceCache.put(adviceBean, resolver);
+        exceptionHandlerAdviceCache.put(adviceBean, resolver);
       }
     }
 
     if (logger.isDebugEnabled()) {
-      int handlerSize = this.exceptionHandlerAdviceCache.size();
+      int handlerSize = exceptionHandlerAdviceCache.size();
       if (handlerSize == 0) {
         logger.debug("ControllerAdvice beans: none");
       }

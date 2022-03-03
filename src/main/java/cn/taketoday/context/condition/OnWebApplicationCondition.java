@@ -25,7 +25,6 @@ import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.condition.ConditionalOnWebApplication.Type;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
@@ -70,7 +69,7 @@ class OnWebApplicationCondition extends FilteringContextCondition {
   }
 
   private ConditionOutcome isAnyApplication(ConditionEvaluationContext context, boolean required) {
-    ConditionMessage.Builder message = ConditionMessage.forCondition(
+    var message = ConditionMessage.forCondition(
             ConditionalOnWebApplication.class, required ? "(required)" : "");
     ConditionOutcome servletOutcome = isServletWebApplication(context);
     if (servletOutcome.isMatch() && required) {
@@ -85,7 +84,7 @@ class OnWebApplicationCondition extends FilteringContextCondition {
   }
 
   private ConditionOutcome isServletWebApplication(ConditionEvaluationContext context) {
-    ConditionMessage.Builder message = ConditionMessage.forCondition("");
+    var message = ConditionMessage.forCondition("");
     if (!ClassNameFilter.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
     }
@@ -105,7 +104,7 @@ class OnWebApplicationCondition extends FilteringContextCondition {
   }
 
   private ConditionOutcome isReactiveWebApplication(ConditionEvaluationContext context) {
-    ConditionMessage.Builder message = ConditionMessage.forCondition("");
+    var message = ConditionMessage.forCondition("");
     if (!ClassNameFilter.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
     }
@@ -120,7 +119,7 @@ class OnWebApplicationCondition extends FilteringContextCondition {
   }
 
   private Type deduceType(AnnotatedTypeMetadata metadata) {
-    MergedAnnotation<ConditionalOnWebApplication> annotation = metadata.getAnnotation(ConditionalOnWebApplication.class);
+    var annotation = metadata.getAnnotation(ConditionalOnWebApplication.class);
     if (annotation.isPresent()) {
       return annotation.getEnum("type", Type.class);
     }

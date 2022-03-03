@@ -138,6 +138,9 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     if (ret instanceof ModelAndView mav) {
       return mav;
     }
+    else if (ret == null) {
+      return null;
+    }
     return new ModelAndView(ret);
   }
 
