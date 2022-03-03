@@ -320,7 +320,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * @see RequestContext#setStatus
    */
   protected void applyStatusCodeIfPossible(RequestContext request, int statusCode) {
-    if (ServletDetector.isPresent()) {
+    if (ServletDetector.runningInServlet(request)) {
       if (!ServletUtils.isIncludeRequest(ServletUtils.getServletRequest(request))) {
         if (logger.isDebugEnabled()) {
           logger.debug("Applying HTTP status {}", statusCode);

@@ -486,7 +486,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   @Nullable
   private MediaType resolveMediaType(RequestContext request, String extension) {
     MediaType result = null;
-    if (ServletDetector.isPresent()) {
+    if (ServletDetector.runningInServlet(request)) {
       String rawMimeType = ServletDelegate.getMimeType(request, extension);
       if (StringUtils.hasText(rawMimeType)) {
         result = MediaType.parseMediaType(rawMimeType);

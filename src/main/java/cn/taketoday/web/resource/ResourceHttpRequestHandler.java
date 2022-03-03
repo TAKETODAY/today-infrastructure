@@ -37,8 +37,6 @@ import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
-import cn.taketoday.web.cors.CorsConfiguration;
-import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRange;
@@ -62,6 +60,8 @@ import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -718,7 +718,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   protected MediaType getMediaType(RequestContext request, Resource resource) {
     MediaType result = null;
-    if (ServletDetector.isPresent()) {
+    if (ServletDetector.runningInServlet(request)) {
       String mimeType = ServletUtils.getServletContext(request).getMimeType(resource.getName());
       if (StringUtils.hasText(mimeType)) {
         result = MediaType.parseMediaType(mimeType);

@@ -21,6 +21,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 /**
  * A common delegate for detecting Servlet's presence AND its features
@@ -31,15 +32,14 @@ import cn.taketoday.util.ClassUtils;
 public abstract class ServletDetector {
   public static final String SERVLET_CLASS = "jakarta.servlet.Servlet";
 
-  private static final boolean servletPresent;
-
-  static {
-    ClassLoader classLoader = ServletDetector.class.getClassLoader();
-    servletPresent = ClassUtils.isPresent(SERVLET_CLASS, classLoader);
-  }
+  private static final boolean servletPresent = ClassUtils.isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
 
   public static boolean isPresent() {
     return servletPresent;
+  }
+
+  public static boolean runningInServlet(RequestContext context) {
+    return servletPresent && context instanceof ServletRequestContext;
   }
 
 }
