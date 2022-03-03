@@ -83,6 +83,7 @@ public class PropertyValuesBinder extends BeanPropertyAccessor {
   }
 
   public Object bind(Object rootObject, BeanMetadata metadata, Iterable<PropertyValue> propertyValues) {
+    setRootObject(rootObject);
     for (PropertyValue propertyValue : propertyValues) {
       setProperty(rootObject, metadata, propertyValue);
     }

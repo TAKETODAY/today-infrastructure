@@ -24,12 +24,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.PropertyValue;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -65,7 +66,7 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     Class<?> parameterType = resolvable.getParameterType();
     if (CollectionUtils.isCollection(parameterType)) {
       ResolvableType generic = resolvable.getResolvableType().asCollection().getGeneric(0);
-      final Class<?> valueType = generic.resolve();
+      Class<?> valueType = generic.resolve();
       if (valueType != null) {
         return supportsSetProperties(valueType);
       }
@@ -81,31 +82,32 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
    */
   @Override
   @SuppressWarnings({ "rawtypes" })
-  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
-    final Collection<Object> collection = createCollection(propertyValues, parameter);
-    final boolean isList = collection instanceof List;
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter resolvable) {
+    Collection<Object> collection = createCollection(propertyValues, resolvable);
+    boolean isList = collection instanceof List;
 
-    final int maxValueIndex = getMaxValueIndex();
-    final PropertyValuesBinder dataBinder = new PropertyValuesBinder();
-    final Class<?> parameterClass = getComponentType(parameter);
-    final BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
+    int maxValueIndex = getMaxValueIndex();
+    Class<?> parameterClass = getComponentType(resolvable);
+    BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
 
-    for (final Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
-      final Object rootObject = parameterMetadata.newInstance();
-      final List<PropertyValue> propertyValueList = entry.getValue();
-      dataBinder.bind(rootObject, parameterMetadata, propertyValueList);
+    for (Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
+      Object rootObject = parameterMetadata.newInstance();
+      RequestContextDataBinder dataBinder = new RequestContextDataBinder(rootObject, resolvable.getName());
+      List<PropertyValue> propertyValueList = entry.getValue();
+      dataBinder.bind(new PropertyValues(propertyValueList));
+      dataBinder.setAutoGrowCollectionLimit(maxValueIndex);
 
       if (isList) {
         try {
-          final String key = entry.getKey();
-          final int valueIndex = Integer.parseInt(key);
+          String key = entry.getKey();
+          int valueIndex = Integer.parseInt(key);
           if (valueIndex > maxValueIndex) {
-            throw new ParameterIndexExceededException(parameter.getParameter());
+            throw new ParameterIndexExceededException(resolvable.getParameter());
           }
           CollectionUtils.setValue((List) collection, valueIndex, rootObject);
         }
         catch (NumberFormatException e) {
-          throw new ParameterFormatException(parameter.getParameter(), e);
+          throw new ParameterFormatException(resolvable.getParameter(), e);
         }
       }
       else {

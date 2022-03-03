@@ -43,9 +43,9 @@ public class DataBinderArrayParameterResolver extends DataBinderCollectionParame
 
   @Override
   @SuppressWarnings("unchecked")
-  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter) {
-    final ArrayList<Object> list = (ArrayList<Object>) super.doBind(propertyValues, parameter);
-    final Class<?> componentType = parameter.getComponentType();
+  protected Object doBind(MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter resolvable) {
+    final ArrayList<Object> list = (ArrayList<Object>) super.doBind(propertyValues, resolvable);
+    final Class<?> componentType = resolvable.getComponentType();
     final Object[] o = (Object[]) Array.newInstance(componentType, list.size());
     return list.toArray(o);
   }

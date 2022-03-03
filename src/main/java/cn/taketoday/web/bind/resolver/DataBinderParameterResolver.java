@@ -23,27 +23,23 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.support.PropertyValuesBinder;
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * Resolve Bean
@@ -99,7 +95,7 @@ public class DataBinderParameterResolver
         implements ParameterResolvingStrategy, ConversionServiceAware {
   public static final String ANNOTATED_RESOLVERS_KEY = AnnotatedPropertyResolver.class.getName() + "-annotated-property-resolvers";
 
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+  private ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
   private ParameterResolvingRegistry registry;
 
@@ -150,54 +146,36 @@ public class DataBinderParameterResolver
   public Object resolveParameter(
           final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
     final Class<?> parameterClass = resolvable.getParameterType();
-    final PropertyValuesBinder dataBinder = new PropertyValuesBinder(parameterClass, conversionService);
 
-    final Map<String, String[]> parameters = context.getParameters();
-    for (final Map.Entry<String, String[]> entry : parameters.entrySet()) {
-      final String[] value = entry.getValue();
-      if (ObjectUtils.isNotEmpty(value)) {
-        if (value.length == 1) {
-          dataBinder.addPropertyValue(entry.getKey(), value[0]);
-        }
-        else {
-          dataBinder.addPropertyValue(entry.getKey(), value);
-        }
-      }
-    }
+    BeanMetadata beanMetadata = BeanMetadata.from(parameterClass);
+    Object target = beanMetadata.newInstance();
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(target, resolvable.getName());
+    dataBinder.setConversionService(conversionService);
+    dataBinder.bind(context);
 
-    if (context.isMultipart()) {
-      // Multipart
-      final MultiValueMap<String, MultipartFile> multipartFiles = context.multipartFiles();
-      if (CollectionUtils.isNotEmpty(multipartFiles)) {
-        for (final Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
-          final List<MultipartFile> files = entry.getValue();
-          if (files.size() == 1) {
-            dataBinder.addPropertyValue(entry.getKey(), files.get(0));
-          }
-          else {
-            dataBinder.addPropertyValue(entry.getKey(), files);
-          }
-        }
-      }
-    }
     // #30 Support annotation-supported in the form of DataBinder
     resolveAnnotatedProperty(context, resolvable, dataBinder);
-
-    return dataBinder.bind();
+    // todo dataBinder.validate();
+    return target;
   }
 
   /**
    * @since 4.0
    */
   static void resolveAnnotatedProperty(
-          RequestContext context, ResolvableMethodParameter parameter, PropertyValuesBinder dataBinder) throws Throwable {
+          RequestContext context, ResolvableMethodParameter parameter, RequestContextDataBinder dataBinder) throws Throwable {
     Object attribute = parameter.getAttribute(ANNOTATED_RESOLVERS_KEY);
     if (attribute instanceof List) {
+      PropertyValues propertyValues = new PropertyValues();
       @SuppressWarnings("unchecked")
       List<AnnotatedPropertyResolver> resolvers = (List<AnnotatedPropertyResolver>) attribute;
       for (final AnnotatedPropertyResolver resolver : resolvers) {
         PropertyValue propertyValue = resolver.resolve(context);
-        dataBinder.addPropertyValue(propertyValue);
+        propertyValues.add(propertyValue);
+      }
+
+      if (!propertyValues.isEmpty()) {
+        dataBinder.bind(propertyValues);
       }
     }
   }

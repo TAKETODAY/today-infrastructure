@@ -20,15 +20,14 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
+import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.PropertyAccessorUtils;
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.BeanPropertyAccessor;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
@@ -68,7 +67,7 @@ public abstract class AbstractDataBinderParameterResolver extends AbstractNamedV
         if (requestParameterName.startsWith(name)
                 && requestParameterName.charAt(parameterNameLength) == '[') {
           // userList[0].name  '.' 's index
-          final int separatorIndex = BeanPropertyAccessor.getNestedPropertySeparatorIndex(requestParameterName);
+          final int separatorIndex = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(requestParameterName);
           final String property = requestParameterName.substring(separatorIndex + 1);
           final int closeKey = requestParameterName.indexOf(']');
           final String key = requestParameterName.substring(parameterNameLength + 1, closeKey);
@@ -89,8 +88,8 @@ public abstract class AbstractDataBinderParameterResolver extends AbstractNamedV
   protected abstract Object doBind(
           MultiValueMap<String, PropertyValue> propertyValues, ResolvableMethodParameter parameter);
 
-  protected boolean supportsSetProperties(final Type valueType) {
-    return !ClassUtils.primitiveTypes.contains(valueType);
+  protected boolean supportsSetProperties(final Class<?> valueType) {
+    return !BeanUtils.isSimpleValueType(valueType);
   }
 
 }

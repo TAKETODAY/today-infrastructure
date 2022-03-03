@@ -311,11 +311,12 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * as an AbstractPropertyBindingResult.
    */
   protected AbstractPropertyBindingResult getInternalBindingResult() {
-    if (this.bindingResult == null) {
-      this.bindingResult = (this.directFieldAccess ?
-                            createDirectFieldBindingResult() : createBeanPropertyBindingResult());
+    AbstractPropertyBindingResult bindingResult = this.bindingResult;
+    if (bindingResult == null) {
+      bindingResult = directFieldAccess ? createDirectFieldBindingResult() : createBeanPropertyBindingResult();
+      this.bindingResult = bindingResult;
     }
-    return this.bindingResult;
+    return bindingResult;
   }
 
   /**
@@ -650,12 +651,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   public void addCustomFormatter(Formatter<?> formatter, String... fields) {
     FormatterPropertyEditorAdapter adapter = new FormatterPropertyEditorAdapter(formatter);
     Class<?> fieldType = adapter.getFieldType();
+    PropertyEditorRegistry registry = getPropertyEditorRegistry();
     if (ObjectUtils.isEmpty(fields)) {
-      getPropertyEditorRegistry().registerCustomEditor(fieldType, adapter);
+      registry.registerCustomEditor(fieldType, adapter);
     }
     else {
       for (String field : fields) {
-        getPropertyEditorRegistry().registerCustomEditor(fieldType, field, adapter);
+        registry.registerCustomEditor(fieldType, field, adapter);
       }
     }
   }
@@ -709,7 +711,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   @Override
   @Nullable
   public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
-                                  @Nullable MethodParameter methodParam) throws TypeMismatchException {
+          @Nullable MethodParameter methodParam) throws TypeMismatchException {
 
     return getTypeConverter().convertIfNecessary(value, requiredType, methodParam);
   }
@@ -725,7 +727,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   @Nullable
   @Override
   public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
-                                  @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
+          @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
 
     return getTypeConverter().convertIfNecessary(value, requiredType, typeDescriptor);
   }
@@ -826,6 +828,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         String canonicalName = PropertyAccessorUtils.canonicalPropertyName(pv.getName());
         propertyValues.put(canonicalName, pv);
       }
+
+      BindingErrorProcessor bindingErrorProcessor = getBindingErrorProcessor();
       for (String field : requiredFields) {
         PropertyValue pv = propertyValues.get(field);
         boolean empty = pv == null || pv.getValue() == null;
@@ -839,7 +843,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         }
         if (empty) {
           // Use bind error processor to create FieldError.
-          getBindingErrorProcessor().processMissingFieldError(field, getInternalBindingResult());
+          bindingErrorProcessor.processMissingFieldError(field, getInternalBindingResult());
           // Remove property from property values to bind:
           // It has already caused a field error with a rejected value.
           if (pv != null) {

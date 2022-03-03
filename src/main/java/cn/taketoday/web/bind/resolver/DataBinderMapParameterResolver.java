@@ -22,13 +22,14 @@ package cn.taketoday.web.bind.resolver;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.beans.BeanMetadata;
+import cn.taketoday.beans.PropertyValue;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -65,15 +66,15 @@ public class DataBinderMapParameterResolver
     Map<String, Object> map = CollectionUtils.createMap(
             parameter.getParameterType(), propertyValues.size());
 
-    PropertyValuesBinder dataBinder = new PropertyValuesBinder();
     ResolvableType generic = resolvable.getResolvableType().asMap().getGeneric(1);
     Class<?> parameterClass = generic.resolve();
 
     BeanMetadata parameterMetadata = BeanMetadata.from(parameterClass);
     for (Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       Object rootObject = parameterMetadata.newInstance();
+      RequestContextDataBinder dataBinder = new RequestContextDataBinder(rootObject, resolvable.getName());
       List<PropertyValue> propertyValueList = entry.getValue();
-      dataBinder.bind(rootObject, parameterMetadata, propertyValueList);
+      dataBinder.bind(new PropertyValues(propertyValueList));
 
       map.put(entry.getKey(), rootObject);
     }

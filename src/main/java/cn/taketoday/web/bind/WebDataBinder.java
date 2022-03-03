@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.ConfigurablePropertyAccessor;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
@@ -220,10 +221,11 @@ public class WebDataBinder extends DataBinder {
   protected void checkFieldDefaults(PropertyValues values) {
     String fieldDefaultPrefix = getFieldDefaultPrefix();
     if (fieldDefaultPrefix != null) {
+      ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
       for (PropertyValue pv : values) {
         if (pv.getName().startsWith(fieldDefaultPrefix)) {
           String field = pv.getName().substring(fieldDefaultPrefix.length());
-          if (getPropertyAccessor().isWritableProperty(field) && !values.contains(field)) {
+          if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
             values.add(field, pv.getValue());
           }
           values.remove(pv);
@@ -247,11 +249,12 @@ public class WebDataBinder extends DataBinder {
   protected void checkFieldMarkers(PropertyValues values) {
     String fieldMarkerPrefix = getFieldMarkerPrefix();
     if (fieldMarkerPrefix != null) {
+      ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
       for (PropertyValue pv : values) {
         if (pv.getName().startsWith(fieldMarkerPrefix)) {
           String field = pv.getName().substring(fieldMarkerPrefix.length());
-          if (getPropertyAccessor().isWritableProperty(field) && !values.contains(field)) {
-            Class<?> fieldType = getPropertyAccessor().getPropertyType(field);
+          if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
+            Class<?> fieldType = propertyAccessor.getPropertyType(field);
             values.add(field, getEmptyValue(field, fieldType));
           }
           values.remove(pv);
@@ -269,11 +272,12 @@ public class WebDataBinder extends DataBinder {
    * @param values the property values to be bound (can be modified)
    */
   protected void adaptEmptyArrayIndices(PropertyValues values) {
+    ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
     for (PropertyValue pv : values) {
       String name = pv.getName();
       if (name.endsWith("[]")) {
         String field = name.substring(0, name.length() - 2);
-        if (getPropertyAccessor().isWritableProperty(field) && !values.contains(field)) {
+        if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
           values.add(field, pv.getValue());
         }
         values.remove(pv);

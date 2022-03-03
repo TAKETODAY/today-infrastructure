@@ -78,7 +78,7 @@ public class PropertyAccessorUtils {
   }
 
   /**
-   * Determine the first nested property separator in the
+   * Determine the last nested property separator in the
    * given property path, ignoring dots in keys (like "map[my.key]").
    *
    * @param propertyPath the property path to check
