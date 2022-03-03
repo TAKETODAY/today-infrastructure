@@ -22,6 +22,7 @@ package cn.taketoday.web.bind.resolver;
 import java.io.Serial;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.bind.MethodParameterResolvingException;
 
 /**
  * Parameter can't convert to target class

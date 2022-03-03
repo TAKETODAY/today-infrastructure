@@ -21,6 +21,7 @@ package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.MethodParameterResolvingException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**

@@ -25,7 +25,7 @@ import java.util.Map;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.bind.resolver.MissingPathVariableException;
+import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**

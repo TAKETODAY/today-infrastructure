@@ -28,6 +28,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.PathVariable;
+import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**

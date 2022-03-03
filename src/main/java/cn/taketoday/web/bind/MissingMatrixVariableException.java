@@ -18,73 +18,76 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.bind.resolver;
+package cn.taketoday.web.bind;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.MissingRequestValueException;
 import cn.taketoday.web.bind.RequestBindingException;
 
 /**
- * {@link RequestBindingException} subclass that indicates that a path
+ * {@link RequestBindingException} subclass that indicates that a matrix
  * variable expected in the method parameters of an {@code @RequestMapping}
- * method is not present among the URI variables extracted from the URL.
- * Typically that means the URI template does not match the path variable name
- * declared on the method parameter.
+ * method is not present among the matrix variables extracted from the URL.
  *
- * @author TODAY 2021/4/30 22:06
- * @since 3.0
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see MissingPathVariableException
+ * @since 4.0 2022/1/23 22:30
  */
-public class MissingPathVariableException extends MissingRequestValueException {
+@SuppressWarnings("serial")
+public class MissingMatrixVariableException extends MissingRequestValueException {
 
   private final String variableName;
 
   private final MethodParameter parameter;
 
   /**
-   * Constructor for MissingPathVariableException.
+   * Constructor for MissingMatrixVariableException.
    *
-   * @param variableName the name of the missing path variable
+   * @param variableName the name of the missing matrix variable
    * @param parameter the method parameter
    */
-  public MissingPathVariableException(String variableName, MethodParameter parameter) {
+  public MissingMatrixVariableException(String variableName, MethodParameter parameter) {
     this(variableName, parameter, false);
   }
 
   /**
    * Constructor for use when a value was present but converted to {@code null}.
    *
-   * @param variableName the name of the missing path variable
+   * @param variableName the name of the missing matrix variable
    * @param parameter the method parameter
    * @param missingAfterConversion whether the value became null after conversion
    */
-  public MissingPathVariableException(
+  public MissingMatrixVariableException(
           String variableName, MethodParameter parameter, boolean missingAfterConversion) {
 
     super("", missingAfterConversion);
     this.variableName = variableName;
     this.parameter = parameter;
-    getBody().setDetail("Required path variable '" + variableName + "' is not present.");
+    getBody().setDetail("Required path parameter '" + this.variableName + "' is not present.");
   }
 
   @Override
   public String getMessage() {
-    return "Required URI template variable '" + this.variableName + "' for method parameter type " +
+    return "Required matrix variable '" + this.variableName + "' for method parameter type " +
             this.parameter.getNestedParameterType().getSimpleName() + " is " +
             (isMissingAfterConversion() ? "present but converted to null" : "not present");
   }
 
   /**
-   * Return the expected name of the path variable.
+   * Return the expected name of the matrix variable.
    */
   public final String getVariableName() {
     return this.variableName;
   }
 
   /**
-   * Return the method parameter bound to the path variable.
+   * Return the method parameter bound to the matrix variable.
    */
   public final MethodParameter getParameter() {
     return this.parameter;
   }
 
 }
+

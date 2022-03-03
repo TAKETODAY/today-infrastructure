@@ -21,6 +21,7 @@
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.web.bind.MethodParameterResolvingException;
 
 /**
  * Parameter format error like number-format error

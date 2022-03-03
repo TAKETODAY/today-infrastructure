@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.bind;
 
-import cn.taketoday.web.bind.RequestBindingException;
-
 /**
  * Base class for {@link RequestBindingException} exceptions that could
  * not bind because the request value is required but is either missing or

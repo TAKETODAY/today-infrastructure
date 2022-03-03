@@ -31,9 +31,10 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.MatrixParam;
+import cn.taketoday.web.bind.MissingMatrixVariableException;
+import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**

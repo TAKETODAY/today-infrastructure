@@ -46,7 +46,7 @@ import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
-import cn.taketoday.web.bind.resolver.MissingPathVariableException;
+import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.resolver.MissingServletRequestPartException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.util.WebUtils;
