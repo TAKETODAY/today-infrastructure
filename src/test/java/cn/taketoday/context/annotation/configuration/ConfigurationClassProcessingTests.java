@@ -36,15 +36,13 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.InjectionPoint;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.factory.support.InjectionPoint;
 import cn.taketoday.beans.factory.support.ListFactoryBean;
-import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.BeanDefinitionParsingException;
 import cn.taketoday.context.annotation.Configuration;
@@ -54,7 +52,9 @@ import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
+import cn.taketoday.context.support.StandardApplicationContext;
 import jakarta.annotation.Resource;
 import jakarta.inject.Provider;
 
@@ -331,8 +331,8 @@ public class ConfigurationClassProcessingTests {
    * declared by {@code configClasses}.
    */
   private StandardBeanFactory initBeanFactory(Class<?>... configClasses) {
-    StandardApplicationContext ac = new StandardApplicationContext();
-    StandardBeanFactory beanFactory = ac.getBeanFactory();
+    GenericApplicationContext ac = new GenericApplicationContext();
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
     for (Class<?> configClass : configClasses) {
       String configBeanName = configClass.getName();
       beanFactory.registerBeanDefinition(configBeanName, new BeanDefinition(configClass));

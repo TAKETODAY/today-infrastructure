@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +38,7 @@ import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Order;
 import cn.taketoday.core.i18n.LocaleContextHolder;
+import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -51,6 +51,7 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestControllerAdvice;
+import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
@@ -75,16 +76,20 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private MockHttpServletResponse response;
 
-  @BeforeAll
-  public static void setupOnce() {
-    ExceptionHandlerAnnotationExceptionHandler resolver = new ExceptionHandlerAnnotationExceptionHandler();
-    resolver.afterPropertiesSet();
+  @EnableWebMvc
+  @Configuration(proxyBeanMethods = false)
+  static class Config {
+
   }
 
   @BeforeEach
   public void setup() throws Exception {
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Config.class);
     this.handler = new ExceptionHandlerAnnotationExceptionHandler();
+    handler.setHandlerFactory(context.getBean(AnnotationHandlerFactory.class));
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
+    handler.setApplicationContext(context);
+
     this.request = new MockHttpServletRequest("GET", "/");
     this.response = new MockHttpServletResponse();
   }

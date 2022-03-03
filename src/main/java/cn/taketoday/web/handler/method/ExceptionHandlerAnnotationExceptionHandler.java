@@ -31,6 +31,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -178,13 +179,13 @@ public class ExceptionHandlerAnnotationExceptionHandler
   @Override
   public void afterPropertiesSet() {
     ApplicationContext context = getApplicationContext();
+    Assert.state(context != null, "No ApplicationContext");
+
     if (handlerFactory == null) {
       handlerFactory = new AnnotationHandlerFactory(context);
       handlerFactory.initDefaults();
     }
-    if (context != null) {
-      initExceptionHandlerAdviceCache(context);
-    }
+    initExceptionHandlerAdviceCache(context);
   }
 
   private void initExceptionHandlerAdviceCache(ApplicationContext applicationContext) {

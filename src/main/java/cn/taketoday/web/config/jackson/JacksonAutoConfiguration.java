@@ -39,18 +39,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.lang.Assert;
@@ -83,6 +83,7 @@ import cn.taketoday.web.config.jackson.JacksonProperties.ConstructorDetectorStra
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(ObjectMapper.class)
+@EnableConfigurationProperties(JacksonProperties.class)
 public class JacksonAutoConfiguration {
 
   private static final Map<?, Boolean> FEATURE_DEFAULTS = Map.of(
@@ -121,8 +122,7 @@ public class JacksonAutoConfiguration {
 
   @Component
   StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
-          ApplicationContext applicationContext,
-          @Props(prefix = "jackson.") JacksonProperties jacksonProperties) {
+          ApplicationContext applicationContext, JacksonProperties jacksonProperties) {
     return new StandardJackson2ObjectMapperBuilderCustomizer(applicationContext, jacksonProperties);
   }
 
@@ -146,19 +146,19 @@ public class JacksonAutoConfiguration {
 
     @Override
     public void customize(Jackson2ObjectMapperBuilder builder) {
-      if (this.jacksonProperties.getDefaultPropertyInclusion() != null) {
-        builder.serializationInclusion(this.jacksonProperties.getDefaultPropertyInclusion());
+      if (jacksonProperties.getDefaultPropertyInclusion() != null) {
+        builder.serializationInclusion(jacksonProperties.getDefaultPropertyInclusion());
       }
-      if (this.jacksonProperties.getTimeZone() != null) {
-        builder.timeZone(this.jacksonProperties.getTimeZone());
+      if (jacksonProperties.getTimeZone() != null) {
+        builder.timeZone(jacksonProperties.getTimeZone());
       }
       configureFeatures(builder, FEATURE_DEFAULTS);
-      configureVisibility(builder, this.jacksonProperties.getVisibility());
-      configureFeatures(builder, this.jacksonProperties.getDeserialization());
-      configureFeatures(builder, this.jacksonProperties.getSerialization());
-      configureFeatures(builder, this.jacksonProperties.getMapper());
-      configureFeatures(builder, this.jacksonProperties.getParser());
-      configureFeatures(builder, this.jacksonProperties.getGenerator());
+      configureVisibility(builder, jacksonProperties.getVisibility());
+      configureFeatures(builder, jacksonProperties.getDeserialization());
+      configureFeatures(builder, jacksonProperties.getSerialization());
+      configureFeatures(builder, jacksonProperties.getMapper());
+      configureFeatures(builder, jacksonProperties.getParser());
+      configureFeatures(builder, jacksonProperties.getGenerator());
       configureDateFormat(builder);
       configurePropertyNamingStrategy(builder);
       configureModules(builder);
@@ -194,7 +194,7 @@ public class JacksonAutoConfiguration {
     private void configureDateFormat(Jackson2ObjectMapperBuilder builder) {
       // We support a fully qualified class name extending DateFormat or a date
       // pattern string value
-      String dateFormat = this.jacksonProperties.getDateFormat();
+      String dateFormat = jacksonProperties.getDateFormat();
       if (dateFormat != null) {
         try {
           Class<?> dateFormatClass = ClassUtils.forName(dateFormat, null);
@@ -205,7 +205,7 @@ public class JacksonAutoConfiguration {
           // Since Jackson 2.6.3 we always need to set a TimeZone (see
           // gh-4170). If none in our properties fallback to the Jackson's
           // default
-          TimeZone timeZone = this.jacksonProperties.getTimeZone();
+          TimeZone timeZone = jacksonProperties.getTimeZone();
           if (timeZone == null) {
             timeZone = new ObjectMapper().getSerializationConfig().getTimeZone();
           }
@@ -220,7 +220,7 @@ public class JacksonAutoConfiguration {
       // PropertyNamingStrategy or a string value corresponding to the constant
       // names in PropertyNamingStrategy which hold default provided
       // implementations
-      String strategy = this.jacksonProperties.getPropertyNamingStrategy();
+      String strategy = jacksonProperties.getPropertyNamingStrategy();
       if (strategy != null) {
         try {
           configurePropertyNamingStrategyClass(builder, ClassUtils.forName(strategy, null));
@@ -262,26 +262,26 @@ public class JacksonAutoConfiguration {
     }
 
     private void configureModules(Jackson2ObjectMapperBuilder builder) {
-      Collection<Module> moduleBeans = getBeans(this.applicationContext, Module.class);
+      Collection<Module> moduleBeans = getBeans(applicationContext, Module.class);
       builder.modulesToInstall(moduleBeans.toArray(new Module[0]));
     }
 
     private void configureLocale(Jackson2ObjectMapperBuilder builder) {
-      Locale locale = this.jacksonProperties.getLocale();
+      Locale locale = jacksonProperties.getLocale();
       if (locale != null) {
         builder.locale(locale);
       }
     }
 
     private void configureDefaultLeniency(Jackson2ObjectMapperBuilder builder) {
-      Boolean defaultLeniency = this.jacksonProperties.getDefaultLeniency();
+      Boolean defaultLeniency = jacksonProperties.getDefaultLeniency();
       if (defaultLeniency != null) {
         builder.postConfigurer((objectMapper) -> objectMapper.setDefaultLeniency(defaultLeniency));
       }
     }
 
     private void configureConstructorDetector(Jackson2ObjectMapperBuilder builder) {
-      ConstructorDetectorStrategy strategy = this.jacksonProperties.getConstructorDetector();
+      ConstructorDetectorStrategy strategy = jacksonProperties.getConstructorDetector();
       if (strategy != null) {
         builder.postConfigurer((objectMapper) -> {
           switch (strategy) {

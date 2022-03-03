@@ -34,6 +34,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import cn.taketoday.context.properties.ConfigurationProperties;
+
 /**
  * Configuration properties to configure Jackson.
  *
@@ -42,6 +44,7 @@ import java.util.TimeZone;
  * @author Johannes Edmeier
  * @since 4.0
  */
+@ConfigurationProperties(prefix = "jackson")
 public class JacksonProperties {
 
   /**

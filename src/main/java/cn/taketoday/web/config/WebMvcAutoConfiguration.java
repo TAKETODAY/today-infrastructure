@@ -37,7 +37,6 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.ConditionalOnWebApplication;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.format.FormatterRegistry;
@@ -73,7 +72,6 @@ import cn.taketoday.web.view.ViewResolver;
  * config framework
  * </p>
  */
-@ConditionalOnWebApplication
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

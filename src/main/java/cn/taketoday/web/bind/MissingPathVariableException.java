@@ -21,8 +21,7 @@
 package cn.taketoday.web.bind;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.web.bind.MissingRequestValueException;
-import cn.taketoday.web.bind.RequestBindingException;
+import cn.taketoday.http.HttpStatus;
 
 /**
  * {@link RequestBindingException} subclass that indicates that a path
@@ -87,4 +86,8 @@ public class MissingPathVariableException extends MissingRequestValueException {
     return this.parameter;
   }
 
+  @Override
+  public int getRawStatusCode() {
+    return HttpStatus.INTERNAL_SERVER_ERROR.value();
+  }
 }
