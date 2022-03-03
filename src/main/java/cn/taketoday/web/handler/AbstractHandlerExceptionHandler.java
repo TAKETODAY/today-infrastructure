@@ -36,7 +36,7 @@ import cn.taketoday.web.RequestContext;
  * Abstract base class for {@link HandlerExceptionHandler} implementations.
  *
  * <p>Supports mapped {@linkplain #setMappedHandlers handlers} and
- * {@linkplain #setMappedHandlerClasses handler classes} that the resolver
+ * {@linkplain #setMappedHandlerClasses handler classes} that the handler
  * should be applied to and implements the {@link Ordered} interface.
  *
  * @author Arjen Poutsma
@@ -64,7 +64,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   private boolean preventResponseCaching = false;
 
   /**
-   * Specify the set of handlers that this exception resolver should apply to.
+   * Specify the set of handlers that this exception handler should apply to.
    * <p>The exception mappings and the default error view will only apply to the specified handlers.
    * <p>If no handlers or handler classes are set, the exception mappings and the default error
    * view will apply to all handlers. This means that a specified default error view will be used
@@ -76,7 +76,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   }
 
   /**
-   * Specify the set of classes that this exception resolver should apply to.
+   * Specify the set of classes that this exception handler should apply to.
    * <p>The exception mappings and the default error view will only apply to handlers of the
    * specified types; the specified types may be interfaces or superclasses of handlers as well.
    * <p>If no handlers or handler classes are set, the exception mappings and the default error
@@ -107,7 +107,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
 
   /**
    * Specify whether to prevent HTTP response caching for any view resolved
-   * by this exception resolver.
+   * by this exception handler.
    * <p>Default is {@code false}. Switch this to {@code true} in order to
    * automatically generate HTTP response headers that suppress response caching.
    */
@@ -116,7 +116,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   }
 
   /**
-   * Check whether this resolver is supposed to apply (i.e. if the supplied handler
+   * Check whether this handler is supposed to apply (i.e. if the supplied handler
    * matches any of the configured {@linkplain #setMappedHandlers handlers} or
    * {@linkplain #setMappedHandlerClasses handler classes}), and then delegate
    * to the {@link #handleInternal} template method.
@@ -143,7 +143,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   }
 
   /**
-   * Check whether this resolver is supposed to apply to the given handler.
+   * Check whether this handler is supposed to apply to the given handler.
    * <p>The default implementation checks against the configured
    * {@linkplain #setMappedHandlers handlers} and
    * {@linkplain #setMappedHandlerClasses handler classes}, if any.
@@ -256,7 +256,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   }
 
   /**
-   * Actually resolve the given exception that got thrown during handler execution,
+   * Actually handle the given exception that got thrown during handler execution,
    * returning a {@link Object result} that represents a specific error page if appropriate.
    * <p>May be overridden in subclasses, in order to apply specific exception checks.
    * Note that this template method will be invoked <i>after</i> checking whether this
@@ -265,7 +265,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    *
    * @param request current HTTP request context
    * @param handler the executed handler, or {@code null} if none chosen at the time
-   * of the exception (for example, if multipart resolution failed)
+   * of the exception (for example, if lookup handler failed)
    * @param ex the exception that got thrown during handler execution
    * @return a corresponding {@code Object view} to forward to,
    * or {@code null} for default processing in the resolution chain

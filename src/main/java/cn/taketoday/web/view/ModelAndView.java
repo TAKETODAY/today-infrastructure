@@ -187,6 +187,46 @@ public class ModelAndView implements Model {
     return this.cleared && isEmpty();
   }
 
+  /**
+   * Add an attribute to the model.
+   *
+   * @param attributeName name of the object to add to the model (never {@code null})
+   * @param attributeValue object to add to the model (can be {@code null})
+   * @see Model#setAttribute(String, Object)
+   * @see #getModel()
+   * @since 4.0
+   */
+  public ModelAndView addObject(String attributeName, @Nullable Object attributeValue) {
+    getModel().setAttribute(attributeName, attributeValue);
+    return this;
+  }
+
+  /**
+   * Add an attribute to the model using parameter name generation.
+   *
+   * @param attributeValue the object to add to the model (never {@code null})
+   * @see Model#addAttribute(Object)
+   * @see #getModel()
+   * @since 4.0
+   */
+  public ModelAndView addObject(Object attributeValue) {
+    getModel().addAttribute(attributeValue);
+    return this;
+  }
+
+  /**
+   * Add all attributes contained in the provided Map to the model.
+   *
+   * @param modelMap a Map of attributeName &rarr; attributeValue pairs
+   * @see Model#addAllAttributes(Map)
+   * @see #getModel()
+   * @since 4.0
+   */
+  public ModelAndView addAllObjects(@Nullable Map<String, ?> modelMap) {
+    getModel().addAllAttributes(modelMap);
+    return this;
+  }
+
   @Override
   public String[] getAttributeNames() {
     return dataModel.getAttributeNames();

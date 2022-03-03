@@ -72,7 +72,7 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
   }
 
   /**
-   * Whether this resolver has global exception handlers, e.g. not declared in
+   * Whether this handler has global exception handlers, e.g. not declared in
    * the same class as the {@code HandlerMethod} that raised the exception and
    * therefore can apply to any handler.
    */

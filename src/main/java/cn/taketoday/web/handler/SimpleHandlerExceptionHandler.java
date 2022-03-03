@@ -56,8 +56,8 @@ import cn.taketoday.web.util.WebUtils;
  * interface, resolving standard Framework MVC exceptions and translating them to corresponding
  * HTTP status codes.
  *
- * <p>This exception resolver is enabled by default in the common Spring
- * {@link cn.taketoday.web.servlet.DispatcherServlet}.
+ * <p>This exception handler is enabled by default in the common Framework
+ * {@link cn.taketoday.web.handler.DispatcherHandler}.
  *
  * <table>
  * <caption>Supported Exceptions</caption>
@@ -171,49 +171,49 @@ public class SimpleHandlerExceptionHandler
     try {
       // ErrorResponse exceptions that expose HTTP response details
       if (ex instanceof ErrorResponse) {
-        Object mav = null;
+        Object view = null;
         if (ex instanceof HttpRequestMethodNotSupportedException) {
-          mav = handleHttpRequestMethodNotSupported(
+          view = handleHttpRequestMethodNotSupported(
                   (HttpRequestMethodNotSupportedException) ex, request, handler);
         }
         else if (ex instanceof HttpMediaTypeNotSupportedException) {
-          mav = handleHttpMediaTypeNotSupported(
+          view = handleHttpMediaTypeNotSupported(
                   (HttpMediaTypeNotSupportedException) ex, request, handler);
         }
         else if (ex instanceof HttpMediaTypeNotAcceptableException) {
-          mav = handleHttpMediaTypeNotAcceptable(
+          view = handleHttpMediaTypeNotAcceptable(
                   (HttpMediaTypeNotAcceptableException) ex, request, handler);
         }
         else if (ex instanceof MissingPathVariableException) {
-          mav = handleMissingPathVariable(
+          view = handleMissingPathVariable(
                   (MissingPathVariableException) ex, request, handler);
         }
         else if (ex instanceof MissingRequestParameterException) {
-          mav = handleMissingServletRequestParameter(
+          view = handleMissingServletRequestParameter(
                   (MissingRequestParameterException) ex, request, handler);
         }
         else if (ex instanceof RequestBindingException) {
-          mav = handleRequestBindingException(
+          view = handleRequestBindingException(
                   (RequestBindingException) ex, request, handler);
         }
         else if (ex instanceof MethodArgumentNotValidException) {
-          mav = handleMethodArgumentNotValidException(
+          view = handleMethodArgumentNotValidException(
                   (MethodArgumentNotValidException) ex, request, handler);
         }
         else if (ex instanceof NoHandlerFoundException) {
-          mav = handleNoHandlerFoundException(
+          view = handleNoHandlerFoundException(
                   (NoHandlerFoundException) ex, request, handler);
         }
         else if (ex instanceof AsyncRequestTimeoutException) {
-          mav = handleAsyncRequestTimeoutException(
+          view = handleAsyncRequestTimeoutException(
                   (AsyncRequestTimeoutException) ex, request, handler);
         }
         else if (ServletDetector.isPresent() && ex instanceof MissingServletRequestPartException) {
-          mav = handleMissingServletRequestPartException(
+          view = handleMissingServletRequestPartException(
                   (MissingServletRequestPartException) ex, request, handler);
         }
 
-        if (mav == null) {
+        if (view == null) {
           return handleErrorResponse((ErrorResponse) ex, request, handler);
         }
       }
@@ -239,15 +239,12 @@ public class SimpleHandlerExceptionHandler
       else if (ex instanceof BindException) {
         return handleBindException((BindException) ex, request, handler);
       }
-      else {
-        writeErrorMessage(ex, request);
-      }
     }
     catch (Exception handlerEx) {
       logResultedInException(ex, handlerEx);
     }
 
-    return NONE_RETURN_VALUE;
+    return null; //next
   }
 
   /**
