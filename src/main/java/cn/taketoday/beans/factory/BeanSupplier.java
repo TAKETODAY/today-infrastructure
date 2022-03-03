@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Bean instance supplier
@@ -41,15 +42,22 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
   private final String beanName;
 
   @Nullable
-  private final Class<T> targetClass;
+  private final Class<T> beanType;
 
   private final BeanFactory beanFactory;
 
-  protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
+  @SuppressWarnings("unchecked")
+  protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class beanType) {
     Assert.notNull(beanName, "'beanName' is required");
     Assert.notNull(beanFactory, "'beanFactory' is required");
     this.beanFactory = beanFactory;
-    this.targetClass = targetClass;
+    if (beanType == null) {
+      beanType = beanFactory.getType(beanName);
+      if (beanType != null) {
+        beanType = ClassUtils.getUserClass(beanType);
+      }
+    }
+    this.beanType = beanType;
     this.beanName = beanName;
   }
 
@@ -61,9 +69,14 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     return beanFactory;
   }
 
+  /**
+   * Return the type of the contained bean.
+   * <p>If the bean type is a CGLIB-generated class, the original user-defined
+   * class is returned.
+   */
   @Nullable
-  public Class<T> getTargetClass() {
-    return targetClass;
+  public Class<T> getBeanType() {
+    return beanType;
   }
 
   public boolean isSingleton() {
@@ -72,7 +85,7 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
 
   @Override
   public T get() {
-    return beanFactory.getBean(beanName, targetClass);
+    return beanFactory.getBean(beanName, beanType);
   }
 
   // static
@@ -91,25 +104,25 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     return from(beanFactory, null, beanName);
   }
 
-  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, Class<E> targetClass, String beanName) {
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory, Class<E> beanType, String beanName) {
     boolean singleton = beanFactory.isSingleton(beanName);
-    return from(beanFactory, targetClass, beanName, singleton);
+    return from(beanFactory, beanType, beanName, singleton);
   }
 
   public static <E> BeanSupplier<E> from(
-          BeanFactory beanFactory, Class<E> targetClass, String beanName, boolean singleton) {
+          BeanFactory beanFactory, Class<E> beanType, String beanName, boolean singleton) {
     if (singleton) {
-      return new SingletonBeanSupplier<>(beanFactory, beanName, targetClass);
+      return new SingletonBeanSupplier<>(beanFactory, beanName, beanType);
     }
-    return new BeanSupplier<>(beanFactory, beanName, targetClass);
+    return new BeanSupplier<>(beanFactory, beanName, beanType);
   }
 
   private final static class SingletonBeanSupplier<T>
           extends BeanSupplier<T> implements Supplier<T> {
     private transient T instance;
 
-    SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> targetClass) {
-      super(beanFactory, beanName, targetClass);
+    SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> beanType) {
+      super(beanFactory, beanName, beanType);
     }
 
     @Override

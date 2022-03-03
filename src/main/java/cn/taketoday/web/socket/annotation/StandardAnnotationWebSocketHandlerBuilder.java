@@ -48,7 +48,7 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
 
   @Override
   public WebSocketHandler build(
-          BeanDefinition definition, WebApplicationContext context, AnnotationHandlerDelegate annotationHandler) {
+          BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
     StandardAnnotationWebSocketDispatcher socketDispatcher
             = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
 

@@ -29,7 +29,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -74,7 +73,7 @@ public class HandlerMethodRegistry
   private ConfigurableBeanFactory beanFactory;
 
   /** @since 3.0 */
-  private AnnotationHandlerFactory<ActionMappingAnnotationHandler> annotationHandlerFactory;
+  private AnnotationHandlerFactory annotationHandlerFactory;
 
   private BeanDefinitionRegistry registry;
 
@@ -100,7 +99,6 @@ public class HandlerMethodRegistry
   @Override
   protected void initApplicationContext(ApplicationContext context) {
     setBeanFactory(context.unwrapFactory(ConfigurableBeanFactory.class));
-    setAnnotationHandlerFactory(new AnnotationHandlerFactory<>(context));
     super.initApplicationContext(context);
   }
 
@@ -185,9 +183,8 @@ public class HandlerMethodRegistry
    * @return A new {@link ActionMappingAnnotationHandler}
    */
   protected ActionMappingAnnotationHandler createHandler(String beanName, Class<?> beanClass, Method method) {
-    BeanSupplier<Object> beanSupplier = BeanSupplier.from(beanFactory, beanName);
     List<HandlerInterceptor> interceptors = getInterceptors(beanClass, method);
-    return annotationHandlerFactory.create(beanSupplier, method, beanClass, interceptors);
+    return annotationHandlerFactory.create(beanName, method, beanClass, interceptors);
   }
 
   /**
@@ -388,16 +385,8 @@ public class HandlerMethodRegistry
     this.beanFactory = beanFactory;
   }
 
-  public ConfigurableBeanFactory getBeanFactory() {
-    return beanFactory;
-  }
-
-  public void setAnnotationHandlerFactory(AnnotationHandlerFactory<ActionMappingAnnotationHandler> annotationHandlerFactory) {
+  public void setAnnotationHandlerFactory(AnnotationHandlerFactory annotationHandlerFactory) {
     this.annotationHandlerFactory = annotationHandlerFactory;
-  }
-
-  public AnnotationHandlerFactory<ActionMappingAnnotationHandler> getAnnotationHandlerFactory() {
-    return annotationHandlerFactory;
   }
 
   /**

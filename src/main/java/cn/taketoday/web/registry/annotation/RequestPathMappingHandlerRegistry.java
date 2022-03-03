@@ -83,8 +83,8 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
 
   /*private for testing */
   void mergeMappingAttributes(AnnotationAttributes mapping,
-                              MergedAnnotation<ActionMapping> actionMapping,
-                              @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
+          MergedAnnotation<ActionMapping> actionMapping,
+          @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
     AnnotationAttributes actionAttr = actionMapping.asAnnotationAttributes();
     if (controllerMapping == null || actionMapping.getBoolean("exclude")) {
       mapping.putAll(actionAttr);
@@ -100,9 +100,9 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
   }
 
   private <T> void doMergeMapping(AnnotationAttributes mapping,
-                                  AnnotationAttributes actionMapping,
-                                  AnnotationAttributes controllerMapping,
-                                  String key, Class<T> requiredType, boolean append) {
+          AnnotationAttributes actionMapping,
+          AnnotationAttributes controllerMapping,
+          String key, Class<T> requiredType, boolean append) {
 
     T attribute = controllerMapping.getRequiredAttribute(key, requiredType);
     int length = Array.getLength(attribute);

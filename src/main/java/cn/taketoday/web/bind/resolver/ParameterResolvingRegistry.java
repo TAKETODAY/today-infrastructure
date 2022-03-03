@@ -22,8 +22,8 @@ package cn.taketoday.web.bind.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.PropertyValuesBinder;
@@ -47,14 +47,14 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestAttribute;
-import cn.taketoday.web.handler.method.RequestBodyAdvice;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.handler.method.RequestBodyAdvice;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.web.bind.resolver.ConverterAwareParameterResolver.from;

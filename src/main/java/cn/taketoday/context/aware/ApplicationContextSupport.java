@@ -41,11 +41,12 @@ import cn.taketoday.logging.LoggerFactory;
 public abstract class ApplicationContextSupport implements ApplicationContextAware {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ApplicationContext applicationContext;
+  @Nullable
+  protected ApplicationContext applicationContext;
 
   /** MessageSourceAccessor for easy message access. @since 4.0 */
   @Nullable
-  private MessageSourceAccessor messageSourceAccessor;
+  protected MessageSourceAccessor messageSourceAccessor;
 
   @Override
   public final void setApplicationContext(@Nullable ApplicationContext context) throws BeansException {

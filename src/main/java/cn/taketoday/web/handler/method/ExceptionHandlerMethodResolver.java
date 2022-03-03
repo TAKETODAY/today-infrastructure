@@ -26,22 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import cn.taketoday.util.comparator.ExceptionDepthComparator;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
-import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * Discovers {@linkplain ExceptionHandler @ExceptionHandler} methods in a given class,
@@ -76,9 +69,6 @@ public class ExceptionHandlerMethodResolver {
 
   private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
   private final Map<Class<? extends Throwable>, Method> exceptionLookupCache = new ConcurrentReferenceHashMap<>(16);
-
-  private final HashMap<Class<? extends Throwable>, ExceptionHandlerMethodResolver.ExceptionHandlerMappingHandler>
-          exceptionHandlers = new HashMap<>();
 
   /**
    * A constructor that finds {@link ExceptionHandler} methods in the given type.
@@ -121,26 +111,11 @@ public class ExceptionHandlerMethodResolver {
   }
 
   private void addExceptionMapping(Class<? extends Throwable> exceptionType, Method method) {
-    // @since 3.0
-    BeanSupplier<Object> handlerBean = BeanSupplier.from(beanFactory, errorHandler);
-    ExceptionHandlerMappingHandler handler = getHandler(
-            handlerBean, parameterFactory, method, manager, errorHandlerType);
-
     Method oldMethod = mappedMethods.put(exceptionType, method);
     if (oldMethod != null && !oldMethod.equals(method)) {
       throw new IllegalStateException("Ambiguous @ExceptionHandler method mapped for [" +
               exceptionType + "]: {" + oldMethod + ", " + method + "}");
     }
-  }
-
-  private ExceptionHandlerMappingHandler getHandler(
-          BeanSupplier<Object> handlerBean, ResolvableParameterFactory parameterFactory,
-          Method method, ReturnValueHandlerManager manager, Class<?> errorHandlerType) {
-    HandlerMethod handlerMethod = HandlerMethod.from(method);
-    ExceptionHandlerMappingHandler handler = new ExceptionHandlerMappingHandler(
-            handlerBean, handlerMethod, parameterFactory.createArray(method), errorHandlerType);
-    handler.setReturnValueHandlers(manager);
-    return handler;
   }
 
   /**
@@ -191,10 +166,10 @@ public class ExceptionHandlerMethodResolver {
    */
   @Nullable
   public Method resolveMethodByExceptionType(Class<? extends Throwable> exceptionType) {
-    Method method = this.exceptionLookupCache.get(exceptionType);
+    Method method = exceptionLookupCache.get(exceptionType);
     if (method == null) {
       method = getMappedMethod(exceptionType);
-      this.exceptionLookupCache.put(exceptionType, method);
+      exceptionLookupCache.put(exceptionType, method);
     }
     return method != NO_MATCHING_EXCEPTION_HANDLER_METHOD ? method : null;
   }
@@ -221,49 +196,10 @@ public class ExceptionHandlerMethodResolver {
     }
   }
 
-  public ActionMappingAnnotationHandler lookupHandler(Throwable throwable) {
-
-    return;
-  }
-
   /**
    * For the {@link #NO_MATCHING_EXCEPTION_HANDLER_METHOD} constant.
    */
   @SuppressWarnings("unused")
   private void noMatchingExceptionHandler() { }
-
-  // exception handler
-
-  protected static class ExceptionHandlerMappingHandler extends SuppliedActionMappingAnnotationHandler {
-
-    ExceptionHandlerMappingHandler(
-            BeanSupplier<Object> beanSupplier,
-            HandlerMethod method,
-            @Nullable ResolvableMethodParameter[] parameters,
-            Class<?> errorHandlerType) {
-      super(beanSupplier, method, parameters, errorHandlerType);
-    }
-
-    @Override
-    protected void applyResponseStatus(RequestContext context) {
-      ResponseStatus status = getMethod().getResponseStatus();
-      if (status == null) {
-        Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-        if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
-          HttpStatus httpStatus = ((HttpStatusCapable) attribute).getStatus();
-          context.setStatus(httpStatus);
-        }
-        else if (attribute instanceof Throwable) {
-          ResponseStatus runtimeErrorStatus = HandlerMethod.getResponseStatus((Throwable) attribute);
-          applyResponseStatus(context, runtimeErrorStatus);
-        }
-      }
-      else {
-        // Annotated with @ResponseStatus
-        super.applyResponseStatus(context, status);
-      }
-    }
-
-  }
 
 }

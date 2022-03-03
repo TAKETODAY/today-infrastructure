@@ -40,6 +40,7 @@ import cn.taketoday.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
+  @Experimental
   String ANNOTATION = Conventions.getQualifiedAttributeName(Component.class, "annotation");
 
   /**

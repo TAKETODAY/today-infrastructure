@@ -65,7 +65,7 @@ public class MessageSourceAccessor {
    * @param messageSource the MessageSource to wrap
    * @param defaultLocale the default locale to use for message access
    */
-  public MessageSourceAccessor(MessageSource messageSource, Locale defaultLocale) {
+  public MessageSourceAccessor(MessageSource messageSource, @Nullable Locale defaultLocale) {
     this.messageSource = messageSource;
     this.defaultLocale = defaultLocale;
   }

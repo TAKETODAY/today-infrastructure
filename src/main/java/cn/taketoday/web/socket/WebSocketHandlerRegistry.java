@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
@@ -36,13 +37,13 @@ import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
 import cn.taketoday.web.registry.annotation.HandlerMethodRegistry;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
-import cn.taketoday.web.socket.annotation.AnnotationHandlerDelegate;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
+import cn.taketoday.web.socket.annotation.WebSocketHandlerDelegate;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -68,7 +69,7 @@ public class WebSocketHandlerRegistry
     if (annotationHandlerBuilder == null) {
       annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
     }
-    var factory = new AnnotationHandlerFactory<>(context);
+    AnnotationHandlerFactory factory = BeanFactoryUtils.requiredBean(context, AnnotationHandlerFactory.class);
 
     Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
     for (Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
@@ -96,7 +97,7 @@ public class WebSocketHandlerRegistry
 
   protected void registerEndpoint(
           BeanDefinition definition, WebApplicationContext context,
-          AnnotationHandlerFactory<ActionMappingAnnotationHandler> factory) {
+          AnnotationHandlerFactory factory) {
     BeanSupplier<Object> handlerBean = createHandler(definition, context);
 
     Class<?> endpointClass = definition.getBeanClass();
@@ -111,22 +112,22 @@ public class WebSocketHandlerRegistry
     WebSocketHandlerMethod onError = null;
     WebSocketHandlerMethod onMessage = null;
 
-    ResolvableParameterFactory parameterBuilder = new ResolvableParameterFactory();
+    ResolvableParameterFactory parameterFactory = new ResolvableParameterFactory();
     for (Method declaredMethod : declaredMethods) {
       if (isOnOpenHandler(declaredMethod, definition)) {
-        onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+        onOpen = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterFactory);
       }
       else if (isOnCloseHandler(declaredMethod, definition)) {
-        onClose = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+        onClose = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterFactory);
       }
       else if (isAfterHandshakeHandler(declaredMethod, definition)) {
         afterHandshake = factory.create(handlerBean, declaredMethod, endpointClass, null);
       }
       else if (isOnErrorHandler(declaredMethod, definition)) {
-        onError = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+        onError = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterFactory);
       }
       else if (isOnMessageHandler(declaredMethod, definition)) {
-        onMessage = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterBuilder);
+        onMessage = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterFactory);
       }
     }
     AnnotationWebSocketHandlerBuilder handlerBuilder = getAnnotationHandlerBuilder();
@@ -135,7 +136,7 @@ public class WebSocketHandlerRegistry
     for (String pattern : path) {
       PathPattern pathPattern = patternParser.parse(pattern);
       boolean containsPathVariable = HandlerMethodRegistry.containsPathVariable(pattern);
-      AnnotationHandlerDelegate annotationHandler = new AnnotationHandlerDelegate(
+      WebSocketHandlerDelegate annotationHandler = new WebSocketHandlerDelegate(
               pathPattern, containsPathVariable, onOpen, onClose, onError, onMessage, afterHandshake);
       WebSocketHandler handler = handlerBuilder.build(definition, context, annotationHandler);
       registerHandler(pattern, handler);

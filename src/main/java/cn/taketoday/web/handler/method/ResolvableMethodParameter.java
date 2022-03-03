@@ -29,7 +29,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Experimental;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -234,7 +233,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return new NamedValueInfo(name, required, defaultValue);
   }
 
-  @NonNull
   public String getParameterName() {
     String name = parameter.getParameterName();
     if (name == null) {

@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
@@ -36,7 +37,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.Converter;
@@ -80,6 +81,7 @@ import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
+import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
@@ -106,7 +108,7 @@ import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
  * @since 4.0 2022/1/27 23:43
  */
 @DisableAllDependencyInjection
-public class WebMvcConfigurationSupport implements ApplicationContextAware {
+public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
@@ -129,29 +131,17 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   private List<HttpMessageConverter<?>> messageConverters;
 
   @Nullable
-  private ApplicationContext applicationContext;
-
-  @Nullable
   private Map<String, CorsConfiguration> corsConfigurations;
 
   @Nullable
   private List<Object> interceptors;
 
-  @Nullable
-  public ApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
-
   @Override
-  public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
+  protected void initApplicationContext() {
     initControllerAdviceCache();
   }
 
   private void initControllerAdviceCache() {
-    if (getApplicationContext() == null) {
-      return;
-    }
 
     List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
     ArrayList<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
@@ -560,7 +550,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  RequestPathMappingHandlerRegistry requestPathMappingHandlerRegistry() {
+  RequestPathMappingHandlerRegistry requestPathMappingHandlerRegistry(AnnotationHandlerFactory handlerFactory) {
     RequestPathMappingHandlerRegistry registry = new RequestPathMappingHandlerRegistry();
     PathMatchConfigurer configurer = getPathMatchConfigurer();
 
@@ -573,8 +563,22 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware {
     if (useCaseSensitiveMatch != null) {
       registry.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
     }
-
+    registry.setAnnotationHandlerFactory(handlerFactory);
     return registry;
+  }
+
+  /**
+   * core {@link cn.taketoday.web.handler.method.AnnotationHandlerFactory} to create annotation-handler
+   */
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public AnnotationHandlerFactory annotationHandlerFactory(
+          BeanFactory beanFactory, ParameterResolvingRegistry registry, ReturnValueHandlerManager manager) {
+    AnnotationHandlerFactory handlerFactory = new AnnotationHandlerFactory(beanFactory);
+    handlerFactory.setReturnValueHandlerManager(manager);
+    handlerFactory.setParameterResolvingRegistry(registry);
+    return handlerFactory;
   }
 
   /**

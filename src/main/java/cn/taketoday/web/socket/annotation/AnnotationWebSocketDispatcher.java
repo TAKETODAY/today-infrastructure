@@ -43,12 +43,12 @@ import cn.taketoday.web.util.pattern.PathPattern;
  * @since 3.0
  */
 public class AnnotationWebSocketDispatcher extends WebSocketHandler {
-  protected final AnnotationHandlerDelegate socketHandler;
+  protected final WebSocketHandlerDelegate socketHandler;
   protected final List<EndpointParameterResolver> resolvers;
   private final boolean supportPartialMessage;
 
   public AnnotationWebSocketDispatcher(
-          AnnotationHandlerDelegate socketHandler, List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
+          WebSocketHandlerDelegate socketHandler, List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
     this.resolvers = resolvers;
     this.socketHandler = socketHandler;
     this.supportPartialMessage = supportPartialMessage;

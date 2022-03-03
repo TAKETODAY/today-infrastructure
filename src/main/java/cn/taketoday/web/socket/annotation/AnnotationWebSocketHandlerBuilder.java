@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -47,7 +48,7 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   protected final ArrayList<EndpointParameterResolver> resolvers = new ArrayList<>(16);
   protected boolean supportPartialMessage;
 
-  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
+  private ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
   /**
    * register default resolvers
@@ -93,7 +94,7 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   }
 
   public WebSocketHandler build(
-          BeanDefinition definition, WebApplicationContext context, AnnotationHandlerDelegate annotationHandler) {
+          BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
     return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 

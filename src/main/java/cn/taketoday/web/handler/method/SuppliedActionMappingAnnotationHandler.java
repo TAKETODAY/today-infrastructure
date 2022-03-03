@@ -20,7 +20,8 @@
 
 package cn.taketoday.web.handler.method;
 
-import cn.taketoday.beans.factory.BeanSupplier;
+import java.util.function.Supplier;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -28,10 +29,10 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/1/13 20:09
  */
 class SuppliedActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
-  private final BeanSupplier<Object> beanSupplier;
+  private final Supplier<Object> beanSupplier;
 
   SuppliedActionMappingAnnotationHandler(
-          BeanSupplier<Object> beanSupplier, HandlerMethod handlerMethod,
+          Supplier<Object> beanSupplier, HandlerMethod handlerMethod,
           @Nullable ResolvableMethodParameter[] parameters, Class<?> beanType) {
     super(handlerMethod, parameters, beanType);
     this.beanSupplier = beanSupplier;
