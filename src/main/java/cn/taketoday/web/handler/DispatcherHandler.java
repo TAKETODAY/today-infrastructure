@@ -257,7 +257,8 @@ public class DispatcherHandler implements ApplicationContextAware {
       }
       if (exceptionHandler == null) {
         ExceptionHandlerAnnotationExceptionHandler exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
-        exceptionHandler.onStartup(getWebApplicationContext());
+        exceptionHandler.setApplicationContext(getWebApplicationContext());
+        exceptionHandler.afterPropertiesSet();
         this.exceptionHandler = exceptionHandler;
       }
     }

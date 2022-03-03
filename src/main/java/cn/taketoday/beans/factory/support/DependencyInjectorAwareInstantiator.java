@@ -32,6 +32,7 @@ import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.SingletonSupplier;
 
@@ -42,6 +43,7 @@ import cn.taketoday.util.SingletonSupplier;
  * @see DependencyInjector
  * @since 4.0
  */
+@Experimental
 public class DependencyInjectorAwareInstantiator {
   public static final String BEAN_NAME = "dependencyInjectorAwareInstantiator";
 
