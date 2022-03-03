@@ -74,12 +74,12 @@ public class DispatcherHandler implements ApplicationContextAware {
   public static final String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
 
   /**
-   * Well-known name for the HandlerExceptionResolver object in the bean factory for this namespace.
-   * Only used when "detectAllHandlerExceptionResolvers" is turned off.
+   * Well-known name for the HandlerExceptionHandler object in the bean factory for this namespace.
+   * Only used when "detectAllHandlerExceptionHandlers" is turned off.
    *
    * @see #setDetectAllHandlerExceptionHandlers(boolean)
    */
-  public static final String HANDLER_EXCEPTION_HANDLER_BEAN_NAME = "handlerExceptionResolver";
+  public static final String HANDLER_EXCEPTION_HANDLER_BEAN_NAME = "handlerExceptionHandler";
 
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
@@ -114,7 +114,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Detect all HandlerAdapters or just expect "HandlerAdapter" bean?. */
   private boolean detectAllHandlerAdapters = true;
 
-  /** Detect all HandlerExceptionResolvers or just expect "HandlerExceptionHandler" bean?. */
+  /** Detect all HandlerExceptionHandlers or just expect "HandlerExceptionHandler" bean?. */
   private boolean detectAllHandlerExceptionHandlers = true;
 
   private WebApplicationContext webApplicationContext;
@@ -379,7 +379,7 @@ public class DispatcherHandler implements ApplicationContextAware {
 
   /**
    * Set whether to throw a NoHandlerFoundException when no Handler was found for this request.
-   * This exception can then be caught with a HandlerExceptionResolver or an
+   * This exception can then be caught with a HandlerExceptionHandler or an
    * {@code @ExceptionHandler} controller method.
    *
    * @since 4.0
@@ -455,7 +455,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     request.reset();
     // prepare context throwable
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
-    // Check registered HandlerExceptionResolvers...
+    // Check registered HandlerExceptionHandlers...
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {
       throw ex;

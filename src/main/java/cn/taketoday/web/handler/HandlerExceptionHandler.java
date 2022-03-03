@@ -43,8 +43,10 @@ public interface HandlerExceptionHandler {
    * @param handler Current handler
    * @return a corresponding view result to write to,
    * or {@code null} for default processing in the resolution chain
+   * @throws Exception error handle failed
    */
   @Nullable
-  Object handleException(RequestContext context, Throwable exception, @Nullable Object handler);
+  Object handleException(RequestContext context, Throwable exception, @Nullable Object handler)
+          throws Exception;
 
 }

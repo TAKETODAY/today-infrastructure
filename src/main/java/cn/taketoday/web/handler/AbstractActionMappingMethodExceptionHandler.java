@@ -20,23 +20,10 @@
 
 package cn.taketoday.web.handler;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.imageio.ImageIO;
-
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
-import cn.taketoday.http.MediaType;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Abstract base class for {@link HandlerExceptionHandler HandlerExceptionHandler}
@@ -82,8 +69,7 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
 
   @Nullable
   @Override
-  protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) {
-
+  protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) throws Exception {
     ActionMappingAnnotationHandler annotationHandler = (handler instanceof ActionMappingAnnotationHandler ? (ActionMappingAnnotationHandler) handler : null);
     return handleInternal(request, annotationHandler, ex);
   }
@@ -104,81 +90,6 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
    */
   @Nullable
   protected abstract Object handleInternal(
-          RequestContext request, @Nullable ActionMappingAnnotationHandler handlerMethod, Throwable ex);
-
-  /**
-   * Resolve {@link HandlerMethod} exception
-   *
-   * @param ex Target {@link Throwable}
-   * @param context Current request context
-   * @param handlerMethod {@link HandlerMethod}
-   * @throws Throwable If any {@link Exception} occurred
-   */
-  protected Object handleHandlerMethodInternal(
-          Throwable ex, RequestContext context, HandlerMethod handlerMethod) throws Throwable//
-  {
-    context.setStatus(getErrorStatusValue(ex));
-
-    if (handlerMethod.isReturnTypeAssignableTo(RenderedImage.class)) {
-      return resolveImageException(ex, context);
-    }
-    if (!handlerMethod.isReturn(void.class)
-            && !handlerMethod.isReturn(Object.class)
-            && !handlerMethod.isReturn(ModelAndView.class)
-            && !(handlerMethod.isReturn(String.class) && !handlerMethod.isResponseBody())) {
-
-      return handleInternal(ex, context);
-    }
-
-    writeErrorMessage(ex, context);
-    return NONE_RETURN_VALUE;
-  }
-
-  /**
-   * Write error message to request context, default is write json
-   *
-   * @param ex Throwable that occurred in request handler
-   * @param context current request context
-   */
-  protected void writeErrorMessage(Throwable ex, RequestContext context) throws IOException {
-    context.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    PrintWriter writer = context.getWriter();
-    writer.write(buildDefaultErrorMessage(ex));
-    writer.flush();
-  }
-
-  protected String buildDefaultErrorMessage(Throwable ex) {
-    return new StringBuilder()
-            .append("{\"message\":\"")
-            .append(ex.getMessage())
-            .append("\"}")
-            .toString();
-  }
-
-  /**
-   * Get error http status value, if target throwable is {@link HttpStatusCapable}
-   * its return from {@link HttpStatusCapable#getStatus()}
-   *
-   * @param ex Throwable that occurred in request handler
-   * @return Http status code
-   */
-  public int getErrorStatusValue(Throwable ex) {
-    if (ex instanceof HttpStatusCapable) { // @since 3.0.1
-      HttpStatus httpStatus = ((HttpStatusCapable) ex).getStatus();
-      return httpStatus.value();
-    }
-    return HandlerMethod.getStatusValue(ex);
-  }
-
-  /**
-   * resolve image
-   */
-  public BufferedImage resolveImageException(
-          Throwable ex, RequestContext context) throws IOException {
-    ClassPathResource pathResource = new ClassPathResource("error/" + getErrorStatusValue(ex) + ".png");
-    Assert.state(pathResource.exists(), "System Error");
-    context.setContentType(MediaType.IMAGE_JPEG_VALUE);
-    return ImageIO.read(pathResource.getInputStream());
-  }
+          RequestContext request, @Nullable ActionMappingAnnotationHandler handlerMethod, Throwable ex) throws Exception;
 
 }

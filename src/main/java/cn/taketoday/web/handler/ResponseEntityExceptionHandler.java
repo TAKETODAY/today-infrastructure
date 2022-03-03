@@ -66,7 +66,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * <p>If there is no need to write error content to the response body, or when
  * using view resolution (e.g., via {@code ContentNegotiatingViewResolver}),
- * then {@code DefaultHandlerExceptionResolver} is good enough.
+ * then {@code DefaultHandlerExceptionHandler} is good enough.
  *
  * <p>Note that in order for an {@code @ControllerAdvice} subclass to be
  * detected, {@link HandlerExceptionHandler} must be configured.
@@ -191,7 +191,7 @@ public class ResponseEntityExceptionHandler {
       // Unknown exception, typically a wrapper with a common MVC exception as cause
       // (since @ExceptionHandler type declarations also match first-level causes):
       // We only deal with top-level MVC exceptions here, so let's rethrow the given
-      // exception for further processing through the HandlerExceptionResolver chain.
+      // exception for further processing through the HandlerExceptionHandler chain.
       throw ex;
     }
   }

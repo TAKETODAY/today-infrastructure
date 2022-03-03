@@ -69,7 +69,7 @@ public class NettyApplication {
       return new Body("key1", 1);
     }
     if (key2) {
-      Resource resource = new ClassPathResource("error/404.png");
+      Resource resource = new ClassPathResource("cn/taketoday/web/handler/404.png");
       context.setContentType(MediaType.IMAGE_JPEG_VALUE);
       return ImageIO.read(resource.getInputStream());
     }

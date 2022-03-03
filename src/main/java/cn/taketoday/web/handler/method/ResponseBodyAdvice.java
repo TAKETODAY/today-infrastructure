@@ -32,7 +32,7 @@ import cn.taketoday.web.RequestContext;
  * with an {@code HttpMessageConverter}.
  *
  * <p>Implementations may be registered directly with
- * {@code RequestMappingHandlerAdapter} and {@code ExceptionHandlerExceptionResolver}
+ * {@code RequestMappingHandlerAdapter} and {@code ExceptionHandlerExceptionHandler}
  * or more likely annotated with {@code @ControllerAdvice} in which case they
  * will be auto-detected by both.
  *

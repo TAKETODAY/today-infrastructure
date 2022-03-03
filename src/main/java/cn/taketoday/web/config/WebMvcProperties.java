@@ -83,7 +83,7 @@ public class WebMvcProperties {
 
   /**
    * Whether to enable warn logging of exceptions resolved by a
-   * "HandlerExceptionResolver", except for "DefaultHandlerExceptionResolver".
+   * "HandlerExceptionHandler", except for "SimpleHandlerExceptionHandler".
    */
   private boolean logResolvedException = false;
 

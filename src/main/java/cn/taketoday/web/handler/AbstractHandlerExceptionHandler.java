@@ -68,7 +68,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * <p>The exception mappings and the default error view will only apply to the specified handlers.
    * <p>If no handlers or handler classes are set, the exception mappings and the default error
    * view will apply to all handlers. This means that a specified default error view will be used
-   * as a fallback for all exceptions; any further HandlerExceptionResolvers in the chain will be
+   * as a fallback for all exceptions; any further HandlerExceptionHandlers in the chain will be
    * ignored in this case.
    */
   public void setMappedHandlers(@Nullable Set<?> mappedHandlers) {
@@ -81,7 +81,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * specified types; the specified types may be interfaces or superclasses of handlers as well.
    * <p>If no handlers or handler classes are set, the exception mappings and the default error
    * view will apply to all handlers. This means that a specified default error view will be used
-   * as a fallback for all exceptions; any further HandlerExceptionResolvers in the chain will be
+   * as a fallback for all exceptions; any further HandlerExceptionHandlers in the chain will be
    * ignored in this case.
    */
   public void setMappedHandlerClasses(Class<?>... mappedHandlerClasses) {
@@ -123,7 +123,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   @Nullable
   @Override
-  public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) {
+  public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) throws Exception {
     if (shouldApplyTo(context, handler)) {
       prepareResponse(ex, context);
       Object result = handleInternal(context, handler, ex);
@@ -272,6 +272,6 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   @Nullable
   protected abstract Object handleInternal(
-          RequestContext request, @Nullable Object handler, Throwable ex);
+          RequestContext request, @Nullable Object handler, Throwable ex) throws Exception;
 
 }
