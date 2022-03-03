@@ -28,6 +28,7 @@ import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -223,6 +224,11 @@ public abstract class ActionMappingAnnotationHandler
   //---------------------------------------------------------------------
   // Static methods
   //---------------------------------------------------------------------
+
+  public static ActionMappingAnnotationHandler from(
+          Object handlerBean, Method method, ResolvableParameterFactory parameterFactory) {
+    return from(handlerBean, method, parameterFactory, ClassUtils.getUserClass(handlerBean));
+  }
 
   public static ActionMappingAnnotationHandler from(
           Object handlerBean, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {

@@ -64,7 +64,7 @@ class ResponseStatusExceptionHandlerTests {
   }
 
   @Test
-  public void statusCode() {
+  public void statusCode() throws Exception {
     StatusCodeException ex = new StatusCodeException();
 
     Object mav = handleException(ex);
@@ -72,21 +72,21 @@ class ResponseStatusExceptionHandlerTests {
   }
 
   @Test
-  public void statusCodeFromComposedResponseStatus() {
+  public void statusCodeFromComposedResponseStatus() throws Exception {
     StatusCodeFromComposedResponseStatusException ex = new StatusCodeFromComposedResponseStatusException();
     Object mav = handleException(ex);
     assertResolved(mav, 400, null);
   }
 
   @Test
-  public void statusCodeAndReason() {
+  public void statusCodeAndReason() throws Exception {
     StatusCodeAndReasonException ex = new StatusCodeAndReasonException();
     Object mav = handleException(ex);
     assertResolved(mav, 410, "You suck!");
   }
 
   @Test
-  public void statusCodeAndReasonMessage() {
+  public void statusCodeAndReasonMessage() throws Exception {
     Locale locale = Locale.CHINESE;
     LocaleContextHolder.setLocale(locale);
     try {
@@ -104,7 +104,7 @@ class ResponseStatusExceptionHandlerTests {
   }
 
   @Test
-  public void notAnnotated() {
+  public void notAnnotated() throws Exception {
     Exception ex = new Exception();
     Object object = handleException(ex);
     Object mav = handleException(ex);
@@ -112,7 +112,7 @@ class ResponseStatusExceptionHandlerTests {
   }
 
   @Nullable
-  private Object handleException(Exception ex) {
+  private Object handleException(Exception ex) throws Exception {
     MockServletRequestContext context = new MockServletRequestContext(request, response);
     return exceptionHandler.handleException(context, null, ex);
   }
@@ -140,7 +140,7 @@ class ResponseStatusExceptionHandlerTests {
   }
 
   @Test
-  void responseStatusExceptionWithHeaders() {
+  void responseStatusExceptionWithHeaders() throws Exception {
     Exception ex = new MethodNotAllowedException(
             HttpMethod.GET, Arrays.asList(HttpMethod.POST, HttpMethod.PUT));
 

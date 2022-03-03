@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Properties;
 
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
@@ -99,9 +99,17 @@ class SimpleMappingExceptionHandlerTests {
     assertThat(mav.getModel().asMap().get(SimpleMappingExceptionHandler.DEFAULT_EXCEPTION_ATTRIBUTE)).isNull();
   }
 
-  @Nullable
-  private ModelAndView handleException(Object handler1, Exception genericException) {
-    return (ModelAndView) exceptionHandler.handleException(new MockServletRequestContext(request, response), genericException, handler1);
+  private ModelAndView handleException(Object handler, Exception ex) {
+    try {
+      Object ret = this.exceptionHandler.handleException(new MockServletRequestContext(request, response), ex, handler);
+      if (ret instanceof ModelAndView mav) {
+        return mav;
+      }
+      return new ModelAndView(ret);
+    }
+    catch (Exception e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
   @Test

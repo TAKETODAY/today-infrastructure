@@ -88,7 +88,7 @@ class ReturnValueHandlerManagerTests {
     Mockito.when(handler.isReturn(HttpStatus.class))
             .thenReturn(true);
 
-    ActionMappingAnnotationHandler annotationHandler = new ActionMappingAnnotationHandler(handler, null, beanType) {
+    ActionMappingAnnotationHandler annotationHandler = new ActionMappingAnnotationHandler(handler, null, Object.class) {
       @Override
       public Object getHandlerObject() {
         return null;
