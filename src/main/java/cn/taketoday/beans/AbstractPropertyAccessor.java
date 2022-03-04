@@ -20,12 +20,8 @@
 
 package cn.taketoday.beans;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/17 17:42
- */
-
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
@@ -38,9 +34,10 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getPropertyValue
  * @see #setPropertyValue
- * @since 4.0
+ * @since 4.0 2022/2/17 17:42
  */
 public abstract class AbstractPropertyAccessor extends TypeConverterSupport implements ConfigurablePropertyAccessor {
 
@@ -151,7 +148,49 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
   @Override
   public void setPropertyValues(
           PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid) throws BeansException {
-    setPropertyValues(pvs.asMap(), ignoreUnknown, ignoreInvalid);
+    List<PropertyAccessException> propertyAccessExceptions = null;
+    if (ignoreUnknown) {
+      this.suppressNotWritablePropertyException = true;
+    }
+    try {
+      for (PropertyValue pv : pvs) {
+        // setPropertyValue may throw any BeansException, which won't be caught
+        // here, if there is a critical failure such as no matching field.
+        // We can attempt to deal only with less serious exceptions.
+        try {
+          setPropertyValue(pv);
+        }
+        catch (NotWritablePropertyException ex) {
+          if (!ignoreUnknown) {
+            throw ex;
+          }
+          // Otherwise, just ignore it and continue...
+        }
+        catch (NullValueInNestedPathException ex) {
+          if (!ignoreInvalid) {
+            throw ex;
+          }
+          // Otherwise, just ignore it and continue...
+        }
+        catch (PropertyAccessException ex) {
+          if (propertyAccessExceptions == null) {
+            propertyAccessExceptions = new ArrayList<>();
+          }
+          propertyAccessExceptions.add(ex);
+        }
+      }
+    }
+    finally {
+      if (ignoreUnknown) {
+        this.suppressNotWritablePropertyException = false;
+      }
+    }
+
+    // If we encountered individual exceptions, throw the composite exception.
+    if (propertyAccessExceptions != null) {
+      PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
+      throw new PropertyBatchUpdateException(paeArray);
+    }
   }
 
   // Redefined with public visibility.
