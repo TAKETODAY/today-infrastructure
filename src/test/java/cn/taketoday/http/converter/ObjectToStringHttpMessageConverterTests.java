@@ -97,7 +97,7 @@ public class ObjectToStringHttpMessageConverterTests {
   public void defaultCharset() throws IOException {
     this.converter.write(Integer.valueOf(5), null, response);
 
-    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 
   @Test
@@ -152,7 +152,7 @@ public class ObjectToStringHttpMessageConverterTests {
   public void write() throws IOException {
     this.converter.write((byte) -8, null, this.response);
 
-    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
     assertThat(this.servletResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
     assertThat(this.servletResponse.getContentLength()).isEqualTo(2);
     assertThat(this.servletResponse.getContentAsByteArray()).isEqualTo(new byte[] { '-', '8' });

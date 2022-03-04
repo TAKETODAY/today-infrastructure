@@ -38,6 +38,7 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.core.reflect.GetterMethod;
 import cn.taketoday.core.reflect.PropertyAccessor;
+import cn.taketoday.core.reflect.ReflectionException;
 import cn.taketoday.core.reflect.SetterMethod;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import lombok.Getter;
@@ -494,7 +495,7 @@ public class ReflectionUtilsTest {
     try {
       finalProAccessor.set(null, 101);
     }
-    catch (NotWritablePropertyException e) {
+    catch (ReflectionException e) {
       assertEquals(finalProAccessor.get(propertyBean), 10L);
     }
     final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");

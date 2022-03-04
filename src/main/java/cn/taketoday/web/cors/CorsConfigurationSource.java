@@ -19,11 +19,14 @@
  */
 package cn.taketoday.web.cors;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
- * CorsConfiguration Source
+ * Interface to be implemented by classes (usually HTTP request handlers) that
+ * provides a {@link CorsConfiguration} instance based on the provided request.
  *
+ * @author Sebastien Deleuze
  * @author TODAY 2020/12/8 22:29
  */
 public interface CorsConfigurationSource {
@@ -33,6 +36,7 @@ public interface CorsConfigurationSource {
    *
    * @return the associated {@link CorsConfiguration}, or {@code null} if none
    */
+  @Nullable
   CorsConfiguration getCorsConfiguration(RequestContext request);
 
 }

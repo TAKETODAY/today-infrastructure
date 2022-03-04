@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -52,7 +53,7 @@ import cn.taketoday.util.StringUtils;
  * @see #setRequireSession
  * @since 4.0 2022/1/29 10:25
  */
-public abstract class WebContentGenerator extends WebApplicationContextSupport {
+public abstract class WebContentGenerator extends ApplicationContextSupport {
 
   /** HTTP method "GET". */
   public static final String METHOD_GET = "GET";

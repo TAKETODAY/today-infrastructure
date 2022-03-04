@@ -25,11 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.sql.Types;
 import java.util.Arrays;
 
-import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rick Evans
@@ -41,14 +40,14 @@ public class BeanPropertySqlParameterSourceTests {
 
   @Test
   public void withNullBeanPassedToCtor() {
-    assertThatExceptionOfType(NullPointerException.class)
-            .isThrownBy(() -> new BeanPropertySqlParameterSource(null));
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            new BeanPropertySqlParameterSource(null));
   }
 
   @Test
   public void getValueWhereTheUnderlyingBeanHasNoSuchProperty() {
     BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(new TestBean());
-    assertThatExceptionOfType(NoSuchPropertyException.class)
+    assertThatIllegalArgumentException()
             .isThrownBy(() -> source.getValue("thisPropertyDoesNotExist"));
   }
 
@@ -82,7 +81,7 @@ public class BeanPropertySqlParameterSourceTests {
   @Test
   public void getValueWhereTheUnderlyingBeanPropertyIsNotReadable() {
     BeanPropertySqlParameterSource source = new BeanPropertySqlParameterSource(new NoReadableProperties());
-    assertThatExceptionOfType(NoSuchPropertyException.class)
+    assertThatIllegalArgumentException()
             .isThrownBy(() -> source.getValue("noOp"));
   }
 
