@@ -505,7 +505,7 @@ public class ReflectionUtilsTest {
     try {
       staticFinalProAccessor.set(null, 101);
     }
-    catch (NotWritablePropertyException e) {
+    catch (ReflectionException e) {
       assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
     }
 

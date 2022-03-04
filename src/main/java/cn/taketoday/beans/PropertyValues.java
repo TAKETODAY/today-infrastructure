@@ -19,14 +19,16 @@
  */
 package cn.taketoday.beans;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Spliterator;
-import java.util.stream.Collectors;
+import java.util.Spliterators;
 import java.util.stream.Stream;
 
 import cn.taketoday.lang.Assert;
@@ -48,7 +50,7 @@ import cn.taketoday.util.StringUtils;
 public class PropertyValues implements Iterable<PropertyValue> {
 
   @Nullable
-  private LinkedHashMap<String, Object> propertyValues;
+  private ArrayList<PropertyValue> propertyValues;
 
   /**
    * Creates a new empty PropertyValues object.
@@ -111,7 +113,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public void remove(PropertyValue pv) {
     if (propertyValues != null) {
-      propertyValues.remove(pv.getName());
+      propertyValues.remove(pv);
     }
   }
 
@@ -123,7 +125,10 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public void remove(String propertyName) {
     if (propertyValues != null) {
-      propertyValues.remove(propertyName);
+      PropertyValue propertyValue = get(propertyName);
+      if (propertyValue != null) {
+        propertyValues.remove(propertyValue);
+      }
     }
   }
 
@@ -135,8 +140,26 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   @Nullable
   public Object getPropertyValue(String propertyName) {
+    PropertyValue pv = get(propertyName);
+    return pv != null ? pv.getValue() : null;
+  }
+
+  /**
+   * Get the raw property value, if any.
+   *
+   * @param propertyName the name to search for
+   * @return the raw property value, or {@code null} if none found
+   * @see #getPropertyValue(String)
+   * @see PropertyValue#getValue()
+   */
+  @Nullable
+  public PropertyValue get(String propertyName) {
     if (propertyValues != null) {
-      return propertyValues.get(propertyName);
+      for (PropertyValue pv : propertyValues) {
+        if (pv.getName().equals(propertyName)) {
+          return pv;
+        }
+      }
     }
     return null;
   }
@@ -154,11 +177,11 @@ public class PropertyValues implements Iterable<PropertyValue> {
     PropertyValues changes = new PropertyValues();
     if (old != this && propertyValues != null) {
       // for each property value in the new set
-      for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
+      for (PropertyValue newPv : propertyValues) {
         // if there wasn't an old one, add it
-        Object pvOld = old.getPropertyValue(entry.getKey());
-        if (!Objects.equals(pvOld, entry.getValue())) {
-          changes.add(entry.getKey(), entry.getValue());
+        Object pvOld = old.getPropertyValue(newPv.getName());
+        if (pvOld == null || !pvOld.equals(newPv)) {
+          changes.add(newPv);
         }
       }
     }
@@ -172,7 +195,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
    * @return whether there is a property value for this property
    */
   public boolean contains(String propertyName) {
-    return propertyValues != null && propertyValues.containsKey(propertyName);
+    return propertyValues != null && getPropertyValue(propertyName) != null;
   }
 
   /**
@@ -192,7 +215,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public PropertyValues add(String propertyName, @Nullable Object propertyValue) {
     Assert.notNull(propertyName, "propertyName must not be null");
-    propertyValues().put(propertyName, propertyValue);
+    propertyValues().add(new PropertyValue(propertyName, propertyValue));
     return this;
   }
 
@@ -200,17 +223,44 @@ public class PropertyValues implements Iterable<PropertyValue> {
    * Add a PropertyValue object, replacing any existing one for the
    * corresponding property or getting merged with it (if applicable).
    *
-   * @param propertyValues the PropertyValue array object to add
+   * @param pvs the PropertyValue array object to add
    * @return this in order to allow for adding multiple property values in a chain
    */
-  public PropertyValues add(@Nullable PropertyValue... propertyValues) {
-    if (ObjectUtils.isNotEmpty(propertyValues)) {
-      LinkedHashMap<String, Object> linkedHashMap = propertyValues();
-      for (PropertyValue property : propertyValues) {
-        linkedHashMap.put(property.getName(), property.getValue());
+  public PropertyValues add(@Nullable PropertyValue... pvs) {
+    if (ObjectUtils.isNotEmpty(pvs)) {
+      ArrayList<PropertyValue> propertyValues = propertyValues();
+      outer:
+      for (PropertyValue pv : pvs) {
+        int i = 0;
+        for (PropertyValue currentPv : propertyValues) {
+          if (currentPv.getName().equals(pv.getName())) {
+            pv = mergeIfRequired(pv, currentPv);
+            setAt(pv, i);
+            continue outer;
+          }
+          i++;
+        }
+        propertyValues.add(pv);
       }
     }
     return this;
+  }
+
+  /**
+   * Merges the value of the supplied 'new' {@link PropertyValue} with that of
+   * the current {@link PropertyValue} if merging is supported and enabled.
+   *
+   * @see Mergeable
+   */
+  private PropertyValue mergeIfRequired(PropertyValue newPv, PropertyValue currentPv) {
+    Object value = newPv.getValue();
+    if (value instanceof Mergeable mergeable) {
+      if (mergeable.isMergeEnabled()) {
+        Object merged = mergeable.merge(currentPv.getValue());
+        return new PropertyValue(newPv.getName(), merged);
+      }
+    }
+    return newPv;
   }
 
   /**
@@ -223,14 +273,17 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public PropertyValues add(@Nullable Map<String, Object> other) {
     if (CollectionUtils.isNotEmpty(other)) {
-      propertyValues().putAll(other);
+      ArrayList<PropertyValue> propertyValues = propertyValues();
+      for (Map.Entry<String, Object> entry : other.entrySet()) {
+        propertyValues.add(new PropertyValue(entry));
+      }
     }
     return this;
   }
 
-  private LinkedHashMap<String, Object> propertyValues() {
+  private ArrayList<PropertyValue> propertyValues() {
     if (this.propertyValues == null) {
-      this.propertyValues = new LinkedHashMap<>();
+      this.propertyValues = new ArrayList<>();
     }
     return propertyValues;
   }
@@ -246,7 +299,9 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public PropertyValues add(@Nullable PropertyValues other) {
     if (other != null && CollectionUtils.isNotEmpty(other.propertyValues)) {
-      propertyValues().putAll(other.propertyValues);
+      for (PropertyValue pv : other.propertyValues) {
+        add(new PropertyValue(pv));
+      }
     }
     return this;
   }
@@ -263,7 +318,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
   public PropertyValues set(PropertyValues other) {
     if (this.propertyValues == null) {
       if (other != null && CollectionUtils.isNotEmpty(other.propertyValues)) {
-        this.propertyValues = new LinkedHashMap<>();
+        this.propertyValues = new ArrayList<>();
         add(other);
       }
     }
@@ -282,7 +337,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
   public PropertyValues set(PropertyValue... propertyValues) {
     if (this.propertyValues == null) {
       if (ObjectUtils.isNotEmpty(propertyValues)) {
-        this.propertyValues = new LinkedHashMap<>();
+        this.propertyValues = new ArrayList<>();
         add(propertyValues);
       }
     }
@@ -294,21 +349,11 @@ public class PropertyValues implements Iterable<PropertyValue> {
   }
 
   public PropertyValues set(@Nullable Collection<PropertyValue> propertyValues) {
-    if (this.propertyValues == null) {
-      if (CollectionUtils.isNotEmpty(propertyValues)) {
-        this.propertyValues = new LinkedHashMap<>();
-        for (PropertyValue property : propertyValues) {
-          this.propertyValues.put(property.getName(), property.getValue());
-        }
-      }
-    }
-    else {
+    if (this.propertyValues != null) {
       this.propertyValues.clear();
-      if (CollectionUtils.isNotEmpty(propertyValues)) {
-        for (PropertyValue property : propertyValues) {
-          this.propertyValues.put(property.getName(), property.getValue());
-        }
-      }
+    }
+    if (CollectionUtils.isNotEmpty(propertyValues)) {
+      this.propertyValues = new ArrayList<>(propertyValues);
     }
     return this;
   }
@@ -322,14 +367,27 @@ public class PropertyValues implements Iterable<PropertyValue> {
     }
     else {
       if (this.propertyValues == null) {
-        this.propertyValues = new LinkedHashMap<>();
+        this.propertyValues = new ArrayList<>();
       }
       else {
         this.propertyValues.clear();
       }
-      this.propertyValues.putAll(propertyValues);
+      for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
+        this.propertyValues.add(new PropertyValue(entry));
+      }
     }
     return this;
+  }
+
+  /**
+   * Modify a PropertyValue object held in this object.
+   * Indexed from 0.
+   */
+  public void setAt(PropertyValue pv, int i) {
+    if (propertyValues == null) {
+      propertyValues = new ArrayList<>();
+    }
+    propertyValues.set(i, pv);
   }
 
   public void clear() {
@@ -344,47 +402,71 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   @Nullable
   public Map<String, Object> asMap() {
-    return propertyValues;
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      return Collections.emptyMap();
+    }
+    LinkedHashMap<String, Object> ret = new LinkedHashMap<>();
+    for (PropertyValue propertyValue : propertyValues) {
+      ret.put(propertyValue.getName(), propertyValue.getValue());
+    }
+    return ret;
   }
 
   public PropertyValue[] toArray() {
-    return asList().toArray(new PropertyValue[0]);
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      return new PropertyValue[0];
+    }
+    return propertyValues().toArray(new PropertyValue[0]);
   }
 
   /**
    * Return the underlying List of PropertyValue objects in its raw form.
    */
   public List<PropertyValue> asList() {
-    return stream()
-            .collect(Collectors.toList());
+    return propertyValues();
   }
 
   @Override
   public Iterator<PropertyValue> iterator() {
-    return stream().iterator();
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      return Collections.emptyIterator();
+    }
+    return propertyValues.iterator();
   }
 
   @Override
   public Spliterator<PropertyValue> spliterator() {
-    return stream().spliterator();
+    if (CollectionUtils.isEmpty(propertyValues)) {
+      return Spliterators.emptySpliterator();
+    }
+    return propertyValues.spliterator();
   }
 
   public Stream<PropertyValue> stream() {
     if (CollectionUtils.isEmpty(propertyValues)) {
       return Stream.empty();
     }
-    return propertyValues.entrySet()
-            .stream()
-            .map(PropertyValue::new);
+    return propertyValues.stream();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(propertyValues);
+  }
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    return this == other
+            || (other instanceof PropertyValues propertyValues && Objects.equals(this.propertyValues, propertyValues.propertyValues));
   }
 
   @Override
   public String toString() {
-    if (CollectionUtils.isEmpty(propertyValues)) {
-      return "PropertyValues: length=0";
+    PropertyValue[] pvs = toArray();
+    if (pvs.length > 0) {
+      return "PropertyValues: length=" + pvs.length + "; " + StringUtils.arrayToDelimitedString(pvs, "; ");
     }
-    return "PropertyValues: length=" + propertyValues.size() + "; "
-            + StringUtils.collectionToDelimitedString(propertyValues.entrySet(), "; ");
+    return "PropertyValues: length=0";
   }
 }
 
