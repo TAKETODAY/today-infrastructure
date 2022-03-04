@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
-import cn.taketoday.beans.factory.support.PropertyValuesBinder;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.PropsReader;
 import cn.taketoday.context.expression.ExpressionEvaluator;
@@ -322,7 +321,7 @@ public class ParameterResolvingRegistry
   }
 
   /**
-   * config ParameterResolver using {@link PropertyValuesBinder}
+   * config ParameterResolver using {@link cn.taketoday.web.bind.WebDataBinder}
    */
   public void configureDataBinder(ParameterResolvingStrategies strategies) {
     BeanDefinitionRegistry registry = obtainApplicationContext().unwrapFactory(
