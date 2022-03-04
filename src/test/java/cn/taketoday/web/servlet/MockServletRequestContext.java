@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
@@ -39,11 +40,10 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAttributes;
 import jakarta.servlet.ServletException;
@@ -66,8 +66,8 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   public MockServletRequestContext(
-          WebApplicationContext webApplicationContext, HttpServletRequest request, HttpServletResponse response) {
-    super(webApplicationContext);
+          ApplicationContext applicationContext, HttpServletRequest request, HttpServletResponse response) {
+    super(applicationContext);
     this.request = request;
     this.response = response;
   }

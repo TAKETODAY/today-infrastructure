@@ -126,7 +126,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * @throws IllegalStateException if not running in an ApplicationContext
    */
   public ApplicationContext obtainApplicationContext() {
-    final ApplicationContext context = getApplicationContext();
+    final ApplicationContext context = this.applicationContext;
     Assert.state(context != null, "No ApplicationContext");
     return context;
   }

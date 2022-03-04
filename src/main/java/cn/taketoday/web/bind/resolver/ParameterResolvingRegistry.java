@@ -263,7 +263,6 @@ public class ParameterResolvingRegistry
     // type-based argument resolution
     strategies.add(new ModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
-    strategies.add(new ThrowableHandlerParameterResolver());
 
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));

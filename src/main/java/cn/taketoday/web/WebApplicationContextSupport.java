@@ -21,6 +21,7 @@ package cn.taketoday.web;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -72,7 +73,9 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
 
   @Override
   public WebApplicationContext obtainApplicationContext() {
-    return (WebApplicationContext) super.obtainApplicationContext();
+    ApplicationContext context = this.applicationContext;
+    Assert.state(context != null, "No WebApplicationContext");
+    return (WebApplicationContext) context;
   }
 
 }

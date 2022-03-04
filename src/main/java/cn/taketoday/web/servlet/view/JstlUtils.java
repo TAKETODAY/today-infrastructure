@@ -146,7 +146,7 @@ public abstract class JstlUtils {
     }
 
     MessageSource messageSource = getJstlAwareMessageSource(
-            servletRequest.getServletContext(), request.getWebApplicationContext());
+            servletRequest.getServletContext(), request.getApplicationContext());
     LocalizationContext jstlContext = new FrameworkLocalizationContext(messageSource, servletRequest, request);
     Config.set(servletRequest, Config.FMT_LOCALIZATION_CONTEXT, jstlContext);
   }

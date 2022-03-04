@@ -21,6 +21,7 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -78,15 +79,35 @@ public class ExceptionHandlerAnnotationExceptionHandler
     }
 
     logCatchThrowable(target);
+    ArrayList<Throwable> exceptions = new ArrayList<>();
     try {
-      if (log.isDebugEnabled()) {
-        log.debug("Using @ExceptionHandler {}", exHandler);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Using @ExceptionHandler {}", exHandler);
       }
-      return handleException(context, exHandler);
+      // Expose causes as provided arguments as well
+      Throwable exToExpose = target;
+      while (exToExpose != null) {
+        exceptions.add(exToExpose);
+        Throwable cause = exToExpose.getCause();
+        exToExpose = cause != exToExpose ? cause : null;
+      }
+
+      // efficient arraycopy call in ArrayList
+      Object[] arguments = exceptions.toArray(new Object[exceptions.size() + 1]);
+      arguments[arguments.length - 1] = exHandler;
+
+      Object returnValue = exHandler.invoke(context, arguments);
+      exHandler.handleReturnValue(context, exHandler, returnValue);
+      return NONE_RETURN_VALUE;
     }
-    catch (Throwable handlerEx) {
-      logResultedInException(target, handlerEx);
-      // next handler
+    catch (Throwable invocationEx) {
+//      logResultedInException(target, invocationEx);
+      // Any other than the original exception (or a cause) is unintended here,
+      // probably an accident (e.g. failed assertion or the like).
+      if (!exceptions.contains(invocationEx) && logger.isWarnEnabled()) {
+        logger.warn("Failure in @ExceptionHandler {}", exHandler, invocationEx);
+      }
+      // Continue with default processing of the original exception...
       return null;
     }
   }
@@ -101,7 +122,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
    */
   protected Object handleException(RequestContext context, ActionMappingAnnotationHandler exHandler)
           throws Throwable {
-    exHandler.handleReturnValue(context, exHandler, exHandler.invokeHandler(context));
+
     return NONE_RETURN_VALUE;
   }
 

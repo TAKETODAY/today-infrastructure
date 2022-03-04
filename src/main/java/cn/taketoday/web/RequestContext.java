@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
@@ -146,22 +147,22 @@ public abstract class RequestContext
   protected String responseContentType;
 
   /** @since 4.0 */
-  protected final WebApplicationContext webApplicationContext;
+  protected final ApplicationContext applicationContext;
 
   protected boolean notModified = false;
 
   @Nullable
   private HandlerMatchingMetadata matchingMetadata;
 
-  protected RequestContext(WebApplicationContext context) {
-    this.webApplicationContext = context;
+  protected RequestContext(ApplicationContext context) {
+    this.applicationContext = context;
   }
 
   /**
    * Return the WebApplicationContext that this request runs in.
    */
-  public WebApplicationContext getWebApplicationContext() {
-    return this.webApplicationContext;
+  public ApplicationContext getApplicationContext() {
+    return this.applicationContext;
   }
 
   // --- request

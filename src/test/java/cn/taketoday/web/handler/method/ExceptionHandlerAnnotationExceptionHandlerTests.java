@@ -31,6 +31,7 @@ import java.util.Locale;
 
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.beans.FatalBeanException;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -45,6 +46,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -58,6 +60,7 @@ import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.NestedServletException;
+import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
@@ -69,6 +72,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0 2022/3/2 22:45
  */
 class ExceptionHandlerAnnotationExceptionHandlerTests {
+  AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Config.class);
 
   private ExceptionHandlerAnnotationExceptionHandler handler;
 
@@ -84,7 +88,6 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   @BeforeEach
   public void setup() throws Exception {
-    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Config.class);
     this.handler = new ExceptionHandlerAnnotationExceptionHandler();
     handler.setHandlerFactory(context.getBean(AnnotationHandlerFactory.class));
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
@@ -125,6 +128,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   private ModelAndView handleException(Exception ex, TestHandlerMethod handlerMethod) throws Exception {
+    return handleException(context, ex, handlerMethod);
+  }
+
+  private ModelAndView handleException(
+          ApplicationContext context, Exception ex, TestHandlerMethod handlerMethod) throws Exception {
     ResolvableParameterFactory factory = new ResolvableParameterFactory();
     ActionMappingAnnotationHandler handler = new ActionMappingAnnotationHandler(
             handlerMethod, factory.createArray(handlerMethod.getMethod()), handlerMethod.getBeanType()) {
@@ -134,7 +142,9 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       }
     };
 
-    Object ret = this.handler.handleException(new MockServletRequestContext(request, response), ex, handler);
+    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
+
+    Object ret = this.handler.handleException(new MockServletRequestContext(context, request, response), ex, handler);
     if (ret instanceof ModelAndView mav) {
       return mav;
     }
@@ -302,7 +312,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
     SocketTimeoutException ex = new SocketTimeoutException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ResponseBodyController(), "handle");
-    ModelAndView mav = handleException(ex, handlerMethod);
+    ModelAndView mav = handleException(context, ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav.isEmpty()).isTrue();

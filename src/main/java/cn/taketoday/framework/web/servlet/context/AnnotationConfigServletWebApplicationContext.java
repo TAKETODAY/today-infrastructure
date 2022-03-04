@@ -147,14 +147,14 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebServ
    * Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
-   * @param BeanNamePopulator the bean name generator
+   * @param beanNamePopulator the bean name generator
    * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
    * @see ClassPathBeanDefinitionScanner#setBeanNamePopulator
    */
-  public void setBeanNamePopulator(BeanNamePopulator BeanNamePopulator) {
-    this.reader.setBeanNamePopulator(BeanNamePopulator);
-    this.scanner.setBeanNamePopulator(BeanNamePopulator);
-    getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, BeanNamePopulator);
+  public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
+    this.reader.setBeanNamePopulator(beanNamePopulator);
+    this.scanner.setBeanNamePopulator(beanNamePopulator);
+    getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);
   }
 
   /**
@@ -214,18 +214,18 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebServ
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    if (!ObjectUtils.isEmpty(this.basePackages)) {
-      this.scanner.scan(this.basePackages);
+    if (ObjectUtils.isNotEmpty(basePackages)) {
+      scanner.scan(basePackages);
     }
-    if (!this.annotatedClasses.isEmpty()) {
-      this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));
+    if (!annotatedClasses.isEmpty()) {
+      reader.register(ClassUtils.toClassArray(annotatedClasses));
     }
   }
 
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-    this.reader.registerBean(beanClass, beanName, supplier, customizers);
+    reader.registerBean(beanClass, beanName, supplier, customizers);
   }
 
 }

@@ -61,18 +61,18 @@ public class RequestContextUtils {
 
   @Nullable
   public static <T> T getBean(RequestContext request, Class<T> requiredType) {
-    return request.getWebApplicationContext().getBean(requiredType);
+    return request.getApplicationContext().getBean(requiredType);
   }
 
   @Nullable
   @SuppressWarnings("unchecked")
   public static <T> T getBean(RequestContext request, String beanName) {
-    return (T) request.getWebApplicationContext().getBean(beanName);
+    return (T) request.getApplicationContext().getBean(beanName);
   }
 
   @Nullable
   public static <T> T getBean(RequestContext request, String beanName, Class<T> requiredType) {
-    return request.getWebApplicationContext().getBean(beanName, requiredType);
+    return request.getApplicationContext().getBean(beanName, requiredType);
   }
 
   /**

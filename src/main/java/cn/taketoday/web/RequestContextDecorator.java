@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -57,7 +58,7 @@ public class RequestContextDecorator extends RequestContext {
   private final RequestContext delegate;
 
   public RequestContextDecorator(RequestContext delegate) {
-    super(delegate.getWebApplicationContext());
+    super(delegate.getApplicationContext());
     Assert.notNull(delegate, "RequestContext delegate is required");
     this.delegate = delegate;
   }
@@ -69,8 +70,8 @@ public class RequestContextDecorator extends RequestContext {
   // delegate
 
   @Override
-  public WebApplicationContext getWebApplicationContext() {
-    return delegate.getWebApplicationContext();
+  public ApplicationContext getApplicationContext() {
+    return delegate.getApplicationContext();
   }
 
   @Override
