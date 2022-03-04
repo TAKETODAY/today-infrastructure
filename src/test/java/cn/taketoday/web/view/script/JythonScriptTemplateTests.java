@@ -78,6 +78,7 @@ public class JythonScriptTemplateTests {
 
   private ScriptTemplateView createViewWithUrl(String viewUrl) throws Exception {
     AnnotationConfigServletWebApplicationContext ctx = new AnnotationConfigServletWebApplicationContext();
+    ctx.setServletContext(new MockServletContext());
     ctx.register(ScriptTemplatingConfiguration.class);
     ctx.refresh();
 

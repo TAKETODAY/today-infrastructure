@@ -88,6 +88,8 @@ class PathMatchingPatternResourceLoaderTests {
           "AbstractFileResolvingResource.class",
           "FileSystemResourceLoader$FileSystemContextResource.class",
           "ResourceArrayPropertyEditor.class",
+          "ResourceDecorator.class",
+          "WritableResourceDecorator.class",
   };
 
   private static final String[] CLASSES_IN_JUNIT_RUNNER = new String[] { //

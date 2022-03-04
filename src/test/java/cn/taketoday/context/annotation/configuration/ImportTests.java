@@ -33,6 +33,7 @@ import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,13 +52,14 @@ public class ImportTests {
 
   @BeforeEach
   void setup() {
-    StandardApplicationContext context = new StandardApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     beanFactory = context.getBeanFactory();
     loadingContext = new BootstrapContext(beanFactory, context);
   }
 
   private StandardBeanFactory processConfigurationClasses(Class<?>... classes) {
-    StandardApplicationContext context = new StandardApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.refresh();
     StandardBeanFactory beanFactory = context.getBeanFactory();
     BootstrapContext loadingContext = BootstrapContext.from(beanFactory);
     for (Class<?> clazz : classes) {

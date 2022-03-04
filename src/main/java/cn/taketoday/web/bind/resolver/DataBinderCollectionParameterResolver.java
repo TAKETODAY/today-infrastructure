@@ -93,9 +93,9 @@ public class DataBinderCollectionParameterResolver extends AbstractDataBinderPar
     for (Map.Entry<String, List<PropertyValue>> entry : propertyValues.entrySet()) {
       Object rootObject = parameterMetadata.newInstance();
       RequestContextDataBinder dataBinder = new RequestContextDataBinder(rootObject, resolvable.getName());
+      dataBinder.setAutoGrowCollectionLimit(maxValueIndex);
       List<PropertyValue> propertyValueList = entry.getValue();
       dataBinder.bind(new PropertyValues(propertyValueList));
-      dataBinder.setAutoGrowCollectionLimit(maxValueIndex);
 
       if (isList) {
         try {

@@ -29,6 +29,8 @@ import java.util.Locale;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpStatus;
@@ -85,7 +87,7 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
  * @since 4.0
  */
 public class ContentNegotiatingViewResolver
-        extends WebApplicationContextSupport implements ViewResolver, Ordered, InitializingBean {
+        extends ApplicationContextSupport implements ViewResolver, Ordered, InitializingBean {
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
@@ -178,7 +180,7 @@ public class ContentNegotiatingViewResolver
 
   @Override
   protected void initApplicationContext() {
-    WebApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = obtainApplicationContext();
     Collection<ViewResolver> matchingBeans =
             BeanFactoryUtils.beansOfTypeIncludingAncestors(context, ViewResolver.class).values();
     if (viewResolvers == null) {

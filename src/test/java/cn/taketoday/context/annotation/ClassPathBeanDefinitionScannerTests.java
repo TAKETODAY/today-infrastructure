@@ -69,9 +69,10 @@ public class ClassPathBeanDefinitionScannerTests {
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
     assertThat(context.containsBean("thoreau")).isTrue();
-    assertThat(context.containsBean(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)).isFalse();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+		assertThat(context.containsBean(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+		assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+//		assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+//		assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
     context.refresh();
 
     FooServiceImpl fooService = context.getBean("fooServiceImpl", FooServiceImpl.class);

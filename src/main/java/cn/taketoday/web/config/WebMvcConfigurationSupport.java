@@ -68,7 +68,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
@@ -425,7 +424,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ParameterResolvingRegistry parameterResolvingRegistry(
-          WebApplicationContext context, MultipartConfiguration multipartConfig) {
+          ApplicationContext context, MultipartConfiguration multipartConfig) {
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
