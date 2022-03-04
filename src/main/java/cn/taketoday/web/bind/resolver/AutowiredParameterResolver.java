@@ -23,9 +23,9 @@ package cn.taketoday.web.bind.resolver;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -35,8 +35,8 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 public class AutowiredParameterResolver implements ParameterResolvingStrategy {
   private final DependencyInjector injector;
 
-  public AutowiredParameterResolver(WebApplicationContext context) {
-    this.injector = context.getInjector();
+  public AutowiredParameterResolver(DependencyInjectorProvider provider) {
+    this.injector = provider.getInjector();
   }
 
   @Override

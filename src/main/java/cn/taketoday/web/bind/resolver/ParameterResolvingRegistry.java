@@ -25,9 +25,8 @@ import java.util.List;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.PropsReader;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ArraySizeTrimmer;
@@ -42,8 +41,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
@@ -66,7 +63,7 @@ import static cn.taketoday.web.bind.resolver.ConverterAwareParameterResolver.fro
  * @since 3.0
  */
 public class ParameterResolvingRegistry
-        extends WebApplicationContextSupport implements ArraySizeTrimmer {
+        extends ApplicationContextSupport implements ArraySizeTrimmer {
 
   private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
   private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();
@@ -224,7 +221,7 @@ public class ParameterResolvingRegistry
     // For some useful context annotations
     // --------------------------------------------
 
-    WebApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = obtainApplicationContext();
     ExpressionEvaluator expressionEvaluator = getExpressionEvaluator();
     if (expressionEvaluator == null) {
       expressionEvaluator = context.getExpressionEvaluator();
@@ -232,14 +229,13 @@ public class ParameterResolvingRegistry
 
     strategies.add(new RequestAttributeParameterResolver(),
             new ValueParameterResolver(expressionEvaluator),
-            new PropsParameterResolver(context),
             new AutowiredParameterResolver(context)
     );
 
     // For cookies
     // ------------------------------------------
 
-    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     CookieParameterResolver.register(strategies, beanFactory);
 
     // For multipart
@@ -491,25 +487,6 @@ public class ParameterResolvingRegistry
   }
 
   // AnnotationParameterResolver
-
-  static final class PropsParameterResolver extends AnnotationParameterResolver<Props> {
-    final PropsReader propsReader;
-    final WebApplicationContext context;
-    final DependencyInjectorAwareInstantiator beanInstantiator;
-
-    PropsParameterResolver(WebApplicationContext context) {
-      super(Props.class);
-      this.context = context;
-      this.propsReader = new PropsReader(context.getEnvironment());
-      this.beanInstantiator = DependencyInjectorAwareInstantiator.from(context);
-    }
-
-    @Override
-    protected Object resolveInternal(Props target, RequestContext ctx, ResolvableMethodParameter parameter) {
-      final Object bean = beanInstantiator.instantiate(parameter.getParameterType(), new Object[] { ctx });
-      return propsReader.read(target, bean);
-    }
-  }
 
   static final class ValueParameterResolver extends AnnotationParameterResolver<Value> {
     final ExpressionEvaluator expressionEvaluator;
