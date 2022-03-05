@@ -78,7 +78,6 @@ public class AutoConfigurationImportSelector
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
-  private static final String[] NO_IMPORTS = {};
   private static final AutoConfigurationEntry EMPTY_ENTRY = new AutoConfigurationEntry();
 
   private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.autoconfigure.exclude";
@@ -204,7 +203,7 @@ public class AutoConfigurationImportSelector
   }
 
   private void checkExcludedClasses(List<String> configurations, Set<String> exclusions) {
-    List<String> invalidExcludes = new ArrayList<>(exclusions.size());
+    ArrayList<String> invalidExcludes = new ArrayList<>(exclusions.size());
     for (String exclusion : exclusions) {
       if (ClassUtils.isPresent(exclusion, getClass().getClassLoader()) && !configurations.contains(exclusion)) {
         invalidExcludes.add(exclusion);
@@ -242,7 +241,7 @@ public class AutoConfigurationImportSelector
   protected Set<String> getExclusions(AnnotationMetadata metadata, AnnotationAttributes attributes) {
     LinkedHashSet<String> excluded = new LinkedHashSet<>();
     excluded.addAll(asList(attributes, "exclude"));
-    excluded.addAll(Arrays.asList(attributes.getStringArray("excludeName")));
+    excluded.addAll(asList(attributes, "excludeName"));
     excluded.addAll(getExcludeAutoConfigurationsProperty());
     return excluded;
   }

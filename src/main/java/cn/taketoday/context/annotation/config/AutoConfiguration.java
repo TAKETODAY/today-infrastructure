@@ -39,7 +39,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * {@link Configuration @Configuration} with the exception that
  * {@literal Configuration#proxyBeanMethods() proxyBeanMethods} is always {@code false}.
  * <p>
- * They are located using {@link ImportCandidates} and the {@link SpringFactoriesLoader}
+ * They are located using {@link ImportCandidates} and the {@link cn.taketoday.lang.TodayStrategies}
  * mechanism (keyed against {@link EnableAutoConfiguration}).
  * <p>
  * Generally auto-configuration classes are marked as {@link Conditional @Conditional}

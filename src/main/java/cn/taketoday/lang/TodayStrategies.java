@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -411,7 +410,7 @@ public final class TodayStrategies {
     }
 
     if (strategies.isEmpty()) {
-      return Collections.emptyList();
+      return new ArrayList<>();
     }
 
     ArrayList<T> ret = new ArrayList<>(strategies.size());
@@ -458,7 +457,7 @@ public final class TodayStrategies {
     }
     List<String> strategies = loadStrategies(classLoader).get(strategyKey);
     if (strategies == null) {
-      return Collections.emptyList();
+      return new ArrayList<>();
     }
     return strategies;
   }

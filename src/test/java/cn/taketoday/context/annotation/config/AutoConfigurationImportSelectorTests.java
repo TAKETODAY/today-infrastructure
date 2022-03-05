@@ -37,9 +37,9 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.jdbc.config.DataSourceAutoConfiguration;
-import cn.taketoday.web.config.WebMvcAutoConfiguration;
-import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
+import cn.taketoday.framework.config.context.LifecycleAutoConfiguration;
+import cn.taketoday.framework.config.context.MessageSourceAutoConfiguration;
+import cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -77,7 +77,7 @@ class AutoConfigurationImportSelectorTests {
     String[] imports = selectImports(EnableAutoConfigurationWithClassExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     assertThat(this.importSelector.getLastEvent().getExclusions())
-            .contains(WebMvcAutoConfiguration.class.getName());
+            .contains(LifecycleAutoConfiguration.class.getName());
   }
 
   @Test
@@ -85,7 +85,7 @@ class AutoConfigurationImportSelectorTests {
     String[] imports = selectImports(ApplicationWithClassExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     assertThat(this.importSelector.getLastEvent().getExclusions())
-            .contains(WebMvcAutoConfiguration.class.getName());
+            .contains(LifecycleAutoConfiguration.class.getName());
   }
 
   @Test
@@ -93,7 +93,7 @@ class AutoConfigurationImportSelectorTests {
     String[] imports = selectImports(EnableAutoConfigurationWithClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     assertThat(this.importSelector.getLastEvent().getExclusions())
-            .contains(DataSourceAutoConfiguration.class.getName());
+            .contains(PropertyPlaceholderAutoConfiguration.class.getName());
   }
 
   @Test
@@ -101,36 +101,36 @@ class AutoConfigurationImportSelectorTests {
     String[] imports = selectImports(ApplicationWithClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     assertThat(this.importSelector.getLastEvent().getExclusions())
-            .contains(DataSourceAutoConfiguration.class.getName());
+            .contains(PropertyPlaceholderAutoConfiguration.class.getName());
   }
 
   @Test
   void propertyExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude", LifecycleAutoConfiguration.class.getName());
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     assertThat(this.importSelector.getLastEvent().getExclusions())
-            .contains(WebMvcAutoConfiguration.class.getName());
+            .contains(LifecycleAutoConfiguration.class.getName());
   }
 
   @Test
   void severalPropertyExclusionsAreApplied() {
     this.environment.setProperty("context.autoconfigure.exclude",
-            WebMvcAutoConfiguration.class.getName() + "," + DataSourceAutoConfiguration.class.getName());
+            LifecycleAutoConfiguration.class.getName() + "," + PropertyPlaceholderAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyExclusionsAreAppliedWithExtraSpaces() {
     this.environment.setProperty("context.autoconfigure.exclude",
-            WebMvcAutoConfiguration.class.getName() + " , " + DataSourceAutoConfiguration.class.getName() + " ");
+            LifecycleAutoConfiguration.class.getName() + " , " + PropertyPlaceholderAutoConfiguration.class.getName() + " ");
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyYamlExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude[0]", WebMvcAutoConfiguration.class.getName());
-    this.environment.setProperty("context.autoconfigure.exclude[1]", DataSourceAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude[0]", LifecycleAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude[1]", PropertyPlaceholderAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
@@ -138,17 +138,17 @@ class AutoConfigurationImportSelectorTests {
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 2);
     assertThat(this.importSelector.getLastEvent().getExclusions())
-            .contains(WebMvcAutoConfiguration.class.getName(), DataSourceAutoConfiguration.class.getName());
+            .contains(LifecycleAutoConfiguration.class.getName(), PropertyPlaceholderAutoConfiguration.class.getName());
   }
 
   @Test
   void combinedExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude", JacksonAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude", MessageSourceAutoConfiguration.class.getName());
     String[] imports = selectImports(EnableAutoConfigurationWithClassAndClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 3);
     assertThat(this.importSelector.getLastEvent().getExclusions()).contains(
-            WebMvcAutoConfiguration.class.getName(), DataSourceAutoConfiguration.class.getName(),
-            JacksonAutoConfiguration.class.getName());
+            LifecycleAutoConfiguration.class.getName(), PropertyPlaceholderAutoConfiguration.class.getName(),
+            MessageSourceAutoConfiguration.class.getName());
   }
 
   @Test
@@ -165,19 +165,20 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void nonAutoConfigurationPropertyExclusionsWhenPresentOnClassPathShouldThrowException() {
+//    /AutoConfigurationImportSelectorTests.java:165
     this.environment.setProperty("context.autoconfigure.exclude",
-            "org.springframework.boot.autoconfigure.AutoConfigurationImportSelectorTests.TestConfiguration");
+            "cn.taketoday.context.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration");
     assertThatIllegalStateException().isThrownBy(() -> selectImports(BasicEnableAutoConfiguration.class));
   }
 
   @Test
   void nameAndPropertyExclusionsWhenNotPresentOnClasspathShouldNotThrowException() {
     this.environment.setProperty("context.autoconfigure.exclude",
-            "org.springframework.boot.autoconfigure.DoesNotExist2");
+            "cn.taketoday.context.annotation.config.DoesNotExist2");
     selectImports(EnableAutoConfigurationWithAbsentClassNameExclude.class);
     assertThat(this.importSelector.getLastEvent().getExclusions()).containsExactlyInAnyOrder(
-            "org.springframework.boot.autoconfigure.DoesNotExist1",
-            "org.springframework.boot.autoconfigure.DoesNotExist2");
+            "cn.taketoday.context.annotation.config.DoesNotExist1",
+            "cn.taketoday.context.annotation.config.DoesNotExist2");
   }
 
   @Test
@@ -281,23 +282,23 @@ class AutoConfigurationImportSelectorTests {
 
   }
 
-  @EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
+  @EnableAutoConfiguration(exclude = LifecycleAutoConfiguration.class)
   private class EnableAutoConfigurationWithClassExclusions {
 
   }
 
-  @EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
+  @EnableAutoConfiguration(exclude = LifecycleAutoConfiguration.class)
   private class ApplicationWithClassExclusions {
 
   }
 
-  @EnableAutoConfiguration(excludeName = "cn.taketoday.jdbc.config.DataSourceAutoConfiguration")
+  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration")
   private class EnableAutoConfigurationWithClassNameExclusions {
 
   }
 
-  @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class,
-                           excludeName = "cn.taketoday.web.config.WebMvcAutoConfiguration")
+  @EnableAutoConfiguration(exclude = PropertyPlaceholderAutoConfiguration.class,
+                           excludeName = "cn.taketoday.framework.config.context.LifecycleAutoConfiguration")
   private class EnableAutoConfigurationWithClassAndClassNameExclusions {
 
   }
@@ -318,7 +319,7 @@ class AutoConfigurationImportSelectorTests {
 
   }
 
-  @EnableAutoConfiguration(excludeName = "cn.taketoday.jdbc.config.DataSourceAutoConfiguration")
+  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration")
   private class ApplicationWithClassNameExclusions {
 
   }
