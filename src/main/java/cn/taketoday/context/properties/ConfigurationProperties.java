@@ -38,7 +38,7 @@ import cn.taketoday.lang.Indexed;
  * {@link ConstructorBinding @ConstructorBinding} is in use, by binding to the constructor
  * parameters.
  * <p>
- * Note that contrary to {@code @Value}, SpEL expressions are not evaluated since property
+ * Note that contrary to {@code @Value}, EL expressions are not evaluated since property
  * values are externalized.
  *
  * @author Dave Syer

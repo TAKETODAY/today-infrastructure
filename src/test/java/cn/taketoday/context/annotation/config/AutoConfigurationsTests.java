@@ -18,11 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
-import cn.taketoday.lang.Component;
+import org.junit.jupiter.api.Test;
 
-@Component
-public class ExampleFilteredComponent {
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/2/1 12:15
+ */
+class AutoConfigurationsTests {
+
+  @Test
+  void ofShouldCreateOrderedConfigurations() {
+    Configurations configurations = AutoConfigurations.of(AutoConfigureA.class, AutoConfigureB.class);
+    assertThat(Configurations.getClasses(configurations)).containsExactly(AutoConfigureB.class,
+            AutoConfigureA.class);
+  }
+
+  @AutoConfigureAfter(AutoConfigureB.class)
+  static class AutoConfigureA {
+
+  }
+
+  static class AutoConfigureB {
+
+  }
 
 }

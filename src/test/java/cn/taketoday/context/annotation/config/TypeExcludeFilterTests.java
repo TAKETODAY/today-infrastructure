@@ -18,13 +18,10 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -39,11 +36,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/1 23:50
+ * @since 4.0 2022/2/1 23:48
  */
-class AutoConfigurationExcludeFilterTests {
-
-  private static final Class<?> FILTERED = ExampleFilteredAutoConfiguration.class;
+class TypeExcludeFilterTests {
 
   private StandardApplicationContext context;
 
@@ -55,27 +50,27 @@ class AutoConfigurationExcludeFilterTests {
   }
 
   @Test
-  void filterExcludeAutoConfiguration() {
-    this.context = new StandardApplicationContext(Config.class);
-    assertThat(this.context.getBeansOfType(String.class)).hasSize(1);
-    assertThat(this.context.getBean(String.class)).isEqualTo("test");
+  void loadsTypeExcludeFilters() {
+    this.context = new StandardApplicationContext();
+    this.context.getBeanFactory().registerSingleton("filter1", new WithoutMatchOverrideFilter());
+    this.context.getBeanFactory().registerSingleton("filter2", new SampleTypeExcludeFilter());
+    this.context.register(Config.class);
+    this.context.refresh();
+    assertThat(this.context.getBean(ExampleComponent.class)).isNotNull();
+    assertThat(this.context.getBean(ExampleFilteredComponent.class)).isNull();
+
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-            .isThrownBy(() -> BeanFactoryUtils.requiredBean(context, FILTERED));
+            .isThrownBy(() -> BeanFactoryUtils.requiredBean(context, ExampleFilteredComponent.class));
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ComponentScan(basePackageClasses = ExampleConfiguration.class,
-                 excludeFilters = @Filter(type = FilterType.CUSTOM, classes = TestAutoConfigurationExcludeFilter.class))
+  @ComponentScan(basePackageClasses = SampleTypeExcludeFilter.class,
+                 excludeFilters = @Filter(type = FilterType.CUSTOM, classes = SampleTypeExcludeFilter.class))
   static class Config {
 
   }
 
-  static class TestAutoConfigurationExcludeFilter extends AutoConfigurationExcludeFilter {
-
-    @Override
-    protected List<String> getAutoConfigurations() {
-      return Collections.singletonList(FILTERED.getName());
-    }
+  static class WithoutMatchOverrideFilter extends TypeExcludeFilter {
 
   }
 

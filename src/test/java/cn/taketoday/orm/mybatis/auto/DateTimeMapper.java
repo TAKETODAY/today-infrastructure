@@ -18,33 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.orm.mybatis.auto;
 
-import org.junit.jupiter.api.Test;
+import org.apache.ibatis.annotations.Select;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDateTime;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/1 12:15
+ * @since 4.0 2022/3/5 23:08
  */
-class AutoConfigurationsTests {
+public interface DateTimeMapper {
 
-  @Test
-  void ofShouldCreateOrderedConfigurations() {
-    Configurations configurations = AutoConfigurations.of(AutoConfigureA.class, AutoConfigureB.class);
-    assertThat(Configurations.getClasses(configurations)).containsExactly(AutoConfigureB.class,
-            AutoConfigureA.class);
-  }
-
-  @AutoConfigureAfter(AutoConfigureB.class)
-  static class AutoConfigureA {
-
-  }
-
-  static class AutoConfigureB {
-
-  }
+  @Select("SELECT current_timestamp")
+  LocalDateTime now();
 
 }

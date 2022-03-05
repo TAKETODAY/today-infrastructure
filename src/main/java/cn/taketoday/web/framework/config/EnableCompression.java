@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.context.annotation.Configuration;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -45,7 +45,7 @@ public @interface EnableCompression {
 class CompressionConfig {
 
   @MissingBean
-  @Props(prefix = "compression.")
+  @Props(prefix = "compression")
   CompressionConfiguration compressionConfiguration() {
     return new CompressionConfiguration();
   }

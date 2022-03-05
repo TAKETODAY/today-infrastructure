@@ -32,6 +32,9 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Base of all {@link Condition} implementations used with Framework. Provides sensible
+ * logging to help the user diagnose what classes are loaded.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 15:46
  */

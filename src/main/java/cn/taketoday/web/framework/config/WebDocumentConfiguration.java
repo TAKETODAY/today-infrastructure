@@ -26,7 +26,7 @@ import java.net.URLConnection;
 import java.security.CodeSource;
 import java.util.Locale;
 
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.Application;
 import cn.taketoday.logging.Logger;
@@ -36,7 +36,7 @@ import cn.taketoday.util.ResourceUtils;
 /**
  * @author TODAY 2019-02-05 13:09
  */
-@Props(prefix = "server.docs.")
+@Props(prefix = "server.docs")
 public class WebDocumentConfiguration {
   private static final Logger log = LoggerFactory.getLogger(WebDocumentConfiguration.class);
 

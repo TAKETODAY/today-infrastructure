@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.web.framework.server.UndertowServer;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -47,7 +47,7 @@ public @interface EnableUndertowHandling {
 class UndertowConfig {
 
   @MissingBean
-  @Props(prefix = { "server.", "server.undertow." })
+  @Props("server.undertow")
   UndertowServer undertowServer() {
     return new UndertowServer();
   }

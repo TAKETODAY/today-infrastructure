@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.auto.AutoConfigureAfter;
+import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.http.converter.HttpMessageConverter;

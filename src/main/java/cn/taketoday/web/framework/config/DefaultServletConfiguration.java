@@ -22,14 +22,14 @@ package cn.taketoday.web.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 import jakarta.servlet.Servlet;
 
 /**
  * @author TODAY <br>
  * 2019-02-03 18:06
  */
-@Props(prefix = "server.servlet.default.")
+@Props(prefix = "server.servlet.default")
 public class DefaultServletConfiguration {
 
   private boolean enable;

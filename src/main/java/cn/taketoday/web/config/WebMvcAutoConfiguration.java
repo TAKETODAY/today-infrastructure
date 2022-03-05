@@ -33,7 +33,6 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -272,8 +271,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   static class ResourceChainCustomizerConfiguration {
 
     @Bean
-    ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
-            @Props(prefix = "web.") WebProperties webProperties) {
+    ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(WebProperties webProperties) {
       return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.getResources());
     }
 

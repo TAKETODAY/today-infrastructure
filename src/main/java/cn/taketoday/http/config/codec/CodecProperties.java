@@ -20,13 +20,15 @@
 
 package cn.taketoday.http.config.codec;
 
+import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.util.DataSize;
 
 /**
- * {@link cn.taketoday.context.annotation.Props properties} for reactive codecs.
+ * {@link ConfigurationProperties properties} for reactive codecs.
  *
  * @author Brian Clozel
  */
+@ConfigurationProperties(prefix = "http.codec.")
 public class CodecProperties {
 
   /**

@@ -22,7 +22,7 @@ package cn.taketoday.web.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 
 /**
  * Configuration for the server's JSP servlet.
@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.Props;
  * @author TODAY <br>
  * 2019-01-26 16:39
  */
-@Props(prefix = "server.servlet.jsp.")
+@Props(prefix = "server.servlet.jsp")
 public class JspServletConfiguration {
 
   private boolean enabled;

@@ -35,7 +35,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -441,7 +441,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   @Lazy
   @Component
-  @Props(prefix = "multipart.")
+  @Props(prefix = "multipart")
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(MultipartConfiguration.class)
   MultipartConfiguration multipartConfiguration() {

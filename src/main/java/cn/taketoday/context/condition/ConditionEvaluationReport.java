@@ -183,6 +183,7 @@ public final class ConditionEvaluationReport {
    * @param beanFactory the bean factory (may be {@code null})
    * @return the {@link ConditionEvaluationReport} or {@code null}
    */
+  @Nullable
   public static ConditionEvaluationReport find(@Nullable BeanFactory beanFactory) {
     if (beanFactory instanceof ConfigurableBeanFactory) {
       return ConditionEvaluationReport.get((ConfigurableBeanFactory) beanFactory);

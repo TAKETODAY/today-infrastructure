@@ -18,11 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.orm.mybatis.auto.domain;
 
-import cn.taketoday.lang.Component;
-
-@Component
-public class ExampleComponent {
-
+interface Domain {
 }

@@ -18,19 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.orm.mybatis.auto.domain;
 
-import java.io.IOException;
+public class Name {
 
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+  private Long first;
 
-public class SampleTypeExcludeFilter extends TypeExcludeFilter {
+  private String last;
 
-  @Override
-  public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
-          throws IOException {
-    return metadataReader.getClassMetadata().getClassName().equals(ExampleFilteredComponent.class.getName());
+  public Long getFirst() {
+    return first;
+  }
+
+  public void setFirst(Long first) {
+    this.first = first;
+  }
+
+  public String getLast() {
+    return last;
+  }
+
+  public void setLast(String last) {
+    this.last = last;
   }
 
 }

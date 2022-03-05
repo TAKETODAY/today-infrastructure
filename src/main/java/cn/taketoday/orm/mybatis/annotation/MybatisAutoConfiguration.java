@@ -37,22 +37,22 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.auto.AutoConfigurationPackages;
+import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -84,6 +84,7 @@ import cn.taketoday.util.StringUtils;
  */
 @cn.taketoday.context.annotation.Configuration
 @ConditionalOnSingleCandidate(DataSource.class)
+@EnableConfigurationProperties(MybatisProperties.class)
 @ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })
 public class MybatisAutoConfiguration implements InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(MybatisAutoConfiguration.class);
@@ -106,12 +107,12 @@ public class MybatisAutoConfiguration implements InitializingBean {
 
   public MybatisAutoConfiguration(
           ResourceLoader resourceLoader,
+          MybatisProperties properties,
           ObjectProvider<Interceptor[]> interceptorsProvider,
           ObjectProvider<TypeHandler[]> typeHandlersProvider,
           ObjectProvider<LanguageDriver[]> languageDriversProvider,
           ObjectProvider<DatabaseIdProvider> databaseIdProvider,
           ObjectProvider<List<ConfigurationCustomizer>> configurationCustomizersProvider,
-          @Props(prefix = MybatisProperties.MYBATIS_PREFIX) MybatisProperties properties,
           ObjectProvider<List<SqlSessionFactoryBeanCustomizer>> sqlSessionFactoryBeanCustomizers) {
     this.properties = properties;
     this.interceptors = interceptorsProvider.getIfAvailable();

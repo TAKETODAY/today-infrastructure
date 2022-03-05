@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,37 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.framework.config;
+package cn.taketoday.context.annotation.config;
 
+import org.junit.jupiter.api.Test;
+
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.properties.Props;
-import cn.taketoday.web.framework.server.TomcatServer;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author TODAY 2021/3/30 23:45
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/3/5 22:47
  */
-@Retention(RUNTIME)
-@Target({ TYPE, METHOD })
-@Import(TomcatConfig.class)
-public @interface EnableTomcatHandling {
+class ImportCandidatesTests {
 
-}
-
-@Configuration(proxyBeanMethods = false)
-class TomcatConfig {
-
-  @MissingBean
-  @Props("server.tomcat")
-  TomcatServer tomcatServer() {
-    return new TomcatServer();
+  @Test
+  void loadReadsFromClasspathFile() {
+    ImportCandidates candidates = ImportCandidates.load(TestAnnotation.class, null);
+    assertThat(candidates).containsExactly("class1", "class2", "class3");
   }
+
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface TestAnnotation {
+
+  }
+
 }

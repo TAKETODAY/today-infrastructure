@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Component;
@@ -105,7 +105,7 @@ class WebSessionConfig {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Props(prefix = "server.session.cookie.")
+  @Props(prefix = "server.session.cookie")
   SessionCookieConfig webSessionCookieConfig() {
     return new SessionCookieConfig();
   }
@@ -113,7 +113,7 @@ class WebSessionConfig {
   @Lazy
   @Component
   @ConditionalOnMissingBean
-  @Props(prefix = "server.session.")
+  @Props(prefix = "server.session")
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   SessionConfiguration webSessionConfig(SessionCookieConfig sessionCookieConfig) {
     return new SessionConfiguration(sessionCookieConfig);

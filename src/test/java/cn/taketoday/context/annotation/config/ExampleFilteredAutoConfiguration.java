@@ -18,17 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-public class ExampleConfiguration {
+public class ExampleFilteredAutoConfiguration {
 
 	@Bean
-	public String example() {
-		return "test";
+	public String anotherExample() {
+		return "fail";
 	}
 
 }

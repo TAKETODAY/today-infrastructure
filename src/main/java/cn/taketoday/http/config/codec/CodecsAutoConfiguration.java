@@ -23,9 +23,10 @@ package cn.taketoday.http.config.codec;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Order;
 import cn.taketoday.http.codec.CodecConfigurer;
 import cn.taketoday.http.codec.json.Jackson2JsonDecoder;
@@ -42,6 +43,7 @@ import cn.taketoday.util.PropertyMapper;
  *
  * @author Brian Clozel
  */
+@EnableConfigurationProperties(CodecProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class CodecsAutoConfiguration {
 
@@ -51,11 +53,11 @@ public class CodecsAutoConfiguration {
   @ConditionalOnClass(ObjectMapper.class)
   static class JacksonCodecConfiguration {
 
-    @Component
     @Order(0)
+    @Component
     @ConditionalOnBean(ObjectMapper.class)
     CodecCustomizer jacksonCodecCustomizer(ObjectMapper objectMapper) {
-      return (configurer) -> {
+      return configurer -> {
         CodecConfigurer.DefaultCodecs defaults = configurer.defaultCodecs();
         defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, EMPTY_MIME_TYPES));
         defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, EMPTY_MIME_TYPES));
@@ -66,8 +68,7 @@ public class CodecsAutoConfiguration {
 
   @Component
   @Order(0)
-  CodecCustomizer defaultCodecCustomizer(
-          @Props(prefix = "http.codec.") CodecProperties codecProperties) {
+  CodecCustomizer defaultCodecCustomizer(CodecProperties codecProperties) {
     return configurer -> {
       PropertyMapper map = PropertyMapper.get();
       CodecConfigurer.DefaultCodecs defaultCodecs = configurer.defaultCodecs();
