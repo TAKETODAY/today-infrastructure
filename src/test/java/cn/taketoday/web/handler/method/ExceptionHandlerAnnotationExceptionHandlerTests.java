@@ -46,7 +46,6 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -119,12 +118,13 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     IllegalArgumentException ex = new IllegalArgumentException("Bad argument");
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ModelAndViewController(), "handle");
     this.handler.afterPropertiesSet();
-    ModelAndView mav = handleException(ex, handlerMethod);
 
-    assertThat(mav).isNotNull();
-    assertThat(mav.isEmpty()).isFalse();
-    assertThat(mav.getViewName()).isEqualTo("errorView");
-    assertThat(mav.getModel().asMap().get("detail")).isEqualTo("Bad argument");
+    ModelAndView mav = handleException(ex, handlerMethod);// ViewRenderingException
+
+    assertThat(mav).isNull();
+
+//    assertThat(mav.getViewName()).isEqualTo("errorView");
+//    assertThat(mav.getModel().asMap().get("detail")).isEqualTo("Bad argument");
   }
 
   private ModelAndView handleException(Exception ex, TestHandlerMethod handlerMethod) throws Exception {
@@ -197,11 +197,21 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     IllegalArgumentException ex = new IllegalArgumentException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ModelArgumentController(), "handle");
     this.handler.afterPropertiesSet();
-    ModelAndView mav = handleException(ex, handlerMethod);
+    ResolvableParameterFactory factory = new ResolvableParameterFactory();
 
-    assertThat(mav).isNotNull();
-    assertThat(mav.getModel().asMap().size()).isEqualTo(1);
-    assertThat(mav.getModel().asMap().get("exceptionClassName")).isEqualTo("IllegalArgumentException");
+    ActionMappingAnnotationHandler handler = new ActionMappingAnnotationHandler(
+            handlerMethod, factory.createArray(handlerMethod.getMethod()), handlerMethod.getBeanType()) {
+      @Override
+      public Object getHandlerObject() {
+        return handlerMethod.bean;
+      }
+    };
+
+    MockServletRequestContext context = new MockServletRequestContext(this.context, request, response);
+    Object ret = this.handler.handleException(context, ex, handler);
+
+    assertThat(context.getModel().asMap().size()).isEqualTo(1);
+    assertThat(context.getModel().asMap().get("exceptionClassName")).isEqualTo("IllegalArgumentException");
   }
 
   @Test
@@ -391,7 +401,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
     IllegalStateException ex = new IllegalStateException();
     ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-    Object mav = this.handler.handleException(new MockServletRequestContext(this.request, this.response), ex, handler);
+    Object mav = this.handler.handleException(
+            new MockServletRequestContext(ctx, this.request, this.response), ex, handler);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");

@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import cn.taketoday.context.MessageSource;
+import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
@@ -64,6 +66,7 @@ public abstract class ActionMappingAnnotationHandler
   // resolvable parameters
   @Nullable
   private final ResolvableMethodParameter[] resolvableParameters;
+
   private final Class<?> beanType;
 
   public ActionMappingAnnotationHandler(
@@ -134,6 +137,49 @@ public abstract class ActionMappingAnnotationHandler
     return beanType;
   }
 
+  protected Object invoke(RequestContext context, Object... providedArgs) throws Throwable {
+    MethodInvoker handlerInvoker = this.handlerInvoker;
+    if (handlerInvoker == null) {
+      synchronized(this) {
+        handlerInvoker = this.handlerInvoker;
+        if (handlerInvoker == null) {
+          handlerInvoker = MethodInvoker.fromMethod(handlerMethod.getMethod());
+          this.handlerInvoker = handlerInvoker;
+        }
+      }
+    }
+
+    ResolvableMethodParameter[] parameters = getResolvableParameters();
+    if (ObjectUtils.isEmpty(parameters)) {
+      return handlerInvoker.invoke(getHandlerObject(), null);
+    }
+
+    Object[] args = new Object[parameters.length];
+    int i = 0;
+    for (ResolvableMethodParameter resolvable : parameters) {
+      Object argument = findProvidedArgument(resolvable, providedArgs);
+      if (argument == null) {
+        argument = resolvable.resolveParameter(context);
+      }
+      args[i++] = argument;
+    }
+    return handlerInvoker.invoke(getHandlerObject(), args);
+  }
+
+  @Nullable
+  protected static Object findProvidedArgument(
+          ResolvableMethodParameter parameter, @Nullable Object... providedArgs) {
+    if (ObjectUtils.isNotEmpty(providedArgs)) {
+      Class<?> parameterType = parameter.getParameterType();
+      for (Object providedArg : providedArgs) {
+        if (parameterType.isInstance(providedArg)) {
+          return providedArg;
+        }
+      }
+    }
+    return null;
+  }
+
   // HandlerAdapter
 
   @Override
@@ -162,7 +208,9 @@ public abstract class ActionMappingAnnotationHandler
       String reason = status.reason();
       HttpStatus httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
-        context.setStatus(httpStatus.value(), reason);
+        MessageSource messageSource = context.getApplicationContext();
+        String message = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
+        context.setStatus(httpStatus.value(), message);
       }
       else {
         context.setStatus(httpStatus);

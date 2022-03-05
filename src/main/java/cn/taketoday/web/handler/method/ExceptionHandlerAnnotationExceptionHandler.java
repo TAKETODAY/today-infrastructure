@@ -32,8 +32,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -50,8 +48,6 @@ import cn.taketoday.web.handler.AbstractActionMappingMethodExceptionHandler;
  */
 public class ExceptionHandlerAnnotationExceptionHandler
         extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
-
-  private static final Logger log = LoggerFactory.getLogger(ExceptionHandlerAnnotationExceptionHandler.class);
 
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
           new ConcurrentHashMap<>(64);
@@ -93,8 +89,11 @@ public class ExceptionHandlerAnnotationExceptionHandler
       }
 
       // efficient arraycopy call in ArrayList
-      Object[] arguments = exceptions.toArray(new Object[exceptions.size() + 1]);
-      arguments[arguments.length - 1] = exHandler;
+      Object[] arguments = exceptions.toArray(new Object[exceptions.size() + 2]);
+      if (annotationHandler != null) {
+        arguments[arguments.length - 1] = annotationHandler;
+        arguments[arguments.length - 2] = annotationHandler.getMethod();
+      }
 
       Object returnValue = exHandler.invoke(context, arguments);
       exHandler.handleReturnValue(context, exHandler, returnValue);
@@ -110,20 +109,6 @@ public class ExceptionHandlerAnnotationExceptionHandler
       // Continue with default processing of the original exception...
       return null;
     }
-  }
-
-  /**
-   * Handle Exception use {@link ActionMappingAnnotationHandler}
-   *
-   * @param context current request
-   * @param exHandler ThrowableHandlerMethod
-   * @return handler return value
-   * @throws Throwable occurred in exHandler
-   */
-  protected Object handleException(RequestContext context, ActionMappingAnnotationHandler exHandler)
-          throws Throwable {
-
-    return NONE_RETURN_VALUE;
   }
 
   /**
@@ -177,6 +162,11 @@ public class ExceptionHandlerAnnotationExceptionHandler
   private ActionMappingAnnotationHandler getHandler(
           Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
     return handlerFactory.create(handlerBean, method, errorHandlerType, null);
+  }
+
+  @Override
+  protected boolean hasGlobalExceptionHandlers() {
+    return !this.exceptionHandlerAdviceCache.isEmpty();
   }
 
   //
