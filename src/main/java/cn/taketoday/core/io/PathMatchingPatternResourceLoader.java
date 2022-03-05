@@ -283,11 +283,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     else {
       // Generally only look for a pattern after a prefix here,
       // and on Tomcat only after the "*/" separator for its "war:" protocol.
-      int prefixEnd = locationPattern.startsWith("war:")
-                      ? locationPattern.indexOf("*/")
-                      : locationPattern.indexOf(':');
+      int prefixEnd = locationPattern.startsWith("war:") ?
+                      locationPattern.indexOf("*/") :
+                      locationPattern.indexOf(':');
 
-      if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd + 1))) {
+      if (getPathMatcher().isPattern(prefixEnd > -1 ? locationPattern.substring(prefixEnd + 1) : locationPattern)) {
         findPathMatchingResources(locationPattern, consumer); // a file pattern
       }
       else {
