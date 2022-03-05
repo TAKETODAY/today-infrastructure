@@ -179,7 +179,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
       // for each property value in the new set
       for (PropertyValue newPv : propertyValues) {
         // if there wasn't an old one, add it
-        Object pvOld = old.getPropertyValue(newPv.getName());
+        PropertyValue pvOld = old.get(newPv.getName());
         if (pvOld == null || !pvOld.equals(newPv)) {
           changes.add(newPv);
         }
