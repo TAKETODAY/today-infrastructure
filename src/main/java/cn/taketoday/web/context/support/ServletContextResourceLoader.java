@@ -60,7 +60,7 @@ public class ServletContextResourceLoader extends DefaultResourceLoader {
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    return new ServletContextResource(this.servletContext, path);
+    return new ServletContextResource(servletContext, path);
   }
 
 }

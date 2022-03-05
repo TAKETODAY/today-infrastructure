@@ -114,7 +114,7 @@ class ResponseStatusExceptionHandlerTests {
   @Nullable
   private Object handleException(Exception ex) throws Exception {
     MockServletRequestContext context = new MockServletRequestContext(request, response);
-    return exceptionHandler.handleException(context, null, ex);
+    return exceptionHandler.handleException(context, ex, null);
   }
 
   @Test // SPR-12903

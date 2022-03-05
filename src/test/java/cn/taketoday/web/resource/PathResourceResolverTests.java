@@ -32,7 +32,9 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,6 +114,18 @@ public class PathResourceResolverTests {
     List<Resource> locations = Collections.singletonList(location);
     String actual = this.resolver.resolveUrlPath("../testalternatepath/bar.css", locations, null);
     assertThat(actual).isEqualTo("../testalternatepath/bar.css");
+  }
+
+  @Test // SPR-12432
+  public void checkServletContextResource() throws Exception {
+    Resource classpathLocation = new ClassPathResource("test/", PathResourceResolver.class);
+    MockServletContext context = new MockServletContext();
+
+    ServletContextResource servletContextLocation = new ServletContextResource(context, "/webjars/");
+    ServletContextResource resource = new ServletContextResource(context, "/webjars/webjar-foo/1.0/foo.js");
+
+    assertThat(this.resolver.checkResource(resource, classpathLocation)).isFalse();
+    assertThat(this.resolver.checkResource(resource, servletContextLocation)).isTrue();
   }
 
   @Test // SPR-12624

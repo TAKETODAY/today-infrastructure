@@ -20,11 +20,6 @@
 
 package cn.taketoday.web.context.support;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/21 16:35
- */
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Set;
@@ -39,6 +34,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletContext;
@@ -50,7 +46,8 @@ import jakarta.servlet.ServletContext;
  * file system checking for other resources.
  *
  * @author Juergen Hoeller
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/2/21 16:35
  */
 public class ServletContextResourcePatternLoader extends PathMatchingPatternResourceLoader {
   private static final Logger logger = LoggerFactory.getLogger(ServletContextResourcePatternLoader.class);
@@ -116,7 +113,7 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
           throws IOException {
 
     Set<String> candidates = servletContext.getResourcePaths(dir);
-    if (candidates != null) {
+    if (CollectionUtils.isNotEmpty(candidates)) {
       boolean dirDepthNotFixed = fullPattern.contains("**");
       int jarFileSep = fullPattern.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
       String jarFilePath = null;
@@ -168,10 +165,12 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
       logger.debug("Searching jar file [{}] for entries matching [{}]", jarFilePath, entryPattern);
     }
     try (JarFile jarFile = new JarFile(jarFilePath)) {
-      for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
+      PathMatcher pathMatcher = getPathMatcher();
+      Enumeration<JarEntry> entries = jarFile.entries();
+      while (entries.hasMoreElements()) {
         JarEntry entry = entries.nextElement();
         String entryPath = entry.getName();
-        if (getPathMatcher().match(entryPattern, entryPath)) {
+        if (pathMatcher.match(entryPattern, entryPath)) {
           consumer.accept(new UrlBasedResource(
                   ResourceUtils.URL_PROTOCOL_JAR,
                   ResourceUtils.FILE_URL_PREFIX + jarFilePath + ResourceUtils.JAR_URL_SEPARATOR + entryPath));

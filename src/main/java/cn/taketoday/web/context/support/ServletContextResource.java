@@ -105,8 +105,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   @Override
   public boolean exists() {
     try {
-      URL url = this.servletContext.getResource(this.path);
-      return (url != null);
+      return servletContext.getResource(path) != null;
     }
     catch (MalformedURLException ex) {
       return false;
@@ -121,7 +120,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   public boolean isReadable() {
-    InputStream is = this.servletContext.getResourceAsStream(this.path);
+    InputStream is = servletContext.getResourceAsStream(path);
     if (is != null) {
       try {
         is.close();
@@ -139,12 +138,12 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   @Override
   public boolean isFile() {
     try {
-      URL url = this.servletContext.getResource(this.path);
+      URL url = servletContext.getResource(path);
       if (url != null && ResourceUtils.isFileURL(url)) {
         return true;
       }
       else {
-        return (this.servletContext.getRealPath(this.path) != null);
+        return servletContext.getRealPath(this.path) != null;
       }
     }
     catch (MalformedURLException ex) {
@@ -160,7 +159,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    InputStream is = this.servletContext.getResourceAsStream(this.path);
+    InputStream is = servletContext.getResourceAsStream(path);
     if (is == null) {
       throw new FileNotFoundException("Could not open " + this);
     }
@@ -175,7 +174,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   public URL getLocation() throws IOException {
-    URL url = this.servletContext.getResource(this.path);
+    URL url = servletContext.getResource(path);
     if (url == null) {
       throw new FileNotFoundException(
               this + " cannot be resolved to URL because it does not exist");
@@ -193,13 +192,13 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   public File getFile() throws IOException {
-    URL url = this.servletContext.getResource(this.path);
+    URL url = servletContext.getResource(path);
     if (url != null && ResourceUtils.isFileURL(url)) {
       // Proceed with file system resolution...
       return super.getFile();
     }
     else {
-      String realPath = ServletUtils.getRealPath(this.servletContext, this.path);
+      String realPath = ServletUtils.getRealPath(servletContext, path);
       return new File(realPath);
     }
   }
@@ -212,8 +211,8 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   public Resource createRelative(String relativePath) {
-    String pathToUse = ResourceUtils.getRelativePath(this.path, relativePath);
-    return new ServletContextResource(this.servletContext, pathToUse);
+    String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
+    return new ServletContextResource(servletContext, pathToUse);
   }
 
   /**
@@ -225,7 +224,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   @Override
   @Nullable
   public String getName() {
-    return StringUtils.getFilename(this.path);
+    return StringUtils.getFilename(path);
   }
 
   /**
@@ -234,7 +233,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    */
   @Override
   public String toString() {
-    return "ServletContext resource [" + this.path + "]";
+    return "ServletContext resource [" + path + "]";
   }
 
   @Override
@@ -253,7 +252,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
     if (!(other instanceof ServletContextResource otherRes)) {
       return false;
     }
-    return (this.servletContext.equals(otherRes.servletContext) && this.path.equals(otherRes.path));
+    return servletContext.equals(otherRes.servletContext) && path.equals(otherRes.path);
   }
 
   /**
