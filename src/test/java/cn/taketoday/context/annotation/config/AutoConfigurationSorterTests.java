@@ -219,7 +219,7 @@ class AutoConfigurationSorterTests {
 
   }
 
-  @AutoConfigureAfter(name = "cn.taketoday.context.annotation.auto.AutoConfigurationSorterTests$AutoConfigureB")
+  @AutoConfigureAfter(name = "cn.taketoday.context.annotation.config.AutoConfigurationSorterTests$AutoConfigureB")
   static class AutoConfigureA2 {
 
   }
@@ -247,7 +247,7 @@ class AutoConfigurationSorterTests {
 
   }
 
-  @AutoConfigureBefore(name = "cn.taketoday.context.annotation.auto.AutoConfigurationSorterTests$AutoConfigureB")
+  @AutoConfigureBefore(name = "cn.taketoday.context.annotation.config.AutoConfigurationSorterTests$AutoConfigureB")
   static class AutoConfigureW2 {
 
   }
