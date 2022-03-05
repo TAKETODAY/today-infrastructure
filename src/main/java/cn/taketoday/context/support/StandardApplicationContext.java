@@ -27,10 +27,7 @@ import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -40,8 +37,6 @@ import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator;
-import cn.taketoday.context.annotation.PropsDependenciesBeanPostProcessor;
-import cn.taketoday.context.annotation.PropsDependencyResolver;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
@@ -122,32 +117,6 @@ public class StandardApplicationContext
   public StandardApplicationContext(String... basePackages) {
     scan(basePackages);
     refresh();
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of AbstractApplicationContext
-  //---------------------------------------------------------------------
-
-  @Override
-  protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
-    super.registerBeanPostProcessors(beanFactory);
-
-    // register DI bean post processors
-    beanFactory.addBeanPostProcessor(new PropsDependenciesBeanPostProcessor(this));
-
-    Object bean = beanFactory.getBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
-
-    if (bean instanceof StandardDependenciesBeanPostProcessor autowiredPostProcessor) {
-      addDependencyStrategies(autowiredPostProcessor);
-    }
-  }
-
-  private void addDependencyStrategies(StandardDependenciesBeanPostProcessor autowiredPostProcessor) {
-    DependencyResolvingStrategies strategies = autowiredPostProcessor.getResolvingStrategies();
-
-    PropsDependencyResolver strategy = new PropsDependencyResolver(this);
-    strategy.setOrder(2);
-    strategies.addStrategies(strategy);
   }
 
   //---------------------------------------------------------------------

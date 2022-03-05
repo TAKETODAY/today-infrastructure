@@ -58,7 +58,6 @@ import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.FeatureDetector;
 import cn.taketoday.lang.Singleton;
-import cn.taketoday.orm.hibernate5.EnableHibernate;
 import lombok.SneakyThrows;
 
 /**
@@ -462,7 +461,6 @@ public class PojoPerformanceTest {
     }
   }
 
-  @EnableHibernate
   @Configuration
   static class DataSourceConfig {
 

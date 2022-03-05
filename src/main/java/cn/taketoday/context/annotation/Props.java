@@ -28,7 +28,6 @@ import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY 2018-08-04 13:13
- * @see cn.taketoday.context.annotation.PropsReader
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
