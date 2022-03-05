@@ -31,7 +31,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -154,7 +153,7 @@ public class ResponseStatusExceptionHandler
               : reason;
       request.sendError(statusCode, resolvedReason);
     }
-    return new ModelAndView();
+    return NONE_RETURN_VALUE;
   }
 
 }
