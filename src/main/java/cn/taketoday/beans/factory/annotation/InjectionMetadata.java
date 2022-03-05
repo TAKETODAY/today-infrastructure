@@ -98,8 +98,8 @@ public class InjectionMetadata {
   }
 
   public void checkConfigMembers(BeanDefinition beanDefinition) {
-    Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());
-    for (InjectedElement element : this.injectedElements) {
+    LinkedHashSet<InjectedElement> checkedElements = new LinkedHashSet<>(injectedElements.size());
+    for (InjectedElement element : injectedElements) {
       Member member = element.getMember();
       if (!beanDefinition.isExternallyManagedConfigMember(member)) {
         beanDefinition.registerExternallyManagedConfigMember(member);
