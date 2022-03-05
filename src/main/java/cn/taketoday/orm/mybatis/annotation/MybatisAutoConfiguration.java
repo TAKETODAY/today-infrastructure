@@ -82,9 +82,9 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 02:17
  */
-@cn.taketoday.context.annotation.Configuration
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(MybatisProperties.class)
+@cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })
 public class MybatisAutoConfiguration implements InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(MybatisAutoConfiguration.class);
