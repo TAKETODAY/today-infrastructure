@@ -81,7 +81,7 @@ public class AutoConfigurationImportSelector
   private static final String[] NO_IMPORTS = {};
   private static final AutoConfigurationEntry EMPTY_ENTRY = new AutoConfigurationEntry();
 
-  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.config.exclude";
+  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.autoconfigure.exclude";
 
   private ConfigurableBeanFactory beanFactory;
 

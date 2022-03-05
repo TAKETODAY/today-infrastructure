@@ -78,7 +78,7 @@ class ImportAutoConfigurationImportSelectorTests {
 
   @Test
   void propertyExclusionsAreApplied() throws IOException {
-    this.environment.setProperty("spring.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(MultipleImports.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsExactly(JacksonAutoConfiguration.class.getName());

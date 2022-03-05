@@ -106,7 +106,7 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void propertyExclusionsAreApplied() {
-    this.environment.setProperty("spring.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     assertThat(this.importSelector.getLastEvent().getExclusions())
@@ -115,22 +115,22 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void severalPropertyExclusionsAreApplied() {
-    this.environment.setProperty("spring.autoconfigure.exclude",
+    this.environment.setProperty("context.autoconfigure.exclude",
             WebMvcAutoConfiguration.class.getName() + "," + DataSourceAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyExclusionsAreAppliedWithExtraSpaces() {
-    this.environment.setProperty("spring.autoconfigure.exclude",
+    this.environment.setProperty("context.autoconfigure.exclude",
             WebMvcAutoConfiguration.class.getName() + " , " + DataSourceAutoConfiguration.class.getName() + " ");
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyYamlExclusionsAreApplied() {
-    this.environment.setProperty("spring.autoconfigure.exclude[0]", WebMvcAutoConfiguration.class.getName());
-    this.environment.setProperty("spring.autoconfigure.exclude[1]", DataSourceAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude[0]", WebMvcAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude[1]", DataSourceAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
@@ -143,7 +143,7 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void combinedExclusionsAreApplied() {
-    this.environment.setProperty("spring.autoconfigure.exclude", JacksonAutoConfiguration.class.getName());
+    this.environment.setProperty("context.autoconfigure.exclude", JacksonAutoConfiguration.class.getName());
     String[] imports = selectImports(EnableAutoConfigurationWithClassAndClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 3);
     assertThat(this.importSelector.getLastEvent().getExclusions()).contains(
@@ -165,14 +165,14 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void nonAutoConfigurationPropertyExclusionsWhenPresentOnClassPathShouldThrowException() {
-    this.environment.setProperty("spring.autoconfigure.exclude",
+    this.environment.setProperty("context.autoconfigure.exclude",
             "org.springframework.boot.autoconfigure.AutoConfigurationImportSelectorTests.TestConfiguration");
     assertThatIllegalStateException().isThrownBy(() -> selectImports(BasicEnableAutoConfiguration.class));
   }
 
   @Test
   void nameAndPropertyExclusionsWhenNotPresentOnClasspathShouldNotThrowException() {
-    this.environment.setProperty("spring.autoconfigure.exclude",
+    this.environment.setProperty("context.autoconfigure.exclude",
             "org.springframework.boot.autoconfigure.DoesNotExist2");
     selectImports(EnableAutoConfigurationWithAbsentClassNameExclude.class);
     assertThat(this.importSelector.getLastEvent().getExclusions()).containsExactlyInAnyOrder(
