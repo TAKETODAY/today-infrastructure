@@ -85,8 +85,8 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
 
   private boolean matchesMethod(Method method) {
     return this.checkInherited
-            ? AnnotatedElementUtils.hasAnnotation(method, this.annotationType)
-            : method.isAnnotationPresent(this.annotationType);
+           ? AnnotatedElementUtils.hasAnnotation(method, annotationType)
+           : method.isAnnotationPresent(annotationType);
   }
 
   @Override
@@ -94,11 +94,11 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof AnnotationMethodMatcher)) {
+    if (!(other instanceof AnnotationMethodMatcher otherMm)) {
       return false;
     }
-    AnnotationMethodMatcher otherMm = (AnnotationMethodMatcher) other;
-    return (this.annotationType.equals(otherMm.annotationType) && this.checkInherited == otherMm.checkInherited);
+    return checkInherited == otherMm.checkInherited
+            && annotationType.equals(otherMm.annotationType);
   }
 
   @Override

@@ -97,7 +97,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
           Class<? extends Annotation> methodAnnotationType, boolean checkInherited) {
 
     Assert.isTrue((classAnnotationType != null || methodAnnotationType != null),
-                  "Either Class annotation type or Method annotation type needs to be specified (or both)");
+            "Either Class annotation type or Method annotation type needs to be specified (or both)");
 
     if (classAnnotationType != null) {
       this.classFilter = new AnnotationClassFilter(classAnnotationType, checkInherited);
@@ -129,12 +129,11 @@ public class AnnotationMatchingPointcut implements Pointcut {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof AnnotationMatchingPointcut)) {
+    if (!(other instanceof AnnotationMatchingPointcut otherPointcut)) {
       return false;
     }
-    AnnotationMatchingPointcut otherPointcut = (AnnotationMatchingPointcut) other;
-    return (this.classFilter.equals(otherPointcut.classFilter) &&
-            this.methodMatcher.equals(otherPointcut.methodMatcher));
+    return classFilter.equals(otherPointcut.classFilter)
+            && methodMatcher.equals(otherPointcut.methodMatcher);
   }
 
   @Override
@@ -175,13 +174,8 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * {@link ClassFilter} that delegates to {@link AnnotationUtils#isCandidateClass}
    * for filtering classes whose methods are not worth searching to begin with.
    */
-  private static class AnnotationCandidateClassFilter implements ClassFilter {
-
-    private final Class<? extends Annotation> annotationType;
-
-    AnnotationCandidateClassFilter(Class<? extends Annotation> annotationType) {
-      this.annotationType = annotationType;
-    }
+  private record AnnotationCandidateClassFilter(Class<? extends Annotation> annotationType)
+          implements ClassFilter {
 
     @Override
     public boolean matches(Class<?> clazz) {
@@ -193,10 +187,9 @@ public class AnnotationMatchingPointcut implements Pointcut {
       if (this == obj) {
         return true;
       }
-      if (!(obj instanceof AnnotationCandidateClassFilter)) {
+      if (!(obj instanceof AnnotationCandidateClassFilter that)) {
         return false;
       }
-      AnnotationCandidateClassFilter that = (AnnotationCandidateClassFilter) obj;
       return this.annotationType.equals(that.annotationType);
     }
 
