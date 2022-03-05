@@ -58,6 +58,7 @@ import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
@@ -69,6 +70,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
@@ -438,7 +440,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     try {
-      invokeInitMethods(bean, def);
+      invokeInitMethods(beanName, bean, def);
     }
     catch (Throwable ex) {
       throw new BeanCreationException((def != null ? def.getResourceDescription() : null),
@@ -471,6 +473,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * This means checking whether the bean implements InitializingBean or defines
    * a custom init method, and invoking the necessary callback(s) if it does.
    *
+   * @param beanName the bean name in the factory (for debugging purposes)
    * @param bean the new bean instance we may need to initialize
    * @param def bean definition that the bean was created with
    * * (can also be {@code null}, if given an existing bean instance)
@@ -479,33 +482,78 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see InitializingBean
    * @see jakarta.annotation.PostConstruct
    */
-  protected void invokeInitMethods(Object bean, @Nullable BeanDefinition def) throws Exception {
-    // InitializingBean#afterPropertiesSet
-    if (bean instanceof InitializingBean) {
+  protected void invokeInitMethods(String beanName, Object bean, @Nullable BeanDefinition def) throws Throwable {
+
+    boolean isInitializingBean = (bean instanceof InitializingBean);
+    if (isInitializingBean && (def == null || !def.hasAnyExternallyManagedInitMethod("afterPropertiesSet"))) {
+      if (log.isTraceEnabled()) {
+        log.trace("Invoking afterPropertiesSet() on bean with name '{}'", beanName);
+      }
       ((InitializingBean) bean).afterPropertiesSet();
     }
 
-    Method[] methods = initMethodArray(bean, def);
-    if (ObjectUtils.isNotEmpty(methods)) {
-      DependencyInjector injector = getInjector();
-      // invoke or initMethods defined in @Component
-      for (Method method : methods) {
-        ReflectionUtils.makeAccessible(method);
-        injector.inject(method, bean);
+    if (def != null) {
+      Method[] methods = initMethodArray(beanName, isInitializingBean, bean, def);
+      if (ObjectUtils.isNotEmpty(methods)) {
+        DependencyInjector injector = getInjector();
+        // invoke or initMethods defined in @Component
+        boolean traceEnabled = log.isTraceEnabled();
+        for (Method method : methods) {
+          if (traceEnabled) {
+            log.trace("Invoking init method  '{}' on bean with name '{}'", method.getName(), beanName);
+          }
+          ReflectionUtils.makeAccessible(method);
+          injector.inject(method, bean);
+        }
       }
     }
   }
 
-  private Method[] initMethodArray(Object bean, @Nullable BeanDefinition def) {
-    if (def != null) {
-      Method[] initMethodArray = def.initMethodArray;
-      if (def.initMethodArray == null) {
-        initMethodArray = BeanDefinitionBuilder.computeInitMethod(def.getInitMethods(), bean.getClass());
-        def.initMethodArray = initMethodArray;
+  private Method[] initMethodArray(String beanName, boolean isInitializingBean, Object bean, BeanDefinition def) {
+    Method[] initMethodArray = def.initMethodArray;
+    if (def.initMethodArray == null) {
+      String[] initMethodNames = def.getInitMethods();
+      if (ObjectUtils.isNotEmpty(initMethodNames)) {
+        ArrayList<Method> methods = new ArrayList<>(2);
+        for (String initMethodName : initMethodNames) {
+          if (StringUtils.isNotEmpty(initMethodName)
+                  && !(isInitializingBean && "afterPropertiesSet".equals(initMethodName))
+                  && !def.hasAnyExternallyManagedInitMethod(initMethodName)) {
+
+            Method initMethod = def.isNonPublicAccessAllowed() ?
+                                BeanUtils.findMethod(bean.getClass(), initMethodName) :
+                                ReflectionUtils.getMethodIfAvailable(bean.getClass(), initMethodName);
+
+            if (initMethod == null) {
+              if (def.isEnforceInitMethod()) {
+                throw new BeanDefinitionValidationException("Could not find an init method named '" +
+                        initMethodName + "' on bean with name '" + beanName + "'");
+              }
+              else {
+                if (log.isTraceEnabled()) {
+                  log.trace("No default init method named '{}' found on bean with name '{}'", initMethodName, beanName);
+                }
+                // Ignore non-existent default lifecycle methods.
+                continue;
+              }
+            }
+
+            Method methodToInvoke = ReflectionUtils.getInterfaceMethodIfPossible(initMethod, bean.getClass());
+            methods.add(methodToInvoke);
+          }
+        }
+
+        AnnotationAwareOrderComparator.sort(methods);
+        initMethodArray = methods.toArray(BeanDefinition.EMPTY_METHOD);
       }
-      return initMethodArray;
+      else {
+        initMethodArray = BeanDefinition.EMPTY_METHOD;
+      }
+
+      def.initMethodArray = initMethodArray;
     }
-    return BeanDefinitionBuilder.computeInitMethod(null, bean.getClass());
+
+    return initMethodArray;
   }
 
   @Override
@@ -1428,6 +1476,17 @@ public abstract class AbstractAutowireCapableBeanFactory
         afterPrototypeCreation(beanName);
       }
       return getFactoryBean(beanName, instance);
+    }
+  }
+
+  @Override
+  public Object resolveBeanByName(String name, DependencyDescriptor descriptor) {
+    InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
+    try {
+      return getBean(name, descriptor.getDependencyType());
+    }
+    finally {
+      ConstructorResolver.setCurrentInjectionPoint(previousInjectionPoint);
     }
   }
 

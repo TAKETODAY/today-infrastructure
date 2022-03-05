@@ -47,6 +47,7 @@ import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
@@ -60,6 +61,9 @@ import cn.taketoday.util.StringUtils;
  */
 public class BeanDefinition
         extends AttributeAccessorSupport implements AttributeAccessor, BeanMetadataElement {
+
+  // @since 4.0
+  public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
   public static final String INIT_METHODS = "initMethods";
   public static final String DESTROY_METHOD = "destroyMethod";
@@ -258,6 +262,12 @@ public class BeanDefinition
   private Set<Member> externallyManagedConfigMembers;
 
   @Nullable
+  private Set<String> externallyManagedInitMethods;
+
+  @Nullable
+  private Set<String> externallyManagedDestroyMethods;
+
+  @Nullable
   volatile ResolvableType targetType;
 
   /** Package-visible field for caching the determined Class of a given bean definition. */
@@ -283,6 +293,11 @@ public class BeanDefinition
   @Nullable
   Object[] preparedConstructorArguments;
 
+  // @since 4.0
+  private boolean enforceInitMethod;
+  // @since 4.0
+  private boolean enforceDestroyMethod;
+
   /**
    * @since 3.0
    */
@@ -306,6 +321,8 @@ public class BeanDefinition
     this.autowireMode = from.autowireMode;
     this.postProcessed = from.postProcessed;
     this.factoryBeanName = from.factoryBeanName;
+    this.enforceInitMethod = from.enforceInitMethod;
+    this.enforceDestroyMethod = from.enforceDestroyMethod;
     this.autowireCandidate = from.autowireCandidate;
     this.factoryMethodName = from.factoryMethodName;
     this.instanceSupplier = from.instanceSupplier;
@@ -651,6 +668,56 @@ public class BeanDefinition
   }
 
   /**
+   * Specify whether or not the configured initializer method is the default.
+   * <p>The default value is {@code true} for a locally specified init method
+   * but switched to {@code false} for a shared setting in a defaults section
+   * (e.g. {@code bean init-method} versus {@code beans default-init-method}
+   * level in XML) which might not apply to all contained bean definitions.
+   *
+   * @see #setInitMethods
+   * @see #applyDefaults
+   * @since 4.0
+   */
+  public void setEnforceInitMethod(boolean enforceInitMethod) {
+    this.enforceInitMethod = enforceInitMethod;
+  }
+
+  /**
+   * Indicate whether the configured initializer method is the default.
+   *
+   * @see #getInitMethods()
+   * @since 4.0
+   */
+  public boolean isEnforceInitMethod() {
+    return this.enforceInitMethod;
+  }
+
+  /**
+   * Specify whether or not the configured destroy method is the default.
+   * <p>The default value is {@code true} for a locally specified destroy method
+   * but switched to {@code false} for a shared setting in a defaults section
+   * (e.g. {@code bean destroy-method} versus {@code beans default-destroy-method}
+   * level in XML) which might not apply to all contained bean definitions.
+   *
+   * @see #setDestroyMethod
+   * @see #applyDefaults
+   * @since 4.0
+   */
+  public void setEnforceDestroyMethod(boolean enforceDestroyMethod) {
+    this.enforceDestroyMethod = enforceDestroyMethod;
+  }
+
+  /**
+   * Indicate whether the configured destroy method is the default.
+   *
+   * @see #getDestroyMethod()
+   * @since 4.0
+   */
+  public boolean isEnforceDestroyMethod() {
+    return this.enforceDestroyMethod;
+  }
+
+  /**
    * Get Bean {@link Scope}
    *
    * @return Bean {@link Scope}
@@ -859,7 +926,8 @@ public class BeanDefinition
     if (lazyInit != null) {
       setLazyInit(lazyInit);
     }
-
+    setEnforceInitMethod(false);
+    setEnforceDestroyMethod(false);
     setAutowireMode(defaults.getAutowireMode());
     setInitMethods(defaults.getInitMethodNames());
     setDestroyMethod(defaults.getDestroyMethodName());
@@ -1348,6 +1416,171 @@ public class BeanDefinition
     }
   }
 
+  /**
+   * Register an externally managed configuration initialization method &mdash;
+   * for example, a method annotated with JSR-250's
+   * {@link jakarta.annotation.PostConstruct} annotation.
+   * <p>The supplied {@code initMethod} may be the
+   * {@linkplain Method#getName() simple method name} for non-private methods or the
+   * {@linkplain cn.taketoday.util.ClassUtils#getQualifiedMethodName(Method)
+   * qualified method name} for {@code private} methods. A qualified name is
+   * necessary for {@code private} methods in order to disambiguate between
+   * multiple private methods with the same name within a class hierarchy.
+   *
+   * @since 4.0
+   */
+  public void registerExternallyManagedInitMethod(String initMethod) {
+    synchronized(this.postProcessingLock) {
+      if (this.externallyManagedInitMethods == null) {
+        this.externallyManagedInitMethods = new LinkedHashSet<>(1);
+      }
+      this.externallyManagedInitMethods.add(initMethod);
+    }
+  }
+
+  /**
+   * Determine if the given method name indicates an externally managed
+   * initialization method.
+   * <p>See {@link #registerExternallyManagedInitMethod} for details
+   * regarding the format for the supplied {@code initMethod}.
+   *
+   * @since 4.0
+   */
+  public boolean isExternallyManagedInitMethod(String initMethod) {
+    synchronized(this.postProcessingLock) {
+      return (this.externallyManagedInitMethods != null &&
+              this.externallyManagedInitMethods.contains(initMethod));
+    }
+  }
+
+  /**
+   * Determine if the given method name indicates an externally managed
+   * initialization method, regardless of method visibility.
+   * <p>In contrast to {@link #isExternallyManagedInitMethod(String)}, this
+   * method also returns {@code true} if there is a {@code private} externally
+   * managed initialization method that has been
+   * {@linkplain #registerExternallyManagedInitMethod(String) registered}
+   * using a qualified method name instead of a simple method name.
+   *
+   * @since 4.0
+   */
+  boolean hasAnyExternallyManagedInitMethod(String initMethod) {
+    synchronized(this.postProcessingLock) {
+      if (isExternallyManagedInitMethod(initMethod)) {
+        return true;
+      }
+      if (this.externallyManagedInitMethods != null) {
+        for (String candidate : this.externallyManagedInitMethods) {
+          int indexOfDot = candidate.lastIndexOf(".");
+          if (indexOfDot >= 0) {
+            String methodName = candidate.substring(indexOfDot + 1);
+            if (methodName.equals(initMethod)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+  }
+
+  /**
+   * Return all externally managed initialization methods (as an immutable Set).
+   * <p>See {@link #registerExternallyManagedInitMethod} for details
+   * regarding the format for the initialization methods in the returned set.
+   *
+   * @since 4.0
+   */
+  public Set<String> getExternallyManagedInitMethods() {
+    synchronized(this.postProcessingLock) {
+      return (this.externallyManagedInitMethods != null ?
+              Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedInitMethods)) :
+              Collections.emptySet());
+    }
+  }
+
+  /**
+   * Register an externally managed configuration destruction method &mdash;
+   * for example, a method annotated with JSR-250's
+   * {@link jakarta.annotation.PreDestroy} annotation.
+   * <p>The supplied {@code destroyMethod} may be the
+   * {@linkplain Method#getName() simple method name} for non-private methods or the
+   * {@linkplain cn.taketoday.util.ClassUtils#getQualifiedMethodName(Method)
+   * qualified method name} for {@code private} methods. A qualified name is
+   * necessary for {@code private} methods in order to disambiguate between
+   * multiple private methods with the same name within a class hierarchy.
+   *
+   * @since 4.0
+   */
+  public void registerExternallyManagedDestroyMethod(String destroyMethod) {
+    synchronized(this.postProcessingLock) {
+      if (this.externallyManagedDestroyMethods == null) {
+        this.externallyManagedDestroyMethods = new LinkedHashSet<>(1);
+      }
+      this.externallyManagedDestroyMethods.add(destroyMethod);
+    }
+  }
+
+  /**
+   * Determine if the given method name indicates an externally managed
+   * destruction method.
+   * <p>See {@link #registerExternallyManagedDestroyMethod} for details
+   * regarding the format for the supplied {@code destroyMethod}.
+   *
+   * @since 4.0
+   */
+  public boolean isExternallyManagedDestroyMethod(String destroyMethod) {
+    synchronized(this.postProcessingLock) {
+      return (this.externallyManagedDestroyMethods != null &&
+              this.externallyManagedDestroyMethods.contains(destroyMethod));
+    }
+  }
+
+  /**
+   * Determine if the given method name indicates an externally managed
+   * destruction method, regardless of method visibility.
+   * <p>In contrast to {@link #isExternallyManagedDestroyMethod(String)}, this
+   * method also returns {@code true} if there is a {@code private} externally
+   * managed destruction method that has been
+   * {@linkplain #registerExternallyManagedDestroyMethod(String) registered}
+   * using a qualified method name instead of a simple method name.
+   *
+   * @since 4.0
+   */
+  boolean hasAnyExternallyManagedDestroyMethod(String destroyMethod) {
+    synchronized(this.postProcessingLock) {
+      if (isExternallyManagedDestroyMethod(destroyMethod)) {
+        return true;
+      }
+      if (this.externallyManagedDestroyMethods != null) {
+        for (String candidate : this.externallyManagedDestroyMethods) {
+          int indexOfDot = candidate.lastIndexOf(".");
+          if (indexOfDot >= 0) {
+            String methodName = candidate.substring(indexOfDot + 1);
+            if (methodName.equals(destroyMethod)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+  }
+
+  /**
+   * Get all externally managed destruction methods (as an immutable Set).
+   * <p>See {@link #registerExternallyManagedDestroyMethod} for details
+   * regarding the format for the destruction methods in the returned set.
+   *
+   * @since 4.0
+   */
+  public Set<String> getExternallyManagedDestroyMethods() {
+    synchronized(this.postProcessingLock) {
+      return (this.externallyManagedDestroyMethods != null ?
+              Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedDestroyMethods)) :
+              Collections.emptySet());
+    }
+  }
   // Object
 
   @Override
@@ -1364,6 +1597,8 @@ public class BeanDefinition
             && this.lazyInit == that.lazyInit
             && this.synthetic == that.synthetic
             && this.autowireMode == that.autowireMode
+            && this.enforceInitMethod == that.enforceInitMethod
+            && this.enforceDestroyMethod == that.enforceDestroyMethod
             && this.autowireCandidate == that.autowireCandidate
             && Objects.equals(this.scope, that.scope)
             && Objects.equals(this.destroyMethod, that.destroyMethod)

@@ -21,8 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -34,7 +32,6 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -45,7 +42,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -53,7 +49,6 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class BeanDefinitionBuilder {
-  public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
   /** bean name. */
   private String name;
@@ -414,38 +409,6 @@ public class BeanDefinitionBuilder {
       return new String[] { defaultName }; // default name
     }
     return names;
-  }
-
-  /**
-   * search init methods
-   * <p>
-   * if {@code initMethods} has overload method select Minimal parameter method
-   *
-   * @param beanClass Bean class
-   * @param initMethods Init Method name
-   * @throws IllegalArgumentException init method not found
-   * @since 2.1.7
-   */
-  public static Method[] computeInitMethod(@Nullable String[] initMethods, Class<?> beanClass) {
-    if (ObjectUtils.isNotEmpty(initMethods)) {
-      // @since 4.0 use ReflectionUtils.findMethodWithMinimalParameters
-      ArrayList<Method> methods = new ArrayList<>(2);
-      for (String initMethod : initMethods) {
-        Method method = ReflectionUtils.findMethodWithMinimalParameters(beanClass, initMethod);
-        if (method == null) {
-          throw new IllegalArgumentException("bean init-method: '" + initMethod + "' not found in '" + beanClass.getName() + "'");
-        }
-        methods.add(method);
-      }
-      if (methods.isEmpty()) {
-        return EMPTY_METHOD;
-      }
-      AnnotationAwareOrderComparator.sort(methods);
-      return methods.toArray(EMPTY_METHOD);
-    }
-    else {
-      return EMPTY_METHOD;
-    }
   }
 
   public static BeanDefinition empty() {
