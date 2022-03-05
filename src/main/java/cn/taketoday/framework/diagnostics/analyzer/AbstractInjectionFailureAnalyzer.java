@@ -22,7 +22,7 @@ package cn.taketoday.framework.diagnostics.analyzer;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;

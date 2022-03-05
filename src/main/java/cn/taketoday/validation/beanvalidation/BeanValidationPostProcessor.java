@@ -119,9 +119,12 @@ public class BeanValidationPostProcessor implements InitializationBeanPostProces
 
     if (!result.isEmpty()) {
       StringBuilder sb = new StringBuilder("Bean state is invalid: ");
-      for (Iterator<ConstraintViolation<Object>> it = result.iterator(); it.hasNext(); ) {
+      Iterator<ConstraintViolation<Object>> it = result.iterator();
+      while (it.hasNext()) {
         ConstraintViolation<Object> violation = it.next();
-        sb.append(violation.getPropertyPath()).append(" - ").append(violation.getMessage());
+        sb.append(violation.getPropertyPath())
+                .append(" - ")
+                .append(violation.getMessage());
         if (it.hasNext()) {
           sb.append("; ");
         }

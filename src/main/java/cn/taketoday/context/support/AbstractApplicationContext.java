@@ -911,7 +911,6 @@ public abstract class AbstractApplicationContext
     getBeanFactory().destroySingletons();
   }
 
-  @NonNull
   @Override
   @SuppressWarnings("unchecked")
   public <T> T unwrapFactory(Class<T> requiredType) {
@@ -920,15 +919,6 @@ public abstract class AbstractApplicationContext
       return (T) beanFactory;
     }
     throw new IllegalArgumentException("bean factory must be a " + requiredType);
-  }
-
-  @NonNull
-  @Override
-  public <T> T unwrap(Class<T> requiredType) {
-    if (requiredType.isInstance(this)) {
-      return (T) this;
-    }
-    throw new IllegalArgumentException("This BeanFactory '" + this + "' is not a " + requiredType);
   }
 
   @Override

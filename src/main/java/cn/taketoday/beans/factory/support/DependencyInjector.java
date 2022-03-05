@@ -32,6 +32,7 @@ import java.util.Set;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;

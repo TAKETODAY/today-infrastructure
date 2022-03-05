@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;

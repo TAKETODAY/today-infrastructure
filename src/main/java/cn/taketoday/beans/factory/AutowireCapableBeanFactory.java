@@ -323,6 +323,23 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
           throws NoSuchBeanDefinitionException;
 
   /**
+   * Resolve a bean instance for the given bean name, providing a dependency descriptor
+   * for exposure to target factory methods.
+   * <p>This is effectively a variant of {@link #getBean(String, Class)} which supports
+   * factory methods with an {@link cn.taketoday.beans.factory.InjectionPoint}
+   * argument.
+   *
+   * @param name the name of the bean to look up
+   * @param descriptor the dependency descriptor for the requesting injection point
+   * @return the corresponding bean instance
+   * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
+   * @throws BeansException if the bean could not be created
+   * @see #getBean(String, Class)
+   * @since 4.0
+   */
+  Object resolveBeanByName(String name, DependencyDescriptor descriptor) throws BeansException;
+
+  /**
    * Resolve the specified dependency against the beans defined in this factory.
    *
    * @param descriptor the descriptor for the dependency (field/method/constructor)

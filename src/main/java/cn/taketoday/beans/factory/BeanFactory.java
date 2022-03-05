@@ -906,6 +906,12 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @throws IllegalArgumentException not a requiredType
    * @since 4.0
    */
-  <T> T unwrap(Class<T> requiredType);
+  @SuppressWarnings("unchecked")
+  default <T> T unwrap(Class<T> requiredType) {
+    if (requiredType.isInstance(this)) {
+      return (T) this;
+    }
+    throw new IllegalArgumentException("This BeanFactory '" + this + "' is not a " + requiredType);
+  }
 
 }

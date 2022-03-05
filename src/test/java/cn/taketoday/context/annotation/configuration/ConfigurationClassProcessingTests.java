@@ -37,7 +37,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.support.ListFactoryBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;

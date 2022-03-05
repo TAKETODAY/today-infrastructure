@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.util.StringUtils;

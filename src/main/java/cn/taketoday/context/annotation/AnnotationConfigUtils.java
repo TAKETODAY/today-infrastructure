@@ -65,12 +65,6 @@ public abstract class AnnotationConfigUtils {
           "cn.taketoday.context.annotation.internalConfigurationBeanNamePopulator";
 
   /**
-   * The bean name of the internally managed common annotation processor.
-   */
-  public static final String jakarta_ANNOTATION_PROCESSOR_BEAN_NAME =
-          "cn.taketoday.context.annotation.internalJakartaAnnotationProcessor";
-
-  /**
    * The bean name of the internally managed JSR-250 annotation processor.
    */
   private static final String JSR250_ANNOTATION_PROCESSOR_BEAN_NAME =
@@ -103,10 +97,19 @@ public abstract class AnnotationConfigUtils {
   public static final String EVENT_LISTENER_FACTORY_BEAN_NAME =
           "cn.taketoday.context.event.internalEventListenerFactory";
 
+  /**
+   * The bean name of the internally managed common annotation processor.
+   */
+  public static final String COMMON_ANNOTATION_PROCESSOR_BEAN_NAME =
+          "cn.taketoday.context.annotation.internalCommonAnnotationProcessor";
+
   private static final ClassLoader classLoader = AnnotationConfigUtils.class.getClassLoader();
 
   private static final boolean jsr250Present =
           ClassUtils.isPresent("javax.annotation.PostConstruct", classLoader);
+
+  private static final boolean jakartaAnnotationsPresent =
+          ClassUtils.isPresent("jakarta.annotation.PostConstruct", classLoader);
 
   private static final boolean jpaPresent =
           ClassUtils.isPresent("jakarta.persistence.EntityManagerFactory", classLoader) &&
@@ -139,19 +142,10 @@ public abstract class AnnotationConfigUtils {
       registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
     }
 
-    // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor
-    // for the javax variant of PostConstruct/PreDestroy.
-    if (ClassUtils.isPresent("jakarta.annotation.PostConstruct", classLoader)
-            && !registry.containsBeanDefinition(jakarta_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      try {
-        BeanDefinition def = new BeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
-        def.propertyValues().add("initAnnotationType", classLoader.loadClass("jakarta.annotation.PostConstruct"));
-        def.propertyValues().add("destroyAnnotationType", classLoader.loadClass("jakarta.annotation.PreDestroy"));
-        registerPostProcessor(registry, def, jakarta_ANNOTATION_PROCESSOR_BEAN_NAME);
-      }
-      catch (ClassNotFoundException ex) {
-        // Failed to load javax variants of the annotation types -> ignore.
-      }
+    // Check for Jakarta Annotations support, and if present add the CommonAnnotationBeanPostProcessor.
+    if (jakartaAnnotationsPresent && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+      BeanDefinition def = new BeanDefinition(CommonAnnotationBeanPostProcessor.class);
+      registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME);
     }
 
     // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor

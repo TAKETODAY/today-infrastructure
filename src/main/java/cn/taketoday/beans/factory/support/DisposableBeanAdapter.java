@@ -80,6 +80,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   @Nullable
   private final List<DestructionBeanPostProcessor> beanPostProcessors;
 
+  private final boolean nonPublicAccessAllowed;
+
   /**
    * Create a new DisposableBeanAdapter for the given bean.
    *
@@ -94,10 +96,15 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
     this.beanName = beanDefinition.getBeanName();
-    this.invokeDisposableBean = bean instanceof DisposableBean;
+    this.nonPublicAccessAllowed = beanDefinition.isNonPublicAccessAllowed();
+    this.invokeDisposableBean = bean instanceof DisposableBean
+            && !beanDefinition.hasAnyExternallyManagedDestroyMethod(DESTROY_METHOD_NAME);
 
     String destroyName = inferDestroyMethodIfNecessary(bean, beanDefinition);
-    if (destroyName != null && !(invokeDisposableBean && destroyName.equals(DESTROY_METHOD_NAME))) {
+    if (destroyName != null
+            && !(invokeDisposableBean && destroyName.equals(DESTROY_METHOD_NAME))
+            && !beanDefinition.hasAnyExternallyManagedDestroyMethod(destroyName)) {
+
       this.invokeAutoCloseable = bean instanceof AutoCloseable && destroyName.equals(CLOSE_METHOD_NAME);
       if (!invokeAutoCloseable) {
         this.destroyMethodName = destroyName;
@@ -118,6 +125,10 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
           }
           destroyMethod = ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod, bean.getClass());
         }
+        else if (beanDefinition.isEnforceDestroyMethod()) {
+          throw new BeanDefinitionValidationException("Could not find a destroy method named '" +
+                  destroyName + "' on bean with name '" + beanName + "'");
+        }
         this.destroyMethod = destroyMethod;
       }
     }
@@ -135,6 +146,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   public DisposableBeanAdapter(Object bean, List<DestructionBeanPostProcessor> postProcessors) {
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
+    this.nonPublicAccessAllowed = true;
     this.beanName = bean.getClass().getName();
     this.invokeDisposableBean = this.bean instanceof DisposableBean;
     this.beanPostProcessors = filterPostProcessors(postProcessors, bean);
@@ -143,12 +155,13 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   /**
    * Create a new DisposableBeanAdapter for the given bean.
    */
-  private DisposableBeanAdapter(
-          Object bean, String beanName, boolean invokeDisposableBean, boolean invokeAutoCloseable,
+  private DisposableBeanAdapter(Object bean, String beanName, boolean nonPublicAccessAllowed,
+          boolean invokeDisposableBean, boolean invokeAutoCloseable,
           @Nullable String destroyMethodName, @Nullable List<DestructionBeanPostProcessor> postProcessors) {
 
     this.bean = bean;
     this.beanName = beanName;
+    this.nonPublicAccessAllowed = nonPublicAccessAllowed;
     this.invokeDisposableBean = invokeDisposableBean;
     this.invokeAutoCloseable = invokeAutoCloseable;
     this.destroyMethodName = destroyMethodName;
@@ -215,11 +228,9 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
 
   @Nullable
   private Method findDestroyMethod(String name) {
-    Method method = ReflectionUtils.findMethod(bean.getClass(), name);
-    if (method == null) {
-      method = ReflectionUtils.findMethod(bean.getClass(), name, boolean.class);
-    }
-    return method;
+    return nonPublicAccessAllowed ?
+           ReflectionUtils.findMethodWithMinimalParameters(bean.getClass(), name) :
+           ReflectionUtils.findMethodWithMinimalParameters(bean.getClass().getMethods(), name);
   }
 
   /**
@@ -267,7 +278,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
       }
     }
     return new DisposableBeanAdapter(
-            this.bean, this.beanName, this.invokeDisposableBean,
+            this.bean, this.beanName, this.nonPublicAccessAllowed, this.invokeDisposableBean,
             this.invokeAutoCloseable, this.destroyMethodName, serializablePostProcessors);
   }
 

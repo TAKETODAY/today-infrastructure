@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;

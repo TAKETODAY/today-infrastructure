@@ -775,7 +775,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #isAllowed(String)
    */
   protected void checkAllowedFields(PropertyValues mpvs) {
-    for (PropertyValue pv : mpvs) {
+    for (PropertyValue pv : mpvs.toArray()) {
       String field = PropertyAccessorUtils.canonicalPropertyName(pv.getName());
       if (!isAllowed(field)) {
         mpvs.remove(pv);

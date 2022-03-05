@@ -29,7 +29,6 @@ import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.io.PatternResourceLoader;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -68,17 +67,7 @@ public interface ApplicationContext extends Closeable, HierarchicalBeanFactory, 
    * @see #getBeanFactory()
    * @since 4.0
    */
-  @NonNull
   <T> T unwrapFactory(Class<T> requiredType);
-
-  /**
-   * unwrap this ApplicationContext to {@code requiredType}
-   *
-   * @throws IllegalArgumentException not a requiredType
-   * @since 4.0
-   */
-  @NonNull
-  <T> T unwrap(Class<T> requiredType);
 
   /**
    * Close context and destroy all singletons

@@ -38,7 +38,6 @@ public @interface Props {
    * Properties file name
    *
    * @return Properties file name
-   * @see PropsReader
    */
   String[] value() default {};
 

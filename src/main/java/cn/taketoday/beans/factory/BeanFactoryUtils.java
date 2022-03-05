@@ -638,6 +638,31 @@ public abstract class BeanFactoryUtils {
     return bean;
   }
 
+  /**
+   * Return an instance, which may be shared or independent, of the specified bean.
+   * <p>Allows for specifying explicit constructor arguments / factory method arguments,
+   * overriding the specified default arguments (if any) in the bean definition.
+   * <p>This method goes into {@link BeanFactory} by-type lookup territory
+   * but may also be translated into a conventional by-name lookup based on the name
+   * of the given type. For more extensive retrieval operations across sets of beans,
+   * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
+   *
+   * @param requiredType type the bean must match; can be an interface or superclass
+   * @param args arguments to use when creating a bean instance using explicit arguments
+   * (only applied when creating a new instance as opposed to retrieving an existing one)
+   * @return an instance of the bean, returns null if it doesn't exist.
+   * @throws BeanDefinitionStoreException if arguments have been given but
+   * the affected bean isn't a prototype
+   * @throws BeansException if the bean could not be created
+   */
+  public static <T> T requiredBean(BeanFactory factory, Class<T> requiredType, Object... args) throws BeansException {
+    T bean = factory.getBean(requiredType, args);
+    if (bean == null) {
+      throw new NoSuchBeanDefinitionException(requiredType);
+    }
+    return bean;
+  }
+
   //---------------------------------------------------------------------
   // Qualified bean name and bean-type
   //---------------------------------------------------------------------

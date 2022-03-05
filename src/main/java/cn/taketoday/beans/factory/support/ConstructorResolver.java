@@ -47,6 +47,7 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;

@@ -23,9 +23,10 @@ package cn.taketoday.validation.beanvalidation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
-import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.annotation.CommonAnnotationBeanPostProcessor;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.AsyncAnnotationAdvisor;
@@ -47,7 +48,7 @@ public class BeanValidationPostProcessorTests {
     ac.registerBeanDefinition("bvpp", new BeanDefinition(BeanValidationPostProcessor.class));
 //    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     ac.registerBeanDefinition("bean", new BeanDefinition(NotNullConstrainedBean.class));
-    assertThatExceptionOfType(BeanCreationException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
             .isThrownBy(ac::refresh)
             .havingRootCause()
             .withMessageContainingAll("testBean", "invalid");
@@ -72,7 +73,7 @@ public class BeanValidationPostProcessorTests {
     BeanDefinition bvpp = new BeanDefinition(BeanValidationPostProcessor.class);
     bvpp.propertyValues().add("afterInitialization", true);
     ac.registerBeanDefinition("bvpp", bvpp);
-//    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
+    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     ac.registerBeanDefinition("bean", new BeanDefinition(AfterInitConstraintBean.class));
     ac.refresh();
     ac.close();
@@ -84,7 +85,7 @@ public class BeanValidationPostProcessorTests {
     BeanDefinition bvpp = new BeanDefinition(BeanValidationPostProcessor.class);
     bvpp.propertyValues().add("afterInitialization", true);
     ac.registerBeanDefinition("bvpp", bvpp);
-//    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
+    ac.registerBeanDefinition("capp", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
     ac.registerBeanDefinition("bean", new BeanDefinition(AfterInitConstraintBean.class));
     ac.registerBeanDefinition("autoProxyCreator", new BeanDefinition(DefaultAdvisorAutoProxyCreator.class));
     ac.registerBeanDefinition("asyncAdvisor", new BeanDefinition(AsyncAnnotationAdvisor.class));
@@ -100,7 +101,7 @@ public class BeanValidationPostProcessorTests {
     bd.propertyValues().add("testBean", new TestBean());
     bd.propertyValues().add("stringValue", "s");
     ac.registerBeanDefinition("bean", bd);
-    assertThatExceptionOfType(BeanCreationException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
             .isThrownBy(ac::refresh)
             .havingRootCause()
             .withMessageContainingAll("stringValue", "invalid");

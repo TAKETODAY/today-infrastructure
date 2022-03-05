@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.InjectionPoint;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.context.condition.ConditionEvaluationReport;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;

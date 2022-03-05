@@ -59,6 +59,7 @@ import cn.taketoday.util.StringUtils;
  * @see Props
  * @since 4.0
  */
+@Deprecated
 public class PropsReader {
   private static final Logger log = LoggerFactory.getLogger(PropsReader.class);
 

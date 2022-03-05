@@ -188,14 +188,14 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
   protected String resolveSystemProperty(String key) {
     try {
       String value = System.getProperty(key);
-      if (value == null && this.searchSystemEnvironment) {
+      if (value == null && searchSystemEnvironment) {
         value = System.getenv(key);
       }
       return value;
     }
     catch (Throwable ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Could not access system property '" + key + "': " + ex);
+        logger.debug("Could not access system property '{}': {}", key, ex.toString());
       }
       return null;
     }
@@ -232,7 +232,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
       if (trimValues) {
         resolved = resolved.trim();
       }
-      return (resolved.equals(nullValue) ? null : resolved);
+      return resolved.equals(nullValue) ? null : resolved;
     }
   }
 
@@ -247,8 +247,8 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
     @Override
     @Nullable
     public String resolvePlaceholder(String placeholderName) {
-      return PropertyPlaceholderConfigurer.this.resolvePlaceholder(placeholderName,
-              this.props, systemPropertiesMode);
+      return PropertyPlaceholderConfigurer.this.resolvePlaceholder(
+              placeholderName, props, systemPropertiesMode);
     }
   }
 

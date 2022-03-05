@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -87,7 +88,7 @@ class MapperScanTest {
     applicationContext.start();
 
     // this will throw an exception if the beans cannot be found
-    applicationContext.getBean("sqlSessionFactory");
+    BeanFactoryUtils.requiredBean(applicationContext, "sqlSessionFactory");
   }
 
   @AfterEach

@@ -136,7 +136,7 @@ public class BeanDefinitionVisitor {
   }
 
   protected void visitPropertyValues(PropertyValues pvs) {
-    for (PropertyValue pv : pvs) {
+    for (PropertyValue pv : pvs.toArray()) {
       Object newVal = resolveValue(pv.getValue());
       if (!ObjectUtils.nullSafeEquals(newVal, pv.getValue())) {
         pvs.add(pv.getName(), newVal);

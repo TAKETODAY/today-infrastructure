@@ -49,11 +49,6 @@ public class BeanFactoryDependencyResolvingStrategy
     injectableAnnotations.add(Autowired.class);
     ClassLoader classLoader = BeanFactoryDependencyResolvingStrategy.class.getClassLoader();
     try {
-      // Resource ?
-      injectableAnnotations.add(ClassUtils.forName("jakarta.annotation.Resource", classLoader));
-    }
-    catch (Exception ignored) { }
-    try {
       injectableAnnotations.add(
               ClassUtils.forName("jakarta.inject.Inject", classLoader));
       log.debug("'jakarta.inject.Inject' annotation found and supported for autowiring");
