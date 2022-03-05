@@ -468,12 +468,12 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     if (rootResource instanceof JarResource) {
       doFindPathMatchingJarResources((JarResource) rootResource, subPattern, consumer);
     }
-    else if (rootResource instanceof FileBasedResource) {
-      doFindPathMatchingFileResources(rootResource, subPattern, consumer);
-    }
     else if (rootResource instanceof ClassPathResource) {
       Resource originalResource = ((ClassPathResource) rootResource).getOriginalResource();
       rootDirResource(subPattern, originalResource, consumer);
+    }
+    else {
+      doFindPathMatchingFileResources(rootResource, subPattern, consumer);
     }
   }
 

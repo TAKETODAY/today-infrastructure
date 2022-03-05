@@ -32,6 +32,7 @@ import java.util.Set;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.context.support.ServletContextAttributeExporter;
 import cn.taketoday.web.context.support.ServletContextAttributeFactoryBean;
@@ -39,7 +40,6 @@ import cn.taketoday.web.context.support.ServletContextParameterFactoryBean;
 import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.context.support.ServletContextResourceLoader;
 import cn.taketoday.web.context.support.ServletContextResourcePatternLoader;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.mock.MockServletContext;
 
@@ -80,9 +80,12 @@ public class ServletContextSupportTests {
     pvs.add("attributeName", "myAttr");
     wac.registerSingleton("importedAttr", ServletContextAttributeFactoryBean.class, pvs);
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-                    wac::refresh)
-            .withCauseInstanceOf(IllegalStateException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(wac::refresh)
+            .havingCause()
+            .isInstanceOf(BeanCreationException.class)
+            .havingCause()
+            .isInstanceOf(IllegalStateException.class)
             .withMessageContaining("myAttr");
   }
 
@@ -114,9 +117,12 @@ public class ServletContextSupportTests {
     pvs.add("initParamName", "myParam");
     wac.registerSingleton("importedParam", ServletContextParameterFactoryBean.class, pvs);
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-                    wac::refresh)
-            .withCauseInstanceOf(IllegalStateException.class)
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(wac::refresh)
+            .havingCause()
+            .isInstanceOf(BeanCreationException.class)
+            .havingCause()
+            .isInstanceOf(IllegalStateException.class)
             .withMessageContaining("myParam");
   }
 
