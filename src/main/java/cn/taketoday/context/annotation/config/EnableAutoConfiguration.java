@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -64,8 +64,8 @@ import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
  * and classes can be searched.
  * <p>
  * Auto-configuration classes are regular Framework {@link Configuration @Configuration}
- * beans. They are located using the {@link cn.taketoday.lang.TodayStrategies} mechanism (keyed
- * against this class). Generally auto-configuration beans are
+ * beans. They are located using {@link ImportCandidates} and the {@link cn.taketoday.lang.TodayStrategies}
+ * mechanism (keyed against this class). Generally auto-configuration beans are
  * {@link Conditional @Conditional} beans (most often using
  * {@link ConditionalOnClass @ConditionalOnClass} and
  * {@link ConditionalOnMissingBean @ConditionalOnMissingBean} annotations).

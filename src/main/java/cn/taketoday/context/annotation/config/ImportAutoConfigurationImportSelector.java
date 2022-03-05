@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -32,9 +32,10 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
@@ -55,7 +56,7 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   @Override
   public Set<Object> determineImports(AnnotationMetadata metadata) {
     List<String> candidateConfigurations = getCandidateConfigurations(metadata, null);
-    Set<String> result = new LinkedHashSet<>(candidateConfigurations);
+    LinkedHashSet<String> result = new LinkedHashSet<>(candidateConfigurations);
     result.removeAll(getExclusions(metadata, null));
     return Collections.unmodifiableSet(result);
   }
@@ -68,8 +69,8 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   @Override
   protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
     ArrayList<String> candidates = new ArrayList<>();
-    Map<Class<?>, List<Annotation>> annotations = getAnnotations(metadata);
 
+    Map<Class<?>, List<Annotation>> annotations = getAnnotations(metadata);
     for (Map.Entry<Class<?>, List<Annotation>> entry : annotations.entrySet()) {
       Class<?> source = entry.getKey();
       List<Annotation> sourceAnnotations = entry.getValue();
@@ -86,7 +87,7 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   }
 
   private Collection<String> getConfigurationsForAnnotation(Class<?> source, Annotation annotation) {
-    String[] classes = (String[]) AnnotationUtils.getAnnotationAttributes(annotation, true).get("classes");
+    String[] classes = MergedAnnotation.from(annotation).getStringArray("classes");
     if (classes.length > 0) {
       return Arrays.asList(classes);
     }
@@ -94,7 +95,9 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   }
 
   protected Collection<String> getStrategiesNames(Class<?> source) {
-    return TodayStrategies.getStrategies(source.getName(), getBeanClassLoader());
+    List<String> strategies = TodayStrategies.getStrategies(source.getName(), getBeanClassLoader());
+    ImportCandidates.load(source, getBeanClassLoader()).forEach(strategies::add);
+    return strategies;
   }
 
   @Override
@@ -102,11 +105,9 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
     LinkedHashSet<String> exclusions = new LinkedHashSet<>();
     Class<?> source = ClassUtils.resolveClassName(metadata.getClassName(), null);
 
-    // TODO 优化内存
-    AnnotationAttributes merged = AnnotatedElementUtils.getMergedAnnotationAttributes(
-            source, ImportAutoConfiguration.class);
-    {
-      Class<?>[] exclude = merged != null ? merged.getClassArray("exclude") : null;
+    var merged = MergedAnnotations.from(source).get(ImportAutoConfiguration.class);
+    if (merged.isPresent()) {
+      Class<?>[] exclude = merged.getClassArray("exclude");
       if (exclude != null) {
         for (Class<?> excludeClass : exclude) {
           exclusions.add(excludeClass.getName());
@@ -116,9 +117,9 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
 
     for (List<Annotation> annotations : getAnnotations(metadata).values()) {
       for (Annotation annotation : annotations) {
-        String[] exclude = (String[]) AnnotationUtils.getAnnotationAttributes(annotation, true).get("exclude");
-        if (ObjectUtils.isNotEmpty(exclude)) {
-          CollectionUtils.addAll(exclusions, exclude);
+        String[] excludes = MergedAnnotation.from(annotation).getStringArray("exclude");
+        if (ObjectUtils.isNotEmpty(excludes)) {
+          CollectionUtils.addAll(exclusions, excludes);
         }
       }
     }

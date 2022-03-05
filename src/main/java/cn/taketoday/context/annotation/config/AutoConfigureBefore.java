@@ -18,53 +18,50 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.DependsOn;
 
 /**
- * Registers packages with {@link AutoConfigurationPackages}. When no {@link #basePackages
- * base packages} or {@link #basePackageClasses base package classes} are specified, the
- * package of the annotated class is registered.
+ * Hint that an {@link EnableAutoConfiguration auto-configuration} should be applied
+ * before other specified auto-configuration classes.
+ * <p>
+ * As with standard {@link Configuration @Configuration} classes, the order in which
+ * auto-configuration classes are applied only affects the order in which their beans are
+ * defined. The order in which those beans are subsequently created is unaffected and is
+ * determined by each bean's dependencies and any {@link DependsOn @DependsOn}
+ * relationships.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see AutoConfigurationPackages
- * @since 4.0 2022/2/1 02:36
+ * @since 4.0 2022/2/1 11:56
  */
-@Inherited
 @Documented
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Import(AutoConfigurationPackages.Registrar.class)
-public @interface AutoConfigurationPackage {
+public @interface AutoConfigureBefore {
 
   /**
-   * Base packages that should be registered with {@link AutoConfigurationPackages}.
-   * <p>
-   * Use {@link #basePackageClasses} for a type-safe alternative to String-based package
-   * names.
+   * The auto-configure classes that should have not yet been applied.
    *
-   * @return the back package names
+   * @return the classes
    */
-  String[] basePackages() default {};
+  Class<?>[] value() default {};
 
   /**
-   * Type-safe alternative to {@link #basePackages} for specifying the packages to be
-   * registered with {@link AutoConfigurationPackages}.
-   * <p>
-   * Consider creating a special no-op marker class or interface in each package that
-   * serves no purpose other than being referenced by this attribute.
+   * The names of the auto-configure classes that should have not yet been applied.
    *
-   * @return the base package classes
+   * @return the class names
+   * @since 1.2.2
    */
-  Class<?>[] basePackageClasses() default {};
+  String[] name() default {};
 
 }
+

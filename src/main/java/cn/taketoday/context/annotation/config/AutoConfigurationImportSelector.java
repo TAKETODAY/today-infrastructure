@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,7 +81,7 @@ public class AutoConfigurationImportSelector
   private static final String[] NO_IMPORTS = {};
   private static final AutoConfigurationEntry EMPTY_ENTRY = new AutoConfigurationEntry();
 
-  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.autoconfigure.exclude";
+  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.config.exclude";
 
   private ConfigurableBeanFactory beanFactory;
 
@@ -129,6 +129,7 @@ public class AutoConfigurationImportSelector
     checkExcludedClasses(configurations, exclusions);
     configurations.removeAll(exclusions);
     configurations = getConfigurationClassFilter().filter(configurations);
+    fireAutoConfigurationImportEvents(configurations, exclusions);
     return new AutoConfigurationEntry(configurations, exclusions);
   }
 
@@ -184,9 +185,11 @@ public class AutoConfigurationImportSelector
   protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
     List<String> configurations = TodayStrategies.getStrategiesNames(
             getStrategyClass(), getBeanClassLoader());
+    ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).forEach(configurations::add);
     Assert.notEmpty(configurations,
-            "No auto configuration classes found in META-INF/today-strategies.properties. If you "
-                    + "are using a custom packaging, make sure that file is correct.");
+            "No auto configuration classes found in META-INF/today-strategies.properties " +
+                    "nor in META-INF/config/cn.taketoday.context.annotation.config.AutoConfiguration.imports." +
+                    " If you are using a custom packaging, make sure that file is correct.");
     return configurations;
   }
 
@@ -287,6 +290,21 @@ public class AutoConfigurationImportSelector
   protected final List<String> asList(AnnotationAttributes attributes, String name) {
     String[] value = attributes.getStringArray(name);
     return Arrays.asList(value);
+  }
+
+  private void fireAutoConfigurationImportEvents(List<String> configurations, Set<String> exclusions) {
+    List<AutoConfigurationImportListener> listeners = getAutoConfigurationImportListeners();
+    if (!listeners.isEmpty()) {
+      AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this, configurations, exclusions);
+      for (AutoConfigurationImportListener listener : listeners) {
+        invokeAwareMethods(listener);
+        listener.onAutoConfigurationImportEvent(event);
+      }
+    }
+  }
+
+  protected List<AutoConfigurationImportListener> getAutoConfigurationImportListeners() {
+    return TodayStrategies.getStrategies(AutoConfigurationImportListener.class, this.beanClassLoader);
   }
 
   private void invokeAwareMethods(Object instance) {

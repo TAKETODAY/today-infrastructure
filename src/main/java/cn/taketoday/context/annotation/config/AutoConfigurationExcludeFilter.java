@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.auto;
+package cn.taketoday.context.annotation.config;
 
 import java.io.IOException;
 import java.util.List;
@@ -62,9 +62,9 @@ public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoad
   }
 
   protected List<String> getAutoConfigurations() {
-    if (this.autoConfigurations == null) {
-      this.autoConfigurations = TodayStrategies.getStrategiesNames(
-              EnableAutoConfiguration.class, this.beanClassLoader);
+    if (autoConfigurations == null) {
+      this.autoConfigurations = TodayStrategies.getStrategiesNames(EnableAutoConfiguration.class, beanClassLoader);
+      ImportCandidates.load(AutoConfiguration.class, beanClassLoader).forEach(autoConfigurations::add);
     }
     return this.autoConfigurations;
   }
