@@ -250,7 +250,7 @@ public class WebDataBinder extends DataBinder {
     String fieldMarkerPrefix = getFieldMarkerPrefix();
     if (fieldMarkerPrefix != null) {
       ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
-      for (PropertyValue pv : values) {
+      for (PropertyValue pv : values.toArray()) {
         if (pv.getName().startsWith(fieldMarkerPrefix)) {
           String field = pv.getName().substring(fieldMarkerPrefix.length());
           if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {
