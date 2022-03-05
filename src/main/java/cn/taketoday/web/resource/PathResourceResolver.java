@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.util.UriUtils;
 
 /**
@@ -230,6 +231,10 @@ public class PathResourceResolver extends AbstractResourceResolver {
     else if (resource instanceof ClassPathResource classPathResource) {
       resourcePath = classPathResource.getPath();
       locationPath = StringUtils.cleanPath(((ClassPathResource) location).getPath());
+    }
+    else if (resource instanceof ServletContextResource servletContextResource) {
+      resourcePath = servletContextResource.getPath();
+      locationPath = StringUtils.cleanPath(((ServletContextResource) location).getPath());
     }
     else {
       resourcePath = resource.getLocation().getPath();
