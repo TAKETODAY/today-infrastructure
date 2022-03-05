@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,11 +101,10 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
   }
 
   @Override
-  protected void processProperties(ConfigurableBeanFactory beanFactory, Properties props)
-          throws BeansException {
+  protected void processProperties(
+          ConfigurableBeanFactory beanFactory, Properties props) throws BeansException {
 
-    for (Enumeration<?> names = props.propertyNames(); names.hasMoreElements(); ) {
-      String key = (String) names.nextElement();
+    for (String key : props.stringPropertyNames()) {
       try {
         processKey(beanFactory, key, props.getProperty(key));
       }
@@ -135,10 +133,10 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
     }
     String beanName = key.substring(0, separatorIndex);
     String beanProperty = key.substring(separatorIndex + 1);
-    this.beanNames.add(beanName);
+    beanNames.add(beanName);
     applyPropertyValue(factory, beanName, beanProperty, value);
     if (logger.isDebugEnabled()) {
-      logger.debug("Property '" + key + "' set to value [" + value + "]");
+      logger.debug("Property '{}' set to value [{}]", key, value);
     }
   }
 

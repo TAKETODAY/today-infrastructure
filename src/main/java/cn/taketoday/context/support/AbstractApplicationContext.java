@@ -55,6 +55,7 @@ import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
+import cn.taketoday.context.aware.BootstrapContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.event.ApplicationEvent;
@@ -709,6 +710,7 @@ public abstract class AbstractApplicationContext
     beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
     beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
     beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+    beanFactory.ignoreDependencyInterface(BootstrapContextAware.class);
     beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
 
     // BeanFactory interface not registered as resolvable type in a plain factory.

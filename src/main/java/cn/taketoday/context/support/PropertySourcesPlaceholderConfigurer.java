@@ -177,18 +177,18 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
           ConfigurableBeanFactory beanFactoryToProcess,
           ConfigurablePropertyResolver propertyResolver) throws BeansException {
 
-    propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);
-    propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);
-    propertyResolver.setValueSeparator(this.valueSeparator);
+    propertyResolver.setValueSeparator(valueSeparator);
+    propertyResolver.setPlaceholderPrefix(placeholderPrefix);
+    propertyResolver.setPlaceholderSuffix(placeholderSuffix);
 
     StringValueResolver valueResolver = strVal -> {
-      String resolved = (this.ignoreUnresolvablePlaceholders ?
-                         propertyResolver.resolvePlaceholders(strVal) :
-                         propertyResolver.resolveRequiredPlaceholders(strVal));
+      String resolved = ignoreUnresolvablePlaceholders ?
+                        propertyResolver.resolvePlaceholders(strVal) :
+                        propertyResolver.resolveRequiredPlaceholders(strVal);
       if (this.trimValues) {
         resolved = resolved.trim();
       }
-      return (resolved.equals(this.nullValue) ? null : resolved);
+      return resolved.equals(nullValue) ? null : resolved;
     };
 
     doProcessProperties(beanFactoryToProcess, valueResolver);

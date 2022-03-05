@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;
@@ -63,8 +64,7 @@ class MapperScannerConfigurerTest {
     // add the mapper scanner as a bean definition rather than explicitly setting a
     // postProcessor on the context so initialization follows the same code path as reading from
     // an XML config file
-    BeanDefinition definition = new BeanDefinition();
-    definition.setBeanClass(MapperScannerConfigurer.class);
+    BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
     definition.propertyValues().add("basePackage", "cn.taketoday.orm.mybatis.mapper");
     applicationContext.registerBeanDefinition("mapperScanner", definition);
     applicationContext.getBeanFactory().registerScope("thread", new SimpleThreadScope());
@@ -363,8 +363,7 @@ class MapperScannerConfigurerTest {
     props.put("configLocationProperty", "classpath:cn/taketoday/orm/mybatis/mybatis-config.xml");
     props.put("mybatis.lazy-initialization", "true");
 
-    BeanDefinition propertyDefinition = new BeanDefinition();
-    propertyDefinition.setBeanClass(PropertyPlaceholderConfigurer.class);
+    BeanDefinition propertyDefinition = new BeanDefinition(PropertySourcesPlaceholderConfigurer.class);
     propertyDefinition.propertyValues().add("properties", props);
 
     applicationContext.registerBeanDefinition("propertiesPlaceholder", propertyDefinition);

@@ -148,18 +148,18 @@ public abstract class PropertiesLoaderSupport {
   protected Properties mergeProperties() throws IOException {
     Properties result = new Properties();
 
-    if (this.localOverride) {
+    if (localOverride) {
       // Load properties from file upfront, to let local properties override.
       loadProperties(result);
     }
 
-    if (this.localProperties != null) {
-      for (Properties localProp : this.localProperties) {
+    if (localProperties != null) {
+      for (Properties localProp : localProperties) {
         CollectionUtils.mergePropertiesIntoMap(localProp, result);
       }
     }
 
-    if (!this.localOverride) {
+    if (!localOverride) {
       // Load properties from file afterwards, to let those properties override.
       loadProperties(result);
     }
@@ -175,19 +175,19 @@ public abstract class PropertiesLoaderSupport {
    * @see #setLocations
    */
   protected void loadProperties(Properties props) throws IOException {
-    if (this.locations != null) {
-      for (Resource location : this.locations) {
+    if (locations != null) {
+      for (Resource location : locations) {
         if (logger.isTraceEnabled()) {
           logger.trace("Loading properties file from {}", location);
         }
         try {
           PropertiesUtils.fillProperties(
-                  props, new EncodedResource(location, this.fileEncoding), propertiesPersister);
+                  props, new EncodedResource(location, fileEncoding), propertiesPersister);
         }
         catch (FileNotFoundException | UnknownHostException | SocketException ex) {
-          if (this.ignoreResourceNotFound) {
+          if (ignoreResourceNotFound) {
             if (logger.isDebugEnabled()) {
-              logger.debug("Properties resource not found: " + ex.getMessage());
+              logger.debug("Properties resource not found: {}", ex.getMessage());
             }
           }
           else {

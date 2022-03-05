@@ -215,7 +215,7 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public PropertyValues add(String propertyName, @Nullable Object propertyValue) {
     Assert.notNull(propertyName, "propertyName must not be null");
-    propertyValues().add(new PropertyValue(propertyName, propertyValue));
+    add(new PropertyValue(propertyName, propertyValue));
     return this;
   }
 
