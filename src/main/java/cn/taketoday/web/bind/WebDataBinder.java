@@ -222,7 +222,7 @@ public class WebDataBinder extends DataBinder {
     String fieldDefaultPrefix = getFieldDefaultPrefix();
     if (fieldDefaultPrefix != null) {
       ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
-      for (PropertyValue pv : values) {
+      for (PropertyValue pv : values.toArray()) {
         if (pv.getName().startsWith(fieldDefaultPrefix)) {
           String field = pv.getName().substring(fieldDefaultPrefix.length());
           if (propertyAccessor.isWritableProperty(field) && !values.contains(field)) {

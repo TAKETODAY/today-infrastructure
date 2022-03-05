@@ -77,20 +77,22 @@ public class MethodValidationTests {
 
   private void doTestProxyValidation(MyValidInterface<String> proxy) {
     assertThat(proxy.myValidMethod("value", 5)).isNotNull();
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidMethod(null, 5));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidMethod("value", 0));
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> proxy.myValidMethod("value", 15));
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> proxy.myValidMethod(null, 5));
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> proxy.myValidMethod("value", 0));
     proxy.myValidAsyncMethod("value", 5);
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidAsyncMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidAsyncMethod(null, 5));
+
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> proxy.myValidAsyncMethod("value", 15));
+
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> proxy.myValidAsyncMethod(null, 5));
     assertThat(proxy.myGenericMethod("myValue")).isEqualTo("myValue");
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myGenericMethod(null));
+    assertThatExceptionOfType(ValidationException.class)
+            .isThrownBy(() -> proxy.myGenericMethod(null));
   }
 
   @Test

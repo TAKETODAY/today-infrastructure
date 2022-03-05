@@ -35,6 +35,7 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.multipart.StringMultipartFileEditor;
+import cn.taketoday.web.servlet.MockMultipartServletRequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -258,7 +259,7 @@ public class RequestContextDataBinderTests {
 
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
     request.addFile(new MockMultipartFile("name", "Juergen".getBytes()));
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new MockMultipartServletRequestContext(request, null));
     assertThat(target.getName()).isEqualTo("Juergen");
   }
 
@@ -270,7 +271,7 @@ public class RequestContextDataBinderTests {
 
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
     request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new MockMultipartServletRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(1);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
   }
@@ -284,7 +285,7 @@ public class RequestContextDataBinderTests {
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
     request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     request.addFile(new MockMultipartFile("stringArray", "Eva".getBytes()));
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new MockMultipartServletRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(2);
     assertThat(target.getStringArray()[0]).isEqualTo("Juergen");
     assertThat(target.getStringArray()[1]).isEqualTo("Eva");
