@@ -29,7 +29,7 @@ import java.util.Properties;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletResponse;
@@ -101,9 +101,12 @@ class SimpleMappingExceptionHandlerTests {
 
   private ModelAndView handleException(Object handler, Exception ex) {
     try {
-      Object ret = this.exceptionHandler.handleException(new MockServletRequestContext(request, response), ex, handler);
+      Object ret = this.exceptionHandler.handleException(new ServletRequestContext(null, request, response), ex, handler);
       if (ret instanceof ModelAndView mav) {
         return mav;
+      }
+      else if (ret == null) {
+        return null;
       }
       return new ModelAndView(ret);
     }

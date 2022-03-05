@@ -329,6 +329,12 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
         request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, statusCode);
       }
     }
+    else {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Applying HTTP status {}", statusCode);
+      }
+      request.setStatus(statusCode);
+    }
   }
 
   /**
