@@ -22,6 +22,7 @@ package cn.taketoday.scheduling.annotation;
 
 import org.aopalliance.aop.Advice;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -56,8 +57,9 @@ import cn.taketoday.util.SingletonSupplier;
  * @see AnnotationAsyncExecutionInterceptor
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Advice advice;
 

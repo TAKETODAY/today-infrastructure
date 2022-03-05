@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.aop.ClassFilter;
-import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.support.ComposablePointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 
@@ -67,10 +65,10 @@ public class FilteredMethodValidationPostProcessor extends MethodValidationPostP
   @Override
   public void afterPropertiesSet() {
     super.afterPropertiesSet();
-    DefaultPointcutAdvisor advisor = (DefaultPointcutAdvisor) this.advisor;
-    ClassFilter classFilter = advisor.getPointcut().getClassFilter();
-    MethodMatcher methodMatcher = advisor.getPointcut().getMethodMatcher();
-    advisor.setPointcut(new ComposablePointcut(classFilter, methodMatcher).intersection(this::isIncluded));
+    if (advisor instanceof DefaultPointcutAdvisor advisor) {
+      advisor.setPointcut(new ComposablePointcut(advisor.getPointcut())
+              .intersection(this::isIncluded));
+    }
   }
 
   private boolean isIncluded(Class<?> candidate) {

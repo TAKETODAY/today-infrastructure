@@ -29,6 +29,7 @@ import java.util.Set;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -62,7 +63,7 @@ import jakarta.validation.executable.ExecutableValidator;
  * @see ExecutableValidator
  * @since 4.0
  */
-public class MethodValidationInterceptor implements MethodInterceptor {
+public class MethodValidationInterceptor extends OrderedSupport implements MethodInterceptor {
 
   private final Validator validator;
 
@@ -89,6 +90,7 @@ public class MethodValidationInterceptor implements MethodInterceptor {
    */
   public MethodValidationInterceptor(Validator validator) {
     this.validator = validator;
+    setOrder(HIGHEST_PRECEDENCE); // highest
   }
 
   @Override

@@ -113,8 +113,8 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 
   @Override
   public void afterPropertiesSet() {
-    Pointcut pointcut = new AnnotationMatchingPointcut(this.validatedAnnotationType, true);
-    this.advisor = new DefaultPointcutAdvisor(pointcut, createMethodValidationAdvice(this.validator));
+    Pointcut pointcut = new AnnotationMatchingPointcut(validatedAnnotationType, true);
+    this.advisor = new DefaultPointcutAdvisor(pointcut, createMethodValidationAdvice(validator));
   }
 
   /**
@@ -126,7 +126,9 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
    * a {@link MethodValidationInterceptor} or subclass thereof)
    */
   protected Advice createMethodValidationAdvice(@Nullable Validator validator) {
-    return (validator != null ? new MethodValidationInterceptor(validator) : new MethodValidationInterceptor());
+    return validator != null
+           ? new MethodValidationInterceptor(validator)
+           : new MethodValidationInterceptor();
   }
 
 }
