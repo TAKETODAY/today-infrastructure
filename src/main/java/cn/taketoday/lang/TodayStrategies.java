@@ -365,7 +365,16 @@ public final class TodayStrategies {
   public static <T> List<T> getStrategies(
           Class<T> strategyClass, @Nullable ClassLoader classLoader) {
     Assert.notNull(strategyClass, "strategy-class must not be null");
-    return getStrategies(strategyClass, classLoader, ReflectionUtils::newInstance);
+    return getStrategies(strategyClass, classLoader, strategy -> {
+      try {
+        return ReflectionUtils.accessibleConstructor(strategy).newInstance();
+      }
+      catch (Throwable ex) {
+        throw new IllegalArgumentException(
+                "Unable to instantiate factory class [" + strategyClass.getName()
+                        + "] for factory type [" + strategy.getName() + "]", ex);
+      }
+    });
   }
 
   /**

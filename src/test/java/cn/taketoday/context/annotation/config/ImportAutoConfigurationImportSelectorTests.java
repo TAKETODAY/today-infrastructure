@@ -170,7 +170,7 @@ class ImportAutoConfigurationImportSelectorTests {
   @Test
   void determineImportsShouldNotSetPackageImport() throws Exception {
     Class<?> packageImportsClass = ClassUtils.resolveClassName(
-            "org.springframework.boot.autoconfigure.AutoConfigurationPackages.PackageImports", null);
+            "cn.taketoday.context.annotation.config.AutoConfigurationPackages.PackageImports", null);
     Set<Object> selectedImports = this.importSelector
             .determineImports(getAnnotationMetadata(ImportMetaAutoConfigurationExcludeWithUnrelatedOne.class));
     for (Object selectedImport : selectedImports) {
