@@ -38,7 +38,7 @@ import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
+import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;

@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.datasource;
 
+import java.io.Serial;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -118,9 +119,10 @@ import cn.taketoday.transaction.support.TransactionSynchronizationUtils;
  * @see cn.taketoday.jdbc.core.JdbcTemplate
  * @since 4.0 2021/12/10 21:05
  */
-@SuppressWarnings("serial")
 public class DataSourceTransactionManager extends AbstractPlatformTransactionManager
         implements ResourceTransactionManager, InitializingBean {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private DataSource dataSource;

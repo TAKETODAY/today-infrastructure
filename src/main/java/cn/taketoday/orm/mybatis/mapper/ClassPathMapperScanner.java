@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
+import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
@@ -255,7 +255,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     }
 
 //      if (!definition.isSingleton()) {
-//        BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
+//        BeanDefinition proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
 //        if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
 //          registry.removeBeanDefinition(proxyHolder.getBeanName());
 //        }

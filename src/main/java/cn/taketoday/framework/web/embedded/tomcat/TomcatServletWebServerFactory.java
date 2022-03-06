@@ -422,7 +422,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
       suppliers.add(CookieSameSiteSupplier.of(sessionSameSite)
               .whenHasName(() -> SessionConfig.getSessionCookieName(context)));
     }
-    if (!CollectionUtils.isEmpty(getCookieSameSiteSuppliers())) {
+    if (CollectionUtils.isNotEmpty(getCookieSameSiteSuppliers())) {
       suppliers.addAll(getCookieSameSiteSuppliers());
     }
     if (!suppliers.isEmpty()) {

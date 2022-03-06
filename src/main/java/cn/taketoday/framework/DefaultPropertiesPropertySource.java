@@ -88,7 +88,7 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
    * @param sources the existing sources
    */
   public static void addOrMerge(Map<String, Object> source, PropertySources sources) {
-    if (!CollectionUtils.isEmpty(source)) {
+    if (CollectionUtils.isNotEmpty(source)) {
       Map<String, Object> resultingSource = new HashMap<>();
       DefaultPropertiesPropertySource propertySource = new DefaultPropertiesPropertySource(resultingSource);
       if (sources.contains(NAME)) {

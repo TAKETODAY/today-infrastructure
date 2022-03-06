@@ -39,7 +39,7 @@ import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.core.io.ResourceTestUtils.qualifiedResource;
+import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

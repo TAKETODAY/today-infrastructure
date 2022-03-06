@@ -69,7 +69,7 @@ final class BindConverter {
     ArrayList<ConversionService> delegates = new ArrayList<>();
     delegates.add(new TypeConverterConversionService(propertyEditorInitializer));
     boolean hasApplication = false;
-    if (!CollectionUtils.isEmpty(conversionServices)) {
+    if (CollectionUtils.isNotEmpty(conversionServices)) {
       for (ConversionService conversionService : conversionServices) {
         delegates.add(conversionService);
         hasApplication = hasApplication || conversionService instanceof ApplicationConversionService;

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -45,7 +46,6 @@ import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfig
 import cn.taketoday.context.aware.BootstrapContextAware;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
@@ -392,7 +392,7 @@ public class ConfigurationClassPostProcessor
     }
 
     @Override
-    public void processDependencies(Object bean, BeanDefinition definition) {
+    public void processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         enhancedConfiguration.setBeanFactory(this.beanFactory);

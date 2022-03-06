@@ -213,7 +213,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     if (StringUtils.hasText(getServerHeader())) {
       handler = applyWrapper(handler, JettyHandlerWrappers.createServerHeaderHandlerWrapper(getServerHeader()));
     }
-    if (!CollectionUtils.isEmpty(getCookieSameSiteSuppliers())) {
+    if (CollectionUtils.isNotEmpty(getCookieSameSiteSuppliers())) {
       handler = applyWrapper(handler, new SuppliedSameSiteCookieHandlerWrapper(getCookieSameSiteSuppliers()));
     }
     return handler;

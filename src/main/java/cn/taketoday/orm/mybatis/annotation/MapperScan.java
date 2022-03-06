@@ -148,7 +148,7 @@ public @interface MapperScan {
   String sqlSessionTemplateRef() default "";
 
   /**
-   * Specifies which {@code SqlSessionFactory} to use in the case that there is more than one in the spring context.
+   * Specifies which {@code SqlSessionFactory} to use in the case that there is more than one in the Framework context.
    * Usually this is only needed when you have more than one datasource.
    *
    * @return the bean name of {@code SqlSessionFactory}
@@ -156,7 +156,7 @@ public @interface MapperScan {
   String sqlSessionFactoryRef() default "";
 
   /**
-   * Specifies a custom MapperFactoryBean to return a mybatis proxy as spring bean.
+   * Specifies a custom MapperFactoryBean to return a mybatis proxy as Framework bean.
    *
    * @return the class of {@code MapperFactoryBean}
    */

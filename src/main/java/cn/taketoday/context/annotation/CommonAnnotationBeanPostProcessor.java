@@ -290,9 +290,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
-  public void processDependencies(Object bean, BeanDefinition definition) {
-    String beanName = definition.getBeanName();
-    PropertyValues propertyValues = definition.getPropertyValues();
+  public void processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
+    String beanName = beanName.getBeanName();
+    PropertyValues propertyValues = beanName.getPropertyValues();
     InjectionMetadata metadata = findResourceMetadata(
             beanName, bean.getClass(), propertyValues);
     try {

@@ -18,6 +18,6 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 /**
- * Contains core classes to build the MyBatis integration with Spring3.X.
+ * Contains core classes to build the MyBatis integration with Framework
  */
 package cn.taketoday.orm.mybatis;

@@ -497,7 +497,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
       String sessionCookieName = deployment.getServletContext().getSessionCookieConfig().getName();
       suppliers.add(CookieSameSiteSupplier.of(sessionSameSite).whenHasName(sessionCookieName));
     }
-    if (!CollectionUtils.isEmpty(getCookieSameSiteSuppliers())) {
+    if (CollectionUtils.isNotEmpty(getCookieSameSiteSuppliers())) {
       suppliers.addAll(getCookieSameSiteSuppliers());
     }
     return (!suppliers.isEmpty()) ? (next) -> new SuppliedSameSiteCookieHandler(next, suppliers) : null;

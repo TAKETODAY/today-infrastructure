@@ -122,7 +122,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
 
   @Override
   public void setConfigLocations(String... configLocations) {
-    if (!ObjectUtils.isEmpty(configLocations)) {
+    if (ObjectUtils.isNotEmpty(configLocations)) {
       throw new UnsupportedOperationException(
               "GenericWebApplicationContext does not support setConfigLocations(). " +
                       "Do you still have a 'contextConfigLocations' init-param set?");

@@ -83,8 +83,9 @@ import cn.taketoday.transaction.UnexpectedRollbackException;
  * @see cn.taketoday.transaction.jta.JtaTransactionManager
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager, Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Always activate transaction synchronization, even for "empty" transactions

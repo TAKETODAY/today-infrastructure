@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.role.ComponentWithRole;
 import cn.taketoday.context.annotation.role.ComponentWithoutRole;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

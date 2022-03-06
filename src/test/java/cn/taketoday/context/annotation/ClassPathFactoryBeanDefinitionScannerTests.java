@@ -31,7 +31,6 @@ import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

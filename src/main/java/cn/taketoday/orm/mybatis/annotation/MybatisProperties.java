@@ -89,7 +89,7 @@ public class MybatisProperties implements ResourceLoaderAware {
   private ExecutorType executorType;
 
   /**
-   * The default scripting language driver class. (Available when use together with mybatis-spring 2.0.2+)
+   * The default scripting language driver class.
    */
   @Nullable
   private Class<? extends LanguageDriver> defaultScriptingLanguageDriver;

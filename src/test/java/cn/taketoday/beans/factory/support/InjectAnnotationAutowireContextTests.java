@@ -171,7 +171,7 @@ public class InjectAnnotationAutowireContextTests {
     BeanDefinition person = new BeanDefinition(QualifiedPerson.class, cavs, null);
 
 //    context.registerBeanDefinition(JUERGEN,
-//            ScopedProxyUtils.createScopedProxy(new BeanDefinitionHolder(person, JUERGEN), context, true)
+//            ScopedProxyUtils.createScopedProxy(new BeanDefinition(person, JUERGEN), context, true)
 //                    .getBeanDefinition());
 
     context.registerBeanDefinition(JUERGEN, person);

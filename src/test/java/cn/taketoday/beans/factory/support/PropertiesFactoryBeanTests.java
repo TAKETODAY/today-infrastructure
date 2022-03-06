@@ -26,7 +26,7 @@ import java.util.Properties;
 
 import cn.taketoday.core.io.Resource;
 
-import static cn.taketoday.core.io.ResourceTestUtils.qualifiedResource;
+import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

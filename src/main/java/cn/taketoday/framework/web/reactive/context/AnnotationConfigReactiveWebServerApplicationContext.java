@@ -28,12 +28,11 @@ import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
+import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
@@ -213,7 +212,7 @@ public class AnnotationConfigReactiveWebServerApplicationContext extends Reactiv
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    if (!ObjectUtils.isEmpty(this.basePackages)) {
+    if (ObjectUtils.isNotEmpty(this.basePackages)) {
       this.scanner.scan(this.basePackages);
     }
     if (!this.annotatedClasses.isEmpty()) {

@@ -204,7 +204,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
     if (urlMapping.length == 0 && this.alwaysMapUrl) {
       urlMapping = DEFAULT_MAPPINGS;
     }
-    if (!ObjectUtils.isEmpty(urlMapping)) {
+    if (ObjectUtils.isNotEmpty(urlMapping)) {
       registration.addMapping(urlMapping);
     }
     registration.setLoadOnStartup(this.loadOnStartup);

@@ -33,7 +33,6 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.loader.CandidateComponentsTestClassLoader;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;

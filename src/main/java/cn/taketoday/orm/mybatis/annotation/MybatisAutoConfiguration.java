@@ -37,7 +37,6 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -45,7 +44,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
-import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
@@ -211,14 +209,11 @@ public class MybatisAutoConfiguration implements InitializingBean {
    * you can explicitly use {@link MapperScan} but this will get typed mappers working
    * correctly, out-of-the-box, similar to using Framework Data JPA repositories.
    */
-  public static class AutoConfiguredMapperScannerRegistrar
-          implements BeanFactoryAware, EnvironmentAware, ImportBeanDefinitionRegistrar {
-
-    private BeanFactory beanFactory;
-    private Environment environment;
+  public static class AutoConfiguredMapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
+      BeanFactory beanFactory = context.getBeanFactory();
       if (!AutoConfigurationPackages.has(beanFactory)) {
         log.debug("Could not determine auto-configuration package, automatic mapper scanning disabled.");
         return;
@@ -240,9 +235,8 @@ public class MybatisAutoConfiguration implements InitializingBean {
       definition.addPropertyValue("lazyInitialization", "${mybatis.lazy-initialization:false}");
       definition.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(packages));
 
-      boolean injectSqlSession = environment.getProperty(
-              "mybatis.inject-sql-session-on-mapper-scan", Boolean.class, Boolean.TRUE);
-      if (injectSqlSession && beanFactory != null) {
+      Environment environment = context.getEnvironment();
+      if (environment.getProperty("mybatis.inject-sql-session-on-mapper-scan", Boolean.class, Boolean.TRUE)) {
         String sqlSessionFactoryBeanName = getBeanNameForType(SqlSessionFactory.class, beanFactory);
         String sqlSessionTemplateBeanName = getBeanNameForType(SqlSessionTemplate.class, beanFactory);
         if (sqlSessionTemplateBeanName != null || sqlSessionFactoryBeanName == null) {
@@ -256,16 +250,6 @@ public class MybatisAutoConfiguration implements InitializingBean {
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
       context.registerBeanDefinition(MapperScannerConfigurer.class.getName(), definition);
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-      this.beanFactory = beanFactory;
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-      this.environment = environment;
     }
 
     @Nullable

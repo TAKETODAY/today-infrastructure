@@ -361,8 +361,8 @@ class ConfigurationClassPostProcessorTests {
 //  void postProcessorDoesNotOverrideRegularBeanDefinitionsEvenWithScopedProxy() {
 //    BeanDefinition rbd = new BeanDefinition(TestBean.class);
 //    rbd.setSource(new DescriptiveResource("XML or something"));
-//    BeanDefinitionHolder proxied = ScopedProxyUtils.createScopedProxy(
-//            new BeanDefinitionHolder(rbd, "bar"), beanFactory, true);
+//    BeanDefinition proxied = ScopedProxyUtils.createScopedProxy(
+//            new BeanDefinition(rbd, "bar"), beanFactory, true);
 //    beanFactory.registerBeanDefinition("bar", proxied.getBeanDefinition());
 //    beanFactory.registerBeanDefinition("config", new BeanDefinition(SingletonBeanConfig.class));
 //    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);

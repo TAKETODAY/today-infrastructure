@@ -175,7 +175,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
    */
   protected String getMessage(RequestContext webRequest, Throwable error) {
     Object message = getAttribute(webRequest, RequestDispatcher.ERROR_MESSAGE);
-    if (!ObjectUtils.isEmpty(message)) {
+    if (ObjectUtils.isNotEmpty(message)) {
       return message.toString();
     }
     if (error != null && StringUtils.isNotEmpty(error.getMessage())) {

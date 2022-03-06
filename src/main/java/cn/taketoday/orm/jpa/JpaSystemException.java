@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,24 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.io;
+package cn.taketoday.orm.jpa;
+
+import cn.taketoday.dao.UncategorizedDataAccessException;
 
 /**
- * Convenience utilities for common operations with test resources.
+ * JPA-specific subclass of UncategorizedDataAccessException,
+ * for JPA system errors that do not match any concrete
+ * {@code cn.taketoday.dao} exceptions.
  *
- * @author Chris Beams
+ * @author Juergen Hoeller
+ * @see EntityManagerFactoryUtils#convertJpaAccessExceptionIfPossible
+ * @since 4.0
  */
-public abstract class ResourceTestUtils {
+@SuppressWarnings("serial")
+public class JpaSystemException extends UncategorizedDataAccessException {
 
-  /**
-   * Load a {@link ClassPathResource} qualified by the simple name of clazz,
-   * and relative to the package for clazz.
-   * <p>Example: given a clazz 'com.foo.BarTests' and a resourceSuffix of 'context.xml',
-   * this method will return a ClassPathResource representing com/foo/BarTests-context.xml
-   * <p>Intended for use loading context configuration XML files within JUnit tests.
-   */
-  public static ClassPathResource qualifiedResource(Class<?> clazz, String resourceSuffix) {
-    return new ClassPathResource(String.format("%s-%s", clazz.getSimpleName(), resourceSuffix), clazz);
+  public JpaSystemException(RuntimeException ex) {
+    super(ex.getMessage(), ex);
   }
 
 }

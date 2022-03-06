@@ -30,7 +30,7 @@ import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
+import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

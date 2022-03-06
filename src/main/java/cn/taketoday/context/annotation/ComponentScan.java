@@ -27,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
@@ -57,7 +56,7 @@ import cn.taketoday.core.type.filter.TypeFilter;
  * @author Sam Brannen
  * @author TODAY 2019-11-13 23:52
  * @see Configuration
- * @see cn.taketoday.context.loader.ClassPathBeanDefinitionScanner
+ * @see ClassPathBeanDefinitionScanner
  */
 @Documented
 @Target(ElementType.TYPE)

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,20 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.orm.jpa.hibernate.beans;
 
-/**
- * Marker subclass of {@link IllegalStateException}, allowing for explicit
- * catch clauses in calling code.
- *
- * @author Chris Beams
- * @since 4.0
- */
-@SuppressWarnings("serial")
-class ConflictingBeanDefinitionException extends IllegalStateException {
-
-  public ConflictingBeanDefinitionException(String message) {
-    super(message);
-  }
-
+public enum BeanSource {
+  SPRING,
+  FALLBACK
 }

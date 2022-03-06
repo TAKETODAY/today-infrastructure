@@ -257,7 +257,7 @@ public class ResponseEntityExceptionHandler {
    * @param status the selected response status
    * @param request the current request
    * @return {@code ResponseEntity} or {@code null} if response is committed
-   * @since 4.2
+   * @since 4.0
    */
   @Nullable
   protected ResponseEntity<Object> handleMissingPathVariable(

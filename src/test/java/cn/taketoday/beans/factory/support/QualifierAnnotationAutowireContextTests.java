@@ -165,7 +165,7 @@ public class QualifierAnnotationAutowireContextTests {
     BeanDefinition person = new BeanDefinition(QualifiedPerson.class, cavs, null);
 
 //    context.registerBeanDefinition(JUERGEN,
-//            ScopedProxyUtils.createScopedProxy(new BeanDefinitionHolder(person, JUERGEN), context, true).getBeanDefinition());
+//            ScopedProxyUtils.createScopedProxy(new BeanDefinition(person, JUERGEN), context, true).getBeanDefinition());
 
     context.registerBeanDefinition(JUERGEN, person);
 
