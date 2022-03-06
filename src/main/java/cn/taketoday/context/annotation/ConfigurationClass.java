@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -197,13 +198,15 @@ final class ConfigurationClass {
 
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
-    Map<String, Object> attributes = this.metadata.getAnnotationAttributes(Configuration.class.getName());
-    if (attributes != null && (Boolean) attributes.get("proxyBeanMethods")) {
-      if (this.metadata.isFinal()) {
-        problemReporter.error(new FinalConfigurationProblem());
-      }
-      for (ComponentMethod componentMethod : this.componentMethods) {
-        componentMethod.validate(problemReporter);
+    MergedAnnotation<Configuration> annotation = metadata.getAnnotation(Configuration.class);
+    if (annotation.isPresent()) {
+      if (annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
+        if (metadata.isFinal()) {
+          problemReporter.error(new FinalConfigurationProblem());
+        }
+        for (ComponentMethod componentMethod : this.componentMethods) {
+          componentMethod.validate(problemReporter);
+        }
       }
     }
   }

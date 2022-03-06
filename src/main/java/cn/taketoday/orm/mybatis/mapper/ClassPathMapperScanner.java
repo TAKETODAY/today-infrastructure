@@ -19,6 +19,7 @@
  */
 package cn.taketoday.orm.mybatis.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import java.lang.annotation.Annotation;
@@ -26,15 +27,15 @@ import java.util.Arrays;
 import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
 import cn.taketoday.context.loader.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
-import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
@@ -62,16 +63,22 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
   private boolean lazyInitialization;
 
+  @Nullable
   private SqlSessionFactory sqlSessionFactory;
 
+  @Nullable
   private SqlSessionTemplate sqlSessionTemplate;
 
+  @Nullable
   private String sqlSessionTemplateBeanName;
 
+  @Nullable
   private String sqlSessionFactoryBeanName;
 
-  private Class<? extends Annotation> annotationClass;
+  @Nullable
+  private Class<? extends Annotation> annotationClass = Mapper.class;
 
+  @Nullable
   private Class<?> markerInterface;
 
   private Class<? extends MapperFactoryBean> mapperFactoryBeanClass = MapperFactoryBean.class;
@@ -86,7 +93,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     this.addToConfig = addToConfig;
   }
 
-  public void setAnnotationClass(Class<? extends Annotation> annotationClass) {
+  public void setAnnotationClass(@Nullable Class<? extends Annotation> annotationClass) {
     this.annotationClass = annotationClass;
   }
 
@@ -102,7 +109,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     this.lazyInitialization = lazyInitialization;
   }
 
-  public void setMarkerInterface(Class<?> markerInterface) {
+  public void setMarkerInterface(@Nullable Class<?> markerInterface) {
     this.markerInterface = markerInterface;
   }
 
@@ -160,7 +167,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     if (this.markerInterface != null) {
       addIncludeFilter(new AssignableTypeFilter(this.markerInterface) {
         @Override
-        protected boolean matchClassName(@NonNull String className) {
+        protected boolean matchClassName(String className) {
           return false;
         }
       });

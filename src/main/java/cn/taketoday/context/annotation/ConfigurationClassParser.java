@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -153,7 +154,7 @@ class ConfigurationClassParser {
       }
     }
 
-    this.deferredImportSelectorHandler.process();
+    deferredImportSelectorHandler.process();
   }
 
   protected final void parse(@Nullable String className, String beanName) throws IOException {
@@ -177,19 +178,19 @@ class ConfigurationClassParser {
    */
   public void validate() {
     ProblemReporter problemReporter = bootstrapContext.getProblemReporter();
-    for (ConfigurationClass configClass : this.configurationClasses.keySet()) {
+    for (ConfigurationClass configClass : configurationClasses.keySet()) {
       configClass.validate(problemReporter);
     }
   }
 
   public Set<ConfigurationClass> getConfigurationClasses() {
-    return this.configurationClasses.keySet();
+    return configurationClasses.keySet();
   }
 
   protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
     if (bootstrapContext.passCondition(
             configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
-      ConfigurationClass existingClass = this.configurationClasses.get(configClass);
+      ConfigurationClass existingClass = configurationClasses.get(configClass);
       if (existingClass != null) {
         if (configClass.isImported()) {
           if (existingClass.isImported()) {
@@ -201,8 +202,8 @@ class ConfigurationClassParser {
         else {
           // Explicit bean definition found, probably replacing an import.
           // Let's remove the old one and go with the new one.
-          this.configurationClasses.remove(configClass);
-          this.knownSuperclasses.values().removeIf(configClass::equals);
+          configurationClasses.remove(configClass);
+          knownSuperclasses.values().removeIf(configClass::equals);
         }
       }
 
@@ -213,7 +214,7 @@ class ConfigurationClassParser {
       }
       while (sourceClass != null);
 
-      this.configurationClasses.put(configClass, configClass);
+      configurationClasses.put(configClass, configClass);
     }
   }
 
@@ -243,8 +244,8 @@ class ConfigurationClassParser {
         processPropertySource(propertySource);
       }
       else {
-        logger.info("Ignoring @PropertySource annotation on [" + sourceClass.getMetadata().getClassName() +
-                "]. Reason: Environment must implement ConfigurableEnvironment");
+        logger.info("Ignoring @PropertySource annotation on [{}]." +
+                " Reason: Environment must implement ConfigurableEnvironment", sourceClass.getMetadata().getClassName());
       }
     }
 
@@ -283,9 +284,10 @@ class ConfigurationClassParser {
     // Process superclass, if any
     if (sourceClass.getMetadata().hasSuperClass()) {
       String superclass = sourceClass.getMetadata().getSuperClassName();
-      if (superclass != null && !superclass.startsWith("java")
-              && !this.knownSuperclasses.containsKey(superclass)) {
-        this.knownSuperclasses.put(superclass, configClass);
+      if (superclass != null
+              && !superclass.startsWith("java")
+              && !knownSuperclasses.containsKey(superclass)) {
+        knownSuperclasses.put(superclass, configClass);
         // Superclass found, return its annotation metadata and recurse
         return sourceClass.getSuperClass();
       }
@@ -298,31 +300,29 @@ class ConfigurationClassParser {
   /**
    * Register member (nested) classes that happen to be configuration classes themselves.
    */
-  private void processMemberClasses(
-          ConfigurationClass configClass, SourceClass sourceClass,
-          Predicate<String> filter) throws IOException {
-    ProblemReporter problemReporter = bootstrapContext.getProblemReporter();
+  private void processMemberClasses(ConfigurationClass configClass,
+          SourceClass sourceClass, Predicate<String> filter) throws IOException {
     Collection<SourceClass> memberClasses = sourceClass.getMemberClasses();
     if (!memberClasses.isEmpty()) {
-      List<SourceClass> candidates = new ArrayList<>(memberClasses.size());
+      ArrayList<SourceClass> candidates = new ArrayList<>(memberClasses.size());
       for (SourceClass memberClass : memberClasses) {
-        if (ConfigurationClassUtils.isConfigurationCandidate(memberClass.getMetadata()) &&
-                !memberClass.getMetadata().getClassName().equals(configClass.getMetadata().getClassName())) {
+        if (ConfigurationClassUtils.isConfigurationCandidate(memberClass.getMetadata())
+                && !memberClass.getMetadata().getClassName().equals(configClass.getMetadata().getClassName())) {
           candidates.add(memberClass);
         }
       }
       OrderComparator.sort(candidates);
       for (SourceClass candidate : candidates) {
-        if (this.importStack.contains(configClass)) {
-          problemReporter.error(new CircularImportProblem(configClass, this.importStack));
+        if (importStack.contains(configClass)) {
+          bootstrapContext.reportError(new CircularImportProblem(configClass, importStack));
         }
         else {
-          this.importStack.push(configClass);
+          importStack.push(configClass);
           try {
             processConfigurationClass(candidate.asConfigClass(configClass), filter);
           }
           finally {
-            this.importStack.pop();
+            importStack.pop();
           }
         }
       }
@@ -432,7 +432,7 @@ class ConfigurationClassParser {
     Environment environment = bootstrapContext.getEnvironment();
     cn.taketoday.core.env.PropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
 
-    if (this.propertySourceNames.contains(name)) {
+    if (propertySourceNames.contains(name)) {
       // We've already added a version, we need to extend it
       cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
@@ -457,14 +457,14 @@ class ConfigurationClassParser {
       }
     }
 
-    if (this.propertySourceNames.isEmpty()) {
+    if (propertySourceNames.isEmpty()) {
       propertySources.addLast(propertySource);
     }
     else {
-      String firstProcessed = this.propertySourceNames.get(this.propertySourceNames.size() - 1);
+      String firstProcessed = propertySourceNames.get(propertySourceNames.size() - 1);
       propertySources.addBefore(firstProcessed, propertySource);
     }
-    this.propertySourceNames.add(name);
+    propertySourceNames.add(name);
   }
 
   static <A extends Annotation, C extends Annotation> Set<MergedAnnotation<A>> repeatable(
@@ -549,23 +549,23 @@ class ConfigurationClassParser {
     }
 
     if (checkForCircularImports && isChainedImportOnStack(configClass)) {
-      bootstrapContext.reportError(new CircularImportProblem(configClass, this.importStack));
+      bootstrapContext.reportError(new CircularImportProblem(configClass, importStack));
     }
     else {
-      this.importStack.push(configClass);
+      importStack.push(configClass);
       try {
         for (SourceClass candidate : importCandidates) {
           if (candidate.isAssignable(ImportSelector.class)) {
             // Candidate class is an ImportSelector -> delegate to it to determine imports
             Class<?> candidateClass = candidate.loadClass();
-            ImportSelector selector = ParserStrategyUtils.instantiateClass(
+            var selector = ParserStrategyUtils.instantiateClass(
                     candidateClass, ImportSelector.class, bootstrapContext);
             Predicate<String> selectorFilter = selector.getExclusionFilter();
             if (selectorFilter != null) {
               exclusionFilter = exclusionFilter.or(selectorFilter);
             }
             if (selector instanceof DeferredImportSelector deferredSelector) {
-              this.deferredImportSelectorHandler.handle(configClass, deferredSelector);
+              deferredImportSelectorHandler.handle(configClass, deferredSelector);
             }
             else {
               String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
@@ -577,15 +577,14 @@ class ConfigurationClassParser {
             // Candidate class is an ImportBeanDefinitionRegistrar ->
             // delegate to it to register additional bean definitions
             Class<?> candidateClass = candidate.loadClass();
-            ImportBeanDefinitionRegistrar registrar =
-                    ParserStrategyUtils.instantiateClass(
-                            candidateClass, ImportBeanDefinitionRegistrar.class, bootstrapContext);
+            var registrar = ParserStrategyUtils.instantiateClass(
+                    candidateClass, ImportBeanDefinitionRegistrar.class, bootstrapContext);
             configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
           }
           else {
             // Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
             // process it as an @Configuration class
-            this.importStack.registerImport(
+            importStack.registerImport(
                     currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
             processConfigurationClass(candidate.asConfigClass(configClass), exclusionFilter);
           }
@@ -600,27 +599,27 @@ class ConfigurationClassParser {
                         configClass.getMetadata().getClassName() + "]", ex);
       }
       finally {
-        this.importStack.pop();
+        importStack.pop();
       }
     }
   }
 
   private boolean isChainedImportOnStack(ConfigurationClass configClass) {
-    if (this.importStack.contains(configClass)) {
+    if (importStack.contains(configClass)) {
       String configClassName = configClass.getMetadata().getClassName();
-      AnnotationMetadata importingClass = this.importStack.getImportingClassFor(configClassName);
+      AnnotationMetadata importingClass = importStack.getImportingClassFor(configClassName);
       while (importingClass != null) {
         if (configClassName.equals(importingClass.getClassName())) {
           return true;
         }
-        importingClass = this.importStack.getImportingClassFor(importingClass.getClassName());
+        importingClass = importStack.getImportingClassFor(importingClass.getClassName());
       }
     }
     return false;
   }
 
   ImportRegistry getImportRegistry() {
-    return this.importStack;
+    return importStack;
   }
 
   /**
@@ -639,7 +638,7 @@ class ConfigurationClassParser {
    */
   SourceClass asSourceClass(@Nullable Class<?> classType, Predicate<String> filter) throws IOException {
     if (classType == null || filter.test(classType.getName())) {
-      return this.objectSourceClass;
+      return objectSourceClass;
     }
     try {
       // Sanity test that we can reflectively read annotations,
@@ -671,7 +670,7 @@ class ConfigurationClassParser {
    */
   SourceClass asSourceClass(@Nullable String className, Predicate<String> filter) throws IOException {
     if (className == null || filter.test(className)) {
-      return this.objectSourceClass;
+      return objectSourceClass;
     }
     if (className.startsWith("java")) {
       // Never use ASM for core java types
@@ -701,18 +700,18 @@ class ConfigurationClassParser {
      */
     public void handle(ConfigurationClass configClass, DeferredImportSelector importSelector) {
       DeferredImportSelectorHolder holder = new DeferredImportSelectorHolder(configClass, importSelector);
-      if (this.deferredImportSelectors == null) {
+      if (deferredImportSelectors == null) {
         DeferredImportSelectorGroupingHandler handler = new DeferredImportSelectorGroupingHandler();
         handler.register(holder);
         handler.processGroupImports();
       }
       else {
-        this.deferredImportSelectors.add(holder);
+        deferredImportSelectors.add(holder);
       }
     }
 
     public void process() {
-      List<DeferredImportSelectorHolder> deferredImports = this.deferredImportSelectors;
+      List<DeferredImportSelectorHolder> deferredImports = deferredImportSelectors;
       this.deferredImportSelectors = null;
       try {
         if (deferredImports != null) {
@@ -814,16 +813,16 @@ class ConfigurationClassParser {
      * @return each import with its associated configuration class
      */
     public Iterable<Group.Entry> getImports() {
-      for (DeferredImportSelectorHolder deferredImport : this.deferredImports) {
-        this.group.process(deferredImport.getConfigurationClass().getMetadata(),
+      for (DeferredImportSelectorHolder deferredImport : deferredImports) {
+        group.process(deferredImport.getConfigurationClass().getMetadata(),
                 deferredImport.getImportSelector());
       }
-      return this.group.selectImports();
+      return group.selectImports();
     }
 
     public Predicate<String> getCandidateFilter() {
       Predicate<String> mergedFilter = DEFAULT_EXCLUSION_FILTER;
-      for (DeferredImportSelectorHolder deferredImport : this.deferredImports) {
+      for (DeferredImportSelectorHolder deferredImport : deferredImports) {
         Predicate<String> selectorFilter = deferredImport.getImportSelector().getExclusionFilter();
         if (selectorFilter != null) {
           mergedFilter = mergedFilter.or(selectorFilter);
@@ -846,7 +845,7 @@ class ConfigurationClassParser {
 
     @Override
     public Iterable<Entry> selectImports() {
-      return this.imports;
+      return imports;
     }
   }
 
@@ -875,31 +874,31 @@ class ConfigurationClassParser {
 
     @Override
     public int getOrder() {
-      Integer order = ConfigurationClassUtils.getOrder(this.metadata);
+      Integer order = ConfigurationClassUtils.getOrder(metadata);
       return (order != null ? order : Ordered.LOWEST_PRECEDENCE);
     }
 
     public Class<?> loadClass() throws ClassNotFoundException {
-      if (this.source instanceof Class) {
-        return (Class<?>) this.source;
+      if (source instanceof Class) {
+        return (Class<?>) source;
       }
-      String className = ((MetadataReader) this.source).getClassMetadata().getClassName();
+      String className = ((MetadataReader) source).getClassMetadata().getClassName();
       return ClassUtils.forName(className, bootstrapContext.getClassLoader());
     }
 
     public boolean isAssignable(Class<?> clazz) throws IOException {
-      if (this.source instanceof Class) {
-        return clazz.isAssignableFrom((Class<?>) this.source);
+      if (source instanceof Class) {
+        return clazz.isAssignableFrom((Class<?>) source);
       }
       return new AssignableTypeFilter(clazz)
-              .match((MetadataReader) this.source, bootstrapContext.getMetadataReaderFactory());
+              .match((MetadataReader) source, bootstrapContext.getMetadataReaderFactory());
     }
 
     public ConfigurationClass asConfigClass(ConfigurationClass importedBy) {
-      if (this.source instanceof Class) {
-        return new ConfigurationClass((Class<?>) this.source, importedBy);
+      if (source instanceof Class) {
+        return new ConfigurationClass((Class<?>) source, importedBy);
       }
-      return new ConfigurationClass((MetadataReader) this.source, importedBy);
+      return new ConfigurationClass((MetadataReader) source, importedBy);
     }
 
     public Collection<SourceClass> getMemberClasses() throws IOException {
@@ -940,22 +939,22 @@ class ConfigurationClassParser {
     }
 
     public SourceClass getSuperClass() throws IOException {
-      if (this.source instanceof Class) {
-        return asSourceClass(((Class<?>) this.source).getSuperclass(), DEFAULT_EXCLUSION_FILTER);
+      if (source instanceof Class) {
+        return asSourceClass(((Class<?>) source).getSuperclass(), DEFAULT_EXCLUSION_FILTER);
       }
       return asSourceClass(
-              ((MetadataReader) this.source).getClassMetadata().getSuperClassName(), DEFAULT_EXCLUSION_FILTER);
+              ((MetadataReader) source).getClassMetadata().getSuperClassName(), DEFAULT_EXCLUSION_FILTER);
     }
 
-    public Set<SourceClass> getInterfaces() throws IOException {
-      Set<SourceClass> result = new LinkedHashSet<>();
-      if (this.source instanceof Class<?> sourceClass) {
+    public LinkedHashSet<SourceClass> getInterfaces() throws IOException {
+      LinkedHashSet<SourceClass> result = new LinkedHashSet<>();
+      if (source instanceof Class<?> sourceClass) {
         for (Class<?> ifcClass : sourceClass.getInterfaces()) {
           result.add(asSourceClass(ifcClass, DEFAULT_EXCLUSION_FILTER));
         }
       }
       else {
-        for (String className : this.metadata.getInterfaceNames()) {
+        for (String className : metadata.getInterfaceNames()) {
           result.add(asSourceClass(className, DEFAULT_EXCLUSION_FILTER));
         }
       }
@@ -963,8 +962,8 @@ class ConfigurationClassParser {
     }
 
     public Set<SourceClass> getAnnotationsAsSourceClass() {
-      Set<SourceClass> result = new LinkedHashSet<>();
-      if (this.source instanceof Class<?> sourceClass) {
+      LinkedHashSet<SourceClass> result = new LinkedHashSet<>();
+      if (source instanceof Class<?> sourceClass) {
         for (Annotation ann : sourceClass.getDeclaredAnnotations()) {
           Class<?> annType = ann.annotationType();
           if (!annType.getName().startsWith("java")) {
@@ -979,7 +978,7 @@ class ConfigurationClassParser {
         }
       }
       else {
-        for (String className : this.metadata.getAnnotationTypes()) {
+        for (String className : metadata.getAnnotationTypes()) {
           if (!className.startsWith("java")) {
             try {
               result.add(getRelated(className));
@@ -995,22 +994,25 @@ class ConfigurationClassParser {
     }
 
     public Collection<SourceClass> getAnnotationAttributes(String annType, String attribute) throws IOException {
-      Map<String, Object> annotationAttributes = this.metadata.getAnnotationAttributes(annType, true);
-      if (annotationAttributes == null || !annotationAttributes.containsKey(attribute)) {
-        return Collections.emptySet();
+      MergedAnnotation<Annotation> annotation = metadata.getAnnotation(annType);
+      if (annotation.isPresent()) {
+        Optional<String[]> optional = annotation.getValue(attribute, String[].class);
+        if (optional.isPresent()) {
+          String[] classNames = optional.get();
+          LinkedHashSet<SourceClass> result = new LinkedHashSet<>();
+          for (String className : classNames) {
+            result.add(getRelated(className));
+          }
+          return result;
+        }
       }
-      String[] classNames = (String[]) annotationAttributes.get(attribute);
-      Set<SourceClass> result = new LinkedHashSet<>();
-      for (String className : classNames) {
-        result.add(getRelated(className));
-      }
-      return result;
+      return Collections.emptySet();
     }
 
     private SourceClass getRelated(String className) throws IOException {
-      if (this.source instanceof Class) {
+      if (source instanceof Class) {
         try {
-          Class<?> clazz = ClassUtils.forName(className, ((Class<?>) this.source).getClassLoader());
+          Class<?> clazz = ClassUtils.forName(className, ((Class<?>) source).getClassLoader());
           return asSourceClass(clazz, DEFAULT_EXCLUSION_FILTER);
         }
         catch (ClassNotFoundException ex) {
@@ -1027,17 +1029,17 @@ class ConfigurationClassParser {
     @Override
     public boolean equals(@Nullable Object other) {
       return this == other
-              || (other instanceof SourceClass && this.metadata.getClassName().equals(((SourceClass) other).metadata.getClassName()));
+              || (other instanceof SourceClass && metadata.getClassName().equals(((SourceClass) other).metadata.getClassName()));
     }
 
     @Override
     public int hashCode() {
-      return this.metadata.getClassName().hashCode();
+      return metadata.getClassName().hashCode();
     }
 
     @Override
     public String toString() {
-      return this.metadata.getClassName();
+      return metadata.getClassName();
     }
   }
 

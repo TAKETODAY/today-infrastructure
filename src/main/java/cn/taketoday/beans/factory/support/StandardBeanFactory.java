@@ -781,8 +781,9 @@ public class StandardBeanFactory
 
   private Comparator<Object> adaptOrderComparator(Map<String, ?> matchingBeans) {
     Comparator<Object> dependencyComparator = getDependencyComparator();
-    OrderComparator comparator = dependencyComparator instanceof OrderComparator
-                                 ? (OrderComparator) dependencyComparator : OrderComparator.INSTANCE;
+    OrderComparator comparator =
+            dependencyComparator instanceof OrderComparator
+            ? (OrderComparator) dependencyComparator : OrderComparator.INSTANCE;
     return comparator.withSourceProvider(createFactoryAwareOrderSourceProvider(matchingBeans));
   }
 
@@ -1368,16 +1369,13 @@ public class StandardBeanFactory
       if (componentType == null) {
         return null;
       }
-      Map<String, Object> matchingBeans = findAutowireCandidates(beanName, componentType,
-              new MultiElementDescriptor(descriptor));
+      var matchingBeans = findAutowireCandidates(beanName, componentType, new MultiElementDescriptor(descriptor));
       if (matchingBeans.isEmpty()) {
         return null;
       }
       if (autowiredBeanNames != null) {
         autowiredBeanNames.addAll(matchingBeans.keySet());
       }
-//      TypeConverter converter = (typeConverter != null ? typeConverter : getTypeConverter());
-//      Object result = converter.convertIfNecessary(matchingBeans.values(), resolvedArrayType);
       Object result = convertIfNecessary(matchingBeans.values(), resolvedArrayType, typeConverter);
       if (result instanceof Object[]) {
         Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
@@ -1392,8 +1390,7 @@ public class StandardBeanFactory
       if (elementType == null) {
         return null;
       }
-      Map<String, Object> matchingBeans = findAutowireCandidates(beanName, elementType,
-              new MultiElementDescriptor(descriptor));
+      var matchingBeans = findAutowireCandidates(beanName, elementType, new MultiElementDescriptor(descriptor));
       if (matchingBeans.isEmpty()) {
         return null;
       }
@@ -1401,11 +1398,11 @@ public class StandardBeanFactory
         autowiredBeanNames.addAll(matchingBeans.keySet());
       }
       Object result = convertIfNecessary(matchingBeans.values(), type, typeConverter);
-      if (result instanceof List) {
-        if (((List<?>) result).size() > 1) {
+      if (result instanceof List<?> list) {
+        if (list.size() > 1) {
           Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
           if (comparator != null) {
-            ((List<?>) result).sort(comparator);
+            list.sort(comparator);
           }
         }
       }
@@ -1421,8 +1418,7 @@ public class StandardBeanFactory
       if (valueType == null) {
         return null;
       }
-      Map<String, Object> matchingBeans = findAutowireCandidates(beanName, valueType,
-              new MultiElementDescriptor(descriptor));
+      var matchingBeans = findAutowireCandidates(beanName, valueType, new MultiElementDescriptor(descriptor));
       if (matchingBeans.isEmpty()) {
         return null;
       }
@@ -1981,7 +1977,7 @@ public class StandardBeanFactory
 
     @SuppressWarnings("unchecked")
     private Stream<Object> resolveStream(boolean ordered) {
-      DependencyDescriptor descriptorToUse = new StreamDependencyDescriptor(this.descriptor, ordered);
+      DependencyDescriptor descriptorToUse = new StreamDependencyDescriptor(descriptor, ordered);
       Object result = doResolveDependency(descriptorToUse, this.beanName, null, null);
       return result instanceof Stream ? (Stream<Object>) result : Stream.of(result);
     }

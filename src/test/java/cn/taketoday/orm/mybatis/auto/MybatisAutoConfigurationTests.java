@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.orm.mybatis.annotation;
+package cn.taketoday.orm.mybatis.auto;
 
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.mapping.Environment;
@@ -55,9 +55,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.SimpleThreadScope;
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -65,6 +63,7 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -74,19 +73,22 @@ import cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguratio
 import cn.taketoday.jdbc.config.EmbeddedDataSourceConfiguration;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
-import cn.taketoday.orm.mybatis.auto.CityMapper;
-import cn.taketoday.orm.mybatis.auto.CityMapperImpl;
-import cn.taketoday.orm.mybatis.auto.DateTimeMapper;
+import cn.taketoday.orm.mybatis.annotation.ConfigurationCustomizer;
+import cn.taketoday.orm.mybatis.annotation.MapperScan;
+import cn.taketoday.orm.mybatis.annotation.MybatisAutoConfiguration;
+import cn.taketoday.orm.mybatis.annotation.MybatisProperties;
+import cn.taketoday.orm.mybatis.annotation.SqlSessionFactoryBeanCustomizer;
+import cn.taketoday.orm.mybatis.auto.handler.AtomicNumberTypeHandler;
+import cn.taketoday.orm.mybatis.auto.handler.DummyTypeHandler;
+import cn.taketoday.orm.mybatis.auto.mapper.DateTimeMapper;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
 import cn.taketoday.orm.mybatis.transaction.ManagedTransactionFactory;
-import cn.taketoday.orm.mybatis.type.AtomicNumberTypeHandler;
-import cn.taketoday.orm.mybatis.type.DummyTypeHandler;
 import cn.taketoday.testfixture.TestPropertyValues;
 import cn.taketoday.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -139,8 +141,12 @@ class MybatisAutoConfigurationTests {
 
   @Test
   void testDefaultConfiguration() {
-    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisScanMapperConfiguration.class,
-            MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
+    this.context.register(
+            EmbeddedDataSourceConfiguration.class,
+            MybatisScanMapperConfiguration.class,
+            MybatisAutoConfiguration.class,
+            PropertyPlaceholderAutoConfiguration.class
+    );
     this.context.refresh();
     SqlSessionFactory sqlSessionFactory = this.context.getBean(SqlSessionFactory.class);
     assertThat(sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers()).hasSize(1);
@@ -149,7 +155,8 @@ class MybatisAutoConfigurationTests {
     assertThat(this.context.getBeanNamesForType(DateTimeMapper.class)).hasSize(1);
     assertThat(this.context.getBean(SqlSessionTemplate.class).getExecutorType()).isEqualTo(ExecutorType.SIMPLE);
     assertThat(this.context.getBean(SqlSessionFactory.class).getConfiguration().isMapUnderscoreToCamelCase()).isFalse();
-    Map<String, LanguageDriver> languageDriverBeans = this.context.getBeansOfType(LanguageDriver.class);
+
+    //    Map<String, LanguageDriver> languageDriverBeans = this.context.getBeansOfType(LanguageDriver.class);
 //    assertThat(languageDriverBeans).hasSize(3).containsKeys("freeMarkerLanguageDriver", "velocityLanguageDriver",
 //            "thymeleafLanguageDriver");
 //
@@ -241,33 +248,37 @@ class MybatisAutoConfigurationTests {
     assertThat(sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers()).hasSize(1);
   }
 
-  @Test
-  void testAutoScanWithDefaultScope() {
-    TestPropertyValues.of("mybatis.mapper-default-scope:thread").applyTo(this.context);
-    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
-            MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
-    this.context.refresh();
-    {
-      this.context.getBean(CityMapper.class);
-      BeanDefinition bd = this.context.getBeanDefinition("cityMapper");
-      assertThat(bd.getBeanClassName()).isEqualTo(ScopedProxyFactoryBean.class.getName());
-      BeanDefinition spbd = this.context.getBeanDefinition("scopedTarget.cityMapper");
-      assertThat(spbd.getBeanClassName()).isEqualTo(MapperFactoryBean.class.getName());
-      assertThat(spbd.getScope()).isEqualTo("thread");
-    }
-  }
+//  @Test
+//  void testAutoScanWithDefaultScope() {
+//    TestPropertyValues.of("mybatis.mapper-default-scope:thread").applyTo(this.context);
+//    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
+//            MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
+//    this.context.refresh();
+//    {
+//      this.context.getBean(CityMapper.class);
+//      BeanDefinition bd = this.context.getBeanDefinition("cityMapper");
+//      assertThat(bd.getBeanClassName()).isEqualTo(ScopedProxyFactoryBean.class.getName());
+//      BeanDefinition spbd = this.context.getBeanDefinition("scopedTarget.cityMapper");
+//      assertThat(spbd.getBeanClassName()).isEqualTo(MapperFactoryBean.class.getName());
+//      assertThat(spbd.getScope()).isEqualTo("thread");
+//    }
+//  }
 
   @Test
   void testAutoScanWithoutDefaultScope() {
-    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
-            MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
+    this.context.register(
+            MybatisAutoConfiguration.class,
+            EmbeddedDataSourceConfiguration.class,
+            MybatisBootMapperScanAutoConfiguration.class,
+            PropertyPlaceholderAutoConfiguration.class
+    );
     this.context.refresh();
-    {
-      this.context.getBean(CityMapper.class);
-      BeanDefinition df = this.context.getBeanDefinition("cityMapper");
-      assertThat(df.getBeanClassName()).isEqualTo(MapperFactoryBean.class.getName());
-      assertThat(df.getScope()).isEqualTo("singleton");
-    }
+
+    CityMapper bean = this.context.getBean(CityMapper.class);
+    assertThat(bean).isNotNull();
+    BeanDefinition df = this.context.getBeanDefinition("cityMapper");
+    assertThat(df.getBeanClassName()).isEqualTo(MapperFactoryBean.class.getName());
+    assertThat(df.getScope()).isEqualTo("singleton");
   }
 
   @Test
@@ -305,20 +316,16 @@ class MybatisAutoConfigurationTests {
     TestPropertyValues.of("mybatis.config-location:foo.xml", "mybatis.check-config-location=true")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class);
-
-    try {
-      this.context.refresh();
-      fail("Should be occurred a BeanCreationException.");
-    }
-    catch (BeanCreationException e) {
-      assertThat(e.getMessage()).isEqualTo(
-              "Error creating bean with name 'mybatisAutoConfiguration': Invocation of init method failed; nested exception is java.lang.IllegalStateException: Cannot find config location: class path resource [foo.xml] (please add config file or check your Mybatis configuration)");
-    }
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh)
+            .withMessageContaining("Error creating bean with name 'mybatisAutoConfiguration': Invocation of init method failed")
+            .havingRootCause()
+            .withMessageContaining("Cannot find config location: class path resource [foo.xml] (please add config file or check your Mybatis configuration)");
   }
 
   @Test
   void testWithTypeHandlersPackage() {
-    TestPropertyValues.of("mybatis.type-handlers-package:org.mybatis.spring.boot.autoconfigure.handler")
+    TestPropertyValues.of("mybatis.type-handlers-package:cn.taketoday.orm.mybatis.auto.handler")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class,
             PropertyPlaceholderAutoConfiguration.class);
@@ -334,7 +341,7 @@ class MybatisAutoConfigurationTests {
   @Test
   void testWithMapperLocation() {
     TestPropertyValues
-            .of("mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
+            .of("mybatis.type-aliases-package:cn.taketoday.orm.mybatis.auto.domain",
                     "mybatis.mapper-locations:classpath:cn/taketoday/orm/mybatis/CityMapper.xml")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class,
@@ -437,12 +444,16 @@ class MybatisAutoConfigurationTests {
   @Test
   void testMixedWithConfigurationFileAndDatabaseIdProvider() {
     TestPropertyValues.of("mybatis.config-location:mybatis-config-settings-only.xml").applyTo(this.context);
-    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
-            DatabaseProvidersConfiguration.class);
+    this.context.register(
+            EmbeddedDataSourceConfiguration.class,
+            MybatisBootMapperScanAutoConfiguration.class,
+            DatabaseProvidersConfiguration.class
+    );
     this.context.refresh();
 
     org.apache.ibatis.session.Configuration configuration = this.context.getBean(SqlSessionFactory.class)
             .getConfiguration();
+
     assertThat(this.context.getBeanNamesForType(SqlSessionFactory.class)).hasSize(1);
     assertThat(this.context.getBeanNamesForType(SqlSessionTemplate.class)).hasSize(1);
     assertThat(this.context.getBeanNamesForType(CityMapper.class)).hasSize(1);
@@ -453,7 +464,7 @@ class MybatisAutoConfigurationTests {
   @Test
   void testMixedWithConfigurationFileAndTypeHandlersPackage() {
     TestPropertyValues.of("mybatis.config-location:mybatis-config-settings-only.xml",
-            "mybatis.type-handlers-package:org.mybatis.spring.boot.autoconfigure.handler.").applyTo(this.context);
+            "mybatis.type-handlers-package:cn.taketoday.orm.mybatis.auto.handler.").applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class);
     this.context.refresh();
 
@@ -477,7 +488,7 @@ class MybatisAutoConfigurationTests {
   void testMixedWithConfigurationFileAndTypeAliasesPackageAndMapperLocations() {
     TestPropertyValues
             .of("mybatis.config-location:mybatis-config-settings-only.xml",
-                    "mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
+                    "mybatis.type-aliases-package: cn.taketoday.orm.mybatis.auto.domain",
                     "mybatis.mapper-locations:classpath:cn/taketoday/orm/mybatis/CityMapper.xml")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class);
@@ -491,7 +502,7 @@ class MybatisAutoConfigurationTests {
     assertThat(configuration.getDefaultFetchSize()).isEqualTo(1000);
     assertThat(configuration.getMappedStatementNames()).contains("selectCityById");
     assertThat(configuration.getMappedStatementNames())
-            .contains("org.mybatis.spring.boot.autoconfigure.repository.CityMapperImpl.selectCityById");
+            .contains("cn.taketoday.orm.mybatis.auto.CityMapperImpl.selectCityById");
     assertThat(configuration.getTypeAliasRegistry().getTypeAliases()).containsKey("city");
     assertThat(configuration.getTypeAliasRegistry().getTypeAliases()).containsKey("name");
   }
@@ -499,8 +510,8 @@ class MybatisAutoConfigurationTests {
   @Test
   void testMixedWithFullConfigurations() {
     TestPropertyValues.of("mybatis.config-location:mybatis-config-settings-only.xml",
-            "mybatis.type-handlers-package:org.mybatis.spring.**.handler",
-            "mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
+            "mybatis.type-handlers-package:cn.taketoday.orm.mybatis.**.handler",
+            "mybatis.type-aliases-package:cn.taketoday.orm.mybatis.auto.domain",
             "mybatis.mapper-locations:classpath:cn/taketoday/orm/mybatis/CityMapper.xml",
             "mybatis.executor-type=REUSE").applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
@@ -522,10 +533,10 @@ class MybatisAutoConfigurationTests {
     assertThat(configuration.getMappedStatementNames()).hasSize(4);
     assertThat(configuration.getMappedStatementNames()).contains("selectCityById");
     assertThat(configuration.getMappedStatementNames())
-            .contains("org.mybatis.spring.boot.autoconfigure.repository.CityMapperImpl.selectCityById");
+            .contains("cn.taketoday.orm.mybatis.auto.CityMapperImpl.selectCityById");
     assertThat(configuration.getMappedStatementNames()).contains("findById");
     assertThat(configuration.getMappedStatementNames())
-            .contains("org.mybatis.spring.boot.autoconfigure.mapper.CityMapper.findById");
+            .contains("cn.taketoday.orm.mybatis.auto.CityMapper.findById");
     assertThat(this.context.getBean(SqlSessionTemplate.class).getExecutorType()).isEqualTo(ExecutorType.REUSE);
     assertThat(configuration.getInterceptors()).hasSize(2);
     assertThat(configuration.getInterceptors().get(0)).isInstanceOf(MyInterceptor2.class);
@@ -577,19 +588,16 @@ class MybatisAutoConfigurationTests {
 
   @Test
   void testConfigFileAndConfigurationWithTogether() {
-    TestPropertyValues
-            .of("mybatis.config-location:mybatis-config.xml", "mybatis.configuration.default-statement-timeout:30")
+    TestPropertyValues.of("mybatis.config-location:mybatis-config.xml",
+                    "mybatis.configuration.default-statement-timeout:30")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class);
 
-    try {
-      this.context.refresh();
-      fail("Should be occurred a BeanCreationException.");
-    }
-    catch (BeanCreationException e) {
-      assertThat(e.getMessage())
-              .contains("Property 'configuration' and 'configLocation' can not specified with together");
-    }
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh)
+            .havingRootCause()
+            .isInstanceOf(IllegalStateException.class)
+            .withMessageContaining("Property 'configuration' and 'configLocation' can not specified with together");
   }
 
   @Test
@@ -712,8 +720,8 @@ class MybatisAutoConfigurationTests {
   @Test
   void testTypeAliasesSuperTypeIsSpecify() {
     TestPropertyValues
-            .of("mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
-                    "mybatis.type-aliases-super-type:org.mybatis.spring.boot.autoconfigure.domain.Domain")
+            .of("mybatis.type-aliases-package:cn.taketoday.orm.mybatis.auto.domain",
+                    "mybatis.type-aliases-super-type:cn.taketoday.orm.mybatis.auto.domain.Domain")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class);
     this.context.refresh();
@@ -770,7 +778,7 @@ class MybatisAutoConfigurationTests {
   @Test
   void testExcludeMybatisLanguageDriverAutoConfiguration() {
     TestPropertyValues
-            .of("context.autoconfigure.exclude:org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfiguration")
+            .of("context.autoconfigure.exclude:cn.taketoday.orm.mybatis.auto.MybatisLanguageDriverAutoConfiguration")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisScanMapperConfiguration.class,
             MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
@@ -788,7 +796,7 @@ class MybatisAutoConfigurationTests {
 //  @Test
 //  void testMybatisLanguageDriverAutoConfigurationWithSingleCandidate() {
 //    TestPropertyValues
-//            .of("context.autoconfigure.exclude:org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfiguration")
+//            .of("context.autoconfigure.exclude:cn.taketoday.orm.mybatis.auto.MybatisLanguageDriverAutoConfiguration")
 //            .applyTo(this.context);
 //    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisScanMapperConfiguration.class,
 //            SingleLanguageDriverConfiguration.class, MybatisAutoConfiguration.class,
@@ -849,7 +857,8 @@ class MybatisAutoConfigurationTests {
 
   @Configuration
   @EnableAutoConfiguration
-  @MapperScan(basePackages = "com.example.mapper", lazyInitialization = "${mybatis.lazy-initialization:false}")
+  @MapperScan(basePackages = "cn.taketoday.orm.mybatis.auto.mapper",
+              lazyInitialization = "${mybatis.lazy-initialization:false}")
   static class MybatisScanMapperConfiguration {
   }
 
@@ -870,7 +879,7 @@ class MybatisAutoConfigurationTests {
     @Bean
     static MapperScannerConfigurer mapperScannerConfigurer() {
       MapperScannerConfigurer configurer = new MapperScannerConfigurer();
-      configurer.setBasePackage("com.example.mapper");
+      configurer.setBasePackage("cn.taketoday.orm.mybatis.auto.mapper");
       return configurer;
     }
   }
@@ -882,7 +891,6 @@ class MybatisAutoConfigurationTests {
     @Override
     public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
       beanFactory.registerScope("thread", new SimpleThreadScope());
-
     }
   }
 
@@ -967,9 +975,10 @@ class MybatisAutoConfigurationTests {
     }
   }
 
-  @Configuration
+  @Configuration(proxyBeanMethods = false)
   @EnableAutoConfiguration
   static class SqlSessionFactoryBeanCustomizerConfiguration {
+
     @Bean
     SqlSessionFactoryBeanCustomizer typeHandlerSqlSessionFactoryBeanCustomizer() {
       return factoryBean -> factoryBean.setTypeHandlers(new DummyTypeHandler());

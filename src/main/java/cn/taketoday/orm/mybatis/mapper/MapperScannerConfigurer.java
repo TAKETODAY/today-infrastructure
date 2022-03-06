@@ -26,13 +26,13 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.PropertyResourceConfigurer;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -42,6 +42,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.util.StringUtils;
 
@@ -72,7 +73,7 @@ import cn.taketoday.util.StringUtils;
  * <p>
  * Configuration sample:
  *
- * <pre class="code">
+ * <pre>
  * {@code
  *   <bean class="cn.taketoday.orm.mapper.MapperScannerConfigurer">
  *       <property name="basePackage" value="sample.mapper" />
@@ -105,8 +106,10 @@ public class MapperScannerConfigurer
 
   private String sqlSessionTemplateBeanName;
 
+  @Nullable
   private Class<? extends Annotation> annotationClass;
 
+  @Nullable
   private Class<?> markerInterface;
 
   private Class<? extends MapperFactoryBean> mapperFactoryBeanClass;
@@ -165,7 +168,7 @@ public class MapperScannerConfigurer
    *
    * @param annotationClass annotation class
    */
-  public void setAnnotationClass(Class<? extends Annotation> annotationClass) {
+  public void setAnnotationClass(@Nullable Class<? extends Annotation> annotationClass) {
     this.annotationClass = annotationClass;
   }
 
@@ -179,7 +182,7 @@ public class MapperScannerConfigurer
    *
    * @param superClass parent class
    */
-  public void setMarkerInterface(Class<?> superClass) {
+  public void setMarkerInterface(@Nullable Class<?> superClass) {
     this.markerInterface = superClass;
   }
 
@@ -337,6 +340,7 @@ public class MapperScannerConfigurer
     scanner.setResourceLoader(this.applicationContext);
     scanner.setBeanNamePopulator(this.namePopulator);
     scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
+
     if (StringUtils.hasText(lazyInitialization)) {
       scanner.setLazyInitialization(Boolean.parseBoolean(lazyInitialization));
     }

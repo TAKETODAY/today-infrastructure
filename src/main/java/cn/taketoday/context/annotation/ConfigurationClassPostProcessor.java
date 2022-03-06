@@ -21,11 +21,9 @@
 package cn.taketoday.context.annotation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,6 +57,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link BeanFactoryPostProcessor} used for bootstrapping processing of
@@ -213,7 +212,7 @@ public class ConfigurationClassPostProcessor
    * {@link Configuration} classes.
    */
   public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
-    List<BeanDefinition> configCandidates = new ArrayList<>();
+    ArrayList<BeanDefinition> configCandidates = new ArrayList<>();
     String[] candidateNames = registry.getBeanDefinitionNames();
     BootstrapContext bootstrapContext = obtainBootstrapContext();
 
@@ -255,7 +254,7 @@ public class ConfigurationClassPostProcessor
     }
 
     // Parse each @Configuration class
-    ConfigurationClassParser parser = new ConfigurationClassParser(bootstrapContext);
+    var parser = new ConfigurationClassParser(bootstrapContext);
 
     LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>(configCandidates);
     HashSet<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
@@ -267,17 +266,17 @@ public class ConfigurationClassPostProcessor
       configClasses.removeAll(alreadyParsed);
 
       // Read the model and create bean definitions based on its content
-      if (this.reader == null) {
+      if (reader == null) {
         this.reader = new ConfigurationClassBeanDefinitionReader(
                 bootstrapContext, importBeanNamePopulator, parser.getImportRegistry());
       }
-      this.reader.loadBeanDefinitions(configClasses);
+      reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);
 
       candidates.clear();
       if (registry.getBeanDefinitionCount() > candidateNames.length) {
         String[] newCandidateNames = registry.getBeanDefinitionNames();
-        HashSet<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));
+        HashSet<String> oldCandidateNames = CollectionUtils.newHashSet(candidateNames);
         HashSet<String> alreadyParsedClasses = new HashSet<>();
         for (ConfigurationClass configurationClass : alreadyParsed) {
           alreadyParsedClasses.add(configurationClass.getMetadata().getClassName());

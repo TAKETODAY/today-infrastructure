@@ -23,10 +23,10 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -92,12 +92,12 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
 
     String sqlSessionTemplateRef = mapperScan.getString("sqlSessionTemplateRef");
     if (StringUtils.hasText(sqlSessionTemplateRef)) {
-      definition.addPropertyValue("sqlSessionTemplateBeanName", mapperScan.getString("sqlSessionTemplateRef"));
+      definition.addPropertyValue("sqlSessionTemplateBeanName", sqlSessionTemplateRef);
     }
 
     String sqlSessionFactoryRef = mapperScan.getString("sqlSessionFactoryRef");
     if (StringUtils.hasText(sqlSessionFactoryRef)) {
-      definition.addPropertyValue("sqlSessionFactoryBeanName", mapperScan.getString("sqlSessionFactoryRef"));
+      definition.addPropertyValue("sqlSessionFactoryBeanName", sqlSessionFactoryRef);
     }
 
     ArrayList<String> basePackages = new ArrayList<>();

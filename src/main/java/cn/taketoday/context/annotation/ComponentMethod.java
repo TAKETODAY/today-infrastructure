@@ -64,7 +64,7 @@ final class ComponentMethod {
       return;
     }
 
-    if (this.configurationClass.getMetadata().isAnnotated(Configuration.class.getName())) {
+    if (configurationClass.getMetadata().isAnnotated(Configuration.class.getName())) {
       if (!getMetadata().isOverridable()) {
         // instance @Component methods within @Configuration classes must be overridable to accommodate CGLIB
         problemReporter.error(new NonOverridableMethodError());

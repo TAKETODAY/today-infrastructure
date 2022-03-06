@@ -30,10 +30,13 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.util.ObjectUtils;
 
@@ -45,16 +48,13 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 02:19
  */
-@ConfigurationProperties(prefix = MybatisProperties.MYBATIS_PREFIX)
-public class MybatisProperties {
-
-  public static final String MYBATIS_PREFIX = "mybatis";
-
-  private static final PatternResourceLoader resourceResolver = new PathMatchingPatternResourceLoader();
+@ConfigurationProperties("mybatis")
+public class MybatisProperties implements ResourceLoaderAware {
 
   /**
    * Location of MyBatis xml config file.
    */
+  @Nullable
   private String configLocation;
 
   /**
@@ -91,6 +91,7 @@ public class MybatisProperties {
   /**
    * The default scripting language driver class. (Available when use together with mybatis-spring 2.0.2+)
    */
+  @Nullable
   private Class<? extends LanguageDriver> defaultScriptingLanguageDriver;
 
   /**
@@ -104,11 +105,12 @@ public class MybatisProperties {
    */
   private Configuration configuration;
 
+  @Nullable
   public String getConfigLocation() {
     return this.configLocation;
   }
 
-  public void setConfigLocation(String configLocation) {
+  public void setConfigLocation(@Nullable String configLocation) {
     this.configLocation = configLocation;
   }
 
@@ -160,11 +162,12 @@ public class MybatisProperties {
     this.executorType = executorType;
   }
 
+  @Nullable
   public Class<? extends LanguageDriver> getDefaultScriptingLanguageDriver() {
     return defaultScriptingLanguageDriver;
   }
 
-  public void setDefaultScriptingLanguageDriver(Class<? extends LanguageDriver> defaultScriptingLanguageDriver) {
+  public void setDefaultScriptingLanguageDriver(@Nullable Class<? extends LanguageDriver> defaultScriptingLanguageDriver) {
     this.defaultScriptingLanguageDriver = defaultScriptingLanguageDriver;
   }
 
@@ -176,6 +179,7 @@ public class MybatisProperties {
     this.configurationProperties = configurationProperties;
   }
 
+  @Nullable
   public Configuration getConfiguration() {
     return configuration;
   }
@@ -197,11 +201,21 @@ public class MybatisProperties {
 
   private Set<Resource> getResources(String location) {
     try {
-      return resourceResolver.getResources(location);
+      if (resourceLoader instanceof PatternResourceLoader patternResourceLoader) {
+        return patternResourceLoader.getResources(location);
+      }
+      return new PathMatchingPatternResourceLoader().getResources(location);
     }
     catch (IOException e) {
       return Collections.emptySet();
     }
+  }
+
+  private ResourceLoader resourceLoader;
+
+  @Override
+  public void setResourceLoader(ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
   }
 
 }

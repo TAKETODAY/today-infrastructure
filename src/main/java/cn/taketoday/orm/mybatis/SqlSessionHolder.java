@@ -28,12 +28,14 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.support.ResourceHolderSupport;
 
 /**
- * Used to keep current {@code SqlSession} in {@code TransactionSynchronizationManager}. The {@code SqlSessionFactory}
- * that created that {@code SqlSession} is used as a key. {@code ExecutorType} is also kept to be able to check if the
- * user is trying to change it during a TX (that is not allowed) and throw a Exception in that case.
+ * Used to keep current {@code SqlSession} in {@code TransactionSynchronizationManager}.
+ * The {@code SqlSessionFactory} that created that {@code SqlSession} is used as a key.
+ * {@code ExecutorType} is also kept to be able to check if the user is trying to change
+ * it during a TX (that is not allowed) and throw a Exception in that case.
  *
  * @author Hunter Presnall
  * @author Eduardo Macarron
+ * @since 4.0
  */
 public final class SqlSessionHolder extends ResourceHolderSupport {
 

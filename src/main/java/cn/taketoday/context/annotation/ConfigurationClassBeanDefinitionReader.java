@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
@@ -35,6 +34,7 @@ import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -67,17 +67,17 @@ class ConfigurationClassBeanDefinitionReader {
 
   private final ImportRegistry importRegistry;
   private final BeanNamePopulator importBeanNamePopulator;
-  private final BootstrapContext loadingContext;
+  private final BootstrapContext bootstrapContext;
 
   /**
    * Create a new {@link ConfigurationClassBeanDefinitionReader} instance
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
   ConfigurationClassBeanDefinitionReader(
-          BootstrapContext loadingContext,
+          BootstrapContext bootstrapContext,
           BeanNamePopulator beanNamePopulator, ImportRegistry importRegistry) {
 
-    this.loadingContext = loadingContext;
+    this.bootstrapContext = bootstrapContext;
     this.importRegistry = importRegistry;
     this.importBeanNamePopulator = beanNamePopulator;
   }
@@ -103,8 +103,8 @@ class ConfigurationClassBeanDefinitionReader {
     if (trackedConditionEvaluator.shouldSkip(configClass)) {
       String beanName = configClass.getBeanName();
       // TODO annotated with both @Component and @ConditionalOnMissingBean，condition matching error
-      if (StringUtils.isNotEmpty(beanName) && loadingContext.containsBeanDefinition(beanName)) {
-        loadingContext.removeBeanDefinition(beanName);
+      if (StringUtils.isNotEmpty(beanName) && bootstrapContext.containsBeanDefinition(beanName)) {
+        bootstrapContext.removeBeanDefinition(beanName);
       }
       this.importRegistry.removeImportingClass(configClass.getMetadata().getClassName());
       return;
@@ -127,11 +127,11 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
 
-    String configBeanName = importBeanNamePopulator.populateName(configBeanDef, loadingContext.getRegistry());
+    String configBeanName = importBeanNamePopulator.populateName(configBeanDef, bootstrapContext.getRegistry());
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
-    loadingContext.registerBeanDefinition(configBeanName, configBeanDef);
+    bootstrapContext.registerBeanDefinition(configBeanName, configBeanDef);
     configClass.setBeanName(configBeanName);
 
     if (logger.isTraceEnabled()) {
@@ -149,7 +149,7 @@ class ConfigurationClassBeanDefinitionReader {
     String methodName = metadata.getMethodName();
 
     // Do we need to mark the bean as skipped by its condition?
-    if (loadingContext.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
+    if (bootstrapContext.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
       configClass.skippedComponentMethods.add(methodName);
       return;
     }
@@ -217,10 +217,10 @@ class ConfigurationClassBeanDefinitionReader {
 
     // Replace the original bean definition with the target one, if necessary
     if (logger.isTraceEnabled()) {
-      logger.trace(String.format("Registering bean definition for @Component method %s.%s()",
-              configClass.getMetadata().getClassName(), beanName));
+      logger.trace("Registering bean definition for @Component method {}.{}()",
+              configClass.getMetadata().getClassName(), beanName);
     }
-    loadingContext.registerBeanDefinition(beanDef);
+    bootstrapContext.registerBeanDefinition(beanDef);
   }
 
   private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableDependencyInjectionAll) {
@@ -229,7 +229,7 @@ class ConfigurationClassBeanDefinitionReader {
   }
 
   protected boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName) {
-    BeanDefinition existingBeanDef = loadingContext.getBeanDefinition(beanName);
+    BeanDefinition existingBeanDef = bootstrapContext.getBeanDefinition(beanName);
     if (existingBeanDef == null) {
       return false;
     }
@@ -265,7 +265,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     // At this point, it's a top-level override (probably XML), just having been parsed
     // before configuration class processing kicks in...
-    if (!loadingContext.getRegistry().isAllowBeanDefinitionOverriding()) {
+    if (!bootstrapContext.getRegistry().isAllowBeanDefinitionOverriding()) {
       throw new BeanDefinitionStoreException(componentMethod.getConfigurationClass().getResource().toString(),
               beanName, "@Component definition illegally overridden by existing bean definition: " + existingBeanDef);
     }
@@ -279,7 +279,7 @@ class ConfigurationClassBeanDefinitionReader {
 
   private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
     for (Map.Entry<ImportBeanDefinitionRegistrar, AnnotationMetadata> entry : registrars.entrySet()) {
-      entry.getKey().registerBeanDefinitions(entry.getValue(), loadingContext);
+      entry.getKey().registerBeanDefinitions(entry.getValue(), bootstrapContext);
     }
   }
 
@@ -308,7 +308,7 @@ class ConfigurationClassBeanDefinitionReader {
           }
         }
         if (skip == null) {
-          skip = loadingContext.shouldSkip(configClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN);
+          skip = bootstrapContext.shouldSkip(configClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN);
         }
         this.skipped.put(configClass, skip);
       }

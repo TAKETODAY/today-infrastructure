@@ -138,10 +138,16 @@ public abstract class CollectionUtils {
    * @param elements Elements instance
    */
   @SafeVarargs
-  public static <E> Set<E> newHashSet(@Nullable E... elements) {
-    final HashSet<E> ret = new HashSet<>();
-    addAll(ret, elements);
-    return ret;
+  public static <E> HashSet<E> newHashSet(@Nullable E... elements) {
+    if (elements != null) {
+      HashSet<E> ret = new HashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
+      addAll(ret, elements);
+      return ret;
+    }
+    else {
+      return new HashSet<>();
+
+    }
   }
 
   /**

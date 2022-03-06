@@ -123,11 +123,14 @@ public class SqlSessionFactoryBean
 
   private Class<?> typeAliasesSuperType;
 
+  @Nullable
   private LanguageDriver[] scriptingLanguageDrivers;
 
+  @Nullable
   private Class<? extends LanguageDriver> defaultScriptingLanguageDriver;
 
   // issue #19. No default provider.
+  @Nullable
   private DatabaseIdProvider databaseIdProvider;
 
   private Class<? extends VFS> vfs;
@@ -191,7 +194,7 @@ public class SqlSessionFactoryBean
    *
    * @param databaseIdProvider a DatabaseIdProvider
    */
-  public void setDatabaseIdProvider(DatabaseIdProvider databaseIdProvider) {
+  public void setDatabaseIdProvider(@Nullable DatabaseIdProvider databaseIdProvider) {
     this.databaseIdProvider = databaseIdProvider;
   }
 
@@ -429,17 +432,17 @@ public class SqlSessionFactoryBean
    *
    * @param scriptingLanguageDrivers scripting language drivers
    */
-  public void setScriptingLanguageDrivers(LanguageDriver... scriptingLanguageDrivers) {
+  public void setScriptingLanguageDrivers(@Nullable LanguageDriver... scriptingLanguageDrivers) {
     this.scriptingLanguageDrivers = scriptingLanguageDrivers;
   }
 
   /**
    * Set a default scripting language driver class.
    *
-   * @param defaultScriptingLanguageDriver A default scripting language driver class
+   * @param languageDriver A default scripting language driver class
    */
-  public void setDefaultScriptingLanguageDriver(Class<? extends LanguageDriver> defaultScriptingLanguageDriver) {
-    this.defaultScriptingLanguageDriver = defaultScriptingLanguageDriver;
+  public void setDefaultScriptingLanguageDriver(@Nullable Class<? extends LanguageDriver> languageDriver) {
+    this.defaultScriptingLanguageDriver = languageDriver;
   }
 
   /**
