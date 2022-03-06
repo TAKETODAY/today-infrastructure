@@ -111,6 +111,24 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   <T> T createBean(Class<T> beanClass, boolean cacheBeanDef) throws BeansException;
 
   /**
+   * Fully create a new bean instance of the given class with the specified
+   * autowire strategy. All constants defined in this interface are supported here.
+   * <p>Performs full initialization of the bean, including all applicable
+   * {@link BeanPostProcessor BeanPostProcessors}. This is effectively a superset
+   * of what {@link #autowire} provides, adding {@link #initializeBean} behavior.
+   *
+   * @param beanClass the class of the bean to create
+   * @param autowireMode by name or type, using the constants in this interface
+   * @return the new bean instance
+   * @throws BeansException if instantiation or wiring failed
+   * @see #AUTOWIRE_NO
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_CONSTRUCTOR
+   */
+  Object createBean(Class<?> beanClass, int autowireMode) throws BeansException;
+
+  /**
    * Populate the given bean instance through applying after-instantiation callbacks
    *
    * <p>Note: This is essentially intended for (re-)populating annotated fields and
@@ -187,6 +205,30 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    */
   void autowireBeanProperties(Object existingBean, int autowireMode)
           throws BeansException;
+
+  /**
+   * Apply the property values of the bean definition with the given name to
+   * the given bean instance. The bean definition can either define a fully
+   * self-contained bean, reusing its property values, or just property values
+   * meant to be used for existing bean instances.
+   * <p>This method does <i>not</i> autowire bean properties; it just applies
+   * explicitly defined property values. Use the {@link #autowireBeanProperties}
+   * method to autowire an existing bean instance.
+   * <b>Note: This method requires a bean definition for the given name!</b>
+   * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+   * callbacks or perform any further initialization of the bean. This interface
+   * offers distinct, fine-grained operations for those purposes, for example
+   * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
+   * callbacks are applied, if applicable to the configuration of the instance.
+   *
+   * @param existingBean the existing bean instance
+   * @param beanName the name of the bean definition in the bean factory
+   * (a bean definition of that name has to be available)
+   * @throws NoSuchBeanDefinitionException if there is no bean definition with the given name
+   * @throws BeansException if applying the property values failed
+   * @see #autowireBeanProperties
+   */
+  void applyBeanPropertyValues(Object existingBean, String beanName) throws BeansException;
 
   /**
    * Configure the given raw bean: autowiring bean properties, applying

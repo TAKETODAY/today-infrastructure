@@ -209,9 +209,9 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
    * post process after property-value {@link BeanDefinition#getPropertyValues()}
    */
   @Override
-  public void processDependencies(Object bean, BeanDefinition definition) {
-    String beanName = definition.getBeanName();
-    PropertyValues propertyValues = definition.getPropertyValues();
+  public void processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
+    String beanName = beanName.getBeanName();
+    PropertyValues propertyValues = beanName.getPropertyValues();
     InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), propertyValues);
     try {
       metadata.inject(bean, beanName, propertyValues);
@@ -221,7 +221,7 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              definition, "Injection of autowired dependencies failed", ex);
+              beanName, "Injection of autowired dependencies failed", ex);
     }
   }
 

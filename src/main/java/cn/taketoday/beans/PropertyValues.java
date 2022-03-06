@@ -52,6 +52,8 @@ public class PropertyValues implements Iterable<PropertyValue> {
   @Nullable
   private ArrayList<PropertyValue> propertyValues;
 
+  private volatile boolean converted;
+
   /**
    * Creates a new empty PropertyValues object.
    * <p>Property values can be added with the {@code add} method.
@@ -447,6 +449,22 @@ public class PropertyValues implements Iterable<PropertyValue> {
       return Stream.empty();
     }
     return propertyValues.stream();
+  }
+
+  /**
+   * Mark this holder as containing converted values only
+   * (i.e. no runtime resolution needed anymore).
+   */
+  public void setConverted() {
+    this.converted = true;
+  }
+
+  /**
+   * Return whether this holder contains converted values only ({@code true}),
+   * or whether the values still need to be converted ({@code false}).
+   */
+  public boolean isConverted() {
+    return this.converted;
   }
 
   @Override

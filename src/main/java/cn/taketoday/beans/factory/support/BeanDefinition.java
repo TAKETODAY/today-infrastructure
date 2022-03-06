@@ -1257,9 +1257,9 @@ public class BeanDefinition
   }
 
   /**
-   * Copy the qualifiers from the supplied AbstractBeanDefinition to this bean definition.
+   * Copy the qualifiers from the supplied BeanDefinition to this bean definition.
    *
-   * @param source the AbstractBeanDefinition to copy from
+   * @param source the BeanDefinition to copy from
    */
   public void copyQualifiersFrom(BeanDefinition source) {
     Assert.notNull(source, "Source must not be null");

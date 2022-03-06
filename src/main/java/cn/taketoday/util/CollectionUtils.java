@@ -139,7 +139,7 @@ public abstract class CollectionUtils {
    */
   @SafeVarargs
   public static <E> HashSet<E> newHashSet(@Nullable E... elements) {
-    if (elements != null) {
+    if (ObjectUtils.isNotEmpty(elements)) {
       HashSet<E> ret = new HashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
       addAll(ret, elements);
       return ret;

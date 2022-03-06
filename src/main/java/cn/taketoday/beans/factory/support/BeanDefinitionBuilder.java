@@ -228,6 +228,19 @@ public class BeanDefinitionBuilder {
     return this;
   }
 
+  /**
+   * Add an autowired marker for the specified property on the specified bean.
+   *
+   * @param name the name of the property to mark as autowired
+   * @see AutowiredPropertyMarker
+   */
+  public BeanDefinitionBuilder addAutowiredProperty(String name) {
+    if (propertyValues == null) {
+      propertyValues = new PropertyValues();
+    }
+    propertyValues.add(name, AutowiredPropertyMarker.INSTANCE);
+    return this;
+  }
   // reset
 
   public void reset() {

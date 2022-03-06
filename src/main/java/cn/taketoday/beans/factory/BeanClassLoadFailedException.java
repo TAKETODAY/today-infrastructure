@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Exception thrown when the BeanFactory cannot load the specified class
@@ -35,6 +35,8 @@ import cn.taketoday.lang.NonNull;
 public class BeanClassLoadFailedException extends BeansException {
 
   private final BeanDefinition beanDefinition;
+  @Nullable
+  private final String resourceDescription;
 
   /**
    * Create a new CannotLoadBeanClassException.
@@ -45,6 +47,7 @@ public class BeanClassLoadFailedException extends BeansException {
     super("Cannot find class [" + def.getBeanClassName()
             + "] for bean with name '" + def.getBeanName() + "'" + getDesc(def), cause);
     this.beanDefinition = def;
+    this.resourceDescription = def.getResourceDescription();
   }
 
   /**
@@ -56,6 +59,31 @@ public class BeanClassLoadFailedException extends BeansException {
     super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + def.getBeanName()
             + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
     this.beanDefinition = def;
+    this.resourceDescription = def.getResourceDescription();
+  }
+
+  /**
+   * Return the description of the resource that the bean
+   * definition came from.
+   */
+  @Nullable
+  public String getResourceDescription() {
+    return this.resourceDescription;
+  }
+
+  /**
+   * Return the name of the bean requested.
+   */
+  public String getBeanName() {
+    return this.beanDefinition.getBeanName();
+  }
+
+  /**
+   * Return the name of the class we were trying to load.
+   */
+  @Nullable
+  public String getBeanClassName() {
+    return this.beanDefinition.getBeanClassName();
   }
 
   public BeanDefinition getBeanDefinition() {

@@ -26,9 +26,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -40,6 +41,8 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.PropertyAccessorUtils;
+import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
@@ -77,7 +80,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -185,6 +187,14 @@ public abstract class AbstractAutowireCapableBeanFactory
       defToUse = getPrototypeBeanDefinition(beanClass);
     }
     return (T) createBean(defToUse.getBeanName(), defToUse, null);
+  }
+
+  @Override
+  public Object createBean(Class<?> beanClass, int autowireMode) throws BeansException {
+    // Use non-singleton bean definition, to avoid registering bean as dependent bean.
+    BeanDefinition bd = new BeanDefinition(beanClass, autowireMode);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    return createBean(beanClass.getName(), bd, null);
   }
 
   @Override
@@ -819,6 +829,16 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  public void applyBeanPropertyValues(Object existingBean, String beanName) throws BeansException {
+    markBeanAsCreated(beanName);
+
+    BeanDefinition bd = obtainLocalBeanDefinition(beanName);
+    BeanWrapper bw = new BeanWrapperImpl(existingBean);
+    initBeanWrapper(bw);
+    applyPropertyValues(beanName, bd, bw, bd.getPropertyValues());
+  }
+
+  @Override
   public Object configureBean(Object existingBean, String beanName) throws BeansException {
     markBeanAsCreated(beanName);
 
@@ -870,42 +890,6 @@ public abstract class AbstractAutowireCapableBeanFactory
       propertyValues = newPvs;
     }
 
-    if (propertyValues != null) {
-      Map<String, Object> map = propertyValues.asMap();
-      if (CollectionUtils.isNotEmpty(map)) {
-        if (beanWrapper == null) {
-          metadata = getMetadata(bean, definition);
-          beanWrapper = new BeanWrapperImpl(bean, metadata);
-          initBeanWrapper(beanWrapper);
-        }
-
-        TypeConverter typeConverter = getCustomTypeConverter();
-        if (typeConverter == null) {
-          typeConverter = beanWrapper;
-        }
-
-        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition, typeConverter);
-
-        // property-path -> property-value (maybe PropertyValueRetriever)
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-          Object value = entry.getValue();
-          String propertyPath = entry.getKey();
-
-          if (value instanceof PropertyValueRetriever retriever) {
-            value = retriever.retrieve(propertyPath, beanWrapper, this);
-            if (value == PropertyValueRetriever.DO_NOT_SET) {
-              continue;
-            }
-          }
-          else {
-            value = valueResolver.resolveValueIfNecessary(propertyPath, value);
-          }
-
-          beanWrapper.setPropertyValue(propertyPath, value);
-        }
-      }
-    }
-
     if (!definition.isSynthetic() && definition.isEnableDependencyInjection()) {
       // -----------------------------------------------
       // apply dependency injection (DI)
@@ -913,8 +897,139 @@ public abstract class AbstractAutowireCapableBeanFactory
       // -----------------------------------------------
 
       for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
-        processor.processDependencies(bean, definition);
+        processor.processDependencies(propertyValues, bean, beanName);
       }
+    }
+
+    if (propertyValues != null) {
+      applyPropertyValues(beanName, definition, beanWrapper, propertyValues);
+    }
+
+  }
+
+  /**
+   * Apply the given property values, resolving any runtime references
+   * to other beans in this bean factory. Must use deep copy, so we
+   * don't permanently modify this property.
+   *
+   * @param beanName the bean name passed for better exception information
+   * @param definition the bean definition
+   * @param beanWrapper the BeanWrapper wrapping the target object
+   * @param pvs the new property values
+   */
+  protected void applyPropertyValues(
+          String beanName, BeanDefinition definition, BeanWrapper beanWrapper, @Nullable PropertyValues pvs) {
+    if (pvs == null || pvs.isEmpty()) {
+      return;
+    }
+
+    if (pvs.isConverted()) {
+      // Shortcut: use the pre-converted values as-is.
+      try {
+        beanWrapper.setPropertyValues(pvs);
+        return;
+      }
+      catch (BeansException ex) {
+        throw new BeanCreationException(
+                definition.getResourceDescription(), beanName, "Error setting property values", ex);
+      }
+    }
+    List<PropertyValue> original = pvs.asList();
+
+    TypeConverter converter = getCustomTypeConverter();
+    if (converter == null) {
+      converter = beanWrapper;
+    }
+    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition, converter);
+
+    // Create a deep copy, resolving any references for values.
+    List<PropertyValue> deepCopy = new ArrayList<>(original.size());
+    boolean resolveNecessary = false;
+    for (PropertyValue pv : original) {
+      if (pv.isConverted()) {
+        deepCopy.add(pv);
+      }
+      else {
+        String propertyName = pv.getName();
+        Object originalValue = pv.getValue();
+        BeanProperty property = beanWrapper.getBeanProperty(propertyName);
+
+        Object resolvedValue;
+        if (originalValue instanceof PropertyValueRetriever retriever) {
+          resolvedValue = retriever.retrieve(property.getName(), beanWrapper, this);
+          if (resolvedValue == PropertyValueRetriever.DO_NOT_SET) {
+            continue;
+          }
+        }
+        else {
+          if (originalValue == AutowiredPropertyMarker.INSTANCE) {
+            if (!property.isWriteable()) {
+              throw new IllegalArgumentException("Autowire marker for property without write method: " + pv);
+            }
+            MethodParameter writeMethodParameter = property.getWriteMethodParameter();
+            if (writeMethodParameter != null) {
+              originalValue = new DependencyDescriptor(writeMethodParameter, true);
+            }
+            else {
+              originalValue = new DependencyDescriptor(property.getField(), true);
+            }
+          }
+          resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
+        }
+
+        Object convertedValue = resolvedValue;
+        boolean convertible = property.isWriteable()
+                && !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
+        if (convertible) {
+          convertedValue = convertForProperty(resolvedValue, propertyName, beanWrapper, converter);
+        }
+        // Possibly store converted value in merged bean definition,
+        // in order to avoid re-conversion for every created bean instance.
+        if (resolvedValue == originalValue) {
+          if (convertible) {
+            pv.setConvertedValue(convertedValue);
+          }
+          deepCopy.add(pv);
+        }
+        else if (convertible && originalValue instanceof TypedStringValue
+                && !((TypedStringValue) originalValue).isDynamic()
+                && !(convertedValue instanceof Collection || ObjectUtils.isArray(convertedValue))) {
+          pv.setConvertedValue(convertedValue);
+          deepCopy.add(pv);
+        }
+        else {
+          resolveNecessary = true;
+          deepCopy.add(new PropertyValue(pv, convertedValue));
+        }
+      }
+    }
+    if (!resolveNecessary) {
+      pvs.setConverted();
+    }
+
+    // Set our (possibly massaged) deep copy.
+    try {
+      beanWrapper.setPropertyValues(new PropertyValues(deepCopy));
+    }
+    catch (BeansException ex) {
+      throw new BeanCreationException(
+              definition.getResourceDescription(), beanName, "Error setting property values", ex);
+    }
+  }
+
+  /**
+   * Convert the given value for the specified target property.
+   */
+  @Nullable
+  private Object convertForProperty(
+          @Nullable Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
+    if (converter instanceof BeanWrapperImpl) {
+      return ((BeanWrapperImpl) converter).convertForProperty(value, propertyName);
+    }
+    else {
+      BeanProperty pd = bw.getBeanProperty(propertyName);
+      MethodParameter methodParam = pd.getWriteMethodParameter();
+      return converter.convertIfNecessary(value, pd.getType(), methodParam);
     }
   }
 

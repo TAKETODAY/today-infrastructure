@@ -20,7 +20,10 @@
 
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.lang.Nullable;
 
 /**
  * process dependency injection
@@ -31,9 +34,15 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
 
   /**
-   * process when dependency injection is enabled
+   * Post-process the given property values before the factory applies them
+   * to the given bean.
+   * <p>The default implementation returns the given {@code pvs} as-is.
    *
+   * @param pvs the property values that the factory is about to apply (never {@code null})
+   * @param bean the bean instance created, but whose properties have not yet been set
+   * @param beanName the name of the bean
+   * @throws BeansException in case of errors
    * @see BeanDefinition#isEnableDependencyInjection()
    */
-  void processDependencies(Object bean, BeanDefinition definition);
+  void processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName);
 }
