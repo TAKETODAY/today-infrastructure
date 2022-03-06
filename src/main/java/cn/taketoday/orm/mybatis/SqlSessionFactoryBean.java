@@ -34,7 +34,9 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -52,8 +54,6 @@ import cn.taketoday.context.loader.MetadataReaderConsumer;
 import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.ClassMetadata;
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.jdbc.datasource.TransactionAwareDataSourceProxy;
 import cn.taketoday.lang.Assert;
@@ -302,8 +302,9 @@ public class SqlSessionFactoryBean
   }
 
   /**
-   * If true, a final check is done on Configuration to assure that all mapped statements are fully loaded and there is
-   * no one still pending to resolve includes. Defaults to false.
+   * If true, a final check is done on Configuration to assure that all
+   * mapped statements are fully loaded and there is no one still pending
+   * to resolve includes. Defaults to false.
    *
    * @param failFast enable failFast
    */
@@ -372,12 +373,12 @@ public class SqlSessionFactoryBean
    * @param dataSource a JDBC {@code DataSource}
    */
   public void setDataSource(DataSource dataSource) {
-    if (dataSource instanceof TransactionAwareDataSourceProxy) {
+    if (dataSource instanceof TransactionAwareDataSourceProxy proxy) {
       // If we got a TransactionAwareDataSourceProxy, we need to perform
       // transactions for its underlying target DataSource, else data
       // access code won't see properly exposed transactions (i.e.
       // transactions for the target DataSource).
-      this.dataSource = ((TransactionAwareDataSourceProxy) dataSource).getTargetDataSource();
+      this.dataSource = proxy.getTargetDataSource();
     }
     else {
       this.dataSource = dataSource;
@@ -465,21 +466,19 @@ public class SqlSessionFactoryBean
    * @throws Exception if configuration is failed
    */
   protected SqlSessionFactory buildSqlSessionFactory() throws Exception {
-
     final Configuration targetConfiguration;
-
     XMLConfigBuilder xmlConfigBuilder = null;
-    if (this.configuration != null) {
+    if (configuration != null) {
       targetConfiguration = this.configuration;
       if (targetConfiguration.getVariables() == null) {
-        targetConfiguration.setVariables(this.configurationProperties);
+        targetConfiguration.setVariables(configurationProperties);
       }
-      else if (this.configurationProperties != null) {
-        targetConfiguration.getVariables().putAll(this.configurationProperties);
+      else if (configurationProperties != null) {
+        targetConfiguration.getVariables().putAll(configurationProperties);
       }
     }
-    else if (this.configLocation != null) {
-      xmlConfigBuilder = new XMLConfigBuilder(this.configLocation.getInputStream(), null, this.configurationProperties);
+    else if (configLocation != null) {
+      xmlConfigBuilder = new XMLConfigBuilder(configLocation.getInputStream(), null, configurationProperties);
       targetConfiguration = xmlConfigBuilder.getConfiguration();
     }
     else {
@@ -501,56 +500,50 @@ public class SqlSessionFactoryBean
       targetConfiguration.setVfsImpl(vfs);
     }
 
-    if (StringUtils.isNotEmpty(this.typeAliasesPackage)) {
-      scanClassPath(typeAliasesPackage, typeAliasesSuperType, new MetadataReaderConsumer() {
-        @Override
-        public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) {
-          ClassMetadata classMetadata = metadataReader.getClassMetadata();
-          if (classMetadata.isIndependent() && !classMetadata.isAbstract() && !classMetadata.isInterface()) {
-            targetConfiguration.getTypeAliasRegistry()
-                    .registerAlias(ClassUtils.resolveClassName(classMetadata.getClassName(), classLoader));
-          }
+    TypeAliasRegistry aliasRegistry = targetConfiguration.getTypeAliasRegistry();
+    if (StringUtils.isNotEmpty(typeAliasesPackage)) {
+      scanClassPath(typeAliasesPackage, typeAliasesSuperType, (metadataReader, factory) -> {
+        ClassMetadata classMetadata = metadataReader.getClassMetadata();
+        if (classMetadata.isIndependent() && !classMetadata.isAbstract() && !classMetadata.isInterface()) {
+          aliasRegistry.registerAlias(ClassUtils.resolveClassName(classMetadata.getClassName(), classLoader));
         }
       });
     }
 
-    if (ObjectUtils.isNotEmpty(this.typeAliases)) {
+    if (ObjectUtils.isNotEmpty(typeAliases)) {
       for (Class<?> typeAlias : typeAliases) {
-        targetConfiguration.getTypeAliasRegistry().registerAlias(typeAlias);
+        aliasRegistry.registerAlias(typeAlias);
         log.debug("Registered type alias: '{}'", typeAlias);
       }
     }
 
-    if (ObjectUtils.isNotEmpty(this.plugins)) {
+    if (ObjectUtils.isNotEmpty(plugins)) {
       for (Interceptor plugin : plugins) {
         targetConfiguration.addInterceptor(plugin);
         log.debug("Registered plugin: '{}'", plugin);
       }
     }
 
-    if (StringUtils.isNotEmpty(this.typeHandlersPackage)) {
-      scanClassPath(typeHandlersPackage, TypeHandler.class, new MetadataReaderConsumer() {
-        @Override
-        public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) {
-          ClassMetadata classMetadata = metadataReader.getClassMetadata();
-          if (classMetadata.isIndependent() && !classMetadata.isAbstract() && !classMetadata.isInterface()) {
-            targetConfiguration.getTypeHandlerRegistry()
-                    .register(ClassUtils.resolveClassName(classMetadata.getClassName(), classLoader));
-          }
+    TypeHandlerRegistry handlerRegistry = targetConfiguration.getTypeHandlerRegistry();
+    if (StringUtils.isNotEmpty(typeHandlersPackage)) {
+      scanClassPath(typeHandlersPackage, TypeHandler.class, (metadataReader, factory) -> {
+        ClassMetadata classMetadata = metadataReader.getClassMetadata();
+        if (classMetadata.isIndependent() && !classMetadata.isAbstract() && !classMetadata.isInterface()) {
+          handlerRegistry.register(ClassUtils.resolveClassName(classMetadata.getClassName(), classLoader));
         }
       });
     }
 
-    if (ObjectUtils.isNotEmpty(this.typeHandlers)) {
+    if (ObjectUtils.isNotEmpty(typeHandlers)) {
       for (TypeHandler<?> typeHandler : typeHandlers) {
-        targetConfiguration.getTypeHandlerRegistry().register(typeHandler);
+        handlerRegistry.register(typeHandler);
         log.debug("Registered type handler: '{}'", typeHandler);
       }
     }
 
     targetConfiguration.setDefaultEnumTypeHandler(defaultEnumTypeHandler);
 
-    if (ObjectUtils.isNotEmpty(this.scriptingLanguageDrivers)) {
+    if (ObjectUtils.isNotEmpty(scriptingLanguageDrivers)) {
       for (LanguageDriver languageDriver : scriptingLanguageDrivers) {
         targetConfiguration.getLanguageRegistry().register(languageDriver);
         log.debug("Registered scripting language driver: '{}'", languageDriver);
@@ -561,9 +554,9 @@ public class SqlSessionFactoryBean
       targetConfiguration.setDefaultScriptingLanguage(defaultScriptingLanguageDriver);
     }
 
-    if (this.databaseIdProvider != null) {// fix #64 set databaseId before parse mapper xmls
+    if (databaseIdProvider != null) {// fix #64 set databaseId before parse mapper xmls
       try {
-        targetConfiguration.setDatabaseId(this.databaseIdProvider.getDatabaseId(this.dataSource));
+        targetConfiguration.setDatabaseId(databaseIdProvider.getDatabaseId(dataSource));
       }
       catch (SQLException e) {
         throw new NestedIOException("Failed getting a databaseId", e);
@@ -586,15 +579,15 @@ public class SqlSessionFactoryBean
       }
     }
 
-    targetConfiguration.setEnvironment(new Environment(this.environment,
-            this.transactionFactory == null ? new ManagedTransactionFactory() : this.transactionFactory, this.dataSource));
+    targetConfiguration.setEnvironment(new Environment(environment,
+            transactionFactory == null ? new ManagedTransactionFactory() : transactionFactory, dataSource));
 
-    if (this.mapperLocations != null) {
-      if (this.mapperLocations.length == 0) {
+    if (mapperLocations != null) {
+      if (mapperLocations.length == 0) {
         log.warn("Property 'mapperLocations' was specified but matching resources are not found.");
       }
       else {
-        for (Resource mapperLocation : this.mapperLocations) {
+        for (Resource mapperLocation : mapperLocations) {
           if (mapperLocation == null) {
             continue;
           }
@@ -617,7 +610,7 @@ public class SqlSessionFactoryBean
       log.debug("Property 'mapperLocations' was not specified.");
     }
 
-    return this.sqlSessionFactoryBuilder.build(targetConfiguration);
+    return sqlSessionFactoryBuilder.build(targetConfiguration);
   }
 
   /**
@@ -658,8 +651,8 @@ public class SqlSessionFactoryBean
     }
   }
 
-  private void scanClassPath(
-          String packagePatterns, @Nullable Class<?> assignableType, MetadataReaderConsumer consumer) throws IOException {
+  private void scanClassPath(String packagePatterns,
+          @Nullable Class<?> assignableType, MetadataReaderConsumer consumer) throws IOException {
 
     String[] packagePatternArray = StringUtils.tokenizeToStringArray(packagePatterns,
             ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);

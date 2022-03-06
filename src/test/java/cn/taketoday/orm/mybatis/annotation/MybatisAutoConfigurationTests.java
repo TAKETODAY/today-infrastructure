@@ -335,7 +335,7 @@ class MybatisAutoConfigurationTests {
   void testWithMapperLocation() {
     TestPropertyValues
             .of("mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
-                    "mybatis.mapper-locations:classpath:org/mybatis/spring/boot/autoconfigure/repository/CityMapper.xml")
+                    "mybatis.mapper-locations:classpath:cn/taketoday/orm/mybatis/CityMapper.xml")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class,
             PropertyPlaceholderAutoConfiguration.class);
@@ -478,7 +478,7 @@ class MybatisAutoConfigurationTests {
     TestPropertyValues
             .of("mybatis.config-location:mybatis-config-settings-only.xml",
                     "mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
-                    "mybatis.mapper-locations:classpath:org/mybatis/spring/boot/autoconfigure/repository/CityMapper.xml")
+                    "mybatis.mapper-locations:classpath:cn/taketoday/orm/mybatis/CityMapper.xml")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class);
     this.context.refresh();
@@ -501,7 +501,7 @@ class MybatisAutoConfigurationTests {
     TestPropertyValues.of("mybatis.config-location:mybatis-config-settings-only.xml",
             "mybatis.type-handlers-package:org.mybatis.spring.**.handler",
             "mybatis.type-aliases-package:org.mybatis.spring.boot.autoconfigure.domain",
-            "mybatis.mapper-locations:classpath:org/mybatis/spring/boot/autoconfigure/repository/CityMapper.xml",
+            "mybatis.mapper-locations:classpath:cn/taketoday/orm/mybatis/CityMapper.xml",
             "mybatis.executor-type=REUSE").applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
             MybatisInterceptorConfiguration.class, DatabaseProvidersConfiguration.class);
