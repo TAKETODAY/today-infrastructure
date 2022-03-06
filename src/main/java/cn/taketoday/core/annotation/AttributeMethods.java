@@ -69,7 +69,7 @@ final class AttributeMethods {
     boolean foundDefaultValueMethod = false;
     boolean foundNestedAnnotation = false;
     for (int i = 0; i < attributes.length; i++) {
-      Method method = this.attributes[i];
+      Method method = attributes[i];
       Class<?> type = method.getReturnType();
       if (!foundDefaultValueMethod && (method.getDefaultValue() != null)) {
         foundDefaultValueMethod = true;

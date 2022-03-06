@@ -291,7 +291,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     T map = factory.apply(this);
     Assert.state(map != null, "Factory used to create MergedAnnotation Map must not return null");
     AttributeMethods attributes = mapping.getAttributes();
-    for (int i = 0; i < attributes.size(); i++) {
+    int size = attributes.size();
+    for (int i = 0; i < size; i++) {
       Method attribute = attributes.get(i);
       Object value = isFiltered(attribute.getName())
                      ? null : getValue(i, getTypeForMapOptions(attribute, adaptations));

@@ -199,14 +199,13 @@ final class ConfigurationClass {
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
     MergedAnnotation<Configuration> annotation = metadata.getAnnotation(Configuration.class);
-    if (annotation.isPresent()) {
-      if (annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
-        if (metadata.isFinal()) {
-          problemReporter.error(new FinalConfigurationProblem());
-        }
-        for (ComponentMethod componentMethod : this.componentMethods) {
-          componentMethod.validate(problemReporter);
-        }
+    if (annotation.isPresent()
+            && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
+      if (metadata.isFinal()) {
+        problemReporter.error(new FinalConfigurationProblem());
+      }
+      for (ComponentMethod componentMethod : this.componentMethods) {
+        componentMethod.validate(problemReporter);
       }
     }
   }
