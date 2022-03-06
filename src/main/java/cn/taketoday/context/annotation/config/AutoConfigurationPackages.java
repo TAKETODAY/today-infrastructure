@@ -21,19 +21,17 @@
 package cn.taketoday.context.annotation.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
@@ -130,17 +128,16 @@ public abstract class AutoConfigurationPackages {
     private final List<String> packageNames;
 
     PackageImports(AnnotationMetadata metadata) {
-      AnnotationAttributes attributes = AnnotationAttributes.fromMap(
-              metadata.getAnnotationAttributes(AutoConfigurationPackage.class.getName(), false));
-      Assert.state(attributes != null, "attributes error");
-      List<String> packageNames = new ArrayList<>(Arrays.asList(attributes.getStringArray("basePackages")));
-      for (Class<?> basePackageClass : attributes.getClassArray("basePackageClasses")) {
+      var annotation = metadata.getAnnotation(AutoConfigurationPackage.class);
+      Assert.state(annotation.isPresent(), "attributes error");
+      ArrayList<String> packageNames = CollectionUtils.newArrayList(annotation.getStringArray("basePackages"));
+      for (Class<?> basePackageClass : annotation.getClassArray("basePackageClasses")) {
         packageNames.add(basePackageClass.getPackage().getName());
       }
       if (packageNames.isEmpty()) {
         packageNames.add(ClassUtils.getPackageName(metadata.getClassName()));
       }
-      this.packageNames = Collections.unmodifiableList(packageNames);
+      this.packageNames = packageNames;
     }
 
     List<String> getPackageNames() {
@@ -177,7 +174,7 @@ public abstract class AutoConfigurationPackages {
     private boolean loggedBasePackageInfo;
 
     BasePackages(String... names) {
-      List<String> packages = new ArrayList<>();
+      ArrayList<String> packages = new ArrayList<>();
       for (String name : names) {
         if (StringUtils.hasText(name)) {
           packages.add(name);
