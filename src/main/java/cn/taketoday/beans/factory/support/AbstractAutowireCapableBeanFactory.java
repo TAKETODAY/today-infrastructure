@@ -902,6 +902,10 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     if (propertyValues != null) {
+      if (beanWrapper == null) {
+        beanWrapper = new BeanWrapperImpl(bean);
+        initBeanWrapper(beanWrapper);
+      }
       applyPropertyValues(beanName, definition, beanWrapper, propertyValues);
     }
 

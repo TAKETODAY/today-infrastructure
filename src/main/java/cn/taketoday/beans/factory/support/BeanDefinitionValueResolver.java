@@ -349,16 +349,19 @@ class BeanDefinitionValueResolver {
   @Nullable
   private Object resolveInnerBean(Object argName, BeanDefinition innerDefinition) {
     String innerBeanName = innerDefinition.getBeanName();
+    RootBeanDefinition mergedDef = null;
     try {
+      mergedDef = this.beanFactory.getMergedBeanDefinition(innerBeanName, innerDefinition, this.beanDefinition);
+
       // Check given bean name whether it is unique. If not already unique,
       // add counter - increasing the counter until the name is unique.
       String actualInnerBeanName = innerBeanName;
-      if (innerDefinition.isSingleton()) {
+      if (mergedDef.isSingleton()) {
         actualInnerBeanName = adaptInnerBeanName(innerBeanName);
       }
       beanFactory.registerContainedBean(actualInnerBeanName, beanName);
       // Guarantee initialization of beans that the inner bean depends on.
-      String[] dependsOn = innerDefinition.getDependsOn();
+      String[] dependsOn = mergedDef.getDependsOn();
       if (dependsOn != null) {
         for (String dependsOnBean : dependsOn) {
           beanFactory.registerDependentBean(dependsOnBean, actualInnerBeanName);
@@ -366,9 +369,9 @@ class BeanDefinitionValueResolver {
         }
       }
       // Actually create the inner bean instance now...
-      Object innerBean = beanFactory.createBean(actualInnerBeanName, innerDefinition, null);
+      Object innerBean = beanFactory.createBean(actualInnerBeanName, mergedDef, null);
       if (innerBean instanceof FactoryBean<?> factoryBean) {
-        boolean synthetic = innerDefinition.isSynthetic();
+        boolean synthetic = mergedDef.isSynthetic();
         innerBean = beanFactory.getObjectFromFactoryBean(factoryBean, actualInnerBeanName, !synthetic);
       }
       return innerBean;
@@ -377,7 +380,7 @@ class BeanDefinitionValueResolver {
       throw new BeanCreationException(
               beanDefinition.getResourceDescription(), beanName,
               "Cannot create inner bean '" + innerBeanName + "' " +
-                      (innerDefinition.getBeanClassName() != null ? "of type [" + innerDefinition.getBeanClassName() + "] " : "") +
+                      (mergedDef != null && mergedDef.getBeanClassName() != null ? "of type [" + mergedDef.getBeanClassName() + "] " : "") +
                       "while setting " + argName, ex);
     }
   }

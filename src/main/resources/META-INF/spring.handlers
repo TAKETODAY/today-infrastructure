@@ -1,3 +1,9 @@
 http\://www.springframework.org/schema/c=cn.taketoday.beans.factory.xml.SimpleConstructorNamespaceHandler
 http\://www.springframework.org/schema/p=cn.taketoday.beans.factory.xml.SimplePropertyNamespaceHandler
 http\://www.springframework.org/schema/util=cn.taketoday.beans.factory.xml.UtilNamespaceHandler
+http\://www.springframework.org/schema/context=cn.taketoday.context.config.ContextNamespaceHandler
+http\://www.springframework.org/schema/jee=cn.taketoday.ejb.config.JeeNamespaceHandler
+http\://www.springframework.org/schema/lang=cn.taketoday.scripting.config.LangNamespaceHandler
+http\://www.springframework.org/schema/task=cn.taketoday.scheduling.config.TaskNamespaceHandler
+http\://www.springframework.org/schema/cache=cn.taketoday.cache.config.CacheNamespaceHandler
+http\://www.springframework.org/schema/jdbc=cn.taketoday.jdbc.config.JdbcNamespaceHandler

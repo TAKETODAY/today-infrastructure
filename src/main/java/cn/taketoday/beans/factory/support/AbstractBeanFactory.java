@@ -257,8 +257,10 @@ public abstract class AbstractBeanFactory
         markBeanAsCreated(beanName);
       }
 
-      RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
-      checkMergedBeanDefinition(mbd, beanName, args);
+      getMergedBeanDefinition(beanName, definition);
+
+      RootBeanDefinition mergedDefinition = getMergedLocalBeanDefinition(beanName);
+      checkMergedBeanDefinition(mergedDefinition, beanName, args);
 
       // Guarantee initialization of beans that the current bean depends on.
       String[] dependsOn = definition.getDependsOn();
@@ -687,7 +689,7 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.isSingleton(originalBeanName(name));
     }
 
-    BeanDefinition definition = obtainLocalBeanDefinition(beanName);
+		RootBeanDefinition definition = getMergedLocalBeanDefinition(beanName);
     // In case of FactoryBean, return singleton status of created object if not a dereference.
     if (definition.isSingleton()) {
       if (isFactoryBean(definition)) {
@@ -731,7 +733,7 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.isPrototype(originalBeanName(name));
     }
 
-    BeanDefinition mbd = obtainLocalBeanDefinition(beanName);
+    RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
     if (mbd.isPrototype()) {
       // In case of FactoryBean, return singleton status of created object if not a dereference.
       return !BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(mbd);
@@ -782,19 +784,33 @@ public abstract class AbstractBeanFactory
       return parentBeanFactory.getType(originalBeanName(name), allowFactoryBeanInit);
     }
 
-    // not init
-    BeanDefinition definition = obtainLocalBeanDefinition(beanName);
-    Class<?> beanType = predictBeanType(definition);
-    if (beanType != null && FactoryBean.class.isAssignableFrom(beanType)) {
-      if (BeanFactoryUtils.isFactoryDereference(name)) {
-        // just FactoryBean
-        return beanType;
+    RootBeanDefinition mergedDef = getMergedLocalBeanDefinition(beanName);
+
+    // Check decorated bean definition, if any: We assume it'll be easier
+    // to determine the decorated bean's type than the proxy's type.
+    BeanDefinition dbd = mergedDef.getDecoratedDefinition();
+    if (dbd != null && !BeanFactoryUtils.isFactoryDereference(name)) {
+      RootBeanDefinition tbd = getMergedBeanDefinition(dbd.getBeanName(), dbd, mergedDef);
+      Class<?> targetClass = predictBeanType(tbd);
+      if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
+        return targetClass;
       }
-      // we want to look at what it creates, not at the factory class.
-      return getTypeForFactoryBean(definition, allowFactoryBeanInit).resolve();
+    }
+
+    Class<?> beanClass = predictBeanType(mergedDef);
+
+    // Check bean class whether we're dealing with a FactoryBean.
+    if (beanClass != null && FactoryBean.class.isAssignableFrom(beanClass)) {
+      if (!BeanFactoryUtils.isFactoryDereference(name)) {
+        // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
+        return getTypeForFactoryBean(mergedDef, allowFactoryBeanInit).resolve();
+      }
+      else {
+        return beanClass;
+      }
     }
     else {
-      return !BeanFactoryUtils.isFactoryDereference(name) ? beanType : null;
+      return (!BeanFactoryUtils.isFactoryDereference(name) ? beanClass : null);
     }
   }
 
