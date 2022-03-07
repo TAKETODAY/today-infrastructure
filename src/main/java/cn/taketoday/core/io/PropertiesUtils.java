@@ -20,11 +20,13 @@
 
 package cn.taketoday.core.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -213,6 +215,28 @@ public abstract class PropertiesUtils {
         else {
           props.load(is);
         }
+      }
+    }
+    return props;
+  }
+
+  /**
+   * Convert {@link String} into {@link Properties}, considering it as
+   * properties content.
+   *
+   * @param text the text to be so converted
+   */
+  public static Properties parse(@Nullable String text) {
+    Properties props = new Properties();
+    if (text != null) {
+      try {
+        // Must use the ISO-8859-1 encoding because Properties.load(stream) expects it.
+        props.load(new ByteArrayInputStream(text.getBytes(StandardCharsets.ISO_8859_1)));
+      }
+      catch (IOException ex) {
+        // Should never happen.
+        throw new IllegalArgumentException(
+                "Failed to parse [" + text + "] into Properties", ex);
       }
     }
     return props;
