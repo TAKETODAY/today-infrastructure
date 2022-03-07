@@ -328,7 +328,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
   public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
     Assert.notNull(encodedResource, "EncodedResource must not be null");
     if (logger.isTraceEnabled()) {
-      logger.trace("Loading XML bean definitions from " + encodedResource);
+      logger.trace("Loading XML bean definitions from {}", encodedResource);
     }
 
     Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
@@ -400,7 +400,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
       Document doc = doLoadDocument(inputSource, resource);
       int count = registerBeanDefinitions(doc, resource);
       if (logger.isDebugEnabled()) {
-        logger.debug("Loaded " + count + " bean definitions from " + resource);
+        logger.debug("Loaded {} bean definitions from {}", count, resource);
       }
       return count;
     }

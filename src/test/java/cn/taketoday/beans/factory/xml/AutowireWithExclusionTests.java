@@ -66,7 +66,7 @@ public class AutowireWithExclusionTests {
     StandardBeanFactory child = new StandardBeanFactory(parent);
     BeanDefinition robDef = new BeanDefinition(TestBean.class);
     robDef.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
-    robDef.getPropertyValues().add("spouse", new RuntimeBeanReference("sally"));
+    robDef.propertyValues().add("spouse", new RuntimeBeanReference("sally"));
     child.registerBeanDefinition("rob2", robDef);
     TestBean rob = (TestBean) child.getBean("rob2");
     assertThat(rob.getSomeProperties().getProperty("name")).isEqualTo("props1");
@@ -82,10 +82,10 @@ public class AutowireWithExclusionTests {
     StandardBeanFactory child = new StandardBeanFactory(parent);
     BeanDefinition robDef = new BeanDefinition(TestBean.class);
     robDef.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
-    robDef.getPropertyValues().add("spouse", new RuntimeBeanReference("sally"));
+    robDef.propertyValues().add("spouse", new RuntimeBeanReference("sally"));
     child.registerBeanDefinition("rob2", robDef);
     BeanDefinition propsDef = new BeanDefinition(PropertiesFactoryBean.class);
-    propsDef.getPropertyValues().add("properties", "name=props3");
+    propsDef.propertyValues().add("properties", "name=props3");
     child.registerBeanDefinition("props3", propsDef);
     TestBean rob = (TestBean) child.getBean("rob2");
     assertThat(rob.getSomeProperties().getProperty("name")).isEqualTo("props1");
@@ -100,10 +100,10 @@ public class AutowireWithExclusionTests {
     StandardBeanFactory child = new StandardBeanFactory(parent);
     BeanDefinition robDef = new BeanDefinition(TestBean.class);
     robDef.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
-    robDef.getPropertyValues().add("spouse", new RuntimeBeanReference("sally"));
+    robDef.propertyValues().add("spouse", new RuntimeBeanReference("sally"));
     child.registerBeanDefinition("rob2", robDef);
     BeanDefinition propsDef = new BeanDefinition(PropertiesFactoryBean.class);
-    propsDef.getPropertyValues().add("properties", "name=props3");
+    propsDef.propertyValues().add("properties", "name=props3");
     propsDef.setPrimary(true);
     child.registerBeanDefinition("props3", propsDef);
     TestBean rob = (TestBean) child.getBean("rob2");
@@ -120,10 +120,10 @@ public class AutowireWithExclusionTests {
     StandardBeanFactory child = new StandardBeanFactory(parent);
     BeanDefinition robDef = new BeanDefinition(TestBean.class);
     robDef.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
-    robDef.getPropertyValues().add("spouse", new RuntimeBeanReference("sally"));
+    robDef.propertyValues().add("spouse", new RuntimeBeanReference("sally"));
     child.registerBeanDefinition("rob2", robDef);
     BeanDefinition propsDef = new BeanDefinition(PropertiesFactoryBean.class);
-    propsDef.getPropertyValues().add("properties", "name=props3");
+    propsDef.propertyValues().add("properties", "name=props3");
     propsDef.setPrimary(true);
     child.registerBeanDefinition("props3", propsDef);
     TestBean rob = (TestBean) child.getBean("rob2");

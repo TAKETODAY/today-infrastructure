@@ -21,11 +21,14 @@
 package cn.taketoday.jdbc.support;
 
 import java.sql.DatabaseMetaData;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
@@ -96,141 +99,39 @@ public class SQLErrorCodesFactory {
    * @see #loadResource(String)
    */
   protected SQLErrorCodesFactory() {
-    Map<String, SQLErrorCodes> errorCodes = new HashMap<>();
+    Map<String, SQLErrorCodes> errorCodes;
 
-    SQLErrorCodes db2ErrorCodes = new SQLErrorCodes();
-    db2ErrorCodes.setDatabaseProductName("DB2*");
-    db2ErrorCodes.setBadSqlGrammarCodes("-007,-029,-097,-104,-109,-115,-128,-199,-204,-206,-301,-408,-441,-491".split(","));
-    db2ErrorCodes.setDuplicateKeyCodes("-803");
-    db2ErrorCodes.setDataIntegrityViolationCodes("-407,-530,-531,-532,-543,-544,-545,-603,-667".split(","));
-    db2ErrorCodes.setDataAccessResourceFailureCodes("-904", "-971");
-    db2ErrorCodes.setTransientDataAccessResourceCodes("-1035", "-1218", "-30080", "-30081");
-    db2ErrorCodes.setDeadlockLoserCodes("-911", "-913");
-    errorCodes.put("DB2", db2ErrorCodes);
-    errorCodes.put("Db2", db2ErrorCodes);
+    try {
+      StandardBeanFactory lbf = new StandardBeanFactory();
+      lbf.setBeanClassLoader(getClass().getClassLoader());
+      XmlBeanDefinitionReader bdr = new XmlBeanDefinitionReader(lbf);
 
-    // Derby
-    SQLErrorCodes derbyCodes = new SQLErrorCodes();
+      // Load default SQL error codes.
+      Resource resource = loadResource(SQL_ERROR_CODE_DEFAULT_PATH);
+      if (resource != null && resource.exists()) {
+        bdr.loadBeanDefinitions(resource);
+      }
+      else {
+        log.info("Default sql-error-codes.xml not found (should be included in spring-jdbc jar)");
+      }
 
-    derbyCodes.setDatabaseProductName("Apache Derby");
-    derbyCodes.setUseSqlStateForTranslation(true);
-    derbyCodes.setBadSqlGrammarCodes("42802,42821,42X01,42X02,42X03,42X04,42X05,42X06,42X07,42X08".split(","));
-    derbyCodes.setDuplicateKeyCodes("23505");
-    derbyCodes.setDataIntegrityViolationCodes("22001,22005,23502,23503,23513,X0Y32".split(","));
-    derbyCodes.setDataAccessResourceFailureCodes("04501", "08004", "42Y07");
-    derbyCodes.setDeadlockLoserCodes("40001");
-    derbyCodes.setCannotAcquireLockCodes("40XL1");
-    errorCodes.put("Derby", derbyCodes);
+      // Load custom SQL error codes, overriding defaults.
+      resource = loadResource(SQL_ERROR_CODE_OVERRIDE_PATH);
+      if (resource != null && resource.exists()) {
+        bdr.loadBeanDefinitions(resource);
+        log.debug("Found custom sql-error-codes.xml file at the root of the classpath");
+      }
 
-    // H2
-    SQLErrorCodes h2Codes = new SQLErrorCodes();
-
-    h2Codes.setBadSqlGrammarCodes("42000,42001,42101,42102,42111,42112,42121,42122,42132".split(","));
-    h2Codes.setDuplicateKeyCodes("23001", "23505");
-    h2Codes.setDataIntegrityViolationCodes("22001,22003,22012,22018,22025,23000,23002,23003,23502,23503,23506,23507,23513".split(","));
-    h2Codes.setDataAccessResourceFailureCodes("90046,90100,90117,90121,90126".split(","));
-    h2Codes.setCannotAcquireLockCodes("50200");
-    errorCodes.put("H2", h2Codes);
-
-    // MySQL
-    SQLErrorCodes mySQLCodes = new SQLErrorCodes();
-    mySQLCodes.setDatabaseProductNames("MySQL", "MariaDB");
-    mySQLCodes.setBadSqlGrammarCodes("1054,1064,1146".split(","));
-    mySQLCodes.setDuplicateKeyCodes("1062");
-    mySQLCodes.setDataIntegrityViolationCodes("630,839,840,893,1169,1215,1216,1217,1364,1451,1452,1557".split(","));
-    mySQLCodes.setDataAccessResourceFailureCodes("1");
-    mySQLCodes.setCannotAcquireLockCodes("1205", "3572");
-    mySQLCodes.setDeadlockLoserCodes("1213");
-    errorCodes.put("MySQL", mySQLCodes);
-
-    // Oracle
-    SQLErrorCodes oracleCodes = new SQLErrorCodes();
-    oracleCodes.setBadSqlGrammarCodes("900,903,904,917,936,942,17006,6550".split(","));
-    oracleCodes.setInvalidResultSetAccessCodes("17003");
-    oracleCodes.setDuplicateKeyCodes("1");
-    oracleCodes.setDataIntegrityViolationCodes("1400,1722,2291,2292".split(","));
-    oracleCodes.setDataAccessResourceFailureCodes("17002", "17447");
-    oracleCodes.setCannotAcquireLockCodes("54", "30006");
-    oracleCodes.setDeadlockLoserCodes("60");
-    oracleCodes.setCannotSerializeTransactionCodes("8177");
-    errorCodes.put("Oracle", oracleCodes);
-
-    // PostgreSQL
-    SQLErrorCodes postgresCodes = new SQLErrorCodes();
-    postgresCodes.setUseSqlStateForTranslation(true);
-    postgresCodes.setBadSqlGrammarCodes("03000,42000,42601,42602,42622,42804,42P01".split(","));
-    postgresCodes.setInvalidResultSetAccessCodes("17003");
-    postgresCodes.setDuplicateKeyCodes("21000", "23505");
-    postgresCodes.setDataIntegrityViolationCodes("23000,23502,23503,23514".split(","));
-    postgresCodes.setDataAccessResourceFailureCodes("53000", "53100", "53200", "53300");
-    postgresCodes.setCannotAcquireLockCodes("55P03");
-    postgresCodes.setDeadlockLoserCodes("40P01");
-    postgresCodes.setCannotSerializeTransactionCodes("40001");
-    errorCodes.put("Postgres", postgresCodes);
-    errorCodes.put("PostgreSQL", postgresCodes);
-
-    // SqlServer
-    SQLErrorCodes sqlServerCodes = new SQLErrorCodes();
-    sqlServerCodes.setDatabaseProductName("Microsoft SQL Server");
-    sqlServerCodes.setBadSqlGrammarCodes("156,170,207,208,209".split(","));
-    sqlServerCodes.setPermissionDeniedCodes("229");
-    sqlServerCodes.setDuplicateKeyCodes("2601", "2627");
-    sqlServerCodes.setDataIntegrityViolationCodes("544", "8114", "8115");
-    sqlServerCodes.setDataAccessResourceFailureCodes("4060");
-    sqlServerCodes.setCannotAcquireLockCodes("1222");
-    sqlServerCodes.setDeadlockLoserCodes("1205");
-
-    errorCodes.put("MS-SQL", sqlServerCodes);
-    errorCodes.put("SqlServer", sqlServerCodes);
-
-    // HSQL
-    SQLErrorCodes hSQLCodes = new SQLErrorCodes();
-    hSQLCodes.setDatabaseProductName("HSQL Database Engine");
-    hSQLCodes.setBadSqlGrammarCodes("-22", "-28");
-    hSQLCodes.setDuplicateKeyCodes("-104");
-    hSQLCodes.setDataIntegrityViolationCodes("-9");
-    hSQLCodes.setDataAccessResourceFailureCodes("-80");
-    errorCodes.put("Hsql", hSQLCodes);
-    errorCodes.put("HSQL", hSQLCodes);
-
-    // Sybase
-    SQLErrorCodes sybaseCodes = new SQLErrorCodes();
-    sybaseCodes.setDatabaseProductNames(
-            "Sybase SQL Server", "Adaptive Server Enterprise", "ASE", "SQL Server", "sql server");
-    sybaseCodes.setBadSqlGrammarCodes("101,102,103,104,105,106,107,108,109,110,111,112,113,116,120,121,123,207,208,213,257,512".split(","));
-    sybaseCodes.setDuplicateKeyCodes("2601", "2615", "2626");
-    sybaseCodes.setDataIntegrityViolationCodes("233", "511", "515", "530", "546", "547", "2615", "2714");
-    sybaseCodes.setTransientDataAccessResourceCodes("921", "1105");
-    sybaseCodes.setCannotAcquireLockCodes("12205");
-    sybaseCodes.setDeadlockLoserCodes("1205");
-    errorCodes.put("Sybase", sybaseCodes);
-
-    // Informix
-    SQLErrorCodes informixCodes = new SQLErrorCodes();
-    informixCodes.setDatabaseProductName("Informix Dynamic Server");
-    informixCodes.setBadSqlGrammarCodes("-201", "-217", "-696");
-    informixCodes.setDuplicateKeyCodes("-239", "-268", "-6017");
-    informixCodes.setDataIntegrityViolationCodes("-692", "-11030");
-    errorCodes.put("Informix", informixCodes);
-
-    // HDB
-    SQLErrorCodes hDBCodes = new SQLErrorCodes();
-    hDBCodes.setDatabaseProductNames("SAP HANA", "SAP DB");
-    hDBCodes.setBadSqlGrammarCodes(
-            ("257,259,260,261,262,263,264,267,268,269,270,271,272,273,275,276,277," +
-                    "278,278,279,280,281,282,283,284,285,286,288,289,290,294,295,296," +
-                    "297,299,308,309,313,315,316,318,319,320,321,322,323,324,328,329," +
-                    "330,333,335,336,337,338,340,343,350,351,352,362,368").split(","));
-    hDBCodes.setPermissionDeniedCodes("10", "258");
-    hDBCodes.setDuplicateKeyCodes("301");
-    hDBCodes.setDataIntegrityViolationCodes("461", "462");
-    hDBCodes.setDataAccessResourceFailureCodes("-813,-709,-708,1024,1025,1026,1027,1029,1030,1031".split(","));
-    hDBCodes.setInvalidResultSetAccessCodes("-11210", "582", "587", "588", "594");
-    hDBCodes.setCannotAcquireLockCodes("131");
-    hDBCodes.setCannotSerializeTransactionCodes("138", "143");
-    hDBCodes.setDeadlockLoserCodes("133");
-    errorCodes.put("HDB", hDBCodes);
-    errorCodes.put("Hana", hDBCodes);
+      // Check all beans of type SQLErrorCodes.
+      errorCodes = lbf.getBeansOfType(SQLErrorCodes.class, true, false);
+      if (log.isTraceEnabled()) {
+        log.trace("SQLErrorCodes loaded: {}", errorCodes.keySet());
+      }
+    }
+    catch (BeansException ex) {
+      log.warn("Error loading SQL error codes from config file", ex);
+      errorCodes = Collections.emptyMap();
+    }
 
     this.errorCodesMap = errorCodes;
   }
