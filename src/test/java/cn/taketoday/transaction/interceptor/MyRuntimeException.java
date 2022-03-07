@@ -29,7 +29,13 @@ import cn.taketoday.core.NestedRuntimeException;
  */
 @SuppressWarnings("serial")
 class MyRuntimeException extends NestedRuntimeException {
-	public MyRuntimeException(String msg) {
-		super(msg);
-	}
+
+  public MyRuntimeException() {
+    super("");
+  }
+
+  public MyRuntimeException(String msg) {
+    super(msg);
+  }
+
 }

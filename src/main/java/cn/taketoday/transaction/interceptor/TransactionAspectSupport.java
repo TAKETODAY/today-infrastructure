@@ -258,6 +258,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * attributes. If specifying a String property value, a PropertyEditor
    * will create a MethodMapTransactionAttributeSource from the value.
    *
+   * @see TransactionAttributeSourceEditor
    * @see MethodMapTransactionAttributeSource
    * @see NameMatchTransactionAttributeSource
    * @see cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource

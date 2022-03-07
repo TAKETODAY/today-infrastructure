@@ -101,7 +101,6 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @see cn.taketoday.aop.proxy.ProxyFactoryBean
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class TransactionProxyFactoryBean
         extends AbstractSingletonProxyFactoryBean implements BeanFactoryAware {
 
@@ -147,6 +146,7 @@ public class TransactionProxyFactoryBean
    * @see TransactionInterceptor#setTransactionAttributeSource
    * @see MethodMapTransactionAttributeSource
    * @see NameMatchTransactionAttributeSource
+   * @see TransactionAttributeSourceEditor
    * @see cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource
    */
   public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
