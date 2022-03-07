@@ -30,8 +30,6 @@ import cn.taketoday.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.weaving.AspectJWeavingEnabler;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * Parser for the &lt;context:load-time-weaver/&gt; element.
@@ -81,9 +79,6 @@ class LoadTimeWeaverBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
                 new BeanComponentDefinition(def, ASPECTJ_WEAVING_ENABLER_BEAN_NAME));
       }
 
-      if (isBeanConfigurerAspectEnabled(parserContext.getReaderContext().getBeanClassLoader())) {
-        new SpringConfiguredBeanDefinitionParser().parse(element, parserContext);
-      }
     }
   }
 
@@ -99,11 +94,6 @@ class LoadTimeWeaverBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
       ClassLoader cl = parserContext.getReaderContext().getBeanClassLoader();
       return (cl != null && cl.getResource(AspectJWeavingEnabler.ASPECTJ_AOP_XML_RESOURCE) != null);
     }
-  }
-
-  protected boolean isBeanConfigurerAspectEnabled(@Nullable ClassLoader beanClassLoader) {
-    return ClassUtils.isPresent(SpringConfiguredBeanDefinitionParser.BEAN_CONFIGURER_ASPECT_CLASS_NAME,
-            beanClassLoader);
   }
 
 }

@@ -20,6 +20,8 @@
 
 package cn.taketoday.context.annotation;
 
+import java.util.function.Consumer;
+
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -115,12 +117,17 @@ public abstract class AnnotationConfigUtils {
           ClassUtils.isPresent("jakarta.persistence.EntityManagerFactory", classLoader) &&
                   ClassUtils.isPresent(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, classLoader);
 
+  public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
+    registerAnnotationConfigProcessors(registry, null);
+  }
+
   /**
    * Register all relevant annotation post processors in the given registry.
    *
    * @param registry the registry to operate on
    */
-  public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
+  public static void registerAnnotationConfigProcessors(
+          BeanDefinitionRegistry registry, @Nullable Consumer<BeanDefinition> consumer) {
     StandardBeanFactory beanFactory = unwrapStandardBeanFactory(registry);
     if (beanFactory != null) {
       if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
@@ -135,17 +142,24 @@ public abstract class AnnotationConfigUtils {
     if (!registry.containsBeanDefinition(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(ConfigurationClassPostProcessor.class);
       registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME);
+      if (consumer != null) {
+        consumer.accept(def);
+      }
     }
 
     if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(StandardDependenciesBeanPostProcessor.class);
       registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
+      if (consumer != null)
+        consumer.accept(def);
     }
 
     // Check for Jakarta Annotations support, and if present add the CommonAnnotationBeanPostProcessor.
     if (jakartaAnnotationsPresent && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       BeanDefinition def = new BeanDefinition(CommonAnnotationBeanPostProcessor.class);
       registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME);
+      if (consumer != null)
+        consumer.accept(def);
     }
 
     // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor
@@ -156,6 +170,8 @@ public abstract class AnnotationConfigUtils {
         def.propertyValues().add("initAnnotationType", classLoader.loadClass("javax.annotation.PostConstruct"));
         def.propertyValues().add("destroyAnnotationType", classLoader.loadClass("javax.annotation.PreDestroy"));
         registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME);
+        if (consumer != null)
+          consumer.accept(def);
       }
       catch (ClassNotFoundException ex) {
         // Failed to load javax variants of the annotation types -> ignore.
@@ -168,6 +184,8 @@ public abstract class AnnotationConfigUtils {
       try {
         def.setBeanClass(ClassUtils.forName(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME,
                 AnnotationConfigUtils.class.getClassLoader()));
+        if (consumer != null)
+          consumer.accept(def);
       }
       catch (ClassNotFoundException ex) {
         throw new IllegalStateException(

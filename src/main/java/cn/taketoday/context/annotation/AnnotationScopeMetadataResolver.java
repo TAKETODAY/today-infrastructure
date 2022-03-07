@@ -31,11 +31,44 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 
 /**
+ * A {@link ScopeMetadataResolver} implementation that by default checks for
+ * the presence of Spring's {@link Scope @Scope} annotation on the bean class.
+ *
+ * <p>The exact type of annotation that is checked for is configurable via
+ * {@link #setScopeAnnotationType(Class)}.
+ *
+ * @author Mark Fisher
+ * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author TODAY 2021/10/26 15:57
+ * @see Scope
  * @since 4.0
  */
 public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
+
+  private final ScopedProxyMode defaultProxyMode;
   protected Class<? extends Annotation> scopeAnnotationType = Scope.class;
+
+  /**
+   * Construct a new {@code AnnotationScopeMetadataResolver}.
+   *
+   * @see #AnnotationScopeMetadataResolver(ScopedProxyMode)
+   * @see ScopedProxyMode#NO
+   */
+  public AnnotationScopeMetadataResolver() {
+    this.defaultProxyMode = ScopedProxyMode.NO;
+  }
+
+  /**
+   * Construct a new {@code AnnotationScopeMetadataResolver} using the
+   * supplied default {@link ScopedProxyMode}.
+   *
+   * @param defaultProxyMode the default scoped-proxy mode
+   */
+  public AnnotationScopeMetadataResolver(ScopedProxyMode defaultProxyMode) {
+    Assert.notNull(defaultProxyMode, "'defaultProxyMode' must not be null");
+    this.defaultProxyMode = defaultProxyMode;
+  }
 
   /**
    * Set the type of annotation that is checked for by this
@@ -61,6 +94,11 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
         annotation = annDef.getMetadata().getAnnotation(scopeAnnotationType);
       }
       if (annotation.isPresent()) {
+        ScopedProxyMode proxyMode = annotation.getEnum("proxyMode", ScopedProxyMode.class);
+        if (proxyMode == ScopedProxyMode.DEFAULT) {
+          proxyMode = this.defaultProxyMode;
+        }
+        metadata.setScopedProxyMode(proxyMode);
         metadata.setScopeName(annotation.getStringValue());
       }
     }

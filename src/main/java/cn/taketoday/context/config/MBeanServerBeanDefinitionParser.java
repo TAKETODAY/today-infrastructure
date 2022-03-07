@@ -26,19 +26,21 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.xml.AbstractBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
+import cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter;
+import cn.taketoday.jmx.support.MBeanServerFactoryBean;
 import cn.taketoday.util.StringUtils;
 
 /**
  * Parser for the &lt;context:mbean-server/&gt; element.
  *
  * <p>Registers an instance of
- * {@link cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter}
+ * {@link AnnotationMBeanExporter}
  * within the context.
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
- * @see cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter
- * @since 2.5
+ * @see AnnotationMBeanExporter
+ * @since 4.0
  */
 class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
@@ -57,12 +59,12 @@ class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
     String agentId = element.getAttribute(AGENT_ID_ATTRIBUTE);
     if (StringUtils.hasText(agentId)) {
       RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);
-      bd.getPropertyValues().add("agentId", agentId);
+      bd.propertyValues().add("agentId", agentId);
       return bd;
     }
 
     RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);
-    bd.getPropertyValues().add("locateExistingServerIfPossible", Boolean.TRUE);
+    bd.propertyValues().add("locateExistingServerIfPossible", Boolean.TRUE);
 
     // Mark as infrastructure bean and attach source location.
     bd.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);

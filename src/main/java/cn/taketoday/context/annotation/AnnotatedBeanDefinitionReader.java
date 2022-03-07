@@ -21,12 +21,10 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
@@ -37,6 +35,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
@@ -259,6 +258,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
     definition.setScope(scopeMetadata.getScopeName());
 
+    AnnotationConfigUtils.processCommonDefinitionAnnotations(definition);
+
     if (qualifiers != null) {
       for (Class<? extends Annotation> qualifier : qualifiers) {
         if (Primary.class == qualifier) {
@@ -280,7 +281,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       beanNamePopulator.populateName(definition, registry);
     }
     definition.setInstanceSupplier(supplier);
-    doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, customizers);
+
+    applyDynamicCustomizers(definition, customizers);
+
+    BeanDefinition beanDefinition = applyScopedProxyMode(scopeMetadata, definition, registry);
+    register(beanDefinition);
   }
 
   // BeanDefinitionRegistrar end
@@ -403,7 +408,11 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
         register(definition);
       }
       else {
-        doRegisterWithAnnotationMetadata(definition.getMetadata(), definition, null);
+        ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(definition);
+        applyAnnotationMetadata(definition);
+        applyDynamicCustomizers(definition, null);
+        BeanDefinition beanDefinition = applyScopedProxyMode(scopeMetadata, definition, registry);
+        register(beanDefinition);
       }
     }
   }
@@ -418,11 +427,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       AnnotationMetadata metadata = definition.getMetadata();
       annotations = metadata.getAnnotations();
     }
-    applyAnnotationMetadata(annotations, definition);
-  }
-
-  public static void applyAnnotationMetadata(AnnotatedElement annotated, BeanDefinition definition) {
-    MergedAnnotations annotations = MergedAnnotations.from(annotated);
     applyAnnotationMetadata(annotations, definition);
   }
 
@@ -465,11 +469,19 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
     }
   }
 
-  private void doRegisterWithAnnotationMetadata(
-          AnnotationMetadata metadata, BeanDefinition definition,
-          @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
-    MergedAnnotations annotations = metadata.getAnnotations();
-    applyAnnotationMetadata(annotations, definition);
+  static BeanDefinition applyScopedProxyMode(
+          ScopeMetadata metadata, BeanDefinition definition, BeanDefinitionRegistry registry) {
+
+    ScopedProxyMode scopedProxyMode = metadata.getScopedProxyMode();
+    if (scopedProxyMode.equals(ScopedProxyMode.NO)) {
+      return definition;
+    }
+    boolean proxyTargetClass = scopedProxyMode.equals(ScopedProxyMode.TARGET_CLASS);
+    return ScopedProxyCreator.createScopedProxy(definition, registry, proxyTargetClass);
+  }
+
+  private void applyDynamicCustomizers(
+          BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
 
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
@@ -485,7 +497,6 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       }
     }
 
-    register(definition);
   }
 
   public boolean isEnableConditionEvaluation() {

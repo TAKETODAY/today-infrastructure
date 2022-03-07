@@ -25,10 +25,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
@@ -228,6 +228,17 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   public void setScopeMetadataResolver(@Nullable ScopeMetadataResolver scopeMetadataResolver) {
     this.scopeMetadataResolver =
             scopeMetadataResolver != null ? scopeMetadataResolver : new AnnotationScopeMetadataResolver();
+  }
+
+  /**
+   * Specify the proxy behavior for non-singleton scoped beans.
+   * Note that this will override any custom "scopeMetadataResolver" setting.
+   * <p>The default is {@link ScopedProxyMode#NO}.
+   *
+   * @see #setScopeMetadataResolver
+   */
+  public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
+    this.scopeMetadataResolver = new AnnotationScopeMetadataResolver(scopedProxyMode);
   }
 
   /**

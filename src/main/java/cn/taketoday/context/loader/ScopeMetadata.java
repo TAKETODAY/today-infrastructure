@@ -1,7 +1,7 @@
 package cn.taketoday.context.loader;
 
-
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -15,7 +15,9 @@ import cn.taketoday.lang.Assert;
  */
 public class ScopeMetadata {
 
-  private String scopeName = Scope.SINGLETON;
+  private String scopeName = BeanDefinition.SCOPE_SINGLETON;
+
+  private ScopedProxyMode scopedProxyMode = ScopedProxyMode.NO;
 
   /**
    * Set the name of the scope.
@@ -30,6 +32,21 @@ public class ScopeMetadata {
    */
   public String getScopeName() {
     return this.scopeName;
+  }
+
+  /**
+   * Set the proxy-mode to be applied to the scoped instance.
+   */
+  public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
+    Assert.notNull(scopedProxyMode, "'scopedProxyMode' must not be null");
+    this.scopedProxyMode = scopedProxyMode;
+  }
+
+  /**
+   * Get the proxy-mode to be applied to the scoped instance.
+   */
+  public ScopedProxyMode getScopedProxyMode() {
+    return this.scopedProxyMode;
   }
 
 }

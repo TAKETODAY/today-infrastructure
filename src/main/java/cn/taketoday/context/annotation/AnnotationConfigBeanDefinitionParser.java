@@ -22,8 +22,6 @@ package cn.taketoday.context.annotation;
 
 import org.w3c.dom.Element;
 
-import java.util.Set;
-
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.CompositeComponentDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
@@ -49,17 +47,15 @@ public class AnnotationConfigBeanDefinitionParser implements BeanDefinitionParse
     Object source = parserContext.extractSource(element);
 
     // Obtain bean definitions for all relevant BeanPostProcessors.
-    Set<BeanDefinition> processorDefinitions =
-            AnnotationConfigUtils.registerAnnotationConfigProcessors(parserContext.getRegistry(), source);
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(parserContext.getRegistry(), definition -> {
+      definition.setSource(source);
+      // Nest the concrete beans in the surrounding component.
+      parserContext.registerComponent(new BeanComponentDefinition(definition));
+    });
 
     // Register component for the surrounding <context:annotation-config> element.
     CompositeComponentDefinition compDefinition = new CompositeComponentDefinition(element.getTagName(), source);
     parserContext.pushContainingComponent(compDefinition);
-
-    // Nest the concrete beans in the surrounding component.
-    for (BeanDefinition processorDefinition : processorDefinitions) {
-      parserContext.registerComponent(new BeanComponentDefinition(processorDefinition));
-    }
 
     // Finally register the composite component.
     parserContext.popAndRegisterContainingComponent();

@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.ComponentScanBeanDefinitionParser;
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class ContextNamespaceHandler extends NamespaceHandlerSupport {
 
@@ -41,7 +41,6 @@ public class ContextNamespaceHandler extends NamespaceHandlerSupport {
     registerBeanDefinitionParser("annotation-config", new AnnotationConfigBeanDefinitionParser());
     registerBeanDefinitionParser("component-scan", new ComponentScanBeanDefinitionParser());
     registerBeanDefinitionParser("load-time-weaver", new LoadTimeWeaverBeanDefinitionParser());
-    registerBeanDefinitionParser("spring-configured", new SpringConfiguredBeanDefinitionParser());
     registerBeanDefinitionParser("mbean-export", new MBeanExportBeanDefinitionParser());
     registerBeanDefinitionParser("mbean-server", new MBeanServerBeanDefinitionParser());
   }

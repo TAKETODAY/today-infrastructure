@@ -151,11 +151,10 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
       annotationConfig = Boolean.parseBoolean(element.getAttribute(ANNOTATION_CONFIG_ATTRIBUTE));
     }
     if (annotationConfig) {
-      Set<BeanDefinition> processorDefinitions =
-              AnnotationConfigUtils.registerAnnotationConfigProcessors(readerContext.getRegistry(), source);
-      for (BeanDefinition processorDefinition : processorDefinitions) {
-        compositeDef.addNestedComponent(new BeanComponentDefinition(processorDefinition));
-      }
+      AnnotationConfigUtils.registerAnnotationConfigProcessors(readerContext.getRegistry(), definition -> {
+        definition.setSource(source);
+        compositeDef.addNestedComponent(new BeanComponentDefinition(definition));
+      });
     }
 
     readerContext.fireComponentRegistered(compositeDef);
@@ -163,7 +162,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
   protected void parseBeanNameGenerator(Element element, ClassPathBeanDefinitionScanner scanner) {
     if (element.hasAttribute(NAME_GENERATOR_ATTRIBUTE)) {
-      BeanNamePopulator beanNamePopulator = (BeanNamePopulator) instantiateUserDefinedStrategy(
+      BeanNamePopulator beanNamePopulator = instantiateUserDefinedStrategy(
               element.getAttribute(NAME_GENERATOR_ATTRIBUTE), BeanNamePopulator.class,
               scanner.getResourceLoader().getClassLoader());
       scanner.setBeanNamePopulator(beanNamePopulator);
@@ -177,7 +176,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
         throw new IllegalArgumentException(
                 "Cannot define both 'scope-resolver' and 'scoped-proxy' on <component-scan> tag");
       }
-      ScopeMetadataResolver scopeMetadataResolver = (ScopeMetadataResolver) instantiateUserDefinedStrategy(
+      ScopeMetadataResolver scopeMetadataResolver = instantiateUserDefinedStrategy(
               element.getAttribute(SCOPE_RESOLVER_ATTRIBUTE), ScopeMetadataResolver.class,
               scanner.getResourceLoader().getClassLoader());
       scanner.setScopeMetadataResolver(scopeMetadataResolver);
@@ -185,17 +184,11 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
     if (element.hasAttribute(SCOPED_PROXY_ATTRIBUTE)) {
       String mode = element.getAttribute(SCOPED_PROXY_ATTRIBUTE);
-      if ("targetClass".equals(mode)) {
-        scanner.setScopedProxyMode(ScopedProxyMode.TARGET_CLASS);
-      }
-      else if ("interfaces".equals(mode)) {
-        scanner.setScopedProxyMode(ScopedProxyMode.INTERFACES);
-      }
-      else if ("no".equals(mode)) {
-        scanner.setScopedProxyMode(ScopedProxyMode.NO);
-      }
-      else {
-        throw new IllegalArgumentException("scoped-proxy only supports 'no', 'interfaces' and 'targetClass'");
+      switch (mode) {
+        case "no" -> scanner.setScopedProxyMode(ScopedProxyMode.NO);
+        case "interfaces" -> scanner.setScopedProxyMode(ScopedProxyMode.INTERFACES);
+        case "targetClass" -> scanner.setScopedProxyMode(ScopedProxyMode.TARGET_CLASS);
+        default -> throw new IllegalArgumentException("scoped-proxy only supports 'no', 'interfaces' and 'targetClass'");
       }
     }
   }
@@ -204,7 +197,8 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
     // Parse exclude and include filter elements.
     ClassLoader classLoader = scanner.getResourceLoader().getClassLoader();
     NodeList nodeList = element.getChildNodes();
-    for (int i = 0; i < nodeList.getLength(); i++) {
+    int length = nodeList.getLength();
+    for (int i = 0; i < length; i++) {
       Node node = nodeList.item(i);
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         String localName = parserContext.getDelegate().getLocalName(node);
@@ -236,37 +230,33 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
     String filterType = element.getAttribute(FILTER_TYPE_ATTRIBUTE);
     String expression = element.getAttribute(FILTER_EXPRESSION_ATTRIBUTE);
     expression = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(expression);
-    if ("annotation".equals(filterType)) {
-      return new AnnotationTypeFilter(ClassUtils.forName(expression, classLoader));
-    }
-    else if ("assignable".equals(filterType)) {
-      return new AssignableTypeFilter(ClassUtils.forName(expression, classLoader));
-    }
-    else if ("aspectj".equals(filterType)) {
-      return new AspectJTypeFilter(expression, classLoader);
-    }
-    else if ("regex".equals(filterType)) {
-      return new RegexPatternTypeFilter(Pattern.compile(expression));
-    }
-    else if ("custom".equals(filterType)) {
-      Class<?> filterClass = ClassUtils.forName(expression, classLoader);
-      if (!TypeFilter.class.isAssignableFrom(filterClass)) {
-        throw new IllegalArgumentException(
-                "Class is not assignable to [" + TypeFilter.class.getName() + "]: " + expression);
-      }
-      return (TypeFilter) BeanUtils.newInstance(filterClass);
-    }
-    else {
-      throw new IllegalArgumentException("Unsupported filter type: " + filterType);
+    switch (filterType) {
+      case "annotation":
+        return new AnnotationTypeFilter(ClassUtils.forName(expression, classLoader));
+      case "assignable":
+        return new AssignableTypeFilter(ClassUtils.forName(expression, classLoader));
+      case "aspectj":
+        return new AspectJTypeFilter(expression, classLoader);
+      case "regex":
+        return new RegexPatternTypeFilter(Pattern.compile(expression));
+      case "custom":
+        Class<?> filterClass = ClassUtils.forName(expression, classLoader);
+        if (!TypeFilter.class.isAssignableFrom(filterClass)) {
+          throw new IllegalArgumentException(
+                  "Class is not assignable to [" + TypeFilter.class.getName() + "]: " + expression);
+        }
+        return (TypeFilter) BeanUtils.newInstance(filterClass);
+      default:
+        throw new IllegalArgumentException("Unsupported filter type: " + filterType);
     }
   }
 
-  private Object instantiateUserDefinedStrategy(
-          String className, Class<?> strategyType, @Nullable ClassLoader classLoader) {
+  private <T> T instantiateUserDefinedStrategy(
+          String className, Class<T> strategyType, @Nullable ClassLoader classLoader) {
 
-    Object result;
+    T result;
     try {
-      result = ReflectionUtils.accessibleConstructor(ClassUtils.forName(className, classLoader)).newInstance();
+      result = ReflectionUtils.accessibleConstructor(ClassUtils.<T>forName(className, classLoader)).newInstance();
     }
     catch (ClassNotFoundException ex) {
       throw new IllegalArgumentException("Class [" + className + "] for strategy [" +

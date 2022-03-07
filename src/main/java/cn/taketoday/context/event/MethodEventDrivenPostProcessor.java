@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
+import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanInitializationException;
@@ -95,6 +96,9 @@ public class MethodEventDrivenPostProcessor
     Assert.state(this.beanFactory != null, "No ConfigurableBeanFactory set");
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
+      if (ScopedProxyUtils.isScopedTarget(beanName)) {
+        continue;
+      }
       Class<?> type = null;
       try {
         type = AopProxyUtils.determineTargetClass(beanFactory, beanName);
@@ -133,7 +137,7 @@ public class MethodEventDrivenPostProcessor
       }
 
       if (CollectionUtils.isEmpty(annotatedMethods)) {
-        this.nonAnnotatedClasses.add(targetType);
+        nonAnnotatedClasses.add(targetType);
         if (logger.isTraceEnabled()) {
           logger.trace("No @EventListener annotations found on bean class: " + targetType.getName());
         }
