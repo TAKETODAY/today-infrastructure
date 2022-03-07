@@ -38,11 +38,12 @@ import java.lang.annotation.Target;
  * empty.
  *
  * @author Madhura Bhave
+ * @author Pavel Anisimov
  * @since 4.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
 @Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.PARAMETER, ElementType.RECORD_COMPONENT })
 public @interface DefaultValue {
 
   /**
