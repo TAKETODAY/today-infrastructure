@@ -5,5 +5,5 @@ http\://www.springframework.org/schema/context=cn.taketoday.context.config.Conte
 http\://www.springframework.org/schema/jee=cn.taketoday.ejb.config.JeeNamespaceHandler
 http\://www.springframework.org/schema/lang=cn.taketoday.scripting.config.LangNamespaceHandler
 http\://www.springframework.org/schema/task=cn.taketoday.scheduling.config.TaskNamespaceHandler
-http\://www.springframework.org/schema/cache=cn.taketoday.cache.config.CacheNamespaceHandler
 http\://www.springframework.org/schema/jdbc=cn.taketoday.jdbc.config.JdbcNamespaceHandler
+http\://www.springframework.org/schema/aop=cn.taketoday.aop.config.AopNamespaceHandler
