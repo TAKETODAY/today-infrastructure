@@ -770,6 +770,28 @@ public class BeanDefinition
   }
 
   /**
+   * Set the originating (e.g. decorated) BeanDefinition, if any.
+   *
+   * @since 4.0
+   */
+  public void setOriginatingBeanDefinition(BeanDefinition originatingBd) {
+    this.resource = new BeanDefinitionResource(originatingBd);
+  }
+
+  /**
+   * Return the originating BeanDefinition, or {@code null} if none.
+   * Allows for retrieving the decorated bean definition, if any.
+   * <p>Note that this method returns the immediate originator. Iterate through the
+   * originator chain to find the original BeanDefinition as defined by the user.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public BeanDefinition getOriginatingBeanDefinition() {
+    return resource instanceof BeanDefinitionResource bdr ? bdr.getBeanDefinition() : null;
+  }
+
+  /**
    * Set the resource that this bean definition came from
    * (for the purpose of showing context in case of errors).
    *

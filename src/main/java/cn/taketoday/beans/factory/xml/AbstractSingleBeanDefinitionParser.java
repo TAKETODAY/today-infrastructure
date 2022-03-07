@@ -163,6 +163,7 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
    * @param builder used to define the {@code BeanDefinition}
    */
   protected void doParse(Element element, BeanDefinitionBuilder builder) {
+
   }
 
 }
