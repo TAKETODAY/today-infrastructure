@@ -209,9 +209,7 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
    * post process after property-value {@link BeanDefinition#getPropertyValues()}
    */
   @Override
-  public void processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
-    String beanName = beanName.getBeanName();
-    PropertyValues propertyValues = beanName.getPropertyValues();
+  public void processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
     InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), propertyValues);
     try {
       metadata.inject(bean, beanName, propertyValues);

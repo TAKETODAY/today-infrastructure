@@ -57,7 +57,7 @@ public interface NamespaceHandler {
    *
    * @see NamespaceHandlerSupport#registerBeanDefinitionParser(String, BeanDefinitionParser)
    */
-  void init();
+  default void init() { }
 
   /**
    * Parse the specified {@link Element} and register any resulting

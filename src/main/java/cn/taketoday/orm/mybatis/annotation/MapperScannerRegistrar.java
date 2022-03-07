@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;

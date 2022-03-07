@@ -56,7 +56,7 @@ public class BeanDefinitionReference implements PropertyValueRetriever {
 
   private BeanDefinition getDefinition() {
     if (builder != null) {
-      return builder.build();
+      return builder.getBeanDefinition();
     }
     return definition;
   }

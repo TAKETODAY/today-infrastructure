@@ -67,10 +67,6 @@ public class SimpleConstructorNamespaceHandler implements NamespaceHandler {
   private static final String DELIMITER_PREFIX = "_";
 
   @Override
-  public void init() {
-  }
-
-  @Override
   @Nullable
   public BeanDefinition parse(Element element, ParserContext parserContext) {
     parserContext.getReaderContext().error(

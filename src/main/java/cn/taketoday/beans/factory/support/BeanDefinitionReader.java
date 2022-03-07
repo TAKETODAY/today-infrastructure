@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanNamePopulator;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Nullable;

@@ -135,7 +135,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
           throw new FatalBeanException("Class [" + className + "] for namespace [" + namespaceUri +
                   "] does not implement the [" + NamespaceHandler.class.getName() + "] interface");
         }
-        NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.instantiateClass(handlerClass);
+        NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.newInstance(handlerClass);
         namespaceHandler.init();
         handlerMappings.put(namespaceUri, namespaceHandler);
         return namespaceHandler;
@@ -161,13 +161,12 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
         handlerMappings = this.handlerMappings;
         if (handlerMappings == null) {
           if (logger.isTraceEnabled()) {
-            logger.trace("Loading NamespaceHandler mappings from [" + this.handlerMappingsLocation + "]");
+            logger.trace("Loading NamespaceHandler mappings from [{}]", handlerMappingsLocation);
           }
           try {
-            Properties mappings =
-                    PropertiesUtils.loadAllProperties(this.handlerMappingsLocation, this.classLoader);
+            Properties mappings = PropertiesUtils.loadAllProperties(handlerMappingsLocation, classLoader);
             if (logger.isTraceEnabled()) {
-              logger.trace("Loaded NamespaceHandler mappings: " + mappings);
+              logger.trace("Loaded NamespaceHandler mappings: {}", mappings);
             }
             handlerMappings = new ConcurrentHashMap<>(mappings.size());
             CollectionUtils.mergePropertiesIntoMap(mappings, handlerMappings);

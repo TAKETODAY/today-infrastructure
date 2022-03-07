@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.parsing.Problem;
 
 /**
  * Exception thrown when a bean definition reader encounters an error

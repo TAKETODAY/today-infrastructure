@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
@@ -134,7 +134,7 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
   }
 
   /**
-   * Provide a custom {@link cn.taketoday.beans.factory.BeanNamePopulator} for use with
+   * Provide a custom {@link BeanNamePopulator} for use with
    * {@link AnnotatedBeanDefinitionReader} and/or
    * {@link ClassPathBeanDefinitionScanner}, if any.
    * <p>

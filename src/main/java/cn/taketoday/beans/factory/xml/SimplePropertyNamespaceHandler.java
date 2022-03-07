@@ -56,10 +56,6 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
   private static final String REF_SUFFIX = "-ref";
 
   @Override
-  public void init() {
-  }
-
-  @Override
   @Nullable
   public BeanDefinition parse(Element element, ParserContext parserContext) {
     parserContext.getReaderContext().error(

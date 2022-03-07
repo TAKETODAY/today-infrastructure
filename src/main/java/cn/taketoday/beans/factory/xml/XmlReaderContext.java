@@ -136,8 +136,8 @@ public class XmlReaderContext extends ReaderContext {
   /**
    * Call the bean name generator for the given bean definition.
    *
-   * @see XmlBeanDefinitionReader#getBeanNameGenerator()
-   * @see cn.taketoday.beans.factory.support.BeanNamePopulator#p
+   * @see XmlBeanDefinitionReader#getBeanNamePopulator()
+   * @see cn.taketoday.beans.factory.support.BeanNamePopulator
    */
   public String generateBeanName(BeanDefinition beanDefinition) {
     return this.reader.getBeanNamePopulator().populateName(beanDefinition, getRegistry());

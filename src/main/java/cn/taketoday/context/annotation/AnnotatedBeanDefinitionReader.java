@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;

@@ -1459,10 +1459,10 @@ public class BeanDefinitionParserDelegate {
 
     String namespaceUri = getNamespaceURI(node);
     if (namespaceUri != null && !isDefaultNamespace(namespaceUri)) {
-      NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
+      NamespaceHandler handler = readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
       if (handler != null) {
         BeanDefinition decorated =
-                handler.decorate(node, originalDef, new ParserContext(this.readerContext, this, containingBd));
+                handler.decorate(node, originalDef, new ParserContext(readerContext, this, containingBd));
         if (decorated != null) {
           return decorated;
         }

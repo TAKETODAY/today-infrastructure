@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanNamePopulator;
-import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.DefaultBeanNamePopulator;
+import cn.taketoday.beans.factory.support.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
