@@ -38,7 +38,7 @@ public class BeanDefinitionDefaults {
   private Boolean lazyInit;
 
   @Nullable
-  private String[] initMethodNames;
+  private String initMethodName;
 
   @Nullable
   private String destroyMethodName;
@@ -105,16 +105,16 @@ public class BeanDefinitionDefaults {
    *
    * @see BeanDefinition#setInitMethods
    */
-  public void setInitMethodNames(String... initMethodNames) {
-    this.initMethodNames = initMethodNames;
+  public void setInitMethodName(@Nullable String initMethodName) {
+    this.initMethodName = initMethodName;
   }
 
   /**
    * Return the name of the default initializer method.
    */
   @Nullable
-  public String[] getInitMethodNames() {
-    return this.initMethodNames;
+  public String getInitMethodName() {
+    return this.initMethodName;
   }
 
   /**

@@ -33,19 +33,23 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.BeanMetadataElement;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
+import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.io.DescriptiveResource;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -57,10 +61,18 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * A BeanDefinition describes a bean instance, which has property values,
+ * constructor argument values, and further information supplied by
+ * concrete implementations.
+ *
+ * <p>This is just a minimal interface: The main intention is to allow a
+ * {@link BeanFactoryPostProcessor} to introspect and modify property values
+ * and other bean metadata.
+ *
  * @author TODAY 2019-02-01 12:23
  */
 public class BeanDefinition
-        extends AttributeAccessorSupport implements AttributeAccessor, BeanMetadataElement {
+        extends BeanMetadataAttributeAccessor implements AttributeAccessor, BeanMetadataElement {
 
   // @since 4.0
   public static final Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
@@ -121,6 +133,7 @@ public class BeanDefinition
    * Constant that indicates no external autowiring at all.
    *
    * @see #setAutowireMode
+   * @since 4.0
    */
   public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
 
@@ -128,6 +141,7 @@ public class BeanDefinition
    * Constant that indicates autowiring bean properties by name.
    *
    * @see #setAutowireMode
+   * @since 4.0
    */
   public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
 
@@ -135,6 +149,7 @@ public class BeanDefinition
    * Constant that indicates autowiring bean properties by type.
    *
    * @see #setAutowireMode
+   * @since 4.0
    */
   public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
 
@@ -142,9 +157,43 @@ public class BeanDefinition
    * Constant that indicates autowiring a constructor.
    *
    * @see #setAutowireMode
+   * @since 4.0
    */
   public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 
+  /**
+   * Constant that indicates no dependency check at all.
+   *
+   * @see #setDependencyCheck
+   * @since 4.0
+   */
+  public static final int DEPENDENCY_CHECK_NONE = 0;
+
+  /**
+   * Constant that indicates dependency checking for object references.
+   *
+   * @see #setDependencyCheck
+   * @since 4.0
+   */
+  public static final int DEPENDENCY_CHECK_OBJECTS = 1;
+
+  /**
+   * Constant that indicates dependency checking for "simple" properties.
+   *
+   * @see #setDependencyCheck
+   * @see BeanUtils#isSimpleProperty
+   * @since 4.0
+   */
+  public static final int DEPENDENCY_CHECK_SIMPLE = 2;
+
+  /**
+   * Constant that indicates dependency checking for all properties
+   * (object references as well as "simple" properties).
+   *
+   * @see #setDependencyCheck
+   * @since 4.0
+   */
+  public static final int DEPENDENCY_CHECK_ALL = 3;
   /** bean name. */
   private String beanName;
 
@@ -195,10 +244,6 @@ public class BeanDefinition
   /** @since 4.0 */
   private boolean primary = false;
 
-  /** source @since 4.0 source */
-  @Nullable
-  private Object source;
-
   @Nullable
   private PropertyValues propertyValues;
 
@@ -228,6 +273,13 @@ public class BeanDefinition
 
   // @since 4.0
   private int autowireMode = AUTOWIRE_NO;
+
+  // @since 4.0
+  private int dependencyCheck = DEPENDENCY_CHECK_NONE;
+
+  // @since 4.0
+  @Nullable
+  private String parentName;
 
   // @since 4.0
   @Nullable
@@ -298,6 +350,9 @@ public class BeanDefinition
   // @since 4.0
   private boolean enforceDestroyMethod;
 
+  @Nullable
+  private Resource resource;
+
   /**
    * @since 3.0
    */
@@ -310,7 +365,7 @@ public class BeanDefinition
     // copy
 
     this.role = from.role;
-    this.source = from.source;
+    this.resource = from.resource;
     this.primary = from.primary;
     this.lazyInit = from.lazyInit;
     this.synthetic = from.synthetic;
@@ -319,6 +374,7 @@ public class BeanDefinition
     this.initMethods = from.initMethods;
     this.description = from.description;
     this.autowireMode = from.autowireMode;
+    this.dependencyCheck = from.dependencyCheck;
     this.postProcessed = from.postProcessed;
     this.factoryBeanName = from.factoryBeanName;
     this.enforceInitMethod = from.enforceInitMethod;
@@ -357,9 +413,7 @@ public class BeanDefinition
 
   /** @since 4.0 */
   public BeanDefinition cloneDefinition() {
-    BeanDefinition definition = new BeanDefinition();
-    definition.copyFrom(this);
-    return definition;
+    return new BeanDefinition(this);
   }
 
   public BeanDefinition() { }
@@ -402,6 +456,25 @@ public class BeanDefinition
     setPropertyValues(pvs);
     setBeanClass(beanClass);
     setConstructorArgumentValues(cargs);
+  }
+
+  /**
+   * Create a new BeanDefinition with the given
+   * constructor argument values and property values.
+   */
+  protected BeanDefinition(@Nullable ConstructorArgumentValues cargs, @Nullable PropertyValues pvs) {
+    this.constructorArgumentValues = cargs;
+    setPropertyValues(pvs);
+  }
+
+  /**
+   * Create a new AbstractBeanDefinition as a deep copy of the given
+   * bean definition.
+   *
+   * @param original the original bean definition to copy from
+   */
+  public BeanDefinition(BeanDefinition original) {
+    copyFrom(original);
   }
 
   /**
@@ -635,12 +708,44 @@ public class BeanDefinition
   }
 
   /**
+   * Set a description of the resource that this bean definition
+   * came from (for the purpose of showing context in case of errors).
+   *
+   * @since 4.0
+   */
+  public void setResourceDescription(@Nullable String resourceDescription) {
+    this.resource = resourceDescription != null ? new DescriptiveResource(resourceDescription) : null;
+  }
+
+  /**
    * Return a description of the resource that this bean definition
    * came from (for the purpose of showing context in case of errors).
+   *
+   * @since 4.0
    */
   @Nullable
   public String getResourceDescription() {
-    return this.source != null ? this.source.toString() : null;
+    return resource != null ? resource.toString() : null;
+  }
+
+  /**
+   * Set the resource that this bean definition came from
+   * (for the purpose of showing context in case of errors).
+   *
+   * @since 4.0
+   */
+  public void setResource(@Nullable Resource resource) {
+    this.resource = resource;
+  }
+
+  /**
+   * Return the resource that this bean definition came from.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public Resource getResource() {
+    return this.resource;
   }
 
   public void setBeanClass(Class<?> beanClass) {
@@ -929,7 +1034,7 @@ public class BeanDefinition
     setEnforceInitMethod(false);
     setEnforceDestroyMethod(false);
     setAutowireMode(defaults.getAutowireMode());
-    setInitMethods(defaults.getInitMethodNames());
+    setInitMethods(defaults.getInitMethodName());
     setDestroyMethod(defaults.getDestroyMethodName());
   }
 
@@ -1112,16 +1217,28 @@ public class BeanDefinition
     return this.primary;
   }
 
-  /** @since 4.0 source */
-  public void setSource(@Nullable Object source) {
-    this.source = source;
+  /**
+   * Set the dependency check code.
+   *
+   * @param dependencyCheck the code to set.
+   * Must be one of the four constants defined in this class.
+   * @see #DEPENDENCY_CHECK_NONE
+   * @see #DEPENDENCY_CHECK_OBJECTS
+   * @see #DEPENDENCY_CHECK_SIMPLE
+   * @see #DEPENDENCY_CHECK_ALL
+   * @since 4.0
+   */
+  public void setDependencyCheck(int dependencyCheck) {
+    this.dependencyCheck = dependencyCheck;
   }
 
-  /** @since 4.0 source */
-  @Nullable
-  @Override
-  public Object getSource() {
-    return this.source;
+  /**
+   * Return the dependency check code.
+   *
+   * @since 4.0
+   */
+  public int getDependencyCheck() {
+    return this.dependencyCheck;
   }
 
   /**
@@ -1299,12 +1416,31 @@ public class BeanDefinition
   }
 
   /**
+   * Set the name of the parent definition of this bean definition, if any.
+   *
+   * @since 4.0
+   */
+  public void setParentName(@Nullable String parentName) {
+    this.parentName = parentName;
+  }
+
+  /**
+   * Return the name of the parent definition of this bean definition, if any.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getParentName() {
+    return parentName;
+  }
+
+  /**
    * Specify constructor argument values for this bean.
    *
    * @since 4.0
    */
-  public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
-    this.constructorArgumentValues = constructorArgumentValues;
+  public void setConstructorArgumentValues(@Nullable ConstructorArgumentValues argumentValues) {
+    this.constructorArgumentValues = argumentValues;
   }
 
   /**
@@ -1581,6 +1717,7 @@ public class BeanDefinition
               Collections.emptySet());
     }
   }
+
   // Object
 
   @Override
@@ -1597,6 +1734,7 @@ public class BeanDefinition
             && this.lazyInit == that.lazyInit
             && this.synthetic == that.synthetic
             && this.autowireMode == that.autowireMode
+            && this.dependencyCheck == that.dependencyCheck
             && this.enforceInitMethod == that.enforceInitMethod
             && this.enforceDestroyMethod == that.enforceDestroyMethod
             && this.autowireCandidate == that.autowireCandidate
@@ -1605,6 +1743,7 @@ public class BeanDefinition
             && Objects.equals(this.factoryBeanName, that.factoryBeanName)
             && Objects.equals(this.factoryMethodName, that.factoryMethodName)
             && Objects.equals(this.qualifiers, that.qualifiers)
+            && Objects.equals(this.parentName, that.parentName)
             && Arrays.equals(this.dependsOn, that.dependsOn)
             && equalsPropertyValues(that)
             && equalsConstructorArgumentValues(that)
@@ -1652,14 +1791,15 @@ public class BeanDefinition
     sb.append("; primary=").append(this.primary);
     sb.append("; factoryBean=").append(this.factoryBean);
     sb.append("; autowireMode=").append(this.autowireMode);
+    sb.append("; dependencyCheck=").append(this.dependencyCheck);
     sb.append("; autowireCandidate=").append(this.autowireCandidate);
     sb.append("; initMethods=").append(Arrays.toString(initMethods));
     sb.append("; factoryBeanName=").append(this.factoryBeanName);
     sb.append("; factoryMethodName=").append(this.factoryMethodName);
     sb.append("; destroyMethod=").append(destroyMethod);
 
-    if (this.source != null) {
-      sb.append("; defined in ").append(this.source);
+    if (this.resource != null) {
+      sb.append("; defined in ").append(this.resource);
     }
     return sb.toString();
   }

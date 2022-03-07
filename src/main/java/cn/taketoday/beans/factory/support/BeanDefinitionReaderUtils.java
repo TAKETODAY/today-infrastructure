@@ -140,7 +140,6 @@ public abstract class BeanDefinitionReaderUtils {
    * @param registry the bean factory that the definition is going to be
    * registered with (to check for existing bean names)
    * @return the unique bean name to use
-   * @since 5.1
    */
   public static String uniqueBeanName(String beanName, BeanDefinitionRegistry registry) {
     String id = beanName;

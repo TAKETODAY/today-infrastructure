@@ -20,23 +20,14 @@
 
 package cn.taketoday.beans.factory.support;
 
-import java.lang.reflect.AnnotatedElement;
 import java.util.HashSet;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.beans.factory.xml.NamespaceHandler;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -45,186 +36,243 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Programmatic means of constructing {@link BeanDefinition BeanDefinitions}
+ * using the builder pattern. Intended primarily for use when implementing
+ * {@link NamespaceHandler NamespaceHandlers}.
+ *
+ * @author Rod Johnson
+ * @author Rob Harrop
+ * @author Juergen Hoeller
  * @author TODAY 2021/10/2 22:45
  * @since 4.0
  */
 public class BeanDefinitionBuilder {
 
-  /** bean name. */
-  private String name;
-  /** bean class. */
-  private Class<?> beanClass;
-
-  private String beanClassName;
-  /** bean scope. */
-  private String scope;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   */
+  public static BeanDefinitionBuilder genericBeanDefinition() {
+    return new BeanDefinitionBuilder(new BeanDefinition());
+  }
 
   /**
-   * Invoke before {@link InitializingBean#afterPropertiesSet}
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
    *
-   * @since 2.3.3
+   * @param beanClassName the class name for the bean that the definition is being created for
    */
-  private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
+  public static BeanDefinitionBuilder genericBeanDefinition(String beanClassName) {
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    builder.beanDefinition.setBeanClassName(beanClassName);
+    return builder;
+  }
 
   /**
-   * @since 2.3.3
-   */
-  private String destroyMethod;
-
-  /**
-   * Mark as a {@link FactoryBean}.
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
    *
-   * @since 2.0.0
+   * @param beanClass the {@code Class} of the bean that the definition is being created for
    */
-  private boolean factoryBean = false;
-
-  /** lazy init flag @since 3.0 */
-  private boolean lazyInit;
-
-  /** @since 3.0 bean instance supplier */
-  private Supplier<?> instanceSupplier;
-
-  /** @since 4.0 */
-  private boolean synthetic = false;
-
-  /** @since 4.0 */
-  private int role = BeanDefinition.ROLE_APPLICATION;
-
-  /** @since 4.0 */
-  private boolean primary = false;
-
-  private String factoryMethod;
-  private String factoryBeanName;
-
-  private AnnotationMetadata annotationMetadata;
-
-  private PropertyValues propertyValues;
-
-  public BeanDefinitionBuilder name(String name) {
-    this.name = name;
-    return this;
+  public static BeanDefinitionBuilder genericBeanDefinition(Class<?> beanClass) {
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    builder.beanDefinition.setBeanClass(beanClass);
+    return builder;
   }
 
-  public BeanDefinitionBuilder instanceSupplier(Supplier<?> instanceSupplier) {
-    this.instanceSupplier = instanceSupplier;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanClass the {@code Class} of the bean that the definition is being created for
+   * @param instanceSupplier a callback for creating an instance of the bean
+   */
+  public static <T> BeanDefinitionBuilder genericBeanDefinition(Class<T> beanClass, Supplier<T> instanceSupplier) {
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    builder.beanDefinition.setBeanClass(beanClass);
+    builder.beanDefinition.setInstanceSupplier(instanceSupplier);
+    return builder;
   }
 
-  public BeanDefinitionBuilder factoryBean(boolean factoryBean) {
-    this.factoryBean = factoryBean;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanClassName the class name for the bean that the definition is being created for
+   */
+  public static BeanDefinitionBuilder rootBeanDefinition(String beanClassName) {
+    return rootBeanDefinition(beanClassName, null);
   }
 
-  public BeanDefinitionBuilder lazyInit(boolean lazyInit) {
-    this.lazyInit = lazyInit;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanClassName the class name for the bean that the definition is being created for
+   * @param factoryMethodName the name of the method to use to construct the bean instance
+   */
+  public static BeanDefinitionBuilder rootBeanDefinition(String beanClassName, @Nullable String factoryMethodName) {
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    builder.beanDefinition.setBeanClassName(beanClassName);
+    builder.beanDefinition.setFactoryMethodName(factoryMethodName);
+    return builder;
   }
 
-  public BeanDefinitionBuilder synthetic(boolean synthetic) {
-    this.synthetic = synthetic;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanClass the {@code Class} of the bean that the definition is being created for
+   */
+  public static BeanDefinitionBuilder rootBeanDefinition(Class<?> beanClass) {
+    return rootBeanDefinition(beanClass, (String) null);
   }
 
-  public BeanDefinitionBuilder role(int role) {
-    this.role = role;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanClass the {@code Class} of the bean that the definition is being created for
+   * @param factoryMethodName the name of the method to use to construct the bean instance
+   */
+  public static BeanDefinitionBuilder rootBeanDefinition(Class<?> beanClass, @Nullable String factoryMethodName) {
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    builder.beanDefinition.setBeanClass(beanClass);
+    builder.beanDefinition.setFactoryMethodName(factoryMethodName);
+    return builder;
   }
 
-  public BeanDefinitionBuilder primary(boolean primary) {
-    this.primary = primary;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanType the {@link ResolvableType type} of the bean that the definition is being created for
+   * @param instanceSupplier a callback for creating an instance of the bean
+   */
+  public static <T> BeanDefinitionBuilder rootBeanDefinition(ResolvableType beanType, Supplier<T> instanceSupplier) {
+    BeanDefinition beanDefinition = new BeanDefinition();
+    beanDefinition.setTargetType(beanType);
+    beanDefinition.setInstanceSupplier(instanceSupplier);
+    return new BeanDefinitionBuilder(beanDefinition);
   }
 
-  public BeanDefinitionBuilder beanClassName(String beanClassName) {
-    this.beanClassName = beanClassName;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link BeanDefinition}.
+   *
+   * @param beanClass the {@code Class} of the bean that the definition is being created for
+   * @param instanceSupplier a callback for creating an instance of the bean
+   * @see #rootBeanDefinition(ResolvableType, Supplier)
+   */
+  public static <T> BeanDefinitionBuilder rootBeanDefinition(Class<T> beanClass, Supplier<T> instanceSupplier) {
+    return rootBeanDefinition(ResolvableType.fromClass(beanClass), instanceSupplier);
   }
 
-  public BeanDefinitionBuilder annotationMetadata(AnnotationMetadata annotationMetadata) {
-    this.annotationMetadata = annotationMetadata;
-    return this;
+  /**
+   * Create a new {@code BeanDefinitionBuilder} used to construct a {@link ChildBeanDefinition}.
+   *
+   * @param parentName the name of the parent bean
+   */
+  public static BeanDefinitionBuilder childBeanDefinition(String parentName) {
+    return new BeanDefinitionBuilder(new ChildBeanDefinition(parentName));
   }
 
-  public BeanDefinitionBuilder beanClass(Class<?> beanClass) {
-    this.beanClass = beanClass;
-    return this;
+  /**
+   * The {@code BeanDefinition} instance we are creating.
+   */
+  private final BeanDefinition beanDefinition;
+
+  /**
+   * Our current position with respect to constructor args.
+   */
+  private int constructorArgIndex;
+
+  /**
+   * Enforce the use of factory methods.
+   */
+  private BeanDefinitionBuilder(BeanDefinition beanDefinition) {
+    this.beanDefinition = beanDefinition;
   }
 
-  public BeanDefinitionBuilder factoryBeanName(String factoryBeanName) {
-    this.factoryBeanName = factoryBeanName;
-    return this;
+  /**
+   * Return the current BeanDefinition object in its raw (unvalidated) form.
+   *
+   * @see #getBeanDefinition()
+   */
+  public BeanDefinition getRawBeanDefinition() {
+    return this.beanDefinition;
   }
 
-  public BeanDefinitionBuilder factoryMethod(String factoryMethod) {
-    this.factoryMethod = factoryMethod;
-    return this;
+  /**
+   * Validate and return the created BeanDefinition object.
+   */
+  public BeanDefinition getBeanDefinition() {
+    this.beanDefinition.validate();
+    return this.beanDefinition;
   }
 
-  public BeanDefinitionBuilder scope(String scope) {
-    this.scope = scope;
+  /**
+   * Set the name of the parent definition of this bean definition.
+   */
+  public BeanDefinitionBuilder setParentName(String parentName) {
+    this.beanDefinition.setParentName(parentName);
     return this;
   }
 
   /**
-   * set scope 'singleton'
-   *
-   * @return this
-   * @see Scope#SINGLETON
+   * Set the name of a static factory method to use for this definition,
+   * to be called on this bean's class.
    */
-  public BeanDefinitionBuilder singleton() {
-    this.scope = Scope.SINGLETON;
+  public BeanDefinitionBuilder setFactoryMethod(String factoryMethod) {
+    this.beanDefinition.setFactoryMethodName(factoryMethod);
     return this;
   }
 
   /**
-   * set scope 'prototype'
+   * Set the name of a non-static factory method to use for this definition,
+   * including the bean name of the factory instance to call the method on.
    *
-   * @return this
-   * @see Scope#PROTOTYPE
+   * @param factoryMethod the name of the factory method
+   * @param factoryBean the name of the bean to call the specified factory method on
    */
-  public BeanDefinitionBuilder prototype() {
-    this.scope = Scope.PROTOTYPE;
+  public BeanDefinitionBuilder setFactoryMethodOnBean(String factoryMethod, String factoryBean) {
+    this.beanDefinition.setFactoryMethodName(factoryMethod);
+    this.beanDefinition.setFactoryBeanName(factoryBean);
     return this;
   }
-
-  public BeanDefinitionBuilder initMethods(String... initMethods) {
-    this.initMethods = initMethods;
-    return this;
-  }
-
-  public BeanDefinitionBuilder destroyMethod(String destroyMethod) {
-    this.destroyMethod = destroyMethod;
-    return this;
-  }
-
-  //
 
   /**
-   * apply scope,initMethods,destroyMethods
-   *
-   * @param component AnnotationAttributes
-   * @see #scope(String)
-   * @see #initMethods(String...)
-   * @see #destroyMethod(String)
+   * Add an indexed constructor arg value. The current index is tracked internally
+   * and all additions are at the present point.
    */
-  public BeanDefinitionBuilder attributes(AnnotationAttributes component) {
-    if (CollectionUtils.isNotEmpty(component)) {
-      this.initMethods = component.getStringArray(BeanDefinition.INIT_METHODS);
-      this.destroyMethod = component.getString(BeanDefinition.DESTROY_METHOD);
-    }
+  public BeanDefinitionBuilder addConstructorArgValue(@Nullable Object value) {
+    this.beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(
+            this.constructorArgIndex++, value);
     return this;
   }
 
-  public BeanDefinitionBuilder annotation(MergedAnnotation<Component> annotation) {
-    if (annotation.isPresent()) {
-      this.initMethods = annotation.getStringArray(BeanDefinition.INIT_METHODS);
-      this.destroyMethod = annotation.getString(BeanDefinition.DESTROY_METHOD);
-    }
+  /**
+   * Add a reference to a named bean as a constructor arg.
+   *
+   * @see #addConstructorArgValue(Object)
+   */
+  public BeanDefinitionBuilder addConstructorArgReference(String beanName) {
+    this.beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(
+            this.constructorArgIndex++, new RuntimeBeanReference(beanName));
+    return this;
+  }
+
+  /**
+   * Add the supplied property value under the given property name.
+   */
+  public BeanDefinitionBuilder addPropertyValue(String name, @Nullable Object value) {
+    this.beanDefinition.propertyValues().add(name, value);
     return this;
   }
 
   public BeanDefinitionBuilder propertyValues(PropertyValues propertyValues) {
-    this.propertyValues = propertyValues;
+    beanDefinition.propertyValues().add(propertyValues);
+    return this;
+  }
+
+  /**
+   * Add a reference to the specified bean name under the property specified.
+   *
+   * @param name the name of the property to add the reference to
+   * @param beanName the name of the bean being referenced
+   */
+  public BeanDefinitionBuilder addPropertyReference(String name, String beanName) {
+    this.beanDefinition.propertyValues().add(name, new RuntimeBeanReference(beanName));
     return this;
   }
 
@@ -235,169 +283,117 @@ public class BeanDefinitionBuilder {
    * @see AutowiredPropertyMarker
    */
   public BeanDefinitionBuilder addAutowiredProperty(String name) {
-    if (propertyValues == null) {
-      propertyValues = new PropertyValues();
-    }
-    propertyValues.add(name, AutowiredPropertyMarker.INSTANCE);
+    this.beanDefinition.propertyValues().add(name, AutowiredPropertyMarker.INSTANCE);
     return this;
   }
-  // reset
 
-  public void reset() {
-    this.role = BeanDefinition.ROLE_APPLICATION;
-    this.initMethods = Constant.EMPTY_STRING_ARRAY;
-    this.destroyMethod = null;
-
-    this.name = null;
-    this.scope = null;
-    this.beanClass = null;
-    this.lazyInit = false;
-    this.factoryMethod = null;
-    this.factoryBeanName = null;
-    this.instanceSupplier = null;
-
-    this.primary = false;
-    this.synthetic = false;
-    this.factoryBean = false;
-
+  /**
+   * Set the init method for this definition.
+   */
+  public BeanDefinitionBuilder setInitMethodName(@Nullable String methodName) {
+    this.beanDefinition.setInitMethods(methodName);
+    return this;
   }
 
-  public void resetAttributes() {
-    this.initMethods = Constant.EMPTY_STRING_ARRAY;
-    this.destroyMethod = null;
+  /**
+   * Set the destroy method for this definition.
+   */
+  public BeanDefinitionBuilder setDestroyMethodName(@Nullable String methodName) {
+    this.beanDefinition.setDestroyMethod(methodName);
+    return this;
   }
 
-  // getter
-
-  //---------------------------------------------------------------------
-  // build
-  //---------------------------------------------------------------------
-
-  private BeanDefinition create() {
-
-    if (annotationMetadata != null) {
-      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(annotationMetadata);
-      MergedAnnotation<Component> annotation = annotationMetadata.getAnnotation(Component.class);
-      annotation(annotation);
-      if (beanClass != null) {
-        definition.setBeanClass(beanClass);
-      }
-      return definition;
-    }
-    if (beanClass != null) {
-      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
-      MergedAnnotation<Component> annotation = definition.getMetadata().getAnnotation(Component.class);
-      annotation(annotation);
-      return definition;
-    }
-    BeanDefinition definition = new BeanDefinition();
-    definition.setBeanClassName(beanClassName);
-    if (name == null) {
-      name = defaultBeanName(beanClassName);
-    }
-    return definition;
+  /**
+   * Set the scope of this definition.
+   *
+   * @see BeanDefinition#SCOPE_SINGLETON
+   * @see BeanDefinition#SCOPE_PROTOTYPE
+   */
+  public BeanDefinitionBuilder setScope(@Nullable String scope) {
+    this.beanDefinition.setScope(scope);
+    return this;
   }
 
-  public BeanDefinition build() {
-    return build(create());
+  /**
+   * Set whether or not this definition is abstract.
+   */
+  public BeanDefinitionBuilder setAbstract(boolean flag) {
+//    this.beanDefinition.setAbstract(flag);
+    return this;
   }
 
-  public BeanDefinition build(BeanDefinition definition) {
-    definition.setBeanName(name);
-    definition.setRole(role);
-    definition.setScope(scope);
-    definition.setPrimary(primary);
-    definition.setLazyInit(lazyInit);
-    definition.setSynthetic(synthetic);
-    definition.setInitMethods(initMethods);
-    definition.setFactoryBean(factoryBean);
-    definition.setDestroyMethod(destroyMethod);
-    definition.setInstanceSupplier(instanceSupplier);
-
-    definition.setFactoryMethodName(factoryMethod);
-    definition.setFactoryBeanName(factoryBeanName);
-    definition.setPropertyValues(propertyValues);
-    return definition;
+  /**
+   * Set whether beans for this definition should be lazily initialized or not.
+   */
+  public BeanDefinitionBuilder setLazyInit(boolean lazy) {
+    this.beanDefinition.setLazyInit(lazy);
+    return this;
   }
 
-  // BiConsumer
-
-  public void build(
-          String defaultName,
-          AnnotationAttributes component,
-          BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
-    build(defaultName, new AnnotationAttributes[] { component }, consumer);
+  /**
+   * Set the autowire mode for this definition.
+   */
+  public BeanDefinitionBuilder setAutowireMode(int autowireMode) {
+    this.beanDefinition.setAutowireMode(autowireMode);
+    return this;
   }
 
-  public void build(
-          String defaultName,
-          BiConsumer<AnnotationAttributes, BeanDefinition> consumer,
-          AnnotationAttributes... components) {
-    build(defaultName, components, consumer);
+  /**
+   * Set the dependency check mode for this definition.
+   */
+  public BeanDefinitionBuilder setDependencyCheck(int dependencyCheck) {
+    this.beanDefinition.setDependencyCheck(dependencyCheck);
+    return this;
   }
 
-  public void build(
-          String defaultName, @Nullable AnnotationAttributes[] components,
-          BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
-    if (ObjectUtils.isEmpty(components)) {
-      name(defaultName);
-      BeanDefinition definition = build();
-      consumer.accept(null, definition);
+  /**
+   * Append the specified bean name to the list of beans that this definition
+   * depends on.
+   */
+  public BeanDefinitionBuilder addDependsOn(String beanName) {
+    if (this.beanDefinition.getDependsOn() == null) {
+      this.beanDefinition.setDependsOn(beanName);
     }
     else {
-      for (AnnotationAttributes component : components) {
-        attributes(component);
-        for (String name : determineName(defaultName, component.getStringArray(MergedAnnotation.VALUE))) {
-          name(name);
-          BeanDefinition definition = build();
-          consumer.accept(component, definition);
-        }
-      }
+      String[] added = ObjectUtils.addObjectToArray(this.beanDefinition.getDependsOn(), beanName);
+      this.beanDefinition.setDependsOn(added);
     }
+    return this;
   }
 
-  //
-
-  public void build(
-          String defaultName, AnnotatedElement annotated,
-          BiConsumer<AnnotationAttributes, BeanDefinition> consumer) {
-    AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(annotated, Component.class);
-    build(defaultName, components, consumer);
+  /**
+   * Set whether this bean is a primary autowire candidate.
+   */
+  public BeanDefinitionBuilder setPrimary(boolean primary) {
+    this.beanDefinition.setPrimary(primary);
+    return this;
   }
 
-  // Consumer
-
-  public void build(
-          String defaultName,
-          AnnotationAttributes component,
-          Consumer<BeanDefinition> consumer) {
-    build(defaultName, new AnnotationAttributes[] { component }, consumer);
+  /**
+   * Set the role of this definition.
+   */
+  public BeanDefinitionBuilder setRole(int role) {
+    this.beanDefinition.setRole(role);
+    return this;
   }
 
-  public void build(
-          String defaultName,
-          Consumer<BeanDefinition> consumer,
-          AnnotationAttributes... components) {
-    build(defaultName, components, consumer);
+  /**
+   * Set whether this bean is 'synthetic', that is, not defined by
+   * the application itself.
+   */
+  public BeanDefinitionBuilder setSynthetic(boolean synthetic) {
+    this.beanDefinition.setSynthetic(synthetic);
+    return this;
   }
 
-  public void build(
-          String defaultName,
-          @Nullable AnnotationAttributes[] components,
-          Consumer<BeanDefinition> consumer) {
-    build(defaultName, components, (attributes, definition) -> consumer.accept(definition));
-  }
-
-  public void build(
-          String defaultName, AnnotatedElement annotated, Consumer<BeanDefinition> consumer) {
-    AnnotationAttributes[] components = AnnotatedElementUtils.getMergedAttributesArray(annotated, Component.class);
-    build(defaultName, components, consumer);
-  }
-
-  public void build(
-          String defaultName, MergedAnnotations annotated, Consumer<BeanDefinition> consumer) {
-    AnnotationAttributes[] components = annotated.getAttributes(Component.class);
-    build(defaultName, components, consumer);
+  /**
+   * Apply the given customizers to the underlying bean definition.
+   */
+  public BeanDefinitionBuilder applyCustomizers(BeanDefinitionCustomizer... customizers) {
+    for (BeanDefinitionCustomizer customizer : customizers) {
+      customizer.customize(this.beanDefinition);
+    }
+    return this;
   }
 
   //---------------------------------------------------------------------
@@ -458,16 +454,6 @@ public class BeanDefinitionBuilder {
   public static String defaultBeanName(Class<?> clazz) {
     String simpleName = clazz.getSimpleName();
     return StringUtils.uncapitalize(simpleName);
-  }
-
-  public static BeanDefinitionBuilder from(Class<?> beanClass) {
-    return new BeanDefinitionBuilder().beanClass(beanClass);
-  }
-
-  public static BeanDefinitionBuilder from(String name, Class<?> beanClass) {
-    return new BeanDefinitionBuilder()
-            .name(name)
-            .beanClass(beanClass);
   }
 
 }
