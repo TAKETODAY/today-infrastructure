@@ -711,7 +711,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     // Candidate constructors for autowiring?
     Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, definition.getBeanName());
     if (constructors != null
-            || definition.getAutowireMode() == AUTOWIRE_CONSTRUCTOR
+            || definition.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
             || definition.hasConstructorArgumentValues()
             || ObjectUtils.isNotEmpty(args)) {
       return autowireConstructor(definition, constructors, args);
@@ -807,7 +807,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     bd.setAutowireMode(autowireMode);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
 
-    if (bd.getAutowireMode() == AUTOWIRE_CONSTRUCTOR) {
+    if (bd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR) {
       return autowireConstructor(bd, null, null);
     }
 
@@ -872,7 +872,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     BeanWrapperImpl beanWrapper = null;
     // maybe null
     PropertyValues propertyValues = definition.getPropertyValues();
-    int resolvedAutowireMode = definition.getAutowireMode();
+    int resolvedAutowireMode = definition.getResolvedAutowireMode();
     if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
       metadata = getMetadata(bean, definition);
       beanWrapper = new BeanWrapperImpl(bean, metadata);

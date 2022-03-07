@@ -20,6 +20,7 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -162,6 +163,15 @@ public class BeanDefinition
   public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 
   /**
+   * Constant that indicates determining an appropriate autowire strategy
+   * through introspection of the bean class.
+   *
+   * @see #setAutowireMode
+   * @since 4.0
+   */
+  public static final int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;
+
+  /**
    * Constant that indicates no dependency check at all.
    *
    * @see #setDependencyCheck
@@ -295,6 +305,8 @@ public class BeanDefinition
   @Nullable
   private MethodOverrides methodOverrides;
 
+  private boolean abstractFlag = false;
+
   // cache for fast access
   Executable executable;
 
@@ -351,12 +363,30 @@ public class BeanDefinition
   @Nullable
   Object[] preparedConstructorArguments;
 
+  /** Determines if the definition needs to be re-merged. */
+  volatile boolean stale;
+
   // @since 4.0
   private boolean enforceInitMethod;
   // @since 4.0
   private boolean enforceDestroyMethod;
 
   /**
+   * Override settings in this bean definition (presumably a copied parent
+   * from a parent-child inheritance relationship) from the given bean
+   * definition (presumably the child).
+   * <ul>
+   * <li>Will override beanClass if specified in the given bean definition.
+   * <li>Will always take {@code abstract}, {@code scope},
+   * {@code lazyInit}, {@code autowireMode}, {@code dependencyCheck},
+   * and {@code dependsOn} from the given bean definition.
+   * <li>Will add {@code constructorArgumentValues}, {@code propertyValues},
+   * {@code methodOverrides} from the given bean definition to existing ones.
+   * <li>Will override {@code factoryBeanName}, {@code factoryMethodName},
+   * {@code initMethodName}, and {@code destroyMethodName} if specified
+   * in the given bean definition.
+   * </ul>
+   *
    * @since 3.0
    */
   public void copyFrom(BeanDefinition from) {
@@ -399,6 +429,9 @@ public class BeanDefinition
     this.isFactoryMethodUnique = from.isFactoryMethodUnique;
     this.factoryMethodReturnType = from.factoryMethodReturnType;
     this.beforeInstantiationResolved = from.beforeInstantiationResolved;
+    this.externallyManagedInitMethods = from.externallyManagedInitMethods;
+    this.externallyManagedConfigMembers = from.externallyManagedConfigMembers;
+    this.externallyManagedDestroyMethods = from.externallyManagedDestroyMethods;
 
     if (from.hasMethodOverrides()) {
       setMethodOverrides(new MethodOverrides(from.getMethodOverrides()));
@@ -1424,6 +1457,33 @@ public class BeanDefinition
   }
 
   /**
+   * Return the resolved autowire code,
+   * (resolving AUTOWIRE_AUTODETECT to AUTOWIRE_CONSTRUCTOR or AUTOWIRE_BY_TYPE).
+   *
+   * @see #AUTOWIRE_AUTODETECT
+   * @see #AUTOWIRE_CONSTRUCTOR
+   * @see #AUTOWIRE_BY_TYPE
+   * @since 4.0
+   */
+  public int getResolvedAutowireMode() {
+    if (this.autowireMode == AUTOWIRE_AUTODETECT) {
+      // Work out whether to apply setter autowiring or constructor autowiring.
+      // If it has a no-arg constructor it's deemed to be setter autowiring,
+      // otherwise we'll try constructor autowiring.
+      Constructor<?>[] constructors = getBeanClass().getConstructors();
+      for (Constructor<?> constructor : constructors) {
+        if (constructor.getParameterCount() == 0) {
+          return AUTOWIRE_BY_TYPE;
+        }
+      }
+      return AUTOWIRE_CONSTRUCTOR;
+    }
+    else {
+      return this.autowireMode;
+    }
+  }
+
+  /**
    * Set the name of the parent definition of this bean definition, if any.
    *
    * @since 4.0
@@ -1547,6 +1607,28 @@ public class BeanDefinition
    */
   public boolean hasMethodOverrides() {
     return methodOverrides != null && !methodOverrides.isEmpty();
+  }
+
+  /**
+   * Set if this bean is "abstract", i.e. not meant to be instantiated itself but
+   * rather just serving as parent for concrete child bean definitions.
+   * <p>Default is "false". Specify true to tell the bean factory to not try to
+   * instantiate that particular bean in any case.
+   *
+   * @since 4.0
+   */
+  public void setAbstract(boolean abstractFlag) {
+    this.abstractFlag = abstractFlag;
+  }
+
+  /**
+   * Return whether this bean is "abstract", i.e. not meant to be instantiated
+   * itself but rather just serving as parent for concrete child bean definitions.
+   *
+   * @since 4.0
+   */
+  public boolean isAbstract() {
+    return this.abstractFlag;
   }
 
   // postProcessingLock

@@ -187,7 +187,7 @@ final class ConstructorResolver {
 
       // Need to resolve the constructor.
       boolean autowiring = chosenCtors != null
-              || definition.getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
+              || definition.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
       ConstructorArgumentValues resolvedValues = null;
 
       int minNrOfArgs;
@@ -481,7 +481,7 @@ final class ConstructorResolver {
       }
 
       ConstructorArgumentValues resolvedValues = null;
-      boolean autowiring = (mbd.getAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
+      boolean autowiring = (mbd.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
       int minTypeDiffWeight = Integer.MAX_VALUE;
       Set<Method> ambiguousFactoryMethods = null;
 
