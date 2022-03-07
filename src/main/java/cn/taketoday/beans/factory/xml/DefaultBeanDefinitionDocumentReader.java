@@ -31,14 +31,15 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.support.ResourcePatternUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -58,9 +59,10 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Erik Wiersma
- * @since 4.0.08.12.2003
+ * @since 4.0
  */
 public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocumentReader {
+  private static final Logger log = LoggerFactory.getLogger(DefaultBeanDefinitionDocumentReader.class);
 
   public static final String BEAN_ELEMENT = BeanDefinitionParserDelegate.BEAN_ELEMENT;
 
@@ -77,8 +79,6 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
   public static final String RESOURCE_ATTRIBUTE = "resource";
 
   public static final String PROFILE_ATTRIBUTE = "profile";
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private XmlReaderContext readerContext;
@@ -118,7 +118,6 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
   /**
    * Register each bean definition within the given root {@code <beans/>} element.
    */
-  @SuppressWarnings("deprecation")  // for Environment.acceptsProfiles(String...)
   protected void doRegisterBeanDefinitions(Element root) {
     // Any nested <beans> elements will cause recursion in this method. In
     // order to propagate and preserve <beans> default-* attributes correctly,
@@ -137,9 +136,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         // We cannot use Profiles.of(...) since profile expressions are not supported
         // in XML config. See SPR-12458 for details.
         if (!getReaderContext().getEnvironment().acceptsProfiles(specifiedProfiles)) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Skipped XML bean definition file due to specified profiles [" + profileSpec +
-                    "] not matching: " + getReaderContext().getResource());
+          if (log.isDebugEnabled()) {
+            log.debug("Skipped XML bean definition file due to specified profiles [{}] not matching: {}",
+                    profileSpec, getReaderContext().getResource());
           }
           return;
         }
@@ -222,7 +221,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     // Discover whether the location is an absolute or relative URI
     boolean absoluteLocation = false;
     try {
-      absoluteLocation = ResourcePatternUtils.isUrl(location) || ResourceUtils.toURI(location).isAbsolute();
+      absoluteLocation = PatternResourceLoader.isUrl(location) || ResourceUtils.toURI(location).isAbsolute();
     }
     catch (URISyntaxException ex) {
       // cannot convert to an URI, considering the location relative
@@ -233,8 +232,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     if (absoluteLocation) {
       try {
         int importCount = getReaderContext().getReader().loadBeanDefinitions(location, actualResources);
-        if (logger.isTraceEnabled()) {
-          logger.trace("Imported " + importCount + " bean definitions from URL location [" + location + "]");
+        if (log.isTraceEnabled()) {
+          log.trace("Imported {} bean definitions from URL location [{}]", importCount, location);
         }
       }
       catch (BeanDefinitionStoreException ex) {
@@ -252,12 +251,12 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
           actualResources.add(relativeResource);
         }
         else {
-          String baseLocation = getReaderContext().getResource().getURL().toString();
+          String baseLocation = getReaderContext().getResource().getLocation().toString();
           importCount = getReaderContext().getReader().loadBeanDefinitions(
-                  StringUtils.applyRelativePath(baseLocation, location), actualResources);
+                  ResourceUtils.getRelativePath(baseLocation, location), actualResources);
         }
-        if (logger.isTraceEnabled()) {
-          logger.trace("Imported " + importCount + " bean definitions from relative location [" + location + "]");
+        if (log.isTraceEnabled()) {
+          log.trace("Imported {} bean definitions from relative location [{}]", importCount, location);
         }
       }
       catch (IOException ex) {
@@ -268,7 +267,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
                 "Failed to import bean definitions from relative location [" + location + "]", ele, ex);
       }
     }
-    Resource[] actResArray = actualResources.toArray(new Resource[0]);
+    Resource[] actResArray = actualResources.toArray(Resource.EMPTY_ARRAY);
     getReaderContext().fireImportProcessed(location, actResArray, extractSource(ele));
   }
 

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * Strategy interface for resolving a location pattern (for example,
@@ -103,6 +104,21 @@ public interface PatternResourceLoader extends ResourceLoader {
    */
   default Resource[] getResourcesArray(String locationPattern) throws IOException {
     return getResources(locationPattern).toArray(Resource.EMPTY_ARRAY);
+  }
+
+  /**
+   * Return whether the given resource location is a URL: either a
+   * special "classpath" or "classpath*" pseudo URL or a standard URL.
+   *
+   * @param resourceLocation the location String to check
+   * @return whether the location qualifies as a URL
+   * @see PatternResourceLoader#CLASSPATH_ALL_URL_PREFIX
+   * @see ResourceLoader#CLASSPATH_URL_PREFIX
+   * @see ResourceUtils#isUrl(String)
+   * @see java.net.URL
+   */
+  static boolean isUrl(@Nullable String resourceLocation) {
+    return resourceLocation != null && (resourceLocation.startsWith(CLASSPATH_ALL_URL_PREFIX) || ResourceUtils.isUrl(resourceLocation));
   }
 
   /**
