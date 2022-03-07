@@ -27,18 +27,18 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -62,9 +62,6 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   private final LinkedHashSet<Class<? extends Annotation>> qualifierTypes = new LinkedHashSet<>(2);
 
   private Class<? extends Annotation> valueAnnotationType = Value.class;
-
-  @Nullable
-  private ConversionService conversionService;
 
   /**
    * Create a new QualifierAnnotationAutowireCandidateResolver
@@ -132,15 +129,6 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
     this.qualifierTypes.add(qualifierType);
   }
 
-  public void setConversionService(@Nullable ConversionService conversionService) {
-    this.conversionService = conversionService;
-  }
-
-  @Nullable
-  public ConversionService getConversionService() {
-    return conversionService;
-  }
-
   /**
    * Determine whether the provided bean definition is an autowire candidate.
    * <p>To be considered a candidate the bean's <em>autowire-candidate</em>
@@ -194,12 +182,14 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
     if (ObjectUtils.isEmpty(annotationsToSearch)) {
       return true;
     }
+    SimpleTypeConverter typeConverter = new SimpleTypeConverter();
+
     for (Annotation annotation : annotationsToSearch) {
       Class<? extends Annotation> type = annotation.annotationType();
       boolean checkMeta = true;
       boolean fallbackToMeta = false;
       if (isQualifier(type)) {
-        if (!checkQualifier(definition, annotation)) {
+        if (!checkQualifier(definition, annotation, typeConverter)) {
           fallbackToMeta = true;
         }
         else {
@@ -215,7 +205,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
             // Only accept fallback match if @Qualifier annotation has a value...
             // Otherwise it is just a marker for a custom qualifier annotation.
             if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn)))
-                    || !checkQualifier(definition, metaAnn)) {
+                    || !checkQualifier(definition, metaAnn, typeConverter)) {
               return false;
             }
           }
@@ -243,18 +233,28 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   /**
    * Match the given qualifier annotation against the candidate bean definition.
    */
-  protected boolean checkQualifier(BeanDefinition definition, Annotation annotation) {
+  protected boolean checkQualifier(
+          BeanDefinition definition, Annotation annotation, SimpleTypeConverter typeConverter) {
+
     Class<? extends Annotation> type = annotation.annotationType();
-    AutowireCandidateQualifier qualifier = definition.getQualifier(type.getName());
+    RootBeanDefinition bd = (RootBeanDefinition) definition;
+
+    AutowireCandidateQualifier qualifier = bd.getQualifier(type.getName());
     if (qualifier == null) {
-      qualifier = definition.getQualifier(ClassUtils.getShortName(type));
+      qualifier = bd.getQualifier(ClassUtils.getShortName(type));
     }
     if (qualifier == null) {
       // First, check annotation on qualified element, if any
-      Annotation targetAnnotation = getQualifiedElementAnnotation(definition, type);
+      Annotation targetAnnotation = getQualifiedElementAnnotation(bd, type);
       // Then, check annotation on factory method, if applicable
       if (targetAnnotation == null) {
-        targetAnnotation = getFactoryMethodAnnotation(definition, type);
+        targetAnnotation = getFactoryMethodAnnotation(bd, type);
+      }
+      if (targetAnnotation == null) {
+        RootBeanDefinition dbd = getResolvedDecoratedDefinition(bd);
+        if (dbd != null) {
+          targetAnnotation = getFactoryMethodAnnotation(dbd, type);
+        }
       }
       if (targetAnnotation == null) {
         // Look for matching annotation on the target class
@@ -269,8 +269,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
             // Not the usual case - simply forget about the type check...
           }
         }
-        if (targetAnnotation == null && definition.hasBeanClass()) {
-          targetAnnotation = AnnotationUtils.getAnnotation(ClassUtils.getUserClass(definition.getBeanClass()), type);
+        if (targetAnnotation == null && bd.hasBeanClass()) {
+          targetAnnotation = AnnotationUtils.getAnnotation(ClassUtils.getUserClass(bd.getBeanClass()), type);
         }
       }
       if (targetAnnotation != null && targetAnnotation.equals(annotation)) {
@@ -293,33 +293,25 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       }
       if (actualValue == null) {
         // Fall back on bean definition attribute
-        actualValue = definition.getAttribute(attributeName);
+        actualValue = bd.getAttribute(attributeName);
       }
-      if (actualValue == null && attributeName.equals(AutowireCandidateQualifier.VALUE_KEY)
-              && expectedValue instanceof String && definition.matchesName((String) expectedValue)) {
+      if (actualValue == null && attributeName.equals(AutowireCandidateQualifier.VALUE_KEY) &&
+              expectedValue instanceof String && definition.matchesName((String) expectedValue)) {
         // Fall back on bean name (or alias) match
         continue;
       }
       if (actualValue == null && qualifier != null) {
         // Fall back on default, but only if the qualifier is present
-        actualValue = AnnotationUtils.getDefaultValue(annotation.annotationType(), attributeName);
+        actualValue = AnnotationUtils.getDefaultValue(annotation, attributeName);
       }
       if (actualValue != null) {
-        actualValue = convertIfNecessary(actualValue, expectedValue.getClass());
+        actualValue = typeConverter.convertIfNecessary(actualValue, expectedValue.getClass());
       }
       if (!expectedValue.equals(actualValue)) {
         return false;
       }
     }
     return true;
-  }
-
-  private Object convertIfNecessary(Object actualValue, Class<?> targetClass) {
-    ConversionService conversionService = getConversionService();
-    if (conversionService == null) {
-      conversionService = DefaultConversionService.getSharedInstance();
-    }
-    return conversionService.convert(actualValue, targetClass);
   }
 
   @Nullable
@@ -331,7 +323,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   @Nullable
   protected Annotation getFactoryMethodAnnotation(BeanDefinition bd, Class<? extends Annotation> type) {
     Method resolvedFactoryMethod = bd.getResolvedFactoryMethod();
-    return (resolvedFactoryMethod != null ? AnnotationUtils.getAnnotation(resolvedFactoryMethod, type) : null);
+    return resolvedFactoryMethod != null ? AnnotationUtils.getAnnotation(resolvedFactoryMethod, type) : null;
   }
 
   /**

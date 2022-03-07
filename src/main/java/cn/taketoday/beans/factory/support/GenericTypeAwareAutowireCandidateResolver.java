@@ -80,13 +80,28 @@ public class GenericTypeAwareAutowireCandidateResolver
       return true;
     }
 
-    ResolvableType targetType;
+    ResolvableType targetType = null;
     boolean cacheType = false;
-    targetType = definition.targetType;
-    if (targetType == null) {
-      cacheType = true;
-      // First, check factory method return type, if applicable
-      targetType = getReturnTypeForFactoryMethod(definition, descriptor);
+    RootBeanDefinition rbd = null;
+    if (definition instanceof RootBeanDefinition) {
+      rbd = (RootBeanDefinition) definition;
+    }
+    if (rbd != null) {
+      targetType = rbd.targetType;
+      if (targetType == null) {
+        cacheType = true;
+        // First, check factory method return type, if applicable
+        targetType = getReturnTypeForFactoryMethod(rbd, descriptor);
+        if (targetType == null) {
+          RootBeanDefinition dbd = getResolvedDecoratedDefinition(rbd);
+          if (dbd != null) {
+            targetType = dbd.targetType;
+            if (targetType == null) {
+              targetType = getReturnTypeForFactoryMethod(dbd, descriptor);
+            }
+          }
+        }
+      }
     }
 
     if (targetType == null) {
@@ -99,8 +114,8 @@ public class GenericTypeAwareAutowireCandidateResolver
       }
       // Fallback: no BeanFactory set, or no type resolvable through it
       // -> best-effort match against the target class if applicable.
-      if (targetType == null && definition.hasBeanClass() && definition.getFactoryMethodName() == null) {
-        Class<?> beanClass = definition.getBeanClass();
+      if (targetType == null && rbd != null && rbd.hasBeanClass() && rbd.getFactoryMethodName() == null) {
+        Class<?> beanClass = rbd.getBeanClass();
         if (!FactoryBean.class.isAssignableFrom(beanClass)) {
           targetType = ResolvableType.fromClass(ClassUtils.getUserClass(beanClass));
         }
@@ -111,10 +126,10 @@ public class GenericTypeAwareAutowireCandidateResolver
       return true;
     }
     if (cacheType) {
-      definition.targetType = targetType;
+      rbd.targetType = targetType;
     }
-    if (descriptor.fallbackMatchAllowed()
-            && (targetType.hasUnresolvableGenerics() || targetType.resolve() == Properties.class)) {
+    if (descriptor.fallbackMatchAllowed() &&
+            (targetType.hasUnresolvableGenerics() || targetType.resolve() == Properties.class)) {
       // Fallback matches allow unresolvable generics, e.g. plain HashMap to Map<String,String>;
       // and pragmatically also java.util.Properties to any Map (since despite formally being a
       // Map<Object,Object>, java.util.Properties is usually perceived as a Map<String,String>).
@@ -122,6 +137,20 @@ public class GenericTypeAwareAutowireCandidateResolver
     }
     // Full check for complex generic type match...
     return dependencyType.isAssignableFrom(targetType);
+  }
+
+  @Nullable
+  protected RootBeanDefinition getResolvedDecoratedDefinition(RootBeanDefinition rbd) {
+    BeanDefinition decDef = rbd.getDecoratedDefinition();
+    if (decDef != null && this.beanFactory instanceof ConfigurableBeanFactory clbf) {
+      if (clbf.containsBeanDefinition(decDef.getBeanName())) {
+        BeanDefinition dbd = clbf.getMergedBeanDefinition(decDef.getBeanName());
+        if (dbd instanceof RootBeanDefinition) {
+          return (RootBeanDefinition) dbd;
+        }
+      }
+    }
+    return null;
   }
 
   @Nullable
