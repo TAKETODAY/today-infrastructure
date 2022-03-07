@@ -28,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 
 /**
@@ -42,20 +41,64 @@ import cn.taketoday.transaction.TransactionDefinition;
  * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#transaction">Transaction Management</a>
  * section of the reference manual.
  *
- * <p>This annotation type is generally directly comparable to Framework's
+ * <p>This annotation is generally directly comparable to Framework's
  * {@link cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute}
  * class, and in fact {@link AnnotationTransactionAttributeSource} will directly
- * convert the data to the latter class, so that Framework's transaction support code
- * does not have to know about annotations. If no custom rollback rules apply,
- * the transaction will roll back on {@link RuntimeException} and {@link Error}
- * but not on checked exceptions.
+ * convert this annotation's attributes to properties in {@code RuleBasedTransactionAttribute},
+ * so that Framework's transaction support code does not have to know about annotations.
  *
- * <p>For specific information about the semantics of this annotation's attributes,
- * consult the {@link cn.taketoday.transaction.TransactionDefinition} and
- * {@link cn.taketoday.transaction.interceptor.TransactionAttribute} javadocs.
+ * <h3>Attribute Semantics</h3>
+ *
+ * <p>If no custom rollback rules are configured in this annotation, the transaction
+ * will roll back on {@link RuntimeException} and {@link Error} but not on checked
+ * exceptions.
+ *
+ * <p>Rollback rules determine if a transaction should be rolled back when a given
+ * exception is thrown, and the rules are based on types or patterns. Custom
+ * rules may be configured via {@link #rollbackFor}/{@link #noRollbackFor} and
+ * {@link #rollbackForClassName}/{@link #noRollbackForClassName}, which allow
+ * rules to be specified as types or patterns, respectively.
+ *
+ * <p>When a rollback rule is defined with an exception type, that type will be
+ * used to match against the type of a thrown exception and its super types,
+ * providing type safety and avoiding any unintentional matches that may occur
+ * when using a pattern. For example, a value of
+ * {@code jakarta.servlet.ServletException.class} will only match thrown exceptions
+ * of type {@code jakarta.servlet.ServletException} and its subclasses.
+ *
+ * <p>When a rollback rule is defined with an exception pattern, the pattern can
+ * be a fully qualified class name or a substring of a fully qualified class name
+ * for an exception type (which must be a subclass of {@code Throwable}), with no
+ * wildcard support at present. For example, a value of
+ * {@code "jakarta.servlet.ServletException"} or {@code "ServletException"} will
+ * match {@code jakarta.servlet.ServletException} and its subclasses.
+ *
+ * <p><strong>WARNING:</strong> You must carefully consider how specific a pattern
+ * is and whether to include package information (which isn't mandatory). For example,
+ * {@code "Exception"} will match nearly anything and will probably hide other
+ * rules. {@code "java.lang.Exception"} would be correct if {@code "Exception"}
+ * were meant to define a rule for all checked exceptions. With more unique
+ * exception names such as {@code "BaseBusinessException"} there is likely no
+ * need to use the fully qualified class name for the exception pattern. Furthermore,
+ * rollback rules defined via patterns may result in unintentional matches for
+ * similarly named exceptions and nested classes. This is due to the fact that a
+ * thrown exception is considered to be a match for a given pattern-based rollback
+ * rule if the name of thrown exception contains the exception pattern configured
+ * for the rollback rule. For example, given a rule configured to match against
+ * {@code "com.example.CustomException"}, that rule will match against an exception
+ * named {@code com.example.CustomExceptionV2} (an exception in the same package as
+ * {@code CustomException} but with an additional suffix) or an exception named
+ * {@code com.example.CustomException$AnotherException} (an exception declared as
+ * a nested class in {@code CustomException}).
+ *
+ * <p>For specific information about the semantics of other attributes in this
+ * annotation, consult the {@link cn.taketoday.transaction.TransactionDefinition}
+ * and {@link cn.taketoday.transaction.interceptor.TransactionAttribute} javadocs.
+ *
+ * <h3>Transaction Management</h3>
  *
  * <p>This annotation commonly works with thread-bound transactions managed by a
- * {@link PlatformTransactionManager}, exposing a
+ * {@link cn.taketoday.transaction.PlatformTransactionManager}, exposing a
  * transaction to all data access operations within the current execution thread.
  * <b>Note: This does NOT propagate to newly started threads within the method.</b>
  *
@@ -92,11 +135,11 @@ public @interface Transactional {
    * A <em>qualifier</em> value for the specified transaction.
    * <p>May be used to determine the target transaction manager, matching the
    * qualifier value (or the bean name) of a specific
-   * {@link PlatformTransactionManager TransactionManager}
+   * {@link cn.taketoday.transaction.TransactionManager TransactionManager}
    * bean definition.
    *
    * @see #value
-   * @see PlatformTransactionManager
+   * @see cn.taketoday.transaction.PlatformTransactionManager
    * @see cn.taketoday.transaction.ReactiveTransactionManager
    */
   @AliasFor("value")
@@ -177,66 +220,63 @@ public @interface Transactional {
   boolean readOnly() default false;
 
   /**
-   * Defines zero (0) or more exception {@link Class classes}, which must be
+   * Defines zero (0) or more exception {@linkplain Class types}, which must be
    * subclasses of {@link Throwable}, indicating which exception types must cause
    * a transaction rollback.
-   * <p>By default, a transaction will be rolling back on {@link RuntimeException}
+   * <p>By default, a transaction will be rolled back on {@link RuntimeException}
    * and {@link Error} but not on checked exceptions (business exceptions). See
    * {@link cn.taketoday.transaction.interceptor.DefaultTransactionAttribute#rollbackOn(Throwable)}
    * for a detailed explanation.
    * <p>This is the preferred way to construct a rollback rule (in contrast to
-   * {@link #rollbackForClassName}), matching the exception class and its subclasses.
-   * <p>Similar to {@link cn.taketoday.transaction.interceptor.RollbackRuleAttribute#RollbackRuleAttribute(Class clazz)}.
+   * {@link #rollbackForClassName}), matching the exception type and its subclasses
+   * in a type-safe manner. See the {@linkplain Transactional class-level javadocs}
+   * for further details on rollback rule semantics.
    *
    * @see #rollbackForClassName
+   * @see cn.taketoday.transaction.interceptor.RollbackRuleAttribute#RollbackRuleAttribute(Class)
    * @see cn.taketoday.transaction.interceptor.DefaultTransactionAttribute#rollbackOn(Throwable)
    */
   Class<? extends Throwable>[] rollbackFor() default {};
 
   /**
-   * Defines zero (0) or more exception names (for exceptions which must be a
+   * Defines zero (0) or more exception name patterns (for exceptions which must be a
    * subclass of {@link Throwable}), indicating which exception types must cause
    * a transaction rollback.
-   * <p>This can be a substring of a fully qualified class name, with no wildcard
-   * support at present. For example, a value of {@code "ServletException"} would
-   * match {@code jakarta.servlet.ServletException} and its subclasses.
-   * <p><b>NB:</b> Consider carefully how specific the pattern is and whether
-   * to include package information (which isn't mandatory). For example,
-   * {@code "Exception"} will match nearly anything and will probably hide other
-   * rules. {@code "java.lang.Exception"} would be correct if {@code "Exception"}
-   * were meant to define a rule for all checked exceptions. With more unusual
-   * {@link Exception} names such as {@code "BaseBusinessException"} there is no
-   * need to use a FQN.
-   * <p>Similar to {@link cn.taketoday.transaction.interceptor.RollbackRuleAttribute#RollbackRuleAttribute(String exceptionName)}.
+   * <p>See the {@linkplain Transactional class-level javadocs} for further details
+   * on rollback rule semantics, patterns, and warnings regarding possible
+   * unintentional matches.
    *
    * @see #rollbackFor
+   * @see cn.taketoday.transaction.interceptor.RollbackRuleAttribute#RollbackRuleAttribute(String)
    * @see cn.taketoday.transaction.interceptor.DefaultTransactionAttribute#rollbackOn(Throwable)
    */
   String[] rollbackForClassName() default {};
 
   /**
-   * Defines zero (0) or more exception {@link Class Classes}, which must be
+   * Defines zero (0) or more exception {@link Class types}, which must be
    * subclasses of {@link Throwable}, indicating which exception types must
    * <b>not</b> cause a transaction rollback.
-   * <p>This is the preferred way to construct a rollback rule (in contrast
-   * to {@link #noRollbackForClassName}), matching the exception class and
-   * its subclasses.
-   * <p>Similar to {@link cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute#NoRollbackRuleAttribute(Class clazz)}.
+   * <p>This is the preferred way to construct a rollback rule (in contrast to
+   * {@link #noRollbackForClassName}), matching the exception type and its subclasses
+   * in a type-safe manner. See the {@linkplain Transactional class-level javadocs}
+   * for further details on rollback rule semantics.
    *
    * @see #noRollbackForClassName
+   * @see cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute#NoRollbackRuleAttribute(Class)
    * @see cn.taketoday.transaction.interceptor.DefaultTransactionAttribute#rollbackOn(Throwable)
    */
   Class<? extends Throwable>[] noRollbackFor() default {};
 
   /**
-   * Defines zero (0) or more exception names (for exceptions which must be a
+   * Defines zero (0) or more exception name patterns (for exceptions which must be a
    * subclass of {@link Throwable}) indicating which exception types must <b>not</b>
    * cause a transaction rollback.
-   * <p>See the description of {@link #rollbackForClassName} for further
-   * information on how the specified names are treated.
-   * <p>Similar to {@link cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute#NoRollbackRuleAttribute(String exceptionName)}.
+   * <p>See the {@linkplain Transactional class-level javadocs} for further details
+   * on rollback rule semantics, patterns, and warnings regarding possible
+   * unintentional matches.
    *
    * @see #noRollbackFor
+   * @see cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute#NoRollbackRuleAttribute(String)
    * @see cn.taketoday.transaction.interceptor.DefaultTransactionAttribute#rollbackOn(Throwable)
    */
   String[] noRollbackForClassName() default {};
