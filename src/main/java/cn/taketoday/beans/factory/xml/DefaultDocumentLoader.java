@@ -30,6 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.xml.XmlValidationModeDetector;
 
@@ -72,7 +73,7 @@ public class DefaultDocumentLoader implements DocumentLoader {
 
     DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
     if (logger.isTraceEnabled()) {
-      logger.trace("Using JAXP provider [" + factory.getClass().getName() + "]");
+      logger.trace("Using JAXP provider [{}]", factory.getClass().getName());
     }
     DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
     return builder.parse(inputSource);
@@ -128,8 +129,7 @@ public class DefaultDocumentLoader implements DocumentLoader {
    * @throws ParserConfigurationException if thrown by JAXP methods
    */
   protected DocumentBuilder createDocumentBuilder(DocumentBuilderFactory factory,
-          @Nullable EntityResolver entityResolver, @Nullable ErrorHandler errorHandler)
-          throws ParserConfigurationException {
+          @Nullable EntityResolver entityResolver, @Nullable ErrorHandler errorHandler) throws ParserConfigurationException {
 
     DocumentBuilder docBuilder = factory.newDocumentBuilder();
     if (entityResolver != null) {

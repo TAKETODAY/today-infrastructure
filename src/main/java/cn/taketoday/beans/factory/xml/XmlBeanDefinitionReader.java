@@ -42,7 +42,7 @@ import cn.taketoday.beans.factory.parsing.NullSourceExtractor;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.parsing.ReaderEventListener;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
-import cn.taketoday.beans.factory.support.BeanDefinitionReader;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.core.Constants;
 import cn.taketoday.core.NamedThreadLocal;
@@ -81,7 +81,7 @@ import cn.taketoday.util.xml.XmlValidationModeDetector;
  * @see cn.taketoday.context.support.GenericApplicationContext
  * @since 4.0 2022/3/6 22:04
  */
-public class XmlBeanDefinitionReader extends BeanDefinitionReader {
+public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
   /**
    * Indicates that the validation should be disabled.

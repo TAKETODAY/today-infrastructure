@@ -30,9 +30,9 @@ import cn.taketoday.beans.BeanMetadataElement;
  * for example specified at the root tag level within an XML document.
  *
  * @author Juergen Hoeller
- * @since 4.0
  * @see cn.taketoday.beans.factory.xml.DocumentDefaultsDefinition
  * @see ReaderEventListener#defaultsRegistered(DefaultsDefinition)
+ * @since 4.0
  */
 public interface DefaultsDefinition extends BeanMetadataElement {
 

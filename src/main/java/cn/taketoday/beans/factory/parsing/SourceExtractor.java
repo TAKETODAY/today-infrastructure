@@ -34,22 +34,23 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 4.0
  * @see cn.taketoday.beans.BeanMetadataElement#getSource()
  * @see cn.taketoday.beans.factory.config.BeanDefinition
+ * @since 4.0
  */
 @FunctionalInterface
 public interface SourceExtractor {
 
-	/**
-	 * Extract the source metadata from the candidate object supplied
-	 * by the configuration parser.
-	 * @param sourceCandidate the original source metadata (never {@code null})
-	 * @param definingResource the resource that defines the given source object
-	 * (may be {@code null})
-	 * @return the source metadata object to store (may be {@code null})
-	 */
-	@Nullable
-	Object extractSource(Object sourceCandidate, @Nullable Resource definingResource);
+  /**
+   * Extract the source metadata from the candidate object supplied
+   * by the configuration parser.
+   *
+   * @param sourceCandidate the original source metadata (never {@code null})
+   * @param definingResource the resource that defines the given source object
+   * (may be {@code null})
+   * @return the source metadata object to store (may be {@code null})
+   */
+  @Nullable
+  Object extractSource(Object sourceCandidate, @Nullable Resource definingResource);
 
 }

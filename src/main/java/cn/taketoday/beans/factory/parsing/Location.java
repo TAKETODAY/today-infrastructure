@@ -21,8 +21,8 @@
 package cn.taketoday.beans.factory.parsing;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Class that models an arbitrary location in a {@link Resource resource}.
@@ -39,49 +39,49 @@ import cn.taketoday.lang.Assert;
  */
 public class Location {
 
-	private final Resource resource;
+  private final Resource resource;
 
-	@Nullable
-	private final Object source;
+  @Nullable
+  private final Object source;
 
+  /**
+   * Create a new instance of the {@link Location} class.
+   *
+   * @param resource the resource with which this location is associated
+   */
+  public Location(Resource resource) {
+    this(resource, null);
+  }
 
-	/**
-	 * Create a new instance of the {@link Location} class.
-	 * @param resource the resource with which this location is associated
-	 */
-	public Location(Resource resource) {
-		this(resource, null);
-	}
+  /**
+   * Create a new instance of the {@link Location} class.
+   *
+   * @param resource the resource with which this location is associated
+   * @param source the actual location within the associated resource
+   * (may be {@code null})
+   */
+  public Location(Resource resource, @Nullable Object source) {
+    Assert.notNull(resource, "Resource must not be null");
+    this.resource = resource;
+    this.source = source;
+  }
 
-	/**
-	 * Create a new instance of the {@link Location} class.
-	 * @param resource the resource with which this location is associated
-	 * @param source the actual location within the associated resource
-	 * (may be {@code null})
-	 */
-	public Location(Resource resource, @Nullable Object source) {
-		Assert.notNull(resource, "Resource must not be null");
-		this.resource = resource;
-		this.source = source;
-	}
+  /**
+   * Get the resource with which this location is associated.
+   */
+  public Resource getResource() {
+    return this.resource;
+  }
 
-
-	/**
-	 * Get the resource with which this location is associated.
-	 */
-	public Resource getResource() {
-		return this.resource;
-	}
-
-	/**
-	 * Get the actual location within the associated {@link #getResource() resource}
-	 * (may be {@code null}).
-	 * <p>See the {@link Location class level javadoc for this class} for examples
-	 * of what the actual type of the returned object may be.
-	 */
-	@Nullable
-	public Object getSource() {
-		return this.source;
-	}
+  /**
+   * Get the actual location within the associated {@link #getResource() resource}
+   * (may be {@code null}).
+   * <p>See the {@link Location class level javadoc for this class} for examples
+   * of what the actual type of the returned object may be.
+   */
+  @Nullable
+  public Object getSource() {
+    return this.source;
+  }
 
 }

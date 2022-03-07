@@ -39,14 +39,15 @@ import cn.taketoday.lang.Nullable;
  */
 public class PassThroughSourceExtractor implements SourceExtractor {
 
-	/**
-	 * Simply returns the supplied {@code sourceCandidate} as-is.
-	 * @param sourceCandidate the source metadata
-	 * @return the supplied {@code sourceCandidate}
-	 */
-	@Override
-	public Object extractSource(Object sourceCandidate, @Nullable Resource definingResource) {
-		return sourceCandidate;
-	}
+  /**
+   * Simply returns the supplied {@code sourceCandidate} as-is.
+   *
+   * @param sourceCandidate the source metadata
+   * @return the supplied {@code sourceCandidate}
+   */
+  @Override
+  public Object extractSource(Object sourceCandidate, @Nullable Resource definingResource) {
+    return sourceCandidate;
+  }
 
 }

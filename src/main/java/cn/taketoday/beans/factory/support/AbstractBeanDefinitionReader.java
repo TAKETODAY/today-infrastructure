@@ -52,7 +52,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @see BeanDefinitionReaderUtils
  * @since 4.0 2022/3/6 22:20
  */
-public abstract class BeanDefinitionReader implements BeanDefinitionReader, EnvironmentCapable {
+public abstract class AbstractBeanDefinitionReader implements BeanDefinitionReader, EnvironmentCapable {
 
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -87,7 +87,7 @@ public abstract class BeanDefinitionReader implements BeanDefinitionReader, Envi
    * @see #setResourceLoader
    * @see #setEnvironment
    */
-  protected BeanDefinitionReader(BeanDefinitionRegistry registry) {
+  protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
     Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
     this.registry = registry;
 
@@ -246,7 +246,7 @@ public abstract class BeanDefinitionReader implements BeanDefinitionReader, Envi
         actualResources.add(resource);
       }
       if (logger.isTraceEnabled()) {
-        logger.trace("Loaded " + count + " bean definitions from location [" + location + "]");
+        logger.trace("Loaded {} bean definitions from location [{}]", count, location);
       }
       return count;
     }

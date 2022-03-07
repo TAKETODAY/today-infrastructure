@@ -36,44 +36,44 @@ import cn.taketoday.beans.factory.config.BeanReference;
  */
 public abstract class AbstractComponentDefinition implements ComponentDefinition {
 
-	/**
-	 * Delegates to {@link #getName}.
-	 */
-	@Override
-	public String getDescription() {
-		return getName();
-	}
+  /**
+   * Delegates to {@link #getName}.
+   */
+  @Override
+  public String getDescription() {
+    return getName();
+  }
 
-	/**
-	 * Returns an empty array.
-	 */
-	@Override
-	public BeanDefinition[] getBeanDefinitions() {
-		return new BeanDefinition[0];
-	}
+  /**
+   * Returns an empty array.
+   */
+  @Override
+  public BeanDefinition[] getBeanDefinitions() {
+    return new BeanDefinition[0];
+  }
 
-	/**
-	 * Returns an empty array.
-	 */
-	@Override
-	public BeanDefinition[] getInnerBeanDefinitions() {
-		return new BeanDefinition[0];
-	}
+  /**
+   * Returns an empty array.
+   */
+  @Override
+  public BeanDefinition[] getInnerBeanDefinitions() {
+    return new BeanDefinition[0];
+  }
 
-	/**
-	 * Returns an empty array.
-	 */
-	@Override
-	public BeanReference[] getBeanReferences() {
-		return new BeanReference[0];
-	}
+  /**
+   * Returns an empty array.
+   */
+  @Override
+  public BeanReference[] getBeanReferences() {
+    return new BeanReference[0];
+  }
 
-	/**
-	 * Delegates to {@link #getDescription}.
-	 */
-	@Override
-	public String toString() {
-		return getDescription();
-	}
+  /**
+   * Delegates to {@link #getDescription}.
+   */
+  @Override
+  public String toString() {
+    return getDescription();
+  }
 
 }

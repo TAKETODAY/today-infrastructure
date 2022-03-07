@@ -30,24 +30,23 @@ import cn.taketoday.util.StringUtils;
  */
 public class PropertyEntry implements ParseState.Entry {
 
-	private final String name;
+  private final String name;
 
+  /**
+   * Create a new {@code PropertyEntry} instance.
+   *
+   * @param name the name of the JavaBean property represented by this instance
+   */
+  public PropertyEntry(String name) {
+    if (!StringUtils.hasText(name)) {
+      throw new IllegalArgumentException("Invalid property name '" + name + "'");
+    }
+    this.name = name;
+  }
 
-	/**
-	 * Create a new {@code PropertyEntry} instance.
-	 * @param name the name of the JavaBean property represented by this instance
-	 */
-	public PropertyEntry(String name) {
-		if (!StringUtils.hasText(name)) {
-			throw new IllegalArgumentException("Invalid property name '" + name + "'");
-		}
-		this.name = name;
-	}
-
-
-	@Override
-	public String toString() {
-		return "Property '" + this.name + "'";
-	}
+  @Override
+  public String toString() {
+    return "Property '" + this.name + "'";
+  }
 
 }

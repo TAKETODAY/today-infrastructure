@@ -20,9 +20,9 @@
 
 package cn.taketoday.beans.factory.parsing;
 
-import cn.taketoday.lang.Nullable;
-
 import java.util.ArrayDeque;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple {@link ArrayDeque}-based structure for tracking the logical position during
@@ -38,86 +38,82 @@ import java.util.ArrayDeque;
  */
 public final class ParseState {
 
-	/**
-	 * Internal {@link ArrayDeque} storage.
-	 */
-	private final ArrayDeque<Entry> state;
+  /**
+   * Internal {@link ArrayDeque} storage.
+   */
+  private final ArrayDeque<Entry> state;
 
+  /**
+   * Create a new {@code ParseState} with an empty {@link ArrayDeque}.
+   */
+  public ParseState() {
+    this.state = new ArrayDeque<>();
+  }
 
-	/**
-	 * Create a new {@code ParseState} with an empty {@link ArrayDeque}.
-	 */
-	public ParseState() {
-		this.state = new ArrayDeque<>();
-	}
+  /**
+   * Create a new {@code ParseState} whose {@link ArrayDeque} is a clone
+   * of the state in the passed-in {@code ParseState}.
+   */
+  private ParseState(ParseState other) {
+    this.state = other.state.clone();
+  }
 
-	/**
-	 * Create a new {@code ParseState} whose {@link ArrayDeque} is a clone
-	 * of the state in the passed-in {@code ParseState}.
-	 */
-	private ParseState(ParseState other) {
-		this.state = other.state.clone();
-	}
+  /**
+   * Add a new {@link Entry} to the {@link ArrayDeque}.
+   */
+  public void push(Entry entry) {
+    this.state.push(entry);
+  }
 
+  /**
+   * Remove an {@link Entry} from the {@link ArrayDeque}.
+   */
+  public void pop() {
+    this.state.pop();
+  }
 
-	/**
-	 * Add a new {@link Entry} to the {@link ArrayDeque}.
-	 */
-	public void push(Entry entry) {
-		this.state.push(entry);
-	}
+  /**
+   * Return the {@link Entry} currently at the top of the {@link ArrayDeque} or
+   * {@code null} if the {@link ArrayDeque} is empty.
+   */
+  @Nullable
+  public Entry peek() {
+    return this.state.peek();
+  }
 
-	/**
-	 * Remove an {@link Entry} from the {@link ArrayDeque}.
-	 */
-	public void pop() {
-		this.state.pop();
-	}
+  /**
+   * Create a new instance of {@link ParseState} which is an independent snapshot
+   * of this instance.
+   */
+  public ParseState snapshot() {
+    return new ParseState(this);
+  }
 
-	/**
-	 * Return the {@link Entry} currently at the top of the {@link ArrayDeque} or
-	 * {@code null} if the {@link ArrayDeque} is empty.
-	 */
-	@Nullable
-	public Entry peek() {
-		return this.state.peek();
-	}
+  /**
+   * Returns a tree-style representation of the current {@code ParseState}.
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder(64);
+    int i = 0;
+    for (Entry entry : this.state) {
+      if (i > 0) {
+        sb.append('\n');
+        for (int j = 0; j < i; j++) {
+          sb.append('\t');
+        }
+        sb.append("-> ");
+      }
+      sb.append(entry);
+      i++;
+    }
+    return sb.toString();
+  }
 
-	/**
-	 * Create a new instance of {@link ParseState} which is an independent snapshot
-	 * of this instance.
-	 */
-	public ParseState snapshot() {
-		return new ParseState(this);
-	}
-
-
-	/**
-	 * Returns a tree-style representation of the current {@code ParseState}.
-	 */
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(64);
-		int i = 0;
-		for (Entry entry : this.state) {
-			if (i > 0) {
-				sb.append('\n');
-				for (int j = 0; j < i; j++) {
-					sb.append('\t');
-				}
-				sb.append("-> ");
-			}
-			sb.append(entry);
-			i++;
-		}
-		return sb.toString();
-	}
-
-
-	/**
-	 * Marker interface for entries into the {@link ParseState}.
-	 */
-	public interface Entry {
-	}
+  /**
+   * Marker interface for entries into the {@link ParseState}.
+   */
+  public interface Entry {
+  }
 
 }

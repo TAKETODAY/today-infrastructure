@@ -20,15 +20,14 @@
 
 package cn.taketoday.beans.factory.parsing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanReference;
 import cn.taketoday.lang.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ComponentDefinition based on a standard BeanDefinition, exposing the given bean
@@ -40,100 +39,101 @@ import java.util.List;
  */
 public class BeanComponentDefinition extends BeanDefinition implements ComponentDefinition {
 
-	private final BeanDefinition[] innerBeanDefinitions;
+  private final BeanDefinition[] innerBeanDefinitions;
 
-	private final BeanReference[] beanReferences;
+  private final BeanReference[] beanReferences;
 
+  /**
+   * Create a new BeanComponentDefinition for the given bean.
+   *
+   * @param beanDefinition the BeanDefinition
+   * @param beanName the name of the bean
+   */
+  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName) {
+    this(new BeanDefinition(beanDefinition, beanName));
+  }
 
-	/**
-	 * Create a new BeanComponentDefinition for the given bean.
-	 * @param beanDefinition the BeanDefinition
-	 * @param beanName the name of the bean
-	 */
-	public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName) {
-		this(new BeanDefinition(beanDefinition, beanName));
-	}
+  /**
+   * Create a new BeanComponentDefinition for the given bean.
+   *
+   * @param beanDefinition the BeanDefinition
+   * @param beanName the name of the bean
+   * @param aliases alias names for the bean, or {@code null} if none
+   */
+  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
+    this(new BeanDefinition(beanDefinition, beanName, aliases));
+  }
 
-	/**
-	 * Create a new BeanComponentDefinition for the given bean.
-	 * @param beanDefinition the BeanDefinition
-	 * @param beanName the name of the bean
-	 * @param aliases alias names for the bean, or {@code null} if none
-	 */
-	public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
-		this(new BeanDefinition(beanDefinition, beanName, aliases));
-	}
+  /**
+   * Create a new BeanComponentDefinition for the given bean.
+   *
+   * @param BeanDefinition the BeanDefinition encapsulating
+   * the bean definition as well as the name of the bean
+   */
+  public BeanComponentDefinition(BeanDefinition BeanDefinition) {
+    super(BeanDefinition);
 
-	/**
-	 * Create a new BeanComponentDefinition for the given bean.
-	 * @param BeanDefinition the BeanDefinition encapsulating
-	 * the bean definition as well as the name of the bean
-	 */
-	public BeanComponentDefinition(BeanDefinition BeanDefinition) {
-		super(BeanDefinition);
+    List<BeanDefinition> innerBeans = new ArrayList<>();
+    List<BeanReference> references = new ArrayList<>();
+    PropertyValues propertyValues = BeanDefinition.getBeanDefinition().getPropertyValues();
+    for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
+      Object value = propertyValue.getValue();
+      if (value instanceof BeanDefinition) {
+        innerBeans.add(((BeanDefinition) value).getBeanDefinition());
+      }
+      else if (value instanceof BeanDefinition) {
+        innerBeans.add((BeanDefinition) value);
+      }
+      else if (value instanceof BeanReference) {
+        references.add((BeanReference) value);
+      }
+    }
+    this.innerBeanDefinitions = innerBeans.toArray(new BeanDefinition[0]);
+    this.beanReferences = references.toArray(new BeanReference[0]);
+  }
 
-		List<BeanDefinition> innerBeans = new ArrayList<>();
-		List<BeanReference> references = new ArrayList<>();
-		PropertyValues propertyValues = BeanDefinition.getBeanDefinition().getPropertyValues();
-		for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
-			Object value = propertyValue.getValue();
-			if (value instanceof BeanDefinition) {
-				innerBeans.add(((BeanDefinition) value).getBeanDefinition());
-			}
-			else if (value instanceof BeanDefinition) {
-				innerBeans.add((BeanDefinition) value);
-			}
-			else if (value instanceof BeanReference) {
-				references.add((BeanReference) value);
-			}
-		}
-		this.innerBeanDefinitions = innerBeans.toArray(new BeanDefinition[0]);
-		this.beanReferences = references.toArray(new BeanReference[0]);
-	}
+  @Override
+  public String getName() {
+    return getBeanName();
+  }
 
+  @Override
+  public String getDescription() {
+    return getShortDescription();
+  }
 
-	@Override
-	public String getName() {
-		return getBeanName();
-	}
+  @Override
+  public BeanDefinition[] getBeanDefinitions() {
+    return new BeanDefinition[] { getBeanDefinition() };
+  }
 
-	@Override
-	public String getDescription() {
-		return getShortDescription();
-	}
+  @Override
+  public BeanDefinition[] getInnerBeanDefinitions() {
+    return this.innerBeanDefinitions;
+  }
 
-	@Override
-	public BeanDefinition[] getBeanDefinitions() {
-		return new BeanDefinition[] {getBeanDefinition()};
-	}
+  @Override
+  public BeanReference[] getBeanReferences() {
+    return this.beanReferences;
+  }
 
-	@Override
-	public BeanDefinition[] getInnerBeanDefinitions() {
-		return this.innerBeanDefinitions;
-	}
+  /**
+   * This implementation returns this ComponentDefinition's description.
+   *
+   * @see #getDescription()
+   */
+  @Override
+  public String toString() {
+    return getDescription();
+  }
 
-	@Override
-	public BeanReference[] getBeanReferences() {
-		return this.beanReferences;
-	}
-
-
-	/**
-	 * This implementation returns this ComponentDefinition's description.
-	 * @see #getDescription()
-	 */
-	@Override
-	public String toString() {
-		return getDescription();
-	}
-
-	/**
-	 * This implementations expects the other object to be of type BeanComponentDefinition
-	 * as well, in addition to the superclass's equality requirements.
-	 */
-	@Override
-	public boolean equals(@Nullable Object other) {
-		return (this == other || (other instanceof BeanComponentDefinition && super.equals(other)));
-	}
+  /**
+   * This implementations expects the other object to be of type BeanComponentDefinition
+   * as well, in addition to the superclass's equality requirements.
+   */
+  @Override
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof BeanComponentDefinition && super.equals(other)));
+  }
 
 }
