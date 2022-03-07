@@ -20,10 +20,9 @@
 
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Qualifier for resolving autowire candidates. A bean definition that
@@ -37,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2021/12/22 23:33
  */
 @SuppressWarnings("serial")
-public class AutowireCandidateQualifier extends AttributeAccessorSupport {
+public class AutowireCandidateQualifier extends BeanMetadataAttributeAccessor {
 
   /**
    * The name of the key used to store the value.
@@ -45,9 +44,6 @@ public class AutowireCandidateQualifier extends AttributeAccessorSupport {
   public static final String VALUE_KEY = "value";
 
   private final String typeName;
-
-  @Nullable
-  private Object source;
 
   /**
    * Construct a qualifier to match against an annotation of the
@@ -107,19 +103,6 @@ public class AutowireCandidateQualifier extends AttributeAccessorSupport {
    */
   public String getTypeName() {
     return this.typeName;
-  }
-
-  /**
-   * Set the configuration source {@code Object} for this metadata element.
-   * <p>The exact type of the object will depend on the configuration mechanism used.
-   */
-  public void setSource(@Nullable Object source) {
-    this.source = source;
-  }
-
-  @Nullable
-  public Object getSource() {
-    return this.source;
   }
 
 }

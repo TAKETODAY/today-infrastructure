@@ -445,9 +445,10 @@ public class BeanDefinitionParserDelegate {
             // if the generator returned the class name plus a suffix.
             // This is expected for Spring 1.2/2.0 backwards compatibility.
             String beanClassName = beanDefinition.getBeanClassName();
-            if (beanClassName != null &&
-                    beanName.startsWith(beanClassName) && beanName.length() > beanClassName.length() &&
-                    !this.readerContext.getRegistry().isBeanNameInUse(beanClassName)) {
+            if (beanClassName != null
+                    && beanName.startsWith(beanClassName)
+                    && beanName.length() > beanClassName.length()
+                    && !this.readerContext.getRegistry().isBeanNameInUse(beanClassName)) {
               aliases.add(beanClassName);
             }
           }
@@ -590,7 +591,7 @@ public class BeanDefinitionParserDelegate {
       String candidatePattern = this.defaults.getAutowireCandidates();
       if (candidatePattern != null) {
         String[] patterns = StringUtils.commaDelimitedListToStringArray(candidatePattern);
-        bd.setAutowireCandidate(PatternMatchUtils.simpleMatch(patterns, beanName));
+        bd.setAutowireCandidate(StringUtils.simpleMatch(patterns, beanName));
       }
     }
     else {
@@ -602,20 +603,23 @@ public class BeanDefinitionParserDelegate {
     }
 
     if (ele.hasAttribute(INIT_METHOD_ATTRIBUTE)) {
+      // @since 4.0
       String initMethodName = ele.getAttribute(INIT_METHOD_ATTRIBUTE);
-      bd.setInitMethodName(initMethodName);
+      String[] initMethods = StringUtils.tokenizeToStringArray(initMethodName, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+      bd.setInitMethods(initMethods);
     }
     else if (this.defaults.getInitMethod() != null) {
-      bd.setInitMethodName(this.defaults.getInitMethod());
+      String[] initMethods = StringUtils.tokenizeToStringArray(defaults.getInitMethod(), MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+      bd.setInitMethods(initMethods);
       bd.setEnforceInitMethod(false);
     }
 
     if (ele.hasAttribute(DESTROY_METHOD_ATTRIBUTE)) {
       String destroyMethodName = ele.getAttribute(DESTROY_METHOD_ATTRIBUTE);
-      bd.setDestroyMethodName(destroyMethodName);
+      bd.setDestroyMethod(destroyMethodName);
     }
     else if (this.defaults.getDestroyMethod() != null) {
-      bd.setDestroyMethodName(this.defaults.getDestroyMethod());
+      bd.setDestroyMethod(this.defaults.getDestroyMethod());
       bd.setEnforceDestroyMethod(false);
     }
 
@@ -666,7 +670,6 @@ public class BeanDefinitionParserDelegate {
    * Parse the given autowire attribute value into
    * {@link BeanDefinition} autowire constants.
    */
-  @SuppressWarnings("deprecation")
   public int getAutowireMode(String attrValue) {
     String attr = attrValue;
     if (isDefaultValue(attr)) {
@@ -733,7 +736,8 @@ public class BeanDefinitionParserDelegate {
    */
   public void parseLookupOverrideSubElements(Element beanEle, MethodOverrides overrides) {
     NodeList nl = beanEle.getChildNodes();
-    for (int i = 0; i < nl.getLength(); i++) {
+    int length = nl.getLength();
+    for (int i = 0; i < length; i++) {
       Node node = nl.item(i);
       if (isCandidateElement(node) && nodeNameEquals(node, LOOKUP_METHOD_ELEMENT)) {
         Element ele = (Element) node;
@@ -751,7 +755,8 @@ public class BeanDefinitionParserDelegate {
    */
   public void parseReplacedMethodSubElements(Element beanEle, MethodOverrides overrides) {
     NodeList nl = beanEle.getChildNodes();
-    for (int i = 0; i < nl.getLength(); i++) {
+    int length = nl.getLength();
+    for (int i = 0; i < length; i++) {
       Node node = nl.item(i);
       if (isCandidateElement(node) && nodeNameEquals(node, REPLACED_METHOD_ELEMENT)) {
         Element replacedMethodEle = (Element) node;
@@ -845,7 +850,7 @@ public class BeanDefinitionParserDelegate {
     }
     this.parseState.push(new PropertyEntry(propertyName));
     try {
-      if (bd.getPropertyValues().contains(propertyName)) {
+      if (bd.propertyValues().contains(propertyName)) {
         error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
         return;
       }
@@ -853,7 +858,7 @@ public class BeanDefinitionParserDelegate {
       PropertyValue pv = new PropertyValue(propertyName, val);
       parseMetaElements(ele, pv);
       pv.setSource(extractSource(ele));
-      bd.getPropertyValues().addPropertyValue(pv);
+      bd.propertyValues().add(pv);
     }
     finally {
       this.parseState.pop();
@@ -915,7 +920,8 @@ public class BeanDefinitionParserDelegate {
     // Should only have one child element: ref, value, list, etc.
     NodeList nl = ele.getChildNodes();
     Element subElement = null;
-    for (int i = 0; i < nl.getLength(); i++) {
+    int length = nl.getLength();
+    for (int i = 0; i < length; i++) {
       Node node = nl.item(i);
       if (node instanceof Element && !nodeNameEquals(node, DESCRIPTION_ELEMENT) &&
               !nodeNameEquals(node, META_ELEMENT)) {
@@ -1391,7 +1397,7 @@ public class BeanDefinitionParserDelegate {
     }
     NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
     if (handler == null) {
-      error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
+      error("Unable to locate NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
       return null;
     }
     return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
@@ -1462,12 +1468,12 @@ public class BeanDefinitionParserDelegate {
         }
       }
       else if (namespaceUri.startsWith("http://www.springframework.org/schema/")) {
-        error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", node);
+        error("Unable to locate NamespaceHandler for XML schema namespace [" + namespaceUri + "]", node);
       }
       else {
         // A custom namespace, not to be handled by Spring - maybe "xml:...".
         if (log.isDebugEnabled()) {
-          log.debug("No Spring NamespaceHandler found for XML schema namespace [" + namespaceUri + "]");
+          log.debug("No NamespaceHandler found for XML schema namespace [{}]", namespaceUri);
         }
       }
     }
@@ -1485,10 +1491,11 @@ public class BeanDefinitionParserDelegate {
     String id = ele.getNodeName() + BeanDefinitionReaderUtils.GENERATED_BEAN_NAME_SEPARATOR +
             ObjectUtils.getIdentityHexString(innerDefinition);
     if (log.isTraceEnabled()) {
-      log.trace("Using generated bean name [" + id +
-              "] for nested custom element '" + ele.getNodeName() + "'");
+      log.trace("Using generated bean name [{}] for nested custom element '{}'", id, ele.getNodeName());
     }
-    return new BeanDefinition(innerDefinition, id);
+    BeanDefinition definition = innerDefinition.cloneDefinition();
+    definition.setBeanName(id);
+    return definition;
   }
 
   /**

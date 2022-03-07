@@ -289,6 +289,12 @@ public class BeanDefinition
 
   private boolean lenientConstructorResolution = true;
 
+  @Nullable
+  private Resource resource;
+
+  @Nullable
+  private MethodOverrides methodOverrides;
+
   // cache for fast access
   Executable executable;
 
@@ -350,9 +356,6 @@ public class BeanDefinition
   // @since 4.0
   private boolean enforceDestroyMethod;
 
-  @Nullable
-  private Resource resource;
-
   /**
    * @since 3.0
    */
@@ -371,6 +374,7 @@ public class BeanDefinition
     this.synthetic = from.synthetic;
     this.beanClass = from.beanClass;
     this.dependsOn = from.dependsOn;
+    this.parentName = from.parentName;
     this.initMethods = from.initMethods;
     this.description = from.description;
     this.autowireMode = from.autowireMode;
@@ -395,6 +399,10 @@ public class BeanDefinition
     this.isFactoryMethodUnique = from.isFactoryMethodUnique;
     this.factoryMethodReturnType = from.factoryMethodReturnType;
     this.beforeInstantiationResolved = from.beforeInstantiationResolved;
+
+    if (from.hasMethodOverrides()) {
+      setMethodOverrides(new MethodOverrides(from.getMethodOverrides()));
+    }
 
     if (from.hasConstructorArgumentValues()) {
       setConstructorArgumentValues(new ConstructorArgumentValues(from.getConstructorArgumentValues()));
@@ -1509,6 +1517,36 @@ public class BeanDefinition
    */
   public boolean isLenientConstructorResolution() {
     return this.lenientConstructorResolution;
+  }
+
+  /**
+   * Specify method overrides for the bean, if any.
+   */
+  public void setMethodOverrides(@Nullable MethodOverrides methodOverrides) {
+    this.methodOverrides = methodOverrides;
+  }
+
+  /**
+   * Return information about methods to be overridden by the IoC
+   * container. This will be empty if there are no method overrides.
+   * <p>Never returns {@code null}.
+   *
+   * @since 4.0
+   */
+  public MethodOverrides getMethodOverrides() {
+    if (methodOverrides == null) {
+      methodOverrides = new MethodOverrides();
+    }
+    return this.methodOverrides;
+  }
+
+  /**
+   * Return if there are method overrides defined for this bean.
+   *
+   * @since 4.0
+   */
+  public boolean hasMethodOverrides() {
+    return methodOverrides != null && !methodOverrides.isEmpty();
   }
 
   // postProcessingLock

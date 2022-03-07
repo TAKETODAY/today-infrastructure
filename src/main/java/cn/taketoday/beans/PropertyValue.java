@@ -33,7 +33,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author TODAY 2021/3/21 15:49
  */
-public class PropertyValue implements Serializable, BeanMetadataElement {
+public class PropertyValue extends BeanMetadataAttributeAccessor implements Serializable, BeanMetadataElement {
 
   private String name;
   private Object value;
@@ -52,9 +52,6 @@ public class PropertyValue implements Serializable, BeanMetadataElement {
   /** Package-visible field that indicates whether conversion is necessary. */
   @Nullable
   volatile Boolean conversionNecessary;
-
-  @Nullable
-  private Object source;
 
   public PropertyValue() { }
 
@@ -101,23 +98,6 @@ public class PropertyValue implements Serializable, BeanMetadataElement {
     this.conversionNecessary = original.conversionNecessary;
     this.resolvedTokens = original.resolvedTokens;
     setSource(original);
-  }
-
-  /**
-   * Set the configuration source {@code Object} for this metadata element.
-   * <p>The exact type of the object will depend on the configuration mechanism used.
-   *
-   * @since 4.0
-   */
-  public void setSource(@Nullable Object source) {
-    this.source = source;
-  }
-
-  // @since 4.0
-  @Override
-  @Nullable
-  public Object getSource() {
-    return this.source;
   }
 
   /**

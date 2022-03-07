@@ -119,13 +119,13 @@ public class XmlListableBeanFactoryTests extends AbstractBeanFactoryTests {
 
   protected void assertTestBeanCount(int count) {
     Set<String> defNames = getBeanFactory().getBeanNamesForType(TestBean.class, true, false);
-    assertThat(defNames.size() == count).as("We should have " + count + " beans for class org.springframework.beans.testfixture.beans.TestBean, not " +
+    assertThat(defNames.size() == count).as("We should have " + count + " beans for class cn.taketoday.beans.testfixture.beans.TestBean, not " +
             defNames.size()).isTrue();
 
     int countIncludingFactoryBeans = count + 2;
     Set<String> names = getBeanFactory().getBeanNamesForType(TestBean.class, true, true);
     assertThat(names.size() == countIncludingFactoryBeans).as("We should have " + countIncludingFactoryBeans +
-            " beans for class org.springframework.beans.testfixture.beans.TestBean, not " + names.size()).isTrue();
+            " beans for class cn.taketoday.beans.testfixture.beans.TestBean, not " + names.size()).isTrue();
   }
 
   @Test
