@@ -47,8 +47,8 @@ import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanIsAbstractException;
-import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
@@ -66,7 +66,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.UrlBasedResource;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StopWatch;
 import cn.taketoday.validation.ResourceTestBean;
@@ -1208,8 +1208,6 @@ class XmlBeanFactoryTests {
   /**
    * See <a href="https://jira.spring.io/browse/SPR-10785">SPR-10785</a> and <a
    * href="https://jira.spring.io/browse/SPR-11420">SPR-11420</a>
-   *
-   * @since 3.2.8 and 4.0.2
    */
   @Test
   @SuppressWarnings("deprecation")
@@ -1221,7 +1219,7 @@ class XmlBeanFactoryTests {
       new XmlBeanDefinitionReader(bf).loadBeanDefinitions(OVERRIDES_CONTEXT);
 
       final Class<?> currentClass = bf.getBean("overrideOneMethod").getClass();
-      assertThat(ClassUtils.isCglibProxyClass(currentClass)).as("Method injected bean class [" + currentClass + "] must be a CGLIB enhanced subclass.").isTrue();
+      assertThat(isCglibProxyClass(currentClass)).as("Method injected bean class [" + currentClass + "] must be a CGLIB enhanced subclass.").isTrue();
 
       if (firstClass == null) {
         firstClass = currentClass;
@@ -1230,6 +1228,22 @@ class XmlBeanFactoryTests {
         assertThat(currentClass).isEqualTo(firstClass);
       }
     }
+  }
+
+  public static boolean isCglibProxyClass(@Nullable Class<?> clazz) {
+    return (clazz != null && isCglibProxyClassName(clazz.getName()));
+  }
+
+  /** The CGLIB class separator: {@code "$$"}. */
+  public static final String CGLIB_CLASS_SEPARATOR = "$$";
+
+  /**
+   * Check whether the specified class name is a CGLIB-generated class.
+   *
+   * @param className the class name to check
+   */
+  public static boolean isCglibProxyClassName(@Nullable String className) {
+    return (className != null && className.contains(CGLIB_CLASS_SEPARATOR));
   }
 
   @Test
@@ -1873,7 +1887,7 @@ class XmlBeanFactoryTests {
     }
   }
 
-  static class WrappingPostProcessor implements BeanPostProcessor {
+  static class WrappingPostProcessor implements InitializationBeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {

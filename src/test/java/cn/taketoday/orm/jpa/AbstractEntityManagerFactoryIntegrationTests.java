@@ -28,6 +28,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.core.JdbcTemplate;

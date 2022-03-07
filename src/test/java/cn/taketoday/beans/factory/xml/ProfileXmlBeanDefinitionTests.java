@@ -30,6 +30,7 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Tests various combinations of profile declarations against various profile

@@ -106,7 +106,7 @@ public class BeanDefinitionBuilder {
    * @param factoryMethodName the name of the method to use to construct the bean instance
    */
   public static BeanDefinitionBuilder rootBeanDefinition(String beanClassName, @Nullable String factoryMethodName) {
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new RootBeanDefinition());
     builder.beanDefinition.setBeanClassName(beanClassName);
     builder.beanDefinition.setFactoryMethodName(factoryMethodName);
     return builder;
@@ -128,7 +128,7 @@ public class BeanDefinitionBuilder {
    * @param factoryMethodName the name of the method to use to construct the bean instance
    */
   public static BeanDefinitionBuilder rootBeanDefinition(Class<?> beanClass, @Nullable String factoryMethodName) {
-    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new BeanDefinition());
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(new RootBeanDefinition());
     builder.beanDefinition.setBeanClass(beanClass);
     builder.beanDefinition.setFactoryMethodName(factoryMethodName);
     return builder;
@@ -141,7 +141,7 @@ public class BeanDefinitionBuilder {
    * @param instanceSupplier a callback for creating an instance of the bean
    */
   public static <T> BeanDefinitionBuilder rootBeanDefinition(ResolvableType beanType, Supplier<T> instanceSupplier) {
-    BeanDefinition beanDefinition = new BeanDefinition();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition();
     beanDefinition.setTargetType(beanType);
     beanDefinition.setInstanceSupplier(instanceSupplier);
     return new BeanDefinitionBuilder(beanDefinition);

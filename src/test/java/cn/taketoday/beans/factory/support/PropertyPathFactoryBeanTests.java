@@ -19,8 +19,7 @@ class PropertyPathFactoryBeanTests {
     BeanDefinition definition = new BeanDefinition("tb", TestBean.class);
     definition.addPropertyValue("age", 10);
     definition.addPropertyValue("spouse", BeanDefinitionReference.from(
-            new BeanDefinitionBuilder()
-                    .beanClass(TestBean.class)
+            BeanDefinitionBuilder.genericBeanDefinition(TestBean.class)
                     .propertyValues(new PropertyValues().add("age", 11))
     ));
     definition.setScope(Scope.PROTOTYPE);
@@ -30,8 +29,7 @@ class PropertyPathFactoryBeanTests {
     BeanDefinition otb = new BeanDefinition("otb", TestBean.class);
     otb.addPropertyValue("age", 98);
     otb.addPropertyValue("spouse", BeanDefinitionReference.from(
-            new BeanDefinitionBuilder()
-                    .beanClass(TestBean.class)
+            BeanDefinitionBuilder.genericBeanDefinition(TestBean.class)
                     .propertyValues(new PropertyValues().add("age", 99))
     ));
     factory.registerBeanDefinition(otb);
@@ -39,8 +37,7 @@ class PropertyPathFactoryBeanTests {
     BeanDefinition propertyPath1 = new BeanDefinition("propertyPath1", PropertyPathFactoryBean.class);
     propertyPath1.addPropertyValue("propertyPath", "age");
     propertyPath1.addPropertyValue("targetObject", BeanDefinitionReference.from(
-            new BeanDefinitionBuilder()
-                    .beanClass(TestBean.class)
+            BeanDefinitionBuilder.genericBeanDefinition(TestBean.class)
                     .propertyValues(new PropertyValues().add("age", 12))
     ));
     factory.registerBeanDefinition(propertyPath1);

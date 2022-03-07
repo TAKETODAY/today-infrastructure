@@ -27,6 +27,8 @@ import cn.taketoday.orm.jpa.AbstractEntityManagerFactoryIntegrationTests;
 import cn.taketoday.orm.jpa.support.PersistenceInjectionTests.DefaultPublicPersistenceContextSetter;
 import cn.taketoday.orm.jpa.support.PersistenceInjectionTests.DefaultPublicPersistenceUnitSetterNamedPerson;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 /**
  * @author Rod Johnson
  * @author Juergen Hoeller

@@ -510,4 +510,33 @@ public interface ConfigurableBeanFactory
    * @since 4.0
    */
   TypeConverter getTypeConverter();
+
+  /**
+   * Return a merged BeanDefinition for the given bean name,
+   * merging a child bean definition with its parent if necessary.
+   * Considers bean definitions in ancestor factories as well.
+   *
+   * @param beanName the name of the bean to retrieve the merged definition for
+   * @return a (potentially merged) BeanDefinition for the given bean
+   * @throws NoSuchBeanDefinitionException if there is no bean definition with the given name
+   * @since 4.0
+   */
+  BeanDefinition getMergedBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+
+  /**
+   * Set whether to cache bean metadata such as given bean definitions
+   * (in merged fashion) and resolved bean classes. Default is on.
+   * <p>Turn this flag off to enable hot-refreshing of bean definition objects
+   * and in particular bean classes. If this flag is off, any creation of a bean
+   * instance will re-query the bean class loader for newly resolved classes.
+   * @since 4.0
+   */
+  void setCacheBeanMetadata(boolean cacheBeanMetadata);
+
+  /**
+   * Return whether to cache bean metadata such as given bean definitions
+   * (in merged fashion) and resolved bean classes.
+   * @since 4.0
+   */
+  boolean isCacheBeanMetadata();
 }

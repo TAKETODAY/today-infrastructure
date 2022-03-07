@@ -220,7 +220,7 @@ public class BeanFactoryTransactionTests {
             .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
             .addPropertyValue("target", BeanDefinitionReference.from(
-                    BeanDefinitionBuilder.from(LazyInitTargetSource.class)
+                    BeanDefinitionBuilder.genericBeanDefinition(LazyInitTargetSource.class)
                             .propertyValues(new PropertyValues().add("targetBeanName", "target")))
             )
     );
@@ -289,7 +289,7 @@ public class BeanFactoryTransactionTests {
             .addPropertyValue("transactionManager", RuntimeBeanReference.from("mockMan"))
             .addPropertyValue("transactionAttributes", properties)
             .addPropertyValue("target", BeanDefinitionReference.from(
-                    BeanDefinitionBuilder.from(ImplementsNoInterfaces.class)
+                    BeanDefinitionBuilder.genericBeanDefinition(ImplementsNoInterfaces.class)
                             .propertyValues(new PropertyValues()
                                     .add("dependency", RuntimeBeanReference.from("targetDependency"))))
             )

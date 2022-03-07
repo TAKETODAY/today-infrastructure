@@ -28,6 +28,8 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.io.ClassPathResource;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 /**
  * @author Rob Harrop
  */
@@ -58,7 +60,7 @@ public class MetadataAttachmentTests {
   @Test
   public void propertyMetadata() throws Exception {
     BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("testBean3");
-    PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("name");
+    PropertyValue pv = beanDefinition.propertyValues().get("name");
     assertThat(pv.getAttribute("surname")).isEqualTo("Harrop");
   }
 

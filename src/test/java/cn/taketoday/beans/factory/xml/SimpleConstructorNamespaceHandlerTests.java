@@ -29,6 +29,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 /**
  * @author Costin Leau

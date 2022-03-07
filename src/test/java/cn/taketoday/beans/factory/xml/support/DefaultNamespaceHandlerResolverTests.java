@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.xml.NamespaceHandler;
 import cn.taketoday.beans.factory.xml.UtilNamespaceHandler;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Unit and integration tests for the {@link DefaultNamespaceHandlerResolver} class.

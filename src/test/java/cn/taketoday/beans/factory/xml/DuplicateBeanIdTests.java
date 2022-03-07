@@ -27,6 +27,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * With Spring 3.1, bean id attributes (and all other id attributes across the

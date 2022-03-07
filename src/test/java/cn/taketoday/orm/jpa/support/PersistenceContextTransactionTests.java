@@ -36,6 +36,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceContextType;
 import jakarta.persistence.SynchronizationType;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -78,7 +79,7 @@ public class PersistenceContextTransactionTests {
         return factory;
       }
     };
-    pabpp.postProcessProperties(null, bean, "bean");
+    pabpp.processDependencies(null, bean, "bean");
 
     assertThat(TransactionSynchronizationManager.getResourceMap().isEmpty()).isTrue();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();

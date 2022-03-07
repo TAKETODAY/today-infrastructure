@@ -26,14 +26,14 @@ import org.w3c.dom.Element;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.TypedStringValue;
 import cn.taketoday.beans.factory.parsing.AliasDefinition;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.ComponentDefinition;
 import cn.taketoday.beans.factory.parsing.ImportDefinition;
 import cn.taketoday.beans.factory.parsing.PassThroughSourceExtractor;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.TypedStringValue;
 import cn.taketoday.beans.testfixture.beans.CollectingReaderEventListener;
 import cn.taketoday.core.io.ClassPathResource;
 
@@ -96,11 +96,11 @@ public class EventPublicationTests {
     assertThat(condition1).isTrue();
     assertThat(componentDefinition1.getBeanDefinitions().length).isEqualTo(1);
     BeanDefinition beanDefinition2 = componentDefinition2.getBeanDefinitions()[0];
-    assertThat(beanDefinition2.getPropertyValues().getPropertyValue("name").getValue()).isEqualTo(new TypedStringValue("Juergen Hoeller"));
+    assertThat(beanDefinition2.propertyValues().getPropertyValue("name")).isEqualTo(new TypedStringValue("Juergen Hoeller"));
     assertThat(componentDefinition2.getBeanReferences().length).isEqualTo(0);
     assertThat(componentDefinition2.getInnerBeanDefinitions().length).isEqualTo(1);
     BeanDefinition innerBd2 = componentDefinition2.getInnerBeanDefinitions()[0];
-    assertThat(innerBd2.getPropertyValues().getPropertyValue("name").getValue()).isEqualTo(new TypedStringValue("Eva Schallmeiner"));
+    assertThat(innerBd2.propertyValues().getPropertyValue("name")).isEqualTo(new TypedStringValue("Eva Schallmeiner"));
     boolean condition = componentDefinition2.getSource() instanceof Element;
     assertThat(condition).isTrue();
   }

@@ -297,6 +297,7 @@ public class StandardBeanFactory
 
   @Override
   public void clearMetadataCache() {
+    super.clearMetadataCache();
     clearByTypeCache();
   }
 
@@ -1117,6 +1118,9 @@ public class StandardBeanFactory
    * @see #removeBeanDefinition
    */
   protected void resetBeanDefinition(String beanName) {
+    // Remove the merged bean definition for the given bean, if already created.
+    clearMergedBeanDefinition(beanName);
+
     // Remove corresponding bean from singleton cache, if any. Shouldn't usually
     // be necessary, rather just meant for overriding a context's default beans
     destroySingleton(beanName);

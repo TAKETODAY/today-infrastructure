@@ -51,6 +51,7 @@ import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.BeanIsAbstractException;
 import cn.taketoday.beans.factory.BeanIsNotAFactoryException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.BeanPostProcessor;
@@ -172,11 +173,17 @@ public abstract class AbstractBeanFactory
   @Nullable
   private TypeConverter typeConverter;
 
-  /** Custom PropertyEditorRegistrars to apply to the beans of this factory. */
+  /** Custom PropertyEditorRegistrars to apply to the beans of this factory. @since 4.0 */
   private final LinkedHashSet<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4);
 
-  /** Custom PropertyEditors to apply to the beans of this factory. */
+  /** Custom PropertyEditors to apply to the beans of this factory. @since 4.0 */
   private final HashMap<Class<?>, Class<? extends PropertyEditor>> customEditors = new HashMap<>(4);
+
+  /** Map from bean name to merged BeanDefinition. @since 4.0 */
+  private final ConcurrentHashMap<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
+
+  /** Whether to cache bean metadata or rather reobtain it for every access. @since 4.0 */
+  private boolean cacheBeanMetadata = true;
 
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
@@ -249,6 +256,9 @@ public abstract class AbstractBeanFactory
       if (!typeCheckOnly) {
         markBeanAsCreated(beanName);
       }
+
+      RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+      checkMergedBeanDefinition(mbd, beanName, args);
 
       // Guarantee initialization of beans that the current bean depends on.
       String[] dependsOn = definition.getDependsOn();
@@ -703,6 +713,9 @@ public abstract class AbstractBeanFactory
   public BeanDefinition obtainLocalBeanDefinition(String name) {
     BeanDefinition def = getBeanDefinition(name);
     if (def == null) {
+      if (log.isTraceEnabled()) {
+        log.trace("No bean named '{}' found in {}", name, this);
+      }
       throw new NoSuchBeanDefinitionException(name);
     }
     return def;
@@ -1356,7 +1369,16 @@ public abstract class AbstractBeanFactory
    * @since 4.0
    */
   protected void markBeanAsCreated(String beanName) {
-    this.alreadyCreated.add(beanName);
+    if (!alreadyCreated.contains(beanName)) {
+      synchronized(mergedBeanDefinitions) {
+        if (!alreadyCreated.contains(beanName)) {
+          // Let the bean definition get re-merged now that we're actually creating
+          // the bean... just in case some of its metadata changed in the meantime.
+          clearMergedBeanDefinition(beanName);
+          alreadyCreated.add(beanName);
+        }
+      }
+    }
   }
 
   /**
@@ -1410,9 +1432,6 @@ public abstract class AbstractBeanFactory
   protected boolean hasBeanCreationStarted() {
     return !this.alreadyCreated.isEmpty();
   }
-
-  @Override
-  public void clearMetadataCache() { }
 
   @Override
   public boolean isActuallyInCreation(String beanName) {
@@ -1850,6 +1869,223 @@ public abstract class AbstractBeanFactory
         registry.registerCustomEditor(requiredType, BeanUtils.newInstance(editorClass));
       }
     }
+  }
+
+  @Override
+  public void setCacheBeanMetadata(boolean cacheBeanMetadata) {
+    this.cacheBeanMetadata = cacheBeanMetadata;
+  }
+
+  @Override
+  public boolean isCacheBeanMetadata() {
+    return this.cacheBeanMetadata;
+  }
+
+  /**
+   * Return a 'merged' BeanDefinition for the given bean name,
+   * merging a child bean definition with its parent if necessary.
+   * <p>This {@code getMergedBeanDefinition} considers bean definition
+   * in ancestors as well.
+   *
+   * @param name the name of the bean to retrieve the merged definition for
+   * (may be an alias)
+   * @return a (potentially merged) RootBeanDefinition for the given bean
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @throws BeanDefinitionStoreException in case of an invalid bean definition
+   * @since 4.0
+   */
+  @Override
+  public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
+    String beanName = transformedBeanName(name);
+    // Efficiently check whether bean definition exists in this factory.
+    if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory parent) {
+      return parent.getMergedBeanDefinition(beanName);
+    }
+    // Resolve merged bean definition locally.
+    return getMergedLocalBeanDefinition(beanName);
+  }
+
+  /**
+   * Return a merged BeanDefinition, traversing the parent bean definition
+   * if the specified bean corresponds to a child bean definition.
+   *
+   * @param beanName the name of the bean to retrieve the merged definition for
+   * @return a (potentially merged) BeanDefinition for the given bean
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @throws BeanDefinitionStoreException in case of an invalid bean definition
+   */
+  protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
+    // Quick check on the concurrent map first, with minimal locking.
+    RootBeanDefinition mbd = mergedBeanDefinitions.get(beanName);
+    if (mbd != null && !mbd.stale) {
+      return mbd;
+    }
+    return getMergedBeanDefinition(beanName, obtainLocalBeanDefinition(beanName));
+  }
+
+  /**
+   * Return a BeanDefinition for the given top-level bean, by merging with
+   * the parent if the given bean's definition is a child bean definition.
+   *
+   * @param beanName the name of the bean definition
+   * @param bd the original bean definition (Root/ChildBeanDefinition)
+   * @return a (potentially merged) BeanDefinition for the given bean
+   * @throws BeanDefinitionStoreException in case of an invalid bean definition
+   */
+  protected RootBeanDefinition getMergedBeanDefinition(String beanName, BeanDefinition bd) throws BeanDefinitionStoreException {
+    return getMergedBeanDefinition(beanName, bd, null);
+  }
+
+  /**
+   * Return a BeanDefinition for the given bean, by merging with the
+   * parent if the given bean's definition is a child bean definition.
+   *
+   * @param beanName the name of the bean definition
+   * @param bd the original bean definition (Root/ChildBeanDefinition)
+   * @param containingBd the containing bean definition in case of inner bean,
+   * or {@code null} in case of a top-level bean
+   * @return a (potentially merged) BeanDefinition for the given bean
+   * @throws BeanDefinitionStoreException in case of an invalid bean definition
+   */
+  protected RootBeanDefinition getMergedBeanDefinition(
+          String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
+          throws BeanDefinitionStoreException {
+
+    synchronized(this.mergedBeanDefinitions) {
+      RootBeanDefinition mbd = null;
+      RootBeanDefinition previous = null;
+
+      // Check with full lock now in order to enforce the same merged instance.
+      if (containingBd == null) {
+        mbd = this.mergedBeanDefinitions.get(beanName);
+      }
+
+      if (mbd == null || mbd.stale) {
+        previous = mbd;
+        if (bd.getParentName() == null) {
+          // Use copy of given root bean definition.
+          if (bd instanceof RootBeanDefinition rootBeanDef) {
+            mbd = rootBeanDef.cloneDefinition();
+          }
+          else {
+            mbd = new RootBeanDefinition(bd);
+          }
+        }
+        else {
+          // Child bean definition: needs to be merged with parent.
+          BeanDefinition pbd;
+          try {
+            String parentBeanName = transformedBeanName(bd.getParentName());
+            if (!beanName.equals(parentBeanName)) {
+              pbd = getMergedBeanDefinition(parentBeanName);
+            }
+            else {
+              if (getParentBeanFactory() instanceof ConfigurableBeanFactory parent) {
+                pbd = parent.getMergedBeanDefinition(parentBeanName);
+              }
+              else {
+                throw new NoSuchBeanDefinitionException(parentBeanName,
+                        "Parent name '" + parentBeanName + "' is equal to bean name '" + beanName +
+                                "': cannot be resolved without a ConfigurableBeanFactory parent");
+              }
+            }
+          }
+          catch (NoSuchBeanDefinitionException ex) {
+            throw new BeanDefinitionStoreException(bd.getResourceDescription(), beanName,
+                    "Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
+          }
+          // Deep copy with overridden values.
+          mbd = new RootBeanDefinition(pbd);
+          mbd.copyFrom(bd);
+        }
+
+        // Set default singleton scope, if not configured before.
+        if (StringUtils.isEmpty(mbd.getScope())) {
+          mbd.setScope(BeanDefinition.SCOPE_SINGLETON);
+        }
+
+        // A bean contained in a non-singleton bean cannot be a singleton itself.
+        // Let's correct this on the fly here, since this might be the result of
+        // parent-child merging for the outer bean, in which case the original inner bean
+        // definition will not have inherited the merged outer bean's singleton status.
+        if (containingBd != null && !containingBd.isSingleton() && mbd.isSingleton()) {
+          mbd.setScope(containingBd.getScope());
+        }
+
+        // Cache the merged bean definition for the time being
+        // (it might still get re-merged later on in order to pick up metadata changes)
+        if (containingBd == null && isCacheBeanMetadata()) {
+          this.mergedBeanDefinitions.put(beanName, mbd);
+        }
+      }
+      if (previous != null) {
+        copyRelevantMergedBeanDefinitionCaches(previous, mbd);
+      }
+      return mbd;
+    }
+  }
+
+  private void copyRelevantMergedBeanDefinitionCaches(RootBeanDefinition previous, RootBeanDefinition mbd) {
+    if (Objects.equals(mbd.getBeanClassName(), previous.getBeanClassName())
+            && Objects.equals(mbd.getFactoryBeanName(), previous.getFactoryBeanName())
+            && Objects.equals(mbd.getFactoryMethodName(), previous.getFactoryMethodName())) {
+      ResolvableType targetType = mbd.targetType;
+      ResolvableType previousTargetType = previous.targetType;
+      if (targetType == null || targetType.equals(previousTargetType)) {
+        mbd.targetType = previousTargetType;
+        mbd.setFactoryBean(previous.isFactoryBean());
+        mbd.resolvedTargetType = previous.resolvedTargetType;
+        mbd.factoryMethodReturnType = previous.factoryMethodReturnType;
+        mbd.factoryMethodToIntrospect = previous.factoryMethodToIntrospect;
+      }
+    }
+  }
+
+  /**
+   * Check the given merged bean definition,
+   * potentially throwing validation exceptions.
+   *
+   * @param mbd the merged bean definition to check
+   * @param beanName the name of the bean
+   * @param args the arguments for bean creation, if any
+   * @throws BeanDefinitionStoreException in case of validation failure
+   */
+  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args)
+          throws BeanDefinitionStoreException {
+
+    if (mbd.isAbstract()) {
+      throw new BeanIsAbstractException(beanName);
+    }
+  }
+
+  /**
+   * Remove the merged bean definition for the specified bean,
+   * recreating it on next access.
+   *
+   * @param beanName the bean name to clear the merged definition for
+   */
+  protected void clearMergedBeanDefinition(String beanName) {
+    RootBeanDefinition bd = this.mergedBeanDefinitions.get(beanName);
+    if (bd != null) {
+      bd.stale = true;
+    }
+  }
+
+  /**
+   * Clear the merged bean definition cache, removing entries for beans
+   * which are not considered eligible for full metadata caching yet.
+   * <p>Typically triggered after changes to the original bean definitions,
+   * e.g. after applying a {@code BeanFactoryPostProcessor}. Note that metadata
+   * for beans which have already been created at this point will be kept around.
+   *
+   * @since 4.0
+   */
+  public void clearMetadataCache() {
+    this.mergedBeanDefinitions.forEach((beanName, bd) -> {
+      if (!isBeanEligibleForMetadataCaching(beanName)) {
+        bd.stale = true;
+      }
+    });
   }
 
   /**
