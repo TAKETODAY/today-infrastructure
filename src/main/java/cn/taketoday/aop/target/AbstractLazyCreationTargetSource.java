@@ -85,7 +85,7 @@ public abstract class AbstractLazyCreationTargetSource implements TargetSource {
    * @see #createObject()
    */
   @Override
-  public synchronized Object getTarget() {
+  public synchronized Object getTarget() throws Exception {
     if (this.lazyTarget == null) {
       logger.debug("Initializing lazy target object");
       this.lazyTarget = createObject();
@@ -99,6 +99,6 @@ public abstract class AbstractLazyCreationTargetSource implements TargetSource {
    *
    * @return the created object
    */
-  protected abstract Object createObject();
+  protected abstract Object createObject() throws Exception;
 
 }

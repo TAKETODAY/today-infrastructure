@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Documented;
@@ -25,30 +26,42 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.CustomScopeConfigurer;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
 /**
  * When used as a type-level annotation in conjunction with
- * {@link Component @Component}, {@code @Scope} indicates the
- * name of a scope to use for instances of the annotated type.
+ * {@link Component @Component},
+ * {@code @Scope} indicates the name of a scope to use for instances of
+ * the annotated type.
  *
  * <p>When used as a method-level annotation in conjunction with
- * {@link Component @Component}, {@code @Scope} indicates the name of a scope to use
+ * {@link Bean @Bean}, {@code @Scope} indicates the name of a scope to use
  * for the instance returned from the method.
  *
  * <p><b>NOTE:</b> {@code @Scope} annotations are only introspected on the
  * concrete bean class (for annotated components) or the factory method
- * (for {@code @Component} methods).
+ * (for {@code @Bean} methods). In contrast to XML bean definitions,
+ * there is no notion of bean definition inheritance, and inheritance
+ * hierarchies at the class level are irrelevant for metadata purposes.
  *
  * <p>In this context, <em>scope</em> means the lifecycle of an instance,
- * such as {@code singleton}, {@code prototype}.
+ * such as {@code singleton}, {@code prototype}, and so forth. Scopes
+ * provided out of the box in Framework may be referred to using the
+ * {@code SCOPE_*} constants available in the {@link ConfigurableBeanFactory}
+ * and {@code WebApplicationContext} interfaces.
  *
  * <p>To register additional custom scopes, see
- * {@link cn.taketoday.beans.factory.CustomScopeConfigurer CustomScopeConfigurer}.
+ * {@link CustomScopeConfigurer CustomScopeConfigurer}.
  *
+ * @author Mark Fisher
+ * @author Chris Beams
+ * @author Sam Brannen
  * @author TODAY 2021/10/26 15:33
+ * @see Bean
  * @see Component
  * @since 4.0
  */
@@ -89,5 +102,17 @@ public @interface Scope {
    */
   @AliasFor("value")
   String scopeName() default SINGLETON;
+
+  /**
+   * Specifies whether a component should be configured as a scoped proxy
+   * and if so, whether the proxy should be interface-based or subclass-based.
+   * <p>Defaults to {@link ScopedProxyMode#DEFAULT}, which typically indicates
+   * that no scoped proxy should be created unless a different default
+   * has been configured at the component-scan instruction level.
+   * <p>Analogous to {@code <aop:scoped-proxy/>} support in Framework XML.
+   *
+   * @see ScopedProxyMode
+   */
+  ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
 
 }
