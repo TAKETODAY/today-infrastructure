@@ -28,13 +28,14 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -174,11 +175,12 @@ class ConfigurationClassBeanDefinitionReader {
       return;
     }
 
-    ConfigBeanDefinition beanDef = new ConfigBeanDefinition(metadata, configClass.getMetadata());
+    AnnotationMetadata annotationMetadata = configClass.getMetadata();
+    ConfigBeanDefinition beanDef = new ConfigBeanDefinition(metadata, annotationMetadata);
     beanDef.setSource(configClass.getResource());
     beanDef.setResource(configClass.getResource());
 
-    boolean disableDependencyInjectionAll = configClass.getMetadata().isAnnotated(
+    boolean disableDependencyInjectionAll = annotationMetadata.isAnnotated(
             DisableAllDependencyInjection.class.getName());
     boolean enableDependencyInjection = isEnableDependencyInjection(annotations, disableDependencyInjectionAll);
 
@@ -190,11 +192,11 @@ class ConfigurationClassBeanDefinitionReader {
 
     if (metadata.isStatic()) {
       // static @Component method
-      if (configClass.getMetadata() instanceof StandardAnnotationMetadata) {
-        beanDef.setBeanClass(((StandardAnnotationMetadata) configClass.getMetadata()).getIntrospectedClass());
+      if (annotationMetadata instanceof StandardAnnotationMetadata) {
+        beanDef.setBeanClass(((StandardAnnotationMetadata) annotationMetadata).getIntrospectedClass());
       }
       else {
-        beanDef.setBeanClassName(configClass.getMetadata().getClassName());
+        beanDef.setBeanClassName(annotationMetadata.getClassName());
       }
       beanDef.setUniqueFactoryMethodName(methodName);
     }
@@ -218,12 +220,39 @@ class ConfigurationClassBeanDefinitionReader {
     String destroyMethodName = component.getString("destroyMethod");
     beanDef.setDestroyMethod(destroyMethodName);
 
+    // Consider scoping
+    ScopedProxyMode proxyMode = ScopedProxyMode.NO;
+    MergedAnnotation<Scope> scope = annotations.get(Scope.class);
+    if (scope.isPresent()) {
+      beanDef.setScope(scope.getString("value"));
+      proxyMode = scope.getEnum("proxyMode", ScopedProxyMode.class);
+      if (proxyMode == ScopedProxyMode.DEFAULT) {
+        proxyMode = ScopedProxyMode.NO;
+      }
+    }
+
+    // Replace the original bean definition with the target one, if necessary
+    BeanDefinition beanDefToRegister;
+    if (proxyMode != ScopedProxyMode.NO) {
+      RootBeanDefinition proxyDef = ScopedProxyCreator.createScopedProxy(beanDef, bootstrapContext.getRegistry(),
+              proxyMode == ScopedProxyMode.TARGET_CLASS);
+
+      beanDefToRegister = new ConfigBeanDefinition(metadata, annotationMetadata);
+      beanDefToRegister.copyFrom(proxyDef);
+      beanDefToRegister.setBeanClass(null);
+      beanDefToRegister.setLenientConstructorResolution(false);
+    }
+    else {
+      beanDefToRegister = beanDef;
+    }
+
     // Replace the original bean definition with the target one, if necessary
     if (logger.isTraceEnabled()) {
       logger.trace("Registering bean definition for @Component method {}.{}()",
-              configClass.getMetadata().getClassName(), beanName);
+              annotationMetadata.getClassName(), beanName);
     }
-    bootstrapContext.registerBeanDefinition(beanDef);
+
+    bootstrapContext.registerBeanDefinition(beanDefToRegister);
   }
 
   private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableDependencyInjectionAll) {

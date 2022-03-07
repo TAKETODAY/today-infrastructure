@@ -55,7 +55,7 @@ public abstract class ScopedProxyUtils {
    * @see #getTargetBeanName(String)
    * @see #getOriginalBeanName(String)
    */
-  public static BeanDefinition createScopedProxy(
+  public static RootBeanDefinition createScopedProxy(
           BeanDefinition targetDefinition, BeanDefinitionRegistry registry, boolean proxyTargetClass) {
 
     String originalBeanName = targetDefinition.getBeanName();
