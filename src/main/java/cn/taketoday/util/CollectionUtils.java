@@ -146,7 +146,28 @@ public abstract class CollectionUtils {
     }
     else {
       return new HashSet<>();
+    }
+  }
 
+  /**
+   * Instantiate a new {@link LinkedHashSet} with an initial elements
+   * that can accommodate the specified number of elements without
+   * any immediate resize/rehash operations to be expected.
+   *
+   * @param elements the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
+   * @see #newHashMap(int)
+   * @since 4.0
+   */
+  @SafeVarargs
+  public static <E> LinkedHashSet<E> newLinkedHashSet(@Nullable E... elements) {
+    if (ObjectUtils.isNotEmpty(elements)) {
+      LinkedHashSet<E> ret = new LinkedHashSet<>(Math.max((int) (elements.length / DEFAULT_LOAD_FACTOR) + 1, 16));
+      addAll(ret, elements);
+      return ret;
+    }
+    else {
+      return new LinkedHashSet<>();
     }
   }
 

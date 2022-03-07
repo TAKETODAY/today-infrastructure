@@ -4,7 +4,7 @@
 <beans>
 
 	<bean id="persistenceUnitManager" class="cn.taketoday.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
-		<property name="persistenceXmlLocations" value="org/springframework/orm/jpa/domain/persistence-multi.xml"/>
+		<property name="persistenceXmlLocations" value="cn/taketoday/orm/jpa/domain/persistence-multi.xml"/>
 		<property name="defaultDataSource" ref="dataSource"/>
 	</bean>
 

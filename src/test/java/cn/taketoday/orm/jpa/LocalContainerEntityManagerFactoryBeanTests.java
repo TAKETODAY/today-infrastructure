@@ -245,7 +245,7 @@ public class LocalContainerEntityManagerFactoryBeanTests extends AbstractEntityM
 
   public LocalContainerEntityManagerFactoryBean parseValidPersistenceUnit() throws Exception {
     LocalContainerEntityManagerFactoryBean emfb = createEntityManagerFactoryBean(
-            "org/springframework/orm/jpa/domain/persistence.xml", null,
+            "cn/taketoday/orm/jpa/domain/persistence.xml", null,
             "Person");
     return emfb;
   }
@@ -253,7 +253,7 @@ public class LocalContainerEntityManagerFactoryBeanTests extends AbstractEntityM
   @Test
   public void testInvalidPersistenceUnitName() throws Exception {
     assertThatIllegalArgumentException().isThrownBy(() ->
-            createEntityManagerFactoryBean("org/springframework/orm/jpa/domain/persistence.xml", null, "call me Bob"));
+            createEntityManagerFactoryBean("cn/taketoday/orm/jpa/domain/persistence.xml", null, "call me Bob"));
   }
 
   protected LocalContainerEntityManagerFactoryBean createEntityManagerFactoryBean(

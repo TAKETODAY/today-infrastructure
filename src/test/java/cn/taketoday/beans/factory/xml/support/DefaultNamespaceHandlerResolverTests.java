@@ -55,7 +55,7 @@ public class DefaultNamespaceHandlerResolverTests {
 
   @Test
   public void testNonExistentHandlerClass() {
-    String mappingPath = "org/springframework/beans/factory/xml/support/nonExistent.properties";
+    String mappingPath = "cn/taketoday/beans/factory/xml/support/nonExistent.properties";
     new DefaultNamespaceHandlerResolver(getClass().getClassLoader(), mappingPath);
   }
 

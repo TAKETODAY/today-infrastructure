@@ -3,6 +3,6 @@
 
 <beans>
 
-	<import resource="classpath:/org/springframework/beans/factory/xml/test.xml"/>
+	<import resource="classpath:/cn/taketoday/beans/factory/xml/test.xml"/>
 
 </beans>
