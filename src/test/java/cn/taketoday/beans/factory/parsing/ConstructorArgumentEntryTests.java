@@ -22,8 +22,6 @@ package cn.taketoday.beans.factory.parsing;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.parsing.ConstructorArgumentEntry;
-
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -34,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class ConstructorArgumentEntryTests {
 
-	@Test
-	public void testCtorBailsOnNegativeCtorIndexArgument() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				new ConstructorArgumentEntry(-1));
-	}
+  @Test
+  public void testCtorBailsOnNegativeCtorIndexArgument() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            new ConstructorArgumentEntry(-1));
+  }
 
 }

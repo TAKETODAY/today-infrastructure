@@ -21,14 +21,12 @@
 package cn.taketoday.beans.factory.xml;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
 
-import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
-
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 
 /**
  * With Spring 3.1, bean id attributes (and all other id attributes across the
@@ -40,26 +38,26 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * situation.
  *
  * @author Chris Beams
- * @since 3.1
  * @see cn.taketoday.beans.factory.xml.XmlBeanFactoryTests#withDuplicateName
  * @see cn.taketoday.beans.factory.xml.XmlBeanFactoryTests#withDuplicateNameInAlias
+ * @since 3.1
  */
 public class DuplicateBeanIdTests {
 
-	@Test
-	public void duplicateBeanIdsWithinSameNestingLevelRaisesError() {
-		StandardBeanFactory bf = new StandardBeanFactory();
-		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
-		assertThatExceptionOfType(Exception.class).as("duplicate ids in same nesting level").isThrownBy(() ->
-			reader.loadBeanDefinitions(new ClassPathResource("DuplicateBeanIdTests-sameLevel-context.xml", this.getClass())));
-	}
+  @Test
+  public void duplicateBeanIdsWithinSameNestingLevelRaisesError() {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
+    assertThatExceptionOfType(Exception.class).as("duplicate ids in same nesting level").isThrownBy(() ->
+            reader.loadBeanDefinitions(new ClassPathResource("DuplicateBeanIdTests-sameLevel-context.xml", this.getClass())));
+  }
 
-	@Test
-	public void duplicateBeanIdsAcrossNestingLevels() {
-		StandardBeanFactory bf = new StandardBeanFactory();
-		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
-		reader.loadBeanDefinitions(new ClassPathResource("DuplicateBeanIdTests-multiLevel-context.xml", this.getClass()));
-		TestBean testBean = bf.getBean(TestBean.class); // there should be only one
-		assertThat(testBean.getName()).isEqualTo("nested");
-	}
+  @Test
+  public void duplicateBeanIdsAcrossNestingLevels() {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
+    reader.loadBeanDefinitions(new ClassPathResource("DuplicateBeanIdTests-multiLevel-context.xml", this.getClass()));
+    TestBean testBean = bf.getBean(TestBean.class); // there should be only one
+    assertThat(testBean.getName()).isEqualTo("nested");
+  }
 }

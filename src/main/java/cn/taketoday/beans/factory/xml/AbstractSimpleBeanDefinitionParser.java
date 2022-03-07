@@ -89,14 +89,14 @@ import cn.taketoday.util.StringUtils;
  * the observant (and even not so observant) reader will immediately notice that
  * there is next to no code in the implementation. The
  * {@code PropertiesBeanDefinitionParser} populates a
- * {@link cn.taketoday.beans.factory.config.PropertiesFactoryBean}
+ * {@link cn.taketoday.beans.factory.support.PropertiesFactoryBean}
  * from an XML element that looks like this:
  *
  * <pre class="code">&lt;util:properties location="jdbc.properties"/&gt;</pre>
  *
  * <p>The observant reader will notice that the sole attribute on the
  * {@code <util:properties/>} element matches the
- * {@link cn.taketoday.beans.factory.config.PropertiesFactoryBean#setLocation(cn.taketoday.core.io.Resource)}
+ * {@link cn.taketoday.beans.factory.support.PropertiesFactoryBean#setLocation(cn.taketoday.core.io.Resource)}
  * method name on the {@code PropertiesFactoryBean} (the general
  * usage thus illustrated holds true for any number of attributes).
  * All that the {@code PropertiesBeanDefinitionParser} needs

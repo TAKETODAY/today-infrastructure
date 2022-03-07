@@ -74,14 +74,15 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
         String[] aliases = null;
         if (shouldParseNameAsAliases()) {
           String name = element.getAttribute(NAME_ATTRIBUTE);
-          if (StringUtils.hasLength(name)) {
+          if (StringUtils.isNotEmpty(name)) {
             aliases = StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(name));
           }
         }
-        BeanDefinition holder = new BeanDefinition(definition, id, aliases);
-        registerBeanDefinition(holder, parserContext.getRegistry());
+        definition.setBeanName(id);
+        definition.setAliases(aliases);
+        registerBeanDefinition(definition, parserContext.getRegistry());
         if (shouldFireEvents()) {
-          BeanComponentDefinition componentDefinition = new BeanComponentDefinition(holder);
+          BeanComponentDefinition componentDefinition = new BeanComponentDefinition(definition);
           postProcessComponentDefinition(componentDefinition);
           parserContext.registerComponent(componentDefinition);
         }

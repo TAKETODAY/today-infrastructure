@@ -1476,7 +1476,7 @@ class XmlBeanFactoryTests {
   void nonLenientDependencyMatching() {
     StandardBeanFactory xbf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(CONSTRUCTOR_ARG_CONTEXT);
-    BeanDefinition bd = (BeanDefinition) xbf.getBeanDefinition("lenientDependencyTestBean");
+    BeanDefinition bd = xbf.getBeanDefinition("lenientDependencyTestBean");
     bd.setLenientConstructorResolution(false);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
                     xbf.getBean("lenientDependencyTestBean"))
@@ -1487,7 +1487,7 @@ class XmlBeanFactoryTests {
   void nonLenientDependencyMatchingFactoryMethod() {
     StandardBeanFactory xbf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(CONSTRUCTOR_ARG_CONTEXT);
-    BeanDefinition bd = (BeanDefinition) xbf.getBeanDefinition("lenientDependencyTestBeanFactoryMethod");
+    BeanDefinition bd = xbf.getBeanDefinition("lenientDependencyTestBeanFactoryMethod");
     bd.setLenientConstructorResolution(false);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
                     xbf.getBean("lenientDependencyTestBeanFactoryMethod"))
@@ -1498,7 +1498,7 @@ class XmlBeanFactoryTests {
   void javaLangStringConstructor() {
     StandardBeanFactory xbf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(CONSTRUCTOR_ARG_CONTEXT);
-    BeanDefinition bd = (BeanDefinition) xbf.getBeanDefinition("string");
+    BeanDefinition bd = xbf.getBeanDefinition("string");
     bd.setLenientConstructorResolution(false);
     String str = (String) xbf.getBean("string");
     assertThat(str).isEqualTo("test");
@@ -1508,7 +1508,7 @@ class XmlBeanFactoryTests {
   void customStringConstructor() {
     StandardBeanFactory xbf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(CONSTRUCTOR_ARG_CONTEXT);
-    BeanDefinition bd = (BeanDefinition) xbf.getBeanDefinition("stringConstructor");
+    BeanDefinition bd = xbf.getBeanDefinition("stringConstructor");
     bd.setLenientConstructorResolution(false);
     StringConstructorTestBean tb = (StringConstructorTestBean) xbf.getBean("stringConstructor");
     assertThat(tb.name).isEqualTo("test");
@@ -1547,7 +1547,7 @@ class XmlBeanFactoryTests {
   void stringConstructorArrayNoTypeNonLenient() {
     StandardBeanFactory xbf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(CONSTRUCTOR_ARG_CONTEXT);
-    BeanDefinition bd = (BeanDefinition) xbf.getBeanDefinition("constructorArrayNoType");
+    BeanDefinition bd = xbf.getBeanDefinition("constructorArrayNoType");
     bd.setLenientConstructorResolution(false);
     ConstructorArrayTestBean bean = (ConstructorArrayTestBean) xbf.getBean("constructorArrayNoType");
     assertThat(bean.array instanceof String[]).isTrue();
@@ -1788,8 +1788,8 @@ class XmlBeanFactoryTests {
 
   static class DoubleBooleanConstructorBean {
 
-    private Boolean boolean1;
-    private Boolean boolean2;
+    private final Boolean boolean1;
+    private final Boolean boolean2;
 
     public DoubleBooleanConstructorBean(Boolean b1, Boolean b2) {
       this.boolean1 = b1;

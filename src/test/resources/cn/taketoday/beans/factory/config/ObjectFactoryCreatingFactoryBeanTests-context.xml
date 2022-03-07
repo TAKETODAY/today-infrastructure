@@ -5,19 +5,19 @@
 
 	<bean id="prototypeTarget" class="java.util.Date" scope="prototype"/>
 
-	<bean id="prototypeFactory" class="cn.taketoday.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+	<bean id="prototypeFactory" class="cn.taketoday.beans.factory.support.ObjectFactoryCreatingFactoryBean">
 		<property name="targetBeanName" value="prototypeTarget"/>
 	</bean>
 
-	<bean id="factoryTestBean" class="cn.taketoday.beans.factory.config.ObjectFactoryCreatingFactoryBeanTests$FactoryTestBean">
+	<bean id="factoryTestBean" class="cn.taketoday.beans.factory.support.ObjectFactoryCreatingFactoryBeanTests$FactoryTestBean">
 		<property name="objectFactory" ref="prototypeFactory"/>
 	</bean>
 
-	<bean id="prototypeProvider" class="cn.taketoday.beans.factory.config.ProviderCreatingFactoryBean">
+	<bean id="prototypeProvider" class="cn.taketoday.beans.factory.support.ProviderCreatingFactoryBean">
 		<property name="targetBeanName" value="prototypeTarget"/>
 	</bean>
 
-	<bean id="providerTestBean" class="cn.taketoday.beans.factory.config.ObjectFactoryCreatingFactoryBeanTests$ProviderTestBean">
+	<bean id="providerTestBean" class="cn.taketoday.beans.factory.support.ObjectFactoryCreatingFactoryBeanTests$ProviderTestBean">
 		<property name="provider" ref="prototypeProvider"/>
 	</bean>
 

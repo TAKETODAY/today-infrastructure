@@ -538,7 +538,7 @@
 
   <xsd:element name="bean">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.config.BeanDefinition"><![CDATA[
+      <xsd:documentation source="java:cn.taketoday.beans.factory.support.BeanDefinition"><![CDATA[
 	Defines a single (usually named) bean.
 
 	A bean definition may contain nested tags for constructor arguments,
@@ -558,7 +558,7 @@
 
   <xsd:element name="constructor-arg">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.config.ConstructorArgumentValues">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.support.ConstructorArgumentValues">
         <![CDATA[
 	Bean definitions can specify zero or more constructor arguments.
 	This is an alternative to "autowire constructor".

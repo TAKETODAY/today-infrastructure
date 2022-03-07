@@ -306,7 +306,7 @@
 		<property name="classList" value="java.lang.String,java.lang.Exception"/>
 	</bean>
 
-	<bean id="listFactory" class="cn.taketoday.beans.factory.config.ListFactoryBean">
+	<bean id="listFactory" class="cn.taketoday.beans.factory.support.ListFactoryBean">
 		<property name="sourceList">
 			<list>
 				<value>bar</value>
@@ -318,7 +318,7 @@
 		</property>
 	</bean>
 
-	<bean id="pListFactory" class="cn.taketoday.beans.factory.config.ListFactoryBean">
+	<bean id="pListFactory" class="cn.taketoday.beans.factory.support.ListFactoryBean">
 		<property name="sourceList">
 			<list>
 				<value>bar</value>
@@ -333,7 +333,7 @@
 		</property>
 	</bean>
 
-	<bean id="setFactory" class="cn.taketoday.beans.factory.config.SetFactoryBean">
+	<bean id="setFactory" class="cn.taketoday.beans.factory.support.SetFactoryBean">
 		<property name="sourceSet">
 			<set>
 				<value>bar</value>
@@ -345,7 +345,7 @@
 		</property>
 	</bean>
 
-	<bean id="pSetFactory" class="cn.taketoday.beans.factory.config.SetFactoryBean">
+	<bean id="pSetFactory" class="cn.taketoday.beans.factory.support.SetFactoryBean">
 		<property name="sourceSet">
 			<set>
 				<value>bar</value>
@@ -360,7 +360,7 @@
 		</property>
 	</bean>
 
-	<bean id="mapFactory" class="cn.taketoday.beans.factory.config.MapFactoryBean">
+	<bean id="mapFactory" class="cn.taketoday.beans.factory.support.MapFactoryBean">
 		<property name="sourceMap">
 			<map>
 				<entry key="foo"><value>bar</value></entry>
@@ -372,7 +372,7 @@
 		</property>
 	</bean>
 
-	<bean id="pMapFactory" class="cn.taketoday.beans.factory.config.MapFactoryBean">
+	<bean id="pMapFactory" class="cn.taketoday.beans.factory.support.MapFactoryBean">
 		<property name="sourceMap">
 			<map>
 				<entry key="foo"><value>bar</value></entry>
@@ -398,7 +398,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="enumSetFactory" class="cn.taketoday.beans.factory.config.SetFactoryBean">
+	<bean id="enumSetFactory" class="cn.taketoday.beans.factory.support.SetFactoryBean">
 		<property name="sourceSet">
 			<set>
 				<description>My Set</description>

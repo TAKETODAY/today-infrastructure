@@ -38,8 +38,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Convenience methods operating on bean factories, in particular
@@ -795,80 +793,6 @@ public abstract class BeanFactoryUtils {
     return false;
   }
 
-  // bean-name
-
-  /**
-   * Generate a bean name for the given top-level bean definition,
-   * unique within the given bean factory.
-   *
-   * @param beanDefinition the bean definition to generate a bean name for
-   * @param registry the bean factory that the definition is going to be
-   * registered with (to check for existing bean names)
-   * @return the generated bean name
-   * @throws BeanDefinitionStoreException if no unique name can be generated
-   * for the given bean definition
-   * @see #generateBeanName(BeanDefinition, BeanDefinitionRegistry, boolean)
-   */
-  public static String generateBeanName(BeanDefinition beanDefinition, BeanDefinitionRegistry registry)
-          throws BeanDefinitionStoreException {
-    return generateBeanName(beanDefinition, registry, false);
-  }
-
-  /**
-   * Generate a bean name for the given bean definition, unique within the
-   * given bean factory.
-   *
-   * @param definition the bean definition to generate a bean name for
-   * @param registry the bean factory that the definition is going to be
-   * registered with (to check for existing bean names)
-   * @param isInnerBean whether the given bean definition will be registered
-   * as inner bean or as top-level bean (allowing for special name generation
-   * for inner beans versus top-level beans)
-   * @return the generated bean name
-   * @throws BeanDefinitionStoreException if no unique name can be generated
-   * for the given bean definition
-   */
-  public static String generateBeanName(
-          BeanDefinition definition, BeanDefinitionRegistry registry, boolean isInnerBean)
-          throws BeanDefinitionStoreException {
-
-    String generatedBeanName = definition.getBeanClassName();
-    if (!StringUtils.hasText(generatedBeanName)) {
-      throw new BeanDefinitionStoreException("Unnamed bean definition specifies neither " +
-              "'class' nor 'parent' nor 'factory-bean' - can't generate bean name");
-    }
-
-    if (isInnerBean) {
-      // Inner bean: generate identity hashcode suffix.
-      return generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
-    }
-
-    // Top-level bean: use plain class name with unique suffix if necessary.
-    return uniqueBeanName(generatedBeanName, registry);
-  }
-
-  /**
-   * Turn the given bean name into a unique bean name for the given bean factory,
-   * appending a unique counter as suffix if necessary.
-   *
-   * @param beanName the original bean name
-   * @param registry the bean factory that the definition is going to be
-   * registered with (to check for existing bean names)
-   * @return the unique bean name to use
-   */
-  public static String uniqueBeanName(String beanName, BeanDefinitionRegistry registry) {
-    String id = beanName;
-    int counter = -1;
-
-    // Increase counter until the id is unique.
-    String prefix = beanName + GENERATED_BEAN_NAME_SEPARATOR;
-    while (counter == -1 || registry.containsBeanDefinition(id)) {
-      counter++;
-      id = prefix + counter;
-    }
-    return id;
-  }
-
   /**
    * @throws NoSuchBeanDefinitionException bean-definition not found
    * @see BeanDefinitionRegistry#getBeanDefinition(String)
@@ -920,24 +844,6 @@ public abstract class BeanFactoryUtils {
       throw new NoSuchBeanDefinitionException(beanName);
     }
     return definition;
-  }
-
-  /**
-   * Register the given bean definition with a generated name,
-   * unique within the given bean factory.
-   *
-   * @param definition the bean definition to generate a bean name for
-   * @param registry the bean factory to register with
-   * @return the generated bean name
-   * @throws BeanDefinitionStoreException if no unique name can be generated
-   * for the given bean definition or the definition cannot be registered
-   */
-  public static String registerWithGeneratedName(
-          BeanDefinitionRegistry registry, BeanDefinition definition) throws BeanDefinitionStoreException {
-
-    String generatedName = generateBeanName(definition, registry, false);
-    registry.registerBeanDefinition(generatedName, definition);
-    return generatedName;
   }
 
 }

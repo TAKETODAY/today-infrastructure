@@ -20,10 +20,10 @@
 
 package cn.taketoday.beans.factory.xml;
 
+import java.io.Serializable;
+
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-
-import java.io.Serializable;
 
 /**
  * Simple bean used to check constructor dependency checking.
@@ -34,71 +34,71 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class ConstructorDependenciesBean implements Serializable {
 
-	private int age;
+  private int age;
 
-	private String name;
+  private String name;
 
-	private TestBean spouse1;
+  private TestBean spouse1;
 
-	private TestBean spouse2;
+  private TestBean spouse2;
 
-	private IndexedTestBean other;
+  private IndexedTestBean other;
 
-	public ConstructorDependenciesBean(int age) {
-		this.age = age;
-	}
+  public ConstructorDependenciesBean(int age) {
+    this.age = age;
+  }
 
-	public ConstructorDependenciesBean(String name) {
-		this.name = name;
-	}
+  public ConstructorDependenciesBean(String name) {
+    this.name = name;
+  }
 
-	public ConstructorDependenciesBean(TestBean spouse1) {
-		this.spouse1 = spouse1;
-	}
+  public ConstructorDependenciesBean(TestBean spouse1) {
+    this.spouse1 = spouse1;
+  }
 
-	public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2) {
-		this.spouse1 = spouse1;
-		this.spouse2 = spouse2;
-	}
+  public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2) {
+    this.spouse1 = spouse1;
+    this.spouse2 = spouse2;
+  }
 
-	public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2, int age) {
-		this.spouse1 = spouse1;
-		this.spouse2 = spouse2;
-		this.age = age;
-	}
+  public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2, int age) {
+    this.spouse1 = spouse1;
+    this.spouse2 = spouse2;
+    this.age = age;
+  }
 
-	public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2, IndexedTestBean other) {
-		this.spouse1 = spouse1;
-		this.spouse2 = spouse2;
-		this.other = other;
-	}
+  public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2, IndexedTestBean other) {
+    this.spouse1 = spouse1;
+    this.spouse2 = spouse2;
+    this.other = other;
+  }
 
-	public int getAge() {
-		return age;
-	}
+  public int getAge() {
+    return age;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public TestBean getSpouse1() {
-		return spouse1;
-	}
+  public TestBean getSpouse1() {
+    return spouse1;
+  }
 
-	public TestBean getSpouse2() {
-		return spouse2;
-	}
+  public TestBean getSpouse2() {
+    return spouse2;
+  }
 
-	public IndexedTestBean getOther() {
-		return other;
-	}
+  public IndexedTestBean getOther() {
+    return other;
+  }
 
-	public void setAge(int age) {
-		this.age = age;
-	}
+  public void setAge(int age) {
+    this.age = age;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
 }

@@ -21,11 +21,12 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 
 /**
  * Default implementation of the {@link BeanNamePopulator} interface, delegating to
- * {@link BeanFactoryUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.
+ * {@link BeanDefinitionReaderUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,7 +41,7 @@ public class DefaultBeanNamePopulator implements BeanNamePopulator {
 
   @Override
   public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    return BeanFactoryUtils.generateBeanName(definition, registry);
+    return BeanDefinitionReaderUtils.generateBeanName(definition, registry);
   }
 
 }

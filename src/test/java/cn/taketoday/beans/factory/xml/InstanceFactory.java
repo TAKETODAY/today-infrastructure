@@ -31,37 +31,37 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
  */
 public class InstanceFactory {
 
-	protected static int count = 0;
+  protected static int count = 0;
 
-	private String factoryBeanProperty;
+  private String factoryBeanProperty;
 
-	public InstanceFactory() {
-		count++;
-	}
+  public InstanceFactory() {
+    count++;
+  }
 
-	public void setFactoryBeanProperty(String s) {
-		this.factoryBeanProperty = s;
-	}
+  public void setFactoryBeanProperty(String s) {
+    this.factoryBeanProperty = s;
+  }
 
-	public String getFactoryBeanProperty() {
-		return this.factoryBeanProperty;
-	}
+  public String getFactoryBeanProperty() {
+    return this.factoryBeanProperty;
+  }
 
-	public FactoryMethods defaultInstance() {
-		TestBean tb = new TestBean();
-		tb.setName(this.factoryBeanProperty);
-		return FactoryMethods.newInstance(tb);
-	}
+  public FactoryMethods defaultInstance() {
+    TestBean tb = new TestBean();
+    tb.setName(this.factoryBeanProperty);
+    return FactoryMethods.newInstance(tb);
+  }
 
-	/**
-	 * Note that overloaded methods are supported.
-	 */
-	public FactoryMethods newInstance(TestBean tb) {
-		return FactoryMethods.newInstance(tb);
-	}
+  /**
+   * Note that overloaded methods are supported.
+   */
+  public FactoryMethods newInstance(TestBean tb) {
+    return FactoryMethods.newInstance(tb);
+  }
 
-	public FactoryMethods newInstance(TestBean tb, int num, String name) {
-		return FactoryMethods.newInstance(tb, num, name);
-	}
+  public FactoryMethods newInstance(TestBean tb, int num, String name) {
+    return FactoryMethods.newInstance(tb, num, name);
+  }
 
 }

@@ -40,6 +40,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.parsing.Location;
+import cn.taketoday.beans.factory.parsing.Problem;
+import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;

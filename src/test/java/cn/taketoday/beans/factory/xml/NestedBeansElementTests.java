@@ -21,16 +21,14 @@
 package cn.taketoday.beans.factory.xml;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 
-import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 /**
  * Tests for new nested beans element support in Spring XML
@@ -38,34 +36,34 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  */
 public class NestedBeansElementTests {
-	private final Resource XML =
-		new ClassPathResource("NestedBeansElementTests-context.xml", this.getClass());
+  private final Resource XML =
+          new ClassPathResource("NestedBeansElementTests-context.xml", this.getClass());
 
-	@Test
-	public void getBean_withoutActiveProfile() {
-		StandardBeanFactory bf = new StandardBeanFactory();
-		new XmlBeanDefinitionReader(bf).loadBeanDefinitions(XML);
+  @Test
+  public void getBean_withoutActiveProfile() {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(bf).loadBeanDefinitions(XML);
 
-		Object foo = bf.getBean("foo");
-		assertThat(foo).isInstanceOf(String.class);
-	}
+    Object foo = bf.getBean("foo");
+    assertThat(foo).isInstanceOf(String.class);
+  }
 
-	@Test
-	public void getBean_withActiveProfile() {
-		ConfigurableEnvironment env = new StandardEnvironment();
-		env.setActiveProfiles("dev");
+  @Test
+  public void getBean_withActiveProfile() {
+    ConfigurableEnvironment env = new StandardEnvironment();
+    env.setActiveProfiles("dev");
 
-		StandardBeanFactory bf = new StandardBeanFactory();
-		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
-		reader.setEnvironment(env);
-		reader.loadBeanDefinitions(XML);
+    StandardBeanFactory bf = new StandardBeanFactory();
+    XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
+    reader.setEnvironment(env);
+    reader.loadBeanDefinitions(XML);
 
-		bf.getBean("devOnlyBean"); // should not throw NSBDE
+    bf.getBean("devOnlyBean"); // should not throw NSBDE
 
-		Object foo = bf.getBean("foo");
-		assertThat(foo).isInstanceOf(Integer.class);
+    Object foo = bf.getBean("foo");
+    assertThat(foo).isInstanceOf(Integer.class);
 
-		bf.getBean("devOnlyBean");
-	}
+    bf.getBean("devOnlyBean");
+  }
 
 }

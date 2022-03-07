@@ -29,9 +29,9 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
-import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.factory.support.SetFactoryBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +70,7 @@ class LazyInitTargetSourceTests {
 
     BeanDefinition proxy = new BeanDefinition("proxy", ProxyFactoryBean.class);
     proxy.addPropertyValue("targetSource", BeanDefinitionReference.from(
-            BeanDefinitionBuilder.from(LazyInitTargetSource.class)
+            BeanDefinitionBuilder.rootBeanDefinition(LazyInitTargetSource.class)
                     .propertyValues(
                             new PropertyValues().add("targetBeanName", "target")
                     )
@@ -109,7 +109,7 @@ class LazyInitTargetSourceTests {
 
     BeanDefinition proxy = new BeanDefinition("proxy", ProxyFactoryBean.class);
     proxy.addPropertyValue("targetSource", BeanDefinitionReference.from(
-            BeanDefinitionBuilder.from(CustomLazyInitTargetSource.class)
+            BeanDefinitionBuilder.rootBeanDefinition(CustomLazyInitTargetSource.class)
                     .propertyValues(new PropertyValues()
                             .add("targetBeanName", "target")
                     )
@@ -157,7 +157,7 @@ class LazyInitTargetSourceTests {
     proxy1.setLazyInit(true);
     proxy1.addPropertyValue("proxyInterfaces", "java.util.Set");
     proxy1.addPropertyValue("targetSource", BeanDefinitionReference.from(
-            BeanDefinitionBuilder.from(LazyInitTargetSource.class)
+            BeanDefinitionBuilder.rootBeanDefinition(LazyInitTargetSource.class)
                     .propertyValues(
                             new PropertyValues().add("targetBeanName", "target1")
                     )
@@ -195,7 +195,7 @@ class LazyInitTargetSourceTests {
     proxy2.setLazyInit(true);
     proxy2.addPropertyValue("autodetectInterfaces", "true");
     proxy2.addPropertyValue("targetSource", BeanDefinitionReference.from(
-            BeanDefinitionBuilder.from(LazyInitTargetSource.class)
+            BeanDefinitionBuilder.rootBeanDefinition(LazyInitTargetSource.class)
                     .propertyValues(new PropertyValues()
                             .add("targetBeanName", "target2")
                             .add("targetClass", "java.util.Set")

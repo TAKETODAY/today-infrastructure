@@ -26,7 +26,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,10 +36,6 @@ import java.util.Set;
 import cn.taketoday.beans.BeanMetadataAttribute;
 import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
-import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.parsing.BeanEntry;
 import cn.taketoday.beans.factory.parsing.ConstructorArgumentEntry;
 import cn.taketoday.beans.factory.parsing.ParseState;
@@ -52,6 +47,7 @@ import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
+import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.support.LookupOverride;
 import cn.taketoday.beans.factory.support.ManagedArray;
 import cn.taketoday.beans.factory.support.ManagedList;
@@ -60,13 +56,16 @@ import cn.taketoday.beans.factory.support.ManagedProperties;
 import cn.taketoday.beans.factory.support.ManagedSet;
 import cn.taketoday.beans.factory.support.MethodOverrides;
 import cn.taketoday.beans.factory.support.ReplaceOverride;
+import cn.taketoday.beans.factory.support.RuntimeBeanNameReference;
+import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.TypedStringValue;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.PatternMatchUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.xml.DomUtils;
 
@@ -86,6 +85,7 @@ import cn.taketoday.util.xml.DomUtils;
  * @since 4.0
  */
 public class BeanDefinitionParserDelegate {
+  public static final Logger log = LoggerFactory.getLogger(BeanDefinitionParserDelegate.class);
 
   public static final String BEANS_NAMESPACE_URI = "http://www.springframework.org/schema/beans";
 
@@ -226,8 +226,6 @@ public class BeanDefinitionParserDelegate {
   public static final String DEFAULT_INIT_METHOD_ATTRIBUTE = "default-init-method";
 
   public static final String DEFAULT_DESTROY_METHOD_ATTRIBUTE = "default-destroy-method";
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final XmlReaderContext readerContext;
 
@@ -415,18 +413,17 @@ public class BeanDefinitionParserDelegate {
     String id = ele.getAttribute(ID_ATTRIBUTE);
     String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
-    List<String> aliases = new ArrayList<>();
-    if (StringUtils.hasLength(nameAttr)) {
+    ArrayList<String> aliases = new ArrayList<>();
+    if (StringUtils.isNotEmpty(nameAttr)) {
       String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
-      aliases.addAll(Arrays.asList(nameArr));
+      CollectionUtils.addAll(aliases, nameArr);
     }
 
     String beanName = id;
     if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
       beanName = aliases.remove(0);
-      if (logger.isTraceEnabled()) {
-        logger.trace("No XML 'id' specified - using '" + beanName +
-                "' as bean name and " + aliases + " as aliases");
+      if (log.isTraceEnabled()) {
+        log.trace("No XML 'id' specified - using '{}' as bean name and {} as aliases", beanName, aliases);
       }
     }
 
@@ -454,9 +451,8 @@ public class BeanDefinitionParserDelegate {
               aliases.add(beanClassName);
             }
           }
-          if (logger.isTraceEnabled()) {
-            logger.trace("Neither XML 'id' nor 'name' specified - " +
-                    "using generated bean name [" + beanName + "]");
+          if (log.isTraceEnabled()) {
+            log.trace("Neither XML 'id' nor 'name' specified - using generated bean name [{}]", beanName);
           }
         }
         catch (Exception ex) {
@@ -465,7 +461,10 @@ public class BeanDefinitionParserDelegate {
         }
       }
       String[] aliasesArray = StringUtils.toStringArray(aliases);
-      return new BeanDefinition(beanDefinition, beanName, aliasesArray);
+      BeanDefinition definition = beanDefinition.cloneDefinition();
+      definition.setBeanName(beanName);
+      definition.setAliases(aliasesArray);
+      return definition;
     }
 
     return null;
@@ -781,7 +780,7 @@ public class BeanDefinitionParserDelegate {
     String indexAttr = ele.getAttribute(INDEX_ATTRIBUTE);
     String typeAttr = ele.getAttribute(TYPE_ATTRIBUTE);
     String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
-    if (StringUtils.hasLength(indexAttr)) {
+    if (StringUtils.isNotEmpty(indexAttr)) {
       try {
         int index = Integer.parseInt(indexAttr);
         if (index < 0) {
@@ -792,10 +791,10 @@ public class BeanDefinitionParserDelegate {
             this.parseState.push(new ConstructorArgumentEntry(index));
             Object value = parsePropertyValue(ele, bd, null);
             ConstructorArgumentValues.ValueHolder valueHolder = new ConstructorArgumentValues.ValueHolder(value);
-            if (StringUtils.hasLength(typeAttr)) {
+            if (StringUtils.isNotEmpty(typeAttr)) {
               valueHolder.setType(typeAttr);
             }
-            if (StringUtils.hasLength(nameAttr)) {
+            if (StringUtils.isNotEmpty(nameAttr)) {
               valueHolder.setName(nameAttr);
             }
             valueHolder.setSource(extractSource(ele));
@@ -820,10 +819,10 @@ public class BeanDefinitionParserDelegate {
         this.parseState.push(new ConstructorArgumentEntry());
         Object value = parsePropertyValue(ele, bd, null);
         ConstructorArgumentValues.ValueHolder valueHolder = new ConstructorArgumentValues.ValueHolder(value);
-        if (StringUtils.hasLength(typeAttr)) {
+        if (StringUtils.isNotEmpty(typeAttr)) {
           valueHolder.setType(typeAttr);
         }
-        if (StringUtils.hasLength(nameAttr)) {
+        if (StringUtils.isNotEmpty(nameAttr)) {
           valueHolder.setName(nameAttr);
         }
         valueHolder.setSource(extractSource(ele));
@@ -840,7 +839,7 @@ public class BeanDefinitionParserDelegate {
    */
   public void parsePropertyElement(Element ele, BeanDefinition bd) {
     String propertyName = ele.getAttribute(NAME_ATTRIBUTE);
-    if (!StringUtils.hasLength(propertyName)) {
+    if (StringUtils.isEmpty(propertyName)) {
       error("Tag 'property' must have a 'name' attribute", ele);
       return;
     }
@@ -866,7 +865,7 @@ public class BeanDefinitionParserDelegate {
    */
   public void parseQualifierElement(Element ele, BeanDefinition bd) {
     String typeName = ele.getAttribute(TYPE_ATTRIBUTE);
-    if (!StringUtils.hasLength(typeName)) {
+    if (StringUtils.isEmpty(typeName)) {
       error("Tag 'qualifier' must have a 'type' attribute", ele);
       return;
     }
@@ -875,7 +874,7 @@ public class BeanDefinitionParserDelegate {
       AutowireCandidateQualifier qualifier = new AutowireCandidateQualifier(typeName);
       qualifier.setSource(extractSource(ele));
       String value = ele.getAttribute(VALUE_ATTRIBUTE);
-      if (StringUtils.hasLength(value)) {
+      if (StringUtils.isNotEmpty(value)) {
         qualifier.setAttribute(AutowireCandidateQualifier.VALUE_KEY, value);
       }
       NodeList nl = ele.getChildNodes();
@@ -885,7 +884,7 @@ public class BeanDefinitionParserDelegate {
           Element attributeEle = (Element) node;
           String attributeName = attributeEle.getAttribute(KEY_ATTRIBUTE);
           String attributeValue = attributeEle.getAttribute(VALUE_ATTRIBUTE);
-          if (StringUtils.hasLength(attributeName) && StringUtils.hasLength(attributeValue)) {
+          if (StringUtils.isNotEmpty(attributeName) && StringUtils.isNotEmpty(attributeValue)) {
             BeanMetadataAttribute attribute = new BeanMetadataAttribute(attributeName, attributeValue);
             attribute.setSource(extractSource(attributeEle));
             qualifier.addMetadataAttribute(attribute);
@@ -999,11 +998,11 @@ public class BeanDefinitionParserDelegate {
       // A generic reference to any name of any bean.
       String refName = ele.getAttribute(BEAN_REF_ATTRIBUTE);
       boolean toParent = false;
-      if (!StringUtils.hasLength(refName)) {
+      if (StringUtils.isEmpty(refName)) {
         // A reference to the id of another bean in a parent context.
         refName = ele.getAttribute(PARENT_REF_ATTRIBUTE);
         toParent = true;
-        if (!StringUtils.hasLength(refName)) {
+        if (StringUtils.isEmpty(refName)) {
           error("'bean' or 'parent' is required for <ref> element", ele);
           return null;
         }
@@ -1057,7 +1056,7 @@ public class BeanDefinitionParserDelegate {
   public Object parseIdRefElement(Element ele) {
     // A generic reference to any name of any bean.
     String refName = ele.getAttribute(BEAN_REF_ATTRIBUTE);
-    if (!StringUtils.hasLength(refName)) {
+    if (StringUtils.isEmpty(refName)) {
       error("'bean' is required for <idref> element", ele);
       return null;
     }
@@ -1096,7 +1095,7 @@ public class BeanDefinitionParserDelegate {
   /**
    * Build a typed String value Object for the given raw value.
    *
-   * @see cn.taketoday.beans.factory.config.TypedStringValue
+   * @see cn.taketoday.beans.factory.support.TypedStringValue
    */
   protected TypedStringValue buildTypedStringValue(String value, @Nullable String targetTypeName)
           throws ClassNotFoundException {
@@ -1292,7 +1291,7 @@ public class BeanDefinitionParserDelegate {
   /**
    * Build a typed String value Object for the given raw value.
    *
-   * @see cn.taketoday.beans.factory.config.TypedStringValue
+   * @see cn.taketoday.beans.factory.support.TypedStringValue
    */
   protected final Object buildTypedStringValueForMap(String value, String defaultTypeName, Element entryEle) {
     try {
@@ -1467,8 +1466,8 @@ public class BeanDefinitionParserDelegate {
       }
       else {
         // A custom namespace, not to be handled by Spring - maybe "xml:...".
-        if (logger.isDebugEnabled()) {
-          logger.debug("No Spring NamespaceHandler found for XML schema namespace [" + namespaceUri + "]");
+        if (log.isDebugEnabled()) {
+          log.debug("No Spring NamespaceHandler found for XML schema namespace [" + namespaceUri + "]");
         }
       }
     }
@@ -1485,8 +1484,8 @@ public class BeanDefinitionParserDelegate {
     }
     String id = ele.getNodeName() + BeanDefinitionReaderUtils.GENERATED_BEAN_NAME_SEPARATOR +
             ObjectUtils.getIdentityHexString(innerDefinition);
-    if (logger.isTraceEnabled()) {
-      logger.trace("Using generated bean name [" + id +
+    if (log.isTraceEnabled()) {
+      log.trace("Using generated bean name [" + id +
               "] for nested custom element '" + ele.getNodeName() + "'");
     }
     return new BeanDefinition(innerDefinition, id);
@@ -1535,7 +1534,7 @@ public class BeanDefinitionParserDelegate {
    * Determine whether the given URI indicates the default namespace.
    */
   public boolean isDefaultNamespace(@Nullable String namespaceUri) {
-    return !StringUtils.hasLength(namespaceUri) || BEANS_NAMESPACE_URI.equals(namespaceUri);
+    return StringUtils.isEmpty(namespaceUri) || BEANS_NAMESPACE_URI.equals(namespaceUri);
   }
 
   /**
@@ -1546,7 +1545,7 @@ public class BeanDefinitionParserDelegate {
   }
 
   private boolean isDefaultValue(String value) {
-    return !StringUtils.hasLength(value) || DEFAULT_VALUE.equals(value);
+    return StringUtils.isEmpty(value) || DEFAULT_VALUE.equals(value);
   }
 
   private boolean isCandidateElement(Node node) {

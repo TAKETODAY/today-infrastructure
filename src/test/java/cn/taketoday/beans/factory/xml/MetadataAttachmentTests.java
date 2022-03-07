@@ -22,46 +22,44 @@ package cn.taketoday.beans.factory.xml;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.io.ClassPathResource;
-
-import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 
 /**
  * @author Rob Harrop
  */
 public class MetadataAttachmentTests {
 
-	private StandardBeanFactory beanFactory;
+  private StandardBeanFactory beanFactory;
 
+  @BeforeEach
+  public void setUp() throws Exception {
+    this.beanFactory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(
+            new ClassPathResource("withMeta.xml", getClass()));
+  }
 
-	@BeforeEach
-	public void setUp() throws Exception {
-		this.beanFactory = new StandardBeanFactory();
-		new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(
-				new ClassPathResource("withMeta.xml", getClass()));
-	}
+  @Test
+  public void metadataAttachment() throws Exception {
+    BeanDefinition beanDefinition1 = this.beanFactory.getMergedBeanDefinition("testBean1");
+    assertThat(beanDefinition1.getAttribute("foo")).isEqualTo("bar");
+  }
 
-	@Test
-	public void metadataAttachment() throws Exception {
-		BeanDefinition beanDefinition1 = this.beanFactory.getMergedBeanDefinition("testBean1");
-		assertThat(beanDefinition1.getAttribute("foo")).isEqualTo("bar");
-	}
+  @Test
+  public void metadataIsInherited() throws Exception {
+    BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("testBean2");
+    assertThat(beanDefinition.getAttribute("foo")).as("Metadata not inherited").isEqualTo("bar");
+    assertThat(beanDefinition.getAttribute("abc")).as("Child metdata not attached").isEqualTo("123");
+  }
 
-	@Test
-	public void metadataIsInherited() throws Exception {
-		BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("testBean2");
-		assertThat(beanDefinition.getAttribute("foo")).as("Metadata not inherited").isEqualTo("bar");
-		assertThat(beanDefinition.getAttribute("abc")).as("Child metdata not attached").isEqualTo("123");
-	}
-
-	@Test
-	public void propertyMetadata() throws Exception {
-		BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("testBean3");
-		PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("name");
-		assertThat(pv.getAttribute("surname")).isEqualTo("Harrop");
-	}
+  @Test
+  public void propertyMetadata() throws Exception {
+    BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("testBean3");
+    PropertyValue pv = beanDefinition.getPropertyValues().getPropertyValue("name");
+    assertThat(pv.getAttribute("surname")).isEqualTo("Harrop");
+  }
 
 }

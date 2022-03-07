@@ -21,13 +21,12 @@
 package cn.taketoday.beans.factory.xml;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
-
-import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -38,45 +37,45 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class SimplePropertyNamespaceHandlerTests {
 
-	@Test
-	public void simpleBeanConfigured() throws Exception {
-		StandardBeanFactory beanFactory = new StandardBeanFactory();
-		new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
-				new ClassPathResource("simplePropertyNamespaceHandlerTests.xml", getClass()));
-		ITestBean rob = (TestBean) beanFactory.getBean("rob");
-		ITestBean sally = (TestBean) beanFactory.getBean("sally");
-		assertThat(rob.getName()).isEqualTo("Rob Harrop");
-		assertThat(rob.getAge()).isEqualTo(24);
-		assertThat(sally).isEqualTo(rob.getSpouse());
-	}
+  @Test
+  public void simpleBeanConfigured() throws Exception {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
+            new ClassPathResource("simplePropertyNamespaceHandlerTests.xml", getClass()));
+    ITestBean rob = (TestBean) beanFactory.getBean("rob");
+    ITestBean sally = (TestBean) beanFactory.getBean("sally");
+    assertThat(rob.getName()).isEqualTo("Rob Harrop");
+    assertThat(rob.getAge()).isEqualTo(24);
+    assertThat(sally).isEqualTo(rob.getSpouse());
+  }
 
-	@Test
-	public void innerBeanConfigured() throws Exception {
-		StandardBeanFactory beanFactory = new StandardBeanFactory();
-		new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
-				new ClassPathResource("simplePropertyNamespaceHandlerTests.xml", getClass()));
-		TestBean sally = (TestBean) beanFactory.getBean("sally2");
-		ITestBean rob = sally.getSpouse();
-		assertThat(rob.getName()).isEqualTo("Rob Harrop");
-		assertThat(rob.getAge()).isEqualTo(24);
-		assertThat(sally).isEqualTo(rob.getSpouse());
-	}
+  @Test
+  public void innerBeanConfigured() throws Exception {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
+            new ClassPathResource("simplePropertyNamespaceHandlerTests.xml", getClass()));
+    TestBean sally = (TestBean) beanFactory.getBean("sally2");
+    ITestBean rob = sally.getSpouse();
+    assertThat(rob.getName()).isEqualTo("Rob Harrop");
+    assertThat(rob.getAge()).isEqualTo(24);
+    assertThat(sally).isEqualTo(rob.getSpouse());
+  }
 
-	@Test
-	public void withPropertyDefinedTwice() throws Exception {
-		StandardBeanFactory beanFactory = new StandardBeanFactory();
-		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
-				new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
-							new ClassPathResource("simplePropertyNamespaceHandlerTestsWithErrors.xml", getClass())));
-	}
+  @Test
+  public void withPropertyDefinedTwice() throws Exception {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
+            new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
+                    new ClassPathResource("simplePropertyNamespaceHandlerTestsWithErrors.xml", getClass())));
+  }
 
-	@Test
-	public void propertyWithNameEndingInRef() throws Exception {
-		StandardBeanFactory beanFactory = new StandardBeanFactory();
-		new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
-				new ClassPathResource("simplePropertyNamespaceHandlerTests.xml", getClass()));
-		ITestBean sally = (TestBean) beanFactory.getBean("derivedSally");
-		assertThat(sally.getSpouse().getName()).isEqualTo("r");
-	}
+  @Test
+  public void propertyWithNameEndingInRef() throws Exception {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(beanFactory).loadBeanDefinitions(
+            new ClassPathResource("simplePropertyNamespaceHandlerTests.xml", getClass()));
+    ITestBean sally = (TestBean) beanFactory.getBean("derivedSally");
+    assertThat(sally.getSpouse().getName()).isEqualTo("r");
+  }
 
 }

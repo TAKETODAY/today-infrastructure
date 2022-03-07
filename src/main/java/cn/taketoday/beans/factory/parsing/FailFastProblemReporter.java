@@ -20,10 +20,9 @@
 
 package cn.taketoday.beans.factory.parsing;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Simple {@link ProblemReporter} implementation that exhibits fail-fast
@@ -33,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  * being thrown.
  *
  * <p>Warnings are written to
- * {@link #setLogger(Log) the log} for this class.
+ * {@link #setLogger(Logger) the log} for this class.
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
@@ -45,14 +44,14 @@ public class FailFastProblemReporter implements ProblemReporter {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
-   * Set the {@link Log logger} that is to be used to report warnings.
-   * <p>If set to {@code null} then a default {@link Log logger} set to
+   * Set the {@link Logger logger} that is to be used to report warnings.
+   * <p>If set to {@code null} then a default {@link Logger logger} set to
    * the name of the instance class will be used.
    *
-   * @param logger the {@link Log logger} that is to be used to report warnings
+   * @param logger the {@link Logger logger} that is to be used to report warnings
    */
-  public void setLogger(@Nullable Log logger) {
-    this.logger = (logger != null ? logger : LogFactory.getLog(getClass()));
+  public void setLogger(@Nullable Logger logger) {
+    this.logger = (logger != null ? logger : LoggerFactory.getLogger(getClass()));
   }
 
   /**
@@ -78,7 +77,7 @@ public class FailFastProblemReporter implements ProblemReporter {
   }
 
   /**
-   * Writes the supplied {@link Problem} to the {@link Log} at {@code WARN} level.
+   * Writes the supplied {@link Problem} to the {@link Logger} at {@code WARN} level.
    *
    * @param problem the source of the warning
    */

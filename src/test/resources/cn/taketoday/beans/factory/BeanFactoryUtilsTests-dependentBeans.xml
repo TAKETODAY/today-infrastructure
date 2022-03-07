@@ -28,7 +28,7 @@
 
 	<bean id="thread" class="java.lang.Thread"/>
 
-	<bean id="field" class="cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean">
+	<bean id="field" class="cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean">
 	   <property name="targetObject" ref="thread"/>
    	   <property name="targetField" value="MAX_PRIORITY"/>
 	 </bean>

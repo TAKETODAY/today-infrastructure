@@ -175,6 +175,9 @@ class ConfigurationClassBeanDefinitionReader {
     }
 
     ConfigBeanDefinition beanDef = new ConfigBeanDefinition(metadata, configClass.getMetadata());
+    beanDef.setSource(configClass.getResource());
+    beanDef.setResource(configClass.getResource());
+
     boolean disableDependencyInjectionAll = configClass.getMetadata().isAnnotated(
             DisableAllDependencyInjection.class.getName());
     boolean enableDependencyInjection = isEnableDependencyInjection(annotations, disableDependencyInjectionAll);

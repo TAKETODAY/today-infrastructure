@@ -74,7 +74,7 @@ class SimpleConstructorArgBean {
  */
 abstract class ConstructorInjectedOverrides {
 
-  private ITestBean tb;
+  private final ITestBean tb;
 
   private String setterString;
 
@@ -186,7 +186,7 @@ class FixedMethodReplacer implements MethodReplacer {
  */
 class MapAndSet {
 
-  private Object obj;
+  private final Object obj;
 
   public MapAndSet(Map<?, ?> map) {
     this.obj = map;

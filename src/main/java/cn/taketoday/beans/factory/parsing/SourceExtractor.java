@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @see cn.taketoday.beans.BeanMetadataElement#getSource()
- * @see cn.taketoday.beans.factory.config.BeanDefinition
+ * @see cn.taketoday.beans.factory.support.BeanDefinition
  * @since 4.0
  */
 @FunctionalInterface

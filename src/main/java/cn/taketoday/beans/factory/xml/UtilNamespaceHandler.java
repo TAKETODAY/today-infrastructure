@@ -129,7 +129,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       }
 
       String scope = element.getAttribute(SCOPE_ATTRIBUTE);
-      if (StringUtils.hasLength(scope)) {
+      if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
     }
@@ -153,7 +153,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       }
 
       String scope = element.getAttribute(SCOPE_ATTRIBUTE);
-      if (StringUtils.hasLength(scope)) {
+      if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
     }
@@ -177,7 +177,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       }
 
       String scope = element.getAttribute(SCOPE_ATTRIBUTE);
-      if (StringUtils.hasLength(scope)) {
+      if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
     }
@@ -196,7 +196,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       builder.addPropertyValue("properties", parsedProps);
 
       String location = element.getAttribute("location");
-      if (StringUtils.hasLength(location)) {
+      if (StringUtils.isNotEmpty(location)) {
         location = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(location);
         String[] locations = StringUtils.commaDelimitedListToStringArray(location);
         builder.addPropertyValue("locations", locations);
@@ -209,7 +209,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
               Boolean.valueOf(element.getAttribute("local-override")));
 
       String scope = element.getAttribute(SCOPE_ATTRIBUTE);
-      if (StringUtils.hasLength(scope)) {
+      if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
     }

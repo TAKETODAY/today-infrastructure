@@ -59,6 +59,7 @@ public class ScannedBeanDefinition extends AnnotatedBeanDefinition {
   public ScannedBeanDefinition(MetadataReader metadataReader) {
     super(metadataReader.getAnnotationMetadata());
     setSource(metadataReader.getResource());
+    setResource(metadataReader.getResource());
   }
 
   @Override

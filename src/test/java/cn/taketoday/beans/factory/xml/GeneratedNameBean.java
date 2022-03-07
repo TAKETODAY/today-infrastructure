@@ -27,25 +27,25 @@ import cn.taketoday.beans.factory.BeanNameAware;
  */
 public class GeneratedNameBean implements BeanNameAware {
 
-	private String beanName;
+  private String beanName;
 
-	private GeneratedNameBean child;
+  private GeneratedNameBean child;
 
-	@Override
-	public void setBeanName(String beanName) {
-		this.beanName = beanName;
-	}
+  @Override
+  public void setBeanName(String beanName) {
+    this.beanName = beanName;
+  }
 
-	public String getBeanName() {
-		return beanName;
-	}
+  public String getBeanName() {
+    return beanName;
+  }
 
-	public void setChild(GeneratedNameBean child) {
-		this.child = child;
-	}
+  public void setChild(GeneratedNameBean child) {
+    this.child = child;
+  }
 
-	public GeneratedNameBean getChild() {
-		return child;
-	}
+  public GeneratedNameBean getChild() {
+    return child;
+  }
 
 }

@@ -105,7 +105,7 @@ public class Problem {
    * @see #getLocation()
    */
   public String getResourceDescription() {
-    return getLocation().getResource().getDescription();
+    return getLocation().getResource().toString();
   }
 
   /**

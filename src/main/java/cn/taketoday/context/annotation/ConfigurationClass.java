@@ -26,6 +26,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.parsing.Location;
+import cn.taketoday.beans.factory.parsing.Problem;
+import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.Resource;

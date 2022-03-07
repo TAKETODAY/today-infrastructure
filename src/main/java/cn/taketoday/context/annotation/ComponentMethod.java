@@ -20,6 +20,9 @@
 
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.beans.factory.parsing.Location;
+import cn.taketoday.beans.factory.parsing.Problem;
+import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
