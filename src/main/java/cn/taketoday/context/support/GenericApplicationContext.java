@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
@@ -103,6 +104,8 @@ public class GenericApplicationContext
 
   protected final StandardBeanFactory beanFactory;
 
+  private final AtomicBoolean refreshed = new AtomicBoolean();
+
   /**
    * Default Constructor
    *
@@ -167,8 +170,35 @@ public class GenericApplicationContext
     this.beanFactory.setParentBeanFactory(getInternalParentBeanFactory());
   }
 
+  /**
+   * Do nothing: We hold a single internal BeanFactory and rely on callers
+   * to register beans through our public methods (or the BeanFactory's).
+   *
+   * @see #registerBeanDefinition
+   */
   @Override
-  protected void refreshBeanFactory() throws BeansException, IllegalStateException { }
+  protected final void refreshBeanFactory() throws IllegalStateException {
+    if (!this.refreshed.compareAndSet(false, true)) {
+      throw new IllegalStateException(
+              "GenericApplicationContext does not support multiple refresh attempts: just call 'refresh' once");
+    }
+    this.beanFactory.setSerializationId(getId());
+  }
+
+  @Override
+  protected void cancelRefresh(Exception ex) {
+    this.beanFactory.setSerializationId(null);
+    super.cancelRefresh(ex);
+  }
+
+  /**
+   * Not much to do: We hold a single internal BeanFactory that will never
+   * get released.
+   */
+  @Override
+  protected final void closeBeanFactory() {
+    this.beanFactory.setSerializationId(null);
+  }
 
   @Override
   public StandardBeanFactory getBeanFactory() {

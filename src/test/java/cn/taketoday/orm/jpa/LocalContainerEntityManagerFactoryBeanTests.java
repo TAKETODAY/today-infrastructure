@@ -94,7 +94,7 @@ public class LocalContainerEntityManagerFactoryBeanTests extends AbstractEntityM
     assertThat(emf.equals(emf)).isTrue();
 
     StandardBeanFactory bf = new StandardBeanFactory();
-//    bf.setSerializationId("emf-bf");
+    bf.setSerializationId("emf-bf");
     bf.registerSingleton("emf", cefb);
     cefb.setBeanFactory(bf);
     cefb.setBeanName("emf");

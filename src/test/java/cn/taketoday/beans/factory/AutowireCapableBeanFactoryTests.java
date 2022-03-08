@@ -61,8 +61,8 @@ class AutowireCapableBeanFactoryTests {
       assertThat(bean.property).isZero();
       assertThat(bean2).isNotEqualTo(bean);
 
-      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
-      CreateTestBean cachedBeanDef2 = beanFactory.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class);
+      CreateTestBean cachedBeanDef2 = beanFactory.createBean(CreateTestBean.class);
 
       assertThat(cachedBeanDef.property).isZero();
       assertThat(cachedBeanDef2).isNotEqualTo(cachedBeanDef);
@@ -133,7 +133,7 @@ class AutowireCapableBeanFactoryTests {
 
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class);
       beanFactory.addBeanPostProcessor(new PostProcessor());
       context.refresh();
 
@@ -186,7 +186,7 @@ class AutowireCapableBeanFactoryTests {
       context.refresh();
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class);
 
       beanFactory.addBeanPostProcessor(new PostProcessor());
 
@@ -218,7 +218,7 @@ class AutowireCapableBeanFactoryTests {
       context.refresh();
       StandardBeanFactory beanFactory = context.getBeanFactory();
 
-      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class, true);
+      CreateTestBean cachedBeanDef = beanFactory.createBean(CreateTestBean.class);
 
       beanFactory.addBeanPostProcessor(new PostProcessor());
 

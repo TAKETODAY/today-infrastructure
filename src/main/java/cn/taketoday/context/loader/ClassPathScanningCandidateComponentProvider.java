@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.annotation.Lookup;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ConditionEvaluator;
@@ -404,7 +405,9 @@ public class ClassPathScanningCandidateComponentProvider
    * @return whether the bean definition qualifies as a candidate component
    */
   protected boolean isCandidateComponent(AnnotationMetadata metadata) {
-    return metadata.isIndependent() && metadata.isConcrete();
+    return metadata.isIndependent() && (
+            metadata.isConcrete() || (metadata.isAbstract() && metadata.hasAnnotatedMethods(Lookup.class.getName()))
+    );
   }
 
   // includeFilters excludeFilters Consumer

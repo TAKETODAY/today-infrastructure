@@ -3,13 +3,13 @@
 
 <beans>
 
-	<bean id="testBean" class="cn.taketoday.beans.testfixture.beans.TestBean">
-		<property name="someIntegerArray">
-			<list>
-				<bean name="java.sql.Connection.TRANSACTION_SERIALIZABLE" class="cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean"/>
-				<bean name="java.sql.Connection.TRANSACTION_SERIALIZABLE" class="cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean"/>
-			</list>
-		</property>
-	</bean>
+  <bean id="testBean" class="cn.taketoday.beans.testfixture.beans.TestBean">
+    <property name="someIntegerArray">
+      <list>
+        <bean name="java.sql.Connection.TRANSACTION_SERIALIZABLE" class="cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean" />
+        <bean name="java.sql.Connection.TRANSACTION_SERIALIZABLE" class="cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean" />
+      </list>
+    </property>
+  </bean>
 
 </beans>

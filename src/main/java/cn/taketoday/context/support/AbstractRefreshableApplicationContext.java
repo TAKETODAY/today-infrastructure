@@ -130,6 +130,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     }
     try {
       StandardBeanFactory beanFactory = createBeanFactory();
+      beanFactory.setSerializationId(getId());
       customizeBeanFactory(beanFactory);
       loadBeanDefinitions(beanFactory);
       this.beanFactory = beanFactory;
@@ -141,8 +142,21 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   }
 
   @Override
+  protected void cancelRefresh(Exception ex) {
+    StandardBeanFactory beanFactory = this.beanFactory;
+    if (beanFactory != null) {
+      beanFactory.setSerializationId(null);
+    }
+    super.cancelRefresh(ex);
+  }
+
+  @Override
   protected final void closeBeanFactory() {
-    this.beanFactory = null;
+    StandardBeanFactory beanFactory = this.beanFactory;
+    if (beanFactory != null) {
+      beanFactory.setSerializationId(null);
+      this.beanFactory = null;
+    }
     this.setBootstrapContext(null);
   }
 
