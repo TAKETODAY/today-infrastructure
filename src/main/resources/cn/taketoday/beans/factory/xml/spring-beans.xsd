@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<xsd:schema xmlns="http://www.springframework.org/schema/beans" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:schema xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://www.springframework.org/schema/beans">
 
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -538,7 +539,7 @@
 
   <xsd:element name="bean">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.BeanDefinition">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.config.BeanDefinition">
         <![CDATA[
 	Defines a single (usually named) bean.
 
@@ -560,7 +561,7 @@
 
   <xsd:element name="constructor-arg">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.ConstructorArgumentValues">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.config.ConstructorArgumentValues">
         <![CDATA[
 	Bean definitions can specify zero or more constructor arguments.
 	This is an alternative to "autowire constructor".

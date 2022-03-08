@@ -292,7 +292,7 @@
           <xsd:appinfo>
             <tool:annotation>
               <tool:expected-type type="java.lang.Class" />
-              <tool:assignable-to type="cn.taketoday.beans.factory.support.BeanNameGenerator" />
+              <tool:assignable-to type="cn.taketoday.beans.factory.support.BeanNamePopulator" />
             </tool:annotation>
           </xsd:appinfo>
         </xsd:annotation>
@@ -306,7 +306,7 @@
           <xsd:appinfo>
             <tool:annotation>
               <tool:expected-type type="java.lang.Class" />
-              <tool:assignable-to type="cn.taketoday.context.annotation.ScopeMetadataResolver" />
+              <tool:assignable-to type="cn.taketoday.context.loader.ScopeMetadataResolver" />
             </tool:annotation>
           </xsd:appinfo>
         </xsd:annotation>
@@ -356,7 +356,7 @@
 			]]></xsd:documentation>
       <xsd:appinfo>
         <tool:annotation>
-          <tool:exports type="cn.taketoday.instrument.classloading.LoadTimeWeaver" />
+          <tool:exports type="cn.taketoday.context.classloading.LoadTimeWeaver" />
         </tool:annotation>
       </xsd:appinfo>
     </xsd:annotation>
@@ -369,7 +369,7 @@
           <xsd:appinfo>
             <tool:annotation>
               <tool:expected-type type="java.lang.Class" />
-              <tool:assignable-to type="cn.taketoday.instrument.classloading.LoadTimeWeaver" />
+              <tool:assignable-to type="cn.taketoday.context.classloading.LoadTimeWeaver" />
             </tool:annotation>
           </xsd:appinfo>
         </xsd:annotation>

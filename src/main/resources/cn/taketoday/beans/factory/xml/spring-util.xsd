@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<xsd:schema xmlns="http://www.springframework.org/schema/util" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:beans="http://www.springframework.org/schema/beans" xmlns:tool="http://www.springframework.org/schema/tool"
-    targetNamespace="http://www.springframework.org/schema/util" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns="http://www.springframework.org/schema/util"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:tool="http://www.springframework.org/schema/tool"
+    targetNamespace="http://www.springframework.org/schema/util"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
 
   <xsd:import namespace="http://www.springframework.org/schema/beans"
       schemaLocation="https://www.springframework.org/schema/beans/spring-beans.xsd" />
@@ -37,7 +41,7 @@
 
   <xsd:element name="list">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.ListFactoryBean">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.config.ListFactoryBean">
         Builds a List instance of the specified type, populated with the specified content.
       </xsd:documentation>
       <xsd:appinfo>
@@ -78,7 +82,7 @@
 
   <xsd:element name="set">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.SetFactoryBean">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.config.SetFactoryBean">
         Builds a Set instance of the specified type, populated with the specified content.
       </xsd:documentation>
       <xsd:appinfo>
@@ -119,7 +123,7 @@
 
   <xsd:element name="map">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.MapFactoryBean">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.config.MapFactoryBean">
         Builds a Map instance of the specified type, populated with the specified content.
       </xsd:documentation>
       <xsd:appinfo>
@@ -160,7 +164,7 @@
 
   <xsd:element name="properties">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.PropertiesFactoryBean">
+      <xsd:documentation source="java:cn.taketoday.beans.factory.config.PropertiesFactoryBean">
         Loads a Properties instance from the resource location specified by the '<code>location</code>' attribute.
       </xsd:documentation>
       <xsd:appinfo>

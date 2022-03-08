@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<xsd:schema xmlns="http://www.springframework.org/schema/lang" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:beans="http://www.springframework.org/schema/beans" targetNamespace="http://www.springframework.org/schema/lang"
+<xsd:schema xmlns="http://www.springframework.org/schema/lang"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    targetNamespace="http://www.springframework.org/schema/lang"
     elementFormDefault="qualified" attributeFormDefault="unqualified">
 
   <xsd:annotation>
@@ -233,7 +235,7 @@
 				]]></xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
-    <xsd:attributeGroup ref="vanillaScriptAttributes"></xsd:attributeGroup>
+    <xsd:attributeGroup ref="vanillaScriptAttributes" />
   </xsd:attributeGroup>
 
 </xsd:schema>
