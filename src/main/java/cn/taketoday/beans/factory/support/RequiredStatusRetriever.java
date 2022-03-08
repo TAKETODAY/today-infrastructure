@@ -56,6 +56,10 @@ public class RequiredStatusRetriever {
     requiredAnnotationType.addAll(types);
   }
 
+  public RequiredStatusRetriever(Class<?> annotationType) {
+    requiredAnnotationType.add(annotationType.getName());
+  }
+
   /**
    * Set the name of an attribute of the annotation that specifies whether it is required.
    *

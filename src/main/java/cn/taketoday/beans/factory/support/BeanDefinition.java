@@ -59,6 +59,7 @@ import cn.taketoday.lang.Singleton;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -231,14 +232,6 @@ public class BeanDefinition
   @Nullable
   private String destroyMethod;
 
-  /**
-   * Mark as a {@link FactoryBean}.
-   *
-   * @since 2.0.0
-   */
-  @Nullable
-  private Boolean factoryBean;
-
   /** lazy init flag @since 3.0 */
   @Nullable
   private Boolean lazyInit;
@@ -393,7 +386,6 @@ public class BeanDefinition
     setBeanName(from.getBeanName());
     setScope(from.getScope());
 
-    setFactoryBean(from.isFactoryBean());
     setDestroyMethod(from.getDestroyMethod());
     // copy
 
@@ -905,27 +897,6 @@ public class BeanDefinition
   }
 
   /**
-   * If bean is a {@link FactoryBean}
-   *
-   * @return If Bean is a {@link FactoryBean}
-   */
-  @Nullable
-  public Boolean isFactoryBean() {
-    return factoryBean;
-  }
-
-  // -----------------------
-
-  /**
-   * Indicates that If the bean is a {@link FactoryBean}.
-   *
-   * @param factoryBean If its a {@link FactoryBean}
-   */
-  public void setFactoryBean(@Nullable Boolean factoryBean) {
-    this.factoryBean = factoryBean;
-  }
-
-  /**
    * Apply bean' name
    *
    * @param beanName The bean's name
@@ -1384,8 +1355,16 @@ public class BeanDefinition
     if (StringUtils.isEmpty(getBeanName())) {
       throw new BeanDefinitionValidationException("Definition's bean name can't be null");
     }
-  }
+    if (hasMethodOverrides() && getFactoryMethodName() != null) {
+      throw new BeanDefinitionValidationException(
+              "Cannot combine factory method with container-generated method overrides: " +
+                      "the factory method must create the concrete bean instance.");
+    }
 
+    if (hasBeanClass()) {
+      prepareMethodOverrides();
+    }
+  }
   //---------------------------------------------------------------------
   // Qualifier
   //---------------------------------------------------------------------
@@ -1629,6 +1608,44 @@ public class BeanDefinition
    */
   public boolean hasMethodOverrides() {
     return methodOverrides != null && !methodOverrides.isEmpty();
+  }
+
+  /**
+   * Validate and prepare the method overrides defined for this bean.
+   * Checks for existence of a method with the specified name.
+   *
+   * @throws BeanDefinitionValidationException in case of validation failure
+   * @since 4.0
+   */
+  public void prepareMethodOverrides() throws BeanDefinitionValidationException {
+    // Check that lookup methods exist and determine their overloaded status.
+    if (hasMethodOverrides()) {
+      for (MethodOverride override : getMethodOverrides().getOverrides()) {
+        prepareMethodOverride(override);
+      }
+    }
+  }
+
+  /**
+   * Validate and prepare the given method override.
+   * Checks for existence of a method with the specified name,
+   * marking it as not overloaded if none found.
+   *
+   * @param mo the MethodOverride object to validate
+   * @throws BeanDefinitionValidationException in case of validation failure
+   * @since 4.0
+   */
+  protected void prepareMethodOverride(MethodOverride mo) throws BeanDefinitionValidationException {
+    int count = ReflectionUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
+    if (count == 0) {
+      throw new BeanDefinitionValidationException(
+              "Invalid method override: no method with name '" + mo.getMethodName() +
+                      "' on class [" + getBeanClassName() + "]");
+    }
+    else if (count == 1) {
+      // Mark override as not overloaded, to avoid the overhead of arg type checking.
+      mo.setOverloaded(false);
+    }
   }
 
   /**
@@ -1931,7 +1948,6 @@ public class BeanDefinition
     sb.append("; scope=").append(this.scope);
     sb.append("; lazyInit=").append(this.lazyInit);
     sb.append("; primary=").append(this.primary);
-    sb.append("; factoryBean=").append(this.factoryBean);
     sb.append("; autowireMode=").append(this.autowireMode);
     sb.append("; dependencyCheck=").append(this.dependencyCheck);
     sb.append("; autowireCandidate=").append(this.autowireCandidate);

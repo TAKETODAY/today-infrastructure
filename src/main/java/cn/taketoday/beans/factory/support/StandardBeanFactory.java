@@ -19,8 +19,15 @@
  */
 package cn.taketoday.beans.factory.support;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,12 +86,37 @@ import cn.taketoday.util.StringUtils;
 import jakarta.inject.Provider;
 
 /**
- * Standard {@link BeanFactory} implementation
+ * Standard implementation of the {@link ConfigurableBeanFactory}
+ * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
+ * based on bean definition metadata, extensible through post-processors.
  *
+ * <p>Typical usage is registering all bean definitions first (possibly read
+ * from a bean definition file), before accessing beans. Bean lookup by name
+ * is therefore an inexpensive operation in a local bean definition table,
+ * operating on pre-resolved bean definition metadata objects.
+ *
+ * <p>Note that readers for specific bean definition formats are typically
+ * implemented separately rather than as bean factory subclasses: see for example
+ * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader}.
+ *
+ * <p>
+ * like Spring's DefaultListableBeanFactory
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @author Costin Leau
+ * @author Chris Beams
+ * @author Phillip Webb
+ * @author Stephane Nicoll
  * @author TODAY 2019-03-23 15:00
+ * @see #registerBeanDefinition
+ * @see #addBeanPostProcessor
+ * @see #getBean
+ * @see #resolveDependency
  */
-public class StandardBeanFactory
-        extends AbstractAutowireCapableBeanFactory implements ConfigurableBeanFactory, BeanDefinitionRegistry {
+public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
+        implements ConfigurableBeanFactory, BeanDefinitionRegistry, Serializable {
   private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
   @Nullable
@@ -127,6 +159,14 @@ public class StandardBeanFactory
   /** Map of singleton-only bean names, keyed by dependency type. */
   private final ConcurrentHashMap<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
+  /** Map from serialized id to factory instance. @since 4.0 */
+  private static final Map<String, Reference<StandardBeanFactory>> serializableFactories =
+          new ConcurrentHashMap<>(8);
+
+  /** Optional id for this factory, for serialization purposes. @since 4.0 */
+  @Nullable
+  private String serializationId;
+
   /**
    * Create a new StandardBeanFactory.
    */
@@ -141,6 +181,33 @@ public class StandardBeanFactory
    */
   public StandardBeanFactory(@Nullable BeanFactory parentBeanFactory) {
     super(parentBeanFactory);
+  }
+
+  /**
+   * Specify an id for serialization purposes, allowing this BeanFactory to be
+   * deserialized from this id back into the BeanFactory object, if needed.
+   *
+   * @since 4.0
+   */
+  public void setSerializationId(@Nullable String serializationId) {
+    if (serializationId != null) {
+      serializableFactories.put(serializationId, new WeakReference<>(this));
+    }
+    else if (this.serializationId != null) {
+      serializableFactories.remove(this.serializationId);
+    }
+    this.serializationId = serializationId;
+  }
+
+  /**
+   * Return an id for serialization purposes, if specified, allowing this BeanFactory
+   * to be deserialized from this id back into the BeanFactory object, if needed.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getSerializationId() {
+    return this.serializationId;
   }
 
   /**
@@ -889,12 +956,12 @@ public class StandardBeanFactory
       // Only consider bean as eligible if the bean name is not defined as alias for some other bean.
       if (!isAlias(beanName)) {
         try {
-          BeanDefinition definition = beanDefinitionMap.get(beanName);
+          RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
           // Only check bean definition if it is complete.
-          if (allowEagerInit || allowCheck(definition)) {
+          if (allowEagerInit || allowCheck(merged)) {
             boolean matchFound = false;
             boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
-            if (isFactoryBean(definition)) {
+            if (isFactoryBean(beanName, merged)) {
               if (includeNonSingletons || (allowFactoryBeanInit && isSingleton(beanName))) {
                 matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
               }
@@ -1053,7 +1120,7 @@ public class StandardBeanFactory
     else if (definition != null) {
       String factoryMethodName = definition.getFactoryMethodName();
       if (factoryMethodName != null) {
-        Class<?> factoryClass = getFactoryClass(definition);
+        Class<?> factoryClass = getFactoryClass(beanName, definition);
         Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
         if (factoryMethod != null) {
           MergedAnnotation<A> annotation =
@@ -1188,7 +1255,7 @@ public class StandardBeanFactory
           String beanName, BeanDefinition definition,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
 
-    resolveBeanClass(definition);
+    resolveBeanClass(beanName, definition);
     if (definition.isFactoryMethodUnique && definition.factoryMethodToIntrospect == null) {
       new ConstructorResolver(this).resolveFactoryMethodIfPossible(definition);
     }
@@ -1743,14 +1810,14 @@ public class StandardBeanFactory
     AutowireCandidateResolver candidateResolver = getAutowireCandidateResolver();
     for (String beanName : beanDefinitionNames) {
       try {
-        BeanDefinition mbd = beanDefinitionMap.get(beanName);
-        Class<?> targetType = mbd.getTargetType();
+        RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
+        Class<?> targetType = merged.getTargetType();
         if (targetType != null && type.isAssignableFrom(targetType)
-                && isAutowireCandidate(beanName, mbd, descriptor, candidateResolver)) {
+                && isAutowireCandidate(beanName, merged, descriptor, candidateResolver)) {
           // Probably a proxy interfering with target type match -> throw meaningful exception.
           Object beanInstance = getSingleton(beanName, false);
           Class<?> beanType = (beanInstance == null || beanInstance == NullValue.INSTANCE)
-                              ? predictBeanType(mbd)
+                              ? predictBeanType(beanName, merged)
                               : beanInstance.getClass();
           if (beanType != null && !type.isAssignableFrom(beanType)) {
             throw new BeanNotOfRequiredTypeException(beanName, type, beanType);
@@ -1790,6 +1857,54 @@ public class StandardBeanFactory
 
     Object result = doResolveDependency(descriptorToUse, beanName, null, null);
     return result instanceof Optional ? (Optional<?>) result : Optional.ofNullable(result);
+  }
+
+  //---------------------------------------------------------------------
+  // Serialization support
+  //---------------------------------------------------------------------
+
+  @Serial
+  private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    throw new NotSerializableException("DefaultListableBeanFactory itself is not deserializable - " +
+            "just a SerializedBeanFactoryReference is");
+  }
+
+  @Serial
+  protected Object writeReplace() throws ObjectStreamException {
+    if (this.serializationId != null) {
+      return new SerializedBeanFactoryReference(this.serializationId);
+    }
+    else {
+      throw new NotSerializableException("DefaultListableBeanFactory has no serialization id");
+    }
+  }
+
+  /**
+   * Minimal id reference to the factory.
+   * Resolved to the actual factory instance on deserialization.
+   */
+  private static class SerializedBeanFactoryReference implements Serializable {
+
+    private final String id;
+
+    public SerializedBeanFactoryReference(String id) {
+      this.id = id;
+    }
+
+    @Serial
+    private Object readResolve() {
+      Reference<?> ref = serializableFactories.get(this.id);
+      if (ref != null) {
+        Object result = ref.get();
+        if (result != null) {
+          return result;
+        }
+      }
+      // Lenient fallback: dummy factory in case of original factory not found...
+      StandardBeanFactory dummyFactory = new StandardBeanFactory();
+      dummyFactory.serializationId = this.id;
+      return dummyFactory;
+    }
   }
 
   private interface BeanObjectSupplier<T> extends ObjectProvider<T>, Serializable { }

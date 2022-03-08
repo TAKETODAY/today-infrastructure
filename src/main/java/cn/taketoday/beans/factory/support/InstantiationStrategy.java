@@ -33,6 +33,13 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Simple object instantiation strategy for use in a BeanFactory.
+ *
+ * <p>Does not support Method Injection, although it provides hooks for subclasses
+ * to override to add Method Injection support, for example by overriding methods.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/10 22:06
  */
@@ -54,30 +61,49 @@ public class InstantiationStrategy {
    * Return an instance of the bean with the given name in this factory.
    *
    * @param bd the bean definition
+   * @param beanName the name of the bean when it is created in this context.
+   * The name can be {@code null} if we are autowiring a bean which doesn't
+   * belong to the factory.
    * @param owner the owning BeanFactory
    * @return a bean instance for this bean definition
    * @throws BeansException if the instantiation attempt failed
    */
-  public Object instantiate(BeanDefinition bd, BeanFactory owner) {
+  public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) throws BeansException {
     // Don't override the class with CGLIB if no overrides.
-    Constructor<?> constructorToUse;
-    synchronized(bd.constructorArgumentLock) {
-      constructorToUse = (Constructor<?>) bd.executable;
-      if (constructorToUse == null) {
-        final Class<?> clazz = bd.getBeanClass();
-        if (clazz.isInterface()) {
-          throw new BeanInstantiationException(clazz, "Specified class is an interface");
-        }
-        try {
-          constructorToUse = clazz.getDeclaredConstructor();
-          bd.executable = constructorToUse;
-        }
-        catch (Throwable ex) {
-          throw new BeanInstantiationException(clazz, "No default constructor found", ex);
+    if (!bd.hasMethodOverrides()) {
+      Constructor<?> constructorToUse;
+      synchronized(bd.constructorArgumentLock) {
+        constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+        if (constructorToUse == null) {
+          final Class<?> clazz = bd.getBeanClass();
+          if (clazz.isInterface()) {
+            throw new BeanInstantiationException(clazz, "Specified class is an interface");
+          }
+          try {
+            constructorToUse = clazz.getDeclaredConstructor();
+            bd.resolvedConstructorOrFactoryMethod = constructorToUse;
+          }
+          catch (Throwable ex) {
+            throw new BeanInstantiationException(clazz, "No default constructor found", ex);
+          }
         }
       }
+      return BeanUtils.newInstance(constructorToUse, null);
     }
-    return BeanUtils.newInstance(constructorToUse, null);
+    else {
+      // Must generate CGLIB subclass.
+      return instantiateWithMethodInjection(bd, beanName, owner);
+    }
+  }
+
+  /**
+   * Subclasses can override this method, which is implemented to throw
+   * UnsupportedOperationException, if they can instantiate an object with
+   * the Method Injection specified in the given RootBeanDefinition.
+   * Instantiation should use a no-arg constructor.
+   */
+  protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+    throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
   }
 
   /**
@@ -85,22 +111,42 @@ public class InstantiationStrategy {
    * creating it via the given constructor.
    *
    * @param bd the bean definition
+   * @param beanName the name of the bean when it is created in this context.
+   * The name can be {@code null} if we are autowiring a bean which doesn't
+   * belong to the factory.
    * @param owner the owning BeanFactory
    * @param ctor the constructor to use
    * @param args the constructor arguments to apply
    * @return a bean instance for this bean definition
    * @throws BeansException if the instantiation attempt failed
    */
-  public Object instantiate(
-          BeanDefinition bd, BeanFactory owner, final Constructor<?> ctor, Object... args) {
-    return BeanUtils.newInstance(ctor, args);
+  public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+          Constructor<?> ctor, Object... args) throws BeansException {
+    if (!bd.hasMethodOverrides()) {
+      return BeanUtils.newInstance(ctor, args);
+    }
+    else {
+      return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
+    }
+  }
+
+  /**
+   * Subclasses can override this method, which is implemented to throw
+   * UnsupportedOperationException, if they can instantiate an object with
+   * the Method Injection specified in the given RootBeanDefinition.
+   * Instantiation should use the given constructor and parameters.
+   */
+  protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName,
+          BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
+
+    throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
   }
 
   /**
    * Return an instance of the bean with the given name in this factory,
    * creating it via the given factory method.
    *
-   * @param bd the bean definition
+   * @param merged the bean definition
    * @param owner the owning BeanFactory
    * @param factoryBean the factory bean instance to call the factory method on,
    * or {@code null} in case of a static factory method
@@ -109,9 +155,8 @@ public class InstantiationStrategy {
    * @return a bean instance for this bean definition
    * @throws BeansException if the instantiation attempt failed
    */
-  public Object instantiate(
-          BeanDefinition bd, BeanFactory owner,
-          @Nullable Object factoryBean, final Method factoryMethod, Object... args) {
+  public Object instantiate(RootBeanDefinition merged, @Nullable String beanName, BeanFactory owner,
+          @Nullable Object factoryBean, final Method factoryMethod, Object... args) throws BeansException {
 
     try {
       ReflectionUtils.makeAccessible(factoryMethod);
@@ -141,9 +186,9 @@ public class InstantiationStrategy {
     }
     catch (InvocationTargetException ex) {
       String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
-      if (bd.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory &&
-              ((ConfigurableBeanFactory) owner).isCurrentlyInCreation(bd.getFactoryBeanName())) {
-        msg = "Circular reference involving containing bean '" + bd.getFactoryBeanName() + "' - consider " +
+      if (merged.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory &&
+              ((ConfigurableBeanFactory) owner).isCurrentlyInCreation(merged.getFactoryBeanName())) {
+        msg = "Circular reference involving containing bean '" + merged.getFactoryBeanName() + "' - consider " +
                 "declaring the factory method as static for independence from its containing instance. " + msg;
       }
       throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());

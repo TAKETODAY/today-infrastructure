@@ -37,17 +37,22 @@ public class BeanClassLoadFailedException extends BeansException {
   private final BeanDefinition beanDefinition;
   @Nullable
   private final String resourceDescription;
+  private final String beanName;
 
   /**
    * Create a new CannotLoadBeanClassException.
    *
+   * that the bean definition came from
+   *
+   * @param beanName the name of the bean requested
    * @param cause the root cause
    */
-  public BeanClassLoadFailedException(BeanDefinition def, ClassNotFoundException cause) {
-    super("Cannot find class [" + def.getBeanClassName()
-            + "] for bean with name '" + def.getBeanName() + "'" + getDesc(def), cause);
+  public BeanClassLoadFailedException(BeanDefinition def, @Nullable String beanName, ClassNotFoundException cause) {
+    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + def.getBeanName()
+            + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
     this.beanDefinition = def;
     this.resourceDescription = def.getResourceDescription();
+    this.beanName = beanName;
   }
 
   /**
@@ -55,10 +60,11 @@ public class BeanClassLoadFailedException extends BeansException {
    *
    * @param cause the root cause
    */
-  public BeanClassLoadFailedException(BeanDefinition def, LinkageError cause) {
+  public BeanClassLoadFailedException(BeanDefinition def, @Nullable String beanName, LinkageError cause) {
     super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + def.getBeanName()
             + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
     this.beanDefinition = def;
+    this.beanName = beanName;
     this.resourceDescription = def.getResourceDescription();
   }
 
@@ -75,6 +81,9 @@ public class BeanClassLoadFailedException extends BeansException {
    * Return the name of the bean requested.
    */
   public String getBeanName() {
+    if (beanName != null) {
+      return beanName;
+    }
     return this.beanDefinition.getBeanName();
   }
 

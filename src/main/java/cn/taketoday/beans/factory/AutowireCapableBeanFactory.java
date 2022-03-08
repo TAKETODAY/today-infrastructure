@@ -102,21 +102,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws BeansException if instantiation or wiring failed
    */
   default <T> T createBean(Class<T> beanClass) throws BeansException {
-    return createBean(beanClass, false);
+    return createBean(beanClass, AUTOWIRE_CONSTRUCTOR);
   }
-
-  /**
-   * Fully create a new bean instance of the given class
-   * <p>
-   * Performs full initialization of the bean, including all applicable
-   * {@link BeanPostProcessor BeanPostProcessors}.
-   *
-   * @param beanClass the class of the bean to create
-   * @param cacheBeanDef cache bean definition
-   * @return the new bean instance
-   * @throws BeansException if instantiation or wiring failed
-   */
-  <T> T createBean(Class<T> beanClass, boolean cacheBeanDef) throws BeansException;
 
   /**
    * Fully create a new bean instance of the given class with the specified
@@ -134,7 +121,29 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @see #AUTOWIRE_BY_TYPE
    * @see #AUTOWIRE_CONSTRUCTOR
    */
-  Object createBean(Class<?> beanClass, int autowireMode) throws BeansException;
+  default <T> T createBean(Class<T> beanClass, int autowireMode) throws BeansException {
+    return createBean(beanClass, autowireMode, false);
+  }
+
+  /**
+   * Fully create a new bean instance of the given class with the specified
+   * autowire strategy. All constants defined in this interface are supported here.
+   * <p>Performs full initialization of the bean, including all applicable
+   * {@link BeanPostProcessor BeanPostProcessors}. This is effectively a superset
+   * of what {@link #autowire} provides, adding {@link #initializeBean} behavior.
+   *
+   * @param beanClass the class of the bean to create
+   * @param autowireMode by name or type, using the constants in this interface
+   * @param dependencyCheck whether to perform a dependency check for objects
+   * (not applicable to autowiring a constructor, thus ignored there)
+   * @return the new bean instance
+   * @throws BeansException if instantiation or wiring failed
+   * @see #AUTOWIRE_NO
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_CONSTRUCTOR
+   */
+  <T> T createBean(Class<T> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
 
   /**
    * Populate the given bean instance through applying after-instantiation callbacks
@@ -194,6 +203,35 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
   Object autowire(Class<?> beanClass, int autowireMode) throws BeansException;
 
   /**
+   * Instantiate a new bean instance of the given class with the specified autowire
+   * strategy. All constants defined in this interface are supported here.
+   * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
+   * before-instantiation callbacks (e.g. for annotation-driven injection).
+   * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+   * callbacks or perform any further initialization of the bean. This interface
+   * offers distinct, fine-grained operations for those purposes, for example
+   * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
+   * callbacks are applied, if applicable to the construction of the instance.
+   *
+   * @param beanClass the class of the bean to instantiate
+   * @param autowireMode by name or type, using the constants in this interface
+   * @param dependencyCheck whether to perform a dependency check for object
+   * references in the bean instance (not applicable to autowiring a constructor,
+   * thus ignored there)
+   * @return the new bean instance
+   * @throws BeansException if instantiation or wiring failed
+   * @see #AUTOWIRE_NO
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_CONSTRUCTOR
+   * @see #AUTOWIRE_AUTODETECT
+   * @see #initializeBean
+   * @see #applyBeanPostProcessorsBeforeInitialization
+   * @see #applyBeanPostProcessorsAfterInitialization
+   */
+  Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
+
+  /**
    * Autowire the bean properties of the given bean instance by name or type.
    * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
    * after-instantiation callbacks (e.g. for annotation-driven injection).
@@ -211,7 +249,30 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @see #AUTOWIRE_NO
    * @since 4.0
    */
-  void autowireBeanProperties(Object existingBean, int autowireMode)
+  default void autowireBeanProperties(Object existingBean, int autowireMode) throws BeansException {
+    autowireBeanProperties(existingBean, autowireMode, false);
+  }
+
+  /**
+   * Autowire the bean properties of the given bean instance by name or type.
+   * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
+   * after-instantiation callbacks (e.g. for annotation-driven injection).
+   * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+   * callbacks or perform any further initialization of the bean. This interface
+   * offers distinct, fine-grained operations for those purposes, for example
+   * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
+   * callbacks are applied, if applicable to the configuration of the instance.
+   *
+   * @param existingBean the existing bean instance
+   * @param autowireMode by name or type, using the constants in this interface
+   * @param dependencyCheck whether to perform a dependency check for object
+   * references in the bean instance
+   * @throws BeansException if wiring failed
+   * @see #AUTOWIRE_BY_NAME
+   * @see #AUTOWIRE_BY_TYPE
+   * @see #AUTOWIRE_NO
+   */
+  void autowireBeanProperties(Object existingBean, int autowireMode, boolean dependencyCheck)
           throws BeansException;
 
   /**
