@@ -27,6 +27,7 @@ import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanReference;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -38,7 +39,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class BeanComponentDefinition extends BeanDefinition implements ComponentDefinition {
+public class BeanComponentDefinition extends GenericBeanDefinition implements ComponentDefinition {
 
   private final BeanDefinition[] innerBeanDefinitions;
 
@@ -75,10 +76,10 @@ public class BeanComponentDefinition extends BeanDefinition implements Component
    * the bean definition as well as the name of the bean
    */
   public BeanComponentDefinition(BeanDefinition definition) {
-    copyFrom(definition);
+    super(definition);
     List<BeanDefinition> innerBeans = new ArrayList<>();
     List<BeanReference> references = new ArrayList<>();
-    PropertyValues propertyValues = definition.propertyValues();
+    PropertyValues propertyValues = definition.getPropertyValues();
     for (PropertyValue propertyValue : propertyValues.toArray()) {
       Object value = propertyValue.getValue();
       if (value instanceof BeanDefinition) {

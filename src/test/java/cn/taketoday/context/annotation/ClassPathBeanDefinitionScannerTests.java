@@ -23,16 +23,19 @@ package cn.taketoday.context.annotation;
 import org.aspectj.lang.annotation.Aspect;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.MessageSource;
+import cn.taketoday.context.annotation2.NamedStubDao2;
 import cn.taketoday.context.loader.CandidateComponentsTestClassLoader;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
@@ -61,23 +64,24 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int beanCount = scanner.scan(BASE_PACKAGE);
-    assertThat(beanCount).isGreaterThanOrEqualTo(9);
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(beanCount).isGreaterThanOrEqualTo(12);
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
     assertThat(context.containsBean("thoreau")).isTrue();
-		assertThat(context.containsBean(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
-		assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
-//		assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//		assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
     context.refresh();
 
     FooServiceImpl fooService = context.getBean("fooServiceImpl", FooServiceImpl.class);
     assertThat(context.getBeanFactory().containsSingleton("myNamedComponent")).isTrue();
-    assertThat(fooService.foo(113)).isEqualTo("bar");
-    assertThat(fooService.lookupFoo(113)).isEqualTo("bar");
+    assertThat(fooService.foo(123)).isEqualTo("bar");
+    assertThat(fooService.lookupFoo(123)).isEqualTo("bar");
     assertThat(context.isPrototype("thoreau")).isTrue();
   }
 
@@ -86,8 +90,8 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.scan(BASE_PACKAGE);
-    scanner.scan("cn.taketoday.context.annotation5");
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    scanner.scan("org.springframework.context.annotation5");
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -99,8 +103,8 @@ public class ClassPathBeanDefinitionScannerTests {
     assertThat(context.getBeanFactory().containsSingleton("fooServiceImpl")).isFalse();
     FooServiceImpl fooService = context.getBean("fooServiceImpl", FooServiceImpl.class);
     assertThat(context.getBeanFactory().containsSingleton("otherFooDao")).isTrue();
-    assertThat(fooService.foo(113)).isEqualTo("other");
-    assertThat(fooService.lookupFoo(113)).isEqualTo("other");
+    assertThat(fooService.foo(123)).isEqualTo("other");
+    assertThat(fooService.lookupFoo(123)).isEqualTo("other");
   }
 
   @Test
@@ -109,18 +113,18 @@ public class ClassPathBeanDefinitionScannerTests {
 
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int beanCount = scanner.scan(BASE_PACKAGE);
-    assertThat(beanCount).isGreaterThanOrEqualTo(9);
+    assertThat(beanCount).isGreaterThanOrEqualTo(12);
 
     ClassPathBeanDefinitionScanner scanner2 = new ClassPathBeanDefinitionScanner(context) {
       @Override
-      protected void postProcessBeanDefinition(BeanDefinition beanDefinition, String beanName) {
+      protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
         super.postProcessBeanDefinition(beanDefinition, beanName);
         beanDefinition.setAttribute("someDifference", "someValue");
       }
     };
     scanner2.scan(BASE_PACKAGE);
 
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -133,13 +137,13 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     context.setClassLoader(CandidateComponentsTestClassLoader.index(
             ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-            new ClassPathResource("today.components", FooServiceImpl.class)));
+            new ClassPathResource("spring.components", FooServiceImpl.class)));
 
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int beanCount = scanner.scan(BASE_PACKAGE);
-    assertThat(beanCount).isGreaterThanOrEqualTo(9);
+    assertThat(beanCount).isGreaterThanOrEqualTo(12);
 
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -152,22 +156,22 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     context.setClassLoader(CandidateComponentsTestClassLoader.index(
             ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-            new ClassPathResource("today.components", FooServiceImpl.class)));
+            new ClassPathResource("spring.components", FooServiceImpl.class)));
 
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int beanCount = scanner.scan(BASE_PACKAGE);
-    assertThat(beanCount).isGreaterThanOrEqualTo(9);
+    assertThat(beanCount).isGreaterThanOrEqualTo(12);
 
     ClassPathBeanDefinitionScanner scanner2 = new ClassPathBeanDefinitionScanner(context) {
       @Override
-      protected void postProcessBeanDefinition(BeanDefinition beanDefinition, String beanName) {
+      protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
         super.postProcessBeanDefinition(beanDefinition, beanName);
         beanDefinition.setAttribute("someDifference", "someValue");
       }
     };
     scanner2.scan(BASE_PACKAGE);
 
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -183,7 +187,7 @@ public class ClassPathBeanDefinitionScannerTests {
     int beanCount = scanner.scan(BASE_PACKAGE);
     assertThat(beanCount).isGreaterThanOrEqualTo(7);
 
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -193,7 +197,7 @@ public class ClassPathBeanDefinitionScannerTests {
   @Test
   public void testSimpleScanWithDefaultFiltersAndOverridingBean() {
     GenericApplicationContext context = new GenericApplicationContext();
-    context.registerBeanDefinition("stubFooDao", new BeanDefinition(TestBean.class));
+    context.registerBeanDefinition("stubFooDao", new RootBeanDefinition(TestBean.class));
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
     // should not fail!
@@ -205,7 +209,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
-    scanner.scan("cn.taketoday.context.annotation3");
+    scanner.scan("org.springframework.context.annotation3");
     assertThatIllegalStateException().isThrownBy(() ->
                     scanner.scan(BASE_PACKAGE))
             .withMessageContaining("stubFooDao")
@@ -215,7 +219,7 @@ public class ClassPathBeanDefinitionScannerTests {
   @Test
   public void testSimpleScanWithDefaultFiltersAndOverriddenEqualNamedBean() {
     GenericApplicationContext context = new GenericApplicationContext();
-    context.registerBeanDefinition("myNamedDao", new BeanDefinition(NamedStubDao.class));
+    context.registerBeanDefinition("myNamedDao", new RootBeanDefinition(NamedStubDao.class));
     int initialBeanCount = context.getBeanDefinitionCount();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
@@ -223,7 +227,7 @@ public class ClassPathBeanDefinitionScannerTests {
 
     assertThat(scannedBeanCount).isGreaterThanOrEqualTo(6);
     assertThat(context.getBeanDefinitionCount()).isEqualTo((initialBeanCount + scannedBeanCount));
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -233,7 +237,7 @@ public class ClassPathBeanDefinitionScannerTests {
   @Test
   public void testSimpleScanWithDefaultFiltersAndOverriddenCompatibleNamedBean() {
     GenericApplicationContext context = new GenericApplicationContext();
-    BeanDefinition bd = new BeanDefinition(NamedStubDao.class);
+    RootBeanDefinition bd = new RootBeanDefinition(NamedStubDao.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     context.registerBeanDefinition("myNamedDao", bd);
     int initialBeanCount = context.getBeanDefinitionCount();
@@ -243,7 +247,7 @@ public class ClassPathBeanDefinitionScannerTests {
 
     assertThat(scannedBeanCount).isGreaterThanOrEqualTo(6);
     assertThat(context.getBeanDefinitionCount()).isEqualTo((initialBeanCount + scannedBeanCount));
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
@@ -265,12 +269,12 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
-    scanner.scan("cn.taketoday.context.annotation2");
-//    assertThatIllegalStateException()
-//            .isThrownBy(() -> scanner.scan(BASE_PACKAGE))
-//            .withMessageContaining("myNamedDao")
-//            .withMessageContaining(NamedStubDao.class.getName())
-//            .withMessageContaining(NamedStubDao2.class.getName());
+    scanner.scan("org.springframework.context.annotation2");
+    assertThatIllegalStateException().isThrownBy(() ->
+                    scanner.scan(BASE_PACKAGE))
+            .withMessageContaining("myNamedDao")
+            .withMessageContaining(NamedStubDao.class.getName())
+            .withMessageContaining(NamedStubDao2.class.getName());
   }
 
   @Test
@@ -280,10 +284,12 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.addIncludeFilter(new AnnotationTypeFilter(CustomComponent.class));
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(3);
+    assertThat(beanCount).isGreaterThanOrEqualTo(6);
     assertThat(context.containsBean("messageBean")).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -293,15 +299,17 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.addIncludeFilter(new AnnotationTypeFilter(CustomComponent.class));
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(3);
+    assertThat(beanCount).isGreaterThanOrEqualTo(6);
     assertThat(context.containsBean("messageBean")).isTrue();
-    assertThat(context.containsBean("myPointcutInfo")).isFalse();
+    assertThat(context.containsBean("serviceInvocationCounter")).isFalse();
     assertThat(context.containsBean("fooServiceImpl")).isFalse();
     assertThat(context.containsBean("stubFooDao")).isFalse();
     assertThat(context.containsBean("myNamedComponent")).isFalse();
     assertThat(context.containsBean("myNamedDao")).isFalse();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -311,15 +319,17 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.addIncludeFilter(new AnnotationTypeFilter(CustomComponent.class));
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(10);
+    assertThat(beanCount).isGreaterThanOrEqualTo(13);
     assertThat(context.containsBean("messageBean")).isTrue();
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -329,13 +339,15 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.addExcludeFilter(new AnnotationTypeFilter(Aspect.class));
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(8);
-    assertThat(context.containsBean("myPointcutInfo")).isFalse();
+    assertThat(beanCount).isGreaterThanOrEqualTo(11);
+    assertThat(context.containsBean("serviceInvocationCounter")).isFalse();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -345,14 +357,16 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.addExcludeFilter(new AssignableTypeFilter(FooService.class));
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(8);
+    assertThat(beanCount).isGreaterThanOrEqualTo(11);
     assertThat(context.containsBean("fooServiceImpl")).isFalse();
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -365,10 +379,12 @@ public class ClassPathBeanDefinitionScannerTests {
 
     assertThat(beanCount).isGreaterThanOrEqualTo(6);
     assertThat(context.containsBean("fooServiceImpl")).isFalse();
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isFalse();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isFalse();
   }
 
   @Test
@@ -379,32 +395,36 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.addExcludeFilter(new AnnotationTypeFilter(Aspect.class));
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(7);
+    assertThat(beanCount).isGreaterThanOrEqualTo(10);
     assertThat(context.containsBean("fooServiceImpl")).isFalse();
-    assertThat(context.containsBean("myPointcutInfo")).isFalse();
+    assertThat(context.containsBean("serviceInvocationCounter")).isFalse();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
   }
 
   @Test
-  public void testCustomBeanNamePopulator() {
+  public void testCustomBeanNameGenerator() {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setBeanNamePopulator(new TestBeanNamePopulator());
     int beanCount = scanner.scan(BASE_PACKAGE);
 
-    assertThat(beanCount).isGreaterThanOrEqualTo(9);
+    assertThat(beanCount).isGreaterThanOrEqualTo(12);
     assertThat(context.containsBean("fooServiceImpl")).isFalse();
     assertThat(context.containsBean("fooService")).isTrue();
-    assertThat(context.containsBean("myPointcutInfo")).isTrue();
+    assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
     assertThat(context.containsBean("myNamedComponent")).isTrue();
     assertThat(context.containsBean("myNamedDao")).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
-//    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_PROCESSOR_BEAN_NAME)).isTrue();
+    assertThat(context.containsBean(AnnotationConfigUtils.EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -414,8 +434,8 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext multiPackageContext = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner multiPackageScanner = new ClassPathBeanDefinitionScanner(multiPackageContext);
     int singlePackageBeanCount = singlePackageScanner.scan(BASE_PACKAGE);
-    assertThat(singlePackageBeanCount).isGreaterThanOrEqualTo(9);
-    multiPackageScanner.scan(BASE_PACKAGE, "cn.taketoday.dao.annotation");
+    assertThat(singlePackageBeanCount).isGreaterThanOrEqualTo(12);
+    multiPackageScanner.scan(BASE_PACKAGE, "org.springframework.dao.annotation");
     // assertTrue(multiPackageBeanCount > singlePackageBeanCount);
   }
 
@@ -425,16 +445,16 @@ public class ClassPathBeanDefinitionScannerTests {
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     int initialBeanCount = context.getBeanDefinitionCount();
     int scannedBeanCount = scanner.scan(BASE_PACKAGE);
-    assertThat(scannedBeanCount).isGreaterThanOrEqualTo(9);
+    assertThat(scannedBeanCount).isGreaterThanOrEqualTo(12);
     assertThat((context.getBeanDefinitionCount() - initialBeanCount)).isEqualTo(scannedBeanCount);
-    int addedBeanCount = scanner.scan("cn.taketoday.aop.aspectj.annotation");
+    int addedBeanCount = scanner.scan("org.springframework.aop.aspectj.annotation");
     assertThat(context.getBeanDefinitionCount()).isEqualTo((initialBeanCount + scannedBeanCount + addedBeanCount));
   }
 
   @Test
   public void testBeanAutowiredWithAnnotationConfigEnabled() {
     GenericApplicationContext context = new GenericApplicationContext();
-    context.registerBeanDefinition("myBf", new BeanDefinition(StandardBeanFactory.class));
+    context.registerBeanDefinition("myBf", new RootBeanDefinition(StandardBeanFactory.class));
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setBeanNamePopulator(new TestBeanNamePopulator());
     int beanCount = scanner.scan(BASE_PACKAGE);
@@ -491,8 +511,8 @@ public class ClassPathBeanDefinitionScannerTests {
     context.refresh();
 
     FooServiceImpl fooService = (FooServiceImpl) context.getBean("fooService");
-    assertThat(fooService.foo(113)).isEqualTo("bar");
-    assertThat(fooService.lookupFoo(113)).isEqualTo("bar");
+    assertThat(fooService.foo(123)).isEqualTo("bar");
+    assertThat(fooService.lookupFoo(123)).isEqualTo("bar");
   }
 
   @Test
@@ -504,9 +524,8 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.setAutowireCandidatePatterns("*NoSuchDao");
     scanner.scan(BASE_PACKAGE);
     context.refresh();
-
-    assertThatExceptionOfType(BeanCreationException.class)
-            .isThrownBy(() -> context.getBean("fooService"))
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
+                    context.getBean("fooService"))
             .satisfies(ex -> assertThat(ex.getMostSpecificCause()).isInstanceOf(NoSuchBeanDefinitionException.class));
   }
 

@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -128,7 +127,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   }
 
   private void addServletContextInitializerBean(Class<?> type, String beanName, ServletContextInitializer initializer,
-                                                BeanFactory beanFactory, Object source) {
+          BeanFactory beanFactory, Object source) {
     this.initializers.add(type, initializer);
     if (source != null) {
       // Mark the underlying source as seen in case it wraps an existing bean
@@ -144,7 +143,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
 
   private String getResourceDescription(String beanName, BeanFactory beanFactory) {
     if (beanFactory instanceof BeanDefinitionRegistry registry) {
-      return BeanFactoryUtils.requiredDefinition(registry, beanName).getResourceDescription();
+      return registry.getBeanDefinition(beanName).getResourceDescription();
     }
     return "unknown";
   }
@@ -167,7 +166,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   }
 
   protected <T> void addAsRegistrationBean(BeanFactory beanFactory, Class<T> type,
-                                           RegistrationBeanAdapter<T> adapter) {
+          RegistrationBeanAdapter<T> adapter) {
     addAsRegistrationBean(beanFactory, type, type, adapter);
   }
 
@@ -230,7 +229,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   }
 
   private void logMappings(String name, MultiValueMap<Class<?>, ServletContextInitializer> initializers,
-                           Class<?> type, Class<? extends RegistrationBean> registrationType) {
+          Class<?> type, Class<? extends RegistrationBean> registrationType) {
     List<ServletContextInitializer> registrations = new ArrayList<>();
     registrations.addAll(initializers.getOrDefault(registrationType, Collections.emptyList()));
     registrations.addAll(initializers.getOrDefault(type, Collections.emptyList()));

@@ -29,14 +29,14 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.PropertyResourceConfigurer;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.config.TypedStringValue;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -375,7 +375,7 @@ public class MapperScannerConfigurer
         prc.postProcessBeanFactory(factory);
       }
 
-      PropertyValues values = mapperScannerBean.propertyValues();
+      PropertyValues values = mapperScannerBean.getPropertyValues();
 
       this.basePackage = getPropertyValue("basePackage", values);
       this.defaultScope = getPropertyValue("defaultScope", values);

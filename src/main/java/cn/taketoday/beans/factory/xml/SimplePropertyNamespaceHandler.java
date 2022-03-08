@@ -68,7 +68,7 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
     if (node instanceof Attr attr) {
       String propertyName = parserContext.getDelegate().getLocalName(attr);
       String propertyValue = attr.getValue();
-      PropertyValues pvs = definition.propertyValues();
+      PropertyValues pvs = definition.getPropertyValues();
       if (pvs.contains(propertyName)) {
         parserContext.getReaderContext().error("Property '" + propertyName + "' is already defined using " +
                 "both <property> and inline syntax. Only one approach may be used per property.", attr);

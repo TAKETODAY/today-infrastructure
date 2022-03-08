@@ -207,7 +207,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private boolean synthetic = false;
 
-  private int role = BeanDefinition.ROLE_APPLICATION;
+  private int role = ROLE_APPLICATION;
 
   @Nullable
   private String description;

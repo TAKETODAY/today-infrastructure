@@ -26,9 +26,8 @@ import java.util.function.Function;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
@@ -137,8 +136,9 @@ public class DependencyInjectorAwareInstantiator {
             singletonBeanRegistry.registerSingleton(BEAN_NAME, instantiator);
           }
           else if (beanFactory instanceof BeanDefinitionRegistry registry) {
-            BeanDefinition definition = new BeanDefinition(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+            RootBeanDefinition definition = new RootBeanDefinition(DependencyInjectorAwareInstantiator.class);
             definition.setSynthetic(true);
+            definition.setBeanName(BEAN_NAME);
             definition.setEnableDependencyInjection(false);
             definition.setInstanceSupplier(SingletonSupplier.valueOf(instantiator));
 

@@ -26,6 +26,7 @@ import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
@@ -38,12 +39,13 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.Conventions;
@@ -121,7 +123,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class ScriptFactoryPostProcessor
         implements SmartInstantiationAwareBeanPostProcessor,
-                   BeanClassLoaderAware, BeanFactoryAware, ResourceLoaderAware, DisposableBean, Ordered {
+        BeanClassLoaderAware, BeanFactoryAware, ResourceLoaderAware, DisposableBean, Ordered {
 
   /**
    * The {@link cn.taketoday.core.io.Resource}-style prefix that denotes
@@ -429,7 +431,7 @@ public class ScriptFactoryPostProcessor
    * @see ScriptFactory
    */
   protected BeanDefinition createScriptFactoryBeanDefinition(BeanDefinition bd) {
-    BeanDefinition scriptBd = new BeanDefinition();
+    GenericBeanDefinition scriptBd = new GenericBeanDefinition();
     scriptBd.setBeanClassName(bd.getBeanClassName());
     scriptBd.getConstructorArgumentValues().addArgumentValues(bd.getConstructorArgumentValues());
     return scriptBd;
@@ -498,16 +500,33 @@ public class ScriptFactoryPostProcessor
         maker.add(signature, Type.EMPTY_ARRAY);
       }
     }
-    if (bd.getInitMethods() != null) {
-      for (String initMethod : bd.getInitMethods()) {
-        MethodSignature signature = new MethodSignature(Type.VOID_TYPE, initMethod);
+
+    if (bd instanceof AbstractBeanDefinition abd) {
+      if (ObjectUtils.isNotEmpty(abd.getInitMethodNames())) {
+        for (String initMethodName : abd.getInitMethodNames()) {
+          MethodSignature signature = new MethodSignature(Type.VOID_TYPE, initMethodName);
+          maker.add(signature, Type.EMPTY_ARRAY);
+        }
+      }
+      if (ObjectUtils.isNotEmpty(abd.getDestroyMethodNames())) {
+        for (String destroyMethodName : abd.getDestroyMethodNames()) {
+          MethodSignature signature = new MethodSignature(Type.VOID_TYPE, destroyMethodName);
+          maker.add(signature, Type.EMPTY_ARRAY);
+        }
+      }
+    }
+    else {
+      if (StringUtils.hasText(bd.getDestroyMethodName())) {
+        MethodSignature signature = new MethodSignature(Type.VOID_TYPE, bd.getDestroyMethodName());
+        maker.add(signature, Type.EMPTY_ARRAY);
+      }
+
+      if (StringUtils.hasText(bd.getDestroyMethodName())) {
+        MethodSignature signature = new MethodSignature(Type.VOID_TYPE, bd.getDestroyMethodName());
         maker.add(signature, Type.EMPTY_ARRAY);
       }
     }
-    if (StringUtils.hasText(bd.getDestroyMethod())) {
-      MethodSignature signature = new MethodSignature(Type.VOID_TYPE, bd.getDestroyMethod());
-      maker.add(signature, Type.EMPTY_ARRAY);
-    }
+
     return maker.create();
   }
 
@@ -541,7 +560,7 @@ public class ScriptFactoryPostProcessor
           BeanDefinition bd, String scriptFactoryBeanName,
           ScriptSource scriptSource, @Nullable Class<?>[] interfaces) {
 
-    BeanDefinition objectBd = bd.cloneDefinition();
+    BeanDefinition objectBd = bd.cloneBeanDefinition();
     objectBd.setFactoryBeanName(scriptFactoryBeanName);
     objectBd.setFactoryMethodName("getScriptedObject");
     ConstructorArgumentValues argumentValues = objectBd.getConstructorArgumentValues();

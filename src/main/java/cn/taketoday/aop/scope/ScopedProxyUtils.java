@@ -22,6 +22,7 @@ package cn.taketoday.aop.scope;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.lang.Nullable;
@@ -65,7 +66,7 @@ public abstract class ScopedProxyUtils {
     // "hiding" the target bean in an internal target definition.
     RootBeanDefinition proxyDefinition = new RootBeanDefinition(ScopedProxyFactoryBean.class);
 
-    BeanDefinition decoratedDefinition = targetDefinition.cloneDefinition();
+    BeanDefinition decoratedDefinition = targetDefinition.cloneBeanDefinition();
     decoratedDefinition.setBeanName(targetBeanName);
     proxyDefinition.setDecoratedDefinition(decoratedDefinition);
 
@@ -73,20 +74,22 @@ public abstract class ScopedProxyUtils {
     proxyDefinition.setSource(targetDefinition.getSource());
     proxyDefinition.setRole(targetDefinition.getRole());
 
-    proxyDefinition.propertyValues().add("targetBeanName", targetBeanName);
+    proxyDefinition.getPropertyValues().add("targetBeanName", targetBeanName);
     if (proxyTargetClass) {
       targetDefinition.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
       // ScopedProxyFactoryBean's "proxyTargetClass" default is TRUE, so we don't need to set it explicitly here.
     }
     else {
-      proxyDefinition.propertyValues().add("proxyTargetClass", Boolean.FALSE);
+      proxyDefinition.getPropertyValues().add("proxyTargetClass", Boolean.FALSE);
     }
 
     // Copy autowire settings from original bean definition.
     proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
     proxyDefinition.setPrimary(targetDefinition.isPrimary());
-    proxyDefinition.copyQualifiersFrom(targetDefinition);
 
+    if (targetDefinition instanceof AbstractBeanDefinition) {
+      proxyDefinition.copyQualifiersFrom((AbstractBeanDefinition) targetDefinition);
+    }
     // The target bean should be ignored in favor of the scoped proxy.
     targetDefinition.setAutowireCandidate(false);
     targetDefinition.setPrimary(false);

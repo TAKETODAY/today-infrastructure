@@ -22,13 +22,11 @@ package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
-import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 
 /**
  * Corners the bug originally reported by SPR-8824, where the presence of two
@@ -44,12 +42,9 @@ public class DuplicateConfigurationClassPostProcessorTests {
   @Test
   public void repro() {
     GenericApplicationContext ctx = new GenericApplicationContext();
-    StandardBeanFactory beanFactory = ctx.getBeanFactory();
-    BootstrapContext loadingContext = new BootstrapContext(beanFactory, ctx);
-    beanFactory.registerSingleton(loadingContext);
-    ctx.registerBeanDefinition("a", new BeanDefinition(ConfigurationClassPostProcessor.class, BeanDefinition.AUTOWIRE_CONSTRUCTOR));
-    ctx.registerBeanDefinition("b", new BeanDefinition(ConfigurationClassPostProcessor.class, BeanDefinition.AUTOWIRE_CONSTRUCTOR));
-    ctx.registerBeanDefinition("myConfig", new BeanDefinition(Config.class));
+    ctx.registerBeanDefinition("a", new RootBeanDefinition(ConfigurationClassPostProcessor.class));
+    ctx.registerBeanDefinition("b", new RootBeanDefinition(ConfigurationClassPostProcessor.class));
+    ctx.registerBeanDefinition("myConfig", new RootBeanDefinition(Config.class));
     ctx.refresh();
   }
 

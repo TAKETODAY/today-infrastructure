@@ -26,6 +26,7 @@ import java.util.List;
 
 import cn.taketoday.aop.proxy.ProxyFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ManagedList;
@@ -68,7 +69,7 @@ public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implement
 
     // get the root bean name - will be the name of the generated proxy factory bean
     String existingBeanName = targetDefinition.getBeanName();
-    BeanDefinition targetHolder = targetDefinition.cloneDefinition();
+    BeanDefinition targetHolder = targetDefinition.cloneBeanDefinition();
     targetHolder.setBeanName(existingBeanName + ".TARGET");
 
     // delegate to subclass for interceptor definition
@@ -89,15 +90,18 @@ public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implement
       proxyDefinition.setLazyInit(targetDefinition.isLazyInit());
       // set the target
       proxyDefinition.setDecoratedDefinition(targetHolder);
-      proxyDefinition.propertyValues().add("target", targetHolder);
+      proxyDefinition.getPropertyValues().add("target", targetHolder);
       // create the interceptor names list
-      proxyDefinition.propertyValues().add("interceptorNames", new ManagedList<String>());
+      proxyDefinition.getPropertyValues().add("interceptorNames", new ManagedList<String>());
       // copy autowire settings from original bean definition.
       proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
       proxyDefinition.setPrimary(targetDefinition.isPrimary());
-      proxyDefinition.copyQualifiersFrom(targetDefinition);
+
+      if (targetDefinition instanceof AbstractBeanDefinition) {
+        proxyDefinition.copyQualifiersFrom((AbstractBeanDefinition) targetDefinition);
+      }
       // wrap it in a BeanDefinitionHolder with bean name
-      result = proxyDefinition.cloneDefinition();
+      result = proxyDefinition.cloneBeanDefinition();
       result.setBeanName(existingBeanName);
     }
 
@@ -107,7 +111,7 @@ public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implement
 
   @SuppressWarnings("unchecked")
   private void addInterceptorNameToList(String interceptorName, BeanDefinition beanDefinition) {
-    List<String> list = (List<String>) beanDefinition.propertyValues().get("interceptorNames");
+    List<String> list = (List<String>) beanDefinition.getPropertyValues().get("interceptorNames");
     Assert.state(list != null, "Missing 'interceptorNames' property");
     list.add(interceptorName);
   }

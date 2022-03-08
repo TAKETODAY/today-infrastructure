@@ -53,23 +53,23 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanIsAbstractException;
 import cn.taketoday.beans.factory.BeanIsNotAFactoryException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
-import cn.taketoday.beans.factory.config.BeanExpressionResolver;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
-import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanExpressionContext;
+import cn.taketoday.beans.factory.config.BeanExpressionResolver;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;
@@ -585,7 +585,7 @@ public abstract class AbstractBeanFactory
    * @throws BeanClassLoadFailedException if we failed to load the class
    */
   @Nullable
-  protected Class<?> resolveBeanClass(String beanName, BeanDefinition merged, Class<?>... typesToMatch) throws BeanClassLoadFailedException {
+  protected Class<?> resolveBeanClass(String beanName, RootBeanDefinition merged, Class<?>... typesToMatch) throws BeanClassLoadFailedException {
     if (merged.hasBeanClass()) {
       return merged.getBeanClass();
     }
@@ -916,7 +916,7 @@ public abstract class AbstractBeanFactory
    * @param definition BeanDefinition
    * @return Factory class
    */
-  protected Class<?> getFactoryClass(String beanName, BeanDefinition definition) {
+  protected Class<?> getFactoryClass(String beanName, RootBeanDefinition definition) {
     Class<?> factoryClass;
     String factoryBeanName = definition.getFactoryBeanName();
 
@@ -2022,7 +2022,7 @@ public abstract class AbstractBeanFactory
         if (bd.getParentName() == null) {
           // Use copy of given root bean definition.
           if (bd instanceof RootBeanDefinition rootBeanDef) {
-            mbd = rootBeanDef.cloneDefinition();
+            mbd = rootBeanDef.cloneBeanDefinition();
           }
           else {
             mbd = new RootBeanDefinition(bd);
@@ -2053,7 +2053,7 @@ public abstract class AbstractBeanFactory
           }
           // Deep copy with overridden values.
           mbd = new RootBeanDefinition(pbd);
-          mbd.copyFrom(bd);
+          mbd.overrideFrom(bd);
         }
 
         // Set default singleton scope, if not configured before.

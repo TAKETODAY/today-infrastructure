@@ -40,6 +40,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.MissingBean;
@@ -228,28 +229,28 @@ public class MybatisAutoConfiguration implements InitializingBean {
         }
       }
 
-      BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
-      definition.addPropertyValue("annotationClass", Mapper.class);
-      definition.addPropertyValue("processPropertyPlaceHolders", true);
-      definition.addPropertyValue("defaultScope", "${mybatis.mapper-default-scope:}");
-      definition.addPropertyValue("lazyInitialization", "${mybatis.lazy-initialization:false}");
-      definition.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(packages));
+      BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
+      builder.addPropertyValue("annotationClass", Mapper.class);
+      builder.addPropertyValue("processPropertyPlaceHolders", true);
+      builder.addPropertyValue("defaultScope", "${mybatis.mapper-default-scope:}");
+      builder.addPropertyValue("lazyInitialization", "${mybatis.lazy-initialization:false}");
+      builder.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(packages));
 
       Environment environment = context.getEnvironment();
       if (environment.getProperty("mybatis.inject-sql-session-on-mapper-scan", Boolean.class, Boolean.TRUE)) {
         String sqlSessionFactoryBeanName = getBeanNameForType(SqlSessionFactory.class, beanFactory);
         String sqlSessionTemplateBeanName = getBeanNameForType(SqlSessionTemplate.class, beanFactory);
         if (sqlSessionTemplateBeanName != null || sqlSessionFactoryBeanName == null) {
-          definition.addPropertyValue("sqlSessionTemplateBeanName",
+          builder.addPropertyValue("sqlSessionTemplateBeanName",
                   sqlSessionTemplateBeanName == null ? "sqlSessionTemplate" : sqlSessionTemplateBeanName);
         }
         else {
-          definition.addPropertyValue("sqlSessionFactoryBeanName", sqlSessionFactoryBeanName);
+          builder.addPropertyValue("sqlSessionFactoryBeanName", sqlSessionFactoryBeanName);
         }
       }
-      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
-      context.registerBeanDefinition(MapperScannerConfigurer.class.getName(), definition);
+      context.registerBeanDefinition(MapperScannerConfigurer.class.getName(), builder.getRawBeanDefinition());
     }
 
     @Nullable

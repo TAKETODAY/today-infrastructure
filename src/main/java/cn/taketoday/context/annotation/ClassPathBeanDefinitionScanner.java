@@ -26,6 +26,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
@@ -314,7 +315,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param beanDefinition the scanned bean definition
    * @param beanName the generated bean name for the given bean
    */
-  protected void postProcessBeanDefinition(BeanDefinition beanDefinition, String beanName) {
+  protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
     beanDefinition.applyDefaults(beanDefinitionDefaults);
     if (autowireCandidatePatterns != null) {
       beanDefinition.setAutowireCandidate(StringUtils.simpleMatch(autowireCandidatePatterns, beanName));

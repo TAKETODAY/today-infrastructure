@@ -19,25 +19,20 @@
  */
 package cn.taketoday.beans.factory;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.beans.factory.config.AbstractFactoryBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.aware.ApplicationContextSupport;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Singleton;
+import cn.taketoday.lang.Component;
 
+import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -47,152 +42,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FactoryBeanTests {
 
-  // bean
-  // --------------------------------------
-  private static class TEST {
-
-  }
-
-  private static class TESTFactoryBean extends AbstractFactoryBean<TEST> {
-
-    @Override
-    protected TEST createBeanInstance() {
-      return new TEST();
-    }
-
-    @Override
-    public Class<TEST> getObjectType() {
-      return TEST.class;
-    }
-  }
-
-  // @Configuration bean
-  // ---------------------------
-
-  @Configuration
-  static class FactoryBeanConfiguration extends ApplicationContextSupport {
-
-    @Singleton
-    public TESTFactoryBean testFactoryBean() {
-      return new TESTFactoryBean();
-    }
-  }
-
-  @Import(FactoryBeanConfiguration.class)
-  static class FactoryBeanConfigurationImporter {
-
-  }
-
-  // test
-  // --------------------------------------------
-
-  @Test
-  void testFactoryBean() throws NoSuchBeanDefinitionException {
-
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.registerBean("testFactoryBean", TESTFactoryBean.class);
-      applicationContext.refresh();
-
-      Map<String, BeanDefinition> beanDefinitions = applicationContext.getBeanDefinitions();
-
-      Assertions.assertFalse(beanDefinitions.isEmpty());
-
-      Object testFactoryBean = applicationContext.getBean("testFactoryBean");
-
-      TEST bean = applicationContext.getBean(TEST.class);
-
-      Assertions.assertEquals(bean, testFactoryBean);
-      Assertions.assertSame(testFactoryBean, bean);
-      Assertions.assertNotNull(applicationContext.getBean("&testFactoryBean"));
-    }
-  }
-
-//    @Test
-//    public void testPrototypeFactoryBean() throws NoSuchBeanDefinitionException {
-//
-//        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-//
-//            List<BeanDefinition> definitions = //
-//                    ContextUtils.createBeanDefinitions("testFactoryBean-prototype", TESTFactoryBean.class);
-//
-//            assertFalse(definitions.isEmpty());
-//
-//            BeanDefinition beanDefinition = definitions.get(0);
-//            beanDefinition.setScope(Scope.PROTOTYPE);
-//
-//            applicationContext.registerBean(beanDefinition);
-//
-//            Map<String, BeanDefinition> beanDefinitions = applicationContext.getBeanDefinitions();
-//
-//            assertFalse(beanDefinitions.isEmpty());
-//
-//            Object testFactoryBean = applicationContext.getBean("testFactoryBean-prototype");
-//
-//            TEST bean = applicationContext.getBean(TEST.class);
-//
-//            assertNotEquals(bean, testFactoryBean);
-//
-//            final Object $testFactoryBean = applicationContext.getBean("$testFactoryBean-prototype");
-//            assertNotNull($testFactoryBean);
-//        }
-//    }
-
-  @Test
-  void testConfigurationFactoryBean() throws NoSuchBeanDefinitionException {
-
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-
-      applicationContext.register(TESTFactoryBean.class);
-      applicationContext.registerBean("factoryBeanConfigurationImporter", FactoryBeanConfigurationImporter.class);
-      applicationContext.refresh();
-
-      FactoryBeanConfiguration bean = applicationContext.getBean(FactoryBeanConfiguration.class);
-      Object testFactoryBean = applicationContext.getBean("testFactoryBean");
-
-      Assertions.assertNotNull(bean);
-      Assertions.assertNotNull(testFactoryBean);
-      Assertions.assertTrue(testFactoryBean instanceof TEST);
-
-      Assertions.assertNotNull(applicationContext.getBean("&testFactoryBean"));
-      Assertions.assertTrue(applicationContext.getBean("&testFactoryBean") instanceof TESTFactoryBean);
-    }
-  }
-
-  //
+  private static final Class<?> CLASS = FactoryBeanTests.class;
+  private static final Resource RETURNS_NULL_CONTEXT = qualifiedResource(CLASS, "returnsNull.xml");
+  private static final Resource WITH_AUTOWIRING_CONTEXT = qualifiedResource(CLASS, "withAutowiring.xml");
+  private static final Resource ABSTRACT_CONTEXT = qualifiedResource(CLASS, "abstract.xml");
+  private static final Resource CIRCULAR_CONTEXT = qualifiedResource(CLASS, "circular.xml");
 
   @Test
   public void testFactoryBeanReturnsNull() throws Exception {
     StandardBeanFactory factory = new StandardBeanFactory();
-    new AnnotatedBeanDefinitionReader(factory, false)
-            .registerBean("factoryBean", NullReturningFactoryBean.class);
-    assertThat(factory.getBean("factoryBean")).isNull();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(RETURNS_NULL_CONTEXT);
+
+    assertThat(factory.getBean("factoryBean").toString()).isEqualTo("null");
   }
 
   @Test
   public void testFactoryBeansWithAutowiring() throws Exception {
     StandardBeanFactory factory = new StandardBeanFactory();
-    AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(factory, false);
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(WITH_AUTOWIRING_CONTEXT);
 
-    // gammaFactory betaFactory getGamma
-    BeanDefinition gammaFactoryDef = new BeanDefinition();
-    gammaFactoryDef.setBeanName("gammaFactory");
-    gammaFactoryDef.setFactoryMethodName("getGamma");
-    gammaFactoryDef.setFactoryBeanName("betaFactory"); // is FactoryBean so its real bean is Beta
-
-    reader.registerBean("gamma", Gamma.class);
-    reader.register(gammaFactoryDef);
-    reader.registerBean("betaFactory", BetaFactoryBean.class, definition -> {
-      definition.setAutowireMode(BeanDefinition.AUTOWIRE_CONSTRUCTOR);
-      definition.addPropertyValue("beta", RuntimeBeanReference.from("beta"));
-    });
-    reader.registerBean("beta", Beta.class, definition -> {
-      definition.addPropertyValue("name", "yourName");
-      definition.addPropertyValue("gamma", RuntimeBeanReference.from("gamma"));
-    });
-
-    reader.registerBean("alpha", Alpha.class, definition -> {
-      definition.addPropertyValue("beta", RuntimeBeanReference.from("beta"));
-    });
+    BeanFactoryPostProcessor ppc = (BeanFactoryPostProcessor) factory.getBean("propertyPlaceholderConfigurer");
+    ppc.postProcessBeanFactory(factory);
 
     assertThat(factory.getType("betaFactory")).isNull();
 
@@ -208,17 +78,38 @@ class FactoryBeanTests {
   }
 
   @Test
+  public void testFactoryBeansWithIntermediateFactoryBeanAutowiringFailure() throws Exception {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(WITH_AUTOWIRING_CONTEXT);
+
+    BeanFactoryPostProcessor ppc = (BeanFactoryPostProcessor) factory.getBean("propertyPlaceholderConfigurer");
+    ppc.postProcessBeanFactory(factory);
+
+    Beta beta = (Beta) factory.getBean("beta");
+    Alpha alpha = (Alpha) factory.getBean("alpha");
+    Gamma gamma = (Gamma) factory.getBean("gamma");
+    assertThat(alpha.getBeta()).isSameAs(beta);
+    assertThat(beta.getGamma()).isSameAs(gamma);
+  }
+
+  @Test
+  public void testAbstractFactoryBeanViaAnnotation() throws Exception {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(ABSTRACT_CONTEXT);
+    factory.getBeansWithAnnotation(Component.class);
+  }
+
+  @Test
+  public void testAbstractFactoryBeanViaType() throws Exception {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(ABSTRACT_CONTEXT);
+    factory.getBeansOfType(AbstractFactoryBean.class);
+  }
+
+  @Test
   public void testCircularReferenceWithPostProcessor() {
     StandardBeanFactory factory = new StandardBeanFactory();
-    AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(factory, false);
-
-    reader.registerBean("bean2", BeanImpl2.class, definition -> {
-      definition.addPropertyValue("impl1", new RuntimeBeanReference(BeanImpl1.class));
-    });
-
-    reader.registerBean("bean1", BeanImpl1.class, definition -> {
-      definition.addPropertyValue("impl2", new RuntimeBeanReference(BeanImpl2.class));
-    });
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(CIRCULAR_CONTEXT);
 
     CountingPostProcessor counter = new CountingPostProcessor();
     factory.addBeanPostProcessor(counter);
@@ -296,13 +187,13 @@ class FactoryBeanTests {
     }
   }
 
-  public static class Gamma { }
+  public static class Gamma {
+  }
 
-  //  @Component
+  @Component
   public static class BetaFactoryBean implements FactoryBean<Object> {
 
     public BetaFactoryBean(Alpha alpha) {
-
     }
 
     private Beta beta;
@@ -312,7 +203,7 @@ class FactoryBeanTests {
     }
 
     @Override
-    public Beta getObject() {
+    public Object getObject() {
       return this.beta;
     }
 
@@ -327,9 +218,12 @@ class FactoryBeanTests {
     }
   }
 
+  public abstract static class AbstractFactoryBean implements FactoryBean<Object> {
+  }
+
   public static class PassThroughFactoryBean<T> implements FactoryBean<T>, BeanFactoryAware {
 
-    private final Class<T> type;
+    private Class<T> type;
 
     private String instanceName;
 

@@ -25,9 +25,11 @@ import org.w3c.dom.Element;
 import java.util.List;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.xml.AbstractBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParserDelegate;
 import cn.taketoday.beans.factory.xml.ParserContext;
@@ -105,7 +107,6 @@ class ScriptBeanDefinitionParser extends AbstractBeanDefinitionParser {
    * Registers a {@link ScriptFactoryPostProcessor} if needed.
    */
   @Override
-  @SuppressWarnings("deprecation")
   @Nullable
   protected BeanDefinition parseInternal(Element element, ParserContext parserContext) {
     // Engine attribute only supported for <lang:std>
@@ -121,7 +122,7 @@ class ScriptBeanDefinitionParser extends AbstractBeanDefinitionParser {
     LangNamespaceUtils.registerScriptFactoryPostProcessorIfNecessary(parserContext.getRegistry());
 
     // Create script factory bean definition.
-    BeanDefinition bd = new BeanDefinition();
+    GenericBeanDefinition bd = new GenericBeanDefinition();
     bd.setBeanClassName(this.scriptFactoryClassName);
     bd.setSource(parserContext.extractSource(element));
     bd.setAttribute(ScriptFactoryPostProcessor.LANGUAGE_ATTRIBUTE, element.getLocalName());
@@ -136,11 +137,11 @@ class ScriptBeanDefinitionParser extends AbstractBeanDefinitionParser {
     String autowire = element.getAttribute(AUTOWIRE_ATTRIBUTE);
     int autowireMode = parserContext.getDelegate().getAutowireMode(autowire);
     // Only "byType" and "byName" supported, but maybe other default inherited...
-    if (autowireMode == BeanDefinition.AUTOWIRE_AUTODETECT) {
-      autowireMode = BeanDefinition.AUTOWIRE_BY_TYPE;
+    if (autowireMode == AbstractBeanDefinition.AUTOWIRE_AUTODETECT) {
+      autowireMode = AbstractBeanDefinition.AUTOWIRE_BY_TYPE;
     }
-    else if (autowireMode == BeanDefinition.AUTOWIRE_CONSTRUCTOR) {
-      autowireMode = BeanDefinition.AUTOWIRE_NO;
+    else if (autowireMode == AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR) {
+      autowireMode = AbstractBeanDefinition.AUTOWIRE_NO;
     }
     bd.setAutowireMode(autowireMode);
 
@@ -157,18 +158,18 @@ class ScriptBeanDefinitionParser extends AbstractBeanDefinitionParser {
     // Determine init method and destroy method.
     String initMethod = element.getAttribute(INIT_METHOD_ATTRIBUTE);
     if (StringUtils.isNotEmpty(initMethod)) {
-      bd.setInitMethods(initMethod);
+      bd.setInitMethodNames(initMethod);
     }
     else if (beanDefinitionDefaults.getInitMethodName() != null) {
-      bd.setInitMethods(beanDefinitionDefaults.getInitMethodName());
+      bd.setInitMethodNames(beanDefinitionDefaults.getInitMethodName());
     }
 
     if (element.hasAttribute(DESTROY_METHOD_ATTRIBUTE)) {
       String destroyMethod = element.getAttribute(DESTROY_METHOD_ATTRIBUTE);
-      bd.setDestroyMethod(destroyMethod);
+      bd.setDestroyMethodName(destroyMethod);
     }
     else if (beanDefinitionDefaults.getDestroyMethodName() != null) {
-      bd.setDestroyMethod(beanDefinitionDefaults.getDestroyMethodName());
+      bd.setDestroyMethodName(beanDefinitionDefaults.getDestroyMethodName());
     }
 
     // Attach any refresh metadata.

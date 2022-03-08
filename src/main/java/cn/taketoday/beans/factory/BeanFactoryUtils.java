@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -653,18 +652,6 @@ public abstract class BeanFactoryUtils {
       throw new NoSuchBeanDefinitionException(requiredType);
     }
     return bean;
-  }
-
-  /**
-   * @throws NoSuchBeanDefinitionException bean-definition not found
-   * @see BeanDefinitionRegistry#getBeanDefinition(String)
-   */
-  public static BeanDefinition requiredDefinition(BeanDefinitionRegistry registry, String beanName) {
-    BeanDefinition def = registry.getBeanDefinition(beanName);
-    if (def == null) {
-      throw new NoSuchBeanDefinitionException(beanName);
-    }
-    return def;
   }
 
   /**

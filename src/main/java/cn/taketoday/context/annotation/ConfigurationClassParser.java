@@ -40,10 +40,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
@@ -141,8 +143,8 @@ class ConfigurationClassParser {
         if (definition instanceof AnnotatedBeanDefinition) {
           parse(((AnnotatedBeanDefinition) definition).getMetadata(), definition.getBeanName());
         }
-        else if (definition.hasBeanClass()) {
-          parse(definition.getBeanClass(), definition.getBeanName());
+        else if (definition instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
+          parse(((AbstractBeanDefinition) definition).getBeanClass(), definition.getBeanName());
         }
         else {
           parse(definition.getBeanClassName(), definition.getBeanName());

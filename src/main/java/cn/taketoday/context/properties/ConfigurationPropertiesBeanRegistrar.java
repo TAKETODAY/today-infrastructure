@@ -24,6 +24,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -96,7 +97,7 @@ final class ConfigurationPropertiesBeanRegistrar {
 
   private BeanDefinition createBeanDefinition(String beanName, Class<?> type) {
     BindMethod bindMethod = BindMethod.forType(type);
-    BeanDefinition definition = new BeanDefinition(type);
+    RootBeanDefinition definition = new RootBeanDefinition(type);
     definition.setAttribute(BindMethod.class.getName(), bindMethod);
     if (bindMethod == BindMethod.VALUE_OBJECT) {
       definition.setInstanceSupplier(() -> createValueObject(beanName, type));

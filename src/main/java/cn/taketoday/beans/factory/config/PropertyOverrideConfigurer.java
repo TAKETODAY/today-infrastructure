@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanInitializationException;
 
 /**
@@ -146,9 +145,15 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
   protected void applyPropertyValue(
           ConfigurableBeanFactory factory, String beanName, String property, String value) {
 
-    BeanDefinition bd = BeanFactoryUtils.requiredDefinition(factory, beanName);
+    BeanDefinition bd = factory.getBeanDefinition(beanName);
+    BeanDefinition bdToUse = bd;
+    while (bd != null) {
+      bdToUse = bd;
+      bd = bd.getOriginatingBeanDefinition();
+    }
     PropertyValue pv = new PropertyValue(property, value);
-    bd.propertyValues().add(pv);
+    pv.setOptional(this.ignoreInvalidKeys);
+    bdToUse.getPropertyValues().add(pv);
   }
 
   /**

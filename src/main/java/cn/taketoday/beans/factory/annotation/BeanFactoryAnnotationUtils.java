@@ -31,9 +31,10 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
-import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Nullable;
@@ -136,11 +137,13 @@ public abstract class BeanFactoryAnnotationUtils {
         if (beanFactory instanceof ConfigurableBeanFactory cbf) {
           BeanDefinition bd = cbf.getMergedBeanDefinition(beanName);
           // Explicit qualifier metadata on bean definition? (typically in XML definition)
-          AutowireCandidateQualifier candidate = bd.getQualifier(Qualifier.class.getName());
-          if (candidate != null) {
-            Object value = candidate.getAttribute(AutowireCandidateQualifier.VALUE_KEY);
-            if (value != null && qualifier.test(value.toString())) {
-              return true;
+          if (bd instanceof AbstractBeanDefinition abd) {
+            AutowireCandidateQualifier candidate = abd.getQualifier(Qualifier.class.getName());
+            if (candidate != null) {
+              Object value = candidate.getAttribute(AutowireCandidateQualifier.VALUE_KEY);
+              if (value != null && qualifier.test(value.toString())) {
+                return true;
+              }
             }
           }
           // Corresponding qualifier on factory method? (typically in configuration class)

@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -67,37 +68,37 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
           AnnotationMetadata annoMeta, MergedAnnotation<MapperScan> mapperScan,
           BeanDefinitionRegistry registry, String beanName) {
 
-    BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
-    definition.addPropertyValue("processPropertyPlaceHolders", true);
+    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
+    builder.addPropertyValue("processPropertyPlaceHolders", true);
 
     Class<? extends Annotation> annotationClass = mapperScan.getClass("annotationClass");
     if (!Annotation.class.equals(annotationClass)) {
-      definition.addPropertyValue("annotationClass", annotationClass);
+      builder.addPropertyValue("annotationClass", annotationClass);
     }
 
     Class<?> markerInterface = mapperScan.getClass("markerInterface");
     if (!Class.class.equals(markerInterface)) {
-      definition.addPropertyValue("markerInterface", markerInterface);
+      builder.addPropertyValue("markerInterface", markerInterface);
     }
 
     Class<? extends BeanNamePopulator> generatorClass = mapperScan.getClass("namePopulator");
     if (!BeanNamePopulator.class.equals(generatorClass)) {
-      definition.addPropertyValue("namePopulator", BeanUtils.newInstance(generatorClass));
+      builder.addPropertyValue("namePopulator", BeanUtils.newInstance(generatorClass));
     }
 
     Class<? extends MapperFactoryBean<?>> mapperFactoryBeanClass = mapperScan.getClass("factoryBean");
     if (!MapperFactoryBean.class.equals(mapperFactoryBeanClass)) {
-      definition.addPropertyValue("mapperFactoryBeanClass", mapperFactoryBeanClass);
+      builder.addPropertyValue("mapperFactoryBeanClass", mapperFactoryBeanClass);
     }
 
     String sqlSessionTemplateRef = mapperScan.getString("sqlSessionTemplateRef");
     if (StringUtils.hasText(sqlSessionTemplateRef)) {
-      definition.addPropertyValue("sqlSessionTemplateBeanName", sqlSessionTemplateRef);
+      builder.addPropertyValue("sqlSessionTemplateBeanName", sqlSessionTemplateRef);
     }
 
     String sqlSessionFactoryRef = mapperScan.getString("sqlSessionFactoryRef");
     if (StringUtils.hasText(sqlSessionFactoryRef)) {
-      definition.addPropertyValue("sqlSessionFactoryBeanName", sqlSessionFactoryRef);
+      builder.addPropertyValue("sqlSessionFactoryBeanName", sqlSessionFactoryRef);
     }
 
     ArrayList<String> basePackages = new ArrayList<>();
@@ -119,19 +120,18 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
 
     String lazyInitialization = mapperScan.getString("lazyInitialization");
     if (StringUtils.hasText(lazyInitialization)) {
-      definition.addPropertyValue("lazyInitialization", lazyInitialization);
+      builder.addPropertyValue("lazyInitialization", lazyInitialization);
     }
 
     String defaultScope = mapperScan.getString("defaultScope");
     if (StringUtils.hasText(defaultScope)) {
-      definition.addPropertyValue("defaultScope", defaultScope);
+      builder.addPropertyValue("defaultScope", defaultScope);
     }
 
-    definition.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(basePackages));
+    builder.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(basePackages));
+    builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
-    definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-
-    registry.registerBeanDefinition(beanName, definition);
+    registry.registerBeanDefinition(beanName, builder.getRawBeanDefinition());
   }
 
   private static String generateBaseBeanName(AnnotationMetadata importingClassMetadata, int index) {

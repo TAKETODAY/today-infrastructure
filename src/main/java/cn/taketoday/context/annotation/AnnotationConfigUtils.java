@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProces
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -130,7 +131,7 @@ public abstract class AnnotationConfigUtils {
    * @param registry the registry to operate on
    */
   public static void registerAnnotationConfigProcessors(
-          BeanDefinitionRegistry registry, @Nullable Consumer<BeanDefinition> consumer) {
+          BeanDefinitionRegistry registry, @Nullable Consumer<AbstractBeanDefinition> consumer) {
     StandardBeanFactory beanFactory = unwrapStandardBeanFactory(registry);
     if (beanFactory != null) {
       if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {

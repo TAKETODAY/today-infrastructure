@@ -31,18 +31,21 @@ import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.BootstrapContextAware;
 import cn.taketoday.context.aware.ImportAware;
@@ -59,6 +62,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+
+import static cn.taketoday.context.annotation.ConfigurationClassUtils.CONFIGURATION_CLASS_LITE;
 
 /**
  * {@link BeanFactoryPostProcessor} used for bootstrapping processing of
@@ -218,7 +223,7 @@ public class ConfigurationClassPostProcessor
     BootstrapContext bootstrapContext = obtainBootstrapContext();
 
     for (String beanName : candidateNames) {
-      BeanDefinition beanDef = BeanFactoryUtils.requiredDefinition(registry, beanName);
+      BeanDefinition beanDef = registry.getBeanDefinition(beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
         if (log.isDebugEnabled()) {
           log.debug("Bean definition has already been processed as a configuration class: {}", beanDef);
@@ -312,45 +317,45 @@ public class ConfigurationClassPostProcessor
    * @see ConfigurationClassEnhancer
    */
   public void enhanceConfigurationClasses(ConfigurableBeanFactory beanFactory) {
-    LinkedHashMap<String, BeanDefinition> configBeanDefs = new LinkedHashMap<>();
+    LinkedHashMap<String, AbstractBeanDefinition> configBeanDefs = new LinkedHashMap<>();
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
-      BeanDefinition beanDef = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
+      BeanDefinition beanDef = beanFactory.getBeanDefinition(beanName);
       Object configClassAttr = beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);
-
-      if (!beanDef.hasBeanClass()) {
-        AnnotationMetadata annotationMetadata = null;
-        MethodMetadata methodMetadata = null;
-        if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
-          annotationMetadata = annotatedBeanDefinition.getMetadata();
-          methodMetadata = annotatedBeanDefinition.getFactoryMethodMetadata();
-        }
-
-        if (configClassAttr != null || methodMetadata != null) {
-          // Configuration class (full or lite) or a configuration-derived @Component method
-          // -> eagerly resolve bean class at this point, unless it's a 'lite' configuration
-          // or component class without @Component methods.
-          boolean liteConfigurationCandidateWithoutBeanMethods =
-                  (ConfigurationClassUtils.CONFIGURATION_CLASS_LITE.equals(configClassAttr) &&
-                          annotationMetadata != null && !ConfigurationClassUtils.hasComponentMethods(annotationMetadata));
-          if (!liteConfigurationCandidateWithoutBeanMethods) {
-            try {
-              beanDef.resolveBeanClass(this.beanClassLoader);
-            }
-            catch (Throwable ex) {
-              throw new IllegalStateException(
-                      "Cannot load configuration class: " + beanDef.getBeanClassName(), ex);
-            }
+      AnnotationMetadata annotationMetadata = null;
+      MethodMetadata methodMetadata = null;
+      if (beanDef instanceof AnnotatedBeanDefinition annotatedBeanDefinition) {
+        annotationMetadata = annotatedBeanDefinition.getMetadata();
+        methodMetadata = annotatedBeanDefinition.getFactoryMethodMetadata();
+      }
+      if ((configClassAttr != null || methodMetadata != null) &&
+              (beanDef instanceof AbstractBeanDefinition abd) && !abd.hasBeanClass()) {
+        // Configuration class (full or lite) or a configuration-derived @Bean method
+        // -> eagerly resolve bean class at this point, unless it's a 'lite' configuration
+        // or component class without @Bean methods.
+        boolean liteConfigurationCandidateWithoutBeanMethods = CONFIGURATION_CLASS_LITE.equals(configClassAttr)
+                && (annotationMetadata != null) && !ConfigurationClassUtils.hasComponentMethods(annotationMetadata);
+        if (!liteConfigurationCandidateWithoutBeanMethods) {
+          try {
+            abd.resolveBeanClass(this.beanClassLoader);
+          }
+          catch (Throwable ex) {
+            throw new IllegalStateException(
+                    "Cannot load configuration class: " + beanDef.getBeanClassName(), ex);
           }
         }
       }
       if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
-        if (log.isInfoEnabled() && beanFactory.containsSingleton(beanName)) {
+        if (!(beanDef instanceof AbstractBeanDefinition abd)) {
+          throw new BeanDefinitionStoreException("Cannot enhance @Configuration bean definition '" +
+                  beanName + "' since it is not stored in an AbstractBeanDefinition subclass");
+        }
+        else if (log.isInfoEnabled() && beanFactory.containsSingleton(beanName)) {
           log.info("Cannot enhance @Configuration bean definition '{}' " +
                   "since its singleton instance has been created too early. The typical cause " +
                   "is a non-static @Component method with a BeanDefinitionRegistryPostProcessor " +
                   "return type: Consider declaring such methods as 'static'.", beanName);
         }
-        configBeanDefs.put(beanName, beanDef);
+        configBeanDefs.put(beanName, abd);
       }
     }
     if (configBeanDefs.isEmpty()) {
@@ -359,8 +364,8 @@ public class ConfigurationClassPostProcessor
     }
 
     ConfigurationClassEnhancer enhancer = new ConfigurationClassEnhancer();
-    for (Map.Entry<String, BeanDefinition> entry : configBeanDefs.entrySet()) {
-      BeanDefinition beanDef = entry.getValue();
+    for (Map.Entry<String, AbstractBeanDefinition> entry : configBeanDefs.entrySet()) {
+      AbstractBeanDefinition beanDef = entry.getValue();
       // If a @Configuration class gets proxied, always proxy the target class
       beanDef.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
       // Set enhanced subclass of the user-specified bean class

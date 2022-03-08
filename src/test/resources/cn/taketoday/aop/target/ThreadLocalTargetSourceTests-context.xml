@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="prototypeTest" class="cn.taketoday.beans.testfixture.beans.SideEffectBean" scope="prototype">
+		<property name="count"><value>10</value></property>
+	</bean>
+
+	<bean id="threadLocalTs" class="cn.taketoday.aop.target.ThreadLocalTargetSource">
+		<property name="targetBeanName"><value>prototypeTest</value></property>
+	</bean>
+
+	<bean id="debugInterceptor" class="cn.taketoday.aop.testfixture.interceptor.NopInterceptor" />
+
+	<!--
+		We want to invoke the getStatsMixin method on our ThreadLocal invoker
+	-->
+	<bean id="statsAdvisor" class="cn.taketoday.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject"><ref bean="threadLocalTs" /></property>
+		<property name="targetMethod"><value>getStatsMixin</value></property>
+	</bean>
+
+	<!--
+		This will create a bean for each thread ("apartment")
+	-->
+	<bean id="apartment" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+		<property name="interceptorNames"><value>debugInterceptor,statsAdvisor</value></property>
+		<property name="targetSource"><ref bean="threadLocalTs"/></property>
+		<!-- Necessary as have a mixin and want to avoid losing the class,
+			 because there's no target interface -->
+		<property name="proxyTargetClass"><value>true</value></property>
+	</bean>
+
+	<!-- ================ Definitions for second ThreadLocalTargetSource ====== -->
+
+	<bean id="test" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="prototype">
+		<property name="name"><value>Rod</value></property>
+		<property name="spouse"><ref bean="wife"/></property>
+	</bean>
+
+	<bean id="wife" class="cn.taketoday.beans.testfixture.beans.TestBean">
+		<property name="name"><value>Kerry</value></property>
+	</bean>
+
+	<bean id="threadLocalTs2" class="cn.taketoday.aop.target.ThreadLocalTargetSource">
+		<property name="targetBeanName"><value>test</value></property>
+	</bean>
+
+	<bean id="threadLocal2" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+		<property name="targetSource"><ref bean="threadLocalTs2"/></property>
+	</bean>
+
+</beans>

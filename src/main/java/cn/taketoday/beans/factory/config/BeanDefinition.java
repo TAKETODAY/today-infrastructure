@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Constant;
@@ -44,9 +45,6 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
   // @since 4.0
   Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
-
-  String INIT_METHODS = "initMethods";
-  String DESTROY_METHOD = "destroyMethod";
 
   /**
    * Scope identifier for the standard singleton scope: {@value}.
@@ -85,46 +83,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    */
   int ROLE_INFRASTRUCTURE = 2;
 
-  /**
-   * Constant that indicates no external autowiring at all.
-   *
-   * @see #setAutowireMode
-   * @since 4.0
-   */
-  int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
-
-  /**
-   * Constant that indicates autowiring bean properties by name.
-   *
-   * @see #setAutowireMode
-   * @since 4.0
-   */
-  int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
-
-  /**
-   * Constant that indicates autowiring bean properties by type.
-   *
-   * @see #setAutowireMode
-   * @since 4.0
-   */
-  int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
-
-  /**
-   * Constant that indicates autowiring a constructor.
-   *
-   * @see #setAutowireMode
-   * @since 4.0
-   */
-  int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
-
-  /**
-   * Constant that indicates determining an appropriate autowire strategy
-   * through introspection of the bean class.
-   *
-   * @see #setAutowireMode
-   * @since 4.0
-   */
-  int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;
+  // naming
 
   String getBeanName();
 
@@ -145,6 +104,18 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    */
   default boolean hasAliases() {
     return ObjectUtils.isNotEmpty(getAliases());
+  }
+
+  /**
+   * Determine whether the given candidate name matches the bean name
+   * or the aliases stored in this bean definition.
+   */
+  default boolean matchesName(@Nullable String candidateName) {
+    return candidateName != null && (
+            candidateName.equals(getBeanName())
+                    || candidateName.equals(BeanFactoryUtils.transformedBeanName(getBeanName()))
+                    || ObjectUtils.containsElement(getAliases(), candidateName)
+    );
   }
 
   // Modifiable attributes
@@ -424,5 +395,13 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    */
   @Nullable
   BeanDefinition getOriginatingBeanDefinition();
+
+  /**
+   * Clone this bean definition.
+   * To be implemented by concrete subclasses.
+   *
+   * @return the cloned bean definition object
+   */
+  BeanDefinition cloneBeanDefinition();
 
 }

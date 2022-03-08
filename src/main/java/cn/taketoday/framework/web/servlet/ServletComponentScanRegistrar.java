@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -85,9 +86,9 @@ class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
     return packagesToScan;
   }
 
-  static final class ServletComponentRegisteringPostProcessorBeanDefinition extends BeanDefinition {
+  static final class ServletComponentRegisteringPostProcessorBeanDefinition extends GenericBeanDefinition {
 
-    private final Set<String> packageNames = new LinkedHashSet<>();
+    private final LinkedHashSet<String> packageNames = new LinkedHashSet<>();
 
     ServletComponentRegisteringPostProcessorBeanDefinition(Collection<String> packageNames) {
       setBeanClass(ServletComponentRegisteringPostProcessor.class);

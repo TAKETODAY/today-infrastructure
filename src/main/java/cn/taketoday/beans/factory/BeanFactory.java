@@ -409,9 +409,10 @@ public interface BeanFactory extends DependencyInjectorProvider {
    *
    * @param beanName the name of the bean
    * @return the registered BeanDefinition
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * defined in this factory
    * @since 4.0
    */
-  @Nullable
   BeanDefinition getBeanDefinition(String beanName);
 
   //---------------------------------------------------------------------

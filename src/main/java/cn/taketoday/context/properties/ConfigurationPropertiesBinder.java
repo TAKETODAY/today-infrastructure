@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -209,16 +210,17 @@ class ConfigurationPropertiesBinder {
 
   static void register(BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(FACTORY_BEAN_NAME)) {
-      BeanDefinition definition = new BeanDefinition(Factory.class);
+      BeanDefinition definition = BeanDefinitionBuilder
+              .rootBeanDefinition(ConfigurationPropertiesBinder.Factory.class).getBeanDefinition();
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.FACTORY_BEAN_NAME, definition);
     }
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      BeanDefinition definition = new BeanDefinition(ConfigurationPropertiesBinder.class);
+      BeanDefinition definition = BeanDefinitionBuilder.rootBeanDefinition(ConfigurationPropertiesBinder.class,
+                      () -> ((BeanFactory) registry).getBean(FACTORY_BEAN_NAME, ConfigurationPropertiesBinder.Factory.class).create()
+              )
+              .getBeanDefinition();
 
-      definition.setInstanceSupplier(
-              () -> BeanFactoryUtils.requiredBean((BeanFactory) registry, FACTORY_BEAN_NAME, Factory.class).create()
-      );
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.BEAN_NAME, definition);
     }

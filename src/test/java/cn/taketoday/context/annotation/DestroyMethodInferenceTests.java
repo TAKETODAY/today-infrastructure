@@ -114,7 +114,7 @@ public class DestroyMethodInferenceTests {
     ctx.registerBeanDefinition(new BeanDefinition("x1", WithLocalCloseMethod.class));
 
     BeanDefinition x21 = new BeanDefinition("x2", WithLocalCloseMethod.class);
-    x21.setDestroyMethod(BeanDefinition.INFER_METHOD);
+    x21.setDestroyMethod(AbstractBeanDefinition);
     ctx.registerBeanDefinition(x21);
 
     BeanDefinition x81 = new BeanDefinition("x8", WithInheritedCloseMethod.class);
@@ -125,11 +125,11 @@ public class DestroyMethodInferenceTests {
     ctx.registerBeanDefinition(new BeanDefinition("x10", WithAutoCloseable.class));
 
     BeanDefinition x31 = new BeanDefinition("x3", WithLocalCloseMethod.class);
-    x31.setDestroyMethod(BeanDefinition.INFER_METHOD);
+    x31.setDestroyMethod(AbstractBeanDefinition);
     ctx.registerBeanDefinition(x31);
 
     BeanDefinition x41 = new BeanDefinition("x4", WithNoCloseMethod.class);
-    x41.setDestroyMethod(BeanDefinition.INFER_METHOD);
+    x41.setDestroyMethod(AbstractBeanDefinition);
 
     ctx.registerBeanDefinition(x41);
     ctx.refresh();

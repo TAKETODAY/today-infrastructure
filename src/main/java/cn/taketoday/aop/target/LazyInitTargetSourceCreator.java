@@ -21,7 +21,6 @@
 package cn.taketoday.aop.target;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
 
@@ -68,8 +67,7 @@ public class LazyInitTargetSourceCreator extends AbstractBeanFactoryTargetSource
   protected AbstractBeanFactoryTargetSource createBeanFactoryTargetSource(
           Class<?> beanClass, String beanName) {
     if (getBeanFactory() instanceof ConfigurableBeanFactory configurable) {
-      BeanDefinition definition = BeanFactoryUtils.requiredDefinition(configurable, beanName);
-      if (definition.isLazyInit()) {
+      if (configurable.getBeanDefinition(beanName).isLazyInit()) {
         return new LazyInitTargetSource();
       }
     }

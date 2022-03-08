@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.core.annotation.AliasFor;
 
@@ -76,7 +76,7 @@ public @interface Prototype {
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
   @AliasFor(annotation = Component.class)
-  String destroyMethod() default BeanDefinition.INFER_METHOD;
+  String destroyMethod() default AbstractBeanDefinition.INFER_METHOD;
 
   /**
    * Is this bean a candidate for getting autowired into some other bean?

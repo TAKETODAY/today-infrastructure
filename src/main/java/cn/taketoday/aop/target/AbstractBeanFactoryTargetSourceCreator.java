@@ -24,14 +24,14 @@ import java.util.HashMap;
 
 import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -101,8 +101,8 @@ public abstract class AbstractBeanFactoryTargetSourceCreator
     // We need to override just this bean definition, as it may reference other beans
     // and we're happy to take the parent's definition for those.
     // Always use prototype scope if demanded.
-    BeanDefinition bd = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
-    BeanDefinition bdCopy = bd.cloneDefinition();
+    BeanDefinition bd = beanFactory.getMergedBeanDefinition(beanName);
+    GenericBeanDefinition bdCopy = new GenericBeanDefinition(bd);
     if (isPrototypeBased()) {
       bdCopy.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     }

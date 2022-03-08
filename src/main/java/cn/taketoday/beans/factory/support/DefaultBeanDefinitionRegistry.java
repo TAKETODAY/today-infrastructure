@@ -71,7 +71,8 @@ public class DefaultBeanDefinitionRegistry
   @Override
   public BeanDefinition getBeanDefinition(Class<?> beanClass) {
     for (final BeanDefinition definition : getBeanDefinitions().values()) {
-      if (beanClass.isAssignableFrom(definition.getBeanClass())) {
+      if (definition instanceof AbstractBeanDefinition abd
+              && beanClass.isAssignableFrom(abd.getBeanClass())) {
         return definition;
       }
     }
@@ -90,16 +91,16 @@ public class DefaultBeanDefinitionRegistry
 
   @Override
   public boolean containsBeanDefinition(final Class<?> type, final boolean equals) {
-    final Predicate<BeanDefinition> predicate = getPredicate(type, equals);
+    final Predicate<AbstractBeanDefinition> predicate = getPredicate(type, equals);
     for (final BeanDefinition beanDef : getBeanDefinitions().values()) {
-      if (predicate.test(beanDef)) {
+      if (beanDef instanceof AbstractBeanDefinition abd && predicate.test(abd)) {
         return true;
       }
     }
     return false;
   }
 
-  private Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
+  private Predicate<AbstractBeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
     return equals
            ? beanDef -> type == beanDef.getBeanClass()
            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());

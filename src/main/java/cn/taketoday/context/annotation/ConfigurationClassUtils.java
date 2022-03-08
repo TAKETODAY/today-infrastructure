@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.util.Set;
 
 import cn.taketoday.aop.AopInfrastructureBean;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.event.EventListenerFactory;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Conventions;
@@ -88,15 +90,15 @@ abstract class ConfigurationClassUtils {
     }
 
     AnnotationMetadata metadata;
-    if (beanDef instanceof AnnotatedBeanDefinition
-            && className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
+    if (beanDef instanceof AnnotatedBeanDefinition annotated
+            && className.equals(annotated.getMetadata().getClassName())) {
       // Can reuse the pre-parsed metadata from the given BeanDefinition...
-      metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
+      metadata = annotated.getMetadata();
     }
-    else if (beanDef.hasBeanClass()) {
+    else if (beanDef instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
       // Check already loaded Class if present...
       // since we possibly can't even load the class file for this Class.
-      Class<?> beanClass = beanDef.getBeanClass();
+      Class<?> beanClass = abd.getBeanClass();
       if (BeanFactoryPostProcessor.class.isAssignableFrom(beanClass)
               || BeanPostProcessor.class.isAssignableFrom(beanClass)
               || AopInfrastructureBean.class.isAssignableFrom(beanClass)

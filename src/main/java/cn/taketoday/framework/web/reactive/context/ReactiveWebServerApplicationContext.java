@@ -99,7 +99,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
       String webServerFactoryBeanName = getWebServerFactoryBeanName();
       ReactiveWebServerFactory webServerFactory = getWebServerFactory(webServerFactoryBeanName);
       StandardBeanFactory beanFactory = getBeanFactory();
-      boolean lazyInit = BeanFactoryUtils.requiredDefinition((BeanDefinitionRegistry) beanFactory, webServerFactoryBeanName).isLazyInit();
+      boolean lazyInit = beanFactory.getBeanDefinition(webServerFactoryBeanName).isLazyInit();
 
       this.serverManager = new WebServerManager(this, webServerFactory, this::getHttpHandler, lazyInit);
       beanFactory.registerSingleton("webServerGracefulShutdown",

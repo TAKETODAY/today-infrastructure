@@ -21,11 +21,12 @@
 package cn.taketoday.context.properties;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
@@ -118,7 +119,7 @@ public class ConfigurationPropertiesBindingPostProcessor
   public static void register(BeanDefinitionRegistry registry) {
     Assert.notNull(registry, "Registry must not be null");
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      BeanDefinition definition = new BeanDefinition(ConfigurationPropertiesBindingPostProcessor.class);
+      BeanDefinition definition = new RootBeanDefinition(ConfigurationPropertiesBindingPostProcessor.class);
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(BEAN_NAME, definition);
     }

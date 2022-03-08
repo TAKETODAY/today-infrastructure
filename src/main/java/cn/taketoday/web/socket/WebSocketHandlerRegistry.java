@@ -21,13 +21,13 @@
 package cn.taketoday.web.socket;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
@@ -71,11 +71,14 @@ public class WebSocketHandlerRegistry
     }
     AnnotationHandlerFactory factory = BeanFactoryUtils.requiredBean(context, AnnotationHandlerFactory.class);
 
-    Map<String, BeanDefinition> beanDefinitions = context.getBeanDefinitions();
-    for (Map.Entry<String, BeanDefinition> entry : beanDefinitions.entrySet()) {
-      BeanDefinition definition = entry.getValue();
-      if (isEndpoint(context, definition)) {
-        registerEndpoint(definition, context, factory);
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    String[] definitionNames = context.getBeanDefinitionNames();
+    for (String definitionName : definitionNames) {
+      BeanDefinition merged = beanFactory.getMergedBeanDefinition(definitionName);
+      if (!merged.isAbstract() && merged instanceof RootBeanDefinition root) {
+        if (isEndpoint(context, root)) {
+          registerEndpoint(root, context, factory);
+        }
       }
     }
   }
@@ -96,7 +99,7 @@ public class WebSocketHandlerRegistry
   }
 
   protected void registerEndpoint(
-          BeanDefinition definition, WebApplicationContext context,
+          RootBeanDefinition definition, WebApplicationContext context,
           AnnotationHandlerFactory factory) {
     BeanSupplier<Object> handlerBean = createHandler(definition, context);
 

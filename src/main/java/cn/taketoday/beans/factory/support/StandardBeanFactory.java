@@ -58,7 +58,6 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
-import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
@@ -68,6 +67,7 @@ import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
@@ -433,12 +433,15 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     if (def.getBeanName() == null) {
       def.setBeanName(beanName);
     }
-    try {
-      def.validate();
-    }
-    catch (BeanDefinitionValidationException ex) {
-      throw new BeanDefinitionStoreException(def.getResourceDescription(), beanName,
-              "Validation of bean definition failed", ex);
+
+    if (def instanceof AbstractBeanDefinition abd) {
+      try {
+        abd.validate();
+      }
+      catch (BeanDefinitionValidationException ex) {
+        throw new BeanDefinitionStoreException(def.getResourceDescription(), beanName,
+                "Validation of bean definition failed", ex);
+      }
     }
 
     BeanDefinition existBeanDef = beanDefinitionMap.get(beanName);
@@ -518,8 +521,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public BeanDefinition getBeanDefinition(String beanName) {
-    return beanDefinitionMap.get(beanName);
+  public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+    BeanDefinition bd = beanDefinitionMap.get(beanName);
+    if (bd == null) {
+      log.trace("No bean named '{}' found in {}", beanName, this);
+      throw new NoSuchBeanDefinitionException(beanName);
+    }
+    return bd;
   }
 
   @Override
@@ -1033,7 +1041,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return beanNames;
   }
 
-  private boolean allowCheck(BeanDefinition definition) {
+  private boolean allowCheck(RootBeanDefinition definition) {
     return (
             definition.hasBeanClass()
                     || !definition.isLazyInit()
@@ -1148,8 +1156,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     // Check raw bean class, e.g. in case of a proxy.
-    if (definition != null && definition.hasBeanClass()) {
-      Class<?> beanClass = definition.getBeanClass();
+    if (definition instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
+      Class<?> beanClass = abd.getBeanClass();
       if (beanClass != beanType) {
         MergedAnnotation<A> annotation =
                 MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
@@ -1266,7 +1274,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     String bdName = BeanFactoryUtils.transformedBeanName(beanName);
     if (!beanName.equals(bdName)) {
-      definition = definition.cloneDefinition();
+      definition = definition.cloneBeanDefinition();
       definition.setBeanName(beanName);
       definition.setAliases(getAliases(bdName));
     }

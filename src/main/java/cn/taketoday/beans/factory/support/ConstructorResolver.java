@@ -43,7 +43,6 @@ import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -51,6 +50,7 @@ import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
@@ -316,7 +316,7 @@ final class ConstructorResolver {
 
   /**
    * Resolve the factory method in the specified bean definition, if possible.
-   * {@link BeanDefinition#getResolvedFactoryMethod()} can be checked for the result.
+   * {@link RootBeanDefinition#getResolvedFactoryMethod()} can be checked for the result.
    *
    * @param mbd the bean definition to check
    */
@@ -359,10 +359,10 @@ final class ConstructorResolver {
 
   /**
    * Retrieve all candidate methods for the given class, considering
-   * the {@link BeanDefinition#isNonPublicAccessAllowed()} flag.
+   * the {@link RootBeanDefinition#isNonPublicAccessAllowed()} flag.
    * Called as the starting point for factory method determination.
    */
-  private Method[] getCandidateMethods(Class<?> factoryClass, BeanDefinition mbd) {
+  private Method[] getCandidateMethods(Class<?> factoryClass, RootBeanDefinition mbd) {
     return mbd.isNonPublicAccessAllowed()
            ? ReflectionUtils.getAllDeclaredMethods(factoryClass)
            : factoryClass.getMethods();

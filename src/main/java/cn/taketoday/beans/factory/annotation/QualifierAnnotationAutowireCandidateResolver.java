@@ -29,10 +29,10 @@ import java.util.Set;
 
 import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
-import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
+import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.MethodParameter;

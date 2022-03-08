@@ -24,7 +24,9 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.DispatcherType;
@@ -43,8 +45,9 @@ class WebFilterHandler extends ServletComponentHandler {
 
   @Override
   public void doHandle(Map<String, Object> attributes, AnnotatedBeanDefinition beanDefinition,
-                       BeanDefinitionRegistry registry) {
-    BeanDefinition builder = new BeanDefinition(FilterRegistrationBean.class);
+          BeanDefinitionRegistry registry) {
+    
+    BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterRegistrationBean.class);
     builder.addPropertyValue("asyncSupported", attributes.get("asyncSupported"));
     builder.addPropertyValue("dispatcherTypes", extractDispatcherTypes(attributes));
     builder.addPropertyValue("filter", beanDefinition);
@@ -53,7 +56,7 @@ class WebFilterHandler extends ServletComponentHandler {
     builder.addPropertyValue("name", name);
     builder.addPropertyValue("servletNames", attributes.get("servletNames"));
     builder.addPropertyValue("urlPatterns", extractUrlPatterns(attributes));
-    registry.registerBeanDefinition(name, builder);
+    registry.registerBeanDefinition(name, builder.getBeanDefinition());
   }
 
   private EnumSet<DispatcherType> extractDispatcherTypes(Map<String, Object> attributes) {

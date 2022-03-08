@@ -4,13 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 
-import cn.taketoday.beans.BeanWrapper;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean;
-import cn.taketoday.beans.factory.config.PropertyValueRetriever;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
+import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -98,41 +96,18 @@ class FieldRetrievingFactoryBeanTests {
   @Test
   public void testWithConstantOnClassWithPackageLevelVisibility() throws Exception {
     FieldRetrievingFactoryBean fr = new FieldRetrievingFactoryBean();
-    fr.setBeanName("cn.taketoday.beans.factory.support.PackageLevelVisibleBean.CONSTANT");
+    fr.setBeanName("cn.taketoday.beans.testfixture.beans.support.PackageLevelVisibleBean.CONSTANT");
     fr.afterPropertiesSet();
     assertThat(fr.getObject()).isEqualTo("Wuby");
   }
 
   @Test
   public void testBeanNameSyntaxWithBeanFactory() throws Exception {
-    StandardBeanFactory beanFactory = new StandardBeanFactory();
-/*
-	<bean id="testBean" class="TestBean">
-		<property name="someIntegerArray">
-			<list>
-				<bean name="java.sql.Connection.TRANSACTION_SERIALIZABLE" class="FieldRetrievingFactoryBean"/>
-				<bean name="java.sql.Connection.TRANSACTION_SERIALIZABLE" class="FieldRetrievingFactoryBean"/>
-			</list>
-		</property>
-	</bean>
-*/
+    StandardBeanFactory bf = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(bf).loadBeanDefinitions(
+            qualifiedResource(FieldRetrievingFactoryBeanTests.class, "context.xml"));
 
-    BeanDefinition testBeanDef = new BeanDefinition("testBean", TestBean.class);
-    testBeanDef.propertyValues().add("someIntegerArray", new PropertyValueRetriever() {
-      @Override
-      public Object retrieve(String propertyPath, BeanWrapper binder, AutowireCapableBeanFactory beanFactory) {
-        return new Integer[] {
-                (Integer) BeanDefinitionReference.from("java.sql.Connection.TRANSACTION_SERIALIZABLE", FieldRetrievingFactoryBean.class)
-                        .retrieve(propertyPath, binder, beanFactory),
-                (Integer) BeanDefinitionReference.from("java.sql.Connection.TRANSACTION_SERIALIZABLE", FieldRetrievingFactoryBean.class)
-                        .retrieve(propertyPath, binder, beanFactory)
-        };
-      }
-    });
-
-    beanFactory.registerBeanDefinition(testBeanDef);
-
-    TestBean testBean = (TestBean) beanFactory.getBean("testBean");
+    TestBean testBean = (TestBean) bf.getBean("testBean");
     assertThat(testBean.getSomeIntegerArray()[0]).isEqualTo(Connection.TRANSACTION_SERIALIZABLE);
     assertThat(testBean.getSomeIntegerArray()[1]).isEqualTo(Connection.TRANSACTION_SERIALIZABLE);
   }

@@ -47,11 +47,11 @@ class ScriptingDefaultsParser implements BeanDefinitionParser {
             LangNamespaceUtils.registerScriptFactoryPostProcessorIfNecessary(parserContext.getRegistry());
     String refreshCheckDelay = element.getAttribute(REFRESH_CHECK_DELAY_ATTRIBUTE);
     if (StringUtils.hasText(refreshCheckDelay)) {
-      bd.propertyValues().add("defaultRefreshCheckDelay", Long.valueOf(refreshCheckDelay));
+      bd.getPropertyValues().add("defaultRefreshCheckDelay", Long.valueOf(refreshCheckDelay));
     }
     String proxyTargetClass = element.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE);
     if (StringUtils.hasText(proxyTargetClass)) {
-      bd.propertyValues().add("defaultProxyTargetClass", new TypedStringValue(proxyTargetClass, Boolean.class));
+      bd.getPropertyValues().add("defaultProxyTargetClass", new TypedStringValue(proxyTargetClass, Boolean.class));
     }
     return null;
   }

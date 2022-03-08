@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.io.IOException;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.context.support.ContextUtils;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -76,9 +76,8 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
       // pass the condition evaluation
       if (context.passCondition(annotationMetadata)) {
 
-        BeanDefinition definition = new BeanDefinition();
-        definition.setBeanClassName(annotationMetadata.getClassName());
-        definition.setSource(metadataReader.getResource());
+        AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(annotationMetadata);
+        definition.setResource(metadataReader.getResource());
         definition.setBeanName(context.populateName(definition));
 
         context.registerBeanDefinition(definition);

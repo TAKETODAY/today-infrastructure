@@ -25,8 +25,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -121,14 +122,14 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
   public static void forceAutoProxyCreatorToUseClassProxying(BeanDefinitionRegistry registry) {
     BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
     if (definition != null) {
-      definition.addPropertyValue("proxyTargetClass", Boolean.TRUE);
+      definition.getPropertyValues().add("proxyTargetClass", Boolean.TRUE);
     }
   }
 
   public static void forceAutoProxyCreatorToExposeProxy(BeanDefinitionRegistry registry) {
     BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
     if (definition != null) {
-      definition.addPropertyValue("exposeProxy", Boolean.TRUE);
+      definition.getPropertyValues().add("exposeProxy", Boolean.TRUE);
     }
   }
 
@@ -153,15 +154,16 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
           Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
 
     Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-    BeanDefinition beanDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-    if (beanDefinition != null) {
+
+    if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
+      BeanDefinition beanDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
       beanDefinition.setBeanClassName(cls.getName());
       return null;
     }
 
-    beanDefinition = new BeanDefinition(cls);
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
     beanDefinition.setSource(source);
-    beanDefinition.addPropertyValue("order", Ordered.HIGHEST_PRECEDENCE);
+    beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
     beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
     return beanDefinition;

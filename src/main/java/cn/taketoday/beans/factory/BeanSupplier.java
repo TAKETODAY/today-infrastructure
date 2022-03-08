@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -94,8 +95,8 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
   public static <E> BeanSupplier<E> from(BeanFactory beanFactory, BeanDefinition def) {
     Assert.notNull(def, "BeanDefinition is required");
     Class<E> targetClass = null;
-    if (def.hasBeanClass()) {
-      targetClass = (Class<E>) def.getBeanClass();
+    if (def instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
+      targetClass = (Class<E>) abd.getBeanClass();
     }
     return from(beanFactory, targetClass, def.getBeanName(), def.isSingleton());
   }

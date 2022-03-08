@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -206,7 +207,7 @@ public abstract class AutoConfigurationPackages {
 
   }
 
-  static final class BasePackagesBeanDefinition extends BeanDefinition {
+  static final class BasePackagesBeanDefinition extends GenericBeanDefinition {
     private final LinkedHashSet<String> basePackages = new LinkedHashSet<>();
 
     BasePackagesBeanDefinition(String... basePackages) {

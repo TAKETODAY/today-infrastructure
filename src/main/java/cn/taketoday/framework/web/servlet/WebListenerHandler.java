@@ -22,7 +22,8 @@ package cn.taketoday.framework.web.servlet;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import jakarta.servlet.annotation.WebListener;
 
@@ -39,10 +40,12 @@ class WebListenerHandler extends ServletComponentHandler {
 
   @Override
   protected void doHandle(Map<String, Object> attributes, AnnotatedBeanDefinition beanDefinition,
-                          BeanDefinitionRegistry registry) {
-    BeanDefinition builder = new BeanDefinition(ServletComponentWebListenerRegistrar.class);
-    builder.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition.getBeanClassName());
-    registry.registerBeanDefinition(beanDefinition.getBeanClassName() + "Registrar", builder);
+          BeanDefinitionRegistry registry) {
+    BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(
+            ServletComponentWebListenerRegistrar.class);
+
+    builder.addConstructorArgValue(beanDefinition.getBeanClassName());
+    registry.registerBeanDefinition(beanDefinition.getBeanClassName() + "Registrar", builder.getBeanDefinition());
   }
 
   static class ServletComponentWebListenerRegistrar implements WebListenerRegistrar {

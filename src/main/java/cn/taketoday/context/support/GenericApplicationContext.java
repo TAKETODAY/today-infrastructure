@@ -30,13 +30,14 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
@@ -379,7 +380,7 @@ public class GenericApplicationContext
    * @see #getBeanFactory
    */
   public void registerSingleton(String name, Class<?> clazz) throws BeansException {
-    BeanDefinition bd = new BeanDefinition(name, clazz);
+    BeanDefinition bd = new RootBeanDefinition(clazz);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
 
@@ -390,7 +391,7 @@ public class GenericApplicationContext
    * @see #getBeanFactory()
    */
   public void registerSingleton(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
-    BeanDefinition bd = new BeanDefinition(name, clazz);
+    RootBeanDefinition bd = new RootBeanDefinition(clazz);
     bd.setPropertyValues(pvs);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
@@ -402,7 +403,7 @@ public class GenericApplicationContext
    * @see #getBeanFactory
    */
   public void registerPrototype(String name, Class<?> clazz) throws BeansException {
-    BeanDefinition bd = new BeanDefinition(name, clazz);
+    RootBeanDefinition bd = new RootBeanDefinition(clazz);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     getBeanFactory().registerBeanDefinition(name, bd);
   }
@@ -414,7 +415,7 @@ public class GenericApplicationContext
    * @see #getBeanFactory
    */
   public void registerPrototype(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
-    BeanDefinition bd = new BeanDefinition(name, clazz);
+    RootBeanDefinition bd = new RootBeanDefinition(clazz);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bd.setPropertyValues(pvs);
     getBeanFactory().registerBeanDefinition(name, bd);
@@ -438,7 +439,7 @@ public class GenericApplicationContext
   public <T> void registerBean(Class<T> clazz, @Nullable Supplier<T> supplier,
           boolean prototype, boolean ignoreAnnotation) throws BeanDefinitionStoreException {
 
-    BeanDefinition definition = new BeanDefinition(clazz);
+    RootBeanDefinition definition = new RootBeanDefinition(clazz);
     if (prototype) {
       definition.setScope(Scope.PROTOTYPE);
     }
@@ -507,7 +508,7 @@ public class GenericApplicationContext
           @Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
 
-    BeanDefinition beanDefinition = new BeanDefinition(beanClass);
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
     if (supplier != null) {
       beanDefinition.setInstanceSupplier(supplier);
     }

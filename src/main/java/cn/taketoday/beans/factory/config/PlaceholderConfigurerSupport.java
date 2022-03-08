@@ -23,7 +23,6 @@ package cn.taketoday.beans.factory.config;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.core.StringValueResolver;
@@ -224,7 +223,7 @@ public abstract class PlaceholderConfigurerSupport
       // Check that we're not parsing our own bean definition,
       // to avoid failing on unresolvable placeholders in properties file locations.
       if (!(curName.equals(this.beanName) && beanFactoryToProcess.equals(this.beanFactory))) {
-        BeanDefinition definition = BeanFactoryUtils.requiredDefinition(beanFactoryToProcess, curName);
+        BeanDefinition definition = beanFactoryToProcess.getBeanDefinition(curName);
         try {
           visitor.visitBeanDefinition(definition);
         }

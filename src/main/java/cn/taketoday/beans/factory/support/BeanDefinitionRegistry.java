@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.AliasRegistry;
 import cn.taketoday.lang.Nullable;
@@ -77,14 +78,13 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
   void removeBeanDefinition(String beanName);
 
   /**
-   * Return the BeanDefinition for the given bean name. Return the BeanDefinition
-   * for the given bean name.
+   * Return the BeanDefinition for the given bean name.
    *
-   * @param beanName Name of the bean to find a definition for
+   * @param beanName name of the bean to find a definition for
    * @return the BeanDefinition for the given name (never {@code null})
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
    */
-  @Nullable
-  BeanDefinition getBeanDefinition(String beanName);
+  BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
   /**
    * Return the BeanDefinition for the given bean class.

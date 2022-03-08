@@ -59,12 +59,12 @@ class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
     String agentId = element.getAttribute(AGENT_ID_ATTRIBUTE);
     if (StringUtils.hasText(agentId)) {
       RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);
-      bd.propertyValues().add("agentId", agentId);
+      bd.getPropertyValues().add("agentId", agentId);
       return bd;
     }
 
     RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);
-    bd.propertyValues().add("locateExistingServerIfPossible", Boolean.TRUE);
+    bd.getPropertyValues().add("locateExistingServerIfPossible", Boolean.TRUE);
 
     // Mark as infrastructure bean and attach source location.
     bd.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);

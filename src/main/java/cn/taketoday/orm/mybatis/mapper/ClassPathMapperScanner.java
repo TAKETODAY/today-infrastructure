@@ -26,11 +26,13 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
 
+import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -200,7 +202,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   }
 
   @Override
-  protected void postProcessBeanDefinition(BeanDefinition definition, String beanName) {
+  protected void postProcessBeanDefinition(AbstractBeanDefinition definition, String beanName) {
     super.postProcessBeanDefinition(definition, beanName);
     String beanClassName = definition.getBeanClassName();
     log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
@@ -212,7 +214,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
     definition.setBeanClass(mapperFactoryBeanClass);
 
-    PropertyValues propertyValues = definition.propertyValues();
+    PropertyValues propertyValues = definition.getPropertyValues();
     propertyValues.add("addToConfig", addToConfig);
 
     // Attribute for MockitoPostProcessor
@@ -246,7 +248,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
     if (!explicitFactoryUsed) {
       log.debug("Enabling autowire by type for MapperFactoryBean with name '{}'.", definition.getBeanName());
-      definition.setAutowireMode(BeanDefinition.AUTOWIRE_BY_TYPE);
+      definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
     }
 
     definition.setLazyInit(lazyInitialization);
@@ -254,13 +256,14 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       definition.setScope(defaultScope);
     }
 
-//      if (!definition.isSingleton()) {
-//        BeanDefinition proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
-//        if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
-//          registry.removeBeanDefinition(proxyHolder.getBeanName());
-//        }
-//        registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
-//      }
+    if (!definition.isSingleton()) {
+      BeanDefinitionRegistry registry = getRegistry();
+      BeanDefinition proxyHolder = ScopedProxyUtils.createScopedProxy(definition, registry, true);
+      if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
+        registry.removeBeanDefinition(proxyHolder.getBeanName());
+      }
+      registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder);
+    }
 
   }
 

@@ -37,6 +37,9 @@ import cn.taketoday.beans.BeanMetadataAttribute;
 import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.parsing.BeanEntry;
 import cn.taketoday.beans.factory.parsing.ConstructorArgumentEntry;
@@ -49,7 +52,6 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.support.LookupOverride;
 import cn.taketoday.beans.factory.support.ManagedArray;
 import cn.taketoday.beans.factory.support.ManagedList;
@@ -58,8 +60,6 @@ import cn.taketoday.beans.factory.support.ManagedProperties;
 import cn.taketoday.beans.factory.support.ManagedSet;
 import cn.taketoday.beans.factory.support.MethodOverrides;
 import cn.taketoday.beans.factory.support.ReplaceOverride;
-import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -675,18 +675,18 @@ public class BeanDefinitionParserDelegate {
     if (isDefaultValue(attr)) {
       attr = this.defaults.getAutowire();
     }
-    int autowire = BeanDefinition.AUTOWIRE_NO;
+    int autowire = AbstractBeanDefinition.AUTOWIRE_NO;
     if (AUTOWIRE_BY_NAME_VALUE.equals(attr)) {
-      autowire = BeanDefinition.AUTOWIRE_BY_NAME;
+      autowire = AbstractBeanDefinition.AUTOWIRE_BY_NAME;
     }
     else if (AUTOWIRE_BY_TYPE_VALUE.equals(attr)) {
-      autowire = BeanDefinition.AUTOWIRE_BY_TYPE;
+      autowire = AbstractBeanDefinition.AUTOWIRE_BY_TYPE;
     }
     else if (AUTOWIRE_CONSTRUCTOR_VALUE.equals(attr)) {
-      autowire = BeanDefinition.AUTOWIRE_CONSTRUCTOR;
+      autowire = AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR;
     }
     else if (AUTOWIRE_AUTODETECT_VALUE.equals(attr)) {
-      autowire = BeanDefinition.AUTOWIRE_AUTODETECT;
+      autowire = AbstractBeanDefinition.AUTOWIRE_AUTODETECT;
     }
     // Else leave default value.
     return autowire;
