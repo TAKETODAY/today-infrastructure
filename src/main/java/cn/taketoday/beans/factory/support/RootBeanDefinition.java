@@ -269,6 +269,19 @@ public class RootBeanDefinition extends BeanDefinition {
   }
 
   @Override
+  public void copyFrom(BeanDefinition from) {
+    super.copyFrom(from);
+    if (from instanceof RootBeanDefinition root) {
+      this.targetType = root.targetType;
+      this.allowCaching = root.allowCaching;
+      this.qualifiedElement = root.qualifiedElement;
+      this.decoratedDefinition = root.decoratedDefinition;
+      this.isFactoryMethodUnique = root.isFactoryMethodUnique;
+      this.factoryMethodToIntrospect = root.factoryMethodToIntrospect;
+    }
+  }
+
+  @Override
   public String getParentName() {
     return null;
   }

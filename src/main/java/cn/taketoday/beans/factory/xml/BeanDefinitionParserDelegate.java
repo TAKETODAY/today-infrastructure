@@ -238,7 +238,7 @@ public class BeanDefinitionParserDelegate {
    * beans-element basis. Duplicate bean ids/names may not exist within the
    * same level of beans element nesting, but may be duplicated across levels.
    */
-  private final Set<String> usedNames = new HashSet<>();
+  private final HashSet<String> usedNames = new HashSet<>();
 
   /**
    * Create a new BeanDefinitionParserDelegate associated with the supplied
@@ -390,7 +390,7 @@ public class BeanDefinitionParserDelegate {
   @Nullable
   public String[] getAutowireCandidatePatterns() {
     String candidatePattern = this.defaults.getAutowireCandidates();
-    return (candidatePattern != null ? StringUtils.commaDelimitedListToStringArray(candidatePattern) : null);
+    return candidatePattern != null ? StringUtils.commaDelimitedListToStringArray(candidatePattern) : null;
   }
 
   /**
@@ -462,10 +462,9 @@ public class BeanDefinitionParserDelegate {
         }
       }
       String[] aliasesArray = StringUtils.toStringArray(aliases);
-      BeanDefinition definition = beanDefinition.cloneDefinition();
-      definition.setBeanName(beanName);
-      definition.setAliases(aliasesArray);
-      return definition;
+      beanDefinition.setBeanName(beanName);
+      beanDefinition.setAliases(aliasesArray);
+      return beanDefinition;
     }
 
     return null;
@@ -883,7 +882,8 @@ public class BeanDefinitionParserDelegate {
         qualifier.setAttribute(AutowireCandidateQualifier.VALUE_KEY, value);
       }
       NodeList nl = ele.getChildNodes();
-      for (int i = 0; i < nl.getLength(); i++) {
+      int length = nl.getLength();
+      for (int i = 0; i < length; i++) {
         Node node = nl.item(i);
         if (isCandidateElement(node) && nodeNameEquals(node, QUALIFIER_ATTRIBUTE_ELEMENT)) {
           Element attributeEle = (Element) node;

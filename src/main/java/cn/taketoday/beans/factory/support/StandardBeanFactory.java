@@ -437,7 +437,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
               "Validation of bean definition failed", ex);
     }
 
-    BeanDefinition existBeanDef = getBeanDefinition(beanName);
+    BeanDefinition existBeanDef = beanDefinitionMap.get(beanName);
     if (existBeanDef != null) {
       if (!isAllowBeanDefinitionOverriding()) {
         throw new BeanDefinitionOverrideException(beanName, def, existBeanDef);
@@ -1218,13 +1218,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           throws NoSuchBeanDefinitionException {
 
     String bdName = BeanFactoryUtils.transformedBeanName(beanName);
-    BeanDefinition definition = getBeanDefinition(bdName);
-    if (definition != null) {
-      return isAutowireCandidate(beanName, definition, descriptor, resolver);
+    if (containsBeanDefinition(bdName)) {
+      return isAutowireCandidate(beanName, getMergedLocalBeanDefinition(bdName), descriptor, resolver);
     }
     else if (containsSingleton(beanName)) {
       return isAutowireCandidate(
-              beanName, new BeanDefinition(beanName, getType(beanName)), descriptor, resolver);
+              beanName, new RootBeanDefinition(getType(beanName)), descriptor, resolver);
     }
 
     BeanFactory parent = getParentBeanFactory();
@@ -1252,7 +1251,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @return whether the bean should be considered as autowire candidate
    */
   protected boolean isAutowireCandidate(
-          String beanName, BeanDefinition definition,
+          String beanName, RootBeanDefinition definition,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
 
     resolveBeanClass(beanName, definition);
@@ -1321,7 +1320,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         if (value instanceof String) {
           String strVal = resolveEmbeddedValue((String) value);
           BeanDefinition bd = beanName != null && containsBean(beanName)
-                              ? obtainLocalBeanDefinition(beanName) : null;
+                              ? getMergedBeanDefinition(beanName) : null;
           value = evaluateBeanDefinitionString(strVal, bd);
         }
         TypeConverter converter = typeConverter != null ? typeConverter : getTypeConverter();

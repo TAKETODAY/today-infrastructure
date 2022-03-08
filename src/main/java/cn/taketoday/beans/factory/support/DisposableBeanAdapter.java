@@ -91,7 +91,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * (potentially DestructionBeanPostProcessor), if any
    */
   public DisposableBeanAdapter(
-          Object bean, BeanDefinition beanDefinition,
+          Object bean, RootBeanDefinition beanDefinition,
           @Nullable List<DestructionBeanPostProcessor> postProcessors) {
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
@@ -288,7 +288,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param bean the bean instance
    * @param beanDefinition the corresponding bean definition
    */
-  public static boolean hasDestroyMethod(Object bean, BeanDefinition beanDefinition) {
+  public static boolean hasDestroyMethod(Object bean, RootBeanDefinition beanDefinition) {
     return (bean instanceof DisposableBean
             || inferDestroyMethodIfNecessary(bean, beanDefinition) != null);
   }
@@ -303,7 +303,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * interfaces, reflectively calling the "close" method on implementing beans as well.
    */
   @Nullable
-  private static String inferDestroyMethodIfNecessary(Object bean, BeanDefinition beanDefinition) {
+  private static String inferDestroyMethodIfNecessary(Object bean, RootBeanDefinition beanDefinition) {
     String destroyMethodName = beanDefinition.resolvedDestroyMethodName;
     if (destroyMethodName == null) {
       destroyMethodName = beanDefinition.getDestroyMethod();
@@ -392,7 +392,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    *
    * @param obj Bean instance
    */
-  public static void destroyBean(Object obj, BeanDefinition def) {
+  public static void destroyBean(Object obj, RootBeanDefinition def) {
     destroyBean(obj, def, null);
   }
 
@@ -402,7 +402,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param obj Bean instance
    */
   public static void destroyBean(
-          Object obj, BeanDefinition def, List<DestructionBeanPostProcessor> postProcessors) {
+          Object obj, RootBeanDefinition def, List<DestructionBeanPostProcessor> postProcessors) {
     Assert.notNull(obj, "bean instance must not be null");
     new DisposableBeanAdapter(obj, def, postProcessors)
             .destroy();

@@ -433,7 +433,7 @@ public class BeanDefinition
       setConstructorArgumentValues(new ConstructorArgumentValues(from.getConstructorArgumentValues()));
     }
 
-    if (from.getPropertyValues() != null) {
+    if (from.hasPropertyValues()) {
       propertyValues().add(from.getPropertyValues());
     }
 
@@ -947,13 +947,13 @@ public class BeanDefinition
 
   /** @since 4.0 */
   public BeanDefinition addPropertyValues(PropertyValue... propertyValues) {
-    propertyValues().set(propertyValues);
+    propertyValues().add(propertyValues);
     return this;
   }
 
   /** @since 4.0 */
   public BeanDefinition addPropertyValues(Map<String, Object> propertyValues) {
-    propertyValues().set(propertyValues);
+    propertyValues().add(propertyValues);
     return this;
   }
 

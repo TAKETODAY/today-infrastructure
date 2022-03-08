@@ -154,7 +154,7 @@ public class GenericTypeAwareAutowireCandidateResolver
   }
 
   @Nullable
-  protected ResolvableType getReturnTypeForFactoryMethod(BeanDefinition rbd, DependencyDescriptor descriptor) {
+  protected ResolvableType getReturnTypeForFactoryMethod(RootBeanDefinition rbd, DependencyDescriptor descriptor) {
     // Should typically be set for any kind of factory method, since the BeanFactory
     // pre-resolves them before reaching out to the AutowireCandidateResolver...
     ResolvableType returnType = rbd.factoryMethodReturnType;

@@ -81,15 +81,19 @@ public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport impl
   @Override
   @Nullable
   public Object getAttribute(String name) {
-    BeanMetadataAttribute attribute = (BeanMetadataAttribute) super.getAttribute(name);
-    return (attribute != null ? attribute.getValue() : null);
+    if (super.getAttribute(name) instanceof BeanMetadataAttribute attribute) {
+      return attribute.getValue();
+    }
+    return null;
   }
 
   @Override
   @Nullable
   public Object removeAttribute(String name) {
-    BeanMetadataAttribute attribute = (BeanMetadataAttribute) super.removeAttribute(name);
-    return (attribute != null ? attribute.getValue() : null);
+    if (super.removeAttribute(name) instanceof BeanMetadataAttribute attribute) {
+      return attribute.getValue();
+    }
+    return null;
   }
 
 }

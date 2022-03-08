@@ -62,7 +62,6 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
@@ -188,14 +187,13 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public void autowireBean(Object existingBean) {
-    Class<Object> userClass = ClassUtils.getUserClass(existingBean);
-    BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
-    if (log.isDebugEnabled()) {
-      log.debug("Autowiring bean '{}'", prototypeDef.getBeanName());
-    }
-
-    // apply properties
-    populateBean(existingBean, prototypeDef);
+    // Use non-singleton bean definition, to avoid registering bean as dependent bean.
+    RootBeanDefinition bd = new RootBeanDefinition(ClassUtils.getUserClass(existingBean));
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bd.allowCaching = ClassUtils.isCacheSafe(bd.getBeanClass(), getBeanClassLoader());
+    BeanWrapper bw = new BeanWrapperImpl(existingBean);
+    initBeanWrapper(bw);
+    populateBean(bd.getBeanClass().getName(), bd, bw);
   }
 
   //---------------------------------------------------------------------
@@ -852,8 +850,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public void applyBeanPropertyValues(Object existingBean, String beanName) throws BeansException {
     markBeanAsCreated(beanName);
-
-    BeanDefinition bd = obtainLocalBeanDefinition(beanName);
+    BeanDefinition bd = getMergedBeanDefinition(beanName);
     BeanWrapper bw = new BeanWrapperImpl(existingBean);
     initBeanWrapper(bw);
     applyPropertyValues(beanName, bd, bw, bd.getPropertyValues());
@@ -862,17 +859,22 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public Object configureBean(Object existingBean, String beanName) throws BeansException {
     markBeanAsCreated(beanName);
-
-    BeanDefinition definition = getBeanDefinition(beanName);
-    if (definition == null) {
-      definition = getPrototypeBeanDefinition(existingBean.getClass());
+    BeanDefinition mbd = getMergedBeanDefinition(beanName);
+    RootBeanDefinition bd = null;
+    if (mbd instanceof RootBeanDefinition rbd) {
+      bd = (rbd.isPrototype() ? rbd : rbd.cloneDefinition());
     }
-    else {
-      definition = definition.cloneDefinition();
-      definition.setScope(Scope.PROTOTYPE);
+    if (bd == null) {
+      bd = new RootBeanDefinition(mbd);
     }
-    populateBean(existingBean, definition);
-    return initializeBean(existingBean, definition);
+    if (!bd.isPrototype()) {
+      bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+      bd.allowCaching = ClassUtils.isCacheSafe(ClassUtils.getUserClass(existingBean), getBeanClassLoader());
+    }
+    BeanWrapper bw = new BeanWrapperImpl(existingBean);
+    initBeanWrapper(bw);
+    populateBean(beanName, bd, bw);
+    return initializeBean(existingBean, beanName, bd);
   }
 
   @Deprecated
@@ -1204,14 +1206,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   public void destroyBean(Object existingBean) {
     new DisposableBeanAdapter(existingBean, postProcessors().destruction).destroy();
-  }
-
-  protected BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
-    AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
-    String beanName = BeanDefinitionBuilder.defaultBeanName(beanClass);
-    definition.setBeanName(beanName);
-    definition.setScope(Scope.PROTOTYPE);
-    return definition;
   }
 
   //---------------------------------------------------------------------
@@ -1653,7 +1647,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     String[] beanNames = getBeanDefinitionNames();
     // Trigger initialization of all non-lazy singleton beans...
     for (String beanName : beanNames) {
-      BeanDefinition def = obtainLocalBeanDefinition(beanName);
+			RootBeanDefinition def = getMergedLocalBeanDefinition(beanName);
       // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isLazyInit()) {
         if (isFactoryBean(beanName)) {

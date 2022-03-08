@@ -644,7 +644,7 @@ public abstract class AbstractBeanFactory
    * @see DisposableBean
    * @see DestructionBeanPostProcessor
    */
-  protected boolean requiresDestruction(Object bean, BeanDefinition mbd) {
+  protected boolean requiresDestruction(Object bean, RootBeanDefinition mbd) {
     return DisposableBeanAdapter.hasDestroyMethod(bean, mbd)
             || DisposableBeanAdapter.hasApplicableProcessors(bean, postProcessors().destruction);
   }
@@ -660,7 +660,7 @@ public abstract class AbstractBeanFactory
    * @see BeanDefinition#isSingleton
    * @see #registerDisposableBean
    */
-  protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition mbd) {
+  protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
     if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
       if (mbd.isSingleton()) {
         // Register a DisposableBean implementation that performs all destruction
@@ -1161,7 +1161,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyBean(String name, Object beanInstance) {
-    destroyBean(beanInstance, obtainLocalBeanDefinition(name));
+    destroyBean(beanInstance, getMergedLocalBeanDefinition(name));
   }
 
   /**
@@ -1170,7 +1170,7 @@ public abstract class AbstractBeanFactory
    * @param beanInstance Bean instance
    * @param def Bean definition
    */
-  public void destroyBean(Object beanInstance, BeanDefinition def) {
+  public void destroyBean(Object beanInstance, RootBeanDefinition def) {
     new DisposableBeanAdapter(beanInstance, def, postProcessors().destruction)
             .destroy();
   }
@@ -1207,7 +1207,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyScopedBean(String beanName) {
-    BeanDefinition def = obtainLocalBeanDefinition(beanName);
+    RootBeanDefinition def = getMergedLocalBeanDefinition(beanName);
     if (def.isSingleton() || def.isPrototype()) {
       throw new IllegalArgumentException(
               "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");

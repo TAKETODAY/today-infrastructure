@@ -132,9 +132,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
     }
 
     if (CollectionUtils.isNotEmpty(attributes)) {
-      for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-        setAttribute(entry.getKey(), entry.getValue());
-      }
+      getAttributes().putAll(attributes);
     }
   }
 
