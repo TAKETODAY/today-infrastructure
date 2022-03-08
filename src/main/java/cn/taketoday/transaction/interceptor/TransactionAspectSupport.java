@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
@@ -472,7 +473,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   private TransactionManager determineQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
     TransactionManager txManager = this.transactionManagerCache.get(qualifier);
     if (txManager == null) {
-      txManager = BeanFactoryUtils.qualifiedBeanOfType(
+      txManager = BeanFactoryAnnotationUtils.qualifiedBeanOfType(
               beanFactory, PlatformTransactionManager.class, qualifier);
       this.transactionManagerCache.putIfAbsent(qualifier, txManager);
     }

@@ -23,10 +23,10 @@ package cn.taketoday.context.support;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.lang.Nullable;
@@ -48,7 +48,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 final class ApplicationListenerDetector
-        implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor, InitializationBeanPostProcessor {
+        implements DestructionBeanPostProcessor, MergedBeanDefinitionPostProcessor, InitializationBeanPostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicationListenerDetector.class);
 
@@ -61,7 +61,7 @@ final class ApplicationListenerDetector
   }
 
   @Override
-  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName) {
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
     if (bean instanceof ApplicationListener) {
       this.singletonNames.put(beanName, beanDefinition.isSingleton());
     }

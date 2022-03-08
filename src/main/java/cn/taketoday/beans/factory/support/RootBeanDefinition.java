@@ -331,7 +331,7 @@ public class RootBeanDefinition extends BeanDefinition {
   /**
    * Specify a generics-containing target type of this bean definition, if known in advance.
    */
-  public void setTargetType(ResolvableType targetType) {
+  public void setTargetType(@Nullable ResolvableType targetType) {
     this.targetType = targetType;
   }
 
@@ -365,7 +365,6 @@ public class RootBeanDefinition extends BeanDefinition {
    * @see #setBeanClass(Class)
    * @see #setResolvedFactoryMethod(Method)
    */
-  @Override
   public ResolvableType getResolvableType() {
     ResolvableType targetType = this.targetType;
     if (targetType != null) {

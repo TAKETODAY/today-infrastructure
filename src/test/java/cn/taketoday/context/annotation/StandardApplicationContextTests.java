@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation6.ComponentForScanning;
@@ -318,7 +319,7 @@ class StandardApplicationContextTests {
   @Test
   void individualBeanWithFactoryBeanSupplierAndTargetType() {
     StandardApplicationContext context = new StandardApplicationContext();
-    BeanDefinition bd = new BeanDefinition();
+    RootBeanDefinition bd = new RootBeanDefinition();
     bd.setInstanceSupplier(NonInstantiatedFactoryBean::new);
     bd.setTargetType(ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class));
     bd.setLazyInit(true);
@@ -334,7 +335,7 @@ class StandardApplicationContextTests {
   @Test
   void individualBeanWithFactoryBeanObjectTypeAsTargetType() {
     StandardApplicationContext context = new StandardApplicationContext();
-    BeanDefinition bd = new BeanDefinition();
+    RootBeanDefinition bd = new RootBeanDefinition();
     bd.setBeanClass(TypedFactoryBean.class);
     bd.setTargetType(String.class);
     context.registerBeanDefinition("fb", bd);
@@ -349,7 +350,7 @@ class StandardApplicationContextTests {
   @Test
   void individualBeanWithFactoryBeanObjectTypeAsTargetTypeAndLazy() {
     StandardApplicationContext context = new StandardApplicationContext();
-    BeanDefinition bd = new BeanDefinition();
+    RootBeanDefinition bd = new RootBeanDefinition();
     bd.setBeanClass(TypedFactoryBean.class);
     bd.setTargetType(String.class);
     bd.setLazyInit(true);

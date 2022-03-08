@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
@@ -221,7 +221,7 @@ final class PostProcessorRegistrationDelegate {
       if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
         BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
         priorityOrderedPostProcessors.add(pp);
-        if (pp instanceof BeanDefinitionPostProcessor) {
+        if (pp instanceof MergedBeanDefinitionPostProcessor) {
           internalPostProcessors.add(pp);
         }
       }
@@ -242,7 +242,7 @@ final class PostProcessorRegistrationDelegate {
     for (String ppName : orderedPostProcessorNames) {
       BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
       orderedPostProcessors.add(pp);
-      if (pp instanceof BeanDefinitionPostProcessor) {
+      if (pp instanceof MergedBeanDefinitionPostProcessor) {
         internalPostProcessors.add(pp);
       }
     }
@@ -254,7 +254,7 @@ final class PostProcessorRegistrationDelegate {
     for (String ppName : nonOrderedPostProcessorNames) {
       BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
       nonOrderedPostProcessors.add(pp);
-      if (pp instanceof BeanDefinitionPostProcessor) {
+      if (pp instanceof MergedBeanDefinitionPostProcessor) {
         internalPostProcessors.add(pp);
       }
     }

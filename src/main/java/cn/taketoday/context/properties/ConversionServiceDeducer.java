@@ -26,6 +26,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -103,7 +104,7 @@ class ConversionServiceDeducer {
     }
 
     private <T> List<T> beans(Class<T> type, BeanFactory beanFactory) {
-      return new ArrayList<>(BeanFactoryUtils.qualifiedBeansOfType(
+      return new ArrayList<>(BeanFactoryAnnotationUtils.qualifiedBeansOfType(
               beanFactory, type, ConfigurationPropertiesBinding.VALUE).values());
     }
 

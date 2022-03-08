@@ -226,7 +226,8 @@ class AutowireCapableBeanFactoryTests {
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
       defaults.setInitMethods("init");
-      beanFactory.initializeBean(autowireTestBean, defaults); // no bean definition
+      beanFactory.registerBeanDefinition(defaults);
+      beanFactory.initializeBean(autowireTestBean, beanName); // no bean definition
 
       assertThat(autowireTestBean.name).isEqualTo(beanName);
 

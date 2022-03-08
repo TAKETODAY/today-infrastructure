@@ -34,6 +34,7 @@ import cn.taketoday.beans.factory.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -239,9 +240,9 @@ public final class ConfigurationPropertiesBean {
   @Nullable
   private static Method findFactoryMethod(ConfigurableBeanFactory beanFactory, String beanName) {
     if (beanFactory.containsBeanDefinition(beanName)) {
-      BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-      if (beanDefinition != null) {
-        Method resolvedFactoryMethod = beanDefinition.getResolvedFactoryMethod();
+      BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
+      if (beanDefinition instanceof RootBeanDefinition merged) {
+        Method resolvedFactoryMethod = merged.getResolvedFactoryMethod();
         if (resolvedFactoryMethod != null) {
           return resolvedFactoryMethod;
         }

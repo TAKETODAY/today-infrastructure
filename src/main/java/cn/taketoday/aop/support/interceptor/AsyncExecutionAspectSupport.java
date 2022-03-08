@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
+import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.context.expression.EmbeddedValueResolver;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
@@ -212,7 +213,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
       EmbeddedValueResolver embeddedValueResolver = new EmbeddedValueResolver(factory);
       qualifier = embeddedValueResolver.resolveStringValue(qualifier);
     }
-    return BeanFactoryUtils.qualifiedBeanOfType(beanFactory, Executor.class, qualifier);
+    return BeanFactoryAnnotationUtils.qualifiedBeanOfType(beanFactory, Executor.class, qualifier);
   }
 
   /**

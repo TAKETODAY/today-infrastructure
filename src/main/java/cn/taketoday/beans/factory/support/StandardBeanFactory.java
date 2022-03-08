@@ -51,7 +51,7 @@ import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -1120,8 +1120,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     else if (definition != null) {
       String factoryMethodName = definition.getFactoryMethodName();
       if (factoryMethodName != null) {
-        Class<?> factoryClass = getFactoryClass(beanName, definition);
-        Method factoryMethod = getFactoryMethod(definition, factoryClass, factoryMethodName);
+        RootBeanDefinition merged = getMergedBeanDefinition(beanName, definition);
+        Class<?> factoryClass = getFactoryClass(beanName, merged);
+        Method factoryMethod = getFactoryMethod(merged, factoryClass, factoryMethodName);
         if (factoryMethod != null) {
           MergedAnnotation<A> annotation =
                   MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
@@ -1177,7 +1178,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Reset all bean definition caches for the given bean,
    * including the caches of beans that are derived from it.
    * <p>Called after an existing bean definition has been replaced or removed,
-   * triggering {@link #destroySingleton} and {@link BeanDefinitionPostProcessor#resetBeanDefinition}
+   * triggering {@link #destroySingleton} and {@link MergedBeanDefinitionPostProcessor#resetBeanDefinition}
    * on the given bean.
    *
    * @param beanName the name of the bean to reset
@@ -1193,7 +1194,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     destroySingleton(beanName);
 
     // Notify all post-processors that the specified bean definition has been reset.
-    for (BeanDefinitionPostProcessor processor : postProcessors().definitions) {
+    for (MergedBeanDefinitionPostProcessor processor : postProcessors().definitions) {
       processor.resetBeanDefinition(beanName);
     }
   }
@@ -1728,9 +1729,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   protected boolean isPrimary(String beanName, Object beanInstance) {
     String transformedBeanName = transformedBeanName(beanName);
-    BeanDefinition definition = getBeanDefinition(transformedBeanName);
-    if (definition != null) {
-      return definition.isPrimary();
+    if (containsBeanDefinition(transformedBeanName)) {
+      return getMergedLocalBeanDefinition(transformedBeanName).isPrimary();
     }
     return getParentBeanFactory() instanceof StandardBeanFactory std
             && std.isPrimary(transformedBeanName, beanInstance);

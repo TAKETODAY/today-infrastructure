@@ -38,7 +38,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
@@ -120,7 +120,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/12/26 14:51
  */
 public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor,
-        SmartInstantiationAwareBeanPostProcessor, BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
+        SmartInstantiationAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -201,7 +201,7 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
   }
 
   @Override
-  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName) {
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
     InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), null);
     metadata.checkConfigMembers(beanDefinition);
   }

@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -48,6 +48,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
@@ -173,7 +174,7 @@ import jakarta.persistence.SynchronizationType;
 @SuppressWarnings("serial")
 public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwareBeanPostProcessor,
         DestructionBeanPostProcessor, DependenciesBeanPostProcessor,
-        BeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware, Serializable {
+        MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware, Serializable {
 
   @Nullable
   private Object jndiEnvironment;
@@ -332,7 +333,7 @@ public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwar
   }
 
   @Override
-  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName) {
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
     InjectionMetadata metadata = findPersistenceMetadata(beanName, bean.getClass(), null);
     metadata.checkConfigMembers(beanDefinition);
   }

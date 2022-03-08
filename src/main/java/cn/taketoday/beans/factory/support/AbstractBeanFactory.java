@@ -47,7 +47,7 @@ import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -945,7 +945,7 @@ public abstract class AbstractBeanFactory
   }
 
   @Nullable
-  protected Method getFactoryMethod(BeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
+  protected Method getFactoryMethod(RootBeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
     Method resolvedFactoryMethod = def.getResolvedFactoryMethod();
     if (resolvedFactoryMethod != null) {
       return resolvedFactoryMethod;
@@ -2168,7 +2168,7 @@ public abstract class AbstractBeanFactory
   }
 
   protected final static class BeanPostProcessors {
-    public final ArrayList<BeanDefinitionPostProcessor> definitions = new ArrayList<>();
+    public final ArrayList<MergedBeanDefinitionPostProcessor> definitions = new ArrayList<>();
     public final ArrayList<DestructionBeanPostProcessor> destruction = new ArrayList<>();
     public final ArrayList<DependenciesBeanPostProcessor> dependencies = new ArrayList<>();
     public final ArrayList<InitializationBeanPostProcessor> initialization = new ArrayList<>();
@@ -2189,7 +2189,7 @@ public abstract class AbstractBeanFactory
         if (postProcessor instanceof InstantiationAwareBeanPostProcessor instantiation) {
           this.instantiation.add(instantiation);
         }
-        if (postProcessor instanceof BeanDefinitionPostProcessor definition) {
+        if (postProcessor instanceof MergedBeanDefinitionPostProcessor definition) {
           this.definitions.add(definition);
         }
         if (postProcessor instanceof SmartInstantiationAwareBeanPostProcessor smartInstantiation) {

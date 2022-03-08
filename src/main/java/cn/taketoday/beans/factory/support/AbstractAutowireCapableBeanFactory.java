@@ -49,7 +49,7 @@ import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -411,11 +411,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     return initializeBean(existingBean, beanName, null);
   }
 
-  @Override
-  public Object initializeBean(Object bean, BeanDefinition def) throws BeansException {
-    return initializeBean(bean, def.getBeanName(), def);
-  }
-
   /**
    * Fully initialize the given raw bean, applying factory callbacks such as
    * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
@@ -436,7 +431,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #invokeInitMethods
    * @see #applyBeanPostProcessorsAfterInitialization
    */
-  public Object initializeBean(Object bean, String beanName, @Nullable BeanDefinition def) throws BeansException {
+  public Object initializeBean(Object bean, String beanName, @Nullable RootBeanDefinition def) throws BeansException {
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named '{}'", beanName);
     }
@@ -488,7 +483,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see InitializingBean
    * @see jakarta.annotation.PostConstruct
    */
-  protected void invokeInitMethods(String beanName, Object bean, @Nullable BeanDefinition def) throws Throwable {
+  protected void invokeInitMethods(String beanName, Object bean, @Nullable RootBeanDefinition def) throws Throwable {
 
     boolean isInitializingBean = (bean instanceof InitializingBean);
     if (isInitializingBean && (def == null || !def.hasAnyExternallyManagedInitMethod("afterPropertiesSet"))) {
@@ -515,7 +510,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
   }
 
-  private Method[] initMethodArray(String beanName, boolean isInitializingBean, Object bean, BeanDefinition def) {
+  private Method[] initMethodArray(String beanName, boolean isInitializingBean, Object bean, RootBeanDefinition def) {
     Method[] initMethodArray = def.initMethodArray;
     if (def.initMethodArray == null) {
       String[] initMethodNames = def.getInitMethods();
@@ -646,9 +641,9 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param bean the actual bean instance
    * @param beanName the name of the bean
    */
-  protected void applyBeanDefinitionPostProcessors(BeanDefinition mbd, Object bean, String beanName) {
-    for (BeanDefinitionPostProcessor processor : postProcessors().definitions) {
-      processor.postProcessBeanDefinition(mbd, bean, beanName);
+  protected void applyBeanDefinitionPostProcessors(RootBeanDefinition mbd, Object bean, String beanName) {
+    for (MergedBeanDefinitionPostProcessor processor : postProcessors().definitions) {
+      processor.postProcessMergedBeanDefinition(mbd, bean, beanName);
     }
   }
 
@@ -1647,7 +1642,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     String[] beanNames = getBeanDefinitionNames();
     // Trigger initialization of all non-lazy singleton beans...
     for (String beanName : beanNames) {
-			RootBeanDefinition def = getMergedLocalBeanDefinition(beanName);
+      RootBeanDefinition def = getMergedLocalBeanDefinition(beanName);
       // Trigger initialization of all non-lazy singleton beans...
       if (def.isSingleton() && !def.isLazyInit()) {
         if (isFactoryBean(beanName)) {

@@ -28,6 +28,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
@@ -86,11 +87,11 @@ public class BeanMethodQualificationTests {
             new StandardApplicationContext(CustomConfig.class, CustomPojo.class);
     assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
-    assertThat(BeanFactoryUtils.isQualifierMatch(value -> value.equals("boring"),
+    assertThat(BeanFactoryAnnotationUtils.isQualifierMatch(value -> value.equals("boring"),
             "testBean2", ctx.getBeanFactory())).isTrue();
     CustomPojo pojo = ctx.getBean(CustomPojo.class);
     assertThat(pojo.testBean.getName()).isEqualTo("interesting");
-    TestBean testBean2 = BeanFactoryUtils.qualifiedBeanOfType(
+    TestBean testBean2 = BeanFactoryAnnotationUtils.qualifiedBeanOfType(
             ctx.getBeanFactory(), TestBean.class, "boring");
     assertThat(testBean2.getName()).isEqualTo("boring");
   }
@@ -103,7 +104,7 @@ public class BeanMethodQualificationTests {
     assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
     ctx.getBean("testBean2");
-    assertThat(BeanFactoryUtils.isQualifierMatch(value -> value.equals("boring"),
+    assertThat(BeanFactoryAnnotationUtils.isQualifierMatch(value -> value.equals("boring"),
             "testBean2", ctx.getBeanFactory())).isTrue();
     CustomPojo pojo = ctx.getBean(CustomPojo.class);
     assertThat(pojo.testBean.getName()).isEqualTo("interesting");

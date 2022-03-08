@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.OrderComparator;
@@ -179,9 +180,9 @@ public class ControllerAdviceBean implements Ordered {
       else {
         if (beanName != null && this.beanFactory instanceof ConfigurableBeanFactory cbf) {
           try {
-            BeanDefinition definition = cbf.getBeanDefinition(beanName);
-            if (definition != null) {
-              Method factoryMethod = definition.getResolvedFactoryMethod();
+            BeanDefinition bd = cbf.getMergedBeanDefinition(beanName);
+            if (bd instanceof RootBeanDefinition rbd) {
+              Method factoryMethod = rbd.getResolvedFactoryMethod();
               if (factoryMethod != null) {
                 this.order = OrderUtils.getOrder(factoryMethod);
               }

@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -315,50 +314,6 @@ public class BeanDefinition
 
   boolean isFactoryMethodUnique;
 
-  /** Common lock for the two post-processing fields below. */
-  final Object postProcessingLock = new Object();
-
-  /** Common lock for the four constructor fields below. */
-  final Object constructorArgumentLock = new Object();
-
-  @Nullable
-  private Set<Member> externallyManagedConfigMembers;
-
-  @Nullable
-  private Set<String> externallyManagedInitMethods;
-
-  @Nullable
-  private Set<String> externallyManagedDestroyMethods;
-
-  @Nullable
-  volatile ResolvableType targetType;
-
-  /** Package-visible field for caching the determined Class of a given bean definition. */
-  @Nullable
-  volatile Class<?> resolvedTargetType;
-
-  /** Package-visible field for caching a unique factory method candidate for introspection. */
-  @Nullable
-  volatile Method factoryMethodToIntrospect;
-
-  /** Package-visible field for caching a resolved destroy method name (also for inferred). */
-  @Nullable
-  volatile String resolvedDestroyMethodName;
-
-  /** Package-visible field that marks the constructor arguments as resolved. */
-  boolean constructorArgumentsResolved = false;
-
-  /** Package-visible field for caching fully resolved constructor arguments. */
-  @Nullable
-  Object[] resolvedConstructorArguments;
-
-  /** Package-visible field for caching partly prepared constructor arguments. */
-  @Nullable
-  Object[] preparedConstructorArguments;
-
-  /** Determines if the definition needs to be re-merged. */
-  volatile boolean stale;
-
   // @since 4.0
   private boolean enforceInitMethod;
   // @since 4.0
@@ -410,20 +365,15 @@ public class BeanDefinition
     this.instanceSupplier = from.instanceSupplier;
     this.qualifiedElement = from.qualifiedElement;
     this.enableDependencyInjection = from.enableDependencyInjection;
-    this.factoryMethodToIntrospect = from.factoryMethodToIntrospect;
     this.nonPublicAccessAllowed = from.nonPublicAccessAllowed;
     this.lenientConstructorResolution = from.lenientConstructorResolution;
 
     this.executable = from.executable;
-    this.targetType = from.targetType;
+
     this.initMethodArray = from.initMethodArray;
-    this.resolvedTargetType = from.resolvedTargetType;
     this.isFactoryMethodUnique = from.isFactoryMethodUnique;
     this.factoryMethodReturnType = from.factoryMethodReturnType;
     this.beforeInstantiationResolved = from.beforeInstantiationResolved;
-    this.externallyManagedInitMethods = from.externallyManagedInitMethods;
-    this.externallyManagedConfigMembers = from.externallyManagedConfigMembers;
-    this.externallyManagedDestroyMethods = from.externallyManagedDestroyMethods;
 
     if (from.hasMethodOverrides()) {
       setMethodOverrides(new MethodOverrides(from.getMethodOverrides()));
@@ -598,84 +548,6 @@ public class BeanDefinition
   }
 
   /**
-   * Specify the {@link AnnotatedElement} defining qualifiers,
-   * to be used instead of the target class or factory method.
-   *
-   * @see #setTargetType(ResolvableType)
-   * @see #getResolvedFactoryMethod()
-   * @since 4.0
-   */
-  public void setQualifiedElement(@Nullable AnnotatedElement qualifiedElement) {
-    this.qualifiedElement = qualifiedElement;
-  }
-
-  /**
-   * Return the {@link AnnotatedElement} defining qualifiers, if any.
-   * Otherwise, the factory method and target class will be checked.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public AnnotatedElement getQualifiedElement() {
-    return this.qualifiedElement;
-  }
-
-  /**
-   * Specify a generics-containing target type of this bean definition, if known in advance.
-   *
-   * @since 4.0
-   */
-  public void setTargetType(@Nullable ResolvableType targetType) {
-    this.targetType = targetType;
-  }
-
-  /**
-   * Specify the target type of this bean definition, if known in advance.
-   *
-   * @since 4.0
-   */
-  public void setTargetType(@Nullable Class<?> targetType) {
-    this.targetType = (targetType != null ? ResolvableType.fromClass(targetType) : null);
-  }
-
-  /**
-   * Return the target type of this bean definition, if known
-   * (either specified in advance or resolved on first instantiation).
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public Class<?> getTargetType() {
-    if (this.resolvedTargetType != null) {
-      return this.resolvedTargetType;
-    }
-    ResolvableType targetType = this.targetType;
-    return targetType != null ? targetType.resolve() : null;
-  }
-
-  /**
-   * Return a resolvable type for this bean definition.
-   * <p>This implementation delegates to {@link #getBeanClass()}.
-   *
-   * @since 4.0
-   */
-  public ResolvableType getResolvableType() {
-    ResolvableType targetType = this.targetType;
-    if (targetType != null) {
-      return targetType;
-    }
-    ResolvableType returnType = this.factoryMethodReturnType;
-    if (returnType != null) {
-      return returnType;
-    }
-    Method factoryMethod = this.factoryMethodToIntrospect;
-    if (factoryMethod != null) {
-      return ResolvableType.forReturnType(factoryMethod);
-    }
-    return hasBeanClass() ? ResolvableType.fromClass(getBeanClass()) : ResolvableType.NONE;
-  }
-
-  /**
    * Specify the bean class name of this bean definition.
    * <p>The class name can be modified during bean factory post-processing,
    * typically replacing the original class name with a parsed variant of it.
@@ -738,6 +610,16 @@ public class BeanDefinition
     Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
     this.beanClass = resolvedClass;
     return resolvedClass;
+  }
+
+  /**
+   * Return a resolvable type for this bean definition.
+   * <p>This implementation delegates to {@link #getBeanClass()}.
+   *
+   * @since 4.0
+   */
+  public ResolvableType getResolvableType() {
+    return hasBeanClass() ? ResolvableType.fromClass(getBeanClass()) : ResolvableType.NONE;
   }
 
   /**
@@ -1158,27 +1040,6 @@ public class BeanDefinition
 
   public boolean isFactoryMethod(Method method) {
     return method.getName().equals(factoryMethodName);
-  }
-
-  /**
-   * Set a resolved Java Method for the factory method on this bean definition.
-   *
-   * @param method the resolved factory method, or {@code null} to reset it
-   * @since 4.0
-   */
-  public void setResolvedFactoryMethod(@Nullable Method method) {
-    this.factoryMethodToIntrospect = method;
-  }
-
-  /**
-   * Return the resolved factory method as a Java Method object, if available.
-   *
-   * @return the factory method, or {@code null} if not found or not resolved yet
-   * @since 4.0
-   */
-  @Nullable
-  public Method getResolvedFactoryMethod() {
-    return this.factoryMethodToIntrospect;
   }
 
   /**
@@ -1668,213 +1529,6 @@ public class BeanDefinition
    */
   public boolean isAbstract() {
     return this.abstractFlag;
-  }
-
-  // postProcessingLock
-
-  /**
-   * Register an externally managed configuration method or field.
-   *
-   * @since 4.0
-   */
-  public void registerExternallyManagedConfigMember(Member configMember) {
-    synchronized(this.postProcessingLock) {
-      if (this.externallyManagedConfigMembers == null) {
-        this.externallyManagedConfigMembers = new LinkedHashSet<>(1);
-      }
-      this.externallyManagedConfigMembers.add(configMember);
-    }
-  }
-
-  /**
-   * Check whether the given method or field is an externally managed configuration member.
-   *
-   * @since 4.0
-   */
-  public boolean isExternallyManagedConfigMember(Member configMember) {
-    synchronized(this.postProcessingLock) {
-      return (this.externallyManagedConfigMembers != null &&
-              this.externallyManagedConfigMembers.contains(configMember));
-    }
-  }
-
-  /**
-   * Return all externally managed configuration methods and fields (as an immutable Set).
-   *
-   * @since 4.0
-   */
-  public Set<Member> getExternallyManagedConfigMembers() {
-    synchronized(this.postProcessingLock) {
-      return (this.externallyManagedConfigMembers != null ?
-              Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedConfigMembers)) :
-              Collections.emptySet());
-    }
-  }
-
-  /**
-   * Register an externally managed configuration initialization method &mdash;
-   * for example, a method annotated with JSR-250's
-   * {@link jakarta.annotation.PostConstruct} annotation.
-   * <p>The supplied {@code initMethod} may be the
-   * {@linkplain Method#getName() simple method name} for non-private methods or the
-   * {@linkplain cn.taketoday.util.ClassUtils#getQualifiedMethodName(Method)
-   * qualified method name} for {@code private} methods. A qualified name is
-   * necessary for {@code private} methods in order to disambiguate between
-   * multiple private methods with the same name within a class hierarchy.
-   *
-   * @since 4.0
-   */
-  public void registerExternallyManagedInitMethod(String initMethod) {
-    synchronized(this.postProcessingLock) {
-      if (this.externallyManagedInitMethods == null) {
-        this.externallyManagedInitMethods = new LinkedHashSet<>(1);
-      }
-      this.externallyManagedInitMethods.add(initMethod);
-    }
-  }
-
-  /**
-   * Determine if the given method name indicates an externally managed
-   * initialization method.
-   * <p>See {@link #registerExternallyManagedInitMethod} for details
-   * regarding the format for the supplied {@code initMethod}.
-   *
-   * @since 4.0
-   */
-  public boolean isExternallyManagedInitMethod(String initMethod) {
-    synchronized(this.postProcessingLock) {
-      return (this.externallyManagedInitMethods != null &&
-              this.externallyManagedInitMethods.contains(initMethod));
-    }
-  }
-
-  /**
-   * Determine if the given method name indicates an externally managed
-   * initialization method, regardless of method visibility.
-   * <p>In contrast to {@link #isExternallyManagedInitMethod(String)}, this
-   * method also returns {@code true} if there is a {@code private} externally
-   * managed initialization method that has been
-   * {@linkplain #registerExternallyManagedInitMethod(String) registered}
-   * using a qualified method name instead of a simple method name.
-   *
-   * @since 4.0
-   */
-  boolean hasAnyExternallyManagedInitMethod(String initMethod) {
-    synchronized(this.postProcessingLock) {
-      if (isExternallyManagedInitMethod(initMethod)) {
-        return true;
-      }
-      if (this.externallyManagedInitMethods != null) {
-        for (String candidate : this.externallyManagedInitMethods) {
-          int indexOfDot = candidate.lastIndexOf(".");
-          if (indexOfDot >= 0) {
-            String methodName = candidate.substring(indexOfDot + 1);
-            if (methodName.equals(initMethod)) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    }
-  }
-
-  /**
-   * Return all externally managed initialization methods (as an immutable Set).
-   * <p>See {@link #registerExternallyManagedInitMethod} for details
-   * regarding the format for the initialization methods in the returned set.
-   *
-   * @since 4.0
-   */
-  public Set<String> getExternallyManagedInitMethods() {
-    synchronized(this.postProcessingLock) {
-      return (this.externallyManagedInitMethods != null ?
-              Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedInitMethods)) :
-              Collections.emptySet());
-    }
-  }
-
-  /**
-   * Register an externally managed configuration destruction method &mdash;
-   * for example, a method annotated with JSR-250's
-   * {@link jakarta.annotation.PreDestroy} annotation.
-   * <p>The supplied {@code destroyMethod} may be the
-   * {@linkplain Method#getName() simple method name} for non-private methods or the
-   * {@linkplain cn.taketoday.util.ClassUtils#getQualifiedMethodName(Method)
-   * qualified method name} for {@code private} methods. A qualified name is
-   * necessary for {@code private} methods in order to disambiguate between
-   * multiple private methods with the same name within a class hierarchy.
-   *
-   * @since 4.0
-   */
-  public void registerExternallyManagedDestroyMethod(String destroyMethod) {
-    synchronized(this.postProcessingLock) {
-      if (this.externallyManagedDestroyMethods == null) {
-        this.externallyManagedDestroyMethods = new LinkedHashSet<>(1);
-      }
-      this.externallyManagedDestroyMethods.add(destroyMethod);
-    }
-  }
-
-  /**
-   * Determine if the given method name indicates an externally managed
-   * destruction method.
-   * <p>See {@link #registerExternallyManagedDestroyMethod} for details
-   * regarding the format for the supplied {@code destroyMethod}.
-   *
-   * @since 4.0
-   */
-  public boolean isExternallyManagedDestroyMethod(String destroyMethod) {
-    synchronized(this.postProcessingLock) {
-      return (this.externallyManagedDestroyMethods != null &&
-              this.externallyManagedDestroyMethods.contains(destroyMethod));
-    }
-  }
-
-  /**
-   * Determine if the given method name indicates an externally managed
-   * destruction method, regardless of method visibility.
-   * <p>In contrast to {@link #isExternallyManagedDestroyMethod(String)}, this
-   * method also returns {@code true} if there is a {@code private} externally
-   * managed destruction method that has been
-   * {@linkplain #registerExternallyManagedDestroyMethod(String) registered}
-   * using a qualified method name instead of a simple method name.
-   *
-   * @since 4.0
-   */
-  boolean hasAnyExternallyManagedDestroyMethod(String destroyMethod) {
-    synchronized(this.postProcessingLock) {
-      if (isExternallyManagedDestroyMethod(destroyMethod)) {
-        return true;
-      }
-      if (this.externallyManagedDestroyMethods != null) {
-        for (String candidate : this.externallyManagedDestroyMethods) {
-          int indexOfDot = candidate.lastIndexOf(".");
-          if (indexOfDot >= 0) {
-            String methodName = candidate.substring(indexOfDot + 1);
-            if (methodName.equals(destroyMethod)) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    }
-  }
-
-  /**
-   * Get all externally managed destruction methods (as an immutable Set).
-   * <p>See {@link #registerExternallyManagedDestroyMethod} for details
-   * regarding the format for the destruction methods in the returned set.
-   *
-   * @since 4.0
-   */
-  public Set<String> getExternallyManagedDestroyMethods() {
-    synchronized(this.postProcessingLock) {
-      return (this.externallyManagedDestroyMethods != null ?
-              Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedDestroyMethods)) :
-              Collections.emptySet());
-    }
   }
 
   // Object

@@ -315,13 +315,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   }
 
   @Nullable
-  protected Annotation getQualifiedElementAnnotation(BeanDefinition bd, Class<? extends Annotation> type) {
+  protected Annotation getQualifiedElementAnnotation(RootBeanDefinition bd, Class<? extends Annotation> type) {
     AnnotatedElement qualifiedElement = bd.getQualifiedElement();
     return qualifiedElement != null ? AnnotationUtils.getAnnotation(qualifiedElement, type) : null;
   }
 
   @Nullable
-  protected Annotation getFactoryMethodAnnotation(BeanDefinition bd, Class<? extends Annotation> type) {
+  protected Annotation getFactoryMethodAnnotation(RootBeanDefinition bd, Class<? extends Annotation> type) {
     Method resolvedFactoryMethod = bd.getResolvedFactoryMethod();
     return resolvedFactoryMethod != null ? AnnotationUtils.getAnnotation(resolvedFactoryMethod, type) : null;
   }

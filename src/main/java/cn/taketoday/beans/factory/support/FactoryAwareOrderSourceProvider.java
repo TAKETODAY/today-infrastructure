@@ -23,9 +23,9 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.lang.Nullable;
 
@@ -39,12 +39,12 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/19 17:26
  */
-public class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
+final class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
 
-  private final BeanFactory beanFactory;
+  private final StandardBeanFactory beanFactory;
   private final IdentityHashMap<Object, String> instancesToBeanNames;
 
-  public FactoryAwareOrderSourceProvider(BeanFactory beanFactory, Map<String, ?> beans) {
+  public FactoryAwareOrderSourceProvider(StandardBeanFactory beanFactory, Map<String, ?> beans) {
     this.beanFactory = beanFactory;
     this.instancesToBeanNames = new IdentityHashMap<>();
     for (Map.Entry<String, ?> entry : beans.entrySet()) {
@@ -56,20 +56,16 @@ public class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
   @Nullable
   public Object getOrderSource(Object obj) {
     String beanName = this.instancesToBeanNames.get(obj);
-    if (beanName == null) {
+    if (beanName == null || !beanFactory.containsBeanDefinition(beanName)) {
       return null;
     }
-
-    BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
-    if (definition == null) {
-      return null;
-    }
-
-    ArrayList<Object> sources = new ArrayList<>(2);
-    if (definition.executable instanceof Method factoryMethod) {
+    RootBeanDefinition beanDefinition = beanFactory.getMergedLocalBeanDefinition(beanName);
+    List<Object> sources = new ArrayList<>(2);
+    Method factoryMethod = beanDefinition.getResolvedFactoryMethod();
+    if (factoryMethod != null) {
       sources.add(factoryMethod);
     }
-    Class<?> targetType = definition.hasBeanClass() ? definition.getBeanClass() : null;
+    Class<?> targetType = beanDefinition.getTargetType();
     if (targetType != null && targetType != obj.getClass()) {
       sources.add(targetType);
     }

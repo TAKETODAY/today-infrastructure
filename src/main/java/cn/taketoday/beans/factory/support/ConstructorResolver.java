@@ -317,7 +317,7 @@ final class ConstructorResolver {
    *
    * @param mbd the bean definition to check
    */
-  public void resolveFactoryMethodIfPossible(BeanDefinition mbd) {
+  public void resolveFactoryMethodIfPossible(RootBeanDefinition mbd) {
     Class<?> factoryClass;
     boolean isStatic;
     if (mbd.getFactoryBeanName() != null) {
@@ -960,7 +960,7 @@ final class ConstructorResolver {
       return Integer.MAX_VALUE - 1024;
     }
 
-    public void storeCache(BeanDefinition mbd, Executable constructorOrFactoryMethod) {
+    public void storeCache(RootBeanDefinition mbd, Executable constructorOrFactoryMethod) {
       synchronized(mbd.constructorArgumentLock) {
         mbd.executable = constructorOrFactoryMethod;
         mbd.constructorArgumentsResolved = true;

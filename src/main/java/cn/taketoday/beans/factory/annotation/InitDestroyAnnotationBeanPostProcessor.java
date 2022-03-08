@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanPostProcessor;
@@ -45,8 +44,9 @@ import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.PriorityOrdered;
@@ -82,7 +82,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 @SuppressWarnings("serial")
 public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
-        implements DestructionBeanPostProcessor, BeanDefinitionPostProcessor,
+        implements DestructionBeanPostProcessor, MergedBeanDefinitionPostProcessor,
         BeanFactoryAware, InitializationBeanPostProcessor, PriorityOrdered, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
@@ -151,7 +151,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   }
 
   @Override
-  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName) {
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
     LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
     metadata.checkConfigMembers(beanDefinition);
   }
@@ -296,7 +296,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       this.destroyMethods = destroyMethods;
     }
 
-    public void checkConfigMembers(BeanDefinition beanDefinition) {
+    public void checkConfigMembers(RootBeanDefinition beanDefinition) {
       Set<LifecycleElement> checkedInitMethods = new LinkedHashSet<>(this.initMethods.size());
       for (LifecycleElement element : this.initMethods) {
         String methodIdentifier = element.getIdentifier();

@@ -49,9 +49,9 @@ import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.expression.EmbeddedValueResolver;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
@@ -278,8 +278,8 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
-  public void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName) {
-    super.postProcessBeanDefinition(beanDefinition, bean, beanName);
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
+    super.postProcessMergedBeanDefinition(beanDefinition, bean, beanName);
     InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), null);
     metadata.checkConfigMembers(beanDefinition);
   }

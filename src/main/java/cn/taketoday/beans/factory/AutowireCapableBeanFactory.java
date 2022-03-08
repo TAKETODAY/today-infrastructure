@@ -23,7 +23,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 
@@ -347,23 +346,6 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @see #initializeBean(Object, String)
    */
   Object initializeBean(Object existingBean) throws BeansException;
-
-  /**
-   * Fully initialize the given raw bean, applying factory callbacks such as
-   * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
-   * processors (including ones which might wrap the given raw bean).
-   * <p>
-   * Note that no bean definition of the given name has to exist in the bean
-   * factory. The passed-in bean name will simply be used for callbacks but not
-   * checked against the registered bean definitions.
-   *
-   * @param existingBean the existing bean instance
-   * @param def the bean def of the bean
-   * @return the bean instance to use, either the original or a wrapped one
-   * @throws BeanInitializationException if the initialization failed
-   */
-  Object initializeBean(final Object existingBean, final BeanDefinition def)
-          throws BeansException;
 
   /**
    * Apply {@link BeanPostProcessor BeanPostProcessors} to the given existing bean

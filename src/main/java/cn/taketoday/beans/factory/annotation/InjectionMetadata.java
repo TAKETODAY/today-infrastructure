@@ -31,7 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
@@ -57,7 +57,7 @@ public class InjectionMetadata {
     }
 
     @Override
-    public void checkConfigMembers(BeanDefinition beanDefinition) { }
+    public void checkConfigMembers(RootBeanDefinition beanDefinition) { }
 
     @Override
     public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) { }
@@ -97,7 +97,7 @@ public class InjectionMetadata {
     return this.targetClass != clazz;
   }
 
-  public void checkConfigMembers(BeanDefinition beanDefinition) {
+  public void checkConfigMembers(RootBeanDefinition beanDefinition) {
     LinkedHashSet<InjectedElement> checkedElements = new LinkedHashSet<>(injectedElements.size());
     for (InjectedElement element : injectedElements) {
       Member member = element.getMember();

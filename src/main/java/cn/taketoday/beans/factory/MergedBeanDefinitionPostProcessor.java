@@ -1,27 +1,27 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 
 /**
  * Post-processor callback interface for <i>merged</i> bean definitions at runtime.
  * {@link BeanPostProcessor} implementations may implement this sub-interface in order
  * to post-process the merged bean definition (a processed copy of the original bean
- * definition) that the {@code BeanFactory} uses to create a bean instance.
+ * definition) that the Spring {@code BeanFactory} uses to create a bean instance.
  *
- * <p>The {@link #postProcessBeanDefinition} method may for example introspect
+ * <p>The {@link #postProcessMergedBeanDefinition} method may for example introspect
  * the bean definition in order to prepare some cached metadata before post-processing
  * actual instances of a bean. It is also allowed to modify the bean definition but
  * <i>only</i> for definition properties which are actually intended for concurrent
  * modification. Essentially, this only applies to operations defined on the
- * {@link BeanDefinition} itself but not to the properties of its base classes.
+ * {@link RootBeanDefinition} itself but not to the properties of its base classes.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/3 17:56
  */
-public interface BeanDefinitionPostProcessor extends BeanPostProcessor {
+public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 
   /**
    * Post-process the given merged bean definition for the specified bean.
@@ -31,7 +31,7 @@ public interface BeanDefinitionPostProcessor extends BeanPostProcessor {
    * @param beanName the name of the bean
    * @see AbstractAutowireCapableBeanFactory#applyBeanDefinitionPostProcessors
    */
-  void postProcessBeanDefinition(BeanDefinition beanDefinition, Object bean, String beanName);
+  void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName);
 
   /**
    * A notification that the bean definition for the specified name has been reset,
