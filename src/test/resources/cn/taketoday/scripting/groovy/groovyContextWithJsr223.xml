@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:lang="http://www.springframework.org/schema/lang"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+				https://www.springframework.org/schema/beans/spring-beans.xsd"
+ 		default-lazy-init="true">
+
+	<bean class="cn.taketoday.scripting.support.ScriptFactoryPostProcessor"/>
+
+	<bean id="calculator" class="cn.taketoday.scripting.support.StandardScriptFactory">
+		<constructor-arg value="Groovy"/>
+		<constructor-arg>
+			<value>inline:
+package cn.taketoday.scripting.groovy;
+import cn.taketoday.scripting.Calculator
+class GroovyCalculator implements Calculator {
+	int add(int x, int y) {
+	   return x + y;
+	}
+}
+			</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="messenger" class="cn.taketoday.scripting.support.StandardScriptFactory">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/Messenger.groovy"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+	<bean id="messengerPrototype" class="cn.taketoday.scripting.support.StandardScriptFactory"
+		  scope="prototype">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/Messenger.groovy"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+	<bean id="messengerInstance" class="cn.taketoday.scripting.support.StandardScriptFactory">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/MessengerInstance.groovy"/>
+		<property name="message" ref="myMessage"/>
+	</bean>
+
+  <bean id="messengerInstanceInline" class="cn.taketoday.scripting.support.StandardScriptFactory">
+	  <constructor-arg value="Groovy"/>
+	  <constructor-arg>
+      <value>inline:
+package cn.taketoday.scripting.groovy;
+import cn.taketoday.scripting.Messenger
+class GroovyMessenger implements Messenger {
+  def String message;
+}
+return new GroovyMessenger();
+      </value>
+    </constructor-arg>
+    <property name="message" ref="myMessage"/>
+  </bean>
+
+	<bean id="myMessage" class="java.lang.String">
+		<constructor-arg value="Hello World!"/>
+	</bean>
+
+</beans>

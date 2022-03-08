@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
+import cn.taketoday.context.support.AbstractApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
     context.getBeanFactory().registerScope("request", new SimpleMapScope());
 
     scanner.scan(BASE_PACKAGE);
-    context.registerBeanDefinition("clientBean", new BeanDefinition(QualifiedClientBean.class));
+    context.registerBeanDefinition("clientBean", new RootBeanDefinition(QualifiedClientBean.class));
     context.refresh();
 
     FactoryMethodComponent fmc = BeanFactoryUtils.requiredBean(

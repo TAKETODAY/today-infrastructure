@@ -90,7 +90,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.scan(BASE_PACKAGE);
-    scanner.scan("org.springframework.context.annotation5");
+    scanner.scan("cn.taketoday.context.annotation5");
     assertThat(context.containsBean("serviceInvocationCounter")).isTrue();
     assertThat(context.containsBean("fooServiceImpl")).isTrue();
     assertThat(context.containsBean("stubFooDao")).isTrue();
@@ -209,7 +209,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
-    scanner.scan("org.springframework.context.annotation3");
+    scanner.scan("cn.taketoday.context.annotation3");
     assertThatIllegalStateException().isThrownBy(() ->
                     scanner.scan(BASE_PACKAGE))
             .withMessageContaining("stubFooDao")
@@ -269,7 +269,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
-    scanner.scan("org.springframework.context.annotation2");
+    scanner.scan("cn.taketoday.context.annotation2");
     assertThatIllegalStateException().isThrownBy(() ->
                     scanner.scan(BASE_PACKAGE))
             .withMessageContaining("myNamedDao")
@@ -435,7 +435,7 @@ public class ClassPathBeanDefinitionScannerTests {
     ClassPathBeanDefinitionScanner multiPackageScanner = new ClassPathBeanDefinitionScanner(multiPackageContext);
     int singlePackageBeanCount = singlePackageScanner.scan(BASE_PACKAGE);
     assertThat(singlePackageBeanCount).isGreaterThanOrEqualTo(12);
-    multiPackageScanner.scan(BASE_PACKAGE, "org.springframework.dao.annotation");
+    multiPackageScanner.scan(BASE_PACKAGE, "cn.taketoday.dao.annotation");
     // assertTrue(multiPackageBeanCount > singlePackageBeanCount);
   }
 
@@ -447,7 +447,7 @@ public class ClassPathBeanDefinitionScannerTests {
     int scannedBeanCount = scanner.scan(BASE_PACKAGE);
     assertThat(scannedBeanCount).isGreaterThanOrEqualTo(12);
     assertThat((context.getBeanDefinitionCount() - initialBeanCount)).isEqualTo(scannedBeanCount);
-    int addedBeanCount = scanner.scan("org.springframework.aop.aspectj.annotation");
+    int addedBeanCount = scanner.scan("cn.taketoday.aop.aspectj.annotation");
     assertThat(context.getBeanDefinitionCount()).isEqualTo((initialBeanCount + scannedBeanCount + addedBeanCount));
   }
 

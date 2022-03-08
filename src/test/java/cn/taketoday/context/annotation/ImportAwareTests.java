@@ -28,13 +28,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -267,10 +267,10 @@ public class ImportAwareTests {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
 
-      BeanDefinition beanDefinition = new BeanDefinition();
+      GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
       beanDefinition.setBeanClassName(String.class.getName());
       context.registerBeanDefinition("registrarImportedBean", beanDefinition);
-      BeanDefinition beanDefinition2 = new BeanDefinition();
+      GenericBeanDefinition beanDefinition2 = new GenericBeanDefinition();
       beanDefinition2.setBeanClass(OtherImportedConfig.class);
       context.registerBeanDefinition("registrarImportedConfig", beanDefinition2);
       Assert.state(!called, "ImportedRegistrar called twice");

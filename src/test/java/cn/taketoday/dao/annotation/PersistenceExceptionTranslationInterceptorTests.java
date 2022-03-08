@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.aop.proxy.ProxyFactory;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -56,7 +56,7 @@ public class PersistenceExceptionTranslationInterceptorTests extends Persistence
   protected void addPersistenceExceptionTranslation(ProxyFactory pf, PersistenceExceptionTranslator pet) {
     if (AnnotationUtils.findAnnotation(pf.getTargetClass(), Repository.class) != null) {
       StandardBeanFactory bf = new StandardBeanFactory();
-      bf.registerBeanDefinition("peti", new BeanDefinition(PersistenceExceptionTranslationInterceptor.class));
+      bf.registerBeanDefinition("peti", new RootBeanDefinition(PersistenceExceptionTranslationInterceptor.class));
       bf.registerSingleton("pet", pet);
       pf.addAdvice((PersistenceExceptionTranslationInterceptor) bf.getBean("peti"));
     }
@@ -66,7 +66,7 @@ public class PersistenceExceptionTranslationInterceptorTests extends Persistence
   void detectPersistenceExceptionTranslators() throws Throwable {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
-    bf.registerBeanDefinition("peti", new BeanDefinition(PersistenceExceptionTranslationInterceptor.class));
+    bf.registerBeanDefinition("peti", new RootBeanDefinition(PersistenceExceptionTranslationInterceptor.class));
 
     List<Integer> callOrder = new ArrayList<>();
     bf.registerSingleton("pet20", new CallOrderAwareExceptionTranslator(20, callOrder));

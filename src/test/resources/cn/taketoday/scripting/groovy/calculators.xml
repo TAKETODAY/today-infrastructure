@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean class="cn.taketoday.scripting.support.ScriptFactoryPostProcessor"/>
+
+
+	<bean id="calculator" class="cn.taketoday.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/Calculator.groovy"/>
+		<constructor-arg>
+			<bean class="cn.taketoday.scripting.groovy.GroovyScriptFactoryTests$TestCustomizer" />
+		</constructor-arg>
+	
+	</bean>
+
+	<bean id="delegatingCalculator" class="cn.taketoday.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/DelegatingCalculator.groovy"/>
+	
+		<property name="delegate" ref="calculator"/>
+	
+	</bean>
+
+
+</beans>

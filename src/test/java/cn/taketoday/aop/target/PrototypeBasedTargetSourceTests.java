@@ -7,6 +7,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.NameMatchMethodPointcutTests.SerializablePerson;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
@@ -22,11 +23,11 @@ public class PrototypeBasedTargetSourceTests {
   public void testSerializability() throws Exception {
     PropertyValues tsPvs = new PropertyValues();
     tsPvs.add("targetBeanName", "person");
-    BeanDefinition tsBd = new BeanDefinition(TestTargetSource.class);
+    RootBeanDefinition tsBd = new RootBeanDefinition(TestTargetSource.class);
     tsBd.setPropertyValues(tsPvs);
 
     PropertyValues pvs = new PropertyValues();
-    BeanDefinition bd = new BeanDefinition(SerializablePerson.class);
+    RootBeanDefinition bd = new RootBeanDefinition(SerializablePerson.class);
     bd.setPropertyValues(pvs);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
 

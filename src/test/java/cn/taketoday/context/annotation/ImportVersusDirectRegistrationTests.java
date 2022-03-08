@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ public class ImportVersusDirectRegistrationTests {
   public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredWithClassName() {
     try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
       directRegistration.registerBeanDefinition("config",
-              new BeanDefinition(AccidentalLiteConfiguration.class.getName()));
+              new RootBeanDefinition(AccidentalLiteConfiguration.class.getName()));
       directRegistration.refresh();
 
       assertThat(directRegistration.getBean(Thing.class)).isNull();

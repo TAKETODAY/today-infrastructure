@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
@@ -94,11 +94,11 @@ class FreeMarkerConfigurationFactoryBeanTests {
   @Test  // SPR-12448
   public void freeMarkerConfigurationAsBean() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
-    BeanDefinition loaderDef = new BeanDefinition(ContextTemplateLoader.class);
+    RootBeanDefinition loaderDef = new RootBeanDefinition(ContextTemplateLoader.class);
     loaderDef.getConstructorArgumentValues().addGenericArgumentValue(new DefaultResourceLoader());
     loaderDef.getConstructorArgumentValues().addGenericArgumentValue("/freemarker");
-    BeanDefinition configDef = new BeanDefinition(Configuration.class);
-    configDef.propertyValues().add("templateLoader", loaderDef);
+    RootBeanDefinition configDef = new RootBeanDefinition(Configuration.class);
+    configDef.getPropertyValues().add("templateLoader", loaderDef);
     beanFactory.registerBeanDefinition("freeMarkerConfig", configDef);
     assertThat(beanFactory.getBean(Configuration.class)).isNotNull();
   }

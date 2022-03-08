@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans default-lazy-init="true">
+
+  <bean class="cn.taketoday.scripting.support.ScriptFactoryPostProcessor" />
+
+  <bean id="calculator" class="cn.taketoday.scripting.bsh.BshScriptFactory">
+    <constructor-arg>
+      <value>inline:
+        int add(int x, int y) {
+        return x + y;
+        }
+      </value>
+    </constructor-arg>
+    <constructor-arg value="cn.taketoday.scripting.Calculator" />
+  </bean>
+
+  <bean id="messenger" class="cn.taketoday.scripting.bsh.BshScriptFactory"
+      init-method="init" destroy-method="destroy">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/Messenger.bsh" />
+    <constructor-arg value="cn.taketoday.scripting.Messenger" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerWithConfig" class="cn.taketoday.scripting.bsh.BshScriptFactory"
+      init-method="init" destroy-method="destroy">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/Messenger.bsh" />
+    <constructor-arg value="cn.taketoday.scripting.ConfigurableMessenger" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerWithConfigExtra" class="cn.taketoday.scripting.bsh.BshScriptFactory"
+      init-method="init" destroy-method="destroy">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/Messenger.bsh" />
+    <constructor-arg value="cn.taketoday.scripting.Messenger,cn.taketoday.scripting.ConfigurableMessenger" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerInstance" class="cn.taketoday.scripting.bsh.BshScriptFactory"
+      init-method="init" destroy-method="destroy">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/MessengerInstance.bsh" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerInstanceWithExplicitInterface" class="cn.taketoday.scripting.bsh.BshScriptFactory">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/MessengerInstance.bsh" />
+    <constructor-arg value="cn.taketoday.scripting.Messenger" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerImpl" class="cn.taketoday.scripting.bsh.BshScriptFactory"
+      init-method="init" destroy-method="destroy">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/MessengerImpl.bsh" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerImplWithExplicitInterface" class="cn.taketoday.scripting.bsh.BshScriptFactory"
+      init-method="init">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/MessengerImpl.bsh" />
+    <constructor-arg value="cn.taketoday.scripting.Messenger" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+  <bean id="messengerPrototype" class="cn.taketoday.scripting.bsh.BshScriptFactory" scope="prototype"
+      init-method="init">
+    <constructor-arg value="classpath:cn/taketoday/scripting/bsh/MessengerImpl.bsh" />
+    <property name="message" value="Hello World!" />
+  </bean>
+
+</beans>

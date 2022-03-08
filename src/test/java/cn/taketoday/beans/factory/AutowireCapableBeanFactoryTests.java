@@ -28,7 +28,9 @@ import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.testfixture.beans.TestBean;
@@ -70,7 +72,7 @@ class AutowireCapableBeanFactoryTests {
       assertThat(cachedBeanDef.property).isZero();
       assertThat(cachedBeanDef2).isNotEqualTo(cachedBeanDef);
 
-      BeanDefinition beanDefinition = context.getBeanDefinition(CreateTestBean.class);
+      AbstractBeanDefinition beanDefinition = (AbstractBeanDefinition) context.getBeanDefinition(CreateTestBean.class);
 
       assertThat(beanDefinition.getBeanClass()).isEqualTo(CreateTestBean.class);
       assertThat(beanDefinition.getScope()).isEqualTo(Scope.PROTOTYPE);
@@ -225,10 +227,11 @@ class AutowireCapableBeanFactoryTests {
 
       beanFactory.addBeanPostProcessor(new PostProcessor());
 
-      BeanDefinition defaults = BeanDefinitionBuilder.defaults(beanName, AutowireTestBean.class);
+      BeanDefinition defaults = BeanDefinitionBuilder.genericBeanDefinition(AutowireTestBean.class).getBeanDefinition();
+      defaults.setBeanName(beanName);
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
-      defaults.setInitMethods("init");
+      defaults.setInitMethodName("init");
       beanFactory.registerBeanDefinition(defaults);
       beanFactory.initializeBean(autowireTestBean, beanName); // no bean definition
 
@@ -331,8 +334,8 @@ class AutowireCapableBeanFactoryTests {
   @Test
   void configureBean() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
-    BeanDefinition bd = new BeanDefinition(TestBean.class);
-    bd.addPropertyValue("age", "99");
+    BeanDefinition bd = new RootBeanDefinition(TestBean.class);
+    bd.getPropertyValues().add("age", "99");
     beanFactory.registerBeanDefinition("test", bd);
     TestBean tb = new TestBean();
     assertThat(tb.getAge()).isEqualTo(0);
@@ -348,11 +351,11 @@ class AutowireCapableBeanFactoryTests {
     StandardDependenciesBeanPostProcessor postProcessor = new StandardDependenciesBeanPostProcessor(beanFactory);
     beanFactory.addBeanPostProcessor(postProcessor);
 
-    BeanDefinition bd = new BeanDefinition(TestBean.class);
+    BeanDefinition bd = new RootBeanDefinition(TestBean.class);
     beanFactory.registerBeanDefinition("spouse", bd);
-    bd.addPropertyValue("age", "99");
+    bd.getPropertyValues().add("age", "99");
 
-    BeanDefinition tbd = new BeanDefinition(ConfigureBeanWithAutowiring.class);
+    BeanDefinition tbd = new RootBeanDefinition(ConfigureBeanWithAutowiring.class);
     beanFactory.registerBeanDefinition("test", tbd);
     ConfigureBeanWithAutowiring tb = new ConfigureBeanWithAutowiring();
     beanFactory.configureBean(tb, "test");

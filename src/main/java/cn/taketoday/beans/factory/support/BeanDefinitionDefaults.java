@@ -38,7 +38,7 @@ public class BeanDefinitionDefaults {
   @Nullable
   private Boolean lazyInit;
 
-  private int autowireMode = BeanDefinition.AUTOWIRE_NO;
+  private int autowireMode = AbstractBeanDefinition.AUTOWIRE_NO;
   private int dependencyCheck = AbstractBeanDefinition.DEPENDENCY_CHECK_NONE;
 
   @Nullable

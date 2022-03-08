@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans default-lazy-init="true">
+
+	<bean class="cn.taketoday.scripting.support.ScriptFactoryPostProcessor">
+		<property name="defaultRefreshCheckDelay" value="1"/>
+	</bean>
+
+	<bean id="calculator" class="cn.taketoday.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/Calculator.groovy"/>
+	</bean>
+
+	<bean id="messenger" class="cn.taketoday.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/Messenger.groovy"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+	<bean id="messengerPrototype" class="cn.taketoday.scripting.groovy.GroovyScriptFactory" scope="prototype">
+		<constructor-arg value="classpath:cn/taketoday/scripting/groovy/Messenger.groovy"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+</beans>

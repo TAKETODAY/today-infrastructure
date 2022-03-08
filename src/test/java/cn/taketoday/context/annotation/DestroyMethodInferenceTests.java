@@ -25,10 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.io.Closeable;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.support.GenericXmlApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +39,7 @@ public class DestroyMethodInferenceTests {
 
   @Test
   public void beanMethods() {
-    ConfigurableApplicationContext ctx = new StandardApplicationContext(Config.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
     WithExplicitDestroyMethod c0 = ctx.getBean(WithExplicitDestroyMethod.class);
     WithLocalCloseMethod c1 = ctx.getBean("c1", WithLocalCloseMethod.class);
     WithLocalCloseMethod c2 = ctx.getBean("c2", WithLocalCloseMethod.class);
@@ -80,60 +78,10 @@ public class DestroyMethodInferenceTests {
     assertThat(c10.closed).as("c10").isTrue();
   }
 
-  /*
-  	<bean id="x1"
-	      class="cn.taketoday.context.annotation.DestroyMethodInferenceTests$WithLocalCloseMethod"/>
-
-	<bean id="x2"
-	      class="cn.taketoday.context.annotation.DestroyMethodInferenceTests$WithLocalCloseMethod"
-	      destroy-method="(inferred)"/>
-
-	<bean id="x8"
-		  class="cn.taketoday.context.annotation.DestroyMethodInferenceTests.WithInheritedCloseMethod"
-		  destroy-method=""/>
-
-	<bean id="x9"
-		  class="cn.taketoday.context.annotation.DestroyMethodInferenceTests.WithDisposableBean"
-		  destroy-method=""/>
-
-	<bean id="x10"
-		  class="cn.taketoday.context.annotation.DestroyMethodInferenceTests.WithAutoCloseable"/>
-
-	<beans default-destroy-method="(inferred)">
-		<bean id="x3"
-		      class="cn.taketoday.context.annotation.DestroyMethodInferenceTests$WithLocalCloseMethod"/>
-		<bean id="x4"
-		      class="cn.taketoday.context.annotation.DestroyMethodInferenceTests$WithNoCloseMethod"/>
-	</beans>
-
-*/
   @Test
   public void xml() {
-    GenericApplicationContext ctx = new GenericApplicationContext();
-
-    ctx.registerBeanDefinition(new BeanDefinition("x1", WithLocalCloseMethod.class));
-
-    BeanDefinition x21 = new BeanDefinition("x2", WithLocalCloseMethod.class);
-    x21.setDestroyMethod(AbstractBeanDefinition);
-    ctx.registerBeanDefinition(x21);
-
-    BeanDefinition x81 = new BeanDefinition("x8", WithInheritedCloseMethod.class);
-    x81.setDestroyMethod("");
-    ctx.registerBeanDefinition(x81);
-
-    ctx.registerBeanDefinition(new BeanDefinition("x9", WithDisposableBean.class));
-    ctx.registerBeanDefinition(new BeanDefinition("x10", WithAutoCloseable.class));
-
-    BeanDefinition x31 = new BeanDefinition("x3", WithLocalCloseMethod.class);
-    x31.setDestroyMethod(AbstractBeanDefinition);
-    ctx.registerBeanDefinition(x31);
-
-    BeanDefinition x41 = new BeanDefinition("x4", WithNoCloseMethod.class);
-    x41.setDestroyMethod(AbstractBeanDefinition);
-
-    ctx.registerBeanDefinition(x41);
-    ctx.refresh();
-
+    ConfigurableApplicationContext ctx = new GenericXmlApplicationContext(
+            getClass(), "DestroyMethodInferenceTests-context.xml");
     WithLocalCloseMethod x1 = ctx.getBean("x1", WithLocalCloseMethod.class);
     WithLocalCloseMethod x2 = ctx.getBean("x2", WithLocalCloseMethod.class);
     WithLocalCloseMethod x3 = ctx.getBean("x3", WithLocalCloseMethod.class);

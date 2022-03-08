@@ -28,10 +28,10 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.MockPropertySource;
@@ -40,8 +40,9 @@ import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Component;
 
+import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
+import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -56,9 +57,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void replacementFromEnvironmentProperties() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     MockEnvironment env = new MockEnvironment();
     env.setProperty("my.name", "myValue");
@@ -74,9 +75,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void localPropertiesViaResource() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     Resource resource = new ClassPathResource("PropertySourcesPlaceholderConfigurerTests.properties", this.getClass());
@@ -99,9 +100,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void explicitPropertySources() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySources propertySources = new PropertySources();
     propertySources.addLast(new MockPropertySource().withProperty("my.name", "foo"));
@@ -117,9 +118,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void explicitPropertySourcesExcludesEnvironment() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySources propertySources = new PropertySources();
     propertySources.addLast(new MockPropertySource());
@@ -138,9 +139,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void explicitPropertySourcesExcludesLocalProperties() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySources propertySources = new PropertySources();
     propertySources.addLast(new MockPropertySource());
@@ -159,9 +160,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void ignoreUnresolvablePlaceholders_falseIsDefault() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     //pc.setIgnoreUnresolvablePlaceholders(false); // the default
@@ -176,9 +177,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void ignoreUnresolvablePlaceholders_true() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     ppc.setIgnoreUnresolvablePlaceholders(true);
@@ -192,13 +193,12 @@ class PropertySourcesPlaceholderConfigurerTests {
     MockPropertySource mockPropertySource = new MockPropertySource("test");
     mockPropertySource.setProperty("my.key", "${enigma}");
     @SuppressWarnings("resource")
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.getEnvironment().getPropertySources().addLast(mockPropertySource);
     context.register(IgnoreUnresolvablePlaceholdersFalseConfig.class);
 
-    assertThatExceptionOfType(ApplicationContextException.class)
+    assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(context::refresh)
-            .havingCause().isInstanceOf(BeanCreationException.class)
             .havingCause()
             .isExactlyInstanceOf(IllegalArgumentException.class)
             .withMessage("Could not resolve placeholder 'enigma' in value \"${enigma}\"");
@@ -210,7 +210,7 @@ class PropertySourcesPlaceholderConfigurerTests {
     MockPropertySource mockPropertySource = new MockPropertySource("test");
     mockPropertySource.setProperty("my.key", "${enigma}");
     @SuppressWarnings("resource")
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.getEnvironment().getPropertySources().addLast(mockPropertySource);
     context.register(IgnoreUnresolvablePlaceholdersTrueConfig.class);
     context.refresh();
@@ -224,9 +224,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void nestedUnresolvablePlaceholder() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     ppc.setProperties(new Properties() {{
@@ -241,9 +241,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void ignoredNestedUnresolvablePlaceholder() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     ppc.setProperties(new Properties() {{
@@ -258,13 +258,13 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void withNonEnumerablePropertySource() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${foo}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
 
-    PropertySource<?> ps = new PropertySource<Object>("simplePropertySource", new Object()) {
+    PropertySource<?> ps = new PropertySource<>("simplePropertySource", new Object()) {
       @Override
       public Object getProperty(String key) {
         return "bar";
@@ -283,9 +283,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   private void localPropertiesOverride(boolean override) {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "${foo}")
-    );
+                    .getBeanDefinition());
 
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
 
@@ -311,10 +311,10 @@ class PropertySourcesPlaceholderConfigurerTests {
 
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            rootBeanDefinition(TestBean.class)
                     .addPropertyValue("name", "@<key1>")
                     .addPropertyValue("sex", "${key2}")
-    );
+                    .getBeanDefinition());
 
     System.setProperty("key1", "systemKey1Value");
     System.setProperty("key2", "systemKey2Value");
@@ -332,9 +332,9 @@ class PropertySourcesPlaceholderConfigurerTests {
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     ppc.setNullValue("customNull");
     StandardBeanFactory bf = new StandardBeanFactory();
-    bf.registerBeanDefinition("testBean", new BeanDefinition(TestBean.class)
+    bf.registerBeanDefinition("testBean", rootBeanDefinition(TestBean.class)
             .addPropertyValue("name", "${my.name}")
-    );
+            .getBeanDefinition());
     ppc.setEnvironment(new MockEnvironment().withProperty("my.name", "customNull"));
     ppc.postProcessBeanFactory(bf);
     assertThat(bf.getBean(TestBean.class).getName()).isNull();
@@ -344,9 +344,9 @@ class PropertySourcesPlaceholderConfigurerTests {
   public void trimValuesIsOffByDefault() {
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     StandardBeanFactory bf = new StandardBeanFactory();
-    bf.registerBeanDefinition("testBean", new BeanDefinition(TestBean.class)
+    bf.registerBeanDefinition("testBean", rootBeanDefinition(TestBean.class)
             .addPropertyValue("name", "${my.name}")
-    );
+            .getBeanDefinition());
     ppc.setEnvironment(new MockEnvironment().withProperty("my.name", " myValue  "));
     ppc.postProcessBeanFactory(bf);
     assertThat(bf.getBean(TestBean.class).getName()).isEqualTo(" myValue  ");
@@ -357,9 +357,9 @@ class PropertySourcesPlaceholderConfigurerTests {
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     ppc.setTrimValues(true);
     StandardBeanFactory bf = new StandardBeanFactory();
-    bf.registerBeanDefinition("testBean", new BeanDefinition(TestBean.class)
+    bf.registerBeanDefinition("testBean", rootBeanDefinition(TestBean.class)
             .addPropertyValue("name", "${my.name}")
-    );
+            .getBeanDefinition());
     ppc.setEnvironment(new MockEnvironment().withProperty("my.name", " myValue  "));
     ppc.postProcessBeanFactory(bf);
     assertThat(bf.getBean(TestBean.class).getName()).isEqualTo("myValue");
@@ -383,23 +383,21 @@ class PropertySourcesPlaceholderConfigurerTests {
     ppc.setIgnoreUnresolvablePlaceholders(true);
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(TestBean.class)
+            genericBeanDefinition(TestBean.class)
                     .addPropertyValue("jedi", "${jedi:false}")
-    );
+                    .getBeanDefinition());
     ppc.postProcessBeanFactory(bf);
-    assertThat(bf.getBean(TestBean.class).isJedi()).isEqualTo(true);
+    assertThat(bf.getBean(TestBean.class).isJedi()).isTrue();
   }
 
   @Test
   public void optionalPropertyWithValue() {
     StandardBeanFactory bf = new StandardBeanFactory();
-    DefaultConversionService conversionService = new DefaultConversionService();
-    DefaultConversionService.addDefaultConverters(conversionService);
-    bf.setConversionService(conversionService);
+    bf.setConversionService(new DefaultConversionService());
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(OptionalTestBean.class)
+            genericBeanDefinition(OptionalTestBean.class)
                     .addPropertyValue("name", "${my.name}")
-    );
+                    .getBeanDefinition());
 
     MockEnvironment env = new MockEnvironment();
     env.setProperty("my.name", "myValue");
@@ -414,12 +412,11 @@ class PropertySourcesPlaceholderConfigurerTests {
   @Test
   public void optionalPropertyWithoutValue() {
     StandardBeanFactory bf = new StandardBeanFactory();
-    DefaultConversionService conversionService = new DefaultConversionService();
-    DefaultConversionService.addDefaultConverters(conversionService);
-    bf.setConversionService(conversionService);
+    bf.setConversionService(new DefaultConversionService());
     bf.registerBeanDefinition("testBean",
-            new BeanDefinition(OptionalTestBean.class)
-                    .addPropertyValue("name", "${my.name}"));
+            genericBeanDefinition(OptionalTestBean.class)
+                    .addPropertyValue("name", "${my.name}")
+                    .getBeanDefinition());
 
     MockEnvironment env = new MockEnvironment();
     env.setProperty("my.name", "");
@@ -446,25 +443,25 @@ class PropertySourcesPlaceholderConfigurerTests {
     }
   }
 
-  @Configuration
+  @Configuration(proxyBeanMethods = false)
   static class IgnoreUnresolvablePlaceholdersFalseConfig {
 
     @Value("${my.key}")
     String value;
 
-    @Component
+    @Bean
     static PropertySourcesPlaceholderConfigurer pspc() {
       return new PropertySourcesPlaceholderConfigurer();
     }
   }
 
-  @Configuration
+  @Configuration(proxyBeanMethods = false)
   static class IgnoreUnresolvablePlaceholdersTrueConfig {
 
     @Value("${my.key}")
     String value;
 
-    @Component
+    @Bean
     static PropertySourcesPlaceholderConfigurer pspc() {
       PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
       pspc.setIgnoreUnresolvablePlaceholders(true);

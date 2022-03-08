@@ -26,8 +26,8 @@ import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.proxy.ProxyCreator;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +50,7 @@ class AutoProxyConfigurationTests {
       BeanDefinition proxyCreatorDef = context.getBeanDefinition(ProxyCreator.class);
       assertThat(proxyCreatorDef).isNotNull();
 
-      Object exposeProxy = proxyCreatorDef.getRequiredPropertyValue("exposeProxy");
+      Object exposeProxy = proxyCreatorDef.getPropertyValues().get("exposeProxy");
       PropertyValues propertyValues = proxyCreatorDef.getPropertyValues();
       assertThat(propertyValues).isNotNull();
       ProxyConfig proxyCreator = context.getBean(ProxyConfig.class);

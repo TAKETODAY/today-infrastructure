@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.orm.mybatis.AbstractMyBatisTodayTest;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
@@ -103,7 +103,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisTodayTest {
   private void setupContext() {
     applicationContext = new GenericApplicationContext();
 
-    BeanDefinition definition = new BeanDefinition();
+    RootBeanDefinition definition = new RootBeanDefinition();
     definition.setBeanClass(MockSqlSessionDao.class);
     applicationContext.registerBeanDefinition("dao", definition);
 
@@ -119,9 +119,9 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisTodayTest {
   }
 
   private void setupSqlSessionFactory(String name) {
-    BeanDefinition definition = new BeanDefinition();
+    RootBeanDefinition definition = new RootBeanDefinition();
     definition.setBeanClass(SqlSessionFactoryBean.class);
-    definition.propertyValues().add("dataSource", dataSource);
+    definition.getPropertyValues().add("dataSource", dataSource);
 
     applicationContext.registerBeanDefinition(name, definition);
   }

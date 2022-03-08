@@ -170,7 +170,7 @@ class JdbcNamespaceIntegrationTests {
 
   private void assertBeanPropertyValueOf(String propertyName, String expected, StandardBeanFactory factory) {
     BeanDefinition bean = factory.getBeanDefinition(expected);
-    PropertyValue value = bean.propertyValues().get(propertyName);
+    PropertyValue value = bean.getPropertyValues().get(propertyName);
     assertThat(value).isNotNull();
     assertThat(value.getValue().toString()).isEqualTo(expected);
   }

@@ -33,15 +33,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.scope.ScopedObject;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +81,7 @@ public class ScopingTests {
     if (customScope != null) {
       beanFactory.registerScope(SCOPE, customScope);
     }
-    beanFactory.registerBeanDefinition("config", new BeanDefinition(configClass));
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(configClass));
     StandardApplicationContext ctx = new StandardApplicationContext(beanFactory);
     ctx.refresh();
     return ctx;

@@ -63,12 +63,13 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RequiredStatusRetriever;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
@@ -113,7 +114,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testIncompleteBeanDefinition() {
-    bf.registerBeanDefinition("testBean", new BeanDefinition());
+    bf.registerBeanDefinition("testBean", new GenericBeanDefinition());
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
                     bf.getBean("testBean"))
             .withRootCauseInstanceOf(IllegalStateException.class);
@@ -1245,7 +1246,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testSupplierFieldInjection() {
+  public void testObjectFactoryFieldInjection() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierFieldInjectionBean.class));
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
@@ -1254,7 +1255,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testSupplierConstructorInjection() {
+  public void testObjectFactoryConstructorInjection() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierConstructorInjectionBean.class));
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
@@ -1263,7 +1264,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testSupplierInjectionIntoPrototypeBean() {
+  public void testObjectFactoryInjectionIntoPrototypeBean() {
     RootBeanDefinition annotatedBeanDefinition = new RootBeanDefinition(SupplierFieldInjectionBean.class);
     annotatedBeanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("annotatedBean", annotatedBeanDefinition);
@@ -1277,7 +1278,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testSupplierQualifierInjection() {
+  public void testObjectFactoryQualifierInjection() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierQualifierInjectionBean.class));
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.addQualifier(new AutowireCandidateQualifier(Qualifier.class, "testBean"));
@@ -1289,7 +1290,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testSupplierQualifierProviderInjection() {
+  public void testObjectFactoryQualifierProviderInjection() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierQualifierInjectionBean.class));
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.setQualifiedElement(ReflectionUtils.findMethod(getClass(), "testBeanQualifierProvider"));
@@ -1301,7 +1302,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  public void testSupplierSerialization() throws Exception {
+  public void testObjectFactorySerialization() throws Exception {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierFieldInjectionBean.class));
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
     bf.setSerializationId("test");

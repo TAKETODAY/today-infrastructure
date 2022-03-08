@@ -34,7 +34,7 @@ import java.util.TreeMap;
 import cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean;
 import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.parsing.ComponentDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.CollectingReaderEventListener;
 import cn.taketoday.beans.testfixture.beans.CustomEnum;
@@ -80,12 +80,12 @@ public class UtilNamespaceHandlerTests {
   public void testEvents() {
     ComponentDefinition propertiesComponent = this.listener.getComponentDefinition("myProperties");
     assertThat(propertiesComponent).as("Event for 'myProperties' not sent").isNotNull();
-    BeanDefinition propertiesBean = propertiesComponent.getBeanDefinitions()[0];
+    AbstractBeanDefinition propertiesBean = (AbstractBeanDefinition) propertiesComponent.getBeanDefinitions()[0];
     assertThat(propertiesBean.getBeanClass()).as("Incorrect BeanDefinition").isEqualTo(PropertiesFactoryBean.class);
 
     ComponentDefinition constantComponent = this.listener.getComponentDefinition("min");
     assertThat(propertiesComponent).as("Event for 'min' not sent").isNotNull();
-    BeanDefinition constantBean = constantComponent.getBeanDefinitions()[0];
+    AbstractBeanDefinition constantBean = (AbstractBeanDefinition) constantComponent.getBeanDefinitions()[0];
     assertThat(constantBean.getBeanClass()).as("Incorrect BeanDefinition").isEqualTo(FieldRetrievingFactoryBean.class);
   }
 

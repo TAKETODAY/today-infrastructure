@@ -20,21 +20,19 @@
 
 package cn.taketoday.context.annotation.configuration;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.annotation.DependsOn;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.loader.BootstrapContext;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Unit tests proving that the various attributes available via the {@link Bean}
@@ -50,16 +48,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 public class BeanAnnotationAttributePropagationTests {
 
-//  @Test
-//  public void autowireCandidateMetadataIsPropagated() {
-//    @Configuration
-//    class Config {
-//      @Bean/*(autowireCandidate = false)*/
-//      Object foo() { return null; }
-//    }
+  @Test
+  public void autowireCandidateMetadataIsPropagated() {
+    @Configuration
+    class Config {
+      @Bean(autowireCandidate = false)
+      Object foo() { return null; }
+    }
 
-//    assertThat(beanDef(Config.class).isAutowireCandidate()).as("autowire candidate flag was not propagated").isFalse();
-//  }
+    Assertions.assertThat(beanDef(Config.class).isAutowireCandidate()).as("autowire candidate flag was not propagated").isFalse();
+  }
 
   @Test
   public void initMethodMetadataIsPropagated() {
@@ -69,8 +67,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).getInitMethods()).as("init method name was not propagated")
-            .contains("start");
+    Assertions.assertThat(beanDef(Config.class).getInitMethodName()).as("init method name was not propagated").isEqualTo("start");
   }
 
   @Test
@@ -81,7 +78,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).getDestroyMethod()).as("destroy method name was not propagated").isEqualTo("destroy");
+    Assertions.assertThat(beanDef(Config.class).getDestroyMethodName()).as("destroy method name was not propagated").isEqualTo("destroy");
   }
 
   @Test
@@ -93,7 +90,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).getDependsOn()).as("dependsOn metadata was not propagated").isEqualTo(new String[] { "bar", "baz" });
+    Assertions.assertThat(beanDef(Config.class).getDependsOn()).as("dependsOn metadata was not propagated").isEqualTo(new String[] { "bar", "baz" });
   }
 
   @Test
@@ -105,7 +102,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isPrimary()).as("primary metadata was not propagated").isTrue();
+    Assertions.assertThat(beanDef(Config.class).isPrimary()).as("primary metadata was not propagated").isTrue();
   }
 
   @Test
@@ -116,7 +113,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isPrimary()).as("@Bean methods should be non-primary by default").isFalse();
+    Assertions.assertThat(beanDef(Config.class).isPrimary()).as("@Bean methods should be non-primary by default").isFalse();
   }
 
   @Test
@@ -128,7 +125,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit()).as("lazy metadata was not propagated").isTrue();
+    Assertions.assertThat(beanDef(Config.class).isLazyInit()).as("lazy metadata was not propagated").isTrue();
   }
 
   @Test
@@ -139,7 +136,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit()).as("@Bean methods should be non-lazy by default").isFalse();
+    Assertions.assertThat(beanDef(Config.class).isLazyInit()).as("@Bean methods should be non-lazy by default").isFalse();
   }
 
   @Test
@@ -148,13 +145,10 @@ public class BeanAnnotationAttributePropagationTests {
     @Configuration
     class Config {
       @Bean
-//      @Lazy(value = true)
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit())
-            .as("@Bean methods declared in a @Lazy @Configuration should be lazily instantiated")
-            .isTrue();
+    Assertions.assertThat(beanDef(Config.class).isLazyInit()).as("@Bean methods declared in a @Lazy @Configuration should be lazily instantiated").isTrue();
   }
 
   @Test
@@ -167,9 +161,7 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit())
-            .as("@Lazy(false) @Bean methods declared in a @Lazy @Configuration should be eagerly instantiated")
-            .isFalse();
+    Assertions.assertThat(beanDef(Config.class).isLazyInit()).as("@Lazy(false) @Bean methods declared in a @Lazy @Configuration should be eagerly instantiated").isFalse();
   }
 
   @Test
@@ -181,24 +173,15 @@ public class BeanAnnotationAttributePropagationTests {
       Object foo() { return null; }
     }
 
-    assertThat(beanDef(Config.class).isLazyInit()).as("@Lazy(false) @Configuration should produce eager bean definitions").isFalse();
+    Assertions.assertThat(beanDef(Config.class).isLazyInit()).as("@Lazy(false) @Configuration should produce eager bean definitions").isFalse();
   }
 
-  private BeanDefinition beanDef(Class<?> configClass) {
-    beanFactory.registerBeanDefinition("config", new BeanDefinition(configClass));
-    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
-    pp.postProcessBeanFactory(beanFactory);
-    return beanFactory.getBeanDefinition("foo");
+  private AbstractBeanDefinition beanDef(Class<?> configClass) {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    factory.registerBeanDefinition("config", new RootBeanDefinition(configClass));
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    pp.postProcessBeanFactory(factory);
+    return (AbstractBeanDefinition) factory.getBeanDefinition("foo");
   }
 
-  private StandardBeanFactory beanFactory;
-
-  private BootstrapContext loadingContext;
-
-  @BeforeEach
-  void setup() {
-    StandardApplicationContext context = new StandardApplicationContext();
-    beanFactory = context.getBeanFactory();
-    loadingContext = new BootstrapContext(beanFactory, context);
-  }
 }

@@ -35,9 +35,10 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
@@ -82,7 +83,7 @@ public class InjectAnnotationBeanPostProcessorTests {
 
   @Test
   public void testIncompleteBeanDefinition() {
-    bf.registerBeanDefinition("testBean", new BeanDefinition());
+    bf.registerBeanDefinition("testBean", new GenericBeanDefinition());
     try {
       bf.getBean("testBean");
     }

@@ -26,11 +26,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,10 +44,10 @@ public class LazyStandardDependenciesBeanPostProcessorTests {
 
   private void doTestLazyResourceInjection(Class<? extends TestBeanHolder> annotatedBeanClass) {
     StandardApplicationContext ac = new StandardApplicationContext();
-    BeanDefinition abd = new BeanDefinition(annotatedBeanClass);
+    BeanDefinition abd = new RootBeanDefinition(annotatedBeanClass);
     abd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     ac.registerBeanDefinition("annotatedBean", abd);
-    BeanDefinition tbd = new BeanDefinition(TestBean.class);
+    BeanDefinition tbd = new RootBeanDefinition(TestBean.class);
     tbd.setLazyInit(true);
     ac.registerBeanDefinition("testBean", tbd);
     ac.refresh();
@@ -70,10 +71,10 @@ public class LazyStandardDependenciesBeanPostProcessorTests {
     doTestLazyResourceInjection(FieldResourceInjectionBean.class);
 
     StandardApplicationContext ac = new StandardApplicationContext();
-    BeanDefinition abd = new BeanDefinition(FieldResourceInjectionBean.class);
+    BeanDefinition abd = new RootBeanDefinition(FieldResourceInjectionBean.class);
     abd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     ac.registerBeanDefinition("annotatedBean", abd);
-    BeanDefinition tbd = new BeanDefinition(TestBean.class);
+    BeanDefinition tbd = new RootBeanDefinition(TestBean.class);
     tbd.setLazyInit(true);
     ac.registerBeanDefinition("testBean", tbd);
     ac.refresh();

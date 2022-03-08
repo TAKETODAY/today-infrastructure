@@ -31,13 +31,8 @@ import java.io.Serializable;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.BeforeAdvice;
-import cn.taketoday.aop.support.AdvisorAdapterRegistrationManager;
-import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
-import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -58,41 +53,20 @@ public class AdvisorAdapterRegistrationTests {
 
   @Test
   public void testAdvisorAdapterRegistrationManagerNotPresentInContext() {
-    GenericApplicationContext beanFactory = new GenericApplicationContext();
-    load(beanFactory);
-
-    ITestBean tb = (ITestBean) beanFactory.getBean("testBean");
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-without-bpp.xml", getClass());
+    ITestBean tb = (ITestBean) ctx.getBean("testBean");
     // just invoke any method to see if advice fired
-    assertThatExceptionOfType(UnknownAdviceTypeException.class)
-            .isThrownBy(tb::getName);
+    assertThatExceptionOfType(UnknownAdviceTypeException.class).isThrownBy(
+            tb::getName);
     assertThat(getAdviceImpl(tb).getInvocationCounter()).isZero();
-  }
-
-  private void load(GenericApplicationContext beanFactory) {
-    beanFactory.registerBeanDefinition(new BeanDefinition("testBeanTarget", TestBean.class));
-    beanFactory.registerBeanDefinition(new BeanDefinition("simpleBeforeAdvice", SimpleBeforeAdviceImpl.class));
-    beanFactory.registerBeanDefinition(new BeanDefinition("testAdvisorAdapter", SimpleBeforeAdviceAdapter.class));
-
-    BeanDefinition testBean = new BeanDefinition("testBean", ProxyFactoryBean.class);
-
-    testBean.addPropertyValue("proxyInterfaces", ITestBean.class);
-    testBean.addPropertyValue("interceptorNames", "simpleBeforeAdviceAdvisor,testBeanTarget");
-    beanFactory.registerBeanDefinition(testBean);
-
-    BeanDefinition adviceAdvisor = new BeanDefinition("simpleBeforeAdviceAdvisor", DefaultPointcutAdvisor.class);
-    adviceAdvisor.addPropertyValue("advice", RuntimeBeanReference.from("simpleBeforeAdvice"));
-    beanFactory.registerBeanDefinition(adviceAdvisor);
-
-    beanFactory.refresh();
   }
 
   @Test
   public void testAdvisorAdapterRegistrationManagerPresentInContext() {
-    GenericApplicationContext beanFactory = new GenericApplicationContext();
-    beanFactory.registerBean(AdvisorAdapterRegistrationManager.class);
-    load(beanFactory);
-
-    ITestBean tb = (ITestBean) beanFactory.getBean("testBean");
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-with-bpp.xml", getClass());
+    ITestBean tb = (ITestBean) ctx.getBean("testBean");
     // just invoke any method to see if advice fired
     tb.getName();
     getAdviceImpl(tb).getInvocationCounter();

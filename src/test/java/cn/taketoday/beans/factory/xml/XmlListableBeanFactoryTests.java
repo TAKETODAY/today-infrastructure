@@ -33,7 +33,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.LifecycleBean;
@@ -61,13 +61,13 @@ public class XmlListableBeanFactoryTests extends AbstractBeanFactoryTests {
 
     Map map = new HashMap();
     map.put("name", "Albert");
-    BeanDefinition bd1 = new BeanDefinition(TestBean.class);
+    RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
     bd1.setPropertyValues(new PropertyValues(map));
     parent.registerBeanDefinition("father", bd1);
 
     map = new HashMap();
     map.put("name", "Roderick");
-    BeanDefinition bd2 = new BeanDefinition(TestBean.class);
+    RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
     bd2.setPropertyValues(new PropertyValues(map));
     parent.registerBeanDefinition("rod", bd2);
 

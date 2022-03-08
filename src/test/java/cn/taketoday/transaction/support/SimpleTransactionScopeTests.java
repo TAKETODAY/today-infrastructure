@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.GenericApplicationContext;
@@ -46,13 +46,13 @@ public class SimpleTransactionScopeTests {
     GenericApplicationContext context = new GenericApplicationContext();
     context.getBeanFactory().registerScope("tx", new SimpleTransactionScope());
 
-    BeanDefinition bd1 = new BeanDefinition();
+    RootBeanDefinition bd1 = new RootBeanDefinition();
     bd1.setBeanClass(TestBean.class);
     bd1.setScope("tx");
     bd1.setPrimary(true);
     context.registerBeanDefinition("txScopedObject1", bd1);
 
-    BeanDefinition bd2 = new BeanDefinition();
+    RootBeanDefinition bd2 = new RootBeanDefinition();
     bd2.setBeanClass(DerivedTestBean.class);
     bd2.setScope("tx");
     context.registerBeanDefinition("txScopedObject2", bd2);
@@ -118,13 +118,13 @@ public class SimpleTransactionScopeTests {
     try (GenericApplicationContext context = new GenericApplicationContext()) {
       context.getBeanFactory().registerScope("tx", new SimpleTransactionScope());
 
-      BeanDefinition bd1 = new BeanDefinition();
+      RootBeanDefinition bd1 = new RootBeanDefinition();
       bd1.setBeanClass(TestBean.class);
       bd1.setScope("tx");
       bd1.setPrimary(true);
       context.registerBeanDefinition("txScopedObject1", bd1);
 
-      BeanDefinition bd2 = new BeanDefinition();
+      RootBeanDefinition bd2 = new RootBeanDefinition();
       bd2.setBeanClass(DerivedTestBean.class);
       bd2.setScope("tx");
       context.registerBeanDefinition("txScopedObject2", bd2);

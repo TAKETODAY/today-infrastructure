@@ -32,7 +32,7 @@ import java.util.Properties;
 
 import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.SimpleMapScope;
 import cn.taketoday.context.support.GenericApplicationContext;
@@ -74,11 +74,11 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(DefaultPrivatePersistenceContextField.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextField.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextField.class));
     gac.registerBeanDefinition(FactoryBeanWithPersistenceContextField.class.getName(),
-            new BeanDefinition(FactoryBeanWithPersistenceContextField.class));
+            new RootBeanDefinition(FactoryBeanWithPersistenceContextField.class));
     gac.refresh();
 
     DefaultPrivatePersistenceContextField bean = (DefaultPrivatePersistenceContextField) gac.getBean(
@@ -97,9 +97,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(DefaultVendorSpecificPrivatePersistenceContextField.class.getName(),
-            new BeanDefinition(DefaultVendorSpecificPrivatePersistenceContextField.class));
+            new RootBeanDefinition(DefaultVendorSpecificPrivatePersistenceContextField.class));
     gac.refresh();
 
     DefaultVendorSpecificPrivatePersistenceContextField bean = (DefaultVendorSpecificPrivatePersistenceContextField)
@@ -115,9 +115,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class));
     gac.refresh();
 
     DefaultPublicPersistenceContextSetter bean = (DefaultPublicPersistenceContextSetter) gac.getBean(
@@ -135,9 +135,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.getBeanFactory().registerSingleton("unit2", mockEmf2);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(SpecificPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(SpecificPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(SpecificPublicPersistenceContextSetter.class));
     gac.refresh();
 
     SpecificPublicPersistenceContextSetter bean = (SpecificPublicPersistenceContextSetter) gac.getBean(
@@ -156,7 +156,7 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.refresh();
 
     DefaultPrivatePersistenceContextField existingBean1 = new DefaultPrivatePersistenceContextField();
@@ -179,8 +179,8 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     gac.getBeanFactory().registerScope("myScope", myScope);
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
-    BeanDefinition bd = new BeanDefinition(DefaultPublicPersistenceContextSetter.class);
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+    RootBeanDefinition bd = new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class);
     bd.setScope("myScope");
     gac.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(), bd);
     gac.refresh();
@@ -210,9 +210,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class));
     gac.refresh();
 
     DefaultPublicPersistenceContextSetter bean = (DefaultPublicPersistenceContextSetter) gac.getBean(
@@ -228,8 +228,8 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
-    BeanDefinition bd = new BeanDefinition(DefaultPublicPersistenceContextSetter.class);
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+    RootBeanDefinition bd = new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class);
     bd.getPropertyValues().add("entityManager", mockEm2);
     gac.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(), bd);
     gac.refresh();
@@ -244,9 +244,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(DefaultPrivatePersistenceUnitField.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceUnitField.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceUnitField.class));
     gac.refresh();
 
     DefaultPrivatePersistenceUnitField bean = (DefaultPrivatePersistenceUnitField) gac.getBean(
@@ -259,9 +259,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
     gac.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class));
     gac.refresh();
 
     DefaultPublicPersistenceUnitSetter bean = (DefaultPublicPersistenceUnitSetter) gac.getBean(
@@ -276,8 +276,8 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.registerBeanDefinition("annotationProcessor",
-            new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
-    BeanDefinition bd = new BeanDefinition(DefaultPublicPersistenceUnitSetter.class);
+            new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class));
+    RootBeanDefinition bd = new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class);
     bd.getPropertyValues().add("emf", mockEmf2);
     gac.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(), bd);
     gac.refresh();
@@ -295,13 +295,13 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.getBeanFactory().registerSingleton("entityManagerFactory2", mockEmf2);
     gac.registerAlias("entityManagerFactory2", "Person");
-    BeanDefinition processorDef = new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class);
+    RootBeanDefinition processorDef = new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class);
     processorDef.getPropertyValues().add("defaultPersistenceUnitName", "entityManagerFactory");
     gac.registerBeanDefinition("annotationProcessor", processorDef);
     gac.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class));
     gac.registerBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
     gac.refresh();
 
     DefaultPublicPersistenceUnitSetter bean = (DefaultPublicPersistenceUnitSetter)
@@ -320,13 +320,13 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.getBeanFactory().registerSingleton("entityManagerFactory", mockEmf);
     gac.getBeanFactory().registerSingleton("entityManagerFactory2", mockEmf2);
-    BeanDefinition processorDef = new BeanDefinition(PersistenceAnnotationBeanPostProcessor.class);
+    RootBeanDefinition processorDef = new RootBeanDefinition(PersistenceAnnotationBeanPostProcessor.class);
     processorDef.getPropertyValues().add("defaultPersistenceUnitName", "entityManagerFactory");
     gac.registerBeanDefinition("annotationProcessor", processorDef);
     gac.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class));
     gac.registerBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
     gac.refresh();
 
     DefaultPublicPersistenceUnitSetter bean = (DefaultPublicPersistenceUnitSetter)
@@ -357,13 +357,13 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     bpp.setJndiTemplate(jt);
     bf.addBeanPostProcessor(bpp);
     bf.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
     bf.registerBeanDefinition(DefaultPrivatePersistenceContextField.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextField.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextField.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class));
 
     DefaultPublicPersistenceUnitSetter bean = (DefaultPublicPersistenceUnitSetter)
             bf.getBean(DefaultPublicPersistenceUnitSetter.class.getName());
@@ -397,9 +397,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     bpp.setJndiTemplate(jt);
     bf.addBeanPostProcessor(bpp);
     bf.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
 
     DefaultPublicPersistenceUnitSetter bean = (DefaultPublicPersistenceUnitSetter)
             bf.getBean(DefaultPublicPersistenceUnitSetter.class.getName());
@@ -422,9 +422,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     bpp.setJndiTemplate(jt);
     bf.addBeanPostProcessor(bpp);
     bf.registerBeanDefinition(DefaultPublicPersistenceUnitSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetter.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
+            new RootBeanDefinition(DefaultPublicPersistenceUnitSetterNamedPerson.class));
 
     DefaultPublicPersistenceUnitSetter bean = (DefaultPublicPersistenceUnitSetter)
             bf.getBean(DefaultPublicPersistenceUnitSetter.class.getName());
@@ -457,11 +457,11 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     bpp.setJndiTemplate(jt);
     bf.addBeanPostProcessor(bpp);
     bf.registerBeanDefinition(DefaultPrivatePersistenceContextField.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextField.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextField.class));
     bf.registerBeanDefinition(DefaultPrivatePersistenceContextFieldNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextFieldNamedPerson.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextFieldNamedPerson.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class));
 
     DefaultPrivatePersistenceContextField bean1 = (DefaultPrivatePersistenceContextField)
             bf.getBean(DefaultPrivatePersistenceContextField.class.getName());
@@ -498,11 +498,11 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     bpp.setJndiTemplate(jt);
     bf.addBeanPostProcessor(bpp);
     bf.registerBeanDefinition(DefaultPrivatePersistenceContextField.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextField.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextField.class));
     bf.registerBeanDefinition(DefaultPrivatePersistenceContextFieldNamedPerson.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextFieldNamedPerson.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextFieldNamedPerson.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class));
 
     DefaultPrivatePersistenceContextField bean1 = (DefaultPrivatePersistenceContextField)
             bf.getBean(DefaultPrivatePersistenceContextField.class.getName());
@@ -535,9 +535,9 @@ public class PersistenceInjectionTests extends AbstractEntityManagerFactoryBeanT
     bpp.setJndiTemplate(jt);
     bf.addBeanPostProcessor(bpp);
     bf.registerBeanDefinition(DefaultPrivatePersistenceContextField.class.getName(),
-            new BeanDefinition(DefaultPrivatePersistenceContextField.class));
+            new RootBeanDefinition(DefaultPrivatePersistenceContextField.class));
     bf.registerBeanDefinition(DefaultPublicPersistenceContextSetter.class.getName(),
-            new BeanDefinition(DefaultPublicPersistenceContextSetter.class));
+            new RootBeanDefinition(DefaultPublicPersistenceContextSetter.class));
 
     DefaultPrivatePersistenceContextField bean1 = (DefaultPrivatePersistenceContextField)
             bf.getBean(DefaultPrivatePersistenceContextField.class.getName());
