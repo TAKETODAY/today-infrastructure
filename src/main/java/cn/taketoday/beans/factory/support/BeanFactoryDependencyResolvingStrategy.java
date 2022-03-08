@@ -24,10 +24,12 @@ import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;

@@ -20,7 +20,7 @@
 
 package cn.taketoday.validation.beanvalidation;
 
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.lang.Assert;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorFactory;
@@ -30,7 +30,7 @@ import jakarta.validation.ConstraintValidatorFactory;
  * Framework BeanFactory for creating autowired {@link ConstraintValidator} instances.
  *
  * @author Juergen Hoeller
- * @see cn.taketoday.beans.factory.AutowireCapableBeanFactory#createBean(Class)
+ * @see AutowireCapableBeanFactory#createBean(Class)
  * @see cn.taketoday.context.ApplicationContext#getAutowireCapableBeanFactory()
  * @since 4.0
  */

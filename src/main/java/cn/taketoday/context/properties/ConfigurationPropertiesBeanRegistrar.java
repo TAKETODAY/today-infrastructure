@@ -22,7 +22,7 @@ package cn.taketoday.context.properties;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;

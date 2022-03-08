@@ -44,7 +44,7 @@ import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;

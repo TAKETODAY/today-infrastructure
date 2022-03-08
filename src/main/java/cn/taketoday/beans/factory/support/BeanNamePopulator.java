@@ -20,8 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
  * Strategy interface for generating bean names for bean definitions.

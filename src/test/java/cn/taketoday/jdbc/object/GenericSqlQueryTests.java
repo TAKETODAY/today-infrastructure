@@ -36,9 +36,9 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReference;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.jdbc.core.SqlParameter;
 import cn.taketoday.jdbc.core.namedparam.Customer;

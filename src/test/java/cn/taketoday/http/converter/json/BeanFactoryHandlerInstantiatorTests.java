@@ -56,7 +56,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;

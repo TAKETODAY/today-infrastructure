@@ -27,7 +27,7 @@ import org.w3c.dom.NodeList;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ManagedList;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.scheduling.support.ScheduledMethodRunnable;

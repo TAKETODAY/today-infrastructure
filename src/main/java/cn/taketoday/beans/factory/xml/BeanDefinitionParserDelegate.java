@@ -36,6 +36,8 @@ import java.util.Set;
 import cn.taketoday.beans.BeanMetadataAttribute;
 import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.PropertyValue;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.parsing.BeanEntry;
 import cn.taketoday.beans.factory.parsing.ConstructorArgumentEntry;
 import cn.taketoday.beans.factory.parsing.ParseState;
@@ -43,11 +45,11 @@ import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.parsing.PropertyEntry;
 import cn.taketoday.beans.factory.parsing.QualifierEntry;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
-import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.support.LookupOverride;
 import cn.taketoday.beans.factory.support.ManagedArray;
 import cn.taketoday.beans.factory.support.ManagedList;
@@ -56,9 +58,8 @@ import cn.taketoday.beans.factory.support.ManagedProperties;
 import cn.taketoday.beans.factory.support.ManagedSet;
 import cn.taketoday.beans.factory.support.MethodOverrides;
 import cn.taketoday.beans.factory.support.ReplaceOverride;
-import cn.taketoday.beans.factory.support.RuntimeBeanNameReference;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.beans.factory.support.TypedStringValue;
+import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -511,7 +512,7 @@ public class BeanDefinitionParserDelegate {
     }
 
     try {
-      BeanDefinition bd = createBeanDefinition(className, parent);
+      AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
       parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
       bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
@@ -554,7 +555,7 @@ public class BeanDefinitionParserDelegate {
    * @return a bean definition initialized according to the bean element attributes
    */
   public BeanDefinition parseBeanDefinitionAttributes(Element ele, String beanName,
-          @Nullable BeanDefinition containingBean, BeanDefinition bd) {
+          @Nullable BeanDefinition containingBean, AbstractBeanDefinition bd) {
 
     if (ele.hasAttribute(SINGLETON_ATTRIBUTE)) {
       error("Old 1.x 'singleton' attribute in use - upgrade to 'scope' declaration", ele);
@@ -605,20 +606,20 @@ public class BeanDefinitionParserDelegate {
       // @since 4.0
       String initMethodName = ele.getAttribute(INIT_METHOD_ATTRIBUTE);
       String[] initMethods = StringUtils.tokenizeToStringArray(initMethodName, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
-      bd.setInitMethods(initMethods);
+      bd.setInitMethodNames(initMethods);
     }
     else if (this.defaults.getInitMethod() != null) {
       String[] initMethods = StringUtils.tokenizeToStringArray(defaults.getInitMethod(), MULTI_VALUE_ATTRIBUTE_DELIMITERS);
-      bd.setInitMethods(initMethods);
+      bd.setInitMethodNames(initMethods);
       bd.setEnforceInitMethod(false);
     }
 
     if (ele.hasAttribute(DESTROY_METHOD_ATTRIBUTE)) {
       String destroyMethodName = ele.getAttribute(DESTROY_METHOD_ATTRIBUTE);
-      bd.setDestroyMethod(destroyMethodName);
+      bd.setDestroyMethodNames(destroyMethodName);
     }
     else if (this.defaults.getDestroyMethod() != null) {
-      bd.setDestroyMethod(this.defaults.getDestroyMethod());
+      bd.setDestroyMethodName(this.defaults.getDestroyMethod());
       bd.setEnforceDestroyMethod(false);
     }
 
@@ -640,11 +641,11 @@ public class BeanDefinitionParserDelegate {
    * @return the newly created bean definition
    * @throws ClassNotFoundException if bean class resolution was attempted but failed
    */
-  protected BeanDefinition createBeanDefinition(@Nullable String className, @Nullable String parentName)
+  protected AbstractBeanDefinition createBeanDefinition(@Nullable String className, @Nullable String parentName)
           throws ClassNotFoundException {
 
     return BeanDefinitionReaderUtils.createBeanDefinition(
-            parentName, className, this.readerContext.getBeanClassLoader());
+            parentName, className, readerContext.getBeanClassLoader());
   }
 
   /**
@@ -720,7 +721,7 @@ public class BeanDefinitionParserDelegate {
   /**
    * Parse qualifier sub-elements of the given bean element.
    */
-  public void parseQualifierElements(Element beanEle, BeanDefinition bd) {
+  public void parseQualifierElements(Element beanEle, AbstractBeanDefinition bd) {
     NodeList nl = beanEle.getChildNodes();
     for (int i = 0; i < nl.getLength(); i++) {
       Node node = nl.item(i);
@@ -849,7 +850,7 @@ public class BeanDefinitionParserDelegate {
     }
     this.parseState.push(new PropertyEntry(propertyName));
     try {
-      if (bd.propertyValues().contains(propertyName)) {
+      if (bd.getPropertyValues().contains(propertyName)) {
         error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
         return;
       }
@@ -857,7 +858,7 @@ public class BeanDefinitionParserDelegate {
       PropertyValue pv = new PropertyValue(propertyName, val);
       parseMetaElements(ele, pv);
       pv.setSource(extractSource(ele));
-      bd.propertyValues().add(pv);
+      bd.getPropertyValues().add(pv);
     }
     finally {
       this.parseState.pop();
@@ -867,7 +868,7 @@ public class BeanDefinitionParserDelegate {
   /**
    * Parse a qualifier element.
    */
-  public void parseQualifierElement(Element ele, BeanDefinition bd) {
+  public void parseQualifierElement(Element ele, AbstractBeanDefinition bd) {
     String typeName = ele.getAttribute(TYPE_ATTRIBUTE);
     if (StringUtils.isEmpty(typeName)) {
       error("Tag 'qualifier' must have a 'type' attribute", ele);
@@ -1101,7 +1102,7 @@ public class BeanDefinitionParserDelegate {
   /**
    * Build a typed String value Object for the given raw value.
    *
-   * @see cn.taketoday.beans.factory.support.TypedStringValue
+   * @see TypedStringValue
    */
   protected TypedStringValue buildTypedStringValue(String value, @Nullable String targetTypeName)
           throws ClassNotFoundException {
@@ -1297,7 +1298,7 @@ public class BeanDefinitionParserDelegate {
   /**
    * Build a typed String value Object for the given raw value.
    *
-   * @see cn.taketoday.beans.factory.support.TypedStringValue
+   * @see TypedStringValue
    */
   protected final Object buildTypedStringValueForMap(String value, String defaultTypeName, Element entryEle) {
     try {
@@ -1493,9 +1494,8 @@ public class BeanDefinitionParserDelegate {
     if (log.isTraceEnabled()) {
       log.trace("Using generated bean name [{}] for nested custom element '{}'", id, ele.getNodeName());
     }
-    BeanDefinition definition = innerDefinition.cloneDefinition();
-    definition.setBeanName(id);
-    return definition;
+    innerDefinition.setBeanName(id);
+    return innerDefinition;
   }
 
   /**

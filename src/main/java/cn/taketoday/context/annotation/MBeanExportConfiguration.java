@@ -26,7 +26,7 @@ import javax.management.MBeanServer;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.AnnotationAttributes;

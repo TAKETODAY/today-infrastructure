@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.Bean;

@@ -22,7 +22,7 @@ package cn.taketoday.web.framework;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;

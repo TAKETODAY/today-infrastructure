@@ -31,10 +31,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
-import cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean;
-import cn.taketoday.beans.factory.support.PropertiesFactoryBean;
+import cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean;
+import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.parsing.ComponentDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.CollectingReaderEventListener;
 import cn.taketoday.beans.testfixture.beans.CustomEnum;

@@ -33,7 +33,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;

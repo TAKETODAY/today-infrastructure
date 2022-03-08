@@ -39,8 +39,8 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanPostProcessor;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -82,7 +82,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 @SuppressWarnings("serial")
 public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
-        implements DestructionBeanPostProcessor, MergedBeanDefinitionPostProcessor,
+        implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor,
         BeanFactoryAware, InitializationBeanPostProcessor, PriorityOrdered, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);

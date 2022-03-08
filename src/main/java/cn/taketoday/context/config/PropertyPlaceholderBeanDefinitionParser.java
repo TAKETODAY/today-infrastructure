@@ -22,6 +22,7 @@ package cn.taketoday.context.config;
 
 import org.w3c.dom.Element;
 
+import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
@@ -54,7 +55,7 @@ class PropertyPlaceholderBeanDefinitionParser extends AbstractPropertyLoadingBea
     // The user has explicitly specified a value for system-properties-mode: revert to
     // PropertyPlaceholderConfigurer to ensure backward compatibility with 3.0 and earlier.
     // This is deprecated; to be removed along with PropertyPlaceholderConfigurer itself.
-    return cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer.class;
+    return PropertyPlaceholderConfigurer.class;
   }
 
   @Override

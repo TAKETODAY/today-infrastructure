@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.GenericApplicationContext;

@@ -27,10 +27,10 @@ import org.hibernate.resource.beans.spi.BeanInstanceProducer;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;

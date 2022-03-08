@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.GenericApplicationContext;

@@ -21,7 +21,7 @@
 package cn.taketoday.aop.scope;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.lang.Nullable;

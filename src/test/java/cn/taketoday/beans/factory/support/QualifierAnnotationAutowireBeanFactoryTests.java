@@ -29,6 +29,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.LocalVariableTableParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.util.ClassUtils;

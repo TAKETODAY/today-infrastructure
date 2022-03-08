@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.context.HierarchicalMessageSource;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.MessageSourceResolvable;
@@ -91,7 +92,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
    * Specify locale-independent common messages, with the message code as key
    * and the full message String (may contain argument placeholders) as value.
    * <p>May also link to an externally defined Properties object, e.g. defined
-   * through a {@link cn.taketoday.beans.factory.support.PropertiesFactoryBean}.
+   * through a {@link PropertiesFactoryBean}.
    */
   public void setCommonMessages(@Nullable Properties commonMessages) {
     this.commonMessages = commonMessages;

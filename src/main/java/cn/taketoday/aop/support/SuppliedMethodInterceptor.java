@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.beans.factory.BeanSupplier;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Assert;
 

@@ -21,6 +21,8 @@
 package cn.taketoday.context.expression;
 
 import cn.taketoday.beans.factory.Aware;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
 import cn.taketoday.core.StringValueResolver;
 
 /**
@@ -28,8 +30,8 @@ import cn.taketoday.core.StringValueResolver;
  * {@code StringValueResolver} for the resolution of embedded definition values.
  *
  * @author Harry Yang
- * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#resolveEmbeddedValue(String)
- * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#getBeanExpressionResolver()
+ * @see ConfigurableBeanFactory#resolveEmbeddedValue(String)
+ * @see ConfigurableBeanFactory#getBeanExpressionResolver()
  * @see EmbeddedValueResolver
  * @since 4.0
  */

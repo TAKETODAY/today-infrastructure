@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Properties;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.DefaultResourceLoader;

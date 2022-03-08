@@ -47,11 +47,9 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -59,11 +57,17 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.InjectionPoint;
-import cn.taketoday.beans.factory.NamedBeanHolder;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
@@ -958,7 +962,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         try {
           RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
           // Only check bean definition if it is complete.
-          if (allowEagerInit || allowCheck(merged)) {
+          if (!merged.isAbstract() && (allowEagerInit || allowCheck(merged))) {
             boolean matchFound = false;
             boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
             if (isFactoryBean(beanName, merged)) {
@@ -1070,7 +1074,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     for (String beanName : beanDefinitionNames) {
       BeanDefinition bd = beanDefinitionMap.get(beanName);
-      if (bd != null && findAnnotationOnBean(beanName, annotationType).isPresent()) {
+      if (bd != null && !bd.isAbstract() && findAnnotationOnBean(beanName, annotationType).isPresent()) {
         names.add(beanName);
       }
     }

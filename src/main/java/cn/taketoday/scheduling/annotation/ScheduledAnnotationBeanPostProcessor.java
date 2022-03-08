@@ -39,19 +39,19 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.NamedBeanHolder;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ApplicationListener;
@@ -109,7 +109,7 @@ import cn.taketoday.util.StringUtils;
  * @see AsyncAnnotationBeanPostProcessor
  * @since 4.0
  */
-public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder, Ordered, DestructionBeanPostProcessor,
+public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder, Ordered, DestructionAwareBeanPostProcessor,
         InitializationBeanPostProcessor, BeanNameAware, DisposableBean, BeanFactoryAware, ApplicationContextAware,
         EmbeddedValueResolverAware, SmartInitializingSingleton, ApplicationListener<ContextRefreshedEvent> {
 

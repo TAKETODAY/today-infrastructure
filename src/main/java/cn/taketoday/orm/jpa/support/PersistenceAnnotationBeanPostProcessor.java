@@ -41,13 +41,12 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
-import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.NamedBeanHolder;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
@@ -173,7 +172,7 @@ import jakarta.persistence.SynchronizationType;
  */
 @SuppressWarnings("serial")
 public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwareBeanPostProcessor,
-        DestructionBeanPostProcessor, DependenciesBeanPostProcessor,
+        DestructionAwareBeanPostProcessor, DependenciesBeanPostProcessor,
         MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware, Serializable {
 
   @Nullable

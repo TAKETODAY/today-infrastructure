@@ -28,7 +28,7 @@ import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.proxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

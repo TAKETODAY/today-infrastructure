@@ -23,7 +23,7 @@ package cn.taketoday.aop.config;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.context.annotation.AutoProxyRegistrar;

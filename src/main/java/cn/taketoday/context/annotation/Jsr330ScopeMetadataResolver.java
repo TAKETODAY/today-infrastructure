@@ -24,8 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.lang.Nullable;

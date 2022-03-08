@@ -3,7 +3,10 @@ package cn.taketoday.beans.factory.support;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.PropertyPathFactoryBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
@@ -47,19 +50,19 @@ class PropertyPathFactoryBeanTests {
     propertyPath2.addPropertyValue("targetBeanName", "tb");
     factory.registerBeanDefinition(propertyPath2);
 
-    // <bean id="tb.age" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    // <bean id="tb.age" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     factory.registerBeanDefinition(new BeanDefinition("tb.age", PropertyPathFactoryBean.class));
 
-    // <bean id="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    // <bean id="otb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     factory.registerBeanDefinition(new BeanDefinition("otb.spouse", PropertyPathFactoryBean.class));
 
-    // <bean id="tb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    // <bean id="tb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     factory.registerBeanDefinition(new BeanDefinition("tb.spouse", PropertyPathFactoryBean.class));
 
-    // <bean id="tb.spouse.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    // <bean id="tb.spouse.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     factory.registerBeanDefinition(new BeanDefinition("tb.spouse.spouse", PropertyPathFactoryBean.class));
 
-    //	<bean id="propertyPath3" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean">
+    //	<bean id="propertyPath3" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean">
     //		<property name="targetBeanName"><value>tb</value></property>
     //		<property name="propertyPath"><value>spouse</value></property>
     //		<property name="resultType"><value>cn.taketoday.beans.testfixture.beans.TestBean</value></property>
@@ -75,10 +78,10 @@ class PropertyPathFactoryBeanTests {
     // <bean id="tbWithInner" class="TestBean">
     //		<property name="age" value="10"/>
     //		<property name="spouse">
-    //			<bean name="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    //			<bean name="otb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     //		</property>
     //		<property name="friends">
-    //			<bean name="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    //			<bean name="otb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     //		</property>
     //	</bean>
 
@@ -101,7 +104,7 @@ class PropertyPathFactoryBeanTests {
 
     //	<bean id="tbWithInnerNull" class="TestBean">
     //		<property name="spouse">
-    //			<bean name="tb.spouse.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean"/>
+    //			<bean name="tb.spouse.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
     //		</property>
     //	</bean>
 

@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework.web.server;
 
-import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 
 /**
  * Strategy interface for customizing {@link WebServerFactory web server factories}. Any

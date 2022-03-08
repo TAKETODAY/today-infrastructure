@@ -30,12 +30,13 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
@@ -62,7 +63,7 @@ import cn.taketoday.util.ObjectUtils;
  * interface and then call {@link #refresh()} to initialize those beans
  * with application context semantics (handling
  * {@link cn.taketoday.context.aware.ApplicationContextAware}, auto-detecting
- * {@link cn.taketoday.beans.factory.BeanFactoryPostProcessor BeanFactoryPostProcessors},
+ * {@link BeanFactoryPostProcessor BeanFactoryPostProcessors},
  * etc).
  *
  * <p>In contrast to other ApplicationContext implementations that create a new

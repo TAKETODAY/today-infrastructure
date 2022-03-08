@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
@@ -47,8 +48,10 @@ public class ScopedProxyAutowireTests {
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(
             qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireFalse.xml"));
 
-    assertThat(List.of(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped")).isTrue();
-    assertThat(List.of(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped")).isTrue();
+    Set<String> beanNamesForType = bf.getBeanNamesForType(TestBean.class, false, false);
+    assertThat(List.of(beanNamesForType).contains("scoped")).isTrue();
+    Set<String> beanNamesForType1 = bf.getBeanNamesForType(TestBean.class, true, false);
+    assertThat(List.of(beanNamesForType1).contains("scoped")).isTrue();
     assertThat(bf.containsSingleton("scoped")).isFalse();
     TestBean autowired = (TestBean) bf.getBean("autowired");
     TestBean unscoped = (TestBean) bf.getBean("unscoped");

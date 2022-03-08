@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.CustomAutowireConfigurer;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.GenericApplicationContext;

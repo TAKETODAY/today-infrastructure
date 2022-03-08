@@ -40,7 +40,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.propertyeditors.StringArrayPropertyEditor;
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
 import cn.taketoday.beans.testfixture.beans.ITestBean;

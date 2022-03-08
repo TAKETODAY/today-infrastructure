@@ -31,9 +31,9 @@ import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.ComponentDefinition;
 import cn.taketoday.beans.factory.parsing.ImportDefinition;
 import cn.taketoday.beans.factory.parsing.PassThroughSourceExtractor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.TypedStringValue;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.testfixture.beans.CollectingReaderEventListener;
 import cn.taketoday.core.io.ClassPathResource;
 

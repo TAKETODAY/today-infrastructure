@@ -28,8 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -54,7 +55,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/10/24 22:56
  * @see AbstractBeanFactory
  * @see DisposableBean
- * @see DestructionBeanPostProcessor
+ * @see DestructionAwareBeanPostProcessor
  * @since 4.0
  */
 final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
@@ -78,7 +79,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   private transient Method destroyMethod;
 
   @Nullable
-  private final List<DestructionBeanPostProcessor> beanPostProcessors;
+  private final List<DestructionAwareBeanPostProcessor> beanPostProcessors;
 
   private final boolean nonPublicAccessAllowed;
 
@@ -92,7 +93,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    */
   public DisposableBeanAdapter(
           Object bean, RootBeanDefinition beanDefinition,
-          @Nullable List<DestructionBeanPostProcessor> postProcessors) {
+          @Nullable List<DestructionAwareBeanPostProcessor> postProcessors) {
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
     this.beanName = beanDefinition.getBeanName();
@@ -143,7 +144,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param postProcessors the List of BeanPostProcessors
    * (potentially DestructionBeanPostProcessor), if any
    */
-  public DisposableBeanAdapter(Object bean, List<DestructionBeanPostProcessor> postProcessors) {
+  public DisposableBeanAdapter(Object bean, List<DestructionAwareBeanPostProcessor> postProcessors) {
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
     this.nonPublicAccessAllowed = true;
@@ -157,7 +158,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    */
   private DisposableBeanAdapter(Object bean, String beanName, boolean nonPublicAccessAllowed,
           boolean invokeDisposableBean, boolean invokeAutoCloseable,
-          @Nullable String destroyMethodName, @Nullable List<DestructionBeanPostProcessor> postProcessors) {
+          @Nullable String destroyMethodName, @Nullable List<DestructionAwareBeanPostProcessor> postProcessors) {
 
     this.bean = bean;
     this.beanName = beanName;
@@ -176,7 +177,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   @Override
   public void destroy() {
     if (CollectionUtils.isNotEmpty(beanPostProcessors)) {
-      for (DestructionBeanPostProcessor processor : beanPostProcessors) {
+      for (DestructionAwareBeanPostProcessor processor : beanPostProcessors) {
         processor.postProcessBeforeDestruction(bean, beanName);
       }
     }
@@ -268,10 +269,10 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    */
   @Serial
   private Object writeReplace() {
-    ArrayList<DestructionBeanPostProcessor> serializablePostProcessors = null;
+    ArrayList<DestructionAwareBeanPostProcessor> serializablePostProcessors = null;
     if (this.beanPostProcessors != null) {
       serializablePostProcessors = new ArrayList<>();
-      for (DestructionBeanPostProcessor postProcessor : this.beanPostProcessors) {
+      for (DestructionAwareBeanPostProcessor postProcessor : this.beanPostProcessors) {
         if (postProcessor instanceof Serializable) {
           serializablePostProcessors.add(postProcessor);
         }
@@ -345,9 +346,9 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param postProcessors the post-processor candidates
    */
   public static boolean hasApplicableProcessors(
-          Object bean, List<DestructionBeanPostProcessor> postProcessors) {
+          Object bean, List<DestructionAwareBeanPostProcessor> postProcessors) {
     if (CollectionUtils.isNotEmpty(postProcessors)) {
-      for (DestructionBeanPostProcessor processor : postProcessors) {
+      for (DestructionAwareBeanPostProcessor processor : postProcessors) {
         if (processor.requiresDestruction(bean)) {
           return true;
         }
@@ -363,12 +364,12 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @return the filtered List of DestructionBeanPostProcessors
    */
   @Nullable
-  private static List<DestructionBeanPostProcessor> filterPostProcessors(
-          List<DestructionBeanPostProcessor> processors, Object bean) {
+  private static List<DestructionAwareBeanPostProcessor> filterPostProcessors(
+          List<DestructionAwareBeanPostProcessor> processors, Object bean) {
 
     if (CollectionUtils.isNotEmpty(processors)) {
-      ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = new ArrayList<>(processors.size());
-      for (DestructionBeanPostProcessor processor : processors) {
+      ArrayList<DestructionAwareBeanPostProcessor> filteredPostProcessors = new ArrayList<>(processors.size());
+      for (DestructionAwareBeanPostProcessor processor : processors) {
         if (processor.requiresDestruction(bean)) {
           filteredPostProcessors.add(processor);
         }
@@ -402,19 +403,19 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param obj Bean instance
    */
   public static void destroyBean(
-          Object obj, RootBeanDefinition def, List<DestructionBeanPostProcessor> postProcessors) {
+          Object obj, RootBeanDefinition def, List<DestructionAwareBeanPostProcessor> postProcessors) {
     Assert.notNull(obj, "bean instance must not be null");
     new DisposableBeanAdapter(obj, def, postProcessors)
             .destroy();
   }
 
   @Nullable
-  static ArrayList<DestructionBeanPostProcessor> filter(
-          Object obj, List<DestructionBeanPostProcessor> postProcessors) {
-    ArrayList<DestructionBeanPostProcessor> filteredPostProcessors = null;
+  static ArrayList<DestructionAwareBeanPostProcessor> filter(
+          Object obj, List<DestructionAwareBeanPostProcessor> postProcessors) {
+    ArrayList<DestructionAwareBeanPostProcessor> filteredPostProcessors = null;
     if (CollectionUtils.isNotEmpty(postProcessors)) {
       filteredPostProcessors = new ArrayList<>(postProcessors.size());
-      for (DestructionBeanPostProcessor postProcessor : postProcessors) {
+      for (DestructionAwareBeanPostProcessor postProcessor : postProcessors) {
         if (postProcessor.requiresDestruction(obj)) {
           filteredPostProcessors.add(postProcessor);
         }

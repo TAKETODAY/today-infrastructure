@@ -27,8 +27,10 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -123,7 +125,7 @@ import cn.taketoday.lang.Nullable;
  * @see InitializingBean#afterPropertiesSet
  * @see BeanDefinition#getInitMethods()
  * @see InitializationBeanPostProcessor#postProcessAfterInitialization
- * @see DestructionBeanPostProcessor#postProcessBeforeDestruction
+ * @see DestructionAwareBeanPostProcessor#postProcessBeforeDestruction
  * @see DisposableBean#destroy
  * @see BeanDefinition#getDestroyMethod()
  * @since 2018-06-23 11:22:26

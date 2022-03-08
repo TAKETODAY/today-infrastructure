@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 
 import jakarta.websocket.server.ServerEndpoint;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 

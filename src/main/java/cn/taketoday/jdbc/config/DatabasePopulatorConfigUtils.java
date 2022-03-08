@@ -25,10 +25,10 @@ import org.w3c.dom.Element;
 import java.util.List;
 
 import cn.taketoday.beans.BeanMetadataElement;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ManagedList;
-import cn.taketoday.beans.factory.support.TypedStringValue;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.jdbc.datasource.init.CompositeDatabasePopulator;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.lang.Nullable;

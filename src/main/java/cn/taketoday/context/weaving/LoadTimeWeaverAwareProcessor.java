@@ -23,13 +23,14 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.classloading.LoadTimeWeaver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * {@link cn.taketoday.beans.factory.BeanPostProcessor}
+ * {@link BeanPostProcessor}
  * implementation that passes the context's default {@link LoadTimeWeaver}
  * to beans that implement the {@link LoadTimeWeaverAware} interface.
  *

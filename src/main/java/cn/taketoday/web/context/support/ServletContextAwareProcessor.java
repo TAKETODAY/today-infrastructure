@@ -22,6 +22,7 @@ package cn.taketoday.web.context.support;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
@@ -29,7 +30,7 @@ import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
 /**
- * {@link cn.taketoday.beans.factory.BeanPostProcessor} implementation
+ * {@link BeanPostProcessor} implementation
  * that passes the ServletContext to beans that implement the
  * {@link ServletContextAware} interface.
  *

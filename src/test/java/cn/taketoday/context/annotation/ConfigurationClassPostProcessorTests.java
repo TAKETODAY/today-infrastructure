@@ -47,8 +47,8 @@ import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProces
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;

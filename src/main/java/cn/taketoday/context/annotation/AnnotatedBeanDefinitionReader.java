@@ -25,18 +25,19 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.context.loader.ScopeMetadata;
@@ -254,7 +255,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
       return;
     }
 
-    AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(beanClass);
+    AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(beanClass);
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
     definition.setScope(scopeMetadata.getScopeName());
 
@@ -329,7 +330,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   @Override
   public void registerSingleton(Object obj) {
     Assert.notNull(obj, "bean-instance must not be null");
-    BeanDefinition definition = new BeanDefinition(obj.getClass());
+    AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(obj.getClass());
     String name = beanNamePopulator.populateName(definition, registry);
 
     definition.setSynthetic(true);
@@ -390,7 +391,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   {
     Assert.notNull(clazz, "bean-class must not be null");
     if (!shouldSkip(clazz)) {
-      AnnotatedBeanDefinition definition = new AnnotatedBeanDefinition(clazz);
+      AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(clazz);
       if (prototype) {
         definition.setScope(Scope.PROTOTYPE);
       }

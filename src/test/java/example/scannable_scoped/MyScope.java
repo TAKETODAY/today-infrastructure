@@ -23,7 +23,7 @@ package example.scannable_scoped;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MyScope {

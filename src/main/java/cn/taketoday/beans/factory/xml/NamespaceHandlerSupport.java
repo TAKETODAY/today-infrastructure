@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**

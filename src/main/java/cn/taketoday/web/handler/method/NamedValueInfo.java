@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.handler.method;
 
-import cn.taketoday.context.expression.EmbeddedValueResolver;
+import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
 import cn.taketoday.lang.Nullable;
 
 /**

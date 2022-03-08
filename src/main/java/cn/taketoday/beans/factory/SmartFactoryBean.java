@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * Extension of the {@link FactoryBean} interface. Implementations may

@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory.xml;
 
 import org.w3c.dom.Node;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
  * Interface used by the {@link DefaultBeanDefinitionDocumentReader}
@@ -31,17 +31,17 @@ import cn.taketoday.beans.factory.support.BeanDefinition;
  * <p>Decoration may also occur based on custom attributes applied to the
  * {@code <bean>} tag. Implementations are free to turn the metadata in the
  * custom tag into as many
- * {@link cn.taketoday.beans.factory.support.BeanDefinition BeanDefinitions} as
+ * {@link BeanDefinition BeanDefinitions} as
  * required and to transform the
- * {@link cn.taketoday.beans.factory.support.BeanDefinition} of the enclosing
+ * {@link BeanDefinition} of the enclosing
  * {@code <bean>} tag, potentially even returning a completely different
- * {@link cn.taketoday.beans.factory.support.BeanDefinition} to replace the
+ * {@link BeanDefinition} to replace the
  * original.
  *
  * <p>{@link BeanDefinitionDecorator BeanDefinitionDecorators} should be aware that
  * they may be part of a chain. In particular, a {@link BeanDefinitionDecorator} should
  * be aware that a previous {@link BeanDefinitionDecorator} may have replaced the
- * original {@link cn.taketoday.beans.factory.support.BeanDefinition} with a
+ * original {@link BeanDefinition} with a
  * {@link cn.taketoday.aop.proxy.ProxyFactoryBean} definition allowing for
  * custom {@link org.aopalliance.intercept.MethodInterceptor interceptors} to be added.
  *
@@ -63,7 +63,7 @@ public interface BeanDefinitionDecorator {
 
   /**
    * Parse the specified {@link Node} (either an element or an attribute) and decorate
-   * the supplied {@link cn.taketoday.beans.factory.support.BeanDefinition},
+   * the supplied {@link BeanDefinition},
    * returning the decorated definition.
    * <p>Implementations may choose to return a completely new definition, which will
    * replace the original definition in the resulting

@@ -22,8 +22,8 @@ package cn.taketoday.context.expression;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanExpressionException;
-import cn.taketoday.beans.factory.support.BeanExpressionContext;
-import cn.taketoday.beans.factory.support.BeanExpressionResolver;
+import cn.taketoday.beans.factory.config.BeanExpressionContext;
+import cn.taketoday.beans.factory.config.BeanExpressionResolver;
 import cn.taketoday.expression.BeanNameExpressionResolver;
 import cn.taketoday.expression.BeanNameResolver;
 import cn.taketoday.expression.ExpressionFactory;

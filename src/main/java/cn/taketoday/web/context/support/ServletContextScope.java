@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ServletContext;

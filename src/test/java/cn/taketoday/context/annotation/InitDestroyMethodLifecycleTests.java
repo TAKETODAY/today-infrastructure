@@ -27,7 +27,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

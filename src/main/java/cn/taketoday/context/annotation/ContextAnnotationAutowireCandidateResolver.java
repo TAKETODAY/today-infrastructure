@@ -35,7 +35,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
-import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotationUtils;

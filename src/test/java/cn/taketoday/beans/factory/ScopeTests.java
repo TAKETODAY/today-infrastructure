@@ -24,7 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
+import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.support.StandardApplicationContext;
 
@@ -56,7 +58,9 @@ class ScopeTests {
       context.getBeanFactory()
               .registerScope("thread", thread);
 
-      BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
+      AbstractBeanDefinition def = BeanDefinitionBuilder.rootBeanDefinition(ScopeBean.class).getBeanDefinition();
+      def.setBeanName("scopeBean");
+
       context.registerBeanDefinition(def);
       def.setScope("thread");
 
@@ -86,8 +90,9 @@ class ScopeTests {
     configurer.addScope("thread", thread);
 
     try (StandardApplicationContext context = new StandardApplicationContext()) {
+      AbstractBeanDefinition def = BeanDefinitionBuilder.rootBeanDefinition(ScopeBean.class).getBeanDefinition();
+      def.setBeanName("scopeBean");
 
-      BeanDefinition def = BeanDefinitionBuilder.defaults("scopeBean", ScopeBean.class);
       context.registerBeanDefinition(def);
 
       def.setScope("thread");

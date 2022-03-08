@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
@@ -151,7 +154,7 @@ class AutowireCapableBeanFactoryTests {
     }
   }
 
-  static class PostProcessor implements InitializationBeanPostProcessor, DestructionBeanPostProcessor {
+  static class PostProcessor implements InitializationBeanPostProcessor, DestructionAwareBeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {

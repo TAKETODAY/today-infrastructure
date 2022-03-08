@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
@@ -284,7 +284,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
     for (String basePackage : basePackages) {
       try {
         scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
-          ScannedBeanDefinition candidate = new ScannedBeanDefinition(metadataReader);
+          ScannedGenericBeanDefinition candidate = new ScannedGenericBeanDefinition(metadataReader);
           candidate.setSource(metadataReader.getResource());
 
           ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
@@ -371,7 +371,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * new definition to be skipped in favor of the existing definition
    */
   protected boolean isCompatible(BeanDefinition newDefinition, BeanDefinition existingDefinition) {
-    return !(existingDefinition instanceof ScannedBeanDefinition)
+    return !(existingDefinition instanceof ScannedGenericBeanDefinition)
             // explicitly registered overriding bean
             || (newDefinition.getSource() != null && newDefinition.getSource().equals(existingDefinition.getSource()))
             // scanned same file twice

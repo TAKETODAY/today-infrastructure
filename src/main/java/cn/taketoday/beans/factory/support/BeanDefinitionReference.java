@@ -20,7 +20,9 @@
 package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.BeanWrapper;
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.PropertyValueRetriever;
 import cn.taketoday.lang.Nullable;
 
 /**

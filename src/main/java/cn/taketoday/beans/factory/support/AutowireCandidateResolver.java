@@ -22,6 +22,9 @@ package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 
 /**

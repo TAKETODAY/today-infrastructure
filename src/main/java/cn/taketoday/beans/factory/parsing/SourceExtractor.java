@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.parsing;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
 
@@ -35,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @see cn.taketoday.beans.BeanMetadataElement#getSource()
- * @see cn.taketoday.beans.factory.support.BeanDefinition
+ * @see BeanDefinition
  * @since 4.0
  */
 @FunctionalInterface

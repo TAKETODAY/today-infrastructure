@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.beans.factory.support.BeanExpressionContext;
-import cn.taketoday.beans.factory.support.BeanExpressionResolver;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanExpressionContext;
+import cn.taketoday.beans.factory.config.BeanExpressionResolver;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;

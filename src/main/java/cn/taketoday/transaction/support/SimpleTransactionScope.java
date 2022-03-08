@@ -25,24 +25,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
+import cn.taketoday.beans.factory.config.SimpleThreadScope;
 import cn.taketoday.lang.Nullable;
 
 /**
  * A simple transaction-backed {@link Scope} implementation, delegating to
  * {@link TransactionSynchronizationManager}'s resource binding mechanism.
  *
- * <p><b>NOTE:</b> Like {@link cn.taketoday.beans.factory.SimpleThreadScope},
+ * <p><b>NOTE:</b> Like {@link SimpleThreadScope},
  * this transaction scope is not registered by default in common contexts. Instead,
  * you need to explicitly assign it to a scope key in your setup, either through
  * {@link ConfigurableBeanFactory#registerScope}
- * or through a {@link cn.taketoday.beans.factory.CustomScopeConfigurer} bean.
+ * or through a {@link CustomScopeConfigurer} bean.
  *
  * @author Juergen Hoeller
- * @see cn.taketoday.beans.factory.SimpleThreadScope
+ * @see SimpleThreadScope
  * @see ConfigurableBeanFactory#registerScope
- * @see cn.taketoday.beans.factory.CustomScopeConfigurer
+ * @see CustomScopeConfigurer
  * @since 4.0
  */
 public class SimpleTransactionScope implements Scope {

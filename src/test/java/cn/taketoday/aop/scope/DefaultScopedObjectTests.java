@@ -21,7 +21,7 @@ package cn.taketoday.aop.scope;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;

@@ -28,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.gh24375.AnnotatedComponent;
 import cn.taketoday.context.loader.CandidateComponentsTestClassLoader;
@@ -518,7 +518,7 @@ public class ClassPathScanningCandidateComponentProviderTests {
 
   private void assertBeanDefinitionType(Set<BeanDefinition> candidates) {
     candidates.forEach(c ->
-            assertThat(c).isInstanceOf(ScannedBeanDefinition.class)
+            assertThat(c).isInstanceOf(ScannedGenericBeanDefinition.class)
     );
   }
 

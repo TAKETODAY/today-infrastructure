@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
@@ -182,7 +183,7 @@ public class AnnotationConfigWebApplicationContext
   }
 
   /**
-   * Register a {@link cn.taketoday.beans.factory.support.BeanDefinition} for
+   * Register a {@link BeanDefinition} for
    * any classes specified by {@link #register(Class...)} and scan any packages
    * specified by {@link #scan(String...)}.
    * <p>For any values specified by {@link #setConfigLocation(String)} or

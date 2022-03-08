@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;

@@ -19,6 +19,9 @@
  */
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+
 /**
  * Interface to be implemented by beans that want to release resources on destruction.
  * A {@link BeanFactory} will invoke the destroy method on individual destruction of a
@@ -33,8 +36,8 @@ package cn.taketoday.beans.factory;
  * @author Juergen Hoeller
  * @author TODAY 2018-7-18 1:07:15
  * @see InitializingBean
- * @see cn.taketoday.beans.factory.support.BeanDefinition#getDestroyMethod()
- * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#destroySingletons()
+ * @see BeanDefinition#getDestroyMethod()
+ * @see ConfigurableBeanFactory#destroySingletons()
  * @see cn.taketoday.context.ConfigurableApplicationContext#close()
  */
 public interface DisposableBean {

@@ -27,8 +27,8 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;

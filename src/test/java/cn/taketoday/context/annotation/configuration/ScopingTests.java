@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.scope.ScopedObject;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
@@ -330,7 +330,7 @@ public class ScopingTests {
    * @author Costin Leau
    * @author Chris Beams
    */
-  static class CustomScope implements cn.taketoday.beans.factory.Scope {
+  static class CustomScope implements cn.taketoday.beans.factory.config.Scope {
 
     public boolean createNewScope = true;
 

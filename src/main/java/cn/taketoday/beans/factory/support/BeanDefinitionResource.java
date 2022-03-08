@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.io.AbstractResource;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.lang.Assert;
@@ -31,7 +32,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Descriptive {@link cn.taketoday.core.io.Resource} wrapper for
- * a {@link cn.taketoday.beans.factory.support.BeanDefinition}.
+ * a {@link BeanDefinition}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

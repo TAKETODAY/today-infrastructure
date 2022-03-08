@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.loader;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Scope;
 
 /**

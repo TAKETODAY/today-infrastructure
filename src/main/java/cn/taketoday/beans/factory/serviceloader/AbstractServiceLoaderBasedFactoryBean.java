@@ -21,7 +21,7 @@ package cn.taketoday.beans.factory.serviceloader;
 
 import java.util.ServiceLoader;
 
-import cn.taketoday.beans.factory.AbstractFactoryBean;
+import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 

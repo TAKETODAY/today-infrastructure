@@ -39,7 +39,7 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.MissingBean;

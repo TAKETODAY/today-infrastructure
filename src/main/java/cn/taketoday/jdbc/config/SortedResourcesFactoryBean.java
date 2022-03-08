@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.factory.AbstractFactoryBean;
+import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;

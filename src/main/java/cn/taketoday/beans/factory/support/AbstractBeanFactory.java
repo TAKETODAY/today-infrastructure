@@ -47,25 +47,29 @@ import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanIsAbstractException;
 import cn.taketoday.beans.factory.BeanIsNotAFactoryException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
-import cn.taketoday.beans.factory.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanExpressionResolver;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.SmartFactoryBean;
-import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanExpressionContext;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.NamedThreadLocal;
@@ -642,7 +646,7 @@ public abstract class AbstractBeanFactory
    * @param bean the bean instance to check
    * @param mbd the corresponding bean definition
    * @see DisposableBean
-   * @see DestructionBeanPostProcessor
+   * @see DestructionAwareBeanPostProcessor
    */
   protected boolean requiresDestruction(Object bean, RootBeanDefinition mbd) {
     return DisposableBeanAdapter.hasDestroyMethod(bean, mbd)
@@ -2169,7 +2173,7 @@ public abstract class AbstractBeanFactory
 
   protected final static class BeanPostProcessors {
     public final ArrayList<MergedBeanDefinitionPostProcessor> definitions = new ArrayList<>();
-    public final ArrayList<DestructionBeanPostProcessor> destruction = new ArrayList<>();
+    public final ArrayList<DestructionAwareBeanPostProcessor> destruction = new ArrayList<>();
     public final ArrayList<DependenciesBeanPostProcessor> dependencies = new ArrayList<>();
     public final ArrayList<InitializationBeanPostProcessor> initialization = new ArrayList<>();
     public final ArrayList<InstantiationAwareBeanPostProcessor> instantiation = new ArrayList<>();
@@ -2177,7 +2181,7 @@ public abstract class AbstractBeanFactory
 
     BeanPostProcessors(ArrayList<BeanPostProcessor> postProcessors) {
       for (BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof DestructionBeanPostProcessor destruction) {
+        if (postProcessor instanceof DestructionAwareBeanPostProcessor destruction) {
           this.destruction.add(destruction);
         }
         if (postProcessor instanceof DependenciesBeanPostProcessor dependencies) {

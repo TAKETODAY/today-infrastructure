@@ -28,13 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.lang.Nullable;
 
 /**
  * @author Juergen Hoeller
  */
 @SuppressWarnings("serial")
-public class SimpleMapScope implements cn.taketoday.beans.factory.Scope, Serializable {
+public class SimpleMapScope implements Scope, Serializable {
 
   private final Map<String, Object> map = new HashMap<>();
 

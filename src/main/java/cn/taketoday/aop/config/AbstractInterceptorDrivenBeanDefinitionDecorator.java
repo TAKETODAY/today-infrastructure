@@ -25,7 +25,7 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 import cn.taketoday.aop.proxy.ProxyFactoryBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.ManagedList;

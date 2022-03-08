@@ -32,7 +32,7 @@ import java.util.Properties;
 
 import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.SimpleMapScope;
 import cn.taketoday.context.support.GenericApplicationContext;

@@ -538,13 +538,15 @@
 
   <xsd:element name="bean">
     <xsd:annotation>
-      <xsd:documentation source="java:cn.taketoday.beans.factory.support.BeanDefinition"><![CDATA[
+      <xsd:documentation source="java:cn.taketoday.beans.factory.support.BeanDefinition">
+        <![CDATA[
 	Defines a single (usually named) bean.
 
 	A bean definition may contain nested tags for constructor arguments,
 	property values, lookup methods, and replaced methods. Mixing constructor
 	injection and setter injection on the same bean is explicitly supported.
-			]]></xsd:documentation>
+			]]>
+      </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
       <xsd:complexContent>
@@ -571,7 +573,8 @@
 	constructor-arg elements are also used in conjunction with the
 	factory-method element to construct beans using static or instance
 	factory methods.
-			]]></xsd:documentation>
+			]]>
+      </xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence>
@@ -592,11 +595,13 @@
       </xsd:sequence>
       <xsd:attribute name="index" type="xsd:string">
         <xsd:annotation>
-          <xsd:documentation><![CDATA[
+          <xsd:documentation>
+            <![CDATA[
 	The exact index of the argument in the constructor argument list.
 	Only needed to avoid ambiguities, e.g. in case of 2 arguments of
 	the exact same type.
-					]]></xsd:documentation>
+					]]>
+          </xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>
       <xsd:attribute name="type" type="xsd:string">

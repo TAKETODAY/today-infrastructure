@@ -22,7 +22,8 @@ package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
  * A subclass of {@link BeanCreationException} which indicates that the target scope

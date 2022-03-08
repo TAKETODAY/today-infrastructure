@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;

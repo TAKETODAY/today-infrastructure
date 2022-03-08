@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyEditorRegistry;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.properties.bind.Bindable.BindRestriction;
 import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;

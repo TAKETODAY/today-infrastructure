@@ -23,7 +23,7 @@ package cn.taketoday.ejb.config;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.jndi.JndiObjectFactoryBean;
 import cn.taketoday.util.StringUtils;

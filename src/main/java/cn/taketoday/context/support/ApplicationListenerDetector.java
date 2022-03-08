@@ -23,7 +23,7 @@ package cn.taketoday.context.support;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -48,7 +48,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 final class ApplicationListenerDetector
-        implements DestructionBeanPostProcessor, MergedBeanDefinitionPostProcessor, InitializationBeanPostProcessor {
+        implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, InitializationBeanPostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicationListenerDetector.class);
 

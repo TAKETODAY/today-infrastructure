@@ -29,12 +29,12 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.DestructionBeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.INestedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -533,7 +533,7 @@ class CommonAnnotationBeanPostProcessorTests {
   }
 
   public static class InitDestroyBeanPostProcessor
-          implements DestructionBeanPostProcessor, InitializationBeanPostProcessor {
+          implements DestructionAwareBeanPostProcessor, InitializationBeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {

@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;

@@ -23,8 +23,8 @@ package cn.taketoday.beans.factory.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 

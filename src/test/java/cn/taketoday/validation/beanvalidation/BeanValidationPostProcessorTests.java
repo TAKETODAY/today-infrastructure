@@ -23,7 +23,7 @@ package cn.taketoday.validation.beanvalidation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.CommonAnnotationBeanPostProcessor;

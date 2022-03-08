@@ -24,7 +24,8 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
@@ -89,14 +90,14 @@ import cn.taketoday.util.StringUtils;
  * the observant (and even not so observant) reader will immediately notice that
  * there is next to no code in the implementation. The
  * {@code PropertiesBeanDefinitionParser} populates a
- * {@link cn.taketoday.beans.factory.support.PropertiesFactoryBean}
+ * {@link PropertiesFactoryBean}
  * from an XML element that looks like this:
  *
  * <pre class="code">&lt;util:properties location="jdbc.properties"/&gt;</pre>
  *
  * <p>The observant reader will notice that the sole attribute on the
  * {@code <util:properties/>} element matches the
- * {@link cn.taketoday.beans.factory.support.PropertiesFactoryBean#setLocation(cn.taketoday.core.io.Resource)}
+ * {@link PropertiesFactoryBean#setLocation(cn.taketoday.core.io.Resource)}
  * method name on the {@code PropertiesFactoryBean} (the general
  * usage thus illustrated holds true for any number of attributes).
  * All that the {@code PropertiesBeanDefinitionParser} needs
@@ -120,7 +121,7 @@ public abstract class AbstractSimpleBeanDefinitionParser extends AbstractSingleB
    * instances, and
    * {@link BeanDefinition#addPropertyValue(String, Object) adds them}
    * to the
-   * {@link cn.taketoday.beans.factory.support.BeanDefinition builder}.
+   * {@link BeanDefinition builder}.
    * <p>The {@link #extractPropertyName(String)} method is used to
    * reconcile the name of an attribute with the name of a JavaBean
    * property.

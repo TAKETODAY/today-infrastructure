@@ -22,7 +22,7 @@ package cn.taketoday.scheduling.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.lang.Assert;

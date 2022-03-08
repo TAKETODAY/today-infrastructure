@@ -23,7 +23,7 @@ package cn.taketoday.transaction.annotation;
 import java.util.Collection;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ImportAware;

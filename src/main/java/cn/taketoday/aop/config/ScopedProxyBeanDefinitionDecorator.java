@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.xml.BeanDefinitionDecorator;
 import cn.taketoday.beans.factory.xml.ParserContext;
 

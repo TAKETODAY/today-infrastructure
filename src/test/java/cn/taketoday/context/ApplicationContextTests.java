@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContextTests.RequiredTest.Bean1;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;

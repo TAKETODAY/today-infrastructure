@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;

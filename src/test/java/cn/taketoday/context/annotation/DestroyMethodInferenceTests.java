@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.Closeable;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;

@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.lang.Component;
 
 /**

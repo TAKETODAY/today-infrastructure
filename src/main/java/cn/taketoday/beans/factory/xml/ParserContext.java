@@ -26,7 +26,7 @@ import java.util.Deque;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.ComponentDefinition;
 import cn.taketoday.beans.factory.parsing.CompositeComponentDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.lang.Nullable;

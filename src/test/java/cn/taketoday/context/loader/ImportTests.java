@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;

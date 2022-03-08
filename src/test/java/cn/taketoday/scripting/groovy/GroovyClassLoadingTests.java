@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.util.ReflectionUtils;
 import groovy.lang.GroovyClassLoader;

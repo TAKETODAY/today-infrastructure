@@ -23,7 +23,7 @@ package cn.taketoday.context.config;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.PropertyOverrideConfigurer;
+import cn.taketoday.beans.factory.config.PropertyOverrideConfigurer;
 import cn.taketoday.beans.factory.xml.ParserContext;
 
 /**

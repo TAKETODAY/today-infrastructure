@@ -22,8 +22,7 @@ package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;

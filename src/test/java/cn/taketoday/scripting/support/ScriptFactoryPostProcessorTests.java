@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.type.EnabledForTestGroups;
 import cn.taketoday.scripting.Messenger;

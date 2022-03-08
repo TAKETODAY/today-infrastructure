@@ -29,7 +29,7 @@
     </property>
   </bean>
 
-  <bean id="propertyPath1" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean">
+  <bean id="propertyPath1" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean">
     <property name="targetObject">
       <bean class="cn.taketoday.beans.testfixture.beans.TestBean">
         <property name="age">
@@ -42,7 +42,7 @@
     </property>
   </bean>
 
-  <bean id="propertyPath2" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean">
+  <bean id="propertyPath2" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean">
     <property name="targetBeanName">
       <value>tb</value>
     </property>
@@ -51,15 +51,15 @@
     </property>
   </bean>
 
-  <bean id="tb.age" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+  <bean id="tb.age" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
 
-  <bean id="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+  <bean id="otb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
 
-  <bean id="tb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+  <bean id="tb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
 
-  <bean id="tb.spouse.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+  <bean id="tb.spouse.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
 
-  <bean id="propertyPath3" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean">
+  <bean id="propertyPath3" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean">
     <property name="targetBeanName">
       <value>tb</value>
     </property>
@@ -74,10 +74,10 @@
   <bean id="tbWithInner" class="cn.taketoday.beans.testfixture.beans.TestBean">
     <property name="age" value="10" />
     <property name="spouse">
-      <bean name="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+      <bean name="otb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
     </property>
     <property name="friends">
-      <bean name="otb.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+      <bean name="otb.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
     </property>
   </bean>
 
@@ -87,7 +87,7 @@
 
   <bean id="tbWithInnerNull" class="cn.taketoday.beans.testfixture.beans.TestBean">
     <property name="spouse">
-      <bean name="tb.spouse.spouse" class="cn.taketoday.beans.factory.support.PropertyPathFactoryBean" />
+      <bean name="tb.spouse.spouse" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean" />
     </property>
   </bean>
 

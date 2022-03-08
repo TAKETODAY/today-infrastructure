@@ -25,8 +25,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;

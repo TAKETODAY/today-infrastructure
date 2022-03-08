@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -57,10 +58,10 @@ public abstract class BeanDefinitionReaderUtils {
    * @return the bean definition
    * @throws ClassNotFoundException if the bean class could not be loaded
    */
-  public static BeanDefinition createBeanDefinition(
+  public static AbstractBeanDefinition createBeanDefinition(
           @Nullable String parentName, @Nullable String className, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
 
-    BeanDefinition bd = new BeanDefinition();
+    GenericBeanDefinition bd = new GenericBeanDefinition();
     bd.setParentName(parentName);
     if (className != null) {
       if (classLoader != null) {

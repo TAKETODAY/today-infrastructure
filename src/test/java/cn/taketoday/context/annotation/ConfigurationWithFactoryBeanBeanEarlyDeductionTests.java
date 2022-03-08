@@ -26,10 +26,10 @@ import java.util.Arrays;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;

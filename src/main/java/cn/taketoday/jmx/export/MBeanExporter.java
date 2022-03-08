@@ -55,8 +55,8 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.Constants;
 import cn.taketoday.jmx.export.assembler.AutodetectCapableMBeanInfoAssembler;
 import cn.taketoday.jmx.export.assembler.MBeanInfoAssembler;
@@ -569,8 +569,8 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    *
    * @param beanFactory the bean factory that is supposed to contain the bean definition
    * @param beanName the name of the bean to check
-   * @see cn.taketoday.beans.factory.support.ConfigurableBeanFactory#getBeanDefinition
-   * @see cn.taketoday.beans.factory.support.BeanDefinition#isLazyInit
+   * @see ConfigurableBeanFactory#getBeanDefinition
+   * @see BeanDefinition#isLazyInit
    */
   protected boolean isBeanDefinitionLazyInit(BeanFactory beanFactory, String beanName) {
     if (beanFactory instanceof ConfigurableBeanFactory) {

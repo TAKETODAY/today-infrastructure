@@ -24,7 +24,6 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;

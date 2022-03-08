@@ -26,10 +26,10 @@ import org.w3c.dom.Node;
 
 import java.util.Collection;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
-import cn.taketoday.beans.factory.support.ConstructorArgumentValues.ValueHolder;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;

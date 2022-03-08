@@ -28,6 +28,7 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;

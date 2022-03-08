@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.aware;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.type.AnnotationMetadata;

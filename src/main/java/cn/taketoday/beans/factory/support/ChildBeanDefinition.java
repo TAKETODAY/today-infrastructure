@@ -22,6 +22,8 @@ package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
@@ -49,7 +51,10 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0 2022/3/7 10:52
  */
 @SuppressWarnings("serial")
-public class ChildBeanDefinition extends BeanDefinition {
+public class ChildBeanDefinition extends AbstractBeanDefinition {
+
+  @Nullable
+  private String parentName;
 
   /**
    * Create a new ChildBeanDefinition for the given parent, to be
@@ -61,8 +66,9 @@ public class ChildBeanDefinition extends BeanDefinition {
    * @see #setConstructorArgumentValues
    * @see #setPropertyValues
    */
-  public ChildBeanDefinition(@Nullable String parentName) {
+  public ChildBeanDefinition(String parentName) {
     super();
+    this.parentName = parentName;
   }
 
   /**
@@ -71,9 +77,9 @@ public class ChildBeanDefinition extends BeanDefinition {
    * @param parentName the name of the parent bean
    * @param pvs the additional property values of the child
    */
-  public ChildBeanDefinition(@Nullable String parentName, PropertyValues pvs) {
+  public ChildBeanDefinition(String parentName, PropertyValues pvs) {
     super(null, pvs);
-    setParentName(parentName);
+    this.parentName = parentName;
   }
 
   /**
@@ -84,9 +90,10 @@ public class ChildBeanDefinition extends BeanDefinition {
    * @param pvs the additional property values of the child
    */
   public ChildBeanDefinition(
-          @Nullable String parentName, ConstructorArgumentValues cargs, PropertyValues pvs) {
+          String parentName, ConstructorArgumentValues cargs, PropertyValues pvs) {
+
     super(cargs, pvs);
-    setParentName(parentName);
+    this.parentName = parentName;
   }
 
   /**
@@ -99,9 +106,10 @@ public class ChildBeanDefinition extends BeanDefinition {
    * @param pvs the property values to apply
    */
   public ChildBeanDefinition(
-          @Nullable String parentName, Class<?> beanClass, ConstructorArgumentValues cargs, PropertyValues pvs) {
+          String parentName, Class<?> beanClass, ConstructorArgumentValues cargs, PropertyValues pvs) {
+
     super(cargs, pvs);
-    setParentName(parentName);
+    this.parentName = parentName;
     setBeanClass(beanClass);
   }
 
@@ -116,9 +124,10 @@ public class ChildBeanDefinition extends BeanDefinition {
    * @param pvs the property values to apply
    */
   public ChildBeanDefinition(
-          @Nullable String parentName, String beanClassName, ConstructorArgumentValues cargs, PropertyValues pvs) {
+          String parentName, String beanClassName, ConstructorArgumentValues cargs, PropertyValues pvs) {
+
     super(cargs, pvs);
-    setParentName(parentName);
+    this.parentName = parentName;
     setBeanClassName(beanClassName);
   }
 
@@ -133,15 +142,26 @@ public class ChildBeanDefinition extends BeanDefinition {
   }
 
   @Override
+  public void setParentName(@Nullable String parentName) {
+    this.parentName = parentName;
+  }
+
+  @Override
+  @Nullable
+  public String getParentName() {
+    return this.parentName;
+  }
+
+  @Override
   public void validate() throws BeanDefinitionValidationException {
     super.validate();
-    if (getParentName() == null) {
+    if (this.parentName == null) {
       throw new BeanDefinitionValidationException("'parentName' must be set in ChildBeanDefinition");
     }
   }
 
   @Override
-  public ChildBeanDefinition cloneDefinition() {
+  public AbstractBeanDefinition cloneBeanDefinition() {
     return new ChildBeanDefinition(this);
   }
 
@@ -150,20 +170,20 @@ public class ChildBeanDefinition extends BeanDefinition {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ChildBeanDefinition)) {
+    if (!(other instanceof ChildBeanDefinition that)) {
       return false;
     }
-    return super.equals(other);
+    return (ObjectUtils.nullSafeEquals(this.parentName, that.parentName) && super.equals(other));
   }
 
   @Override
   public int hashCode() {
-    return ObjectUtils.nullSafeHashCode(getParentName()) * 29 + super.hashCode();
+    return ObjectUtils.nullSafeHashCode(this.parentName) * 29 + super.hashCode();
   }
 
   @Override
   public String toString() {
-    return "Child bean with parent '" + getParentName() + "': " + super.toString();
+    return "Child bean with parent '" + this.parentName + "': " + super.toString();
   }
 
 }

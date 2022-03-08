@@ -44,7 +44,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;

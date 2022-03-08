@@ -42,7 +42,7 @@ import cn.taketoday.aop.proxy.ProxyFactory;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.support.GenericApplicationContext;

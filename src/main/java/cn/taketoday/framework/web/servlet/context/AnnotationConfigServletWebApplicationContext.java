@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;

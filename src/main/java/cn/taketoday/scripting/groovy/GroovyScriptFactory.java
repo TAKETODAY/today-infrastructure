@@ -29,7 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

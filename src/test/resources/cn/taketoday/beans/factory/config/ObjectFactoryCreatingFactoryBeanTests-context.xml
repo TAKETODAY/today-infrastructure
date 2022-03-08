@@ -13,7 +13,7 @@
     <property name="objectFactory" ref="prototypeFactory" />
   </bean>
 
-  <bean id="prototypeProvider" class="cn.taketoday.beans.factory.support.ProviderCreatingFactoryBean">
+  <bean id="prototypeProvider" class="cn.taketoday.beans.factory.config.ProviderCreatingFactoryBean">
     <property name="targetBeanName" value="prototypeTarget" />
   </bean>
 

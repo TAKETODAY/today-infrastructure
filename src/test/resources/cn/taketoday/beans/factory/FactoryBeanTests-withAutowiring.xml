@@ -17,7 +17,7 @@
 
   <bean id="gammaFactory" factory-bean="betaFactory" factory-method="getGamma"/>
 
-  <bean id="propertyPlaceholderConfigurer" class="cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer">
+  <bean id="propertyPlaceholderConfigurer" class="cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="properties">
       <props>
         <prop key="myName">yourName</prop>

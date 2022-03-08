@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.parsing.ReaderContext;
 import cn.taketoday.beans.factory.parsing.ReaderEventListener;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;

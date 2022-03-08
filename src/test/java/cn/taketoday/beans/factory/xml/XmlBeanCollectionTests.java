@@ -38,9 +38,9 @@ import java.util.TreeSet;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.ListFactoryBean;
-import cn.taketoday.beans.factory.support.MapFactoryBean;
-import cn.taketoday.beans.factory.support.SetFactoryBean;
+import cn.taketoday.beans.factory.config.ListFactoryBean;
+import cn.taketoday.beans.factory.config.MapFactoryBean;
+import cn.taketoday.beans.factory.config.SetFactoryBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.HasMap;
 import cn.taketoday.beans.testfixture.beans.TestBean;

@@ -31,11 +31,10 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
-import cn.taketoday.context.expression.EmbeddedValueResolver;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;

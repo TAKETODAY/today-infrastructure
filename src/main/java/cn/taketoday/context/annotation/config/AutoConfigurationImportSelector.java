@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DeferredImportSelector;
 import cn.taketoday.context.aware.EnvironmentAware;

@@ -26,9 +26,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.CustomScopeConfigurer;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
@@ -91,7 +91,7 @@ public @interface Scope {
   /**
    * Specifies the name of the scope to use for the annotated component/bean.
    * <p>Defaults to an empty string ({@code ""}) which implies
-   * {@link cn.taketoday.beans.factory.Scope#SINGLETON SCOPE_SINGLETON}.
+   * {@link cn.taketoday.beans.factory.config.Scope#SINGLETON SCOPE_SINGLETON}.
    *
    * @see BeanDefinition#SCOPE_PROTOTYPE
    * @see BeanDefinition#SCOPE_SINGLETON

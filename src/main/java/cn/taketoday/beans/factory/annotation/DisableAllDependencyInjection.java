@@ -54,7 +54,6 @@ import cn.taketoday.beans.factory.support.DependencyResolvingStrategy;
  * </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 22:06</a>
- * @see cn.taketoday.context.annotation.ConfigBeanDefinition
  * @see DependencyResolvingStrategy
  * @since 4.0
  */

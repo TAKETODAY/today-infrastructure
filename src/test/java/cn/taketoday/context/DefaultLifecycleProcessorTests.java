@@ -1,7 +1,6 @@
 package cn.taketoday.context;
 
 import cn.taketoday.beans.DirectFieldAccessor;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.DefaultLifecycleProcessor;

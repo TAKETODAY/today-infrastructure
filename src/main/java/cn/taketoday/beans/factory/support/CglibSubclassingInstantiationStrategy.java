@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.core.bytecode.core.DefaultNamingPolicy;
@@ -88,23 +89,13 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
   }
 
   /**
-   * An inner class created for historical reasons to avoid external CGLIB dependency
-   * in Spring versions earlier than 3.2.
+   * An inner class created for historical reasons to avoid external CGLIB dependency.
    */
-  private static class CglibSubclassCreator {
+  private record CglibSubclassCreator(RootBeanDefinition beanDefinition, BeanFactory owner) {
 
     private static final Class<?>[] CALLBACK_TYPES = new Class<?>[] {
             NoOp.class, LookupOverrideMethodInterceptor.class, ReplaceOverrideMethodInterceptor.class
     };
-
-    private final RootBeanDefinition beanDefinition;
-
-    private final BeanFactory owner;
-
-    CglibSubclassCreator(RootBeanDefinition beanDefinition, BeanFactory owner) {
-      this.beanDefinition = beanDefinition;
-      this.owner = owner;
-    }
 
     /**
      * Create a new instance of a dynamically generated subclass implementing the

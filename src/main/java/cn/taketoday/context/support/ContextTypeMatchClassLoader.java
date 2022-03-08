@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.OverridingClassLoader;
 import cn.taketoday.core.SmartClassLoader;

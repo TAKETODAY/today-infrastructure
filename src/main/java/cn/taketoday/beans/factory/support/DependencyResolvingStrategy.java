@@ -24,6 +24,8 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
+
 /**
  * resolve dependency
  *

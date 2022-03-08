@@ -22,10 +22,10 @@ package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Represents an override of a method that looks up an object in the same IoC context,
@@ -99,8 +99,12 @@ public class LookupOverride extends MethodOverride {
       return method.equals(this.method);
     }
     else {
-      return (method.getName().equals(getMethodName()) && (!isOverloaded() ||
-              Modifier.isAbstract(method.getModifiers()) || method.getParameterCount() == 0));
+      return method.getName().equals(getMethodName())
+              && (
+              !isOverloaded()
+                      || Modifier.isAbstract(method.getModifiers())
+                      || method.getParameterCount() == 0
+      );
     }
   }
 
@@ -109,13 +113,13 @@ public class LookupOverride extends MethodOverride {
     if (!(other instanceof LookupOverride that) || !super.equals(other)) {
       return false;
     }
-    return (ObjectUtils.nullSafeEquals(this.method, that.method) &&
-            ObjectUtils.nullSafeEquals(this.beanName, that.beanName));
+    return Objects.equals(method, that.method)
+            && Objects.equals(beanName, that.beanName);
   }
 
   @Override
   public int hashCode() {
-    return (29 * super.hashCode() + ObjectUtils.nullSafeHashCode(this.beanName));
+    return (29 * super.hashCode() + Objects.hashCode(beanName));
   }
 
   @Override

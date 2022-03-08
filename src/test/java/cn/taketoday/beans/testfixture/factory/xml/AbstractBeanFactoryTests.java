@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanIsNotAFactoryException;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.testfixture.beans.LifecycleBean;
 import cn.taketoday.beans.testfixture.beans.MustBeInitialized;
 import cn.taketoday.beans.testfixture.beans.TestBean;

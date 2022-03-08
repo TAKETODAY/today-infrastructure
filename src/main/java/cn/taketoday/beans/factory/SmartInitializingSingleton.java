@@ -21,7 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.event.ApplicationListener;
 
 /**

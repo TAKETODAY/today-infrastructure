@@ -24,10 +24,10 @@ import org.w3c.dom.Element;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
-import cn.taketoday.beans.factory.support.ConstructorArgumentValues;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.xml.AbstractBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParserDelegate;
 import cn.taketoday.beans.factory.xml.ParserContext;

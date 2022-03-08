@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 import java.io.Serial;
 
 import cn.taketoday.beans.FatalBeanException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**

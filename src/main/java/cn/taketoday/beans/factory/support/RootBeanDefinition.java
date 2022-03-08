@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -55,7 +57,7 @@ import cn.taketoday.lang.Nullable;
  * @see ChildBeanDefinition
  * @since 4.0 2022/3/7 16:41
  */
-public class RootBeanDefinition extends BeanDefinition {
+public class RootBeanDefinition extends AbstractBeanDefinition {
 
   @Nullable
   private BeanDefinition decoratedDefinition;
@@ -116,6 +118,11 @@ public class RootBeanDefinition extends BeanDefinition {
 
   /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
+
+  // cache for fast access
+  Executable executable;
+
+  Method[] initMethodArray;
 
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */
   @Nullable
@@ -214,7 +221,8 @@ public class RootBeanDefinition extends BeanDefinition {
    */
   public RootBeanDefinition(@Nullable Class<?> beanClass, @Nullable ConstructorArgumentValues cargs,
           @Nullable PropertyValues pvs) {
-    super(beanClass, cargs, pvs);
+    super(cargs, pvs);
+    setBeanClass(beanClass);
   }
 
   /**
@@ -266,19 +274,6 @@ public class RootBeanDefinition extends BeanDefinition {
    */
   RootBeanDefinition(BeanDefinition original) {
     super(original);
-  }
-
-  @Override
-  public void copyFrom(BeanDefinition from) {
-    super.copyFrom(from);
-    if (from instanceof RootBeanDefinition root) {
-      this.targetType = root.targetType;
-      this.allowCaching = root.allowCaching;
-      this.qualifiedElement = root.qualifiedElement;
-      this.decoratedDefinition = root.decoratedDefinition;
-      this.isFactoryMethodUnique = root.isFactoryMethodUnique;
-      this.factoryMethodToIntrospect = root.factoryMethodToIntrospect;
-    }
   }
 
   @Override
@@ -609,7 +604,7 @@ public class RootBeanDefinition extends BeanDefinition {
   }
 
   @Override
-  public RootBeanDefinition cloneDefinition() {
+  public RootBeanDefinition cloneBeanDefinition() {
     return new RootBeanDefinition(this);
   }
 

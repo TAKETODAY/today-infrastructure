@@ -24,9 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.annotation.AliasFor;
 
@@ -78,19 +77,34 @@ public @interface Component {
   String[] initMethods() default {};
 
   /**
-   * The optional names of a method to call on the bean instance upon closing the
+   * The optional name of a method to call on the bean instance upon closing the
    * application context, for example a {@code close()} method on a JDBC
-   * {@code DataSource} implementation, or a Hibernate {@code SessionFactory}
-   * object. The method must have no arguments but may throw any exception.
-   * <p>
-   * Note: Only invoked on beans whose lifecycle is under the full control of the
+   * {@code DataSource} implementation, or a Hibernate {@code SessionFactory} object.
+   * The method must have no arguments but may throw any exception.
+   * <p>As a convenience to the user, the container will attempt to infer a destroy
+   * method against an object returned from the {@code @Bean} method. For example, given
+   * an {@code @Bean} method returning an Apache Commons DBCP {@code BasicDataSource},
+   * the container will notice the {@code close()} method available on that object and
+   * automatically register it as the {@code destroyMethod}. This 'destroy method
+   * inference' is currently limited to detecting only public, no-arg methods named
+   * 'close' or 'shutdown'. The method may be declared at any level of the inheritance
+   * hierarchy and will be detected regardless of the return type of the {@code @Bean}
+   * method (i.e., detection occurs reflectively against the bean instance itself at
+   * creation time).
+   * <p>To disable destroy method inference for a particular {@code @Bean}, specify an
+   * empty string as the value, e.g. {@code @Bean(destroyMethod="")}. Note that the
+   * {@link cn.taketoday.beans.factory.DisposableBean} callback interface will
+   * nevertheless get detected and the corresponding destroy method invoked: In other
+   * words, {@code destroyMethod=""} only affects custom close/shutdown methods and
+   * {@link java.io.Closeable}/{@link java.lang.AutoCloseable} declared close methods.
+   * <p>Note: Only invoked on beans whose lifecycle is under the full control of the
    * factory, which is always the case for singletons but not guaranteed for any
    * other scope.
    *
-   * @see DisposableBean
+   * @see cn.taketoday.beans.factory.DisposableBean
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    */
-  String destroyMethod() default BeanDefinition.INFER_METHOD;
+  String destroyMethod() default AbstractBeanDefinition.INFER_METHOD;
 
   /**
    * Is this bean a candidate for getting autowired into some other bean?

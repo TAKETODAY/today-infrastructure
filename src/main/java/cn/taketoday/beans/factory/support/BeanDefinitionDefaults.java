@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -29,7 +30,7 @@ import cn.taketoday.util.StringUtils;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see BeanDefinition#applyDefaults
+ * @see AbstractBeanDefinition#applyDefaults
  * @since 4.0 2021/12/22 21:43
  */
 public class BeanDefinitionDefaults {
@@ -37,13 +38,14 @@ public class BeanDefinitionDefaults {
   @Nullable
   private Boolean lazyInit;
 
+  private int autowireMode = BeanDefinition.AUTOWIRE_NO;
+  private int dependencyCheck = AbstractBeanDefinition.DEPENDENCY_CHECK_NONE;
+
   @Nullable
   private String initMethodName;
 
   @Nullable
   private String destroyMethodName;
-
-  private int autowireMode = BeanDefinition.AUTOWIRE_NO;
 
   /**
    * Set the autowire mode. This determines whether any automagical detection
@@ -53,7 +55,7 @@ public class BeanDefinitionDefaults {
    *
    * @param autowireMode the autowire mode to set.
    * Must be one of the constants defined in {@link BeanDefinition}.
-   * @see BeanDefinition#setAutowireMode
+   * @see AbstractBeanDefinition#setAutowireMode
    */
   public void setAutowireMode(int autowireMode) {
     this.autowireMode = autowireMode;
@@ -103,7 +105,8 @@ public class BeanDefinitionDefaults {
    * <p>Note that this method is not enforced on all affected bean definitions
    * but rather taken as an optional callback, to be invoked if actually present.
    *
-   * @see BeanDefinition#setInitMethods
+   * @see AbstractBeanDefinition#setInitMethodName
+   * @see AbstractBeanDefinition#setEnforceInitMethod
    */
   public void setInitMethodName(@Nullable String initMethodName) {
     this.initMethodName = initMethodName;
@@ -122,7 +125,8 @@ public class BeanDefinitionDefaults {
    * <p>Note that this method is not enforced on all affected bean definitions
    * but rather taken as an optional callback, to be invoked if actually present.
    *
-   * @see BeanDefinition#setDestroyMethod
+   * @see AbstractBeanDefinition#setDestroyMethodName
+   * @see AbstractBeanDefinition#setEnforceDestroyMethod
    */
   public void setDestroyMethodName(@Nullable String destroyMethodName) {
     this.destroyMethodName = StringUtils.hasText(destroyMethodName) ? destroyMethodName : null;
@@ -134,6 +138,24 @@ public class BeanDefinitionDefaults {
   @Nullable
   public String getDestroyMethodName() {
     return this.destroyMethodName;
+  }
+
+  /**
+   * Set the dependency check code.
+   *
+   * @param dependencyCheck the code to set.
+   * Must be one of the constants defined in {@link AbstractBeanDefinition}.
+   * @see AbstractBeanDefinition#setDependencyCheck
+   */
+  public void setDependencyCheck(int dependencyCheck) {
+    this.dependencyCheck = dependencyCheck;
+  }
+
+  /**
+   * Return the default dependency check code.
+   */
+  public int getDependencyCheck() {
+    return this.dependencyCheck;
   }
 
 }

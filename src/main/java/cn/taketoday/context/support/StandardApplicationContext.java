@@ -23,9 +23,9 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.Scope;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;

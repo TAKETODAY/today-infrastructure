@@ -26,11 +26,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;

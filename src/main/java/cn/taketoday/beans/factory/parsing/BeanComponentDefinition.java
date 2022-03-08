@@ -25,8 +25,8 @@ import java.util.List;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanReference;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanReference;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 

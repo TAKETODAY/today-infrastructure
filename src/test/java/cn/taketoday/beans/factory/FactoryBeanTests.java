@@ -26,8 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.AbstractFactoryBean;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;

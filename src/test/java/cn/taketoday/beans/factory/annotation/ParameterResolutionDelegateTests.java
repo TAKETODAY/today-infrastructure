@@ -27,8 +27,8 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

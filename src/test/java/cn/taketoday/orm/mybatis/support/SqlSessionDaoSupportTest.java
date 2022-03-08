@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;

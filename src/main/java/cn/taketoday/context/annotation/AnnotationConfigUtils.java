@@ -22,10 +22,13 @@ package cn.taketoday.context.annotation;
 
 import java.util.function.Consumer;
 
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.support.GenericApplicationContext;
@@ -36,8 +39,8 @@ import cn.taketoday.util.ClassUtils;
 
 /**
  * Utility class that allows for convenient registration of common
- * {@link cn.taketoday.beans.factory.BeanPostProcessor} and
- * {@link cn.taketoday.beans.factory.BeanFactoryPostProcessor}
+ * {@link BeanPostProcessor} and
+ * {@link BeanFactoryPostProcessor}
  * definitions for annotation-based configuration.
  *
  * @author Mark Fisher
@@ -140,7 +143,7 @@ public abstract class AnnotationConfigUtils {
     }
 
     if (!registry.containsBeanDefinition(AnnotationConfigUtils.CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition(ConfigurationClassPostProcessor.class);
+      RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
       registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME);
       if (consumer != null) {
         consumer.accept(def);
@@ -148,7 +151,7 @@ public abstract class AnnotationConfigUtils {
     }
 
     if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition(StandardDependenciesBeanPostProcessor.class);
+      RootBeanDefinition def = new RootBeanDefinition(StandardDependenciesBeanPostProcessor.class);
       registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME);
       if (consumer != null)
         consumer.accept(def);
@@ -156,7 +159,7 @@ public abstract class AnnotationConfigUtils {
 
     // Check for Jakarta Annotations support, and if present add the CommonAnnotationBeanPostProcessor.
     if (jakartaAnnotationsPresent && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition(CommonAnnotationBeanPostProcessor.class);
+      RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
       registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME);
       if (consumer != null)
         consumer.accept(def);
@@ -166,9 +169,9 @@ public abstract class AnnotationConfigUtils {
     // for the javax variant of PostConstruct/PreDestroy.
     if (jsr250Present && !registry.containsBeanDefinition(JSR250_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       try {
-        BeanDefinition def = new BeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
-        def.propertyValues().add("initAnnotationType", classLoader.loadClass("javax.annotation.PostConstruct"));
-        def.propertyValues().add("destroyAnnotationType", classLoader.loadClass("javax.annotation.PreDestroy"));
+        RootBeanDefinition def = new RootBeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
+        def.getPropertyValues().add("initAnnotationType", classLoader.loadClass("javax.annotation.PostConstruct"));
+        def.getPropertyValues().add("destroyAnnotationType", classLoader.loadClass("javax.annotation.PreDestroy"));
         registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME);
         if (consumer != null)
           consumer.accept(def);
@@ -180,7 +183,7 @@ public abstract class AnnotationConfigUtils {
 
     // Check for JPA support, and if present add the PersistenceAnnotationBeanPostProcessor.
     if (jpaPresent && !registry.containsBeanDefinition(PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      BeanDefinition def = new BeanDefinition();
+      RootBeanDefinition def = new RootBeanDefinition();
       try {
         def.setBeanClass(ClassUtils.forName(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME,
                 AnnotationConfigUtils.class.getClassLoader()));

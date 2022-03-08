@@ -1,5 +1,6 @@
 package cn.taketoday.beans.factory;
 
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;

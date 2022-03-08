@@ -30,7 +30,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

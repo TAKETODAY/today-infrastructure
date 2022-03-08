@@ -15,7 +15,7 @@
 		<property name="generateDdl" value="true"/>
 	</bean>
 
-	<bean id="jpaProperties" class="cn.taketoday.beans.factory.support.PropertiesFactoryBean">
+	<bean id="jpaProperties" class="cn.taketoday.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
 			<props>
 				<prop key="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</prop>

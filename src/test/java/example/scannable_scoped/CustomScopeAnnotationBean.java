@@ -20,7 +20,7 @@
 
 package example.scannable_scoped;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Component;
 
 @Component

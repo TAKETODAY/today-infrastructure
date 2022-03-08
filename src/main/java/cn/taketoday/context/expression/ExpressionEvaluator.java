@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.EnvironmentCapable;

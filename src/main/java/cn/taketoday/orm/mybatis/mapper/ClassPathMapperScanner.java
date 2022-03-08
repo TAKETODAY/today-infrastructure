@@ -28,9 +28,9 @@ import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;

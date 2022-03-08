@@ -6,7 +6,7 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.NameMatchMethodPointcutTests.SerializablePerson;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 

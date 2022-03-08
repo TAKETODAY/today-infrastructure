@@ -22,8 +22,8 @@ package cn.taketoday.scripting.config;
 
 import org.w3c.dom.Element;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.TypedStringValue;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.util.StringUtils;

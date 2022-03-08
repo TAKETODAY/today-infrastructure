@@ -43,8 +43,9 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.SmartInstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -53,7 +54,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
- * {@link cn.taketoday.beans.factory.BeanPostProcessor} implementation
+ * {@link BeanPostProcessor} implementation
  * that wraps each eligible bean with an AOP proxy, delegating to specified interceptors
  * before invoking the bean itself.
  *

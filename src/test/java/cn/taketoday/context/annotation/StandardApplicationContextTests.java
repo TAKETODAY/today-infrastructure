@@ -29,7 +29,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;

@@ -7,7 +7,7 @@
     <constructor-arg value="xml.declared" />
   </bean>
 
-  <bean class="cn.taketoday.beans.factory.support.PropertyPlaceholderConfigurer">
+  <bean class="cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="properties">
       <map>
         <entry key="name" value="myName" />

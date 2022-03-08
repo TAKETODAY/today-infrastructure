@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.annotation.AliasFor;

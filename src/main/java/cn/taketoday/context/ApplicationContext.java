@@ -21,7 +21,7 @@ package cn.taketoday.context;
 
 import java.io.Closeable;
 
-import cn.taketoday.beans.factory.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.context.event.ApplicationEventPublisher;

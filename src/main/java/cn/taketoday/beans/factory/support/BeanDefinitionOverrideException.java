@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
  * Subclass of {@link BeanDefinitionStoreException} indicating an invalid override

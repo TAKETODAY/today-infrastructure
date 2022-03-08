@@ -68,7 +68,7 @@ public class Spr10744Tests {
     context.close();
   }
 
-  private static class MyTestScope implements cn.taketoday.beans.factory.Scope {
+  private static class MyTestScope implements cn.taketoday.beans.factory.config.Scope {
 
     @Override
     public Object get(String name, Supplier<?> objectFactory) {

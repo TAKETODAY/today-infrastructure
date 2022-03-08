@@ -21,7 +21,7 @@
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.support.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
 import cn.taketoday.lang.Nullable;

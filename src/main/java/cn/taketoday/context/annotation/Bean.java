@@ -27,12 +27,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.Primary;
-import cn.taketoday.beans.factory.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;

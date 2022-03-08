@@ -13,7 +13,7 @@
     <property name="proxyTargetClass" value="true" />
   </bean>
 
-  <bean class="cn.taketoday.beans.factory.support.MethodInvokingFactoryBean" lazy-init="true">
+  <bean class="cn.taketoday.beans.factory.config.MethodInvokingFactoryBean" lazy-init="true">
     <property name="targetObject" ref="dao" />
     <property name="targetMethod" value="toString" />
   </bean>

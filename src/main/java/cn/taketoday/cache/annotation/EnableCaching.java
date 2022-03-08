@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.support.CaffeineCacheManager;
 import cn.taketoday.cache.support.DefaultCacheManager;

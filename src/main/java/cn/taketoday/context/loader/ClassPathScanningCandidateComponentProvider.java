@@ -29,11 +29,11 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.Lookup;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.ScannedBeanDefinition;
+import cn.taketoday.context.annotation.ScannedGenericBeanDefinition;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.env.Environment;
@@ -242,7 +242,7 @@ public class ClassPathScanningCandidateComponentProvider
     try {
       LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>();
       scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
-        ScannedBeanDefinition sbd = new ScannedBeanDefinition(metadataReader);
+        ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
         sbd.setSource(metadataReader.getResource());
         candidates.add(sbd);
       });

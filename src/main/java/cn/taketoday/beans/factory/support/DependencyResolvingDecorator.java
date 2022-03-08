@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Assert;
 
 /**

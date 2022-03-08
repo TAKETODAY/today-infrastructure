@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory.support;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 
 /**

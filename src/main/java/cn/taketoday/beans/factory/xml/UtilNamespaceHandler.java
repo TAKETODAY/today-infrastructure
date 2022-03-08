@@ -27,14 +27,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.FieldRetrievingFactoryBean;
-import cn.taketoday.beans.factory.support.ListFactoryBean;
-import cn.taketoday.beans.factory.support.MapFactoryBean;
-import cn.taketoday.beans.factory.support.PropertiesFactoryBean;
-import cn.taketoday.beans.factory.support.PropertyPathFactoryBean;
-import cn.taketoday.beans.factory.support.SetFactoryBean;
+import cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean;
+import cn.taketoday.beans.factory.config.ListFactoryBean;
+import cn.taketoday.beans.factory.config.MapFactoryBean;
+import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
+import cn.taketoday.beans.factory.config.PropertyPathFactoryBean;
+import cn.taketoday.beans.factory.config.SetFactoryBean;
 import cn.taketoday.util.StringUtils;
 
 /**

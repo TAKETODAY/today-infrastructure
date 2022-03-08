@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,12 +29,13 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
-import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
@@ -49,6 +51,7 @@ import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -130,7 +133,7 @@ class ConfigurationClassBeanDefinitionReader {
    */
   private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
     AnnotationMetadata metadata = configClass.getMetadata();
-    AnnotatedBeanDefinition configBeanDef = new AnnotatedBeanDefinition(metadata);
+    AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
 
     String configBeanName = importBeanNamePopulator.populateName(configBeanDef, bootstrapContext.getRegistry());
 
@@ -180,7 +183,7 @@ class ConfigurationClassBeanDefinitionReader {
     }
 
     AnnotationMetadata annotationMetadata = configClass.getMetadata();
-    ConfigBeanDefinition beanDef = new ConfigBeanDefinition(metadata, annotationMetadata);
+    ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, metadata, beanName);
     beanDef.setSource(configClass.getResource());
     beanDef.setResource(configClass.getResource());
 
@@ -218,11 +221,11 @@ class ConfigurationClassBeanDefinitionReader {
 
     String[] initMethodName = component.getStringArray("initMethods");
     if (ObjectUtils.isNotEmpty(initMethodName)) {
-      beanDef.setInitMethods(initMethodName);
+      beanDef.setInitMethodNames(initMethodName);
     }
 
     String destroyMethodName = component.getString("destroyMethod");
-    beanDef.setDestroyMethod(destroyMethodName);
+    beanDef.setDestroyMethodName(destroyMethodName);
 
     // Consider scoping
     ScopedProxyMode proxyMode = ScopedProxyMode.NO;
@@ -238,13 +241,12 @@ class ConfigurationClassBeanDefinitionReader {
     // Replace the original bean definition with the target one, if necessary
     BeanDefinition beanDefToRegister;
     if (proxyMode != ScopedProxyMode.NO) {
+
       RootBeanDefinition proxyDef = ScopedProxyCreator.createScopedProxy(beanDef, bootstrapContext.getRegistry(),
               proxyMode == ScopedProxyMode.TARGET_CLASS);
 
-      beanDefToRegister = new ConfigBeanDefinition(metadata, annotationMetadata);
-      beanDefToRegister.copyFrom(proxyDef);
-      beanDefToRegister.setBeanClass(null);
-      beanDefToRegister.setLenientConstructorResolution(false);
+      beanDefToRegister = new ConfigurationClassBeanDefinition(
+              proxyDef, configClass, metadata, beanName);
     }
     else {
       beanDefToRegister = beanDef;
@@ -274,7 +276,7 @@ class ConfigurationClassBeanDefinitionReader {
     // -> allow the current bean method to override, since both are at second-pass level.
     // However, if the bean method is an overloaded case on the same configuration class,
     // preserve the existing bean definition.
-    if (existingBeanDef instanceof ConfigBeanDefinition ccbd) {
+    if (existingBeanDef instanceof ConfigurationClassBeanDefinition ccbd) {
       if (ccbd.getMetadata().getClassName().equals(
               componentMethod.getConfigurationClass().getMetadata().getClassName())) {
         if (ccbd.getFactoryMethodMetadata().getMethodName().equals(ccbd.getFactoryMethodName())) {
@@ -289,7 +291,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     // A bean definition resulting from a component scan can be silently overridden
     // by an @Component method
-    if (existingBeanDef instanceof ScannedBeanDefinition) {
+    if (existingBeanDef instanceof ScannedGenericBeanDefinition) {
       return false;
     }
 
@@ -386,6 +388,70 @@ class ConfigurationClassBeanDefinitionReader {
         this.skipped.put(configClass, skip);
       }
       return skip;
+    }
+  }
+
+  /**
+   * {@link RootBeanDefinition} marker subclass used to signify that a bean definition
+   * was created from a configuration class as opposed to any other configuration source.
+   * Used in bean overriding cases where it's necessary to determine whether the bean
+   * definition was created externally.
+   */
+  private static class ConfigurationClassBeanDefinition extends RootBeanDefinition
+          implements AnnotatedBeanDefinition {
+
+    private final AnnotationMetadata annotationMetadata;
+
+    private final MethodMetadata factoryMethodMetadata;
+
+    private final String derivedBeanName;
+
+    public ConfigurationClassBeanDefinition(
+            ConfigurationClass configClass, MethodMetadata beanMethodMetadata, String derivedBeanName) {
+
+      this.annotationMetadata = configClass.getMetadata();
+      this.factoryMethodMetadata = beanMethodMetadata;
+      this.derivedBeanName = derivedBeanName;
+      setResource(configClass.getResource());
+      setLenientConstructorResolution(false);
+    }
+
+    public ConfigurationClassBeanDefinition(RootBeanDefinition original,
+            ConfigurationClass configClass, MethodMetadata beanMethodMetadata, String derivedBeanName) {
+      super(original);
+      this.annotationMetadata = configClass.getMetadata();
+      this.factoryMethodMetadata = beanMethodMetadata;
+      this.derivedBeanName = derivedBeanName;
+    }
+
+    private ConfigurationClassBeanDefinition(ConfigurationClassBeanDefinition original) {
+      super(original);
+      this.annotationMetadata = original.annotationMetadata;
+      this.factoryMethodMetadata = original.factoryMethodMetadata;
+      this.derivedBeanName = original.derivedBeanName;
+    }
+
+    @Override
+    public AnnotationMetadata getMetadata() {
+      return this.annotationMetadata;
+    }
+
+    @Override
+    @NonNull
+    public MethodMetadata getFactoryMethodMetadata() {
+      return this.factoryMethodMetadata;
+    }
+
+    @Override
+    public boolean isFactoryMethod(Method candidate) {
+      return super.isFactoryMethod(candidate)
+              && BeanAnnotationHelper.isBeanAnnotated(candidate)
+              && BeanAnnotationHelper.determineBeanNameFor(candidate).equals(derivedBeanName);
+    }
+
+    @Override
+    public ConfigurationClassBeanDefinition cloneBeanDefinition() {
+      return new ConfigurationClassBeanDefinition(this);
     }
   }
 

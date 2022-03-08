@@ -8,19 +8,19 @@
 
 	<bean id="sally" class="cn.taketoday.beans.testfixture.beans.TestBean"/>
 
-	<bean id="props1" class="cn.taketoday.beans.factory.support.PropertiesFactoryBean">
+	<bean id="props1" class="cn.taketoday.beans.factory.config.PropertiesFactoryBean">
 	  <property name="properties">
 			<value>name=props1</value>
 	  </property>
 	</bean>
 
-	<bean id="props2" class="cn.taketoday.beans.factory.support.PropertiesFactoryBean" autowire-candidate="false">
+	<bean id="props2" class="cn.taketoday.beans.factory.config.PropertiesFactoryBean" autowire-candidate="false">
 	  <property name="properties">
 			<value>name=props2</value>
 	  </property>
 	</bean>
 
-	<bean id="someProps" class="cn.taketoday.beans.factory.support.PropertiesFactoryBean">
+	<bean id="someProps" class="cn.taketoday.beans.factory.config.PropertiesFactoryBean">
 	  <property name="properties">
 			<value>name=someProps</value>
 	  </property>

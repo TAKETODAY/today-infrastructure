@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.PropertyValue;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.ConfigurableApplicationContext;

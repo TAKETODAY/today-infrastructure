@@ -21,7 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.aop.scope.ScopedProxyUtils;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 

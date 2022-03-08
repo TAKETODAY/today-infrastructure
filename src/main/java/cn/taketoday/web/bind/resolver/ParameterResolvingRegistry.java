@@ -24,7 +24,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.expression.ExpressionEvaluator;

@@ -25,7 +25,7 @@ import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.TypeConverter;

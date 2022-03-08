@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.core.io.Resource;
 
 import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResource;

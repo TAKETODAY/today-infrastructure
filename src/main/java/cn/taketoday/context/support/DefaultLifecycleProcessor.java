@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.LifecycleProcessor;

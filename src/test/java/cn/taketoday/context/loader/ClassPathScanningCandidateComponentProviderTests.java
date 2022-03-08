@@ -28,10 +28,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.annotation.ScannedBeanDefinition;
+import cn.taketoday.context.annotation.ScannedGenericBeanDefinition;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
@@ -515,7 +515,7 @@ class ClassPathScanningCandidateComponentProviderTests {
 
   private void assertBeanDefinitionType(Set<BeanDefinition> candidates) {
     candidates.forEach(c ->
-            assertThat(c).isInstanceOf(ScannedBeanDefinition.class)
+            assertThat(c).isInstanceOf(ScannedGenericBeanDefinition.class)
     );
   }
 

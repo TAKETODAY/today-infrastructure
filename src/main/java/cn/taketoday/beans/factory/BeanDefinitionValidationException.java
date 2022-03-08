@@ -20,7 +20,7 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.FatalBeanException;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
  * Exception thrown when the validation of a bean definition failed.

@@ -21,8 +21,8 @@
 package cn.taketoday.beans.factory.parsing;
 
 import cn.taketoday.beans.BeanMetadataElement;
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanReference;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanReference;
 
 /**
  * Interface that describes the logical view of a set of {@link BeanDefinition BeanDefinitions}

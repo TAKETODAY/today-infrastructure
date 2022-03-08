@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.ResolvableType;
 

@@ -23,7 +23,7 @@ package cn.taketoday.context.loader;
 import java.io.IOException;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.support.ContextUtils;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;

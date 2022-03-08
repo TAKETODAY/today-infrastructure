@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
@@ -592,7 +593,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * or a decorated variant)
    * @see #getApplicationContext()
    * @see ApplicationContext#getAutowireCapableBeanFactory()
-   * @see cn.taketoday.beans.factory.AutowireCapableBeanFactory#initializeBean
+   * @see AutowireCapableBeanFactory#initializeBean
    */
   protected View applyLifecycleMethods(String viewName, AbstractUrlBasedView view) {
     ApplicationContext context = getApplicationContext();

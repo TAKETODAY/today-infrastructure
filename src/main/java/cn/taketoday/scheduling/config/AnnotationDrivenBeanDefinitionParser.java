@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
 import cn.taketoday.aop.config.AopNamespaceUtils;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.CompositeComponentDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;

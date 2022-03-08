@@ -28,8 +28,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
 import jakarta.annotation.Resource;
 
-import static cn.taketoday.beans.factory.support.BeanDefinition.SCOPE_PROTOTYPE;
-import static cn.taketoday.beans.factory.support.BeanDefinition.SCOPE_SINGLETON;
+import static cn.taketoday.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
+import static cn.taketoday.beans.factory.config.BeanDefinition.SCOPE_SINGLETON;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

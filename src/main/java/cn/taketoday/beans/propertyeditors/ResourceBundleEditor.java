@@ -24,7 +24,7 @@ import java.beans.PropertyEditorSupport;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import cn.taketoday.beans.factory.support.CustomEditorConfigurer;
+import cn.taketoday.beans.factory.config.CustomEditorConfigurer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 

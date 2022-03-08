@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -44,7 +44,7 @@ public class ReplaceOverride extends MethodOverride {
 
   private final String methodReplacerBeanName;
 
-  private final List<String> typeIdentifiers = new ArrayList<>();
+  private final ArrayList<String> typeIdentifiers = new ArrayList<>();
 
   /**
    * Construct a new ReplaceOverride.
@@ -85,12 +85,14 @@ public class ReplaceOverride extends MethodOverride {
       return true;
     }
     // If we get here, we need to insist on precise argument matching...
-    if (this.typeIdentifiers.size() != method.getParameterCount()) {
+    int size = typeIdentifiers.size();
+    if (size != method.getParameterCount()) {
       return false;
     }
+    ArrayList<String> typeIdentifiers = this.typeIdentifiers;
     Class<?>[] parameterTypes = method.getParameterTypes();
-    for (int i = 0; i < this.typeIdentifiers.size(); i++) {
-      String identifier = this.typeIdentifiers.get(i);
+    for (int i = 0; i < size; i++) {
+      String identifier = typeIdentifiers.get(i);
       if (!parameterTypes[i].getName().contains(identifier)) {
         return false;
       }
@@ -103,8 +105,8 @@ public class ReplaceOverride extends MethodOverride {
     if (!(other instanceof ReplaceOverride that) || !super.equals(other)) {
       return false;
     }
-    return (ObjectUtils.nullSafeEquals(this.methodReplacerBeanName, that.methodReplacerBeanName) &&
-            ObjectUtils.nullSafeEquals(this.typeIdentifiers, that.typeIdentifiers));
+    return Objects.equals(methodReplacerBeanName, that.methodReplacerBeanName)
+            && Objects.equals(typeIdentifiers, that.typeIdentifiers);
   }
 
   @Override

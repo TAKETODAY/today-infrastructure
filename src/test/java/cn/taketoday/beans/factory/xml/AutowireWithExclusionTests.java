@@ -22,9 +22,9 @@ package cn.taketoday.beans.factory.xml;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.PropertiesFactoryBean;
-import cn.taketoday.beans.factory.support.RuntimeBeanReference;
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;

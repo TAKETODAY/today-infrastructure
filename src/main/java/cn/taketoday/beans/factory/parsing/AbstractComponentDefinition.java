@@ -20,8 +20,8 @@
 
 package cn.taketoday.beans.factory.parsing;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanReference;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanReference;
 
 /**
  * Base implementation of {@link ComponentDefinition} that provides a basic implementation of

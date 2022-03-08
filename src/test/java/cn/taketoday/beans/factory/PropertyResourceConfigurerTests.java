@@ -30,8 +30,8 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
-import cn.taketoday.beans.factory.support.PropertyOverrideConfigurer;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.PropertyOverrideConfigurer;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;

@@ -22,7 +22,7 @@ package cn.taketoday.web.context.support;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.Scope;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;

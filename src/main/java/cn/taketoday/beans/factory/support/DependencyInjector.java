@@ -34,6 +34,8 @@ import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

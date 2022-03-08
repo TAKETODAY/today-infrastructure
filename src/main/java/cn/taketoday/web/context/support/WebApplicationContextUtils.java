@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.env.PropertySource.StubPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;

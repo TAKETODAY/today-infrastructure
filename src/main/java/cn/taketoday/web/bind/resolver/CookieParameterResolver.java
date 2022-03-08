@@ -21,7 +21,7 @@ package cn.taketoday.web.bind.resolver;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.support.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;

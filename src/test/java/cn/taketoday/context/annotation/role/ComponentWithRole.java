@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation.role;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Description;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.lang.Component;

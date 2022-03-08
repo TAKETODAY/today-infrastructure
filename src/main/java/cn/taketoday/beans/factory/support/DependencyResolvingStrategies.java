@@ -25,6 +25,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;

@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory.xml;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
