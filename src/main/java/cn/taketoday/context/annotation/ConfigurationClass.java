@@ -29,6 +29,7 @@ import java.util.Set;
 import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
+import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.Resource;
@@ -65,6 +66,9 @@ final class ConfigurationClass {
 
   private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata>
           importBeanDefinitionRegistrars = new LinkedHashMap<>();
+
+  private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
+          new LinkedHashMap<>();
 
   final HashSet<String> skippedComponentMethods = new HashSet<>();
 
@@ -197,6 +201,14 @@ final class ConfigurationClass {
 
   Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> getImportBeanDefinitionRegistrars() {
     return this.importBeanDefinitionRegistrars;
+  }
+
+  void addImportedResource(String importedResource, Class<? extends BeanDefinitionReader> readerClass) {
+    this.importedResources.put(importedResource, readerClass);
+  }
+
+  Map<String, Class<? extends BeanDefinitionReader>> getImportedResources() {
+    return this.importedResources;
   }
 
   void validate(ProblemReporter problemReporter) {

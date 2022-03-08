@@ -45,6 +45,7 @@ import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
 import cn.taketoday.context.loader.BootstrapContext;
@@ -241,8 +242,9 @@ class ConfigurationClassParser {
 
     // Process any @PropertySource annotations
     Environment environment = bootstrapContext.getEnvironment();
+    MergedAnnotations annotations = sourceClass.getMetadata().getAnnotations();
     for (MergedAnnotation<PropertySource> propertySource : repeatable(
-            sourceClass.getMetadata().getAnnotations(), PropertySource.class, PropertySources.class)) {
+            annotations, PropertySource.class, PropertySources.class)) {
       if (environment instanceof ConfigurableEnvironment) {
         processPropertySource(propertySource);
       }
@@ -255,7 +257,7 @@ class ConfigurationClassParser {
     // Process any @ComponentScan annotations
 
     Set<MergedAnnotation<ComponentScan>> componentScans = repeatable(
-            sourceClass.getMetadata().getAnnotations(), ComponentScan.class, ComponentScans.class);
+            annotations, ComponentScan.class, ComponentScans.class);
 
     if (!componentScans.isEmpty()
             && bootstrapContext.passCondition(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
@@ -274,6 +276,17 @@ class ConfigurationClassParser {
 
     // Process any @Import annotations
     processImports(configClass, sourceClass, getImports(sourceClass), filter, true);
+
+    // Process any @ImportResource annotations
+    MergedAnnotation<ImportResource> importResource = annotations.get(ImportResource.class);
+    if (importResource.isPresent()) {
+      String[] resources = importResource.getStringArray("locations");
+      Class<? extends BeanDefinitionReader> readerClass = importResource.getClass("reader");
+      for (String resource : resources) {
+        String resolvedResource = environment.resolveRequiredPlaceholders(resource);
+        configClass.addImportedResource(resolvedResource, readerClass);
+      }
+    }
 
     // Process individual @Component methods
     Set<MethodMetadata> beanMethods = retrieveComponentMethodMetadata(sourceClass);

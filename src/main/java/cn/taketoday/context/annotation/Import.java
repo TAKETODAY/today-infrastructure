@@ -44,12 +44,16 @@ import cn.taketoday.context.support.StandardApplicationContext;
  *
  * <p>May be declared at the class level or as a meta-annotation.
  *
+ * <p>If XML or other non-{@code @Configuration} bean definition resources need to be
+ * imported, use the {@link ImportResource @ImportResource} annotation instead.
+ *
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author TODAY <br>
  * 2019-10-01 17:27
  * @see Configuration
  * @see ImportSelector
+ * @see ImportResource
  * @see ImportBeanDefinitionRegistrar
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -31,11 +31,14 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
 import cn.taketoday.beans.factory.support.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -118,6 +121,7 @@ class ConfigurationClassBeanDefinitionReader {
       loadBeanDefinitionsForComponentMethod(componentMethod);
     }
 
+    loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
     loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
   }
 
@@ -307,6 +311,43 @@ class ConfigurationClassBeanDefinitionReader {
               componentMethod, beanName);
     }
     return true;
+  }
+
+  private void loadBeanDefinitionsFromImportedResources(
+          Map<String, Class<? extends BeanDefinitionReader>> importedResources) {
+
+    HashMap<Class<?>, BeanDefinitionReader> readerInstanceCache = new HashMap<>();
+
+    for (Map.Entry<String, Class<? extends BeanDefinitionReader>> entry : importedResources.entrySet()) {
+      String resource = entry.getKey();
+      Class<? extends BeanDefinitionReader> readerClass = entry.getValue();
+      // Default reader selection necessary?
+      if (BeanDefinitionReader.class == readerClass) {
+        // Primarily ".xml" files but for any other extension as well
+        readerClass = XmlBeanDefinitionReader.class;
+      }
+
+      BeanDefinitionReader reader = readerInstanceCache.get(readerClass);
+      if (reader == null) {
+        try {
+          // Instantiate the specified BeanDefinitionReader
+          reader = readerClass.getConstructor(BeanDefinitionRegistry.class).newInstance(bootstrapContext.getRegistry());
+          // Delegate the current ResourceLoader to it if possible
+          if (reader instanceof AbstractBeanDefinitionReader abdr) {
+            abdr.setEnvironment(bootstrapContext.getEnvironment());
+            abdr.setResourceLoader(bootstrapContext.getResourceLoader());
+          }
+          readerInstanceCache.put(readerClass, reader);
+        }
+        catch (Throwable ex) {
+          throw new IllegalStateException(
+                  "Could not instantiate BeanDefinitionReader class [" + readerClass.getName() + "]");
+        }
+      }
+
+      reader.loadBeanDefinitions(resource);
+    }
+
   }
 
   private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {

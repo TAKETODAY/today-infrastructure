@@ -63,7 +63,7 @@ abstract class ConfigurationClassUtils {
   private static final Logger log = LoggerFactory.getLogger(ConfigurationClassUtils.class);
 
   private static final Set<String> candidateIndicators = Set.of(
-          Import.class.getName(), Component.class.getName(), ComponentScan.class.getName()
+          Import.class.getName(), Component.class.getName(), ComponentScan.class.getName(), ImportResource.class.getName()
   );
 
   public static boolean checkConfigurationClassCandidate(

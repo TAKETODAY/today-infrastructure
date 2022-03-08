@@ -20,6 +20,23 @@
 
 package cn.taketoday.context.annotation.configuration;
 
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+
+import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.ImportResource;
+import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.core.env.PropertySource;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -29,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
-/*
 public class ImportResourceTests {
 
   @Test
@@ -79,7 +95,7 @@ public class ImportResourceTests {
   public void importWithPlaceholder() throws Exception {
     StandardApplicationContext ctx = new StandardApplicationContext();
     PropertySource<?> propertySource = new MapPropertySource("test",
-            Collections.<String, Object>singletonMap("test", "taketoday"));
+            Collections.singletonMap("test", "taketoday"));
     ctx.getEnvironment().getPropertySources().addFirst(propertySource);
     ctx.register(ImportXmlConfig.class);
     ctx.refresh();
@@ -92,13 +108,6 @@ public class ImportResourceTests {
     StandardApplicationContext ctx = new StandardApplicationContext(ImportXmlAutowiredConfig.class);
     String name = ctx.getBean("xmlBeanName", String.class);
     assertThat(name).isEqualTo("xml.declared");
-    ctx.close();
-  }
-
-  @Test
-  public void importNonXmlResource() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ImportNonXmlResourceConfig.class);
-    assertThat(ctx.containsBean("propertiesDeclaredBean")).isTrue();
     ctx.close();
   }
 
@@ -156,12 +165,4 @@ public class ImportResourceTests {
     }
   }
 
-  @SuppressWarnings("deprecation")
-  @Configuration
-  @ImportResource(locations = "classpath:cn/taketoday/context/annotation/configuration/ImportNonXmlResourceConfig-context.properties",
-                  reader = cn.taketoday.beans.factory.support.PropertiesBeanDefinitionReader.class)
-  static class ImportNonXmlResourceConfig {
-  }
-
 }
-*/
