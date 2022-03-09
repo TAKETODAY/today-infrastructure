@@ -3,17 +3,17 @@
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<bean id="rod1" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod1" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod2" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod2" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg index="1" ref="kerry1"/>
 		<constructor-arg index="0" ref="kerry2"/>
 		<constructor-arg><ref bean="other"/></constructor-arg>
 	</bean>
 
-	<bean id="rod2Accessor" class="org.springframework.beans.testfixture.beans.TestBean" lazy-init="true">
+	<bean id="rod2Accessor" class="cn.taketoday.beans.testfixture.beans.TestBean" lazy-init="true">
 		<property name="friends">
 			<list>
 				<ref bean="rod2"/>
@@ -22,13 +22,13 @@
 		<property name="touchy" value="."/>
 	</bean>
 
-	<bean id="rod3" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean"
+	<bean id="rod3" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean"
 			autowire="constructor">
 		<constructor-arg index="0"><ref bean="kerry2"/></constructor-arg>
 		<constructor-arg index="1"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod4" class="org.springframework.beans.factory.xml.DerivedConstructorDependenciesBean"
+	<bean id="rod4" class="cn.taketoday.beans.factory.xml.DerivedConstructorDependenciesBean"
 			autowire="constructor">
 		<constructor-arg index="0">
 			<description>wife</description>
@@ -37,7 +37,7 @@
 		<constructor-arg><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod5" class="org.springframework.beans.factory.xml.DerivedConstructorDependenciesBean">
+	<bean id="rod5" class="cn.taketoday.beans.factory.xml.DerivedConstructorDependenciesBean">
 		<constructor-arg index="1">
 			<description>wife</description>
 			<ref bean="kerry1"/>
@@ -53,57 +53,57 @@
 		<constructor-arg index="0"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod6" class="org.springframework.beans.factory.xml.DerivedConstructorDependenciesBean"
+	<bean id="rod6" class="cn.taketoday.beans.factory.xml.DerivedConstructorDependenciesBean"
 			init-method="init" destroy-method="destroy">
 		<constructor-arg index="1"><ref bean="kerry1"/></constructor-arg>
 		<constructor-arg><ref bean="other"/></constructor-arg>
 		<constructor-arg index="0"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod7" class="org.springframework.beans.factory.xml.DerivedConstructorDependenciesBean" scope="prototype">
+	<bean id="rod7" class="cn.taketoday.beans.factory.xml.DerivedConstructorDependenciesBean" scope="prototype">
 		<constructor-arg index="1"><ref bean="kerry1"/></constructor-arg>
 		<constructor-arg><ref bean="other"/></constructor-arg>
 		<constructor-arg><ref bean="other"/></constructor-arg>
 		<constructor-arg index="0"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod8" class="org.springframework.beans.factory.xml.DerivedConstructorDependenciesBean" scope="prototype">
+	<bean id="rod8" class="cn.taketoday.beans.factory.xml.DerivedConstructorDependenciesBean" scope="prototype">
 		<constructor-arg index="2"><ref bean="other"/></constructor-arg>
 		<constructor-arg index="0"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod9" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
+	<bean id="rod9" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
 		<constructor-arg type="int"><value>99</value></constructor-arg>
 	</bean>
 
-	<bean id="rod10" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
+	<bean id="rod10" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
 		<constructor-arg index="0" type="java.lang.String"><null/></constructor-arg>
 	</bean>
 
-	<bean id="rod11" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
+	<bean id="rod11" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
 		<constructor-arg index="0"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod12" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod12" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg index="0"><ref bean="kerry1"/></constructor-arg>
 	</bean>
 
-	<bean id="rod13" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod13" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg index="0"><ref bean="kerry1"/></constructor-arg>
 		<constructor-arg index="1"><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod14" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod14" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg><ref bean="kerry1"/></constructor-arg>
 		<constructor-arg><ref bean="kerry2"/></constructor-arg>
 	</bean>
 
-	<bean id="rod15" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod15" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg><ref bean="kerry2"/></constructor-arg>
 		<constructor-arg><ref bean="kerry1"/></constructor-arg>
 	</bean>
 
-	<bean id="rod16" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean">
+	<bean id="rod16" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean">
 		<constructor-arg name="otherSpouse"><ref bean="kerry1"/></constructor-arg>
 		<constructor-arg name="spouse"><ref bean="kerry2"/></constructor-arg>
 		<constructor-arg><value>29</value></constructor-arg>
@@ -114,10 +114,10 @@
 		<constructor-arg name="spouse"><ref bean="kerry1"/></constructor-arg>
 	</bean>
 
-	<bean id="rod18" class="org.springframework.beans.factory.xml.SimpleConstructorArgBean" scope="prototype">
+	<bean id="rod18" class="cn.taketoday.beans.factory.xml.SimpleConstructorArgBean" scope="prototype">
 	</bean>
 
-	<bean id="kerry1" class="org.springframework.beans.testfixture.beans.TestBean">
+	<bean id="kerry1" class="cn.taketoday.beans.testfixture.beans.TestBean">
 		<property name="name">
 			<value>Kerry1</value>
 		</property>
@@ -126,7 +126,7 @@
 		</property>
 	</bean>
 
-	<bean id="kerry2" class="org.springframework.beans.testfixture.beans.TestBean">
+	<bean id="kerry2" class="cn.taketoday.beans.testfixture.beans.TestBean">
 		<property name="name">
 			<value>Kerry2</value>
 		</property>
@@ -135,26 +135,26 @@
 		</property>
 	</bean>
 
-	<bean id="other" class="org.springframework.beans.testfixture.beans.IndexedTestBean"/>
+	<bean id="other" class="cn.taketoday.beans.testfixture.beans.IndexedTestBean"/>
 
 	<bean id="file" class="java.io.File">
 		<constructor-arg><value>/test</value></constructor-arg>
 	</bean>
 
-	<bean id="beanWithBoolean" class="org.springframework.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
+	<bean id="beanWithBoolean" class="cn.taketoday.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
 		<constructor-arg type="boolean" value="true"/>
 	</bean>
 
-	<bean id="beanWithBoolean2" class="org.springframework.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
+	<bean id="beanWithBoolean2" class="cn.taketoday.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
 		<constructor-arg value="true"/>
 	</bean>
 
-	<bean id="beanWithBooleanAndString" class="org.springframework.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
+	<bean id="beanWithBooleanAndString" class="cn.taketoday.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
 		<constructor-arg type="boolean"><value>true</value></constructor-arg>
 		<constructor-arg><value>A String</value></constructor-arg>
 	</bean>
 
-	<bean id="beanWithBooleanAndString2" class="org.springframework.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
+	<bean id="beanWithBooleanAndString2" class="cn.taketoday.beans.factory.xml.SingleSimpleTypeConstructorBean" scope="prototype">
 		<constructor-arg value="A String"/>
 		<constructor-arg value="true"/>
 	</bean>
@@ -167,33 +167,33 @@
 		<constructor-arg value="NaN" type="double"/>
 	</bean>
 
-	<bean id="beanWithDoubleBoolean" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" autowire="constructor" scope="prototype" factory-method="create">
+	<bean id="beanWithDoubleBoolean" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" autowire="constructor" scope="prototype" factory-method="create">
 		<constructor-arg type="java.lang.Boolean"><value>true</value></constructor-arg>
 	</bean>
 
-	<bean id="beanWithDoubleBooleanAndIndex" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" autowire="constructor" scope="prototype">
+	<bean id="beanWithDoubleBooleanAndIndex" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" autowire="constructor" scope="prototype">
 		<constructor-arg index="1"><value>true</value></constructor-arg>
 	</bean>
 
-	<bean id="beanWithDoubleBooleanNoType" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" scope="prototype">
+	<bean id="beanWithDoubleBooleanNoType" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" scope="prototype">
 		<constructor-arg index="0"><value>false</value></constructor-arg>
 		<constructor-arg index="1"><value>true</value></constructor-arg>
 	</bean>
 
-	<bean id="beanWithDoubleBooleanNoTypeFactoryMethod" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" scope="prototype" factory-method="create">
+	<bean id="beanWithDoubleBooleanNoTypeFactoryMethod" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DoubleBooleanConstructorBean" scope="prototype" factory-method="create">
 		<constructor-arg index="0"><value>false</value></constructor-arg>
 		<constructor-arg index="1"><value>true</value></constructor-arg>
 	</bean>
 
-	<bean id="lenientDependencyTestBean" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$LenientDependencyTestBean" scope="prototype">
+	<bean id="lenientDependencyTestBean" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$LenientDependencyTestBean" scope="prototype">
 		<constructor-arg>
-			<bean class="org.springframework.beans.testfixture.beans.DerivedTestBean"/>
+			<bean class="cn.taketoday.beans.testfixture.beans.DerivedTestBean"/>
 		</constructor-arg>
 	</bean>
 
-	<bean id="lenientDependencyTestBeanFactoryMethod" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$LenientDependencyTestBean" scope="prototype" factory-method="create">
+	<bean id="lenientDependencyTestBeanFactoryMethod" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$LenientDependencyTestBean" scope="prototype" factory-method="create">
 		<constructor-arg>
-			<bean class="org.springframework.beans.testfixture.beans.DerivedTestBean"/>
+			<bean class="cn.taketoday.beans.testfixture.beans.DerivedTestBean"/>
 		</constructor-arg>
 	</bean>
 
@@ -201,11 +201,11 @@
 		<constructor-arg><value type="java.lang.String">test</value></constructor-arg>
 	</bean>
 
-	<bean id="stringConstructor" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$StringConstructorTestBean" scope="prototype">
+	<bean id="stringConstructor" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$StringConstructorTestBean" scope="prototype">
 		<constructor-arg value="test"/>
 	</bean>
 
-	<bean id="constructorArray" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$ConstructorArrayTestBean" scope="prototype">
+	<bean id="constructorArray" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$ConstructorArrayTestBean" scope="prototype">
 		<constructor-arg type="int[]">
 			<array value-type="int">
 				<value>1</value>
@@ -213,7 +213,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="indexedConstructorArray" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$ConstructorArrayTestBean" scope="prototype">
+	<bean id="indexedConstructorArray" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$ConstructorArrayTestBean" scope="prototype">
 		<constructor-arg index="0" type="int[]">
 			<array value-type="int">
 				<value>1</value>
@@ -221,7 +221,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="constructorArrayNoType" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$ConstructorArrayTestBean" scope="prototype">
+	<bean id="constructorArrayNoType" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$ConstructorArrayTestBean" scope="prototype">
 		<constructor-arg>
 			<array value-type="java.lang.String"/>
 		</constructor-arg>

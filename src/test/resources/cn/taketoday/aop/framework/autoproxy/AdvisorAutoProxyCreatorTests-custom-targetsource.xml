@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="autoproxy" class="cn.taketoday.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+		<property name="customTargetSourceCreators">
+			<list>
+				<bean class="cn.taketoday.aop.framework.autoproxy.SelectivePrototypeTargetSourceCreator"/>
+				<bean class="cn.taketoday.aop.framework.autoproxy.target.LazyInitTargetSourceCreator"/>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="test" scope="prototype" class="cn.taketoday.beans.testfixture.beans.TestBean">
+		<property name="name"><value>Rod</value></property>
+		<property name="spouse"><ref bean="wife"/></property>
+	</bean>
+
+	<bean id="prototypeTest" class="cn.taketoday.beans.testfixture.beans.CountingTestBean">
+		<property name="name"><value>Rod</value></property>
+		<property name="spouse"><ref bean="wife"/></property>
+	</bean>
+
+	<bean id="lazyInitTest" class="cn.taketoday.beans.testfixture.beans.CountingTestBean" lazy-init="true">
+		<property name="name"><value>Rod</value></property>
+		<property name="spouse"><ref bean="wife"/></property>
+	</bean>
+
+	<bean id="wife" class="cn.taketoday.beans.testfixture.beans.TestBean">
+		<property name="name"><value>Kerry</value></property>
+	</bean>
+
+</beans>

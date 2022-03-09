@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="optimizedTestBean" class="cn.taketoday.beans.testfixture.beans.TestBean">
+		<property name="name" value="Optimized"/>
+	</bean>
+
+	<bean id="countingAdvice" class="cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice"/>
+
+	<bean id="advisor" class="cn.taketoday.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="countingAdvice"/>
+		<property name="patterns">
+			<list>
+				<value>.*beans.I?TestBean.*</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="proxyCreator" class="cn.taketoday.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+		<property name="optimize" value="true"/>
+	</bean>
+</beans>

@@ -3,36 +3,36 @@
 
 <beans>
 
-	<bean id="holdingBean" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
+	<bean id="holdingBean" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
 		<property name="dependingBean">
-			<bean name="dependingBean" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
+			<bean name="dependingBean" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
 				depends-on="preparingBean1,preparingBean2"/>
 		</property>
 	</bean>
 
-	<bean id="holdingBean2" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
+	<bean id="holdingBean2" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
 		<property name="dependingBean">
-			<bean name="dependingBean" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
+			<bean name="dependingBean" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
 				depends-on="preparingBean1,preparingBean2"/>
 		</property>
 	</bean>
 
-	<bean id="holdingBean3" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
+	<bean id="holdingBean3" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
 		<property name="dependingBean">
-			<bean class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
+			<bean class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
 				depends-on="preparingBean1,preparingBean2"/>
 		</property>
 	</bean>
 
-	<bean id="holdingBean4" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
+	<bean id="holdingBean4" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$HoldingBean">
 		<property name="dependingBean">
-			<bean class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
+			<bean class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DependingBean"
 				depends-on="preparingBean1,preparingBean2"/>
 		</property>
 	</bean>
 
-	<bean id="preparingBean1" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$PreparingBean1"/>
+	<bean id="preparingBean1" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$PreparingBean1"/>
 
-	<bean id="preparingBean2" class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$PreparingBean2"/>
+	<bean id="preparingBean2" class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$PreparingBean2"/>
 
 </beans>

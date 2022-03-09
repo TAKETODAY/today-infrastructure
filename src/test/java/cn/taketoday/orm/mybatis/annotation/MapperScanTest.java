@@ -81,7 +81,7 @@ class MapperScanTest {
 
     // assume support for autowiring fields is added by MapperScannerConfigurer
     // via
-    // org.springframework.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
+    // cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
   }
 
   private void startContext() {

@@ -3,7 +3,7 @@
 
 <beans>
 
-	<bean id="overrideOneMethod"  class="org.springframework.beans.factory.xml.OverrideOneMethod">
+	<bean id="overrideOneMethod"  class="cn.taketoday.beans.factory.xml.OverrideOneMethod">
 		<lookup-method name="getPrototypeDependency" bean="jenny"/>
 		<lookup-method name="protectedOverrideSingleton" bean="david"/>
 	</bean>
@@ -11,7 +11,7 @@
 	<!--
 		Test that overrides work on an inherited method
 	-->
-	<bean id="overrideInheritedMethod" class="org.springframework.beans.factory.xml.OverrideOneMethodSubclass">
+	<bean id="overrideInheritedMethod" class="cn.taketoday.beans.factory.xml.OverrideOneMethodSubclass">
 		<lookup-method name="getPrototypeDependency" bean="jenny"/>
 		<lookup-method name="protectedOverrideSingleton" bean="david"/>
 	</bean>
@@ -20,7 +20,7 @@
 		We can use this to test the construction cost of beans with method overrides
 	-->
 	<bean id="overrideOnPrototype" scope="prototype"
-			class="org.springframework.beans.factory.xml.OverrideOneMethod">
+			class="cn.taketoday.beans.factory.xml.OverrideOneMethod">
 		<lookup-method name="getPrototypeDependency" bean="jenny"/>
 		<lookup-method name="protectedOverrideSingleton" bean="david"/>
 	</bean>
@@ -29,38 +29,38 @@
 		Effect of overrides is swapped
 	-->
 	<bean id="overrideOneMethodSwappedReturnValues"
-			class="org.springframework.beans.factory.xml.OverrideOneMethod">
+			class="cn.taketoday.beans.factory.xml.OverrideOneMethod">
 		<lookup-method name="getPrototypeDependency" bean="david"/>
 		<lookup-method name="protectedOverrideSingleton" bean="jenny"/>
 	</bean>
 
 
-	<bean id="jenny" class="org.springframework.beans.testfixture.beans.TestBean" scope="prototype">
+	<bean id="jenny" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="prototype">
 		<property name="name"><value>Jenny</value></property>
 		<property name="age"><value>30</value></property>
 		<property name="spouse">
 			<ref bean="david"/>
 		</property>
 		<property name="friends">
-			<bean class="org.springframework.beans.testfixture.beans.TestBean"/>
+			<bean class="cn.taketoday.beans.testfixture.beans.TestBean"/>
 		</property>
 	</bean>
 
-	<bean id="jennyParent" class="org.springframework.beans.testfixture.beans.TestBean">
+	<bean id="jennyParent" class="cn.taketoday.beans.testfixture.beans.TestBean">
 		<property name="name"><value>Jenny</value></property>
 		<property name="age"><value>30</value></property>
 		<property name="friends">
-			<bean class="org.springframework.beans.testfixture.beans.TestBean"/>
+			<bean class="cn.taketoday.beans.testfixture.beans.TestBean"/>
 		</property>
 	</bean>
 
-	<bean id="jennyChild" class="org.springframework.beans.testfixture.beans.TestBean" parent="jennyParent" scope="prototype">
+	<bean id="jennyChild" class="cn.taketoday.beans.testfixture.beans.TestBean" parent="jennyParent" scope="prototype">
 		<property name="spouse">
 			<ref bean="david"/>
 		</property>
 	</bean>
 
-	<bean id="david" class="org.springframework.beans.testfixture.beans.TestBean">
+	<bean id="david" class="cn.taketoday.beans.testfixture.beans.TestBean">
 		<description>
 			Simple bean, without any collections.
 		</description>
@@ -71,12 +71,12 @@
 		<property name="age"><value>27</value></property>
 	</bean>
 
-	<bean id="magicDavid" class="org.springframework.beans.testfixture.beans.TestBean" autowire="byName"/>
+	<bean id="magicDavid" class="cn.taketoday.beans.testfixture.beans.TestBean" autowire="byName"/>
 
 	<!--  this should be autowired as well! -->
 	<bean id="magicDavidDerived" parent="magicDavid" />
 
-	<bean id="spouse" class="org.springframework.beans.testfixture.beans.TestBean">
+	<bean id="spouse" class="cn.taketoday.beans.testfixture.beans.TestBean">
 		<property name="name" value="Linda"/>
 	</bean>
 

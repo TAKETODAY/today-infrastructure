@@ -85,23 +85,28 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
   // naming
 
+  @Deprecated
   String getBeanName();
 
+  @Deprecated
   void setBeanName(String id);
 
   /**
    * @since 4.0
    */
+  @Deprecated
   String[] getAliases();
 
   /**
    * @since 4.0
    */
+  @Deprecated
   void setAliases(String... aliases);
 
   /**
    * @since 4.0
    */
+  @Deprecated
   default boolean hasAliases() {
     return ObjectUtils.isNotEmpty(getAliases());
   }
@@ -110,6 +115,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    * Determine whether the given candidate name matches the bean name
    * or the aliases stored in this bean definition.
    */
+  @Deprecated
   default boolean matchesName(@Nullable String candidateName) {
     return candidateName != null && (
             candidateName.equals(getBeanName())

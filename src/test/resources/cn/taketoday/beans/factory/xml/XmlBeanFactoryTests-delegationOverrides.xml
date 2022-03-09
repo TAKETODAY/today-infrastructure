@@ -6,7 +6,7 @@
 	<!--
 		Not yet in use: illustration of possible approach
 	-->
-	<bean id="overrideOneMethod" class="org.springframework.beans.factory.xml.OverrideOneMethod">
+	<bean id="overrideOneMethod" class="cn.taketoday.beans.factory.xml.OverrideOneMethod">
 
 		<lookup-method name="getPrototypeDependency" bean="jenny"/>
 
@@ -35,21 +35,21 @@
 	</bean>
 
 	<bean id="replaceVoidMethod" parent="someParent"
-			class="org.springframework.beans.factory.xml.OverrideOneMethodSubclass">
+			class="cn.taketoday.beans.factory.xml.OverrideOneMethodSubclass">
 
 	</bean>
 
 	<bean id="reverseReplacer"
-		class="org.springframework.beans.factory.xml.ReverseMethodReplacer"/>
+		class="cn.taketoday.beans.factory.xml.ReverseMethodReplacer"/>
 
 	<bean id="fixedReplacer"
-		class="org.springframework.beans.factory.xml.FixedMethodReplacer"/>
+		class="cn.taketoday.beans.factory.xml.FixedMethodReplacer"/>
 
 	<bean id="doSomethingReplacer"
-		class="org.springframework.beans.factory.xml.XmlBeanFactoryTests$DoSomethingReplacer"/>
+		class="cn.taketoday.beans.factory.xml.XmlBeanFactoryTests$DoSomethingReplacer"/>
 
 	<bean id="serializableReplacer"
-		class="org.springframework.beans.factory.xml.SerializableMethodReplacerCandidate">
+		class="cn.taketoday.beans.factory.xml.SerializableMethodReplacerCandidate">
 
 		<!-- Arbitrary method replacer -->
 		<replaced-method name="replaceMe" replacer="reverseReplacer">
@@ -58,7 +58,7 @@
 
 	</bean>
 
-	<bean id="jenny" class="org.springframework.beans.testfixture.beans.TestBean"
+	<bean id="jenny" class="cn.taketoday.beans.testfixture.beans.TestBean"
 		scope="prototype">
 		<property name="name"><value>Jenny</value></property>
 		<property name="age"><value>30</value></property>
@@ -68,7 +68,7 @@
 		</property>
 	</bean>
 
-	<bean id="david" class="org.springframework.beans.testfixture.beans.TestBean"
+	<bean id="david" class="cn.taketoday.beans.testfixture.beans.TestBean"
 		scope="singleton">
 		<description>
 			Simple bean, without any collections.
@@ -80,13 +80,13 @@
 		<property name="age"><value>27</value></property>
 	</bean>
 
-	<bean id="overrideOneMethodByAttribute" class="org.springframework.beans.factory.xml.OverrideOneMethod">
+	<bean id="overrideOneMethodByAttribute" class="cn.taketoday.beans.factory.xml.OverrideOneMethod">
 		<replaced-method name="replaceMe" replacer="reverseReplacer">
 			<arg-type match="String"/>
 		</replaced-method>
 	</bean>
 
-	<bean id="overrideOneMethodByElement" class="org.springframework.beans.factory.xml.OverrideOneMethod">
+	<bean id="overrideOneMethodByElement" class="cn.taketoday.beans.factory.xml.OverrideOneMethod">
 		<replaced-method name="replaceMe" replacer="reverseReplacer">
 			<arg-type>String</arg-type>
 		</replaced-method>

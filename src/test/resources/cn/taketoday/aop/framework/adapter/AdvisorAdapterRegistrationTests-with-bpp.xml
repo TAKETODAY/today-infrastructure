@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="testBeanTarget" class="cn.taketoday.beans.testfixture.beans.TestBean"/>
+
+	<bean id="simpleBeforeAdvice" class="cn.taketoday.aop.framework.adapter.SimpleBeforeAdviceImpl"/>
+
+	<bean id="simpleBeforeAdviceAdvisor" class="cn.taketoday.aop.support.DefaultPointcutAdvisor">
+		<constructor-arg><ref bean="simpleBeforeAdvice"/></constructor-arg>
+	</bean>
+   
+	<bean id="testBean" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces"><value>cn.taketoday.beans.testfixture.beans.ITestBean</value></property>
+		<property name="interceptorNames"><value>simpleBeforeAdviceAdvisor,testBeanTarget</value></property>
+	</bean>
+
+	<bean id="testAdvisorAdapter" class="cn.taketoday.aop.framework.adapter.SimpleBeforeAdviceAdapter"/>
+
+	<bean id="adapterRegistrationManager" class="cn.taketoday.aop.framework.adapter.AdvisorAdapterRegistrationManager"/>
+
+</beans>

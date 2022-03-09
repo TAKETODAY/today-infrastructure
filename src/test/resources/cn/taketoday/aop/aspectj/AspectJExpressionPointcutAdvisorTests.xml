@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="proxyCreator" class="cn.taketoday.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+	<bean id="testBean" class="cn.taketoday.beans.testfixture.beans.TestBean"/>
+
+	<bean id="advisor" class="cn.taketoday.aop.aspectj.AspectJExpressionPointcutAdvisor">
+		<property name="expression"
+				value="execution(cn.taketoday.beans.testfixture.beans.ITestBean[] cn.taketoday.beans.testfixture.beans.ITestBean.*(..))"/>
+		<property name="advice" ref="interceptor"/>
+	</bean>
+
+	<bean id="interceptor" class="cn.taketoday.aop.aspectj.CallCountingInterceptor"/>
+
+</beans>

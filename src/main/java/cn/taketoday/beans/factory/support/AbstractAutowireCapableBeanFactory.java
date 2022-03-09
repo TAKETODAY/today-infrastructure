@@ -708,7 +708,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     // Candidate constructors for autowiring?
-    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, definition.getBeanName());
+    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, beanName);
     if (constructors != null
             || definition.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
             || definition.hasConstructorArgumentValues()

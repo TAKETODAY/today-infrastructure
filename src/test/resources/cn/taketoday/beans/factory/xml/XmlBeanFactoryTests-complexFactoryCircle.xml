@@ -3,24 +3,24 @@
 
 <beans>
 
-	<bean id="proxy1" class="org.springframework.aop.framework.ProxyFactoryBean">
+	<bean id="proxy1" class="cn.taketoday.aop.framework.ProxyFactoryBean">
 		<property name="proxyInterfaces" value="java.io.Serializable"/>
 		<property name="targetName" value="target1"/>
 	</bean>
 
-	<bean id="target1" class="org.springframework.beans.factory.xml.ConstructorDependenciesBean"
+	<bean id="target1" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean"
 		autowire="constructor"/>
 
-	<bean id="toBeFoundByType" class="org.springframework.beans.testfixture.beans.TestBean"/>
+	<bean id="toBeFoundByType" class="cn.taketoday.beans.testfixture.beans.TestBean"/>
 
-	<bean id="proxy2" class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="proxyInterfaces" value="org.springframework.beans.testfixture.beans.ITestBean"/>
+	<bean id="proxy2" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces" value="cn.taketoday.beans.testfixture.beans.ITestBean"/>
 		<property name="targetName" value="target2"/>
 	</bean>
 
-	<bean id="target2" class="org.springframework.beans.testfixture.beans.DependenciesBean">
+	<bean id="target2" class="cn.taketoday.beans.testfixture.beans.DependenciesBean">
 		<property name="spouse">
-			<bean class="org.springframework.beans.testfixture.beans.TestBean">
+			<bean class="cn.taketoday.beans.testfixture.beans.TestBean">
 				<property name="someSet">
 					<set>
 						<ref bean="proxy1"/>

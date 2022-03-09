@@ -73,7 +73,7 @@ class MapperScannerConfigurerTest {
     setupSqlSessionFactory("sqlSessionFactory");
 
     // assume support for autowiring fields is added by MapperScannerConfigurer via
-    // org.springframework.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
+    // cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
   }
 
   private void startContext() {
@@ -199,7 +199,7 @@ class MapperScannerConfigurerTest {
     startContext();
     {
       BeanDefinition definition = applicationContext.getBeanDefinition("scopedProxyMapper");
-      assertThat(definition.getBeanClassName()).isEqualTo("org.springframework.aop.scope.ScopedProxyFactoryBean");
+      assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.aop.scope.ScopedProxyFactoryBean");
       assertThat(definition.getScope()).isEqualTo("");
     }
     {
@@ -244,7 +244,7 @@ class MapperScannerConfigurerTest {
       }
       {
         BeanDefinition definition = applicationContext.getBeanDefinition(scopedProxyTargetBean.substring(13));
-        assertThat(definition.getBeanClassName()).isEqualTo("org.springframework.aop.scope.ScopedProxyFactoryBean");
+        assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.aop.scope.ScopedProxyFactoryBean");
         assertThat(definition.getScope()).isEqualTo("");
       }
     }

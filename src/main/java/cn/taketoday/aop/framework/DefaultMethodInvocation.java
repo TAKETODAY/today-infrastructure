@@ -82,7 +82,7 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   }
 
   @Override
-  protected void setArguments(Object[] arguments) {
+  public void setArguments(Object[] arguments) {
     args = arguments;
   }
 

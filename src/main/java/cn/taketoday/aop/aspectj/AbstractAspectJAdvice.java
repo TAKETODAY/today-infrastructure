@@ -85,10 +85,10 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
     if (!(mi instanceof ProxyMethodInvocation pmi)) {
       throw new IllegalStateException("MethodInvocation is not a Framework ProxyMethodInvocation: " + mi);
     }
-    JoinPoint jp = (JoinPoint) pmi.getUserAttribute(JOIN_POINT_KEY);
+    JoinPoint jp = (JoinPoint) pmi.getAttribute(JOIN_POINT_KEY);
     if (jp == null) {
       jp = new MethodInvocationProceedingJoinPoint(pmi);
-      pmi.setUserAttribute(JOIN_POINT_KEY, jp);
+      pmi.setAttribute(JOIN_POINT_KEY, jp);
     }
     return jp;
   }
@@ -673,7 +673,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
   @Nullable
   protected JoinPointMatch getJoinPointMatch(ProxyMethodInvocation pmi) {
     String expression = this.pointcut.getExpression();
-    return (expression != null ? (JoinPointMatch) pmi.getUserAttribute(expression) : null);
+    return (expression != null ? (JoinPointMatch) pmi.getAttribute(expression) : null);
   }
 
   @Override

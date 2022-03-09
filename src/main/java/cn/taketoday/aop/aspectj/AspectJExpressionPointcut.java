@@ -418,7 +418,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
     // 'last man wins' which is not what we want at all.
     // Using the expression is guaranteed to be safe, since 2 identical expressions
     // are guaranteed to bind in exactly the same way.
-    invocation.setUserAttribute(resolveExpression(), jpm);
+    invocation.setAttribute(resolveExpression(), jpm);
   }
 
   private ShadowMatch getTargetShadowMatch(Method method, Class<?> targetClass) {

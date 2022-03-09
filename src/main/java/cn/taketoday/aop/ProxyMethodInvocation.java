@@ -84,16 +84,16 @@ public interface ProxyMethodInvocation extends MethodInvocation {
    * @param key the name of the attribute
    * @param value the value of the attribute, or {@code null} to reset it
    */
-  void setUserAttribute(String key, @Nullable Object value);
+  void setAttribute(String key, @Nullable Object value);
 
   /**
    * Return the value of the specified user attribute.
    *
    * @param key the name of the attribute
    * @return the value of the attribute, or {@code null} if not set
-   * @see #setUserAttribute
+   * @see #setAttribute
    */
   @Nullable
-  Object getUserAttribute(String key);
+  Object getAttribute(String key);
 
 }

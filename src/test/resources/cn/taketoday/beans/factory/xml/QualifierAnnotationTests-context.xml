@@ -7,7 +7,7 @@
 
 	<context:annotation-config/>
 
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<bean class="cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="properties">
 			<props>
 				<prop key="myProp">larry</prop>
@@ -15,7 +15,7 @@
 		</property>
 	</bean>
 
-	<bean id="larryBean" class="org.springframework.beans.factory.xml.QualifierAnnotationTests$Person">
+	<bean id="larryBean" class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$Person">
 		<property name="name" value="LarryBean"/>
 	</bean>
 
@@ -23,27 +23,27 @@
 
 	<alias name="someAlias" alias="stooge"/>
 
-	<bean class="org.springframework.beans.factory.xml.QualifierAnnotationTests$Person">
+	<bean class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$Person">
 		<property name="name" value="Larry"/>
 		<qualifier value="larry"/>
 	</bean>
 
-	<bean class="org.springframework.beans.factory.xml.QualifierAnnotationTests$SpecialPerson">
+	<bean class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$SpecialPerson">
 		<property name="name" value="LarrySpecial"/>
 	</bean>
 
-	<bean class="org.springframework.beans.factory.xml.QualifierAnnotationTests$Person">
+	<bean class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$Person">
 		<property name="name" value="Curly"/>
 		<qualifier type="QualifierAnnotationTests.SimpleValueQualifier" value="curly"/>
 	</bean>
 
-	<bean class="org.springframework.beans.factory.xml.QualifierAnnotationTests$Person">
+	<bean class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$Person">
 		<meta key="name" value="moe"/>
 		<meta key="age" value="42"/>
 		<property name="name" value="Moe Sr."/>
 	</bean>
 
-	<bean class="org.springframework.beans.factory.xml.QualifierAnnotationTests$Person">
+	<bean class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$Person">
 		<property name="name" value="Moe Jr."/>
 		<qualifier type="QualifierAnnotationTests.MultipleAttributeQualifier">
 			<attribute key="name" value="moe"/>
@@ -51,12 +51,12 @@
 		</qualifier>
 	</bean>
 
-	<bean id="testProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean"/>
+	<bean id="testProperties" class="cn.taketoday.beans.factory.config.PropertiesFactoryBean"/>
 
-	<bean id="thetaClient" class="org.springframework.beans.factory.xml.QualifierAnnotationTests$MultiQualifierClient"/>
+	<bean id="thetaClient" class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$MultiQualifierClient"/>
 
-    <bean id="thetaFactory" class="org.springframework.beans.factory.xml.QualifierAnnotationTests$QualifiedFactoryBean"/>
+    <bean id="thetaFactory" class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$QualifiedFactoryBean"/>
 
-    <bean id="thetaImpl" class="org.springframework.beans.factory.xml.QualifierAnnotationTests$ThetaImpl"/>
+    <bean id="thetaImpl" class="cn.taketoday.beans.factory.xml.QualifierAnnotationTests$ThetaImpl"/>
 
 </beans>

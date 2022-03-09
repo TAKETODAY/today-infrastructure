@@ -25,6 +25,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.util.HashMap;
 
+import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.aop.TargetClassAware;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -43,7 +44,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 3.0
  */
 public abstract class AbstractMethodInvocation
-        extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware, Cloneable {
+        extends AttributeAccessorSupport implements MethodInvocation, TargetClassAware, Cloneable, ProxyMethodInvocation {
 
   /**
    * Return the proxy that this method invocation was made through.
@@ -145,6 +146,6 @@ public abstract class AbstractMethodInvocation
     }
   }
 
-  protected abstract void setArguments(Object[] arguments);
+  public abstract void setArguments(Object[] arguments);
 
 }

@@ -61,7 +61,7 @@ public class StandardMethodInvocation
   }
 
   @Override
-  protected void setArguments(Object[] arguments) {
+  public void setArguments(Object[] arguments) {
     args = arguments;
   }
 
