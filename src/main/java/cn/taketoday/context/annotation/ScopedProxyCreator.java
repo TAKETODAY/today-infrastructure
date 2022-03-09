@@ -22,6 +22,7 @@ package cn.taketoday.context.annotation;
 
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 
@@ -35,6 +36,12 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
  * @since 4.0 2022/3/7 21:30
  */
 final class ScopedProxyCreator {
+
+  public static BeanDefinitionHolder createScopedProxy(
+          BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry, boolean proxyTargetClass) {
+
+    return ScopedProxyUtils.createScopedProxy(definitionHolder, registry, proxyTargetClass);
+  }
 
   public static RootBeanDefinition createScopedProxy(
           BeanDefinition definitionHolder, BeanDefinitionRegistry registry, boolean proxyTargetClass) {

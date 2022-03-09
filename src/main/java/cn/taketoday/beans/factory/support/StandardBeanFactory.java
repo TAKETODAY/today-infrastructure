@@ -65,6 +65,7 @@ import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.config.NamedBeanHolder;
@@ -966,54 +967,59 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     // 1. Check all bean definitions.
     for (String beanName : beanDefinitionNames) {
       // Only consider bean as eligible if the bean name is not defined as alias for some other bean.
-      if (!isAlias(beanName)) {
-        try {
-          RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
-          // Only check bean definition if it is complete.
-          if (!merged.isAbstract() && (allowEagerInit || allowCheck(merged))) {
-            boolean matchFound = false;
+      if (isAlias(beanName)) {
+        continue;
+      }
+
+      try {
+        RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
+        // Only check bean definition if it is complete.
+        if (!merged.isAbstract() && (allowEagerInit || allowCheck(merged))) {
+          boolean matchFound = false;
+          BeanDefinitionHolder decorated = merged.getDecoratedDefinition();
+          if (isFactoryBean(beanName, merged)) {
+            boolean isNonLazyDecorated = decorated != null && !merged.isLazyInit();
             boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
-            if (isFactoryBean(beanName, merged)) {
-              if (includeNonSingletons || (allowFactoryBeanInit && isSingleton(beanName))) {
-                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
-              }
-              if (!matchFound) {
-                // In case of FactoryBean, try to match FactoryBean instance itself next.
-                beanName = FACTORY_BEAN_PREFIX + beanName;
-                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
-              }
+            if (includeNonSingletons || isNonLazyDecorated || (allowFactoryBeanInit && isSingleton(beanName, merged, decorated))) {
+              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
             }
-            else {
-              if (includeNonSingletons || isSingleton(beanName)) {
-                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
-              }
-            }
-            if (matchFound) {
-              beanNames.add(beanName);
+            if (!matchFound) {
+              // In case of FactoryBean, try to match FactoryBean instance itself next.
+              beanName = FACTORY_BEAN_PREFIX + beanName;
+              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
             }
           }
-        }
-        catch (BeanClassLoadFailedException | BeanDefinitionStoreException ex) {
-          if (allowEagerInit) {
-            throw ex;
+          else {
+            if (includeNonSingletons || isSingleton(beanName, merged, decorated)) {
+              boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
+              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+            }
           }
-          // Probably a placeholder: let's ignore it for type matching purposes.
-          LogMessage message =
-                  (ex instanceof BeanClassLoadFailedException
-                   ? LogMessage.format("Ignoring bean class loading failure for bean '{}'", beanName)
-                   : LogMessage.format("Ignoring unresolvable metadata in bean definition '{}'", beanName));
-          log.trace(message, ex);
-          // Register exception, in case the bean was accidentally unresolvable.
-          onSuppressedException(ex);
+          if (matchFound) {
+            beanNames.add(beanName);
+          }
         }
-        catch (NoSuchBeanDefinitionException ex) {
-          // Bean definition got removed while we were iterating -> ignore.
+      }
+      catch (BeanClassLoadFailedException | BeanDefinitionStoreException ex) {
+        if (allowEagerInit) {
+          throw ex;
         }
+        // Probably a placeholder: let's ignore it for type matching purposes.
+        LogMessage message =
+                (ex instanceof BeanClassLoadFailedException
+                 ? LogMessage.format("Ignoring bean class loading failure for bean '{}'", beanName)
+                 : LogMessage.format("Ignoring unresolvable metadata in bean definition '{}'", beanName));
+        log.trace(message, ex);
+        // Register exception, in case the bean was accidentally unresolvable.
+        onSuppressedException(ex);
+      }
+      catch (NoSuchBeanDefinitionException ex) {
+        // Bean definition got removed while we were iterating -> ignore.
       }
     }
 
     // 2. Check manually registered singletons too.
-    for (String beanName : this.manualSingletonNames) {
+    for (String beanName : manualSingletonNames) {
       if (beanNames.contains(beanName)) {
         continue;
       }
@@ -1047,6 +1053,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
                     || !definition.isLazyInit()
                     || isAllowEagerClassLoading()
     ) && !requiresEagerInitForType(definition.getFactoryBeanName());
+  }
+
+  private boolean isSingleton(String beanName, RootBeanDefinition mbd, @Nullable BeanDefinitionHolder dbd) {
+    return dbd != null ? mbd.isSingleton() : isSingleton(beanName);
   }
 
   /**

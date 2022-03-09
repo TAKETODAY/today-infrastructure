@@ -174,6 +174,9 @@ public class BeanDefinitionVisitor {
         return new RuntimeBeanReference(newBeanName);
       }
     }
+    else if (value instanceof BeanDefinitionHolder) {
+      visitBeanDefinition(((BeanDefinitionHolder) value).getBeanDefinition());
+    }
     else if (value instanceof RuntimeBeanNameReference ref) {
       String newBeanName = resolveStringValue(ref.getBeanName());
       if (newBeanName == null) {

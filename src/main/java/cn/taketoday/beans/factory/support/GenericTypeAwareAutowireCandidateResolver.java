@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.ResolvableType;
@@ -144,7 +145,7 @@ public class GenericTypeAwareAutowireCandidateResolver
 
   @Nullable
   protected RootBeanDefinition getResolvedDecoratedDefinition(RootBeanDefinition rbd) {
-    BeanDefinition decDef = rbd.getDecoratedDefinition();
+    BeanDefinitionHolder decDef = rbd.getDecoratedDefinition();
     if (decDef != null && this.beanFactory instanceof ConfigurableBeanFactory clbf) {
       if (clbf.containsBeanDefinition(decDef.getBeanName())) {
         BeanDefinition dbd = clbf.getMergedBeanDefinition(decDef.getBeanName());

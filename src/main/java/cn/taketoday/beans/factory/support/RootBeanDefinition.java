@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
@@ -60,7 +61,7 @@ import cn.taketoday.lang.Nullable;
 public class RootBeanDefinition extends AbstractBeanDefinition {
 
   @Nullable
-  private BeanDefinition decoratedDefinition;
+  private BeanDefinitionHolder decoratedDefinition;
 
   @Nullable
   private AnnotatedElement qualifiedElement;
@@ -291,7 +292,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   /**
    * Register a target definition that is being decorated by this bean definition.
    */
-  public void setDecoratedDefinition(@Nullable BeanDefinition decoratedDefinition) {
+  public void setDecoratedDefinition(@Nullable BeanDefinitionHolder decoratedDefinition) {
     this.decoratedDefinition = decoratedDefinition;
   }
 
@@ -299,7 +300,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * Return the target definition that is being decorated by this bean definition, if any.
    */
   @Nullable
-  public BeanDefinition getDecoratedDefinition() {
+  public BeanDefinitionHolder getDecoratedDefinition() {
     return this.decoratedDefinition;
   }
 

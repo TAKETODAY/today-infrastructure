@@ -23,6 +23,7 @@ package cn.taketoday.context.config;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.xml.AbstractBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
@@ -55,7 +56,7 @@ class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
   }
 
   @Override
-  protected BeanDefinition parseInternal(Element element, ParserContext parserContext) {
+  protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
     String agentId = element.getAttribute(AGENT_ID_ATTRIBUTE);
     if (StringUtils.hasText(agentId)) {
       RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);

@@ -37,6 +37,7 @@ import cn.taketoday.beans.BeanMetadataAttribute;
 import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
@@ -400,7 +401,7 @@ public class BeanDefinitionParserDelegate {
    * {@link ProblemReporter}.
    */
   @Nullable
-  public BeanDefinition parseBeanDefinitionElement(Element ele) {
+  public BeanDefinitionHolder parseBeanDefinitionElement(Element ele) {
     return parseBeanDefinitionElement(ele, null);
   }
 
@@ -410,7 +411,7 @@ public class BeanDefinitionParserDelegate {
    * {@link ProblemReporter}.
    */
   @Nullable
-  public BeanDefinition parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
+  public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
     String id = ele.getAttribute(ID_ATTRIBUTE);
     String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
@@ -463,9 +464,7 @@ public class BeanDefinitionParserDelegate {
         }
       }
       String[] aliasesArray = StringUtils.toStringArray(aliases);
-      beanDefinition.setBeanName(beanName);
-      beanDefinition.setAliases(aliasesArray);
-      return beanDefinition;
+      return new BeanDefinitionHolder(beanDefinition, beanName, aliasesArray);
     }
 
     return null;
@@ -995,7 +994,7 @@ public class BeanDefinitionParserDelegate {
       return parseNestedCustomElement(ele, bd);
     }
     else if (nodeNameEquals(ele, BEAN_ELEMENT)) {
-      BeanDefinition nestedBd = parseBeanDefinitionElement(ele, bd);
+      BeanDefinitionHolder nestedBd = parseBeanDefinitionElement(ele, bd);
       if (nestedBd != null) {
         nestedBd = decorateBeanDefinitionIfRequired(ele, nestedBd, bd);
       }
@@ -1411,7 +1410,7 @@ public class BeanDefinitionParserDelegate {
    * @param originalDef the current bean definition
    * @return the decorated bean definition
    */
-  public BeanDefinition decorateBeanDefinitionIfRequired(Element ele, BeanDefinition originalDef) {
+  public BeanDefinitionHolder decorateBeanDefinitionIfRequired(Element ele, BeanDefinitionHolder originalDef) {
     return decorateBeanDefinitionIfRequired(ele, originalDef, null);
   }
 
@@ -1423,10 +1422,10 @@ public class BeanDefinitionParserDelegate {
    * @param containingBd the containing bean definition (if any)
    * @return the decorated bean definition
    */
-  public BeanDefinition decorateBeanDefinitionIfRequired(
-          Element ele, BeanDefinition originalDef, @Nullable BeanDefinition containingBd) {
+  public BeanDefinitionHolder decorateBeanDefinitionIfRequired(
+          Element ele, BeanDefinitionHolder originalDef, @Nullable BeanDefinition containingBd) {
 
-    BeanDefinition finalDefinition = originalDef;
+    BeanDefinitionHolder finalDefinition = originalDef;
 
     // Decorate based on custom attributes first.
     NamedNodeMap attributes = ele.getAttributes();
@@ -1455,14 +1454,14 @@ public class BeanDefinitionParserDelegate {
    * @param containingBd the containing bean definition (if any)
    * @return the decorated bean definition
    */
-  public BeanDefinition decorateIfRequired(
-          Node node, BeanDefinition originalDef, @Nullable BeanDefinition containingBd) {
+  public BeanDefinitionHolder decorateIfRequired(
+          Node node, BeanDefinitionHolder originalDef, @Nullable BeanDefinition containingBd) {
 
     String namespaceUri = getNamespaceURI(node);
     if (namespaceUri != null && !isDefaultNamespace(namespaceUri)) {
       NamespaceHandler handler = readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
       if (handler != null) {
-        BeanDefinition decorated =
+        BeanDefinitionHolder decorated =
                 handler.decorate(node, originalDef, new ParserContext(readerContext, this, containingBd));
         if (decorated != null) {
           return decorated;

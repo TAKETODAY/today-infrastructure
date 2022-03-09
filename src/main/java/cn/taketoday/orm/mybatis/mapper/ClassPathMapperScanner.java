@@ -23,13 +23,12 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Set;
 
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -55,7 +54,7 @@ import cn.taketoday.util.StringUtils;
  * @see MapperFactoryBean
  * @since 4.0
  */
-public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
+public class ClassPathMapperScanner {
   private static final Logger log = LoggerFactory.getLogger(ClassPathMapperScanner.class);
 
   // Copy of FactoryBean#OBJECT_TYPE_ATTRIBUTE
@@ -87,8 +86,11 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
   private String defaultScope;
 
+  private final ClassPathBeanDefinitionScanner delegate;
+
   public ClassPathMapperScanner(BeanDefinitionRegistry registry) {
-    super(registry, false);
+    this.delegate = new ClassPathBeanDefinitionScanner(registry, false);
+    delegate.setCandidateComponentPredicate(this::isCandidateComponent);
   }
 
   public void setAddToConfig(boolean addToConfig) {
@@ -115,19 +117,19 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     this.markerInterface = markerInterface;
   }
 
-  public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+  public void setSqlSessionFactory(@Nullable SqlSessionFactory sqlSessionFactory) {
     this.sqlSessionFactory = sqlSessionFactory;
   }
 
-  public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
+  public void setSqlSessionTemplate(@Nullable SqlSessionTemplate sqlSessionTemplate) {
     this.sqlSessionTemplate = sqlSessionTemplate;
   }
 
-  public void setSqlSessionTemplateBeanName(String sqlSessionTemplateBeanName) {
+  public void setSqlSessionTemplateBeanName(@Nullable String sqlSessionTemplateBeanName) {
     this.sqlSessionTemplateBeanName = sqlSessionTemplateBeanName;
   }
 
-  public void setSqlSessionFactoryBeanName(String sqlSessionFactoryBeanName) {
+  public void setSqlSessionFactoryBeanName(@Nullable String sqlSessionFactoryBeanName) {
     this.sqlSessionFactoryBeanName = sqlSessionFactoryBeanName;
   }
 
@@ -161,13 +163,13 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
     // if specified, use the given annotation and / or marker interface
     if (this.annotationClass != null) {
-      addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
+      delegate.addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
       acceptAllInterfaces = false;
     }
 
     // override AssignableTypeFilter to ignore matches on the actual marker interface
     if (this.markerInterface != null) {
-      addIncludeFilter(new AssignableTypeFilter(this.markerInterface) {
+      delegate.addIncludeFilter(new AssignableTypeFilter(this.markerInterface) {
         @Override
         protected boolean matchClassName(String className) {
           return false;
@@ -178,11 +180,11 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
     if (acceptAllInterfaces) {
       // default include filter that accepts all classes
-      addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
+      delegate.addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
     }
 
     // exclude package-info.java
-    addExcludeFilter((metadataReader, metadataReaderFactory) -> {
+    delegate.addExcludeFilter((metadataReader, metadataReaderFactory) -> {
       String className = metadataReader.getClassMetadata().getClassName();
       return className.endsWith("package-info");
     });
@@ -192,18 +194,16 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
    * Calls the parent search that will search and register all the candidates. Then the registered objects are post
    * processed to set them as MapperFactoryBeans
    */
-  @Override
-  public Set<BeanDefinition> scanning(String... basePackages) {
-    Set<BeanDefinition> beanDefinitions = super.scanning(basePackages);
-    if (beanDefinitions.isEmpty()) {
-      log.warn("No MyBatis mapper was found in '{}' package. Please check your configuration.", Arrays.toString(basePackages));
-    }
-    return beanDefinitions;
+  public void scan(String... basePackages) {
+//    if (beanDefinitions.isEmpty()) {
+//      log.warn("No MyBatis mapper was found in '{}' package. Please check your configuration.", Arrays.toString(basePackages));
+//    }
+    delegate.scan(this::postProcessBeanDefinition, basePackages);
   }
 
-  @Override
-  protected void postProcessBeanDefinition(AbstractBeanDefinition definition, String beanName) {
-    super.postProcessBeanDefinition(definition, beanName);
+  protected void postProcessBeanDefinition(BeanDefinitionHolder holder) {
+    AbstractBeanDefinition definition = (AbstractBeanDefinition) holder.getBeanDefinition();
+
     String beanClassName = definition.getBeanClassName();
     log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
             definition.getBeanName(), beanClassName);
@@ -257,37 +257,38 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     }
 
     if (!definition.isSingleton()) {
-      BeanDefinitionRegistry registry = getRegistry();
-      BeanDefinition proxyHolder = ScopedProxyUtils.createScopedProxy(definition, registry, true);
+      BeanDefinitionRegistry registry = delegate.getRegistry();
+      BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
       if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
         registry.removeBeanDefinition(proxyHolder.getBeanName());
       }
-      registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder);
+      registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
     }
 
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   protected boolean isCandidateComponent(AnnotationMetadata metadata) {
     return metadata.isInterface() && metadata.isIndependent();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) {
-    if (super.checkCandidate(beanName, beanDefinition)) {
-      return true;
-    }
-    else {
-      log.warn("Skipping MapperFactoryBean with name '{}' and '{}' mapperInterface. Bean already defined with the same name!",
-              beanName, beanDefinition.getBeanClassName());
-      return false;
-    }
+//
+//  /**
+//   * {@inheritDoc}
+//   */
+//  @Override
+//  protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) {
+//    if (super.checkCandidate(beanName, beanDefinition)) {
+//      return true;
+//    }
+//    else {
+//      log.warn("Skipping MapperFactoryBean with name '{}' and '{}' mapperInterface. Bean already defined with the same name!",
+//              beanName, beanDefinition.getBeanClassName());
+//      return false;
+//    }
+//  }
+
+  public ClassPathBeanDefinitionScanner getScanner() {
+    return delegate;
   }
 
 }

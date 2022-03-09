@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.xml;
 import org.w3c.dom.Node;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 
 /**
  * Interface used by the {@link DefaultBeanDefinitionDocumentReader}
@@ -71,6 +72,6 @@ public interface BeanDefinitionDecorator {
    * <p>The supplied {@link ParserContext} can be used to register any additional
    * beans needed to support the main definition.
    */
-  BeanDefinition decorate(Node node, BeanDefinition definition, ParserContext parserContext);
+  BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext);
 
 }

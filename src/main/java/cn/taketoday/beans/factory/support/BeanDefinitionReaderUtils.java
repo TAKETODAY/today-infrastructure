@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.support;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -167,8 +168,22 @@ public abstract class BeanDefinitionReaderUtils {
           throws BeanDefinitionStoreException {
 
     // Register bean definition under primary name.
+    registry.registerBeanDefinition(definitionHolder);
+  }
+
+  /**
+   * Register the given bean definition with the given bean factory.
+   *
+   * @param definitionHolder the bean definition including name and aliases
+   * @param registry the bean factory to register with
+   * @throws BeanDefinitionStoreException if registration failed
+   */
+  public static void registerBeanDefinition(
+          BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) throws BeanDefinitionStoreException {
+
+    // Register bean definition under primary name.
     String beanName = definitionHolder.getBeanName();
-    registry.registerBeanDefinition(beanName, definitionHolder);
+    registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 
     // Register aliases for bean name, if any.
     String[] aliases = definitionHolder.getAliases();

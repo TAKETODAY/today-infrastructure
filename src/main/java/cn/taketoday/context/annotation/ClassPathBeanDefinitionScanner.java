@@ -23,11 +23,14 @@ package cn.taketoday.context.annotation;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
+import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
@@ -260,7 +263,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   public int scan(String... basePackages) {
     int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
 
-    scanning(basePackages);
+    scan(null, basePackages);
 
     // Register annotation config processors, if necessary.
     if (this.includeAnnotationConfig) {
@@ -279,6 +282,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param basePackages the packages to check for annotated classes
    * @return set of beans registered if any for tooling registration purposes (never {@code null})
    */
+  @Deprecated
   public Set<BeanDefinition> scanning(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
     LinkedHashSet<BeanDefinition> beanDefinitions = new LinkedHashSet<>();
@@ -309,6 +313,60 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   }
 
   /**
+   * Perform a scan within the specified base packages,
+   * returning the registered bean definitions.
+   * <p>This method does <i>not</i> register an annotation config processor
+   * but rather leaves this up to the caller.
+   *
+   * @param basePackages the packages to check for annotated classes
+   * @return set of beans registered if any for tooling registration purposes (never {@code null})
+   */
+  public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+    Assert.notEmpty(basePackages, "At least one base package must be specified");
+    LinkedHashSet<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+    scan(beanDefinitions::add, basePackages);
+    return beanDefinitions;
+  }
+
+  /**
+   * Perform a scan within the specified base packages and consume the registered
+   * bean definitions.
+   * <p>This method does <i>not</i> register an annotation config processor
+   * but rather leaves this up to the caller.
+   *
+   * @param consumer set of beans registered if any for tooling registration purposes
+   * @param basePackages the packages to check for annotated classes
+   */
+  public void scan(@Nullable Consumer<BeanDefinitionHolder> consumer, String... basePackages) {
+    for (String basePackage : basePackages) {
+      try {
+        scanCandidateComponents(basePackage, (metadataReader, factory) -> {
+          ScannedGenericBeanDefinition candidate = new ScannedGenericBeanDefinition(metadataReader);
+          candidate.setResource(metadataReader.getResource());
+          ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
+          candidate.setScope(scopeMetadata.getScopeName());
+          String beanName = beanNamePopulator.populateName(candidate, registry);
+
+          postProcessBeanDefinition(candidate, beanName);
+          AnnotationConfigUtils.processCommonDefinitionAnnotations(candidate);
+
+          if (checkCandidate(beanName, candidate)) {
+            BeanDefinitionHolder holder = new BeanDefinitionHolder(candidate, beanName);
+            holder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, holder, registry);
+            if (consumer != null) {
+              consumer.accept(holder);
+            }
+            registerBeanDefinition(holder, registry);
+          }
+        });
+      }
+      catch (IOException ex) {
+        throw new BeanDefinitionStoreException("I/O failure during classpath scanning", ex);
+      }
+    }
+  }
+
+  /**
    * Apply further settings to the given bean definition,
    * beyond the contents retrieved from scanning the component class.
    *
@@ -335,6 +393,18 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   }
 
   /**
+   * Register the specified bean with the given registry.
+   * <p>Can be overridden in subclasses, e.g. to adapt the registration
+   * process or to register further bean definitions for each scanned bean.
+   *
+   * @param definitionHolder the bean definition plus bean name for the bean
+   * @param registry the BeanDefinitionRegistry to register the bean with
+   */
+  protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
+    BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, registry);
+  }
+
+  /**
    * Check the given candidate's bean name, determining whether the corresponding
    * bean definition needs to be registered or conflicts with an existing definition.
    *
@@ -351,7 +421,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
       return true;
     }
     BeanDefinition existingDef = this.registry.getBeanDefinition(beanName);
-    if (existingDef == null || isCompatible(beanDefinition, existingDef)) {
+    BeanDefinition originatingDef = existingDef.getOriginatingBeanDefinition();
+    if (originatingDef != null) {
+      existingDef = originatingDef;
+    }
+    if (isCompatible(beanDefinition, existingDef)) {
       return false;
     }
     throw new ConflictingBeanDefinitionException("Annotation-specified bean name '" + beanName +

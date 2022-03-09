@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import java.util.Collection;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
@@ -75,12 +76,12 @@ public class SimpleConstructorNamespaceHandler implements NamespaceHandler {
   }
 
   @Override
-  public BeanDefinition decorate(Node node, BeanDefinition definition, ParserContext parserContext) {
+  public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
     if (node instanceof Attr attr) {
       String argName = parserContext.getDelegate().getLocalName(attr).strip();
       String argValue = attr.getValue().strip();
 
-      ConstructorArgumentValues cvs = definition.getConstructorArgumentValues();
+      ConstructorArgumentValues cvs = definition.getBeanDefinition().getConstructorArgumentValues();
       boolean ref = false;
 
       // handle -ref arguments

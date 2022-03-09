@@ -23,6 +23,7 @@ package cn.taketoday.beans.factory.xml;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.lang.Nullable;
 
@@ -63,7 +64,7 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
    * @see #doParse
    */
   @Override
-  protected final BeanDefinition parseInternal(Element element, ParserContext parserContext) {
+  protected final AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
     String parentName = getParentName(element);
     if (parentName != null) {

@@ -22,6 +22,7 @@ package cn.taketoday.aop.scope;
 
 import cn.taketoday.aop.proxy.AopProxyUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -49,6 +50,60 @@ public abstract class ScopedProxyUtils {
    * Generate a scoped proxy for the supplied target bean, registering the target
    * bean with an internal name and setting 'targetBeanName' on the scoped proxy.
    *
+   * @param definition the original bean definition
+   * @param registry the bean definition registry
+   * @param proxyTargetClass whether to create a target class proxy
+   * @return the scoped proxy definition
+   * @see #getTargetBeanName(String)
+   * @see #getOriginalBeanName(String)
+   */
+  public static BeanDefinitionHolder createScopedProxy(BeanDefinitionHolder definition,
+          BeanDefinitionRegistry registry, boolean proxyTargetClass) {
+
+    String originalBeanName = definition.getBeanName();
+    BeanDefinition targetDefinition = definition.getBeanDefinition();
+    String targetBeanName = getTargetBeanName(originalBeanName);
+
+    // Create a scoped proxy definition for the original bean name,
+    // "hiding" the target bean in an internal target definition.
+    RootBeanDefinition proxyDefinition = new RootBeanDefinition(ScopedProxyFactoryBean.class);
+    proxyDefinition.setDecoratedDefinition(new BeanDefinitionHolder(targetDefinition, targetBeanName));
+    proxyDefinition.setOriginatingBeanDefinition(targetDefinition);
+    proxyDefinition.setSource(definition.getSource());
+    proxyDefinition.setRole(targetDefinition.getRole());
+
+    proxyDefinition.getPropertyValues().add("targetBeanName", targetBeanName);
+    if (proxyTargetClass) {
+      targetDefinition.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
+      // ScopedProxyFactoryBean's "proxyTargetClass" default is TRUE, so we don't need to set it explicitly here.
+    }
+    else {
+      proxyDefinition.getPropertyValues().add("proxyTargetClass", Boolean.FALSE);
+    }
+
+    // Copy autowire settings from original bean definition.
+    proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
+    proxyDefinition.setPrimary(targetDefinition.isPrimary());
+    if (targetDefinition instanceof AbstractBeanDefinition) {
+      proxyDefinition.copyQualifiersFrom((AbstractBeanDefinition) targetDefinition);
+    }
+
+    // The target bean should be ignored in favor of the scoped proxy.
+    targetDefinition.setAutowireCandidate(false);
+    targetDefinition.setPrimary(false);
+
+    // Register the target bean as separate bean in the factory.
+    registry.registerBeanDefinition(targetBeanName, targetDefinition);
+
+    // Return the scoped proxy definition as primary bean definition
+    // (potentially an inner bean).
+    return new BeanDefinitionHolder(proxyDefinition, originalBeanName, definition.getAliases());
+  }
+
+  /**
+   * Generate a scoped proxy for the supplied target bean, registering the target
+   * bean with an internal name and setting 'targetBeanName' on the scoped proxy.
+   *
    * @param targetDefinition the original bean definition
    * @param registry the bean definition registry
    * @param proxyTargetClass whether to create a target class proxy
@@ -68,7 +123,7 @@ public abstract class ScopedProxyUtils {
 
     BeanDefinition decoratedDefinition = targetDefinition.cloneBeanDefinition();
     decoratedDefinition.setBeanName(targetBeanName);
-    proxyDefinition.setDecoratedDefinition(decoratedDefinition);
+    proxyDefinition.setDecoratedDefinition(new BeanDefinitionHolder(decoratedDefinition, targetBeanName));
 
     proxyDefinition.setOriginatingBeanDefinition(targetDefinition);
     proxyDefinition.setSource(targetDefinition.getSource());

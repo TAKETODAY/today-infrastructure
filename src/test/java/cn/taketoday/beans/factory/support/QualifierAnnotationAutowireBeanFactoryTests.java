@@ -29,7 +29,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.LocalVariableTableParameterNameDiscoverer;
@@ -53,7 +52,7 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
-    BeanDefinition rbd = new BeanDefinition(Person.class, cavs, null);
+    RootBeanDefinition rbd = new RootBeanDefinition(Person.class, cavs, null);
     lbf.registerBeanDefinition(JUERGEN, rbd);
     assertThat(lbf.isAutowireCandidate(JUERGEN, null)).isTrue();
     assertThat(lbf.isAutowireCandidate(JUERGEN,
@@ -67,7 +66,7 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
-    BeanDefinition rbd = new BeanDefinition(Person.class, cavs, null);
+    RootBeanDefinition rbd = new RootBeanDefinition(Person.class, cavs, null);
     rbd.setAutowireCandidate(false);
     lbf.registerBeanDefinition(JUERGEN, rbd);
     assertThat(lbf.isAutowireCandidate(JUERGEN, null)).isFalse();
@@ -83,12 +82,12 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
-    BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
+    RootBeanDefinition person1 = new RootBeanDefinition(Person.class, cavs1, null);
     person1.addQualifier(new AutowireCandidateQualifier(TestQualifier.class));
     lbf.registerBeanDefinition(JUERGEN, person1);
     ConstructorArgumentValues cavs2 = new ConstructorArgumentValues();
     cavs2.addGenericArgumentValue(MARK);
-    BeanDefinition person2 = new BeanDefinition(Person.class, cavs2, null);
+    RootBeanDefinition person2 = new RootBeanDefinition(Person.class, cavs2, null);
     lbf.registerBeanDefinition(MARK, person2);
     DependencyDescriptor qualifiedDescriptor = new DependencyDescriptor(
             QualifiedTestBean.class.getDeclaredField("qualified"), false);
@@ -107,7 +106,7 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
-    BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
+    RootBeanDefinition person = new RootBeanDefinition(Person.class, cavs, null);
     person.setAutowireCandidate(false);
     person.addQualifier(new AutowireCandidateQualifier(TestQualifier.class));
     lbf.registerBeanDefinition(JUERGEN, person);
@@ -125,7 +124,7 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs = new ConstructorArgumentValues();
     cavs.addGenericArgumentValue(JUERGEN);
-    BeanDefinition person = new BeanDefinition(Person.class, cavs, null);
+    RootBeanDefinition person = new RootBeanDefinition(Person.class, cavs, null);
     person.addQualifier(new AutowireCandidateQualifier(ClassUtils.getShortName(TestQualifier.class)));
     lbf.registerBeanDefinition(JUERGEN, person);
     DependencyDescriptor qualifiedDescriptor = new DependencyDescriptor(
@@ -143,12 +142,12 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
-    BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
+    RootBeanDefinition person1 = new RootBeanDefinition(Person.class, cavs1, null);
     person1.addQualifier(new AutowireCandidateQualifier(TestQualifier.class));
     lbf.registerBeanDefinition(JUERGEN, person1);
     ConstructorArgumentValues cavs2 = new ConstructorArgumentValues();
     cavs2.addGenericArgumentValue(MARK);
-    BeanDefinition person2 = new BeanDefinition(Person.class, cavs2, null);
+    RootBeanDefinition person2 = new RootBeanDefinition(Person.class, cavs2, null);
     lbf.registerBeanDefinition(MARK, person2);
     MethodParameter param = new MethodParameter(QualifiedTestBean.class.getDeclaredConstructor(Person.class), 0);
     DependencyDescriptor qualifiedDescriptor = new DependencyDescriptor(param, false);
@@ -165,12 +164,12 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
-    BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
+    RootBeanDefinition person1 = new RootBeanDefinition(Person.class, cavs1, null);
     person1.addQualifier(new AutowireCandidateQualifier(TestQualifier.class));
     lbf.registerBeanDefinition(JUERGEN, person1);
     ConstructorArgumentValues cavs2 = new ConstructorArgumentValues();
     cavs2.addGenericArgumentValue(MARK);
-    BeanDefinition person2 = new BeanDefinition(Person.class, cavs2, null);
+    RootBeanDefinition person2 = new RootBeanDefinition(Person.class, cavs2, null);
     lbf.registerBeanDefinition(MARK, person2);
     MethodParameter qualifiedParam =
             new MethodParameter(QualifiedTestBean.class.getDeclaredMethod("autowireQualified", Person.class), 0);
@@ -195,12 +194,12 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
     StandardBeanFactory lbf = new StandardBeanFactory();
     ConstructorArgumentValues cavs1 = new ConstructorArgumentValues();
     cavs1.addGenericArgumentValue(JUERGEN);
-    BeanDefinition person1 = new BeanDefinition(Person.class, cavs1, null);
+    RootBeanDefinition person1 = new RootBeanDefinition(Person.class, cavs1, null);
     person1.addQualifier(new AutowireCandidateQualifier(TestQualifier.class));
     lbf.registerBeanDefinition(JUERGEN, person1);
     ConstructorArgumentValues cavs2 = new ConstructorArgumentValues();
     cavs2.addGenericArgumentValue(MARK);
-    BeanDefinition person2 = new BeanDefinition(Person.class, cavs2, null);
+    RootBeanDefinition person2 = new RootBeanDefinition(Person.class, cavs2, null);
     person2.addQualifier(new AutowireCandidateQualifier(TestQualifier.class));
     lbf.registerBeanDefinition(MARK, person2);
     DependencyDescriptor qualifiedDescriptor = new DependencyDescriptor(
@@ -231,7 +230,7 @@ public class QualifierAnnotationAutowireBeanFactoryTests {
   @SuppressWarnings("unused")
   private static class Person {
 
-    private final String name;
+    private String name;
 
     public Person(String name) {
       this.name = name;

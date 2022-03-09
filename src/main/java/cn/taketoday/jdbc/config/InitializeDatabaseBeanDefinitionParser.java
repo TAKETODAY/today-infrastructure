@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.config;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.xml.AbstractBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;
@@ -43,7 +44,7 @@ import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 class InitializeDatabaseBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
   @Override
-  protected BeanDefinition parseInternal(Element element, ParserContext parserContext) {
+  protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DataSourceInitializer.class);
     builder.addPropertyReference("dataSource", element.getAttribute("data-source"));
     builder.addPropertyValue("enabled", element.getAttribute("enabled"));

@@ -24,13 +24,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.CompositeComponentDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
@@ -90,8 +91,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
     // Actually scan for bean definitions and register them.
     ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);
-    Set<BeanDefinition> beanDefinitions = scanner.scanning(basePackages);
-    registerComponents(parserContext.getReaderContext(), beanDefinitions, element);
+    registerComponents(parserContext.getReaderContext(), scanner, basePackages, element);
 
     return null;
   }
@@ -136,14 +136,17 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
   }
 
   protected void registerComponents(
-          XmlReaderContext readerContext, Set<BeanDefinition> beanDefinitions, Element element) {
+          XmlReaderContext readerContext, ClassPathBeanDefinitionScanner scanner, String[] basePackages, Element element) {
 
     Object source = readerContext.extractSource(element);
     CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(), source);
 
-    for (BeanDefinition beanDefHolder : beanDefinitions) {
-      compositeDef.addNestedComponent(new BeanComponentDefinition(beanDefHolder));
-    }
+    scanner.scan(new Consumer<BeanDefinitionHolder>() {
+      @Override
+      public void accept(BeanDefinitionHolder holder) {
+        compositeDef.addNestedComponent(new BeanComponentDefinition(holder));
+      }
+    }, basePackages);
 
     // Register annotation config processors, if necessary.
     boolean annotationConfig = true;

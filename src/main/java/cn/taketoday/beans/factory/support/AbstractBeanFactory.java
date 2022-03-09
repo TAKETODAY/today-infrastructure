@@ -62,6 +62,7 @@ import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.BeanExpressionContext;
 import cn.taketoday.beans.factory.config.BeanExpressionResolver;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
@@ -491,7 +492,7 @@ public abstract class AbstractBeanFactory
 
     // Retrieve corresponding bean definition.
     RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
-    BeanDefinition decorated = merged.getDecoratedDefinition();
+    BeanDefinitionHolder decorated = merged.getDecoratedDefinition();
 
     // Setup the types that we want to match against
     Class<?> classToMatch = typeToMatch.resolve();
@@ -512,7 +513,7 @@ public abstract class AbstractBeanFactory
       // We should only attempt if the user explicitly set lazy-init to true
       // and we know the merged bean definition is for a factory bean.
       if (!merged.isLazyInit() || allowFactoryBeanInit) {
-        RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated, merged);
+        RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated.getBeanDefinition(), merged);
         Class<?> targetType = predictBeanType(decorated.getBeanName(), tbd, typesToMatch);
         if (targetType != null && !FactoryBean.class.isAssignableFrom(targetType)) {
           predictedType = targetType;
@@ -827,9 +828,9 @@ public abstract class AbstractBeanFactory
 
     // Check decorated bean definition, if any: We assume it'll be easier
     // to determine the decorated bean's type than the proxy's type.
-    BeanDefinition decorated = mergedDef.getDecoratedDefinition();
+    BeanDefinitionHolder decorated = mergedDef.getDecoratedDefinition();
     if (decorated != null && !BeanFactoryUtils.isFactoryDereference(name)) {
-      RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated, mergedDef);
+      RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
       Class<?> targetClass = predictBeanType(decorated.getBeanName(), tbd);
       if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
         return targetClass;

@@ -23,9 +23,10 @@ package cn.taketoday.scheduling.config;
 import org.w3c.dom.Element;
 
 import cn.taketoday.aop.config.AopNamespaceUtils;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.CompositeComponentDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;
@@ -131,12 +132,11 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
   private static void registerPostProcessor(
           ParserContext parserContext, BeanDefinitionBuilder builder, String beanName) {
-    BeanDefinition beanDefinition = builder.getBeanDefinition();
-    beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-    beanDefinition.setBeanName(beanName);
+    builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+    parserContext.getRegistry().registerBeanDefinition(beanName, builder.getBeanDefinition());
 
-    parserContext.getRegistry().registerBeanDefinition(beanName, beanDefinition);
-    parserContext.registerComponent(new BeanComponentDefinition(beanDefinition));
+    BeanDefinitionHolder holder = new BeanDefinitionHolder(builder.getBeanDefinition(), beanName);
+    parserContext.registerComponent(new BeanComponentDefinition(holder));
   }
 
 }

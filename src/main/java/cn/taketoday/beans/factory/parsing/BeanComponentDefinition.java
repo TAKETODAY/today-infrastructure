@@ -21,15 +21,13 @@
 package cn.taketoday.beans.factory.parsing;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.BeanReference;
-import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 
 /**
  * ComponentDefinition based on a standard BeanDefinition, exposing the given bean
@@ -39,7 +37,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class BeanComponentDefinition extends GenericBeanDefinition implements ComponentDefinition {
+public class BeanComponentDefinition extends BeanDefinitionHolder implements ComponentDefinition {
 
   private final BeanDefinition[] innerBeanDefinitions;
 
@@ -48,42 +46,43 @@ public class BeanComponentDefinition extends GenericBeanDefinition implements Co
   /**
    * Create a new BeanComponentDefinition for the given bean.
    *
-   * @param definition the BeanDefinition
+   * @param beanDefinition the BeanDefinition
    * @param beanName the name of the bean
    */
-  public BeanComponentDefinition(BeanDefinition definition, String beanName) {
-    this(definition);
-    setBeanName(beanName);
+  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName) {
+    this(new BeanDefinitionHolder(beanDefinition, beanName));
   }
 
   /**
    * Create a new BeanComponentDefinition for the given bean.
    *
-   * @param definition the BeanDefinition
+   * @param beanDefinition the BeanDefinition
    * @param beanName the name of the bean
    * @param aliases alias names for the bean, or {@code null} if none
    */
-  public BeanComponentDefinition(BeanDefinition definition, String beanName, @Nullable String[] aliases) {
-    this(definition);
-    setBeanName(beanName);
-    setAliases(aliases);
+  public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
+    this(new BeanDefinitionHolder(beanDefinition, beanName, aliases));
   }
 
   /**
    * Create a new BeanComponentDefinition for the given bean.
    *
-   * @param definition the BeanDefinition encapsulating
+   * @param beanDefinitionHolder the BeanDefinitionHolder encapsulating
    * the bean definition as well as the name of the bean
    */
-  public BeanComponentDefinition(BeanDefinition definition) {
-    super(definition);
-    List<BeanDefinition> innerBeans = new ArrayList<>();
-    List<BeanReference> references = new ArrayList<>();
-    PropertyValues propertyValues = definition.getPropertyValues();
+  public BeanComponentDefinition(BeanDefinitionHolder beanDefinitionHolder) {
+    super(beanDefinitionHolder);
+
+    ArrayList<BeanDefinition> innerBeans = new ArrayList<>();
+    ArrayList<BeanReference> references = new ArrayList<>();
+    PropertyValues propertyValues = beanDefinitionHolder.getBeanDefinition().getPropertyValues();
     for (PropertyValue propertyValue : propertyValues.toArray()) {
       Object value = propertyValue.getValue();
-      if (value instanceof BeanDefinition) {
-        innerBeans.add(((BeanDefinition) value));
+      if (value instanceof BeanDefinitionHolder) {
+        innerBeans.add(((BeanDefinitionHolder) value).getBeanDefinition());
+      }
+      else if (value instanceof BeanDefinition) {
+        innerBeans.add((BeanDefinition) value);
       }
       else if (value instanceof BeanReference) {
         references.add((BeanReference) value);
@@ -105,7 +104,7 @@ public class BeanComponentDefinition extends GenericBeanDefinition implements Co
 
   @Override
   public BeanDefinition[] getBeanDefinitions() {
-    return new BeanDefinition[] { this };
+    return new BeanDefinition[] { getBeanDefinition() };
   }
 
   @Override
@@ -126,29 +125,6 @@ public class BeanComponentDefinition extends GenericBeanDefinition implements Co
   @Override
   public String toString() {
     return getDescription();
-  }
-
-  /**
-   * Return a friendly, short description for the bean, stating name and aliases.
-   *
-   * @see #getBeanName()
-   * @see #getAliases()
-   */
-  public String getShortDescription() {
-    if (getAliases() == null) {
-      return "Bean definition with name '" + getBeanName() + "'";
-    }
-    return "Bean definition with name '" + getBeanName() + "' and aliases [" + StringUtils.arrayToCommaDelimitedString(getAliases()) + ']';
-  }
-
-  /**
-   * Return a long description for the bean, including name and aliases
-   * as well as a description of the contained {@link BeanDefinition}.
-   *
-   * @see #getShortDescription()
-   */
-  public String getLongDescription() {
-    return getShortDescription() + ": " + this;
   }
 
   /**

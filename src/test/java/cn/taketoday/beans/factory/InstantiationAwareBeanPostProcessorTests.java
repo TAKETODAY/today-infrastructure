@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.MethodMetadata;
@@ -49,9 +50,9 @@ class InstantiationAwareBeanPostProcessorTests {
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
       BeanDefinition def = factory.getBeanDefinition(beanName);
       // your Instantiation Strategy
-      if (def instanceof AnnotatedBeanDefinition) {
-        MethodMetadata metadata = ((AnnotatedBeanDefinition) def).getFactoryMethodMetadata();
-        if (def.getBeanClass() == InstantiationAwareBeanPostProcessorBean.class && metadata == null) {
+      if (def instanceof AnnotatedBeanDefinition annotated) {
+        MethodMetadata metadata = annotated.getFactoryMethodMetadata();
+        if (((AbstractBeanDefinition) def).getBeanClass() == InstantiationAwareBeanPostProcessorBean.class && metadata == null) {
           return new InstantiationAwareBeanPostProcessorBean(); // your strategy
         }
       }

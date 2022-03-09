@@ -20,17 +20,12 @@
 
 package cn.taketoday.aop.config;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/3/7 21:23
- */
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import cn.taketoday.aop.scope.ScopedProxyUtils;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.xml.BeanDefinitionDecorator;
 import cn.taketoday.beans.factory.xml.ParserContext;
 
@@ -41,14 +36,15 @@ import cn.taketoday.beans.factory.xml.ParserContext;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Mark Fisher
- * @since 2.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/3/7 21:23
  */
 class ScopedProxyBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
   private static final String PROXY_TARGET_CLASS = "proxy-target-class";
 
   @Override
-  public BeanDefinition decorate(Node node, BeanDefinition definition, ParserContext parserContext) {
+  public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
     boolean proxyTargetClass = true;
     if (node instanceof Element ele) {
       if (ele.hasAttribute(PROXY_TARGET_CLASS)) {
@@ -58,11 +54,11 @@ class ScopedProxyBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
     // Register the original bean definition as it will be referenced by the scoped proxy
     // and is relevant for tooling (validation, navigation).
-    BeanDefinition holder =
+    BeanDefinitionHolder holder =
             ScopedProxyUtils.createScopedProxy(definition, parserContext.getRegistry(), proxyTargetClass);
     String targetBeanName = ScopedProxyUtils.getTargetBeanName(definition.getBeanName());
     parserContext.getReaderContext().fireComponentRegistered(
-            new BeanComponentDefinition(definition, targetBeanName));
+            new BeanComponentDefinition(definition.getBeanDefinition(), targetBeanName));
     return holder;
   }
 

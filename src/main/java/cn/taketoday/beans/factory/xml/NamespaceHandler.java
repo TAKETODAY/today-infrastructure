@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -98,6 +99,6 @@ public interface NamespaceHandler {
    * treated like the case where the original bean definition gets returned.
    */
   @Nullable
-  BeanDefinition decorate(Node source, BeanDefinition definition, ParserContext parserContext);
+  BeanDefinitionHolder decorate(Node source, BeanDefinitionHolder definition, ParserContext parserContext);
 
 }

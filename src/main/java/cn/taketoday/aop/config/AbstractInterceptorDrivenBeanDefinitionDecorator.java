@@ -26,6 +26,7 @@ import java.util.List;
 
 import cn.taketoday.aop.proxy.ProxyFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -34,6 +35,7 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.xml.BeanDefinitionDecorator;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -64,22 +66,23 @@ import cn.taketoday.util.StringUtils;
 public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
   @Override
-  public final BeanDefinition decorate(Node node, BeanDefinition targetDefinition, ParserContext parserContext) {
+  public final BeanDefinitionHolder decorate(@NonNull Node node, BeanDefinitionHolder definitionHolder, ParserContext parserContext) {
     BeanDefinitionRegistry registry = parserContext.getRegistry();
 
     // get the root bean name - will be the name of the generated proxy factory bean
-    String existingBeanName = targetDefinition.getBeanName();
-    BeanDefinition targetHolder = targetDefinition.cloneBeanDefinition();
-    targetHolder.setBeanName(existingBeanName + ".TARGET");
+    String existingBeanName = definitionHolder.getBeanName();
+    BeanDefinition targetDefinition = definitionHolder.getBeanDefinition();
+    BeanDefinitionHolder targetHolder = new BeanDefinitionHolder(targetDefinition, existingBeanName + ".TARGET");
 
     // delegate to subclass for interceptor definition
     BeanDefinition interceptorDefinition = createInterceptorDefinition(node);
+
     // generate name and register the interceptor
     String interceptorName = existingBeanName + '.' + getInterceptorNameSuffix(interceptorDefinition);
-    interceptorDefinition.setBeanName(interceptorName);
-    BeanDefinitionReaderUtils.registerBeanDefinition(interceptorDefinition, registry);
+    BeanDefinitionReaderUtils.registerBeanDefinition(
+            new BeanDefinitionHolder(interceptorDefinition, interceptorName), registry);
 
-    BeanDefinition result = targetDefinition;
+    BeanDefinitionHolder result = definitionHolder;
 
     if (!isProxyFactoryBeanDefinition(targetDefinition)) {
       // create the proxy definition
@@ -96,16 +99,14 @@ public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implement
       // copy autowire settings from original bean definition.
       proxyDefinition.setAutowireCandidate(targetDefinition.isAutowireCandidate());
       proxyDefinition.setPrimary(targetDefinition.isPrimary());
-
       if (targetDefinition instanceof AbstractBeanDefinition) {
         proxyDefinition.copyQualifiersFrom((AbstractBeanDefinition) targetDefinition);
       }
       // wrap it in a BeanDefinitionHolder with bean name
-      result = proxyDefinition.cloneBeanDefinition();
-      result.setBeanName(existingBeanName);
+      result = new BeanDefinitionHolder(proxyDefinition, existingBeanName);
     }
 
-    addInterceptorNameToList(interceptorName, result);
+    addInterceptorNameToList(interceptorName, result.getBeanDefinition());
     return result;
   }
 

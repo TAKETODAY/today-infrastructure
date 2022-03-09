@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
@@ -118,6 +119,27 @@ class BeanDefinitionTests {
     assertThat(bd.equals(otherBd)).isTrue();
     assertThat(otherBd.equals(bd)).isTrue();
     assertThat(bd.hashCode() == otherBd.hashCode()).isTrue();
+  }
+
+  @Test
+  public void beanDefinitionHolderEquality() {
+    RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
+    bd.setAbstract(true);
+    bd.setLazyInit(true);
+    bd.setScope("request");
+    BeanDefinitionHolder holder = new BeanDefinitionHolder(bd, "bd");
+    RootBeanDefinition otherBd = new RootBeanDefinition(TestBean.class);
+    boolean condition1 = !bd.equals(otherBd);
+    assertThat(condition1).isTrue();
+    boolean condition = !otherBd.equals(bd);
+    assertThat(condition).isTrue();
+    otherBd.setAbstract(true);
+    otherBd.setLazyInit(true);
+    otherBd.setScope("request");
+    BeanDefinitionHolder otherHolder = new BeanDefinitionHolder(bd, "bd");
+    assertThat(holder.equals(otherHolder)).isTrue();
+    assertThat(otherHolder.equals(holder)).isTrue();
+    assertThat(holder.hashCode() == otherHolder.hashCode()).isTrue();
   }
 
   @Test

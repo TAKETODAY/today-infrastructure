@@ -24,7 +24,6 @@ import org.w3c.dom.Element;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
@@ -108,7 +107,7 @@ class ScriptBeanDefinitionParser extends AbstractBeanDefinitionParser {
    */
   @Override
   @Nullable
-  protected BeanDefinition parseInternal(Element element, ParserContext parserContext) {
+  protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
     // Engine attribute only supported for <lang:std>
     String engine = element.getAttribute(ENGINE_ATTRIBUTE);
 

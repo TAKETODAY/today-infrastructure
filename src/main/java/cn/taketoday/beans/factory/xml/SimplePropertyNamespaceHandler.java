@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
@@ -64,11 +65,11 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
   }
 
   @Override
-  public BeanDefinition decorate(Node node, BeanDefinition definition, ParserContext parserContext) {
+  public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
     if (node instanceof Attr attr) {
       String propertyName = parserContext.getDelegate().getLocalName(attr);
       String propertyValue = attr.getValue();
-      PropertyValues pvs = definition.getPropertyValues();
+      PropertyValues pvs = definition.getBeanDefinition().getPropertyValues();
       if (pvs.contains(propertyName)) {
         parserContext.getReaderContext().error("Property '" + propertyName + "' is already defined using " +
                 "both <property> and inline syntax. Only one approach may be used per property.", attr);

@@ -36,9 +36,10 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.TypedStringValue;
@@ -136,6 +137,10 @@ class BeanDefinitionValueResolver {
         }
         return refName;
       }
+      else if (value instanceof BeanDefinitionHolder bdHolder) {
+        // Resolve BeanDefinitionHolder: contains BeanDefinition with name and aliases.
+        return resolveInnerBean(argName, bdHolder.getBeanName(), bdHolder.getBeanDefinition());
+      }
       else if (value instanceof BeanDefinition bd) {
         String name = bd.getBeanName();
         if (!StringUtils.hasText(name)) {
@@ -144,7 +149,7 @@ class BeanDefinitionValueResolver {
                   ObjectUtils.getIdentityHexString(bd);
           bd.setBeanName(innerBeanName);
         }
-        return resolveInnerBean(argName, bd);
+        return resolveInnerBean(argName, bd.getBeanName(), bd);
       }
       else if (value instanceof ManagedArray managedArray) {
         // May need to resolve contained runtime references.
@@ -352,8 +357,7 @@ class BeanDefinitionValueResolver {
    * @return the resolved inner bean instance
    */
   @Nullable
-  private Object resolveInnerBean(Object argName, BeanDefinition innerDefinition) {
-    String innerBeanName = innerDefinition.getBeanName();
+  private Object resolveInnerBean(Object argName, String innerBeanName, BeanDefinition innerDefinition) {
     RootBeanDefinition mergedDef = null;
     try {
       mergedDef = this.beanFactory.getMergedBeanDefinition(innerBeanName, innerDefinition, this.beanDefinition);

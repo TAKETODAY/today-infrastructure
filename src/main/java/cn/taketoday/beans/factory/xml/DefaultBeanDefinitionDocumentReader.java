@@ -31,9 +31,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -303,7 +303,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
    * and registering it with the registry.
    */
   protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-    BeanDefinition bdHolder = delegate.parseBeanDefinitionElement(ele);
+    BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
     if (bdHolder != null) {
       bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
       try {

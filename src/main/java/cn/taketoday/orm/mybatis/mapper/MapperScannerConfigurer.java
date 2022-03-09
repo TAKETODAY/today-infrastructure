@@ -337,8 +337,8 @@ public class MapperScannerConfigurer
     scanner.setSqlSessionTemplate(this.sqlSessionTemplate);
     scanner.setSqlSessionFactoryBeanName(this.sqlSessionFactoryBeanName);
     scanner.setSqlSessionTemplateBeanName(this.sqlSessionTemplateBeanName);
-    scanner.setResourceLoader(this.applicationContext);
-    scanner.setBeanNamePopulator(this.namePopulator);
+    scanner.getScanner().setResourceLoader(this.applicationContext);
+    scanner.getScanner().setBeanNamePopulator(this.namePopulator);
     scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
 
     if (StringUtils.hasText(lazyInitialization)) {

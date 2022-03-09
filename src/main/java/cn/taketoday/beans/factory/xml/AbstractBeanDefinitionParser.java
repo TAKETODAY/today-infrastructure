@@ -23,9 +23,11 @@ package cn.taketoday.beans.factory.xml;
 import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.ReaderContext;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.lang.Nullable;
@@ -34,7 +36,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Abstract {@link BeanDefinitionParser} implementation providing
  * a number of convenience methods and a
- * {@link BeanDefinitionParser#parseInternal template method}
+ * {@link AbstractBeanDefinitionParser#parseInternal template method}
  * that subclasses must override to provide the actual parsing logic.
  *
  * <p>Use this {@link BeanDefinitionParser} implementation when you want
@@ -62,7 +64,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
   @Override
   @Nullable
   public final BeanDefinition parse(Element element, ParserContext parserContext) {
-    BeanDefinition definition = parseInternal(element, parserContext);
+    AbstractBeanDefinition definition = parseInternal(element, parserContext);
     if (definition != null && !parserContext.isNested()) {
       try {
         String id = resolveId(element, definition, parserContext);
@@ -80,9 +82,10 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
         }
         definition.setBeanName(id);
         definition.setAliases(aliases);
-        registerBeanDefinition(definition, parserContext.getRegistry());
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, id, aliases);
+        registerBeanDefinition(holder, parserContext.getRegistry());
         if (shouldFireEvents()) {
-          BeanComponentDefinition componentDefinition = new BeanComponentDefinition(definition);
+          BeanComponentDefinition componentDefinition = new BeanComponentDefinition(holder);
           postProcessComponentDefinition(componentDefinition);
           parserContext.registerComponent(componentDefinition);
         }
@@ -140,7 +143,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
    * @param registry the registry that the bean is to be registered with
    * @see BeanDefinitionReaderUtils#registerBeanDefinition(BeanDefinition, BeanDefinitionRegistry)
    */
-  protected void registerBeanDefinition(BeanDefinition definition, BeanDefinitionRegistry registry) {
+  protected void registerBeanDefinition(BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
     BeanDefinitionReaderUtils.registerBeanDefinition(definition, registry);
   }
 
@@ -156,7 +159,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
    * @see #postProcessComponentDefinition(BeanComponentDefinition)
    */
   @Nullable
-  protected abstract BeanDefinition parseInternal(Element element, ParserContext parserContext);
+  protected abstract AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext);
 
   /**
    * Should an ID be generated instead of read from the passed in {@link Element}?

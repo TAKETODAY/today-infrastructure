@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -97,8 +98,8 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
    */
   @Override
   @Nullable
-  public BeanDefinition decorate(
-          Node node, BeanDefinition definition, ParserContext parserContext) {
+  public BeanDefinitionHolder decorate(
+          Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
 
     BeanDefinitionDecorator decorator = findDecoratorForNode(node, parserContext);
     return (decorator != null ? decorator.decorate(node, definition, parserContext) : null);
