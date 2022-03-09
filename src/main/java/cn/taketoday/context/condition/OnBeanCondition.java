@@ -87,11 +87,27 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       Spec<ConditionalOnBean> spec = new Spec<>(context, metadata, annotations, ConditionalOnBean.class);
       MatchResult matchResult = getMatchingBeans(context, spec);
       if (!matchResult.isAllMatched()) {
-        String reason = createOnBeanNoMatchReason(matchResult);
-        return ConditionOutcome.noMatch(spec.message().because(reason));
+        return ConditionOutcome.noMatch(spec.message().didNotFind("any beans").atAll());
       }
-      matchMessage = spec.message(matchMessage).found("bean", "beans").items(
-              Style.QUOTE, matchResult.getNamesOfAllMatches());
+      Set<String> allBeans = matchResult.getNamesOfAllMatches();
+      if (allBeans.size() == 1) {
+        matchMessage = spec.message(matchMessage).found("a single bean").items(Style.QUOTE, allBeans);
+      }
+      else {
+        List<String> primaryBeans = getPrimaryBeans(context.getBeanFactory(), allBeans,
+                spec.getStrategy() == SearchStrategy.ALL);
+        if (primaryBeans.isEmpty()) {
+          return ConditionOutcome.noMatch(
+                  spec.message().didNotFind("a primary bean from beans").items(Style.QUOTE, allBeans));
+        }
+        if (primaryBeans.size() > 1) {
+          return ConditionOutcome
+                  .noMatch(spec.message().found("multiple primary beans").items(Style.QUOTE, primaryBeans));
+        }
+        matchMessage = spec.message(matchMessage)
+                .found("a single primary bean '" + primaryBeans.get(0) + "' from beans")
+                .items(Style.QUOTE, allBeans);
+      }
     }
     if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
       Spec<ConditionalOnSingleCandidate> spec = new SingleCandidateSpec(context, metadata, annotations);
@@ -250,7 +266,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   private boolean containsBean(ConfigurableBeanFactory beanFactory, String beanName,
-                               boolean considerHierarchy) {
+          boolean considerHierarchy) {
     if (considerHierarchy) {
       return beanFactory.containsBean(beanName);
     }
