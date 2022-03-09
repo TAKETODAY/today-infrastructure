@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.Lookup;
@@ -93,6 +94,8 @@ public class ClassPathScanningCandidateComponentProvider
 
   @Nullable
   private CandidateComponentsIndex componentsIndex;
+
+  private Predicate<AnnotationMetadata> candidateComponentPredicate = this::isCandidateComponent;
 
   public ClassPathScanningCandidateComponentProvider() { }
 
@@ -230,6 +233,13 @@ public class ClassPathScanningCandidateComponentProvider
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
     super.setResourceLoader(resourceLoader);
     this.componentsIndex = CandidateComponentsIndexLoader.loadIndex(getResourceLoader().getClassLoader());
+  }
+
+  /**
+   * Set the {@link Predicate} to use for candidate component testing.
+   */
+  public void setCandidateComponentPredicate(@Nullable Predicate<AnnotationMetadata> candidateComponentPredicate) {
+    this.candidateComponentPredicate = candidateComponentPredicate == null ? this::isCandidateComponent : candidateComponentPredicate;
   }
 
   /**
@@ -421,7 +431,7 @@ public class ClassPathScanningCandidateComponentProvider
     @Override
     public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
       if (isCandidateComponent(metadataReader, factory)
-              && isCandidateComponent(metadataReader.getAnnotationMetadata())) {
+              && candidateComponentPredicate.test(metadataReader.getAnnotationMetadata())) {
         metadataReaderConsumer.accept(metadataReader, factory);
       }
     }
