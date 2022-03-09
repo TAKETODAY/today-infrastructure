@@ -133,4 +133,23 @@ public class ManagedMap<K, V> extends LinkedHashMap<K, V> implements Mergeable, 
     return merged;
   }
 
+  /**
+   * Return a new instance containing keys and values extracted from the
+   * given entries. The entries themselves are not stored in the map.
+   *
+   * @param entries {@code Map.Entry}s containing the keys and values
+   * from which the map is populated
+   * @param <K> the {@code Map}'s key type
+   * @param <V> the {@code Map}'s value type
+   * @return a {@code Map} containing the specified mappings
+   */
+  @SuppressWarnings("unchecked")
+  public static <K, V> ManagedMap<K, V> ofEntries(Map.Entry<? extends K, ? extends V>... entries) {
+    ManagedMap<K, V> map = new ManagedMap<>();
+    for (Map.Entry<? extends K, ? extends V> entry : entries) {
+      map.put(entry.getKey(), entry.getValue());
+    }
+    return map;
+  }
+
 }

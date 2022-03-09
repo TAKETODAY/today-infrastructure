@@ -26,6 +26,7 @@ import java.util.Set;
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.Mergeable;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Tag collection class used to hold managed Set values, which may
@@ -112,6 +113,20 @@ public class ManagedSet<E> extends LinkedHashSet<E> implements Mergeable, BeanMe
     merged.addAll((Set<E>) parent);
     merged.addAll(this);
     return merged;
+  }
+
+  /**
+   * Return a new instance containing an arbitrary number of elements.
+   *
+   * @param elements the elements to be contained in the set
+   * @param <E> the {@code Set}'s element type
+   * @return a {@code Set} containing the specified elements
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ManagedSet<E> of(E... elements) {
+    ManagedSet<E> set = new ManagedSet<>();
+    CollectionUtils.addAll(set, elements);
+    return set;
   }
 
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.Mergeable;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Tag collection class used to hold managed List elements, which may
@@ -114,4 +115,17 @@ public class ManagedList<E> extends ArrayList<E> implements Mergeable, BeanMetad
     return merged;
   }
 
+  /**
+   * Return a new instance containing an arbitrary number of elements.
+   *
+   * @param elements the elements to be contained in the list
+   * @param <E> the {@code List}'s element type
+   * @return a {@code List} containing the specified elements
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ManagedList<E> of(E... elements) {
+    ManagedList<E> list = new ManagedList<>();
+    CollectionUtils.addAll(list, elements);
+    return list;
+  }
 }
