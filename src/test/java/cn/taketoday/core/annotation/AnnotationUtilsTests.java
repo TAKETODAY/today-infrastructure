@@ -42,7 +42,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
 import cn.taketoday.lang.Indexed;

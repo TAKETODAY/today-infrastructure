@@ -37,7 +37,7 @@ import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;

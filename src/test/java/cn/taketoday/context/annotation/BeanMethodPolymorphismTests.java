@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.aop.support.interceptor.SimpleTraceInterceptor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.aop.interceptor.SimpleTraceInterceptor;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;
 
@@ -63,7 +63,7 @@ public class BeanMethodPolymorphismTests {
   @Test
   public void beanMethodOverridingOnASM() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition("config", OverridingConfig.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(OverridingConfig.class.getName()));
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isFalse();
@@ -85,7 +85,7 @@ public class BeanMethodPolymorphismTests {
   @Test
   public void beanMethodOverridingWithNarrowedReturnTypeOnASM() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition("config", NarrowedOverridingConfig.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(NarrowedOverridingConfig.class.getName()));
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isFalse();

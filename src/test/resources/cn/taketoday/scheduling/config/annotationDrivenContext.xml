@@ -15,6 +15,6 @@
 	<task:scheduler id="testScheduler"/>
 
 	<bean id="testExceptionHandler"
-		  class="cn.taketoday.aop.support.interceptor.SimpleAsyncUncaughtExceptionHandler"/>
+		  class="cn.taketoday.aop.interceptor.SimpleAsyncUncaughtExceptionHandler"/>
 
 </beans>

@@ -26,7 +26,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.Order;
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
@@ -60,7 +61,7 @@ import cn.taketoday.core.annotation.AliasFor;
  *
  * <ul>
  * <li>If an asynchronous event listener throws an exception, it is not propagated
- * to the caller. See {@link cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler
+ * to the caller. See {@link AsyncUncaughtExceptionHandler
  * AsyncUncaughtExceptionHandler} for more details.</li>
  * <li>Asynchronous event listener methods cannot publish a subsequent event by returning a
  * value. If you need to publish another event as the result of the processing, inject an

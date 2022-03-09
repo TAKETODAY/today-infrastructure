@@ -23,7 +23,7 @@ package cn.taketoday.validation.beanvalidation;
 import java.util.Iterator;
 import java.util.Set;
 
-import cn.taketoday.aop.proxy.AopProxyUtils;
+import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;

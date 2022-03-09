@@ -38,7 +38,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;

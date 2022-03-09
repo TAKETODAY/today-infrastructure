@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.env.PropertyResolver;

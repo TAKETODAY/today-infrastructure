@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.LocalVariableTableParameterNameDiscoverer;

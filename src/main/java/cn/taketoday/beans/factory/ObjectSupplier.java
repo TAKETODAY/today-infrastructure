@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;

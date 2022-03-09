@@ -28,6 +28,8 @@ import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.framework.AbstractAutoProxyCreator;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.target.SingletonTargetSource;

@@ -31,7 +31,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.web.annotation.ControllerAdvice;

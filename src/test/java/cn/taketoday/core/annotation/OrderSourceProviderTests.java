@@ -22,7 +22,6 @@ package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 
 import java.util.ArrayList;

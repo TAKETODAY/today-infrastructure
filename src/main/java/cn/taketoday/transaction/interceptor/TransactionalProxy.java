@@ -20,7 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
-import cn.taketoday.aop.proxy.StandardProxy;
+import cn.taketoday.aop.framework.StandardProxy;
 
 /**
  * A marker interface for manually created transactional proxies.

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import cn.taketoday.aop.interceptor.ConcurrencyThrottleInterceptor;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -44,7 +45,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @see #setConcurrencyLimit
  * @see #beforeAccess()
  * @see #afterAccess()
- * @see cn.taketoday.aop.support.interceptor.ConcurrencyThrottleInterceptor
+ * @see ConcurrencyThrottleInterceptor
  * @see java.io.Serializable
  * @since 4.0
  */

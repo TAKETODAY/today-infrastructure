@@ -35,14 +35,18 @@ import javax.swing.RootPaneContainer;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.NopInterceptor;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.AopConfigException;
+import cn.taketoday.aop.framework.AopProxyUtils;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.aop.support.interceptor.DebugInterceptor;
+import cn.taketoday.aop.interceptor.DebugInterceptor;
 import cn.taketoday.beans.testfixture.beans.IOther;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 
 import static org.assertj.core.api.Assertions.assertThat;

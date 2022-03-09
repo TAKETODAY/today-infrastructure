@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

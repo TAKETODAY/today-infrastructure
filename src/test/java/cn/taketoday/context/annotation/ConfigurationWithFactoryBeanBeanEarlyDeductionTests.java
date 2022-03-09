@@ -25,15 +25,15 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.AbstractBeanFactory;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,9 +92,9 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
     // and its bean definition only has a String bean class. In such cases
     // beanDefinition.hasBeanClass() returns false so we need to actually
     // call determineTargetType ourselves
-    BeanDefinition factoryBeanDefinition = new BeanDefinition();
+    RootBeanDefinition factoryBeanDefinition = new RootBeanDefinition();
     factoryBeanDefinition.setBeanClassName(GenericClassConfiguration.class.getName());
-    BeanDefinition beanDefinition = new BeanDefinition();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition();
     beanDefinition.setBeanClass(FactoryBean.class);
     beanDefinition.setFactoryBeanName("factoryBean");
     beanDefinition.setFactoryMethodName("myBean");
@@ -119,7 +119,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
   }
 
   private void assertPreFreeze(Class<?> configurationClass,
-                               BeanFactoryPostProcessor... postProcessors) {
+          BeanFactoryPostProcessor... postProcessors) {
     NameCollectingBeanFactoryPostProcessor postProcessor = new NameCollectingBeanFactoryPostProcessor();
     StandardApplicationContext context = new StandardApplicationContext();
     try {
@@ -199,7 +199,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-      BeanDefinition definition = new BeanDefinition(RawWithAbstractObjectTypeFactoryBean.class);
+      RootBeanDefinition definition = new RootBeanDefinition(RawWithAbstractObjectTypeFactoryBean.class);
       definition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, MyBean.class);
       context.registerBeanDefinition("myBean", definition);
     }

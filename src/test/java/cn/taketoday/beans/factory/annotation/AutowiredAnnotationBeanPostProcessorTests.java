@@ -74,7 +74,7 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;

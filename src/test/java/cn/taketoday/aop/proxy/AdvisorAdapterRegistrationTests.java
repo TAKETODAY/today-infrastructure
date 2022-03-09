@@ -31,6 +31,9 @@ import java.io.Serializable;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.BeforeAdvice;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.AdvisorAdapter;
+import cn.taketoday.aop.framework.DefaultAdvisorAdapterRegistry;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 

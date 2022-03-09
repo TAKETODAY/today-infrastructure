@@ -30,15 +30,16 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.InjectionPoint;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ListFactoryBean;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
@@ -86,7 +87,7 @@ public class ConfigurationClassProcessingTests {
   private void customBeanNameIsRespected(Class<?> testClass, Supplier<TestBean> testBeanSupplier, String beanName) {
     StandardApplicationContext ac = new StandardApplicationContext();
 //    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
-    ac.registerBeanDefinition("config", new BeanDefinition(testClass));
+    ac.registerBeanDefinition("config", new RootBeanDefinition(testClass));
     ac.refresh();
 
     assertThat(ac.getBean(beanName)).isSameAs(testBeanSupplier.get());
@@ -126,7 +127,7 @@ public class ConfigurationClassProcessingTests {
   public void configWithBeanWithProviderImplementation() {
     StandardApplicationContext ac = new StandardApplicationContext();
 //    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
-    ac.registerBeanDefinition("config", new BeanDefinition(ConfigWithBeanWithProviderImplementation.class));
+    ac.registerBeanDefinition("config", new RootBeanDefinition(ConfigWithBeanWithProviderImplementation.class));
     ac.refresh();
     assertThat(ConfigWithBeanWithProviderImplementation.testBean).isSameAs(ac.getBean("customName"));
   }
@@ -134,7 +135,7 @@ public class ConfigurationClassProcessingTests {
   @Test  // SPR-11830
   public void configWithSetWithProviderImplementation() {
     StandardApplicationContext ac = new StandardApplicationContext();
-    ac.registerBeanDefinition("config", new BeanDefinition(ConfigWithSetWithProviderImplementation.class));
+    ac.registerBeanDefinition("config", new RootBeanDefinition(ConfigWithSetWithProviderImplementation.class));
     ac.refresh();
     assertThat(ConfigWithSetWithProviderImplementation.set).isSameAs(ac.getBean("customName"));
   }
@@ -246,8 +247,8 @@ public class ConfigurationClassProcessingTests {
   public void configurationWithPostProcessor() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithPostProcessor.class);
-    BeanDefinition placeholderConfigurer = new BeanDefinition(PropertySourcesPlaceholderConfigurer.class);
-    placeholderConfigurer.propertyValues().add("properties", "myProp=myValue");
+    BeanDefinition placeholderConfigurer = new RootBeanDefinition(PropertySourcesPlaceholderConfigurer.class);
+    placeholderConfigurer.getPropertyValues().add("properties", "myProp=myValue");
     ctx.registerBeanDefinition("placeholderConfigurer", placeholderConfigurer);
     ctx.refresh();
 
@@ -289,7 +290,7 @@ public class ConfigurationClassProcessingTests {
   @Test
   public void configurationWithOverloadedBeanMismatch() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition(OverloadedBeanMismatch.class));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(OverloadedBeanMismatch.class));
     ctx.refresh();
 
     TestBean tb = ctx.getBean(TestBean.class);
@@ -299,7 +300,7 @@ public class ConfigurationClassProcessingTests {
   @Test
   public void configurationWithOverloadedBeanMismatchWithAsm() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition("config", OverloadedBeanMismatch.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(OverloadedBeanMismatch.class.getName()));
     ctx.refresh();
 
     TestBean tb = ctx.getBean(TestBean.class);
@@ -335,7 +336,7 @@ public class ConfigurationClassProcessingTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     for (Class<?> configClass : configClasses) {
       String configBeanName = configClass.getName();
-      beanFactory.registerBeanDefinition(configBeanName, new BeanDefinition(configClass));
+      beanFactory.registerBeanDefinition(configBeanName, new RootBeanDefinition(configClass));
     }
     ConfigurationClassPostProcessor ccpp = new ConfigurationClassPostProcessor(
             new BootstrapContext(beanFactory, ac));
@@ -558,7 +559,7 @@ public class ConfigurationClassProcessingTests {
     public BeanFactoryPostProcessor beanFactoryPostProcessor() {
       return beanFactory -> {
         BeanDefinition bd = beanFactory.getBeanDefinition("beanPostProcessor");
-        bd.addPropertyValue("nameSuffix", "-processed-" + myProp);
+        bd.getPropertyValues().add("nameSuffix", "-processed-" + myProp);
       };
     }
 

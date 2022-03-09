@@ -24,6 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.Order;
+
 /**
  * Marks a constructor, parameter, field, setter method, or config method as to be
  * autowired by dependency injection facilities. This is an alternative to the JSR-330
@@ -69,7 +71,7 @@ import java.lang.annotation.Target;
  * type. For such purposes, the map keys must be declared as type {@code String}
  * which will be resolved to the corresponding bean names. Such a container-provided
  * collection will be ordered, taking into account
- * {@link cn.taketoday.core.Ordered Ordered} and {@link cn.taketoday.core.Order @Order}
+ * {@link cn.taketoday.core.Ordered Ordered} and {@link Order @Order}
  * values of the target components, otherwise following their registration order
  * in the container. Alternatively, a single matching target bean may also be a
  * generally typed {@code Collection} or {@code Map} itself, getting injected as such.

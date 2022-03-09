@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework;
 
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 
@@ -30,7 +31,7 @@ import cn.taketoday.core.env.Environment;
  * EnvironmentPostProcessor implementations have to be registered in
  * {@code META-INF/today.strategies.properties}, using the fully qualified name of this class as the
  * key. Implementations may implement the {@link cn.taketoday.core.Ordered Ordered}
- * interface or use an {@link cn.taketoday.core.Order @Order} annotation
+ * interface or use an {@link Order @Order} annotation
  * if they wish to be invoked in specific order.
  *
  * @author Andy Wilkinson

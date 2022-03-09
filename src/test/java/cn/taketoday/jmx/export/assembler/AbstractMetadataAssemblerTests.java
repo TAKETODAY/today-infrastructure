@@ -33,7 +33,7 @@ import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 
 import cn.taketoday.aop.NopInterceptor;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.jmx.IJmxTestBean;
 import cn.taketoday.jmx.JmxTestBean;
 import cn.taketoday.jmx.export.MBeanExporter;

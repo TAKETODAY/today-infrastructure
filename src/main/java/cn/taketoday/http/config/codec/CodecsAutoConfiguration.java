@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.codec.CodecConfigurer;
 import cn.taketoday.http.codec.json.Jackson2JsonDecoder;
 import cn.taketoday.http.codec.json.Jackson2JsonEncoder;

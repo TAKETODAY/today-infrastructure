@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.transaction.PlatformTransactionManager;
 
 /**
@@ -38,7 +39,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * unless the {@link #fallbackExecution} flag is explicitly set. If a transaction is
  * running, the event is handled according to its {@code TransactionPhase}.
  *
- * <p>Adding {@link cn.taketoday.core.Order @Order} to your annotated
+ * <p>Adding {@link Order @Order} to your annotated
  * method allows you to prioritize that listener amongst other listeners running before
  * or after transaction completion.
  *

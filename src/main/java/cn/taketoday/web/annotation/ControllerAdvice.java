@@ -27,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Component;
 
 /**
@@ -37,7 +38,7 @@ import cn.taketoday.lang.Component;
  * <p>Classes annotated with {@code @ControllerAdvice} can be declared explicitly
  * as Framework beans or auto-detected via classpath scanning. All such beans are
  * sorted based on {@link cn.taketoday.core.Ordered Ordered} semantics or
- * {@link cn.taketoday.core.Order @Order} /
+ * {@link Order @Order} /
  * {@link jakarta.annotation.Priority @Priority} declarations, with {@code Ordered}
  * semantics taking precedence over {@code @Order} / {@code @Priority} declarations.
  * {@code @ControllerAdvice} beans are then applied in that order at runtime.

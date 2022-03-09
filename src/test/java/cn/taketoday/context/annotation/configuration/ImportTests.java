@@ -23,7 +23,7 @@ package cn.taketoday.context.annotation.configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
@@ -63,7 +63,7 @@ public class ImportTests {
     StandardBeanFactory beanFactory = context.getBeanFactory();
     BootstrapContext loadingContext = BootstrapContext.from(beanFactory);
     for (Class<?> clazz : classes) {
-      beanFactory.registerBeanDefinition(clazz.getSimpleName(), new BeanDefinition(clazz));
+      beanFactory.registerBeanDefinition(clazz.getSimpleName(), new RootBeanDefinition(clazz));
     }
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.setBootstrapContext(loadingContext);
@@ -85,7 +85,7 @@ public class ImportTests {
   public void testProcessImportsWithAsm() {
     int configClasses = 2;
     int beansInClasses = 2;
-    beanFactory.registerBeanDefinition("config", new BeanDefinition(ConfigurationWithImportAnnotation.class.getName()));
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(ConfigurationWithImportAnnotation.class.getName()));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
     pp.postProcessBeanFactory(beanFactory);
     assertThat(beanFactory.getBeanDefinitionCount()).isEqualTo(configClasses + beansInClasses);
@@ -190,7 +190,7 @@ public class ImportTests {
 
   @Test
   public void testImportAnnotationWithMultipleArgumentsResultingInOverriddenBeanDefinition() {
-    beanFactory.registerBeanDefinition("config", new BeanDefinition(
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(
             WithMultipleArgumentsThatWillCauseDuplication.class));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
     pp.postProcessBeanFactory(beanFactory);

@@ -29,24 +29,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashSet;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.CustomAutowireConfigurer;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.annotation.componentscan.simple.ClassWithNestedComponents;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
@@ -151,18 +152,17 @@ public class ComponentScanAnnotationIntegrationTests {
   public void viaBeanRegistration() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.registerBeanDefinition("componentScanAnnotatedConfig",
-            new BeanDefinition(ComponentScanAnnotatedConfig.class));
+            new RootBeanDefinition(ComponentScanAnnotatedConfig.class));
 
     GenericApplicationContext ctx = new GenericApplicationContext(bf);
     BootstrapContext loadingContext = new BootstrapContext(bf, ctx);
 
-    BeanDefinition def = new BeanDefinition(
-            "configurationClassPostProcessor",
+    BeanDefinition def = new RootBeanDefinition(
             ConfigurationClassPostProcessor.class);
 
     def.getConstructorArgumentValues().addGenericArgumentValue(loadingContext);
 
-    bf.registerBeanDefinition(def);
+    bf.registerBeanDefinition("configurationClassPostProcessor",def);
 
     ctx.refresh();
     ctx.getBean(ComponentScanAnnotatedConfig.class);

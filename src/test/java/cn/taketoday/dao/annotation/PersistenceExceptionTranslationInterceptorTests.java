@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.Ordered;

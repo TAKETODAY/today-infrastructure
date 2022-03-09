@@ -32,7 +32,7 @@ import javax.management.MBeanParameterInfo;
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 
-import cn.taketoday.aop.proxy.AopProxyUtils;
+import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
@@ -445,7 +445,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * @return the class to expose in the descriptor field "class"
    * @see #setExposeClassDescriptor
    * @see #getClassToExpose(Class)
-   * @see cn.taketoday.aop.proxy.AopProxyUtils#proxiedUserInterfaces(Object)
+   * @see AopProxyUtils#proxiedUserInterfaces(Object)
    */
   protected Class<?> getClassForDescriptor(Object managedBean) {
     if (AopUtils.isJdkDynamicProxy(managedBean)) {

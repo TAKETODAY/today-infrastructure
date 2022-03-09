@@ -20,7 +20,6 @@
 package cn.taketoday.core.annotation;
 
 import cn.taketoday.core.DecoratingProxy;
-import cn.taketoday.core.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;

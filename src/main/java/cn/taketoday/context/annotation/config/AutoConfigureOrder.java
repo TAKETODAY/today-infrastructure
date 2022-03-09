@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DependsOn;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 
 /**

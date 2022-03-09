@@ -22,8 +22,9 @@ package cn.taketoday.dao.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.aop.proxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
+import cn.taketoday.aop.framework.AbstractBeanFactoryAwareAdvisingPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Repository;
 
@@ -51,7 +52,7 @@ import cn.taketoday.lang.Repository;
  *
  * <p>{@code PersistenceExceptionTranslator} beans will be sorted according
  * to  dependency ordering rules: see {@link cn.taketoday.core.Ordered}
- * and {@link cn.taketoday.core.Order}. Note that such beans will
+ * and {@link Order}. Note that such beans will
  * get retrieved from any scope, not just singleton scope
  *
  * @author Rod Johnson

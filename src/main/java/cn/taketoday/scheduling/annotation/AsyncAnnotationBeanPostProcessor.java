@@ -24,8 +24,8 @@ import java.lang.annotation.Annotation;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.proxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
-import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.aop.framework.AbstractBeanFactoryAwareAdvisingPostProcessor;
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.lang.Assert;

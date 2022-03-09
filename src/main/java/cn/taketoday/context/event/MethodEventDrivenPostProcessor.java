@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.aop.proxy.AopProxyUtils;
+import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;

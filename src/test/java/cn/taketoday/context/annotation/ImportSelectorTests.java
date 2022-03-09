@@ -51,7 +51,7 @@ import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;

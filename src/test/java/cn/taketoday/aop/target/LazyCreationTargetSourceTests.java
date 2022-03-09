@@ -3,7 +3,7 @@ package cn.taketoday.aop.target;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

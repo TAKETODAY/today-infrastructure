@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.Converter;

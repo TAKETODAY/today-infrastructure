@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;

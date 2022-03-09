@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;

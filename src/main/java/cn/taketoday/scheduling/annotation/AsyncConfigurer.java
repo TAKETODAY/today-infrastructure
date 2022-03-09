@@ -22,7 +22,7 @@ package cn.taketoday.scheduling.annotation;
 
 import java.util.concurrent.Executor;
 
-import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 

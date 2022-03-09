@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.context.annotation.Bean;

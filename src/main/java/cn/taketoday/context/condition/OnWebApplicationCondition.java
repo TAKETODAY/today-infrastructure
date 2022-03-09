@@ -23,7 +23,7 @@ package cn.taketoday.context.condition;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.condition.ConditionalOnWebApplication.Type;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;

@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.dao.support.DataAccessUtilsTests.MapPersistenceExceptionTranslator;

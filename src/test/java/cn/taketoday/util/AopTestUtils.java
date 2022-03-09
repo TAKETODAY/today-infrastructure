@@ -20,7 +20,8 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.aop.proxy.Advised;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.lang.Assert;
 
@@ -75,7 +76,7 @@ public class AopTestUtils {
    * @return the target object or the {@code candidate} (never {@code null})
    * @throws IllegalStateException if an error occurs while unwrapping a proxy
    * @see Advised#getTargetSource()
-   * @see cn.taketoday.aop.proxy.AopProxyUtils#ultimateTargetClass
+   * @see AopProxyUtils#ultimateTargetClass
    */
   @SuppressWarnings("unchecked")
   public static <T> T getUltimateTargetObject(Object candidate) {

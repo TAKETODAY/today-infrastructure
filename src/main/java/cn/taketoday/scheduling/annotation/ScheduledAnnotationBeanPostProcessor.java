@@ -37,7 +37,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.aop.AopInfrastructureBean;
-import cn.taketoday.aop.proxy.AopProxyUtils;
+import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;

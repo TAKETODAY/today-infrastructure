@@ -29,12 +29,13 @@ import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.INestedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -60,7 +61,7 @@ class CommonAnnotationBeanPostProcessorTests {
   public void testPostConstructAndPreDestroy() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(AnnotatedInitDestroyBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(AnnotatedInitDestroyBean.class));
 
     AnnotatedInitDestroyBean bean = (AnnotatedInitDestroyBean) bf.getBean("annotatedBean");
     assertThat(bean.initCalled).isTrue();
@@ -73,7 +74,7 @@ class CommonAnnotationBeanPostProcessorTests {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.addBeanPostProcessor(new InitDestroyBeanPostProcessor());
     bf.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(AnnotatedInitDestroyBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(AnnotatedInitDestroyBean.class));
 
     AnnotatedInitDestroyBean bean = (AnnotatedInitDestroyBean) bf.getBean("annotatedBean");
     assertThat(bean.initCalled).isTrue();
@@ -84,9 +85,9 @@ class CommonAnnotationBeanPostProcessorTests {
   @Test
   public void testPostConstructAndPreDestroyWithApplicationContextAndPostProcessor() {
     GenericApplicationContext ctx = new GenericApplicationContext();
-    ctx.registerBeanDefinition("bpp1", new BeanDefinition(InitDestroyBeanPostProcessor.class));
-    ctx.registerBeanDefinition("bpp2", new BeanDefinition(CommonAnnotationBeanPostProcessor.class));
-    ctx.registerBeanDefinition("annotatedBean", new BeanDefinition(AnnotatedInitDestroyBean.class));
+    ctx.registerBeanDefinition("bpp1", new RootBeanDefinition(InitDestroyBeanPostProcessor.class));
+    ctx.registerBeanDefinition("bpp2", new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class));
+    ctx.registerBeanDefinition("annotatedBean", new RootBeanDefinition(AnnotatedInitDestroyBean.class));
     ctx.refresh();
 
     AnnotatedInitDestroyBean bean = (AnnotatedInitDestroyBean) ctx.getBean("annotatedBean");
@@ -102,7 +103,7 @@ class CommonAnnotationBeanPostProcessorTests {
     bpp.setInitAnnotationType(PostConstruct.class);
     bpp.setDestroyAnnotationType(PreDestroy.class);
     bf.addBeanPostProcessor(bpp);
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(AnnotatedInitDestroyBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(AnnotatedInitDestroyBean.class));
 
     AnnotatedInitDestroyBean bean = (AnnotatedInitDestroyBean) bf.getBean("annotatedBean");
     assertThat(bean.initCalled).isTrue();
@@ -114,7 +115,7 @@ class CommonAnnotationBeanPostProcessorTests {
   public void testPostProcessorWithNullBean() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
-    BeanDefinition rbd = new BeanDefinition(NullFactory.class);
+    BeanDefinition rbd = new RootBeanDefinition(NullFactory.class);
     rbd.setFactoryMethodName("create");
     bf.registerBeanDefinition("bean", rbd);
 
@@ -150,7 +151,7 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setResourceFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(ResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ResourceInjectionBean.class));
     TestBean tb = new TestBean();
     bf.registerSingleton("testBean", tb);
     TestBean tb2 = new TestBean();
@@ -174,13 +175,13 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setResourceFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    BeanDefinition abd = new BeanDefinition(ResourceInjectionBean.class);
+    BeanDefinition abd = new RootBeanDefinition(ResourceInjectionBean.class);
     abd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("annotatedBean", abd);
-    BeanDefinition tbd1 = new BeanDefinition(TestBean.class);
+    BeanDefinition tbd1 = new RootBeanDefinition(TestBean.class);
     tbd1.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("testBean", tbd1);
-    BeanDefinition tbd2 = new BeanDefinition(TestBean.class);
+    BeanDefinition tbd2 = new RootBeanDefinition(TestBean.class);
     tbd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("testBean2", tbd2);
 
@@ -211,10 +212,10 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    BeanDefinition abd = new BeanDefinition(ExtendedResourceInjectionBean.class);
+    BeanDefinition abd = new RootBeanDefinition(ExtendedResourceInjectionBean.class);
     abd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("annotatedBean", abd);
-    BeanDefinition tbd = new BeanDefinition(TestBean.class);
+    BeanDefinition tbd = new RootBeanDefinition(TestBean.class);
     tbd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("testBean4", tbd);
 
@@ -246,7 +247,7 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(DefaultMethodResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(DefaultMethodResourceInjectionBean.class));
     TestBean tb2 = new TestBean();
     bf.registerSingleton("testBean2", tb2);
     NestedTestBean tb7 = new NestedTestBean();
@@ -269,7 +270,7 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp2 = new CommonAnnotationBeanPostProcessor();
     bpp2.setResourceFactory(bf);
     bf.addBeanPostProcessor(bpp2);
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(ResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ResourceInjectionBean.class));
     TestBean tb = new TestBean();
     bf.registerSingleton("testBean", tb);
     TestBean tb2 = new TestBean();
@@ -298,7 +299,7 @@ class CommonAnnotationBeanPostProcessorTests {
     resourceFactory.setJndiTemplate(jndiTemplate);
     bpp.setResourceFactory(resourceFactory);
     bf.addBeanPostProcessor(bpp);
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(ResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ResourceInjectionBean.class));
 
     ResourceInjectionBean bean = (ResourceInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.initCalled).isTrue();
@@ -324,9 +325,9 @@ class CommonAnnotationBeanPostProcessorTests {
     ppc.setProperties(props);
     ppc.postProcessBeanFactory(bf);
 
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(ExtendedResourceInjectionBean.class));
-    bf.registerBeanDefinition("annotatedBean2", new BeanDefinition(NamedResourceInjectionBean.class));
-    bf.registerBeanDefinition("annotatedBean3", new BeanDefinition(ConvertedResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ExtendedResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean2", new RootBeanDefinition(NamedResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean3", new RootBeanDefinition(ConvertedResourceInjectionBean.class));
     TestBean tb = new TestBean();
     bf.registerSingleton("testBean", tb);
     TestBean tb2 = new TestBean();
@@ -376,11 +377,11 @@ class CommonAnnotationBeanPostProcessorTests {
     ppc.setProperties(props);
     ppc.postProcessBeanFactory(bf);
 
-    BeanDefinition annotatedBd = new BeanDefinition(ExtendedResourceInjectionBean.class);
+    BeanDefinition annotatedBd = new RootBeanDefinition(ExtendedResourceInjectionBean.class);
     TestBean tb5 = new TestBean();
-    annotatedBd.propertyValues().add("testBean2", tb5);
+    annotatedBd.getPropertyValues().add("testBean2", tb5);
     bf.registerBeanDefinition("annotatedBean", annotatedBd);
-    bf.registerBeanDefinition("annotatedBean2", new BeanDefinition(NamedResourceInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean2", new RootBeanDefinition(NamedResourceInjectionBean.class));
     TestBean tb = new TestBean();
     bf.registerSingleton("testBean", tb);
     TestBean tb2 = new TestBean();
@@ -426,7 +427,7 @@ class CommonAnnotationBeanPostProcessorTests {
     bf.addBeanPostProcessor(bpp);
     bf.registerDependency(BeanFactory.class, bf);
 
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(ExtendedEjbInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ExtendedEjbInjectionBean.class));
     TestBean tb = new TestBean();
     bf.registerSingleton("testBean", tb);
     TestBean tb2 = new TestBean();
@@ -462,8 +463,8 @@ class CommonAnnotationBeanPostProcessorTests {
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
 
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(LazyResourceFieldInjectionBean.class));
-    bf.registerBeanDefinition("testBean", new BeanDefinition(TestBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(LazyResourceFieldInjectionBean.class));
+    bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
     LazyResourceFieldInjectionBean bean = (LazyResourceFieldInjectionBean) bf.getBean("annotatedBean");
     assertThat(bf.containsSingleton("testBean")).isFalse();
@@ -480,8 +481,8 @@ class CommonAnnotationBeanPostProcessorTests {
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
 
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(LazyResourceMethodInjectionBean.class));
-    bf.registerBeanDefinition("testBean", new BeanDefinition(TestBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(LazyResourceMethodInjectionBean.class));
+    bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
     LazyResourceMethodInjectionBean bean = (LazyResourceMethodInjectionBean) bf.getBean("annotatedBean");
     assertThat(bf.containsSingleton("testBean")).isFalse();
@@ -498,8 +499,8 @@ class CommonAnnotationBeanPostProcessorTests {
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
 
-    bf.registerBeanDefinition("annotatedBean", new BeanDefinition(LazyResourceCglibInjectionBean.class));
-    bf.registerBeanDefinition("testBean", new BeanDefinition(TestBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(LazyResourceCglibInjectionBean.class));
+    bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
     LazyResourceCglibInjectionBean bean = (LazyResourceCglibInjectionBean) bf.getBean("annotatedBean");
     assertThat(bf.containsSingleton("testBean")).isFalse();

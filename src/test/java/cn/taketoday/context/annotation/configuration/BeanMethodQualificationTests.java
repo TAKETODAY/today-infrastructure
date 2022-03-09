@@ -30,13 +30,14 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Component;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -112,8 +113,8 @@ public class BeanMethodQualificationTests {
   @Test
   public void testCustomWithAsm() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("customConfig", new BeanDefinition(CustomConfig.class.getName()));
-    BeanDefinition customPojo = new BeanDefinition(CustomPojo.class.getName());
+    ctx.registerBeanDefinition("customConfig", new RootBeanDefinition(CustomConfig.class.getName()));
+    BeanDefinition customPojo = new RootBeanDefinition(CustomPojo.class.getName());
     customPojo.setLazyInit(true);
     ctx.registerBeanDefinition("customPojo", customPojo);
     ctx.refresh();

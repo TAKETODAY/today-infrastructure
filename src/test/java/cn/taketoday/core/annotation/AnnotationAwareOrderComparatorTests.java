@@ -27,8 +27,6 @@ import java.util.List;
 
 import jakarta.annotation.Priority;
 
-import cn.taketoday.core.Order;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

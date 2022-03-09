@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 
@@ -30,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * imports are {@code @Conditional}.
  *
  * <p>Implementations can also extend the {@link cn.taketoday.core.Ordered}
- * interface or use the {@link cn.taketoday.core.Order} annotation to
+ * interface or use the {@link Order} annotation to
  * indicate a precedence against other {@link DeferredImportSelector DeferredImportSelectors}.
  *
  * <p>Implementations may also provide an {@link #getImportGroup() import group} which

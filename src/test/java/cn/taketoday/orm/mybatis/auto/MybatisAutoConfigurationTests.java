@@ -68,7 +68,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.jdbc.config.EmbeddedDataSourceConfiguration;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;

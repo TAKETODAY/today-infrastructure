@@ -1,13 +1,16 @@
 package cn.taketoday.context;
 
-import cn.taketoday.beans.DirectFieldAccessor;
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.DefaultLifecycleProcessor;
-import cn.taketoday.core.type.EnabledForTestGroups;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import cn.taketoday.beans.DirectFieldAccessor;
+import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.support.DefaultLifecycleProcessor;
+import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.type.EnabledForTestGroups;
 
 import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +22,7 @@ class DefaultLifecycleProcessorTests {
 
   @Test
   public void defaultLifecycleProcessorInstance() {
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.refresh();
     Object lifecycleProcessor = new DirectFieldAccessor(context).getPropertyValue("lifecycleProcessor");
     assertThat(lifecycleProcessor).isNotNull();
@@ -28,9 +31,9 @@ class DefaultLifecycleProcessorTests {
 
   @Test
   public void customLifecycleProcessorInstance() {
-    AnnotatedBeanDefinition beanDefinition = new AnnotatedBeanDefinition(DefaultLifecycleProcessor.class);
-    beanDefinition.addPropertyValue("timeoutPerShutdownPhase", 1000);
-    GenericApplicationContext context = new GenericApplicationContext();
+    BeanDefinition beanDefinition = new RootBeanDefinition(DefaultLifecycleProcessor.class);
+    beanDefinition.getPropertyValues().add("timeoutPerShutdownPhase", 1000);
+    StaticApplicationContext context = new StaticApplicationContext();
     context.registerBeanDefinition("lifecycleProcessor", beanDefinition);
     context.refresh();
     LifecycleProcessor bean = context.getBean("lifecycleProcessor", LifecycleProcessor.class);
@@ -46,7 +49,7 @@ class DefaultLifecycleProcessorTests {
     CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
     TestSmartLifecycleBean bean = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
     bean.setAutoStartup(true);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean", bean);
     assertThat(bean.isRunning()).isFalse();
     context.refresh();
@@ -58,8 +61,8 @@ class DefaultLifecycleProcessorTests {
 
   @Test
   public void singleSmartLifecycleAutoStartupWithLazyInit() throws Exception {
-    GenericApplicationContext context = new GenericApplicationContext();
-    AnnotatedBeanDefinition bd = new AnnotatedBeanDefinition(DummySmartLifecycleBean.class);
+    StaticApplicationContext context = new StaticApplicationContext();
+    RootBeanDefinition bd = new RootBeanDefinition(DummySmartLifecycleBean.class);
     bd.setLazyInit(true);
     context.registerBeanDefinition("bean", bd);
     context.refresh();
@@ -71,8 +74,8 @@ class DefaultLifecycleProcessorTests {
 
   @Test
   public void singleSmartLifecycleAutoStartupWithLazyInitFactoryBean() throws Exception {
-    GenericApplicationContext context = new GenericApplicationContext();
-    AnnotatedBeanDefinition bd = new AnnotatedBeanDefinition(DummySmartLifecycleFactoryBean.class);
+    StaticApplicationContext context = new StaticApplicationContext();
+    RootBeanDefinition bd = new RootBeanDefinition(DummySmartLifecycleFactoryBean.class);
     bd.setLazyInit(true);
     context.registerBeanDefinition("bean", bd);
     context.refresh();
@@ -87,7 +90,7 @@ class DefaultLifecycleProcessorTests {
     CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
     TestSmartLifecycleBean bean = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
     bean.setAutoStartup(false);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean", bean);
     assertThat(bean.isRunning()).isFalse();
     context.refresh();
@@ -106,11 +109,10 @@ class DefaultLifecycleProcessorTests {
     bean.setAutoStartup(true);
     TestSmartLifecycleBean dependency = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
     dependency.setAutoStartup(false);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean", bean);
     context.getBeanFactory().registerSingleton("dependency", dependency);
     context.getBeanFactory().registerDependentBean("dependency", "bean");
-
     assertThat(bean.isRunning()).isFalse();
     assertThat(dependency.isRunning()).isFalse();
     context.refresh();
@@ -130,7 +132,7 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forStartupTests(2, startedBeans);
     TestSmartLifecycleBean bean3 = TestSmartLifecycleBean.forStartupTests(3, startedBeans);
     TestSmartLifecycleBean beanMax = TestSmartLifecycleBean.forStartupTests(Integer.MAX_VALUE, startedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean3", bean3);
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("bean2", bean2);
@@ -163,7 +165,7 @@ class DefaultLifecycleProcessorTests {
     TestLifecycleBean simpleBean2 = TestLifecycleBean.forStartupTests(startedBeans);
     TestSmartLifecycleBean smartBean1 = TestSmartLifecycleBean.forStartupTests(5, startedBeans);
     TestSmartLifecycleBean smartBean2 = TestSmartLifecycleBean.forStartupTests(-3, startedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("simpleBean1", simpleBean1);
     context.getBeanFactory().registerSingleton("smartBean1", smartBean1);
     context.getBeanFactory().registerSingleton("simpleBean2", simpleBean2);
@@ -197,7 +199,7 @@ class DefaultLifecycleProcessorTests {
     TestLifecycleBean simpleBean2 = TestLifecycleBean.forStartupTests(startedBeans);
     TestSmartLifecycleBean smartBean1 = TestSmartLifecycleBean.forStartupTests(5, startedBeans);
     TestSmartLifecycleBean smartBean2 = TestSmartLifecycleBean.forStartupTests(-3, startedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("simpleBean1", simpleBean1);
     context.getBeanFactory().registerSingleton("smartBean1", smartBean1);
     context.getBeanFactory().registerSingleton("simpleBean2", simpleBean2);
@@ -242,7 +244,7 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean5 = TestSmartLifecycleBean.forShutdownTests(2, 700, stoppedBeans);
     TestSmartLifecycleBean bean6 = TestSmartLifecycleBean.forShutdownTests(Integer.MAX_VALUE, 200, stoppedBeans);
     TestSmartLifecycleBean bean7 = TestSmartLifecycleBean.forShutdownTests(3, 200, stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean1", bean1);
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean3", bean3);
@@ -266,7 +268,7 @@ class DefaultLifecycleProcessorTests {
   public void singleSmartLifecycleShutdown() throws Exception {
     CopyOnWriteArrayList<Lifecycle> stoppedBeans = new CopyOnWriteArrayList<>();
     TestSmartLifecycleBean bean = TestSmartLifecycleBean.forShutdownTests(99, 300, stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean", bean);
     context.refresh();
     assertThat(bean.isRunning()).isTrue();
@@ -280,7 +282,7 @@ class DefaultLifecycleProcessorTests {
   public void singleLifecycleShutdown() throws Exception {
     CopyOnWriteArrayList<Lifecycle> stoppedBeans = new CopyOnWriteArrayList<>();
     Lifecycle bean = new TestLifecycleBean(null, stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean", bean);
     context.refresh();
     assertThat(bean.isRunning()).isFalse();
@@ -302,7 +304,7 @@ class DefaultLifecycleProcessorTests {
     Lifecycle bean5 = TestSmartLifecycleBean.forShutdownTests(1, 200, stoppedBeans);
     Lifecycle bean6 = TestSmartLifecycleBean.forShutdownTests(-1, 100, stoppedBeans);
     Lifecycle bean7 = TestSmartLifecycleBean.forShutdownTests(Integer.MIN_VALUE, 300, stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("bean1", bean1);
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean3", bean3);
@@ -347,13 +349,12 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forStartupTests(2, startedBeans);
     TestSmartLifecycleBean bean99 = TestSmartLifecycleBean.forStartupTests(99, startedBeans);
     TestSmartLifecycleBean beanMax = TestSmartLifecycleBean.forStartupTests(Integer.MAX_VALUE, startedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean99", bean99);
     context.getBeanFactory().registerSingleton("beanMax", beanMax);
     context.getBeanFactory().registerDependentBean("bean99", "bean2");
-
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean2.isRunning()).isTrue();
@@ -379,7 +380,7 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forShutdownTests(2, 300, stoppedBeans);
     TestSmartLifecycleBean bean7 = TestSmartLifecycleBean.forShutdownTests(7, 400, stoppedBeans);
     TestSmartLifecycleBean beanMax = TestSmartLifecycleBean.forShutdownTests(Integer.MAX_VALUE, 400, stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("bean1", bean1);
     context.getBeanFactory().registerSingleton("bean2", bean2);
@@ -387,7 +388,6 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean99", bean99);
     context.getBeanFactory().registerSingleton("beanMax", beanMax);
     context.getBeanFactory().registerDependentBean("bean99", "bean2");
-
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean1.isRunning()).isTrue();
@@ -420,13 +420,12 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean99 = TestSmartLifecycleBean.forStartupTests(99, startedBeans);
     TestSmartLifecycleBean bean7 = TestSmartLifecycleBean.forStartupTests(7, startedBeans);
     TestLifecycleBean simpleBean = TestLifecycleBean.forStartupTests(startedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("beanNegative", beanNegative);
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("bean99", bean99);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
     context.getBeanFactory().registerDependentBean("bean7", "simpleBean");
-
     context.refresh();
     context.stop();
     startedBeans.clear();
@@ -454,7 +453,7 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forShutdownTests(2, 300, stoppedBeans);
     TestSmartLifecycleBean bean7 = TestSmartLifecycleBean.forShutdownTests(7, 400, stoppedBeans);
     TestLifecycleBean simpleBean = TestLifecycleBean.forShutdownTests(stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("beanNegative", beanNegative);
     context.getBeanFactory().registerSingleton("bean1", bean1);
@@ -462,7 +461,6 @@ class DefaultLifecycleProcessorTests {
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
     context.getBeanFactory().registerDependentBean("simpleBean", "beanNegative");
-
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(beanNegative.isRunning()).isTrue();
@@ -493,12 +491,11 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean beanMin = TestSmartLifecycleBean.forStartupTests(Integer.MIN_VALUE, startedBeans);
     TestSmartLifecycleBean bean7 = TestSmartLifecycleBean.forStartupTests(7, startedBeans);
     TestLifecycleBean simpleBean = TestLifecycleBean.forStartupTests(startedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
     context.getBeanFactory().registerDependentBean("simpleBean", "beanMin");
-
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean7.isRunning()).isTrue();
@@ -519,14 +516,13 @@ class DefaultLifecycleProcessorTests {
     TestSmartLifecycleBean bean2 = TestSmartLifecycleBean.forShutdownTests(2, 300, stoppedBeans);
     TestSmartLifecycleBean bean7 = TestSmartLifecycleBean.forShutdownTests(7, 400, stoppedBeans);
     TestSmartLifecycleBean beanMin = TestSmartLifecycleBean.forShutdownTests(Integer.MIN_VALUE, 400, stoppedBeans);
-    GenericApplicationContext context = new GenericApplicationContext();
+    StaticApplicationContext context = new StaticApplicationContext();
     context.getBeanFactory().registerSingleton("beanMin", beanMin);
     context.getBeanFactory().registerSingleton("bean1", bean1);
     context.getBeanFactory().registerSingleton("bean2", bean2);
     context.getBeanFactory().registerSingleton("bean7", bean7);
     context.getBeanFactory().registerSingleton("simpleBean", simpleBean);
     context.getBeanFactory().registerDependentBean("bean2", "simpleBean");
-
     context.refresh();
     assertThat(beanMin.isRunning()).isTrue();
     assertThat(bean1.isRunning()).isTrue();
@@ -549,12 +545,10 @@ class DefaultLifecycleProcessorTests {
     assertThat(getPhase(stoppedBeans.get(4))).isEqualTo(Integer.MIN_VALUE);
   }
 
-
   private static int getPhase(Lifecycle lifecycle) {
     return (lifecycle instanceof SmartLifecycle) ?
-            ((SmartLifecycle) lifecycle).getPhase() : 0;
+           ((SmartLifecycle) lifecycle).getPhase() : 0;
   }
-
 
   private static class TestLifecycleBean implements Lifecycle {
 
@@ -563,7 +557,6 @@ class DefaultLifecycleProcessorTests {
     private final CopyOnWriteArrayList<Lifecycle> stoppedBeans;
 
     private volatile boolean running;
-
 
     static TestLifecycleBean forStartupTests(CopyOnWriteArrayList<Lifecycle> startedBeans) {
       return new TestLifecycleBean(startedBeans, null);
@@ -599,7 +592,6 @@ class DefaultLifecycleProcessorTests {
       this.running = false;
     }
   }
-
 
   private static class TestSmartLifecycleBean extends TestLifecycleBean implements SmartLifecycle {
 
@@ -657,7 +649,6 @@ class DefaultLifecycleProcessorTests {
     }
   }
 
-
   public static class DummySmartLifecycleBean implements SmartLifecycle {
 
     public boolean running = false;
@@ -694,7 +685,6 @@ class DefaultLifecycleProcessorTests {
     }
   }
 
-
   public static class DummySmartLifecycleFactoryBean implements FactoryBean<Object>, SmartLifecycle {
 
     public boolean running = false;
@@ -702,7 +692,7 @@ class DefaultLifecycleProcessorTests {
     DummySmartLifecycleBean bean = new DummySmartLifecycleBean();
 
     @Override
-    public Object getObject() {
+    public Object getObject() throws Exception {
       return this.bean;
     }
 

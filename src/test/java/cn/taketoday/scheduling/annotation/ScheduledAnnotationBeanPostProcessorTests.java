@@ -44,7 +44,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContextException;

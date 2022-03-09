@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.SerializableNopInterceptor;
 import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.proxy.Advised;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.NameMatchMethodPointcutTests.SerializablePerson;
 

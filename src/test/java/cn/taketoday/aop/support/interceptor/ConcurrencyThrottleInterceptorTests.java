@@ -23,8 +23,9 @@ package cn.taketoday.aop.support.interceptor;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.proxy.Advised;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.ProxyFactory;
+import cn.taketoday.aop.interceptor.ConcurrencyThrottleInterceptor;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;

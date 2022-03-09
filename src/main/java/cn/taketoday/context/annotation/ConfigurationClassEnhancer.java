@@ -26,7 +26,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import cn.taketoday.aop.proxy.StandardProxy;
+import cn.taketoday.aop.framework.StandardProxy;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;

@@ -30,7 +30,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.aop.proxy.Advised;
+import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.proxy.DefaultAdvisorAutoProxyCreator;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;

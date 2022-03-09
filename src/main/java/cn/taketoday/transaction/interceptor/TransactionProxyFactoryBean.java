@@ -23,8 +23,9 @@ package cn.taketoday.transaction.interceptor;
 import java.util.Properties;
 
 import cn.taketoday.aop.Pointcut;
+import cn.taketoday.aop.interceptor.PerformanceMonitorInterceptor;
 import cn.taketoday.aop.proxy.AbstractSingletonProxyFactoryBean;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -61,7 +62,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  *
  * <p>The "preInterceptors" and "postInterceptors" properties can be set to add
  * additional interceptors to the mix, like
- * {@link cn.taketoday.aop.support.interceptor.PerformanceMonitorInterceptor}.
+ * {@link PerformanceMonitorInterceptor}.
  *
  * <p><b>HINT:</b> This class is often used with parent / child bean definitions.
  * Typically, you will define the transaction manager and default transaction

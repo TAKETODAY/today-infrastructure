@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.Ordered;
@@ -74,7 +75,7 @@ import cn.taketoday.context.annotation.Configuration;
  * <ul>
  * <li>your own {@link java.util.concurrent.Executor Executor} through the
  * {@link AsyncConfigurer#getAsyncExecutor getAsyncExecutor()} method, and</li>
- * <li>your own {@link cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler
+ * <li>your own {@link AsyncUncaughtExceptionHandler
  * AsyncUncaughtExceptionHandler} through the {@link AsyncConfigurer#getAsyncUncaughtExceptionHandler
  * getAsyncUncaughtExceptionHandler()}
  * method.</li>

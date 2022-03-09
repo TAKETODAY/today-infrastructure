@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.FatalBeanException;

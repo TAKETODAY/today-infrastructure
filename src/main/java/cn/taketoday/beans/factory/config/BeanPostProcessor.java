@@ -20,7 +20,7 @@
 package cn.taketoday.beans.factory.config;
 
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 
 /**

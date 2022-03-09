@@ -24,9 +24,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -55,7 +56,7 @@ public class InvalidConfigurationClassDefinitionTests {
     @Configuration
     final class Config { }
 
-    BeanDefinition configBeanDef = new BeanDefinition(Config.class);
+    BeanDefinition configBeanDef = new RootBeanDefinition(Config.class);
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("config", configBeanDef);
 

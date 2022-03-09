@@ -23,6 +23,7 @@ package cn.taketoday.beans;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -40,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * created as a default.
  *
  * <p>Note that the {@link cn.taketoday.lang.TodayStrategies} sorts the {@code
- * BeanInfoFactory} instances by {@link cn.taketoday.core.Order @Order}, so that ones with a
+ * BeanInfoFactory} instances by {@link Order @Order}, so that ones with a
  * higher precedence come first.
  *
  * @author Arjen Poutsma

@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.event.EventListenerFactory;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Conventions;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;

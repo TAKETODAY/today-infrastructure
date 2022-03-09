@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.core.annotation.Order;
+
 /**
  * Callback interface for initializing a {@link ConfigurableApplicationContext}
  * prior to being {@linkplain ConfigurableApplicationContext#refresh() refreshed}.
@@ -30,7 +32,7 @@ package cn.taketoday.context;
  *
  * <p>{@code ApplicationContextInitializer} processors are encouraged to detect
  * whether {@link cn.taketoday.core.Ordered Ordered} interface has been
- * implemented or if the {@link cn.taketoday.core.Order @Order} annotation is
+ * implemented or if the {@link Order @Order} annotation is
  * present and to sort instances accordingly if so prior to invocation.
  *
  * @author Chris Beams

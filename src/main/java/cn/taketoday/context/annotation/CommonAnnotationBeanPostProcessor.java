@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;

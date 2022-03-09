@@ -20,7 +20,7 @@
 
 package cn.taketoday.jmx.access;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;

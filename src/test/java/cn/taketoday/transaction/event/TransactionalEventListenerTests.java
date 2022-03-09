@@ -43,7 +43,7 @@ import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Component;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;

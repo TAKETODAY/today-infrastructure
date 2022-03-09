@@ -34,7 +34,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.Pointcuts;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
-import cn.taketoday.aop.support.interceptor.ExposeInvocationInterceptor;
+import cn.taketoday.aop.interceptor.ExposeInvocationInterceptor;
 import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 

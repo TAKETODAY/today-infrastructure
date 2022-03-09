@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import jakarta.annotation.Priority;
 
-import cn.taketoday.core.Order;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

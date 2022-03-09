@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.core.DecoratingProxy;
-import cn.taketoday.core.Order;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
@@ -46,7 +45,7 @@ import cn.taketoday.lang.Nullable;
  * @author Stephane Nicoll
  * @author TODAY 2021/9/12 11:35
  * @see cn.taketoday.core.Ordered
- * @see cn.taketoday.core.Order
+ * @see Order
  * @see jakarta.annotation.Priority
  * @since 4.0
  */

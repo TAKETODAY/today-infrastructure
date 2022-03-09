@@ -26,8 +26,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 
+import cn.taketoday.aop.framework.AdvisedSupport;
+import cn.taketoday.aop.framework.AopProxy;
+import cn.taketoday.aop.framework.JdkDynamicAopProxy;
+import cn.taketoday.aop.framework.ProxyCreatorSupport;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.aop.support.interceptor.ExposeInvocationInterceptor;
+import cn.taketoday.aop.interceptor.ExposeInvocationInterceptor;
 import cn.taketoday.beans.testfixture.beans.IOther;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;

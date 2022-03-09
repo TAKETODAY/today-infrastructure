@@ -35,6 +35,7 @@ import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
@@ -407,7 +408,7 @@ public class ContextLoader {
    * given web application context.
    * <p>Any {@code ApplicationContextInitializers} implementing
    * {@link cn.taketoday.core.Ordered Ordered} or marked with @{@link
-   * cn.taketoday.core.Order Order} will be sorted appropriately.
+   * Order Order} will be sorted appropriately.
    *
    * @param sc the current servlet context
    * @param wac the newly created application context

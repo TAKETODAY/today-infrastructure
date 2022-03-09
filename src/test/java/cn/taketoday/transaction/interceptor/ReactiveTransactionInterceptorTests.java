@@ -20,7 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.transaction.ReactiveTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;

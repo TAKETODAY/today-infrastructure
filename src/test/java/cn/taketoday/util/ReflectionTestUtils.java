@@ -41,7 +41,7 @@ public class ReflectionTestUtils {
   private static final Logger logger = LoggerFactory.getLogger(ReflectionTestUtils.class);
 
   private static final boolean springAopPresent = ClassUtils.isPresent(
-          "cn.taketoday.aop.proxy.Advised", ReflectionTestUtils.class.getClassLoader());
+          "cn.taketoday.aop.framework.Advised", ReflectionTestUtils.class.getClassLoader());
 
   /**
    * Set the {@linkplain Field field} with the given {@code name} on the

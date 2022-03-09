@@ -43,7 +43,7 @@ import javax.management.modelmbean.ModelMBean;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.target.LazyInitTargetSource;

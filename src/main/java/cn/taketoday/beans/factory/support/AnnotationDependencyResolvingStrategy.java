@@ -27,12 +27,13 @@ import java.lang.reflect.Field;
 
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.Order;
 
 /**
  * Supports order
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.core.Order
+ * @see Order
  * @see cn.taketoday.core.Ordered
  * @since 4.0 2022/1/1 11:56
  */

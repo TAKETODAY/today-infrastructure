@@ -20,21 +20,16 @@
 
 package cn.taketoday.dao.annotation;
 
-import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.aop.proxy.Advised;
+import cn.taketoday.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
+import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
-import cn.taketoday.aop.support.annotation.Before;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
@@ -59,17 +54,18 @@ public class PersistenceExceptionTranslationPostProcessorTests {
   public void proxiesCorrectly() {
     GenericApplicationContext gac = new GenericApplicationContext();
     gac.registerBeanDefinition("translator",
-            new BeanDefinition(PersistenceExceptionTranslationPostProcessor.class));
-    gac.registerBeanDefinition("notProxied", new BeanDefinition(RepositoryInterfaceImpl.class));
-    gac.registerBeanDefinition("proxied", new BeanDefinition(StereotypedRepositoryInterfaceImpl.class));
-    gac.registerBeanDefinition("classProxied", new BeanDefinition(RepositoryWithoutInterface.class));
+            new RootBeanDefinition(PersistenceExceptionTranslationPostProcessor.class));
+    gac.registerBeanDefinition("notProxied", new RootBeanDefinition(RepositoryInterfaceImpl.class));
+    gac.registerBeanDefinition("proxied", new RootBeanDefinition(StereotypedRepositoryInterfaceImpl.class));
+    gac.registerBeanDefinition("classProxied", new RootBeanDefinition(RepositoryWithoutInterface.class));
     gac.registerBeanDefinition("classProxiedAndAdvised",
-            new BeanDefinition(RepositoryWithoutInterfaceAndOtherwiseAdvised.class));
+            new RootBeanDefinition(RepositoryWithoutInterfaceAndOtherwiseAdvised.class));
     gac.registerBeanDefinition("myTranslator",
-            new BeanDefinition(MyPersistenceExceptionTranslator.class));
+            new RootBeanDefinition(MyPersistenceExceptionTranslator.class));
     gac.registerBeanDefinition("proxyCreator",
-            new BeanDefinition(AspectAutoProxyCreator.class).addPropertyValue("order", 50));
-    gac.registerBeanDefinition("logger", new BeanDefinition(LogAllAspect.class));
+            BeanDefinitionBuilder.rootBeanDefinition(AnnotationAwareAspectJAutoProxyCreator.class).
+                    addPropertyValue("order", 50).getBeanDefinition());
+    gac.registerBeanDefinition("logger", new RootBeanDefinition(LogAllAspect.class));
     gac.refresh();
 
     RepositoryInterface shouldNotBeProxied = (RepositoryInterface) gac.getBean("notProxied");
@@ -102,17 +98,8 @@ public class PersistenceExceptionTranslationPostProcessorTests {
     }
   }
 
-  @Documented
-  @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.METHOD, ElementType.TYPE })
-  public @interface Logging {
-
-    String value() default "";
-  }
-
   public interface Additional {
 
-    @Logging
     void additionalMethod(boolean fail);
   }
 
@@ -141,9 +128,9 @@ public class PersistenceExceptionTranslationPostProcessorTests {
   @Aspect
   public static class LogAllAspect {
 
-    @Before(Logging.class)
-    public void log(MethodInvocation jp) {
-      System.out.println("Before " + jp.getMethod().getName());
+    @Before("execution(void *.additionalMethod(*))")
+    public void log(JoinPoint jp) {
+      System.out.println("Before " + jp.getSignature().getName());
     }
   }
 

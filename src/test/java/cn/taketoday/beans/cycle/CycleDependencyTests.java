@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Singleton;
 import jakarta.annotation.PostConstruct;
 

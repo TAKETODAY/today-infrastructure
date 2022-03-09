@@ -30,8 +30,8 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.NopInterceptor;
 import cn.taketoday.aop.SerializableNopInterceptor;
 import cn.taketoday.aop.SerializationTestUtils;
-import cn.taketoday.aop.proxy.Advised;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.ProxyFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

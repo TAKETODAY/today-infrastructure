@@ -23,8 +23,8 @@ package cn.taketoday.scheduling.annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 
-import cn.taketoday.aop.support.interceptor.AsyncExecutionInterceptor;
-import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.aop.interceptor.AsyncExecutionInterceptor;
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Nullable;
 

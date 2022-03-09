@@ -25,7 +25,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.orm.jpa.AbstractContainerEntityManagerFactoryIntegrationTests;
 import cn.taketoday.orm.jpa.EntityManagerFactoryInfo;

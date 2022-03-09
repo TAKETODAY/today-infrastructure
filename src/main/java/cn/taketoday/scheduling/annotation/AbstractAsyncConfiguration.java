@@ -24,7 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.support.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;

@@ -24,6 +24,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.AopInvocationException;
+import cn.taketoday.aop.framework.ProxyFactory;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

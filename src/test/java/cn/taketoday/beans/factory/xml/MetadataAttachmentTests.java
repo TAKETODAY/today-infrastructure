@@ -60,7 +60,7 @@ public class MetadataAttachmentTests {
   @Test
   public void propertyMetadata() throws Exception {
     BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("testBean3");
-    PropertyValue pv = beanDefinition.propertyValues().get("name");
+    PropertyValue pv = beanDefinition.getPropertyValues().get("name");
     assertThat(pv.getAttribute("surname")).isEqualTo("Harrop");
   }
 

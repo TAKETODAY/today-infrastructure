@@ -28,7 +28,7 @@ import java.util.List;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.scheduling.annotation.Async;

@@ -27,7 +27,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -42,8 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>Specifically, combinations of the following are tested:
  * <ul>
  * <li>{@link InitializingBean} &amp; {@link DisposableBean} interfaces</li>
- * <li>Custom {@link BeanDefinition#getInitMethods() init} &amp;
- * {@link BeanDefinition#getDestroyMethod() destroy} methods</li>
+ * <li>Custom {@link RootBeanDefinition#getInitMethodName() init} &amp;
+ * {@link RootBeanDefinition#getDestroyMethodName() destroy} methods</li>
  * <li>JSR 250's {@link jakarta.annotation.PostConstruct @PostConstruct} &amp;
  * {@link jakarta.annotation.PreDestroy @PreDestroy} annotations</li>
  * </ul>
@@ -138,9 +138,9 @@ class InitDestroyMethodLifecycleTests {
           String initMethodName, String destroyMethodName) {
 
     StandardBeanFactory beanFactory = new StandardBeanFactory();
-    BeanDefinition beanDefinition = new BeanDefinition(beanClass);
-    beanDefinition.setInitMethods(initMethodName);
-    beanDefinition.setDestroyMethod(destroyMethodName);
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+    beanDefinition.setInitMethodName(initMethodName);
+    beanDefinition.setDestroyMethodName(destroyMethodName);
     beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
     beanFactory.registerBeanDefinition("lifecycleTestBean", beanDefinition);
     return beanFactory;

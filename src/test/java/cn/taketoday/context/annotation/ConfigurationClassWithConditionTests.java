@@ -28,10 +28,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -97,7 +97,7 @@ public class ConfigurationClassWithConditionTests {
   @Test
   public void metaConditionalWithAsm() throws Exception {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition(ConfigurationWithMetaCondition.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(ConfigurationWithMetaCondition.class.getName()));
     ctx.refresh();
     assertThat(ctx.containsBean("bean")).isTrue();
   }
@@ -113,7 +113,7 @@ public class ConfigurationClassWithConditionTests {
   @Test
   public void nonConfigurationClassWithAsm() throws Exception {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition(NonConfigurationClass.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(NonConfigurationClass.class.getName()));
     ctx.refresh();
     assertThat(ctx.containsBean("bean1")).isFalse();
   }
@@ -129,7 +129,7 @@ public class ConfigurationClassWithConditionTests {
   @Test
   public void methodConditionalWithAsm() throws Exception {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition(ConditionOnMethodConfiguration.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(ConditionOnMethodConfiguration.class.getName()));
     ctx.refresh();
     assertThat(ctx.containsBean("bean1")).isFalse();
   }

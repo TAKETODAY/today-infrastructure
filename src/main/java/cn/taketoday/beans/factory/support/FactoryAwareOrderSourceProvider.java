@@ -27,13 +27,14 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.OrderSourceProvider;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Nullable;
 
 /**
  * An {@link cn.taketoday.core.OrderSourceProvider} implementation
  * that is aware of the bean metadata of the instances to sort.
  * <p>Lookup for the method factory of an instance to sort, if any, and let the
- * comparator retrieve the {@link cn.taketoday.core.Order}
+ * comparator retrieve the {@link Order}
  * value defined on it. This essentially allows for the following construct:
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

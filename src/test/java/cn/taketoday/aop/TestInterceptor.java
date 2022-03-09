@@ -26,7 +26,7 @@ import cn.taketoday.aop.support.annotation.Advice;
 import cn.taketoday.aop.support.annotation.After;
 import cn.taketoday.aop.support.annotation.Aspect;
 import cn.taketoday.aop.support.annotation.Returning;
-import cn.taketoday.core.Order;
+import cn.taketoday.core.annotation.Order;
 import lombok.extern.slf4j.Slf4j;
 
 /**

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.Order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

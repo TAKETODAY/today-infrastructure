@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.ReactiveCallCountingTransactionManager;

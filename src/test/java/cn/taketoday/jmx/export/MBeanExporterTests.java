@@ -42,7 +42,7 @@ import javax.management.ObjectName;
 import javax.management.modelmbean.ModelMBeanInfo;
 
 import cn.taketoday.aop.NopInterceptor;
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;

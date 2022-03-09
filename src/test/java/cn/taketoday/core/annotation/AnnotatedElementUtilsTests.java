@@ -43,7 +43,6 @@ import javax.annotation.Resource;
 import javax.annotation.meta.When;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.Order;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ExtendsBaseClassWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ImplementsInterfaceWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.WebController;

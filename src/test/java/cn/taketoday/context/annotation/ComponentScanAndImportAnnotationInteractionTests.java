@@ -22,10 +22,10 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.annotation.componentscan.importing.ImportingConfig;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * Tests covering overlapping use of @ComponentScan and @Import annotations.
@@ -47,8 +47,8 @@ public class ComponentScanAndImportAnnotationInteractionTests {
   @Test
   public void componentScanOverlapsWithImportUsingAsm() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config1", new BeanDefinition(Config1.class.getName()));
-    ctx.registerBeanDefinition("config2", new BeanDefinition(Config2.class.getName()));
+    ctx.registerBeanDefinition("config1", new RootBeanDefinition(Config1.class.getName()));
+    ctx.registerBeanDefinition("config2", new RootBeanDefinition(Config2.class.getName()));
     ctx.refresh(); // no conflicts found trying to register SimpleComponent
     ctx.getBean(SimpleComponent.class); // succeeds -> there is only one bean of type SimpleComponent
   }
@@ -64,7 +64,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
   @Test
   public void componentScanViaImportUsingAsm() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition(Config3.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(Config3.class.getName()));
     ctx.refresh();
     ctx.getBean(SimpleComponent.class);
   }
@@ -80,7 +80,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
   @Test
   public void circularImportViaComponentScan() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.registerBeanDefinition("config", new BeanDefinition(ImportingConfig.class.getName()));
+    ctx.registerBeanDefinition("config", new RootBeanDefinition(ImportingConfig.class.getName()));
     ctx.refresh();
     ctx.getBean(SimpleComponent.class);
   }

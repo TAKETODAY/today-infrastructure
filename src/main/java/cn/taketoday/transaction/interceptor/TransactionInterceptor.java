@@ -30,6 +30,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Properties;
 
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
@@ -54,7 +55,7 @@ import cn.taketoday.transaction.TransactionManager;
  * @author Sebastien Deleuze
  * @see TransactionProxyFactoryBean
  * @see cn.taketoday.aop.proxy.ProxyFactoryBean
- * @see cn.taketoday.aop.proxy.ProxyFactory
+ * @see ProxyFactory
  */
 @SuppressWarnings("serial")
 public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor, Serializable {

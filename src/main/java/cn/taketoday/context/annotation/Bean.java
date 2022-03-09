@@ -36,6 +36,7 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Component;
 
 /**
@@ -100,7 +101,7 @@ import cn.taketoday.lang.Component;
  * if a single target component needs to be injected but several beans match by type.
  *
  * <p>Additionally, {@code @Bean} methods may also declare qualifier annotations
- * and {@link cn.taketoday.core.Order @Order} values, to be
+ * and {@link Order @Order} values, to be
  * taken into account during injection point resolution just like corresponding
  * annotations on the corresponding component classes but potentially being very
  * individual per bean definition (in case of multiple definitions with the same

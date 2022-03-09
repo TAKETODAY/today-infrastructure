@@ -37,7 +37,7 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import cn.taketoday.aop.proxy.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.core.testfixture.net.TestSocketUtils;
 import cn.taketoday.jmx.AbstractMBeanServerTests;
 import cn.taketoday.jmx.IJmxTestBean;
