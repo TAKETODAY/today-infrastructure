@@ -22,7 +22,7 @@ package cn.taketoday.dao.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.aop.framework.AbstractBeanFactoryAwareAdvisingPostProcessor;
+import cn.taketoday.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Assert;

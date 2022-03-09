@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  *   ...
  * &lt;/bean&gt;
  *
- * &lt;bean id="service" class="cn.taketoday.aop.proxy.ProxyFactoryBean"&gt;
+ * &lt;bean id="service" class="cn.taketoday.aop.framework.ProxyFactoryBean"&gt;
  *   &lt;property name="targetSource"&gt;
  *     &lt;bean class="cn.taketoday.aop.target.LazyInitTargetSource"&gt;
  *       &lt;property name="targetBeanName"&gt;&lt;idref local="serviceTarget"/&gt;&lt;/property&gt;

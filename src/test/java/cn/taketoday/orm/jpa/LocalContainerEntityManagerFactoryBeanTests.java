@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.classloading.InstrumentationLoadTimeWeaver;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.OptimisticLockingFailureException;
 import cn.taketoday.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;

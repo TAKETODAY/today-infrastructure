@@ -20,9 +20,10 @@
 
 package cn.taketoday.web.registry.annotation;
 
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.event.EnableMethodEventDriven;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestBody;
@@ -31,7 +32,6 @@ import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.framework.config.EnableTomcatHandling;
-import cn.taketoday.http.HttpHeaders;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

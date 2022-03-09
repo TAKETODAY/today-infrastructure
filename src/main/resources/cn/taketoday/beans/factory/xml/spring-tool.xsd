@@ -9,7 +9,7 @@
 
   <xsd:annotation>
     <xsd:documentation><![CDATA[
-	Defines the tool support annotations for Spring's configuration namespaces.
+	Defines the tool support annotations for Framework's configuration namespaces.
 	Used in other namespace XSD files; not intended for direct use in config files.
 		]]></xsd:documentation>
   </xsd:annotation>

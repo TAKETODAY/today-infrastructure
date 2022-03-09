@@ -37,6 +37,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.BufferingClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
@@ -49,7 +50,6 @@ import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ReflectionTestUtils;
 import cn.taketoday.web.client.ResponseErrorHandler;
 import cn.taketoday.web.client.RestTemplate;

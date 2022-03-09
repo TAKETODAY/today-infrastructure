@@ -23,15 +23,12 @@ package cn.taketoday.web.client;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static cn.taketoday.http.HttpStatus.BAD_GATEWAY;
 import static cn.taketoday.http.HttpStatus.BAD_REQUEST;
 import static cn.taketoday.http.HttpStatus.CONFLICT;
@@ -48,6 +45,10 @@ import static cn.taketoday.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static cn.taketoday.http.HttpStatus.TOO_MANY_REQUESTS;
 import static cn.taketoday.http.HttpStatus.UNAUTHORIZED;
 import static cn.taketoday.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for {@link DefaultResponseErrorHandler} handling of specific

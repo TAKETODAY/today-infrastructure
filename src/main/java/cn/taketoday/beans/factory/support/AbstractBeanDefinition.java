@@ -620,7 +620,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * eagerly instantiated on startup. Only applicable to a singleton bean.
    *
    * @return the lazy-init flag if explicitly set, or {@code null} otherwise
-   * @since 5.2
+   * @since 4.0
    */
   @Nullable
   public Boolean getLazyInit() {
@@ -814,7 +814,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    *
    * @see #setConstructorArgumentValues(ConstructorArgumentValues)
    * @see #setPropertyValues(PropertyValues)
-   * @since 5.0
+   * @since 4.0
    */
   public void setInstanceSupplier(@Nullable Supplier<?> instanceSupplier) {
     this.instanceSupplier = instanceSupplier;
@@ -823,7 +823,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Return a callback for creating an instance of the bean, if any.
    *
-   * @since 5.0
+   * @since 4.0
    */
   @Nullable
   public Supplier<?> getInstanceSupplier() {
@@ -959,7 +959,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Return if there are property values defined for this bean.
    *
-   * @since 5.0.2
+   * @since 4.0
    */
   @Override
   public boolean hasPropertyValues() {
@@ -985,7 +985,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Return if there are method overrides defined for this bean.
    *
-   * @since 5.0.2
+   * @since 4.0
    */
   public boolean hasMethodOverrides() {
     return !this.methodOverrides.isEmpty();

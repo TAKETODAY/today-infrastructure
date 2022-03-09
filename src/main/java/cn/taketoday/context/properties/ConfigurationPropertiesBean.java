@@ -93,7 +93,7 @@ public final class ConfigurationPropertiesBean {
   }
 
   /**
-   * Return the name of the Spring bean.
+   * Return the name of the Framework bean.
    *
    * @return the bean name
    */
@@ -102,7 +102,7 @@ public final class ConfigurationPropertiesBean {
   }
 
   /**
-   * Return the actual Spring bean instance.
+   * Return the actual Framework bean instance.
    *
    * @return the bean instance
    */

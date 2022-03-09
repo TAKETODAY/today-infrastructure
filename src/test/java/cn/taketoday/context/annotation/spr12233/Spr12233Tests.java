@@ -22,16 +22,16 @@ package cn.taketoday.context.annotation.spr12233;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.beans.factory.annotation.Value;
 
 /**
  * Tests cornering the regression reported in SPR-12233.

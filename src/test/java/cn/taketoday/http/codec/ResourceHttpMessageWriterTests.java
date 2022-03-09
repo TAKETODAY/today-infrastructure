@@ -39,8 +39,8 @@ import cn.taketoday.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static cn.taketoday.http.server.reactive.MockServerHttpRequest.get;
 import static cn.taketoday.http.MediaType.TEXT_PLAIN;
+import static cn.taketoday.http.server.reactive.MockServerHttpRequest.get;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

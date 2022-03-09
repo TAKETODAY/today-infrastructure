@@ -22,13 +22,14 @@ package cn.taketoday.core.annotation;
 
 import org.assertj.core.api.ThrowableTypeAssert;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.event.test;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Component;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

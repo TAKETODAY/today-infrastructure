@@ -37,7 +37,7 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * A {@link cn.taketoday.web.resource.ResourceResolver} that
- * resolves resources from a {@link cn.taketoday.cache.Cache} or otherwise
+ * resolves resources from a {@link Cache} or otherwise
  * delegates to the resolver chain and saves the result in the cache.
  *
  * @author Rossen Stoyanchev

@@ -37,7 +37,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.util.ClassUtils;
 
 /**
- * {@link Conditional @Conditional} that checks whether or not the Spring resource
+ * {@link Conditional @Conditional} that checks whether or not the Framework resource
  * handling chain is enabled. Matches if
  * {@link WebProperties.Resources.Chain#getEnabled()} is {@code true} or if
  * {@code webjars-locator-core} is on the classpath.
@@ -55,7 +55,7 @@ public @interface ConditionalOnEnabledResourceChain {
 }
 
 /**
- * {@link Condition} that checks whether or not the Spring resource handling chain is
+ * {@link Condition} that checks whether or not the Framework resource handling chain is
  * enabled.
  *
  * @author Stephane Nicoll

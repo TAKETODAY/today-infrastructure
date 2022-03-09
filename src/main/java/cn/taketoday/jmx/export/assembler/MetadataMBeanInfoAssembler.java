@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <p>Uses the {@link JmxAttributeSource} strategy interface, so that
  * metadata can be read using any supported implementation. Out of the box,
- * Spring provides an implementation based on annotations:
+ * Framework provides an implementation based on annotations:
  * {@code AnnotationJmxAttributeSource}.
  *
  * @author Rob Harrop

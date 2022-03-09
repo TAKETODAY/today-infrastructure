@@ -22,11 +22,11 @@ package cn.taketoday.context.support;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
@@ -35,10 +35,10 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
+import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
@@ -47,15 +47,15 @@ import cn.taketoday.lang.Nullable;
 /**
  * Standard {@link ApplicationContext}
  *
- * like Spring's AnnotationConfigApplicationContext
+ * like Framework's AnnotationConfigApplicationContext
  *
  * @author TODAY 2018-09-06 13:47
  */
 public class StandardApplicationContext
         extends GenericApplicationContext implements ConfigurableApplicationContext, BeanDefinitionRegistry, AnnotationConfigRegistry {
 
+  private final AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(this);
   private final ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this);
-  private final AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
 
   /**
    * Default Constructor

@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.IntSupplier;
 import java.util.function.LongFunction;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.reflect.MethodAccessor;

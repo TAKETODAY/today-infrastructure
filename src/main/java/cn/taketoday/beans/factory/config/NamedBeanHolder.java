@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory.config;
 
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.NamedBean;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -32,7 +32,7 @@ import cn.taketoday.lang.Assert;
  * @see AutowireCapableBeanFactory#resolveNamedBean(Class)
  * @since 4.0
  */
-public class NamedBeanHolder<T> {
+public class NamedBeanHolder<T> implements NamedBean {
 
   private final String beanName;
 

@@ -22,9 +22,9 @@ package cn.taketoday.context.annotation.spr8808;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * Tests cornering the bug in which @Configuration classes that @ComponentScan themselves

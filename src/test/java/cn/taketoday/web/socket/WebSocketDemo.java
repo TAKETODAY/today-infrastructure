@@ -22,6 +22,10 @@ package cn.taketoday.web.socket;
 
 import org.apache.tomcat.websocket.server.WsSci;
 
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.framework.WebApplication;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
@@ -29,11 +33,6 @@ import jakarta.websocket.OnError;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
-
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.framework.WebApplication;
 
 /**
  * @author TODAY 2021/4/3 11:54

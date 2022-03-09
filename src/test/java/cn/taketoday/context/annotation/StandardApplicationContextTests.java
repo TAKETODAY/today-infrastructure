@@ -24,17 +24,17 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.support.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation6.ComponentForScanning;
 import cn.taketoday.context.annotation6.ConfigForScanning;
 import cn.taketoday.context.annotation6.Jsr330NamedForScanning;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.ObjectUtils;
 

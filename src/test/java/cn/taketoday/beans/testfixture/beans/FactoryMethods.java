@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Test class for Spring's ability to create objects using static
+ * Test class for Framework's ability to create objects using static
  * factory methods, rather than constructors.
  *
  * @author Rod Johnson

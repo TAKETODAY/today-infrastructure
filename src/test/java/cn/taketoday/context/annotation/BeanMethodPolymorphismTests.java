@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.interceptor.SimpleTraceInterceptor;
+import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;

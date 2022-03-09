@@ -7,3 +7,4 @@ http\://www.springframework.org/schema/lang=cn.taketoday.scripting.config.LangNa
 http\://www.springframework.org/schema/task=cn.taketoday.scheduling.config.TaskNamespaceHandler
 http\://www.springframework.org/schema/jdbc=cn.taketoday.jdbc.config.JdbcNamespaceHandler
 http\://www.springframework.org/schema/aop=cn.taketoday.aop.config.AopNamespaceHandler
+http\://www.springframework.org/schema/cache=cn.taketoday.cache.config.CacheNamespaceHandler

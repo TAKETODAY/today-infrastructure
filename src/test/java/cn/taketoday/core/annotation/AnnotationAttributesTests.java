@@ -21,12 +21,13 @@
 package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.annotation.AnnotationUtilsTests.ImplicitAliasesContextConfig;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
+
+import cn.taketoday.core.annotation.AnnotationUtilsTests.ImplicitAliasesContextConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

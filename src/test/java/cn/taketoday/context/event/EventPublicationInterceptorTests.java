@@ -19,15 +19,16 @@
  */
 package cn.taketoday.context.event;
 
+import org.junit.jupiter.api.Test;
+
 import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.event.test.TestEvent;
-import org.junit.jupiter.api.Test;
+import cn.taketoday.context.support.GenericApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

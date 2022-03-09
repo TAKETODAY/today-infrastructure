@@ -33,7 +33,6 @@ import cn.taketoday.transaction.TransactionStatus;
  * Not multi-threaded.
  *
  * @author Rod Johnson
- * @since 26.04.2003
  */
 public class PlatformTransactionManagerFacade implements PlatformTransactionManager {
 

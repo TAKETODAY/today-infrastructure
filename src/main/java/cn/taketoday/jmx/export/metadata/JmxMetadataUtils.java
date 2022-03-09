@@ -26,7 +26,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Utility methods for converting Spring JMX metadata into their plain JMX equivalents.
+ * Utility methods for converting Framework JMX metadata into their plain JMX equivalents.
  *
  * @author Rob Harrop
  * @author Juergen Hoeller

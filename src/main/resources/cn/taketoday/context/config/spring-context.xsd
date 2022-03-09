@@ -193,13 +193,13 @@
   <xsd:element name="annotation-config">
     <xsd:annotation>
       <xsd:documentation><![CDATA[
-	Activates various annotations to be detected in bean classes: Spring's @Required and
+	Activates various annotations to be detected in bean classes: Framework's @Required and
 	@Autowired, as well as JSR 250's @PostConstruct, @PreDestroy and @Resource (if available),
 	JAX-WS's @WebServiceRef (if available), EJB 3's @EJB (if available), and JPA's
 	@PersistenceContext and @PersistenceUnit (if available). Alternatively, you may
 	choose to activate the individual BeanPostProcessors for those annotations.
 
-	Note: This tag does not activate processing of Spring's @Transactional or EJB 3's
+	Note: This tag does not activate processing of Framework's @Transactional or EJB 3's
 	@TransactionAttribute annotation. Consider the use of the <tx:annotation-driven>
 	tag for that purpose.
 
@@ -226,7 +226,7 @@
 
 	Note: You may use placeholders in package paths, but only resolved against system
 	properties (analogous to resource paths). A component scan results in new bean definitions
-	being registered; Spring's PropertySourcesPlaceholderConfigurer will apply to those bean
+	being registered; Framework's PropertySourcesPlaceholderConfigurer will apply to those bean
 	definitions just like to regular bean definitions, but it won't apply to the component
 	scan settings themselves.
 
@@ -335,14 +335,14 @@
 	Activates a Spring LoadTimeWeaver for this application context, available as
 	a bean with the name "loadTimeWeaver". Any bean that implements the
 	LoadTimeWeaverAware interface will then receive the LoadTimeWeaver reference
-	automatically; for example, Spring's JPA bootstrap support.
+	automatically; for example, Framework's JPA bootstrap support.
 
 	The default weaver is determined automatically: see DefaultContextLoadTimeWeaver's
 	javadoc for details.
 
 	The activation of AspectJ load-time weaving is specified via a simple flag
 	(the 'aspectj-weaving' attribute), with the AspectJ class transformer
-	registered through Spring's LoadTimeWeaver. AspectJ weaving will be activated
+	registered through Framework's LoadTimeWeaver. AspectJ weaving will be activated
 	by default if a "META-INF/aop.xml" resource is present in the classpath.
 
 	This also activates the current application context for applying dependency

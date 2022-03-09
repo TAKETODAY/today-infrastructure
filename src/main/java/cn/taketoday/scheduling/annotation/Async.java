@@ -72,7 +72,7 @@ public @interface Async {
    * given executor should be used for all methods within the class. Method-level use
    * of {@code Async#value} always overrides any qualifier value configured at
    * the class level.
-   * <p>The qualifier value will be resolved dynamically if supplied as a SpEL
+   * <p>The qualifier value will be resolved dynamically if supplied as a EL
    * expression (for example, {@code "#{environment['myExecutor']}"}) or a
    * property placeholder (for example, {@code "${my.app.myExecutor}"}).
    */

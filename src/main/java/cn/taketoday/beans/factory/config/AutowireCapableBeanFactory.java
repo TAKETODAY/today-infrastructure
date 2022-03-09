@@ -42,7 +42,7 @@ import cn.taketoday.lang.Nullable;
  * for typical use cases.
  *
  * <p>Integration code for other frameworks can leverage this interface to
- * wire and populate existing bean instances that Spring does not control
+ * wire and populate existing bean instances that Frameworkdoes not control
  * the lifecycle of. This is particularly useful for WebWork Actions and
  * Tapestry Page objects, for example.
  *
@@ -112,6 +112,18 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @see #autowire
    */
   int AUTOWIRE_AUTODETECT = 4;
+
+  /**
+   * Suffix for the "original instance" convention when initializing an existing
+   * bean instance: to be appended to the fully-qualified bean class name,
+   * e.g. "com.mypackage.MyClass.ORIGINAL", in order to enforce the given instance
+   * to be returned, i.e. no proxies etc.
+   *
+   * @see #initializeBean(Object, String)
+   * @see #applyBeanPostProcessorsBeforeInitialization(Object, String)
+   * @see #applyBeanPostProcessorsAfterInitialization(Object, String)
+   */
+  String ORIGINAL_INSTANCE_SUFFIX = ".ORIGINAL";
 
   //-------------------------------------------------------------------------
   // Typical methods for creating and populating external bean instances

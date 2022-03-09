@@ -33,7 +33,7 @@ import jakarta.servlet.ServletException;
 /**
  * A {@link ServletContextInitializer} to register {@link DelegatingFilterProxy}s in a
  * Servlet 3.0+ container. Similar to the {@link ServletContext#addFilter(String, Filter)
- * registration} features provided by {@link ServletContext} but with a Spring Bean
+ * registration} features provided by {@link ServletContext} but with a Framework Bean
  * friendly design.
  * <p>
  * The bean name of the actual delegate {@link Filter} should be specified using the

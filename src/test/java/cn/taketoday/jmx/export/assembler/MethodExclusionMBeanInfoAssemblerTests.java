@@ -21,13 +21,14 @@
 package cn.taketoday.jmx.export.assembler;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jmx.JmxTestBean;
 
 import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
+
+import cn.taketoday.jmx.JmxTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

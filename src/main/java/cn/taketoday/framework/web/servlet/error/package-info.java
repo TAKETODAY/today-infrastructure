@@ -19,6 +19,6 @@
  */
 
 /**
- * Spring MVC error handling infrastructure.
+ * Framework MVC error handling infrastructure.
  */
 package cn.taketoday.framework.web.servlet.error;

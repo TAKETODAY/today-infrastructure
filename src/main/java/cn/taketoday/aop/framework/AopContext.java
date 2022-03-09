@@ -20,7 +20,6 @@
 
 package cn.taketoday.aop.framework;
 
-import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.core.NamedThreadLocal;
 
 /**

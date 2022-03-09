@@ -36,7 +36,6 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.DefaultMethodInvocation;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.core.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.core.bytecode.proxy.Callback;
@@ -528,8 +527,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     final MethodProxy proxy;
 
     public CglibMethodInvocation(Object proxyObject, Object target, Method method, Class<?> targetClass,
-                                 MethodProxy proxy, Object[] arguments,
-                                 org.aopalliance.intercept.MethodInterceptor[] advices) {
+            MethodProxy proxy, Object[] arguments,
+            org.aopalliance.intercept.MethodInterceptor[] advices) {
       super(proxyObject, target, method, targetClass, arguments, advices);
       this.proxy = proxy;
     }

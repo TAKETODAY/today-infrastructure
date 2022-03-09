@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 public class ExtendedBeanInfoTests {
 
@@ -877,7 +877,7 @@ public class ExtendedBeanInfoTests {
 
     // java.beans.Introspector returns the "wrong" declaring class for overridden read
     // methods, which in turn violates expectations in {@link ExtendedBeanInfo} regarding
-    // method equality. Spring's {@link ClassUtils#getMostSpecificMethod(Method, Class)}
+    // method equality. Framework's {@link ClassUtils#getMostSpecificMethod(Method, Class)}
     // helps out here, and is now put into use in ExtendedBeanInfo as well.
     BeanInfo ebi = new ExtendedBeanInfo(bi);
 

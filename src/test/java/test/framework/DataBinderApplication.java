@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.framework.WebApplication;
 import lombok.Data;
 
 /**
@@ -75,7 +75,7 @@ public class DataBinderApplication {
   // &userArray%5B1%5D.name=TODAY&mapUser%5Byhj%5D.name=MAP-TODAY&userSet%5B0%5D.name=set-today&userList%5B10%5D.name=TODAY-10
   @GET("/data-binder")
   Body test(List<UserForm> userList, UserForm[] userArray,
-            Set<UserForm> userSet, Map<String, UserForm> mapUser) {
+          Set<UserForm> userSet, Map<String, UserForm> mapUser) {
 
     System.out.println(userList);
     System.out.println(Arrays.toString(userArray));
@@ -93,9 +93,9 @@ public class DataBinderApplication {
     final Map<String, UserForm> mapUser;
 
     Body(List<UserForm> userList,
-         UserForm[] userArray,
-         Set<UserForm> userSet,
-         Map<String, UserForm> mapUser) {
+            UserForm[] userArray,
+            Set<UserForm> userSet,
+            Map<String, UserForm> mapUser) {
       this.userList = userList;
       this.userArray = userArray;
       this.userSet = userSet;

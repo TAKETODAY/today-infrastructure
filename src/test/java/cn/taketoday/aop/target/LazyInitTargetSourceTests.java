@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,10 +33,12 @@ import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResour
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/12/5 19:46
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author Chris Beams
+ * @since 07.01.2005
  */
-class LazyInitTargetSourceTests {
+public class LazyInitTargetSourceTests {
 
   private static final Class<?> CLASS = LazyInitTargetSourceTests.class;
 

@@ -22,7 +22,6 @@ package cn.taketoday.core.annotation;
 
 import org.assertj.core.api.ThrowableTypeAssert;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -34,6 +33,8 @@ import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

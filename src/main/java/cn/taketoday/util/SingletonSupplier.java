@@ -23,6 +23,7 @@ package cn.taketoday.util;
 import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link java.util.function.Supplier} decorator that caches a singleton result and
@@ -138,7 +139,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @return the singleton supplier, or {@code null} if the instance was {@code null}
    */
 
-  public static <T> SingletonSupplier<T> ofNullable(T instance) {
+  public static <T> SingletonSupplier<T> ofNullable(@Nullable T instance) {
     return (instance != null ? new SingletonSupplier<>(instance) : null);
   }
 

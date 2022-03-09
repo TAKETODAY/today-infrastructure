@@ -21,13 +21,14 @@
 package cn.taketoday.scheduling.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.ListenableFutureCallback;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
+import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.ListenableFutureCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

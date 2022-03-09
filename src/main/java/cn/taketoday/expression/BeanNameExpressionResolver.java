@@ -39,6 +39,8 @@
  */
 package cn.taketoday.expression;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -77,6 +79,15 @@ public class BeanNameExpressionResolver extends ExpressionResolver {
    */
   public BeanNameExpressionResolver(BeanNameResolver beanNameResolver) {
     this.beanNameResolver = beanNameResolver;
+  }
+
+  /**
+   * Constructor
+   *
+   * @param beanFactory The {@link BeanFactory} that resolves a bean name.
+   */
+  public BeanNameExpressionResolver(BeanFactory beanFactory) {
+    this.beanNameResolver = new BeanFactoryResolver(beanFactory);
   }
 
   /**

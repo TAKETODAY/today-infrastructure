@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans.factory.xml;
 
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 
@@ -35,7 +34,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.BeansException;
@@ -67,7 +65,9 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.FileBasedResource;
 import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StopWatch;
 import cn.taketoday.validation.ResourceTestBean;
@@ -1209,8 +1209,6 @@ class XmlBeanFactoryTests {
   /**
    * See <a href="https://jira.spring.io/browse/SPR-10785">SPR-10785</a> and <a
    * href="https://jira.spring.io/browse/SPR-11420">SPR-11420</a>
-   *
-   * @since 3.2.8 and 4.0.2
    */
   @Test
   @SuppressWarnings("deprecation")
@@ -1270,7 +1268,7 @@ class XmlBeanFactoryTests {
     }
     sw.stop();
     // System.out.println(sw);
-    if (!LogFactory.getLog(StandardBeanFactory.class).isDebugEnabled()) {
+    if (!LoggerFactory.getLogger(StandardBeanFactory.class).isDebugEnabled()) {
       assertThat(sw.getTotalTimeMillis() < 2000).isTrue();
     }
 
@@ -1301,7 +1299,7 @@ class XmlBeanFactoryTests {
     assertThat(jenny2).isNotSameAs(jenny1);
 
     // Check that the bean can invoke the overridden method on itself
-    // This differs from Spring's AOP support, which has a distinct notion
+    // This differs from Framework's AOP support, which has a distinct notion
     // of a "target" object, meaning that the target needs explicit knowledge
     // of AOP proxying to invoke an advised method on itself.
     TestBean jenny3 = oom.invokesOverriddenMethodOnSelf();

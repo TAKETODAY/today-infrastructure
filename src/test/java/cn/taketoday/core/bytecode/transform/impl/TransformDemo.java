@@ -20,8 +20,6 @@
 
 package cn.taketoday.core.bytecode.transform.impl;
 
-import org.skife.jdbi.cglib.transform.impl.FieldProvider;
-
 import java.util.Arrays;
 
 import cn.taketoday.core.bytecode.Type;

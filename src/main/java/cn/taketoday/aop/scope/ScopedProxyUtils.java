@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop.scope;
 
-import cn.taketoday.aop.framework.AopProxyUtils;
+import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
@@ -74,7 +74,7 @@ public abstract class ScopedProxyUtils {
 
     proxyDefinition.getPropertyValues().add("targetBeanName", targetBeanName);
     if (proxyTargetClass) {
-      targetDefinition.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
+      targetDefinition.setAttribute(AutoProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
       // ScopedProxyFactoryBean's "proxyTargetClass" default is TRUE, so we don't need to set it explicitly here.
     }
     else {
@@ -131,7 +131,7 @@ public abstract class ScopedProxyUtils {
 
     proxyDefinition.getPropertyValues().add("targetBeanName", targetBeanName);
     if (proxyTargetClass) {
-      targetDefinition.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
+      targetDefinition.setAttribute(AutoProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
       // ScopedProxyFactoryBean's "proxyTargetClass" default is TRUE, so we don't need to set it explicitly here.
     }
     else {

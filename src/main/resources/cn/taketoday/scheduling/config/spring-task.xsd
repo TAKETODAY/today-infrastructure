@@ -65,7 +65,7 @@
       <xsd:attribute name="mode" default="proxy">
         <xsd:annotation>
           <xsd:documentation><![CDATA[
-	Should annotated beans be proxied using Spring's AOP framework,
+	Should annotated beans be proxied using Framework's AOP framework,
 	or should they rather be weaved with an AspectJ async execution aspect?
 
 	AspectJ weaving requires spring-aspects.jar on the classpath,
@@ -146,7 +146,7 @@
 	id as the thread name prefix of the threads that it manages.
 	In the case of multiple task:executors, as of Spring 3.1.2 this value may be used to
 	qualify which executor should handle a given @Async method, e.g. @Async("executorId").
-	See the Javadoc for the #value attribute of Spring's @Async annotation for details.
+	See the Javadoc for the #value attribute of Framework's @Async annotation for details.
 					]]></xsd:documentation>
         </xsd:annotation>
       </xsd:attribute>

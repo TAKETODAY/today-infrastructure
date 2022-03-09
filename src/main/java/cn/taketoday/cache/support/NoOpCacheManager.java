@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
-import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -54,7 +53,7 @@ public class NoOpCacheManager implements CacheManager {
    */
   @Override
   @Nullable
-  public Cache getCache(String name, CacheConfig cacheConfig) {
+  public Cache getCache(String name) {
     Cache cache = this.caches.get(name);
     if (cache == null) {
       this.caches.computeIfAbsent(name, key -> new NoOpCache(name));
@@ -62,6 +61,7 @@ public class NoOpCacheManager implements CacheManager {
         this.cacheNames.add(name);
       }
     }
+
     return this.caches.get(name);
   }
 

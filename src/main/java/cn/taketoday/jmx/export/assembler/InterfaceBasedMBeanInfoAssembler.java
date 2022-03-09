@@ -50,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  * {@code interfaceMappings} property.
  *
  * <p>If you specify values for both {@code interfaceMappings} and
- * {@code managedInterfaces}, Spring will attempt to find interfaces in the
+ * {@code managedInterfaces}, Framework will attempt to find interfaces in the
  * mappings first. If no interfaces for the bean are found, it will use the
  * interfaces defined by {@code managedInterfaces}.
  *

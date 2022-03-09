@@ -30,10 +30,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.web.bind.resolver.ConverterAwareParameterResolver;
-import cn.taketoday.web.bind.resolver.ParameterResolverNotFoundException;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;

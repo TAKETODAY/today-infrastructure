@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 /**
  * Tag interface for throws advice.
  *
@@ -58,10 +56,5 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public interface ThrowsAdvice extends AfterAdvice {
 
-  /**
-   * @param invocation the method invocation join-point
-   * @throws Throwable can't handle {@link Throwable}
-   */
-  Object afterThrowing(Throwable ex, MethodInvocation invocation) throws Throwable;
 }
 

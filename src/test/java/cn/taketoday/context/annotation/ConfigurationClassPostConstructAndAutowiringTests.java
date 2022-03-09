@@ -22,9 +22,9 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -20,6 +20,12 @@
 
 package cn.taketoday.web.socket.client;
 
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.concurrent.ListenableFuture;
@@ -31,11 +37,6 @@ import cn.taketoday.web.socket.WebSocketHandlerDecorator;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import org.junit.jupiter.api.Test;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

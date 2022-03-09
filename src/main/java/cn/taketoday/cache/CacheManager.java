@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,45 +15,40 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.cache;
 
 import java.util.Collection;
 
-import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2019-01-02 22:44
+ * Framework's central cache manager SPI.
+ *
+ * <p>Allows for retrieving named {@link Cache} regions.
+ *
+ * @author Costin Leau
+ * @author Sam Brannen
+ * @author TODAY
+ * @since 2019-01-02 22:44
  */
 public interface CacheManager {
 
   /**
-   * Use default {@link CacheConfig#EMPTY_CACHE_CONFIG}
+   * Get the cache associated with the given name.
+   * <p>Note that the cache may be lazily created at runtime if the
+   * native provider supports it.
    *
    * @param name the cache identifier (must not be {@code null})
-   * @return Target {@link Cache}
-   * @see CacheConfig#EMPTY_CACHE_CONFIG
+   * @return the associated cache, or {@code null} if such a cache
+   * does not exist or could be not created
    */
   @Nullable
-  default Cache getCache(String name) {
-    return getCache(name, CacheConfig.EMPTY_CACHE_CONFIG);
-  }
+  Cache getCache(String name);
 
   /**
-   * Return the cache associated with the given name.
-   *
-   * @param name the cache identifier (must not be {@code null})
-   * @param cacheConfig {@link CacheConfig}
-   * @return Target {@link Cache}
-   */
-  @Nullable
-  Cache getCache(String name, CacheConfig cacheConfig);
-
-  /**
-   * Return a collection of the cache names known by this manager.
+   * Get a collection of the cache names known by this manager.
    *
    * @return the names of all caches known by the cache manager
    */

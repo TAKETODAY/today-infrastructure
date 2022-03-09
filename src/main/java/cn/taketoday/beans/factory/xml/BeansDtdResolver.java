@@ -33,8 +33,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- * {@link EntityResolver} implementation for the Spring beans DTD,
- * to load the DTD from the Spring class path (or JAR file).
+ * {@link EntityResolver} implementation for the Framework beans DTD,
+ * to load the DTD from the Framework class path (or JAR file).
  *
  * <p>Fetches "spring-beans.dtd" from the class path resource
  * "/cn/taketoday/beans/factory/xml/spring-beans.dtd",
@@ -68,7 +68,7 @@ public class BeansDtdResolver implements EntityResolver {
       if (dtdNameStart != -1) {
         String dtdFile = DTD_NAME + DTD_EXTENSION;
         if (logger.isTraceEnabled()) {
-          logger.trace("Trying to locate [" + dtdFile + "] in Spring jar on classpath");
+          logger.trace("Trying to locate [" + dtdFile + "] in Framework jar on classpath");
         }
         try {
           Resource resource = new ClassPathResource(dtdFile, getClass());

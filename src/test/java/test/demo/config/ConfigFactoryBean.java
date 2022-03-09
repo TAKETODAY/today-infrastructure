@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,27 +15,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package test.demo.config;
 
 import java.util.Properties;
 
-import jakarta.annotation.PostConstruct;
-
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.properties.Props;
-import cn.taketoday.lang.Prototype;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
+import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 
 /**
  * @author TODAY <br>
- *         2018-08-08 15:06
+ * 2018-08-08 15:06
  */
 @Getter
 @Prototype("FactoryBean-Config")

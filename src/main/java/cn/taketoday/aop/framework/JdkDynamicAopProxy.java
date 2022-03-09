@@ -30,7 +30,6 @@ import java.lang.reflect.Proxy;
 
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.DefaultMethodInvocation;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.lang.Assert;

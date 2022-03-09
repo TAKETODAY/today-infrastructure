@@ -35,7 +35,7 @@ import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * Indicates that a class provides configuration that can be automatically applied by
- * Spring Boot. Auto-configuration classes are regular
+ * Framework Unify. Auto-configuration classes are regular
  * {@link Configuration @Configuration} with the exception that
  * {@literal Configuration#proxyBeanMethods() proxyBeanMethods} is always {@code false}.
  * <p>
@@ -65,7 +65,7 @@ import cn.taketoday.core.annotation.AliasFor;
 public @interface AutoConfiguration {
 
   /**
-   * Explicitly specify the name of the Spring bean definition associated with the
+   * Explicitly specify the name of the Framework bean definition associated with the
    * {@code @AutoConfiguration} class. If left unspecified (the common case), a bean
    * name will be automatically generated.
    * <p>

@@ -446,7 +446,7 @@
 	bean properties. The method must have no arguments, but may throw any
 	exception.
 
-	This is an alternative to implementing Spring's InitializingBean
+	This is an alternative to implementing Framework's InitializingBean
 	interface or marking a method with the PostConstruct annotation.
 				]]></xsd:documentation>
       </xsd:annotation>
@@ -457,7 +457,7 @@
 	The name of the custom destroy method to invoke on bean factory shutdown.
 	The method must have no arguments, but may throw any exception.
 
-	This is an alternative to implementing Spring's DisposableBean
+	This is an alternative to implementing Framework's DisposableBean
 	interface or the standard Java Closeable/AutoCloseable interface,
 	or marking a method with the PreDestroy annotation.
 

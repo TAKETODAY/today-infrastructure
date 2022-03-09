@@ -32,7 +32,7 @@ import cn.taketoday.util.ClassUtils;
 
 /**
  * Adapter that implements the {@link Runnable} interface as a configurable
- * method invocation based on Spring's MethodInvoker.
+ * method invocation based on Framework's MethodInvoker.
  *
  * <p>Inherits common configuration properties from
  * {@link cn.taketoday.util.ReflectiveMethodInvoker}.

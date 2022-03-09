@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
-import cn.taketoday.aop.SerializationTestUtils;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.orm.jpa.domain.DriversLicense;
 import cn.taketoday.orm.jpa.domain.Person;
 import jakarta.persistence.EntityManager;

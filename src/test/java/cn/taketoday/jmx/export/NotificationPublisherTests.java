@@ -21,11 +21,6 @@
 package cn.taketoday.jmx.export;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.jmx.AbstractMBeanServerTests;
-import cn.taketoday.jmx.export.notification.NotificationPublisher;
-import cn.taketoday.jmx.export.notification.NotificationPublisherAware;
-import cn.taketoday.jmx.support.ObjectNameManager;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -42,6 +37,12 @@ import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationListener;
 import javax.management.ReflectionException;
+
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.jmx.AbstractMBeanServerTests;
+import cn.taketoday.jmx.export.notification.NotificationPublisher;
+import cn.taketoday.jmx.export.notification.NotificationPublisherAware;
+import cn.taketoday.jmx.support.ObjectNameManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

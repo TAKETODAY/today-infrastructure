@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.event.ApplicationListener;
@@ -26,7 +28,6 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author Today <br>

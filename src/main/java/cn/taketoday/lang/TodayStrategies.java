@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * <p>
  * Get keyed strategies
  * <p>
- * Like Spring's SpringFactoriesLoader
+ * Like Framework's SpringFactoriesLoader
  *
  * @author TODAY 2021/9/5 13:57
  * @since 4.0

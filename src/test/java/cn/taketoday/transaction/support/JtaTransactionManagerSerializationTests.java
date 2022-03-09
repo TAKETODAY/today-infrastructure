@@ -22,7 +22,7 @@ package cn.taketoday.transaction.support;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.SerializationTestUtils;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.testfixture.jndi.SimpleNamingContextBuilder;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import jakarta.transaction.TransactionManager;

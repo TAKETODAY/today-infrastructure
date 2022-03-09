@@ -20,7 +20,7 @@
 
 package cn.taketoday.aop;
 
-import cn.taketoday.aop.framework.AbstractAutoProxyCreator;
+import cn.taketoday.aop.framework.autoproxy.AbstractAutoProxyCreator;
 
 /**
  * Marker interface that indicates a bean that is part of AOP infrastructure. In

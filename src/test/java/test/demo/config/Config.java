@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,20 +15,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package test.demo.config;
 
 import java.io.File;
 import java.io.Serializable;
 
-import jakarta.annotation.PostConstruct;
-
-import cn.taketoday.context.properties.Props;
-import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 

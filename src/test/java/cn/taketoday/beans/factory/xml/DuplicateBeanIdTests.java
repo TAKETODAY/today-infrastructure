@@ -41,7 +41,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @author Chris Beams
  * @see cn.taketoday.beans.factory.xml.XmlBeanFactoryTests#withDuplicateName
  * @see cn.taketoday.beans.factory.xml.XmlBeanFactoryTests#withDuplicateNameInAlias
- * @since 3.1
+ * @since 4.0
  */
 public class DuplicateBeanIdTests {
 

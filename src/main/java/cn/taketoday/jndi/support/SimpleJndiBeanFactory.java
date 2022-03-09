@@ -48,7 +48,7 @@ import cn.taketoday.jndi.TypeMismatchNamingException;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Simple JNDI-based implementation of Spring's
+ * Simple JNDI-based implementation of Framework's
  * {@link cn.taketoday.beans.factory.BeanFactory} interface.
  * Does not support enumerating bean definitions
  *
@@ -58,7 +58,7 @@ import cn.taketoday.lang.Nullable;
  * objects (if they are explicitly marked as
  * {@link #addShareableResource shareable resource}.
  *
- * <p>The main intent of this factory is usage in combination with Spring's
+ * <p>The main intent of this factory is usage in combination with Framework's
  * {@link cn.taketoday.context.annotation.CommonAnnotationBeanPostProcessor},
  * configured as "resourceFactory" for resolving {@code @Resource}
  * annotations as JNDI objects without intermediate bean definitions.

@@ -28,10 +28,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute;

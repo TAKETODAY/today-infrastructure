@@ -43,6 +43,7 @@ import cn.taketoday.core.codec.NettyByteBufEncoder;
 import cn.taketoday.core.codec.ResourceDecoder;
 import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.CodecConfigurer;
 import cn.taketoday.http.codec.DecoderHttpMessageReader;
 import cn.taketoday.http.codec.EncoderHttpMessageWriter;
@@ -62,7 +63,6 @@ import cn.taketoday.http.codec.multipart.MultipartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.PartHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 

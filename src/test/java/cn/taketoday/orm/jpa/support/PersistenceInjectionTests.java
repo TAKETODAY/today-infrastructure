@@ -30,12 +30,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.SimpleMapScope;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.orm.jpa.AbstractEntityManagerFactoryBeanTests;

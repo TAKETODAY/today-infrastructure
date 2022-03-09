@@ -21,12 +21,13 @@
 package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.OverridingClassLoader;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
+
+import cn.taketoday.core.OverridingClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

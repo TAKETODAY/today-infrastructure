@@ -41,7 +41,7 @@ public abstract class CachedExpressionEvaluator {
   protected final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   /**
-   * Return the {@link ValueExpression} for the specified SpEL value
+   * Return the {@link ValueExpression} for the specified EL value
    * <p>{@link #parseExpression(String) Parse the expression} if it hasn't been already.
    *
    * @param cache the cache to use

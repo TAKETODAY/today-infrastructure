@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.io.Serializable;
 import java.util.Properties;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;

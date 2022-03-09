@@ -21,9 +21,6 @@
 package cn.taketoday.jmx.export;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jmx.AbstractMBeanServerTests;
-import cn.taketoday.jmx.JmxTestBean;
-import cn.taketoday.jmx.support.ObjectNameManager;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanInfo;
@@ -31,6 +28,10 @@ import javax.management.ObjectName;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanInfoSupport;
 import javax.management.modelmbean.RequiredModelMBean;
+
+import cn.taketoday.jmx.AbstractMBeanServerTests;
+import cn.taketoday.jmx.JmxTestBean;
+import cn.taketoday.jmx.support.ObjectNameManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

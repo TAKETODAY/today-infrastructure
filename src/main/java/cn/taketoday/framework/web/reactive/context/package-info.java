@@ -19,7 +19,7 @@
  */
 
 /**
- * Reactive based web integrations with Spring's
+ * Reactive based web integrations with Framework's
  * {@link cn.taketoday.context.ApplicationContext ApplicationContext}.
  */
 package cn.taketoday.framework.web.reactive.context;

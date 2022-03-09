@@ -21,13 +21,14 @@
 package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import javax.annotation.Nonnull;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

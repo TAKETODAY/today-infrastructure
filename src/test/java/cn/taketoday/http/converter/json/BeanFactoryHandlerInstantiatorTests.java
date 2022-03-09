@@ -55,9 +55,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +77,7 @@ public class BeanFactoryHandlerInstantiatorTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
-    beanFactory.registerBeanDefinition(new BeanDefinition("capitalizer", Capitalizer.class));
+    beanFactory.registerBeanDefinition("capitalizer", new RootBeanDefinition(Capitalizer.class));
     instantiator = new BeanFactoryHandlerInstantiator(beanFactory);
     objectMapper = Jackson2ObjectMapperBuilder.json().handlerInstantiator(instantiator).build();
   }
@@ -136,7 +136,7 @@ public class BeanFactoryHandlerInstantiatorTests {
 
     @Override
     public void serialize(User user, JsonGenerator jsonGenerator,
-                          SerializerProvider serializerProvider) throws IOException {
+            SerializerProvider serializerProvider) throws IOException {
 
       jsonGenerator.writeStartObject();
       jsonGenerator.writeStringField("username", this.capitalizer.capitalize(user.getUsername()));
@@ -164,7 +164,7 @@ public class BeanFactoryHandlerInstantiatorTests {
 
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config, JavaType baseType,
-                                              Collection<NamedType> subtypes) {
+            Collection<NamedType> subtypes) {
 
       isAutowiredFiledInitialized = (this.capitalizer != null);
       return super.buildTypeSerializer(config, baseType, subtypes);
@@ -172,7 +172,7 @@ public class BeanFactoryHandlerInstantiatorTests {
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-                                                  JavaType baseType, Collection<NamedType> subtypes) {
+            JavaType baseType, Collection<NamedType> subtypes) {
 
       return super.buildTypeDeserializer(config, baseType, subtypes);
     }

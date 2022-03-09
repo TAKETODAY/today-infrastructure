@@ -26,8 +26,8 @@ import cn.taketoday.jmx.export.assembler.MetadataMBeanInfoAssembler;
 import cn.taketoday.jmx.export.naming.MetadataNamingStrategy;
 
 /**
- * Convenient subclass of Spring's standard {@link MBeanExporter},
- * activating Java 5 annotation usage for JMX exposure of Spring beans:
+ * Convenient subclass of Framework's standard {@link MBeanExporter},
+ * activating Java 5 annotation usage for JMX exposure of Framework beans:
  * {@link ManagedResource}, {@link ManagedAttribute}, {@link ManagedOperation}, etc.
  *
  * <p>Sets a {@link MetadataNamingStrategy} and a {@link MetadataMBeanInfoAssembler}

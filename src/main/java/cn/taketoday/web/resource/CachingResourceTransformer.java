@@ -32,7 +32,7 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * A {@link cn.taketoday.web.resource.ResourceTransformer} that checks a
- * {@link cn.taketoday.cache.Cache} to see if a previously transformed resource
+ * {@link Cache} to see if a previously transformed resource
  * exists in the cache and returns it if found, and otherwise delegates to the resolver
  * chain and saves the result in the cache.
  *

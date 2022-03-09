@@ -102,7 +102,7 @@ public class ViewControllerRegistry {
 
   /**
    * Specify the order to use for the {@code HandlerMapping} used to map view
-   * controllers relative to other handler mappings configured in Spring MVC.
+   * controllers relative to other handler mappings configured in Framework MVC.
    * <p>By default this is set to 1, i.e. right after annotated controllers,
    * which are ordered at 0.
    */

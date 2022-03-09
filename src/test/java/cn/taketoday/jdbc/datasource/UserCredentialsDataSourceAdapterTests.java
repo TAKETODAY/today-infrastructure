@@ -33,7 +33,6 @@ import static org.mockito.Mockito.mock;
 
 /**
  * @author Juergen Hoeller
- * @since 28.05.2004
  */
 public class UserCredentialsDataSourceAdapterTests {
 

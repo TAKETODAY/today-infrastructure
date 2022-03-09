@@ -26,10 +26,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.EnableAsync;

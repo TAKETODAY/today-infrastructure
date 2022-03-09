@@ -30,7 +30,7 @@ import cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter;
 import cn.taketoday.jmx.support.RegistrationPolicy;
 
 /**
- * Enables default exporting of all standard {@code MBean}s from the Spring context, as
+ * Enables default exporting of all standard {@code MBean}s from the Framework context, as
  * well as well all {@code @ManagedResource} annotated beans.
  *
  * <p>The resulting {@link cn.taketoday.jmx.export.MBeanExporter MBeanExporter}

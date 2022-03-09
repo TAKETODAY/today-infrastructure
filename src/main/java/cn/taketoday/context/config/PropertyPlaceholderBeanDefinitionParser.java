@@ -44,7 +44,7 @@ class PropertyPlaceholderBeanDefinitionParser extends AbstractPropertyLoadingBea
 
   @Override
   protected Class<?> getBeanClass(Element element) {
-    // As of Spring 3.1, the default value of system-properties-mode has changed from
+    // the default value of system-properties-mode has changed from
     // 'FALLBACK' to 'ENVIRONMENT'. This latter value indicates that resolution of
     // placeholders against system properties is a function of the Environment and
     // its current set of PropertySources.

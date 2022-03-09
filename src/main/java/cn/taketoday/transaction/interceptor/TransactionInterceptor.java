@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.Properties;
 
 import cn.taketoday.aop.framework.ProxyFactory;
+import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
@@ -54,7 +55,7 @@ import cn.taketoday.transaction.TransactionManager;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @see TransactionProxyFactoryBean
- * @see cn.taketoday.aop.proxy.ProxyFactoryBean
+ * @see ProxyFactoryBean
  * @see ProxyFactory
  */
 @SuppressWarnings("serial")

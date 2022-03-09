@@ -24,7 +24,7 @@ import cn.taketoday.beans.testfixture.beans.FactoryMethods;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
 /**
- * Test class for Spring's ability to create objects using
+ * Test class for Framework's ability to create objects using
  * static factory methods, rather than constructors.
  *
  * @author Rod Johnson

@@ -26,8 +26,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

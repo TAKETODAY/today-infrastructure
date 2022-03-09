@@ -32,7 +32,7 @@ import cn.taketoday.jmx.export.MBeanExporter;
  * <p>Managed resources can access a {@code NotificationPublisher} by
  * implementing the {@link NotificationPublisherAware} interface. After a particular
  * managed resource instance is registered with the {@link javax.management.MBeanServer},
- * Spring will inject a {@code NotificationPublisher} instance into it if that
+ * Framework will inject a {@code NotificationPublisher} instance into it if that
  * resource implements the {@link NotificationPublisherAware} interface.
  *
  * <p>Each managed resource instance will have a distinct instance of a

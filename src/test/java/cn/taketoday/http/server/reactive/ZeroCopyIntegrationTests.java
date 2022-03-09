@@ -25,6 +25,7 @@ import java.net.URI;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
@@ -32,7 +33,6 @@ import cn.taketoday.http.server.reactive.bootstrap.AbstractHttpHandlerIntegratio
 import cn.taketoday.http.server.reactive.bootstrap.HttpServer;
 import cn.taketoday.http.server.reactive.bootstrap.ReactorHttpServer;
 import cn.taketoday.http.server.reactive.bootstrap.UndertowHttpServer;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 

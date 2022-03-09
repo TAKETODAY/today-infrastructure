@@ -19,290 +19,166 @@
  */
 package cn.taketoday.cache.support;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
-import cn.taketoday.cache.annotation.CacheConfig;
-import cn.taketoday.cache.annotation.CacheConfiguration;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Abstract {@link CacheManager} implementation
+ * Abstract base class implementing the common {@link CacheManager} methods.
+ * Useful for 'static' environments where the backing caches do not change.
  *
- * <p>
- * Abstract {@link CacheManager} implementation that lazily builds {@link Cache}
- * instances for each {@link #getCache(String, CacheConfig)} request. Also
- * supports a 'static' mode where the set of cache names is pre-defined through
- * {@link #setCacheNames(Collection)} or {@link #setCacheConfig(Collection)}, or
- * {@link #setCacheConfig(Map)}, with no dynamic creation of further cache
- * regions at runtime that you do not call {@link #setDynamicCreation(boolean)}.
- *
- * @author TODAY <br>
- * 2020-08-15 19:18
+ * @author Costin Leau
+ * @author Juergen Hoeller
+ * @author Stephane Nicoll
+ * @author TODAY
+ * @since 2020-08-15 19:18
  */
-public abstract class AbstractCacheManager implements CacheManager {
+public abstract class AbstractCacheManager implements CacheManager, InitializingBean {
 
-  private boolean dynamicCreation = true;
-  private final HashMap<String, Cache> cacheMap = new HashMap<>(32);
-  private final HashMap<String, CacheConfig> configMap = new HashMap<>();
+  private final ConcurrentMap<String, Cache> cacheMap = new ConcurrentHashMap<>(16);
 
-  public AbstractCacheManager() { }
+  private volatile Set<String> cacheNames = Collections.emptySet();
 
-  public AbstractCacheManager(String... cacheNames) {
-    Assert.notNull(cacheNames, "cacheNames s can't be null");
-    setCacheNames(Arrays.asList(cacheNames));
+  // Early cache initialization on startup
+
+  @Override
+  public void afterPropertiesSet() {
+    initializeCaches();
   }
 
   /**
-   * @since 3.0
-   */
-  public AbstractCacheManager(CacheConfig... config) {
-    Assert.notNull(config, "cache config can't be null");
-    setCacheConfig(Arrays.asList(config));
-  }
-
-  /**
-   * Specify the set of cache names for this CacheManager's 'static' mode.
-   * <p>
-   * The number of caches and their names will be fixed after a call to this
-   * method, with no creation of further cache regions at runtime that you do not
-   * call {@link #setDynamicCreation(boolean)}.
-   * <p>
-   * Calling this with a {@code null} collection argument resets the mode to
-   * 'dynamic', allowing for further creation of caches again.
+   * Initialize the static configuration of caches.
+   * <p>Triggered on startup through {@link #afterPropertiesSet()};
+   * can also be called to re-initialize at runtime.
    *
-   * @since 3.0
+   * @see #loadCaches()
+   * @since 4.0
    */
-  public void setCacheNames(Collection<String> cacheNames) {
-    Assert.notEmpty(cacheNames, "cacheNames must not be empty");
-    setCacheConfig(
-            cacheNames.stream()
-                    .map(CacheConfiguration::new)
-                    .collect(Collectors.toList())
-    );
-  }
+  public void initializeCaches() {
+    Collection<? extends Cache> caches = loadCaches();
 
-  /**
-   * Specify the set of cache config for this CacheManager's 'static' mode.
-   * <p>
-   * The number of caches and their names will be fixed after a call to this
-   * method, with no creation of further cache regions at runtime that you do not
-   * call {@link #setDynamicCreation(boolean)}.
-   *
-   * @see #setDynamicCreation(boolean)
-   * @since 3.0
-   */
-  public void setCacheConfig(Collection<CacheConfig> cacheConfigs) {
-    Assert.notEmpty(cacheConfigs, "cacheConfigs must not be empty");
-    this.configMap.clear();
-    for (CacheConfig config : cacheConfigs) {
-      this.configMap.put(config.cacheName(), config);
+    synchronized(this.cacheMap) {
+      this.cacheNames = Collections.emptySet();
+      this.cacheMap.clear();
+      Set<String> cacheNames = new LinkedHashSet<>(caches.size());
+      for (Cache cache : caches) {
+        String name = cache.getName();
+        this.cacheMap.put(name, decorateCache(cache));
+        cacheNames.add(name);
+      }
+      this.cacheNames = Collections.unmodifiableSet(cacheNames);
     }
-    refreshCaches();
   }
 
   /**
-   * Configure a new Map of {@link CacheConfig}
-   * <p>
-   * The number of caches and their names will be fixed after a call to this
-   * method, with no creation of further cache regions at runtime that you do not
-   * call {@link #setDynamicCreation(boolean)}.
-   *
-   * @param configMap Map of {@link CacheConfig}
-   * @see #setDynamicCreation(boolean)
-   * @since 3.0
+   * Load the initial caches for this cache manager.
+   * <p>Called by {@link #afterPropertiesSet()} on startup.
+   * The returned collection may be empty but must not be {@code null}.
    */
-  public void setCacheConfig(Map<String, CacheConfig> configMap) {
-    Assert.notEmpty(configMap, "configMap must not be empty");
-    this.configMap.clear();
-    this.configMap.putAll(configMap);
-    refreshCaches();
-  }
+  protected abstract Collection<? extends Cache> loadCaches();
 
-  /**
-   * Add {@link CacheConfig}
-   *
-   * @param config {@link CacheConfig}
-   * @since 3.0
-   */
-  public void addCacheConfig(CacheConfig config) {
-    addCacheConfig(config.cacheName(), config);
-  }
-
-  /**
-   * Add {@link CacheConfig} with given name
-   *
-   * @param name {@link Cache} name
-   * @param config {@link CacheConfig}
-   * @since 3.0
-   */
-  public void addCacheConfig(String name, CacheConfig config) {
-    Assert.notNull(name, "name must not be null");
-    Assert.notNull(config, "config must not be null");
-    this.configMap.put(name, config);
-    refreshCache(name, config);
-  }
-
-  /**
-   * Register cache
-   *
-   * @param cache {@link Cache}
-   * @since 3.0
-   */
-  public void registerCustomCache(Cache cache) {
-    registerCustomCache(cache.getName(), cache);
-  }
-
-  /**
-   * Register cache to configMap
-   *
-   * @param name the cache name
-   * @param cache {@link Cache}
-   * @since 3.0
-   */
-  public void registerCustomCache(String name, Cache cache) {
-    this.cacheMap.put(name, cache);
-  }
-
-  /**
-   * Create a new Cache instance for the specified cache name.
-   *
-   * @param name the name of the cache
-   * @return the {@link Cache}
-   * @since 3.0
-   */
-  protected Cache createCache(String name) {
-    return createCache(name, getCacheConfig(name));
-  }
-
-  /**
-   * Create a new Cache instance for the specified cache name.
-   *
-   * @param name the name of the cache
-   * @param cacheConfig {@link CacheConfig}
-   * @return the {@link Cache}
-   */
-  protected Cache createCache(String name, CacheConfig cacheConfig) {
-    return decorateCache(doCreate(name, cacheConfig));
-  }
-
-  /**
-   * Decorate the given Cache object if necessary.
-   *
-   * @param cache the Cache object to be added to this CacheManager
-   * @return the decorated Cache object to be used instead, or simply the
-   * passed-in Cache object by default
-   * @since 3.0
-   */
-  protected Cache decorateCache(Cache cache) {
-    return cache;
-  }
-
-  /**
-   * Sub classes
-   *
-   * @param name the name of the cache
-   * @param cacheConfig {@link CacheConfig}
-   * @return the {@link Cache}
-   */
-  protected abstract Cache doCreate(String name, CacheConfig cacheConfig);
+  // Lazy cache initialization on access
 
   @Override
+  @Nullable
   public Cache getCache(String name) {
-    return getCache(name, getCacheConfig(name));
-  }
+    // Quick check for existing cache...
+    Cache cache = this.cacheMap.get(name);
+    if (cache != null) {
+      return cache;
+    }
 
-  @Override
-  public Cache getCache(String name, CacheConfig cacheConfig) {
-    Cache cache = cacheMap.get(name);
-    if (cache == null && isDynamicCreation()) {
-      synchronized(cacheMap) {
-        cache = cacheMap.get(name);
+    // The provider may support on-demand cache creation...
+    Cache missingCache = getMissingCache(name);
+    if (missingCache != null) {
+      // Fully synchronize now for missing cache registration
+      synchronized(this.cacheMap) {
+        cache = this.cacheMap.get(name);
         if (cache == null) {
-          cache = createCache(name, cacheConfig);
-          configMap.put(name, cacheConfig); // sync config
-          registerCustomCache(name, cache);
+          cache = decorateCache(missingCache);
+          this.cacheMap.put(name, cache);
+          updateCacheNames(name);
         }
       }
     }
     return cache;
   }
 
-  /**
-   * is dynamic creation feature enabled
-   *
-   * @return Is dynamic creation feature enabled
-   * @since 3.0
-   */
-  public boolean isDynamicCreation() {
-    return dynamicCreation;
-  }
-
-  /**
-   * Apply dynamic creation feature
-   * <p>
-   * When {@link #cacheMap} returns null, create new one
-   *
-   * @param dynamicCreation Enable dynamic creation
-   * @see #getCache(String)
-   * @see #getCache(String, CacheConfig)
-   * @since 3.0
-   */
-  public void setDynamicCreation(boolean dynamicCreation) {
-    this.dynamicCreation = dynamicCreation;
-  }
-
-  /**
-   * Refresh caches in a startup time or runtime
-   * <p>
-   * Recreate the common caches with the current state of this manager.
-   *
-   * @since 3.0
-   */
-  public void refreshCaches() {
-    configMap.keySet().forEach(this::refreshCache);
-  }
-
-  /**
-   * Refresh cache with given name in a startup time or runtime
-   *
-   * @param name cache name
-   */
-  public void refreshCache(String name, CacheConfig config) {
-    registerCustomCache(name, createCache(name, config));
-  }
-
-  public void refreshCache(String name) {
-    registerCustomCache(name, createCache(name));
-  }
-
-  /**
-   * Get {@link CacheConfig} with given name
-   *
-   * @param name name of {@link Cache}
-   * @return {@link CacheConfig}
-   * @since 3.0
-   */
-  public final CacheConfig getCacheConfig(String name) {
-    CacheConfig cacheConfig = configMap.get(name);
-    return cacheConfig == null ? CacheConfig.EMPTY_CACHE_CONFIG : cacheConfig;
-  }
-
   @Override
   public Collection<String> getCacheNames() {
-    return configMap.keySet();
+    return this.cacheNames;
   }
 
-  protected static boolean isDefaultConfig(CacheConfig cacheConfig) {
-    if (cacheConfig == null || cacheConfig == CacheConfig.EMPTY_CACHE_CONFIG) {
-      return true;
-    }
-    return cacheConfig.maxIdleTime() == 0 && cacheConfig.expire() == 0 && cacheConfig.maxSize() == 0;
+  // Common cache initialization delegates for subclasses
+
+  /**
+   * Check for a registered cache of the given name.
+   * In contrast to {@link #getCache(String)}, this method does not trigger
+   * the lazy creation of missing caches via {@link #getMissingCache(String)}.
+   *
+   * @param name the cache identifier (must not be {@code null})
+   * @return the associated Cache instance, or {@code null} if none found
+   * @see #getCache(String)
+   * @see #getMissingCache(String)
+   * @since 4.0
+   */
+  @Nullable
+  protected final Cache lookupCache(String name) {
+    return this.cacheMap.get(name);
+  }
+
+  /**
+   * Update the exposed {@link #cacheNames} set with the given name.
+   * <p>This will always be called within a full {@link #cacheMap} lock
+   * and effectively behaves like a {@code CopyOnWriteArraySet} with
+   * preserved order but exposed as an unmodifiable reference.
+   *
+   * @param name the name of the cache to be added
+   */
+  private void updateCacheNames(String name) {
+    Set<String> cacheNames = new LinkedHashSet<>(this.cacheNames);
+    cacheNames.add(name);
+    this.cacheNames = Collections.unmodifiableSet(cacheNames);
+  }
+
+  // Overridable template methods for cache initialization
+
+  /**
+   * Decorate the given Cache object if necessary.
+   *
+   * @param cache the Cache object to be added to this CacheManager
+   * @return the decorated Cache object to be used instead,
+   * or simply the passed-in Cache object by default
+   */
+  protected Cache decorateCache(Cache cache) {
+    return cache;
+  }
+
+  /**
+   * Return a missing cache with the specified {@code name}, or {@code null} if
+   * such a cache does not exist or could not be created on demand.
+   * <p>Caches may be lazily created at runtime if the native provider supports it.
+   * If a lookup by name does not yield any result, an {@code AbstractCacheManager}
+   * subclass gets a chance to register such a cache at runtime. The returned cache
+   * will be automatically added to this cache manager.
+   *
+   * @param name the name of the cache to retrieve
+   * @return the missing cache, or {@code null} if no such cache exists or could be
+   * created on demand
+   * @see #getCache(String)
+   * @since 4.0
+   */
+  @Nullable
+  protected Cache getMissingCache(String name) {
+    return null;
   }
 
 }

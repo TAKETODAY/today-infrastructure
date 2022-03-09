@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -42,6 +41,7 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.jndi.support.SimpleJndiBeanFactory;
 import cn.taketoday.testfixture.jndi.ExpectedLookupTemplate;
 import jakarta.annotation.PostConstruct;

@@ -27,8 +27,8 @@ import java.util.Collections;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.format.annotation.PeriodFormat;
-import cn.taketoday.format.annotation.PeriodUnit;
 import cn.taketoday.format.annotation.PeriodStyle;
+import cn.taketoday.format.annotation.PeriodUnit;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

@@ -20,12 +20,12 @@
 
 package cn.taketoday.core.type;
 
-import cn.taketoday.util.StringUtils;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+
+import cn.taketoday.util.StringUtils;
 
 /**
  * A test group used to limit when certain tests are run.

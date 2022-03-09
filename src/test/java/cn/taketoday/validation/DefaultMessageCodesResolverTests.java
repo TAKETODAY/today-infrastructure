@@ -23,7 +23,6 @@ package cn.taketoday.validation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.validation.DefaultMessageCodesResolver;
 import cn.taketoday.validation.DefaultMessageCodesResolver.Format;
 
 import static org.assertj.core.api.Assertions.assertThat;

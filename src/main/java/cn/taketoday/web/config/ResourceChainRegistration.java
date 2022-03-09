@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.support.ConcurrentMapCache;
+import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;

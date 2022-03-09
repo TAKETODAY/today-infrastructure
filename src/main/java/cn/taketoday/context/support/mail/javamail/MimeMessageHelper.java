@@ -509,7 +509,7 @@ public class MimeMessageHelper {
    *
    * @see #addAttachment(String, DataSource)
    * @see MimeBodyPart#setFileName(String)
-   * @since 5.2.9
+   * @since 4.0
    */
   public void setEncodeFilenames(boolean encodeFilenames) {
     this.encodeFilenames = encodeFilenames;
@@ -520,7 +520,7 @@ public class MimeMessageHelper {
    * {@code #addAttachment} methods.
    *
    * @see #setEncodeFilenames
-   * @since 5.2.9
+   * @since 4.0
    */
   public boolean isEncodeFilenames() {
     return this.encodeFilenames;

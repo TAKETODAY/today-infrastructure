@@ -25,9 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.Logger;
-import cn.taketoday.aop.support.annotation.Around;
-import cn.taketoday.aop.support.annotation.Aspect;
-import cn.taketoday.aop.support.annotation.JoinPoint;
+import cn.taketoday.aop.aspectj.annotation.JoinPoint;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Lazy;
@@ -229,11 +227,9 @@ class CycleDependencyTests {
 
   }
 
-  @Aspect
   @EnableAspectAutoProxy
   static class LoggingAspect {
 
-    @Around(Logger.class)
     Object around(@JoinPoint Joinpoint joinPoint) throws Throwable {
       System.out.println("before: " + joinPoint);
       return joinPoint.proceed();

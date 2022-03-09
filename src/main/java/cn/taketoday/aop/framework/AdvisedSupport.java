@@ -40,7 +40,6 @@ import cn.taketoday.aop.InterceptorChainFactory;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInfo;
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.ProxyConfig;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.target.EmptyTargetSource;

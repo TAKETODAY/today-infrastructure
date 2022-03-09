@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.config;
 
+import cn.taketoday.aop.aspectj.AspectJExpressionPointcut;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.NamespaceHandlerSupport;
 
@@ -66,8 +67,8 @@ public class AopNamespaceHandler extends NamespaceHandlerSupport {
   @Override
   public void init() {
     // In 2.0 XSD as well as in 2.5+ XSDs
-//    registerBeanDefinitionParser("config", new ConfigBeanDefinitionParser());
-//    registerBeanDefinitionParser("aspectj-autoproxy", new AspectJAutoProxyBeanDefinitionParser());
+    registerBeanDefinitionParser("config", new ConfigBeanDefinitionParser());
+    registerBeanDefinitionParser("aspectj-autoproxy", new AspectJAutoProxyBeanDefinitionParser());
     registerBeanDefinitionDecorator("scoped-proxy", new ScopedProxyBeanDefinitionDecorator());
 
 //     Only in 2.0 XSD: moved to context namespace in 2.5+

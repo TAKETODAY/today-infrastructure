@@ -372,7 +372,7 @@ public abstract class AbstractReactiveTransactionAspectTests {
    * Subclasses must implement this to create an advised object based on the
    * when target. In the case of AspectJ, the  advised object will already
    * have been created, as there's no distinction between target and proxy.
-   * In the case of Spring's own AOP framework, a proxy must be created
+   * In the case of Framework's own AOP framework, a proxy must be created
    * using a suitably configured transaction interceptor
    *
    * @param target the target if there's a distinct target. If not (AspectJ),

@@ -20,7 +20,10 @@
 
 package cn.taketoday.cache.support;
 
+import java.util.concurrent.Callable;
+
 import cn.taketoday.cache.Cache;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -28,10 +31,14 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Will simply accept any items into the cache not actually storing them.
  *
+ * @author Costin Leau
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/26 14:15
  */
-public class NoOpCache extends Cache {
+public class NoOpCache implements Cache {
+
+  private final String name;
 
   /**
    * Create a {@link NoOpCache} instance with the specified name.
@@ -39,22 +46,69 @@ public class NoOpCache extends Cache {
    * @param name the name of the cache
    */
   public NoOpCache(String name) {
-    setName(name);
+    Assert.notNull(name, "Cache name must not be null");
+    this.name = name;
   }
 
-  @Nullable
   @Override
-  protected Object doGet(Object key) {
+  public String getName() {
+    return this.name;
+  }
+
+  @Override
+  public Object getNativeCache() {
+    return this;
+  }
+
+  @Override
+  @Nullable
+  public ValueWrapper get(Object key) {
     return null;
   }
 
   @Override
-  protected void doPut(Object key, Object value) { }
+  @Nullable
+  public <T> T get(Object key, @Nullable Class<T> type) {
+    return null;
+  }
 
   @Override
-  public void evict(Object key) { }
+  @Nullable
+  public <T> T get(Object key, Callable<T> valueLoader) {
+    try {
+      return valueLoader.call();
+    }
+    catch (Exception ex) {
+      throw new ValueRetrievalException(key, valueLoader, ex);
+    }
+  }
 
   @Override
-  public void clear() { }
+  public void put(Object key, @Nullable Object value) {
+  }
+
+  @Override
+  @Nullable
+  public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
+    return null;
+  }
+
+  @Override
+  public void evict(Object key) {
+  }
+
+  @Override
+  public boolean evictIfPresent(Object key) {
+    return false;
+  }
+
+  @Override
+  public void clear() {
+  }
+
+  @Override
+  public boolean invalidate() {
+    return false;
+  }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.support;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.ClassFilter;
@@ -32,16 +30,22 @@ import cn.taketoday.core.NestedRuntimeException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author TODAY 2021/2/3 23:44
+ * Unit tests for {@link ClassFilters}.
+ *
+ * @author Rod Johnson
+ * @author Chris Beams
+ * @author Sam Brannen
  */
-public class ClassFiltersTests {
+class ClassFiltersTests {
 
   private final ClassFilter exceptionFilter = new RootClassFilter(Exception.class);
+
   private final ClassFilter interfaceFilter = new RootClassFilter(ITestBean.class);
+
   private final ClassFilter hasRootCauseFilter = new RootClassFilter(NestedRuntimeException.class);
 
   @Test
-  public void union() {
+  void union() {
     assertThat(exceptionFilter.matches(RuntimeException.class)).isTrue();
     assertThat(exceptionFilter.matches(TestBean.class)).isFalse();
     assertThat(interfaceFilter.matches(Exception.class)).isFalse();
@@ -54,7 +58,7 @@ public class ClassFiltersTests {
   }
 
   @Test
-  public void intersection() {
+  void intersection() {
     assertThat(exceptionFilter.matches(RuntimeException.class)).isTrue();
     assertThat(hasRootCauseFilter.matches(NestedRuntimeException.class)).isTrue();
     ClassFilter intersection = ClassFilters.intersection(exceptionFilter, hasRootCauseFilter);
@@ -66,4 +70,3 @@ public class ClassFiltersTests {
   }
 
 }
-

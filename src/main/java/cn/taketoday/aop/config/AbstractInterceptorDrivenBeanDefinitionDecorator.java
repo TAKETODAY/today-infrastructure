@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-import cn.taketoday.aop.proxy.ProxyFactoryBean;
+import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <p>Chaining is correctly handled, ensuring that only one {@link ProxyFactoryBean} definition
  * is created. If a previous {@link cn.taketoday.beans.factory.xml.BeanDefinitionDecorator}
- * already created the {@link cn.taketoday.aop.proxy.ProxyFactoryBean} then the
+ * already created the {@link ProxyFactoryBean} then the
  * interceptor is simply added to the existing definition.
  *
  * <p>Subclasses have only to create the {@code BeanDefinition} to the interceptor that

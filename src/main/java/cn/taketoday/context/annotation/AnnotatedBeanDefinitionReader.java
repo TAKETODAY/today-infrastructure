@@ -25,19 +25,19 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.config.Scope;
-import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
+import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.context.loader.ScopeMetadata;
@@ -45,6 +45,7 @@ import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
@@ -79,32 +80,36 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
   private BeanNamePopulator beanNamePopulator = AnnotationBeanNamePopulator.INSTANCE;
 
-  public AnnotatedBeanDefinitionReader() { }
-
-  public AnnotatedBeanDefinitionReader(ApplicationContext context) {
-    this.context = context;
-    if (context instanceof BeanDefinitionRegistry registry) {
-      this.registry = registry;
-    }
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
-  }
-
+  /**
+   * Create a new {@code AnnotatedBeanDefinitionReader} for the given registry.
+   * <p>If the registry is {@link EnvironmentCapable}, e.g. is an {@code ApplicationContext},
+   * the {@link Environment} will be inherited, otherwise a new
+   * {@link StandardEnvironment} will be created and used.
+   *
+   * @param registry the {@code BeanFactory} to load bean definitions into,
+   * in the form of a {@code BeanDefinitionRegistry}
+   * @see #AnnotatedBeanDefinitionReader(BeanDefinitionRegistry, Environment)
+   * @see #setEnvironment(Environment)
+   */
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
-    this.registry = registry;
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
+    this(registry, getOrCreateEnvironment(registry));
   }
 
-  public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, boolean enableConditionEvaluation) {
+  /**
+   * Create a new {@code AnnotatedBeanDefinitionReader} for the given registry,
+   * using the given {@link Environment}.
+   *
+   * @param registry the {@code BeanFactory} to load bean definitions into,
+   * in the form of a {@code BeanDefinitionRegistry}
+   * @param environment the {@code Environment} to use when evaluating bean definition
+   * profiles.
+   */
+  public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, Environment environment) {
+    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+    Assert.notNull(environment, "Environment must not be null");
     this.registry = registry;
-    this.enableConditionEvaluation = enableConditionEvaluation;
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
-  }
-
-  public AnnotatedBeanDefinitionReader(
-          ApplicationContext context, BeanDefinitionRegistry registry) {
-    this.context = context;
-    this.registry = registry;
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(registry);
+    this.conditionEvaluator = new ConditionEvaluator(environment, null, registry);
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
   }
 
   //---------------------------------------------------------------------
@@ -597,6 +602,18 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers imp
   public void setBeanNamePopulator(@Nullable BeanNamePopulator beanNamePopulator) {
     this.beanNamePopulator =
             (beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE);
+  }
+
+  /**
+   * Get the Environment from the given registry if possible, otherwise return a new
+   * StandardEnvironment.
+   */
+  private static Environment getOrCreateEnvironment(BeanDefinitionRegistry registry) {
+    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+    if (registry instanceof EnvironmentCapable) {
+      return ((EnvironmentCapable) registry).getEnvironment();
+    }
+    return new StandardEnvironment();
   }
 
 }

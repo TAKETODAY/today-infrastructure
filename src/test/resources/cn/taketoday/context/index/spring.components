@@ -1,0 +1,3 @@
+cn.taketoday.context.index.Sample1=foo
+cn.taketoday.context.index.Sample2=bar,foo
+cn.taketoday.context.index.Sample3=biz

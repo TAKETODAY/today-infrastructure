@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Chris Beams
- * @since 26.04.2003
  */
 public class TransactionAttributeEditorTests {
 

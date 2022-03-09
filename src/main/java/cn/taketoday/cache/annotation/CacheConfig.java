@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,55 +17,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.cache.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.lang.Constant;
+import cn.taketoday.cache.interceptor.CacheResolver;
+import cn.taketoday.cache.interceptor.KeyGenerator;
+import cn.taketoday.cache.interceptor.SimpleCacheResolver;
+import cn.taketoday.cache.CacheManager;
 
 /**
  * {@code @CacheConfig} provides a mechanism for sharing common cache-related
  * settings at the class level.
  *
- * <p>
- * When this annotation is present on a given class, it provides a set of
- * default settings for any cache operation defined in that class.
+ * <p>When this annotation is present on a given class, it provides a set
+ * of default settings for any cache operation defined in that class.
  *
- * @author TODAY <br>
- * 2019-02-28 18:00
+ * @author Stephane Nicoll
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/3/9 21:36
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface CacheConfig {
 
   /**
-   * Name of the cache for caching operations
+   * Names of the default caches to consider for caching operations defined
+   * in the annotated class.
+   * <p>If none is set at the operation level, these are used instead of the default.
+   * <p>May be used to determine the target cache (or caches), matching the
+   * qualifier value or the bean names of a specific bean definition.
    */
-  String cacheName() default Constant.BLANK;
+  String[] cacheNames() default {};
 
   /**
-   * The expire time. Use global config if the attribute value is absent, and if
-   * the global config is not defined either, use infinity instead.
-   *
-   * @return the expire time
+   * The bean name of the default {@link KeyGenerator} to
+   * use for the class.
+   * <p>If none is set at the operation level, this one is used instead of the default.
+   * <p>The key generator is mutually exclusive with the use of a custom key. When such key is
+   * defined for the operation, the value of this key generator is ignored.
    */
-  long expire() default 0;
-
-  int maxSize() default 0;
-
-  long maxIdleTime() default 0;
+  String keyGenerator() default "";
 
   /**
-   * Specify the time unit of expire.
+   * The bean name of the custom {@link CacheManager} to use to
+   * create a default {@link CacheResolver} if none
+   * is set already.
+   * <p>If no resolver and no cache manager are set at the operation level, and no cache
+   * resolver is set via {@link #cacheResolver}, this one is used instead of the default.
    *
-   * @return the time unit of expire time
+   * @see SimpleCacheResolver
    */
-  TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+  String cacheManager() default "";
 
-  CacheConfig EMPTY_CACHE_CONFIG = new CacheConfiguration();
+  /**
+   * The bean name of the custom {@link CacheResolver} to use.
+   * <p>If no resolver and no cache manager are set at the operation level, this one is used
+   * instead of the default.
+   */
+  String cacheResolver() default "";
 
 }

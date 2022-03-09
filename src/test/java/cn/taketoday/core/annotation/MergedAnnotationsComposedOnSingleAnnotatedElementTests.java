@@ -21,8 +21,6 @@
 package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.util.ReflectionUtils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -34,6 +32,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

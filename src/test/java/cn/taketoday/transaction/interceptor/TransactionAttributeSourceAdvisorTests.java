@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.aop.SerializationTestUtils;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 
 /**
  * @author Rod Johnson

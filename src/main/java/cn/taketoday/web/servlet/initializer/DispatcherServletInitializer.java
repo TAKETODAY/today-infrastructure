@@ -20,7 +20,6 @@
 package cn.taketoday.web.servlet.initializer;
 
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -60,11 +59,6 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     if (dispatcherServlet == null && isAutoCreateDispatcher()) {
       WebServletApplicationContext context = getApplicationContext();
       BeanDefinitionRegistry registry = context.unwrapFactory(BeanDefinitionRegistry.class);
-      if (!registry.containsBeanDefinition(DispatcherServlet.class)) {
-        AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context, registry);
-        reader.setEnableConditionEvaluation(false);
-        reader.registerBean(DISPATCHER_SERVLET, DispatcherServlet.class);
-      }
       dispatcherServlet = context.getBean(DispatcherServlet.class);
       setServlet(dispatcherServlet);
     }

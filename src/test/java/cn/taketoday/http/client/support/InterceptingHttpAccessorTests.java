@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestExecution;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;

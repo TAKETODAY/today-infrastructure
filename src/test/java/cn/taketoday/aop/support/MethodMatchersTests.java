@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -25,10 +26,12 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.MethodMatcher;
-import cn.taketoday.aop.SerializationTestUtils;
+import cn.taketoday.aop.framework.DefaultMethodInvocation;
 import cn.taketoday.beans.testfixture.beans.IOther;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,13 +86,15 @@ public class MethodMatchersTests {
     MethodMatcher intersection = MethodMatchers.intersection(mm1, mm2);
     assertThat(intersection.isRuntime()).as("Intersection is a dynamic matcher").isTrue();
     assertThat(intersection.matches(ITESTBEAN_SETAGE, TestBean.class)).as("2Matched setAge method").isTrue();
-//    assertThat(intersection.matches(ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 })).as("3Matched setAge method").isTrue();
+
+    DefaultMethodInvocation defaultMethodInvocation = new DefaultMethodInvocation(null, ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 });
+
+    assertThat(intersection.matches(defaultMethodInvocation)).as("3Matched setAge method").isTrue();
     // Knock out dynamic part
     intersection = MethodMatchers.intersection(intersection, new TestDynamicMethodMatcherWhichDoesNotMatch());
     assertThat(intersection.isRuntime()).as("Intersection is a dynamic matcher").isTrue();
     assertThat(intersection.matches(ITESTBEAN_SETAGE, TestBean.class)).as("2Matched setAge method").isTrue();
-//    assertThat(intersection.matches(ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 })).as("3 - not Matched setAge method").isFalse();
-
+    assertThat(intersection.matches(defaultMethodInvocation)).as("3 - not Matched setAge method").isFalse();
   }
 
   @Test
@@ -121,7 +126,7 @@ public class MethodMatchersTests {
     }
 
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().startsWith(prefix);
     }
   }
@@ -130,7 +135,7 @@ public class MethodMatchersTests {
 
     @Override
     public boolean matches(MethodInvocation invocation) {
-      return false;
+      return true;
     }
   }
 

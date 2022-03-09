@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.event.test;
 
-import cn.taketoday.context.event.ApplicationEvent;
-
 import java.util.UUID;
+
+import cn.taketoday.context.event.ApplicationEvent;
 
 /**
  * A basic test event that can be uniquely identified easily.

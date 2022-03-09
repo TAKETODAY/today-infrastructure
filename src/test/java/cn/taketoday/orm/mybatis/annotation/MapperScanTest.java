@@ -24,26 +24,26 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
-import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
@@ -63,24 +63,25 @@ import cn.taketoday.orm.mybatis.type.DummyMapperFactoryBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test for the MapperScannerRegistrar.
  * <p>
  */
 class MapperScanTest {
-  private StandardApplicationContext applicationContext;
+  private AnnotationConfigApplicationContext applicationContext;
 
   @BeforeEach
   void setupContext() {
-    applicationContext = new StandardApplicationContext();
+    applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.getBeanFactory().registerScope("thread", new SimpleThreadScope());
 
     setupSqlSessionFactory();
 
     // assume support for autowiring fields is added by MapperScannerConfigurer
     // via
-    // cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
+    // org.springframework.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
   }
 
   private void startContext() {
@@ -88,7 +89,7 @@ class MapperScanTest {
     applicationContext.start();
 
     // this will throw an exception if the beans cannot be found
-    BeanFactoryUtils.requiredBean(applicationContext, "sqlSessionFactory");
+    applicationContext.getBean("sqlSessionFactory");
   }
 
   @AfterEach
@@ -99,7 +100,7 @@ class MapperScanTest {
 
       // no method interfaces should be ignored too
       assertBeanNotLoaded("package-info");
-//      assertBeanNotLoaded("annotatedMapperZeroMethods"); // as of 1.1.0 mappers
+      // assertBeanNotLoaded("annotatedMapperZeroMethods"); // as of 1.1.0 mappers
       // with no methods are loaded
     }
     finally {
@@ -225,7 +226,7 @@ class MapperScanTest {
 
   @Test
   void testScanWithNameConflict() {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(Object.class);
     applicationContext.registerBeanDefinition("mapperInterface", definition);
 
@@ -238,15 +239,20 @@ class MapperScanTest {
   }
 
   private void setupSqlSessionFactory() {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(SqlSessionFactoryBean.class);
-    definition.propertyValues().add("dataSource", new MockDataSource());
+    definition.getPropertyValues().add("dataSource", new MockDataSource());
     applicationContext.registerBeanDefinition("sqlSessionFactory", definition);
   }
 
   private void assertBeanNotLoaded(String name) {
-    Object bean = applicationContext.getBean(name);
-    assertThat(bean).as("bean should not be defined for class " + name).isNull();
+    try {
+      applicationContext.getBean(name);
+      fail("Spring bean should not be defined for class " + name);
+    }
+    catch (NoSuchBeanDefinitionException nsbde) {
+      // success
+    }
   }
 
   @Test
@@ -264,7 +270,7 @@ class MapperScanTest {
 
   @Test
   void testScanWithExplicitSqlSessionTemplate() {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(SqlSessionTemplate.class);
     ConstructorArgumentValues constructorArgs = new ConstructorArgumentValues();
     constructorArgs.addGenericArgumentValue(new RuntimeBeanReference("sqlSessionFactory"));
@@ -357,7 +363,6 @@ class MapperScanTest {
 
   }
 
-  @Disabled
   @Test
   void testScopedProxyMapperScanByDefaultScope() {
     applicationContext.register(ScopedProxy.class);
@@ -494,6 +499,7 @@ class MapperScanTest {
       definition.setBeanName(definition.getBeanClassName());
       return definition.getBeanClassName();
     }
+
   }
 
 }

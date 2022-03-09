@@ -36,7 +36,7 @@ import jakarta.servlet.ServletRegistration;
 /**
  * A {@link ServletContextInitializer} to register {@link Servlet}s in a Servlet 3.0+
  * container. Similar to the {@link ServletContext#addServlet(String, Servlet)
- * registration} features provided by {@link ServletContext} but with a Spring Bean
+ * registration} features provided by {@link ServletContext} but with a Framework Bean
  * friendly design.
  * <p>
  * The {@link #setServlet(Servlet) servlet} must be specified before calling

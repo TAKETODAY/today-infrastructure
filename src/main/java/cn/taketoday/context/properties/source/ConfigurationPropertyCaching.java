@@ -61,7 +61,7 @@ public interface ConfigurationPropertyCaching {
   /**
    * Get for all configuration property sources in the environment.
    *
-   * @param environment the spring environment
+   * @param environment the Framework environment
    * @return a caching instance that controls all sources in the environment
    */
   static ConfigurationPropertyCaching get(Environment environment) {
@@ -71,7 +71,7 @@ public interface ConfigurationPropertyCaching {
   /**
    * Get for a specific configuration property source in the environment.
    *
-   * @param environment the spring environment
+   * @param environment the Framework environment
    * @param underlyingSource the
    * {@link ConfigurationPropertySource#getUnderlyingSource() underlying source} that
    * must match

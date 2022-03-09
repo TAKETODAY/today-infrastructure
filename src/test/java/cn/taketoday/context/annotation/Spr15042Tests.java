@@ -22,7 +22,7 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.proxy.ProxyFactoryBean;
+import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.aop.target.CommonsPool2TargetSource;
 import cn.taketoday.context.support.StandardApplicationContext;
 

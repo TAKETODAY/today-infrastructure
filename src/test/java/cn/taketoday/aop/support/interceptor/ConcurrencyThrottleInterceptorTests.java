@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,13 +22,13 @@ package cn.taketoday.aop.support.interceptor;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.interceptor.ConcurrencyThrottleInterceptor;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 

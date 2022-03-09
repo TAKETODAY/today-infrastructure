@@ -21,7 +21,6 @@
 package cn.taketoday.jmx.export.notification;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jmx.export.SpringModelMBean;
 
 import javax.management.AttributeChangeNotification;
 import javax.management.MBeanException;
@@ -29,6 +28,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
+
+import cn.taketoday.jmx.export.SpringModelMBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * Note: To use constructor binding the class must be enabled using
  * {@link EnableConfigurationProperties @EnableConfigurationProperties} or configuration
  * property scanning. Constructor binding cannot be used with beans that are created by
- * the regular Spring mechanisms (e.g.
+ * the regular Framework mechanisms (e.g.
  * {@link cn.taketoday.lang.Component @Component} beans, beans created via
  * {@link cn.taketoday.context.annotation.Bean @Bean} methods or beans loaded using
  * {@link cn.taketoday.context.annotation.Import @Import}).

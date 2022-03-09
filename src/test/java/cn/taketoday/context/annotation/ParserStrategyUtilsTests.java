@@ -27,12 +27,12 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.InputStream;
 
-import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanClassLoaderAware;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.loader.BootstrapContext;

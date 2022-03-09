@@ -22,9 +22,9 @@ package cn.taketoday.web.demo.config;
 
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.web.config.InterceptorRegistry;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.config.InterceptorRegistry;
 
 /**
  * @author TODAY 2021/8/29 22:20

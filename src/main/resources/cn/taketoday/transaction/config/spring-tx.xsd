@@ -75,7 +75,7 @@
 	annotations on bean classes, and that proxies are automatically
 	to be created for the relevant annotated beans.
 
-	The default annotations supported are Spring's @Transactional,
+	The default annotations supported are Framework's @Transactional,
 	JTA 1.2's @Transactional (if available),
 	and EJB3's @TransactionAttribute (if available).
 
@@ -110,7 +110,7 @@
       <xsd:attribute name="mode" default="proxy">
         <xsd:annotation>
           <xsd:documentation><![CDATA[
-	Should annotated beans be proxied using Spring's AOP framework,
+	Should annotated beans be proxied using Framework's AOP framework,
 	or should they rather be woven with an AspectJ transaction aspect?
 
 	AspectJ weaving requires spring-aspects.jar on the classpath,

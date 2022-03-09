@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,200 +15,122 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.cache;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NullValue;
+import java.util.concurrent.Callable;
+
 import cn.taketoday.lang.Nullable;
 
 /**
- * Abstraction for that defines common cache operations.
+ * Interface that defines common cache operations.
  *
  * <b>Note:</b> Due to the generic use of caching, it is recommended that
  * implementations allow storage of <tt>null</tt> values (for example to
  * cache methods that return {@code null}).
  *
+ * @author Costin Leau
+ * @author Juergen Hoeller
+ * @author Stephane Nicoll
  * @author TODAY 2019-02-27 17:11
  */
-public abstract class Cache {
-  private String name = Constant.DEFAULT;
-
-  public void setName(String name) {
-    Assert.notNull(name, "Name must not be null");
-    this.name = name;
-  }
+public interface Cache {
 
   /**
    * Return the cache name.
    */
-  public String getName() {
-    return name;
-  }
+  String getName();
+
+  /**
+   * Return the underlying native cache provider.
+   */
+  Object getNativeCache();
 
   /**
    * Return the value to which this cache maps the specified key.
-   * <p>
-   * Returns {@code null} if the cache contains no mapping for this key;
+   * <p>Returns {@code null} if the cache contains no mapping for this key;
+   * otherwise, the cached value (which may be {@code null} itself) will
+   * be returned in a {@link ValueWrapper}.
    *
    * @param key the key whose associated value is to be returned
-   * @return the value to which this cache maps the specified key, A straight
-   * {@code null} being returned means that the cache contains no mapping
-   * for this key or the key is map to a {@code null} value.
+   * @return the value to which this cache maps the specified key,
+   * contained within a {@link ValueWrapper} which may also hold
+   * a cached {@code null} value. A straight {@code null} being
+   * returned means that the cache contains no mapping for this key.
    * @see #get(Object, Class)
-   * @see #get(Object, boolean)
-   * @see #toRealValue(Object)
+   * @see #get(Object, Callable)
    */
   @Nullable
-  public Object get(final Object key) {
-    return get(key, true);
-  }
+  ValueWrapper get(Object key);
 
   /**
-   * Return the value to which this cache maps the specified key.
-   * <p>
-   * Returns {@code null} if the cache contains no mapping for this key;
+   * Return the value to which this cache maps the specified key,
+   * generically specifying a type that return value will be cast to.
+   * <p>Note: This variant of {@code get} does not allow for differentiating
+   * between a cached {@code null} value and no cache entry found at all.
+   * Use the standard {@link #get(Object)} variant for that purpose instead.
    *
    * @param key the key whose associated value is to be returned
-   * @param unWarp unWarp value, if its {@code true} un-warp store value to real value
-   * @return the value to which this cache maps the specified key, A straight
-   * {@code null} being returned means that the cache contains no mapping
-   * for this key. if returns {@link NullValue#INSTANCE} indicates that
-   * the key maps to a {@code null} value
-   * @see #get(Object, Class)
-   * @see NullValue#INSTANCE
-   * @see NullValue
-   * @see #toRealValue(Object)
-   */
-  @Nullable
-  public Object get(final Object key, final boolean unWarp) {
-    final Object userValue = doGet(key);
-    return unWarp ? toRealValue(userValue) : userValue;
-  }
-
-  /**
-   * look up value in mappings with given key
-   *
-   * @param key given key
-   * @return cached value maybe a warped value
-   */
-  @Nullable
-  protected abstract Object doGet(Object key);
-
-  /**
-   * Return the value to which this cache maps the specified key, generically
-   * specifying a type that return value will be cast to.
-   * <p>
-   * Note: This variant of {@code get} does not allow for differentiating between
-   * a cached {@code null} value and no cache entry found at all. Use the standard
-   * {@link #get(Object)} variant for that purpose instead.
-   *
-   * @param key the key whose associated value is to be returned
-   * @param requiredType the required type of the returned value (may be {@code null} to
-   * bypass a type check; in case of a {@code null} value found in the
-   * cache, the specified type is irrelevant)
-   * @return the value to which this cache maps the specified key (which may be
-   * {@code null} itself), or also {@code null} if the cache contains no
-   * mapping for this key
-   * @throws IllegalStateException if a cache entry has been found but failed to match the specified
-   * type
-   * @see #get(Object)
-   */
-  @Nullable
-  @SuppressWarnings("unchecked")
-  public <T> T get(final Object key, final Class<T> requiredType) {
-    final Object value = get(key, true);
-    if (value != null && requiredType != null && !requiredType.isInstance(value)) {
-      throw new IllegalStateException(
-              "Cached value is not of required type [" + requiredType.getName() + "]: " + value);
-    }
-    return (T) value;
-  }
-
-  /**
-   * Return the value to which this cache maps the specified key, obtaining that
-   * value from {@code valueLoader} if necessary. This method provides a simple
-   * substitute for the conventional "if cached, return; otherwise create, cache
-   * and return" pattern.
-   * <p>
-   * If possible, implementations should ensure that the loading operation is
-   * synchronized so that the specified {@code valueLoader} is only called once in
-   * case of concurrent access on the same key.
-   * <p>
-   *
-   * @param key the key whose associated value is to be returned
-   * @param valueLoader Value Loader
+   * @param type the required type of the returned value (may be
+   * {@code null} to bypass a type check; in case of a {@code null}
+   * value found in the cache, the specified type is irrelevant)
    * @return the value to which this cache maps the specified key
-   * @throws CacheValueRetrievalException If cache value failed to load
-   * @see #get(Object, boolean)
+   * (which may be {@code null} itself), or also {@code null} if
+   * the cache contains no mapping for this key
+   * @throws IllegalStateException if a cache entry has been found
+   * but failed to match the specified type
+   * @see #get(Object)
+   * @since 4.0
    */
   @Nullable
-  @SuppressWarnings("unchecked")
-  public <T> T get(Object key, CacheCallback<T> valueLoader) {
-    return (T) toRealValue(computeIfAbsent(key, valueLoader));
-  }
+  <T> T get(Object key, @Nullable Class<T> type);
 
   /**
-   * Get value If there isn't a key, use valueLoader create one
+   * Return the value to which this cache maps the specified key, obtaining
+   * that value from {@code valueLoader} if necessary. This method provides
+   * a simple substitute for the conventional "if cached, return; otherwise
+   * create, cache and return" pattern.
+   * <p>If possible, implementations should ensure that the loading operation
+   * is synchronized so that the specified {@code valueLoader} is only called
+   * once in case of concurrent access on the same key.
+   * <p>If the {@code valueLoader} throws an exception, it is wrapped in
+   * a {@link ValueRetrievalException}
    *
-   * @param <T> Cache value type
-   * @param key Cache key
-   * @param valueLoader Value Loader
-   * @return cached value maybe a warped value
-   * @throws CacheValueRetrievalException If CacheCallback#call() throws Exception
+   * @param key the key whose associated value is to be returned
+   * @return the value to which this cache maps the specified key
+   * @throws ValueRetrievalException if the {@code valueLoader} throws an exception
+   * @see #get(Object)
+   * @since 4.0
    */
   @Nullable
-  protected <T> Object computeIfAbsent(Object key, CacheCallback<T> valueLoader) {
-    Object ret = doGet(key);
-    if (ret == null) {
-      ret = computeValue(key, valueLoader);
-      doPut(key, ret);
-    }
-    return ret;
-  }
-
-  /**
-   * compute cache value from {@code valueLoader}
-   *
-   * @param valueLoader Cache value loader
-   * @param <T> Value type
-   * @return a value from {@code valueLoader} maybe warp to a {@code NullValue.INSTANCE}
-   * when {@code valueLoader} returns {@code null}
-   */
-  protected final <T> Object computeValue(Object key, CacheCallback<T> valueLoader) {
-    try {
-      return toStoreValue(valueLoader.call());
-    }
-    catch (Throwable e) {
-      throw new CacheValueRetrievalException(key, valueLoader, e);
-    }
-  }
+  <T> T get(Object key, Callable<T> valueLoader);
 
   /**
    * Associate the specified value with the specified key in this cache.
-   * <p>
-   * If the cache previously contained a mapping for this key, the old value is
-   * replaced by the specified value.
+   * <p>If the cache previously contained a mapping for this key, the old
+   * value is replaced by the specified value.
+   * <p>Actual registration may be performed in an asynchronous or deferred
+   * fashion, with subsequent lookups possibly not seeing the entry yet.
+   * This may for example be the case with transactional cache decorators.
+   * Use {@link #putIfAbsent} for guaranteed immediate registration.
    *
    * @param key the key with which the specified value is to be associated
    * @param value the value to be associated with the specified key
+   * @see #putIfAbsent(Object, Object)
    */
-  public void put(final Object key, @Nullable Object value) {
-    doPut(key, toStoreValue(value));
-  }
+  void put(Object key, @Nullable Object value);
 
   /**
    * Atomically associate the specified value with the specified key in this cache
    * if it is not set already.
    * <p>This is equivalent to:
    * <pre><code>
-   * Object existingValue = doGet(key);
+   * ValueWrapper existingValue = cache.get(key);
    * if (existingValue == null) {
    *     cache.put(key, value);
    * }
-   * return toRealValue(existingValue);
+   * return existingValue;
    * </code></pre>
    * except that the action is performed atomically. While all out-of-the-box
    * {@link CacheManager} implementations are able to perform the put atomically,
@@ -228,56 +150,106 @@ public abstract class Cache {
    * @since 4.0
    */
   @Nullable
-  public Object putIfAbsent(Object key, @Nullable Object value) {
-    Object existingValue = doGet(key);
+  default ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
+    ValueWrapper existingValue = get(key);
     if (existingValue == null) {
       put(key, value);
     }
-    return toRealValue(existingValue);
+    return existingValue;
   }
-
-  /**
-   * Put to this cache internal
-   *
-   * @param key Target key
-   * @param value Target value
-   */
-  protected abstract void doPut(Object key, Object value);
 
   /**
    * Evict the mapping for this key from this cache if it is present.
+   * <p>Actual eviction may be performed in an asynchronous or deferred
+   * fashion, with subsequent lookups possibly still seeing the entry.
+   * This may for example be the case with transactional cache decorators.
+   * Use {@link #evictIfPresent} for guaranteed immediate removal.
    *
    * @param key the key whose mapping is to be removed from the cache
+   * @see #evictIfPresent(Object)
    */
-  public abstract void evict(Object key);
+  void evict(Object key);
 
   /**
-   * Remove all mappings from the cache.
-   */
-  public abstract void clear();
-
-  // static
-
-  /**
-   * real value to store value
+   * Evict the mapping for this key from this cache if it is present,
+   * expecting the key to be immediately invisible for subsequent lookups.
+   * <p>The default implementation delegates to {@link #evict(Object)},
+   * returning {@code false} for not-determined prior presence of the key.
+   * Cache providers and in particular cache decorators are encouraged
+   * to perform immediate eviction if possible (e.g. in case of generally
+   * deferred cache operations within a transaction) and to reliably
+   * determine prior presence of the given key.
    *
-   * @param userValue real value
-   * @return Store value maybe a serializable object
+   * @param key the key whose mapping is to be removed from the cache
+   * @return {@code true} if the cache was known to have a mapping for
+   * this key before, {@code false} if it did not (or if prior presence
+   * could not be determined)
+   * @see #evict(Object)
+   * @since 4.0
    */
-  public static Object toStoreValue(final Object userValue) {
-    return userValue == null ? NullValue.INSTANCE : userValue;
+  default boolean evictIfPresent(Object key) {
+    evict(key);
+    return false;
   }
 
   /**
-   * convert store value to real value
+   * Clear the cache through removing all mappings.
+   * <p>Actual clearing may be performed in an asynchronous or deferred
+   * fashion, with subsequent lookups possibly still seeing the entries.
+   * This may for example be the case with transactional cache decorators.
+   * Use {@link #invalidate()} for guaranteed immediate removal of entries.
    *
-   * @param cachedValue cached value in mappings
-   * @return if {@code cachedValue} is {@link NullValue#INSTANCE}
-   * indicates that real value is {@code null}
+   * @see #invalidate()
    */
-  @Nullable
-  public static Object toRealValue(final Object cachedValue) {
-    return cachedValue == NullValue.INSTANCE ? null : cachedValue;
+  void clear();
+
+  /**
+   * Invalidate the cache through removing all mappings, expecting all
+   * entries to be immediately invisible for subsequent lookups.
+   *
+   * @return {@code true} if the cache was known to have mappings before,
+   * {@code false} if it did not (or if prior presence of entries could
+   * not be determined)
+   * @see #clear()
+   * @since 4.0
+   */
+  default boolean invalidate() {
+    clear();
+    return false;
+  }
+
+  /**
+   * A (wrapper) object representing a cache value.
+   */
+  @FunctionalInterface
+  interface ValueWrapper {
+
+    /**
+     * Return the actual value in the cache.
+     */
+    @Nullable
+    Object get();
+  }
+
+  /**
+   * Wrapper exception to be thrown from {@link #get(Object, Callable)}
+   * in case of the value loader callback failing with an exception.
+   */
+  @SuppressWarnings("serial")
+  class ValueRetrievalException extends RuntimeException {
+
+    @Nullable
+    private final Object key;
+
+    public ValueRetrievalException(@Nullable Object key, Callable<?> loader, Throwable ex) {
+      super(String.format("Value for key '%s' could not be loaded using '%s'", key, loader), ex);
+      this.key = key;
+    }
+
+    @Nullable
+    public Object getKey() {
+      return this.key;
+    }
   }
 
 }

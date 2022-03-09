@@ -25,16 +25,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
@@ -80,7 +80,7 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebServ
    * refreshed}.
    */
   public AnnotationConfigServletWebApplicationContext() {
-    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
@@ -93,7 +93,7 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebServ
    */
   public AnnotationConfigServletWebApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 

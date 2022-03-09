@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.lang.Assert;
@@ -193,7 +194,7 @@ public class ResourceHandlerRegistration {
    * setting this to "true" is recommended for production (and "false" for
    * development, especially when applying a version strategy
    * @param cache the cache to use for storing resolved and transformed resources;
-   * by default a {@link cn.taketoday.cache.support.ConcurrentMapCache}
+   * by default a {@link ConcurrentMapCache}
    * is used. Since Resources aren't serializable and can be dependent on the
    * application host, one should not use a distributed cache but rather an
    * in-memory cache.

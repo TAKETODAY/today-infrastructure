@@ -20,8 +20,8 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 

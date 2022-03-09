@@ -150,7 +150,7 @@ class FrameworkConfigurationPropertySource implements ConfigurationPropertySourc
    * Create a new {@link FrameworkConfigurationPropertySource} for the specified
    * {@link PropertySource}.
    *
-   * @param source the source Spring {@link PropertySource}
+   * @param source the source Framework {@link PropertySource}
    * @return a {@link FrameworkConfigurationPropertySource} or
    * {@link FrameworkIterableConfigurationPropertySource} instance
    */

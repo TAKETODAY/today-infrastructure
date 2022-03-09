@@ -81,7 +81,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <p>The process of actually registering the
  * {@code SimpleCacheBeanDefinitionParser} with the Spring XML parsing
- * infrastructure is described in the Spring Framework reference documentation
+ * infrastructure is described in the Framework reference documentation
  * (in one of the appendices).
  *
  * <p>For an example of this parser in action (so to speak), do look at

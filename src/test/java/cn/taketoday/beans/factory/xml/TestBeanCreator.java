@@ -23,7 +23,7 @@ package cn.taketoday.beans.factory.xml;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
 /**
- * Test class for Spring's ability to create
+ * Test class for Framework's ability to create
  * objects using static factory methods, rather
  * than constructors.
  *

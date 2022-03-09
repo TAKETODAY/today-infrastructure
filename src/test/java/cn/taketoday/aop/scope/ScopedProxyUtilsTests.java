@@ -26,8 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/3/7 21:17
+ * Unit tests for {@link ScopedProxyUtils}.
+ *
+ * @author Sam Brannen
  */
 class ScopedProxyUtilsTests {
 

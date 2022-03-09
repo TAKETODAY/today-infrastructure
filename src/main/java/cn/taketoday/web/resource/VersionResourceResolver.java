@@ -116,7 +116,7 @@ public class VersionResourceResolver extends AbstractResourceResolver {
    * content-based versions) when using JavaScript module loaders.
    * <p>The version may be a random number, the current date, or a value
    * fetched from a git commit sha, a property file, or environment variable
-   * and set with SpEL expressions in the configuration (e.g. see {@code @Value}
+   * and set with EL expressions in the configuration (e.g. see {@code @Value}
    * in Java config).
    * <p>If not done already, variants of the given {@code pathPatterns}, prefixed with
    * the {@code version} will be also configured. For example, adding a {@code "/js/**"} path pattern

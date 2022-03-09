@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Set of method overrides, determining which, if any, methods on a
- * managed object the Spring IoC container will override at runtime.
+ * managed object the IoC container will override at runtime.
  *
  * <p>The currently supported {@link MethodOverride} variants are
  * {@link LookupOverride} and {@link ReplaceOverride}.

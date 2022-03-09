@@ -19,7 +19,7 @@
  */
 
 /**
- * Web integrations with Spring's {@link cn.taketoday.context.ApplicationContext
+ * Web integrations with Framework's {@link cn.taketoday.context.ApplicationContext
  * ApplicationContext}.
  */
 package cn.taketoday.framework.web.context;

@@ -23,8 +23,9 @@ package cn.taketoday.transaction.interceptor;
 import java.util.Properties;
 
 import cn.taketoday.aop.Pointcut;
+import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.aop.interceptor.PerformanceMonitorInterceptor;
-import cn.taketoday.aop.proxy.AbstractSingletonProxyFactoryBean;
+import cn.taketoday.aop.framework.AbstractSingletonProxyFactoryBean;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -36,7 +37,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
 /**
  * Proxy factory bean for simplified declarative transaction handling.
  * This is a convenient alternative to a standard AOP
- * {@link cn.taketoday.aop.proxy.ProxyFactoryBean}
+ * {@link ProxyFactoryBean}
  * with a separate {@link TransactionInterceptor} definition.
  *
  * <p>There are three main properties that need to be specified:
@@ -99,7 +100,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @see #setTarget
  * @see #setTransactionAttributes
  * @see TransactionInterceptor
- * @see cn.taketoday.aop.proxy.ProxyFactoryBean
+ * @see ProxyFactoryBean
  * @since 4.0
  */
 public class TransactionProxyFactoryBean

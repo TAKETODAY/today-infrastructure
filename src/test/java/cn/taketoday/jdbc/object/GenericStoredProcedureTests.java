@@ -26,16 +26,13 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.jdbc.core.SqlOutParameter;
-import cn.taketoday.jdbc.core.SqlParameter;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.jdbc.datasource.TestDataSourceWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,51 +45,11 @@ import static org.mockito.Mockito.verify;
  */
 public class GenericStoredProcedureTests {
 
-  /*
-	<bean id="dataSource" class="cn.taketoday.jdbc.datasource.TestDataSourceWrapper"/>
-	<bean id="genericProcedure" class="cn.taketoday.jdbc.object.GenericStoredProcedure">
-		<property name="dataSource" ref="dataSource"/>
-		<property name="sql" value="add_invoice"/>
-		<property name="parameters">
-			<list>
-				<bean class="cn.taketoday.jdbc.core.SqlParameter">
-					<constructor-arg index="0" value="amount"/>
-					<constructor-arg index="1">
-						<util:constant static-field="java.sql.Types.INTEGER"/>
-					</constructor-arg>
-				</bean>
-				<bean class="cn.taketoday.jdbc.core.SqlParameter">
-					<constructor-arg index="0" value="custid"/>
-					<constructor-arg index="1">
-						<util:constant static-field="java.sql.Types.INTEGER"/>
-					</constructor-arg>
-				</bean>
-				<bean class="cn.taketoday.jdbc.core.SqlOutParameter">
-					<constructor-arg index="0" value="newid"/>
-					<constructor-arg index="1">
-						<util:constant static-field="java.sql.Types.INTEGER"/>
-					</constructor-arg>
-				</bean>
-			</list>
-		</property>
-	</bean>
-   */
-
   @Test
   public void testAddInvoices() throws Exception {
     StandardBeanFactory bf = new StandardBeanFactory();
-
-    bf.registerBeanDefinition(new BeanDefinition("dataSource", TestDataSourceWrapper.class));
-
-    bf.registerBeanDefinition(new BeanDefinition("genericProcedure", GenericStoredProcedure.class)
-            .addPropertyValue("dataSource", RuntimeBeanReference.from("dataSource"))
-            .addPropertyValue("sql", "add_invoice")
-            .addPropertyValue("parameters", List.of(
-                    new SqlParameter("amount", java.sql.Types.INTEGER),
-                    new SqlParameter("custid", java.sql.Types.INTEGER),
-                    new SqlOutParameter("newid", java.sql.Types.INTEGER)
-            )));
-
+    new XmlBeanDefinitionReader(bf).loadBeanDefinitions(
+            new ClassPathResource("cn/taketoday/jdbc/object/GenericStoredProcedureTests-context.xml"));
     Connection connection = mock(Connection.class);
     DataSource dataSource = mock(DataSource.class);
     given(dataSource.getConnection()).willReturn(connection);

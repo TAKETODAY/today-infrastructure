@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.support;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.ClassFilter;
@@ -34,33 +32,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  */
-public class RootClassFilterTests {
+class RootClassFilterTests {
 
   private final ClassFilter filter1 = new RootClassFilter(Exception.class);
   private final ClassFilter filter2 = new RootClassFilter(Exception.class);
   private final ClassFilter filter3 = new RootClassFilter(ITestBean.class);
 
   @Test
-  public void matches() {
+  void matches() {
     assertThat(filter1.matches(Exception.class)).isTrue();
     assertThat(filter1.matches(RuntimeException.class)).isTrue();
     assertThat(filter1.matches(Error.class)).isFalse();
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     assertThat(filter1).isEqualTo(filter2);
     assertThat(filter1).isNotEqualTo(filter3);
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     assertThat(filter1.hashCode()).isEqualTo(filter2.hashCode());
     assertThat(filter1.hashCode()).isNotEqualTo(filter3.hashCode());
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     assertThat(filter1.toString()).isEqualTo("cn.taketoday.aop.support.RootClassFilter: java.lang.Exception");
     assertThat(filter1.toString()).isEqualTo(filter2.toString());
   }

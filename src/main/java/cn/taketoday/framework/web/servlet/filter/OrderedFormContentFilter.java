@@ -33,7 +33,7 @@ import cn.taketoday.web.servlet.filter.FormContentFilter;
 public class OrderedFormContentFilter extends FormContentFilter implements OrderedFilter {
 
   /**
-   * Higher order to ensure the filter is applied before Spring Security.
+   * Higher order to ensure the filter is applied before Framework Security.
    */
   public static final int DEFAULT_ORDER = REQUEST_WRAPPER_FILTER_MAX_ORDER - 9900;
 

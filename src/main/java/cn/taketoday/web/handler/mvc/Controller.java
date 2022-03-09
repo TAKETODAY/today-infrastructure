@@ -97,7 +97,7 @@ import cn.taketoday.web.view.ModelAndView;
  * ApplicationContext reference on initialization.
  *
  * <p>
- *   like Spring's {@code .servlet.mvc.Controller}
+ *   like Framework's {@code .servlet.mvc.Controller}
  * </p>
  *
  * @author Rod Johnson

@@ -19,23 +19,67 @@
  */
 package cn.taketoday.context.aware;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.Aware;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.MessageSourceAware;
 
 /**
- * {@link ApplicationContext} Injection
+ * Interface to be implemented by any object that wishes to be notified
+ * of the {@link ApplicationContext} that it runs in.
  *
+ * <p>Implementing this interface makes sense for example when an object
+ * requires access to a set of collaborating beans. Note that configuration
+ * via bean references is preferable to implementing this interface just
+ * for bean lookup purposes.
+ *
+ * <p>This interface can also be implemented if an object needs access to file
+ * resources, i.e. wants to call {@code getResource}, wants to publish
+ * an application event, or requires access to the MessageSource. However,
+ * it is preferable to implement the more specific {@link ResourceLoaderAware},
+ * {@link ApplicationEventPublisherAware} or {@link MessageSourceAware} interface
+ * in such a specific scenario.
+ *
+ * <p>Note that file resource dependencies can also be exposed as bean properties
+ * of type {@link cn.taketoday.core.io.Resource}, populated via Strings
+ * with automatic type conversion by the bean factory. This removes the need
+ * for implementing any callback interface just for the purpose of accessing
+ * a specific file resource.
+ *
+ * <p>{@link cn.taketoday.context.aware.ApplicationContextSupport} is a
+ * convenience base class for application objects, implementing this interface.
+ *
+ * <p>For a list of all bean lifecycle methods, see the
+ * {@link cn.taketoday.beans.factory.BeanFactory BeanFactory javadocs}.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Chris Beams
  * @author TODAY <br>
  * 2018-07-17 21:35:52
+ * @see ResourceLoaderAware
+ * @see ApplicationEventPublisherAware
+ * @see MessageSourceAware
+ * @see BeanFactoryAware
  */
 public interface ApplicationContextAware extends Aware {
 
   /**
-   * Set the ApplicationContext that this object runs in.Normally this call will
-   * be used to initialize the object.
+   * Set the ApplicationContext that this object runs in.
+   * Normally this call will be used to initialize the object.
+   * <p>Invoked after population of normal bean properties but before an init callback such
+   * as {@link cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet()}
+   * or a custom init-method. Invoked after {@link ResourceLoaderAware#setResourceLoader},
+   * {@link ApplicationEventPublisherAware#setApplicationEventPublisher} and
+   * {@link MessageSourceAware}, if applicable.
    *
-   * @param context ApplicationContext
+   * @param applicationContext the ApplicationContext object to be used by this object
+   * @throws ApplicationContextException in case of context initialization errors
+   * @throws BeansException if thrown by application context methods
+   * @see cn.taketoday.beans.factory.BeanInitializationException
    */
-  void setApplicationContext(ApplicationContext context);
+  void setApplicationContext(ApplicationContext applicationContext) throws BeansException;
 
 }

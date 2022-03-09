@@ -19,7 +19,6 @@
  */
 package cn.taketoday.util;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -28,12 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.aop.framework.AopProxyUtils;
+import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.MethodIntrospector;
@@ -101,7 +101,7 @@ public class MethodEventDrivenPostProcessor
       }
       Class<?> type = null;
       try {
-        type = AopProxyUtils.determineTargetClass(beanFactory, beanName);
+        type = AutoProxyUtils.determineTargetClass(beanFactory, beanName);
       }
       catch (Throwable ex) {
         // An unresolvable bean type, probably from a lazy bean - let's ignore it.

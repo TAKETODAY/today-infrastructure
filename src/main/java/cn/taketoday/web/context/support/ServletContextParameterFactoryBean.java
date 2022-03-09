@@ -30,7 +30,7 @@ import jakarta.servlet.ServletContext;
  * {@link FactoryBean} that retrieves a specific ServletContext init parameter
  * (that is, a "context-param" defined in {@code web.xml}).
  * Exposes that ServletContext init parameter when used as bean reference,
- * effectively making it available as named Spring bean instance.
+ * effectively making it available as named Framework bean instance.
  *
  * <p><b>NOTE:</b> you may also use the "contextParameters" default
  * bean which is of type Map, and dereference it using an "#{contextParameters.myKey}"

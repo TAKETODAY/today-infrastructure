@@ -21,9 +21,10 @@
 package cn.taketoday.scheduling.concurrent;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 
 import java.util.concurrent.TimeUnit;
+
+import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

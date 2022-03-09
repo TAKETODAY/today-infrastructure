@@ -43,9 +43,9 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.http.MediaType;
 
 import static cn.taketoday.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;

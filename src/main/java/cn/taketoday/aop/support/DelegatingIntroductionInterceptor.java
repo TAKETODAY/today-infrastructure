@@ -26,7 +26,7 @@ import java.io.Serial;
 
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
-import cn.taketoday.aop.proxy.AbstractMethodInvocation;
+import cn.taketoday.aop.framework.AbstractMethodInvocation;
 import cn.taketoday.lang.Assert;
 
 /**

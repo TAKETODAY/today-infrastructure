@@ -134,9 +134,9 @@ public final class ConfigurationPropertySources {
 
   /**
    * Return {@link Iterable} containing a single new {@link ConfigurationPropertySource}
-   * adapted from the given Spring {@link PropertySource}.
+   * adapted from the given Framework {@link PropertySource}.
    *
-   * @param source the Spring property source to adapt
+   * @param source the Framework property source to adapt
    * @return an {@link Iterable} containing a single newly adapted
    * {@link FrameworkConfigurationPropertySource}
    */
@@ -146,7 +146,7 @@ public final class ConfigurationPropertySources {
 
   /**
    * Return {@link Iterable} containing new {@link ConfigurationPropertySource}
-   * instances adapted from the given Spring {@link PropertySource PropertySources}.
+   * instances adapted from the given Framework {@link PropertySource PropertySources}.
    * <p>
    * This method will flatten any nested property sources and will filter all
    * {@link StubPropertySource stub property sources}. Updates to the underlying source,
@@ -154,7 +154,7 @@ public final class ConfigurationPropertySources {
    * automatically tracked. The underlying source should be thread safe, for example a
    * {@link PropertySources}
    *
-   * @param sources the Spring property sources to adapt
+   * @param sources the Framework property sources to adapt
    * @return an {@link Iterable} containing newly adapted
    * {@link FrameworkConfigurationPropertySource} instances
    */

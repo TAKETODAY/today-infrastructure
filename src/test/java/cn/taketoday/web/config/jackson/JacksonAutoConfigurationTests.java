@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.config.jackson;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/3 23:42

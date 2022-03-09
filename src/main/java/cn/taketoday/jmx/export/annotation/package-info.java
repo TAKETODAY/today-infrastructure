@@ -20,7 +20,7 @@
 
 /**
  * Java 5 annotations for MBean exposure.
- * Hooked into Spring's JMX export infrastructure
+ * Hooked into Framework's JMX export infrastructure
  * via a special JmxAttributeSource implementation.
  */
 @NonNullApi

@@ -73,7 +73,7 @@
   <xsd:element name="aspectj-autoproxy">
     <xsd:annotation>
       <xsd:documentation source="java:cn.taketoday.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator"><![CDATA[
-	Enables the use of the @AspectJ style of Spring AOP.
+	Enables the use of the @AspectJ style of AOP.
 
 	See cn.taketoday.context.annotation.EnableAspectJAutoProxy Javadoc
 	for information on code-based alternatives to this XML element.

@@ -70,7 +70,7 @@ import jakarta.servlet.ServletException;
  * <p>This generic filter base class has no dependency on the Spring
  * {@link cn.taketoday.context.ApplicationContext} concept.
  * Filters usually don't load their own context but rather access service
- * beans from the Spring root application context, accessible via the
+ * beans from the Framework root application context, accessible via the
  * filter's {@link #getServletContext() ServletContext} (see
  * {@link cn.taketoday.web.context.support.WebApplicationContextUtils}).
  *
@@ -102,7 +102,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
   private final Set<String> requiredProperties = new HashSet<>(4);
 
   /**
-   * Stores the bean name as defined in the Spring bean factory.
+   * Stores the bean name as defined in the Framework bean factory.
    * <p>Only relevant in case of initialization as bean, to have a name as
    * fallback to the filter name usually provided by a FilterConfig instance.
    *
@@ -179,7 +179,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
   /**
    * Subclasses may override this to perform custom filter shutdown.
    * <p>Note: This method will be called from standard filter destruction
-   * as well as filter bean destruction in a Spring application context.
+   * as well as filter bean destruction in a Framework application context.
    * <p>This default implementation is empty.
    */
   @Override
@@ -260,7 +260,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * All bean properties of this filter will have been set before this
    * method is invoked.
    * <p>Note: This method will be called from standard filter initialization
-   * as well as filter bean initialization in a Spring application context.
+   * as well as filter bean initialization in a Framework application context.
    * Filter name and ServletContext will be available in both cases.
    * <p>This default implementation is empty.
    *
@@ -288,7 +288,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * Make the name of this filter available to subclasses.
    * Analogous to GenericServlet's {@code getServletName()}.
    * <p>Takes the FilterConfig's filter name by default.
-   * If initialized as bean in a Spring application context,
+   * If initialized as bean in a Framework application context,
    * it falls back to the bean name as defined in the bean factory.
    *
    * @return the filter name, or {@code null} if none available
@@ -305,7 +305,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * Make the ServletContext of this filter available to subclasses.
    * Analogous to GenericServlet's {@code getServletContext()}.
    * <p>Takes the FilterConfig's ServletContext by default.
-   * If initialized as bean in a Spring application context,
+   * If initialized as bean in a Framework application context,
    * it falls back to the ServletContext that the bean factory runs in.
    *
    * @return the ServletContext instance

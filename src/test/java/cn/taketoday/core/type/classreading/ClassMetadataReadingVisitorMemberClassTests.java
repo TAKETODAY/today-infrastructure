@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.type.classreading;
 
+import java.io.IOException;
+
 import cn.taketoday.core.type.AbstractClassMetadataMemberClassTests;
 import cn.taketoday.core.type.ClassMetadata;
-
-import java.io.IOException;
 
 /**
  * @author Chris Beams

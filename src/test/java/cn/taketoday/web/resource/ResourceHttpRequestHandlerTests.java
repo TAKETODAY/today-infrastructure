@@ -41,9 +41,9 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
+import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
@@ -312,7 +312,7 @@ public class ResourceHttpRequestHandlerTests {
     testInvalidPath("test/../../testsecret/secret.txt", handler);
     testInvalidPath(":/../../testsecret/secret.txt", handler);
 
-    Resource location = new UrlBasedResource(getClass().getResource("./test/"));
+    Resource location = new UrlBasedResource(getClass().getResource("test/"));
     this.handler.setLocations(Collections.singletonList(location));
     Resource secretResource = new UrlBasedResource(getClass().getResource("testsecret/secret.txt"));
     String secretPath = secretResource.getLocation().getPath();
@@ -358,7 +358,7 @@ public class ResourceHttpRequestHandlerTests {
     testResolvePathWithTraversal(location, "test/../../testsecret/secret.txt");
     testResolvePathWithTraversal(location, ":/../../testsecret/secret.txt");
 
-    location = new UrlBasedResource(getClass().getResource("./test/"));
+    location = new UrlBasedResource(getClass().getResource("test/"));
     this.handler.setLocations(Collections.singletonList(location));
     Resource secretResource = new UrlBasedResource(getClass().getResource("testsecret/secret.txt"));
     String secretPath = secretResource.getLocation().getPath();

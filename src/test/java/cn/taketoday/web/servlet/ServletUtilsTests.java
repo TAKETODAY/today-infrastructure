@@ -20,16 +20,12 @@
 
 package cn.taketoday.web.servlet;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.web.util.WebUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

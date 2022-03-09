@@ -45,7 +45,7 @@ import cn.taketoday.util.StreamUtils;
 
 /**
  * Convenience methods for working with the StAX API. Partly historic due to JAXP 1.3
- * compatibility; as of Spring 4.0, relying on JAXP 1.4 as included in JDK 1.6 and higher.
+ * compatibility; as of Framework 4.0, relying on JAXP 1.4 as included in JDK 1.6 and higher.
  *
  * <p>In particular, methods for using StAX ({@code javax.xml.stream}) in combination with
  * the TrAX API ({@code javax.xml.transform}), and converting StAX readers/writers into SAX
@@ -61,7 +61,7 @@ public abstract class StaxUtils {
           (publicID, systemID, base, ns) -> StreamUtils.emptyInput();
 
   /**
-   * Create an {@link XMLInputFactory} with Spring's defensive setup,
+   * Create an {@link XMLInputFactory} with Framework's defensive setup,
    * i.e. no support for the resolution of DTDs and external entities.
    *
    * @return a new defensively initialized input factory instance to use

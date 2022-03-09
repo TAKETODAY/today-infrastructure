@@ -99,7 +99,7 @@ public final class ParameterResolutionDelegate {
    * on par with Framework's dependency injection facilities for autowired fields and
    * methods, including support for {@link Autowired @Autowired},
    * {@link Qualifier @Qualifier}, and {@link Value @Value} with support for property
-   * placeholders and SpEL expressions in {@code @Value} declarations.
+   * placeholders and EL expressions in {@code @Value} declarations.
    * <p>The dependency is required unless the parameter is annotated or meta-annotated
    * with {@link Autowired @Autowired} with the {@link Autowired#required required}
    * flag set to {@code false}.

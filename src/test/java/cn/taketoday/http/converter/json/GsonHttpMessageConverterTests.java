@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.TypeReference;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
-import cn.taketoday.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

@@ -276,12 +276,12 @@ public class WebMvcProperties {
   public static class View {
 
     /**
-     * Spring MVC view prefix.
+     * Framework MVC view prefix.
      */
     private String prefix;
 
     /**
-     * Spring MVC view suffix.
+     * Framework MVC view suffix.
      */
     private String suffix;
 

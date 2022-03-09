@@ -42,15 +42,15 @@ import jakarta.servlet.ServletContextListener;
  * application's classes referenced there. This will remove cached
  * introspection results for all other applications in the server too.
  *
- * <p>Note that this listener is <i>not</i> necessary when using Spring's beans
- * infrastructure within the application, as Spring's own introspection results
+ * <p>Note that this listener is <i>not</i> necessary when using Framework's beans
+ * infrastructure within the application, as Framework's own introspection results
  * cache will immediately flush an analyzed class from the JavaBeans Introspector
  * cache and only hold a cache within the application's own ClassLoader.
  *
- * <b>Although Spring itself does not create JDK Introspector leaks, note that this
- * listener should nevertheless be used in scenarios where the Spring framework classes
+ * <b>Although Framework itself does not create JDK Introspector leaks, note that this
+ * listener should nevertheless be used in scenarios where the Framework framework classes
  * themselves reside in a 'common' ClassLoader (such as the system ClassLoader).</b>
- * In such a scenario, this listener will properly clean up Spring's introspection cache.
+ * In such a scenario, this listener will properly clean up Framework's introspection cache.
  *
  * <p>Application classes hardly ever need to use the JavaBeans Introspector
  * directly, so are normally not the cause of Introspector resource leaks.
@@ -63,7 +63,7 @@ import jakarta.servlet.ServletContextListener;
  * around after web app shutdown, which is not the fault of those classes!
  *
  * <p><b>This listener should be registered as the first one in {@code web.xml},
- * before any application listeners such as Spring's ContextLoaderListener.</b>
+ * before any application listeners such as Framework's ContextLoaderListener.</b>
  * This allows the listener to take full effect at the right time of the lifecycle.
  *
  * @author Juergen Hoeller

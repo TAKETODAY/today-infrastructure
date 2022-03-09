@@ -70,7 +70,7 @@ import jakarta.servlet.ServletContext;
  *
  * <p>Note: In case of multiple config locations, later bean definitions will
  * override ones defined in previously loaded files, at least when using one of
- * Spring's default ApplicationContext implementations. This can be leveraged
+ * Framework's default ApplicationContext implementations. This can be leveraged
  * to deliberately override certain bean definitions via an extra XML file.
  *
  * <p>Above and beyond loading the root application context, this class can optionally
@@ -245,7 +245,7 @@ public class ContextLoader {
   }
 
   /**
-   * Initialize Spring's web application context for the given servlet context,
+   * Initialize Framework's web application context for the given servlet context,
    * using the application context provided at construction time, or creating a new one
    * according to the "{@link #CONTEXT_CLASS_PARAM contextClass}" and
    * "{@link #CONFIG_LOCATION_PARAM contextConfigLocation}" context-params.
@@ -263,7 +263,7 @@ public class ContextLoader {
                       "check whether you have multiple ContextLoader* definitions in your web.xml!");
     }
 
-    servletContext.log("Initializing Spring root WebApplicationContext");
+    servletContext.log("Initializing Framework root WebApplicationContext");
     Logger logger = LoggerFactory.getLogger(ContextLoader.class);
     if (logger.isInfoEnabled()) {
       logger.info("Root WebApplicationContext: initialization started");
@@ -504,14 +504,14 @@ public class ContextLoader {
   }
 
   /**
-   * Close Spring's web application context for the given servlet context.
+   * Close Framework's web application context for the given servlet context.
    * <p>If overriding {@link #loadParentContext(ServletContext)}, you may have
    * to override this method as well.
    *
    * @param servletContext the ServletContext that the WebApplicationContext runs in
    */
   public void closeWebApplicationContext(ServletContext servletContext) {
-    servletContext.log("Closing Spring root WebApplicationContext");
+    servletContext.log("Closing Framework root WebApplicationContext");
     try {
       if (this.context instanceof ConfigurableWebServletApplicationContext cwac) {
         cwac.close();
@@ -530,7 +530,7 @@ public class ContextLoader {
   }
 
   /**
-   * Obtain the Spring root web application context for the current thread
+   * Obtain the Framework root web application context for the current thread
    * (i.e. for the current thread's context ClassLoader, which needs to be
    * the web application's ClassLoader).
    *

@@ -50,7 +50,7 @@ import cn.taketoday.web.view.View;
  * default configuration.
  *
  * <p>
- * Like Spring's WebMvcConfigurer
+ * Like Framework's WebMvcConfigurer
  *
  * @author TODAY 2019-05-17 17:46
  */

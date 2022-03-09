@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,7 @@
 
 package cn.taketoday.aop.support;
 
-
-
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -31,39 +30,40 @@ import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author TODAY 2021/2/3 23:47
+ * @author Rod Johnson
+ * @author Chris Beams
  */
-
 public class ComposablePointcutTests {
 
   public static MethodMatcher GETTER_METHOD_MATCHER = new StaticMethodMatcher() {
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().startsWith("get");
     }
   };
 
   public static MethodMatcher GET_AGE_METHOD_MATCHER = new StaticMethodMatcher() {
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().equals("getAge");
     }
   };
 
   public static MethodMatcher ABSQUATULATE_METHOD_MATCHER = new StaticMethodMatcher() {
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().equals("absquatulate");
     }
   };
 
   public static MethodMatcher SETTER_METHOD_MATCHER = new StaticMethodMatcher() {
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().startsWith("set");
     }
   };
@@ -99,7 +99,7 @@ public class ComposablePointcutTests {
   public void testUnionMethodMatcher() {
     // Matches the getAge() method in any class
     ComposablePointcut pc = new ComposablePointcut(ClassFilter.TRUE, GET_AGE_METHOD_MATCHER);
-    assertThat(Pointcuts.matches(pc, PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
+    Assertions.assertThat(Pointcuts.matches(pc, PointcutsTests.TEST_BEAN_ABSQUATULATE, TestBean.class)).isFalse();
     assertThat(Pointcuts.matches(pc, PointcutsTests.TEST_BEAN_GET_AGE, TestBean.class)).isTrue();
     assertThat(Pointcuts.matches(pc, PointcutsTests.TEST_BEAN_GET_NAME, TestBean.class)).isFalse();
 

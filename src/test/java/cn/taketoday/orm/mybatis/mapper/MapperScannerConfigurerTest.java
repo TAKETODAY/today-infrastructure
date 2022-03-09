@@ -26,7 +26,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -34,18 +33,19 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.SimpleThreadScope;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.lang.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
+import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;
 import cn.taketoday.orm.mybatis.type.DummyMapperFactoryBean;
 
@@ -64,15 +64,16 @@ class MapperScannerConfigurerTest {
     // add the mapper scanner as a bean definition rather than explicitly setting a
     // postProcessor on the context so initialization follows the same code path as reading from
     // an XML config file
-    BeanDefinition definition = new BeanDefinition(MapperScannerConfigurer.class);
-    definition.propertyValues().add("basePackage", "cn.taketoday.orm.mybatis.mapper");
+    GenericBeanDefinition definition = new GenericBeanDefinition();
+    definition.setBeanClass(MapperScannerConfigurer.class);
+    definition.getPropertyValues().add("basePackage", "org.mybatis.spring.mapper");
     applicationContext.registerBeanDefinition("mapperScanner", definition);
     applicationContext.getBeanFactory().registerScope("thread", new SimpleThreadScope());
 
     setupSqlSessionFactory("sqlSessionFactory");
 
     // assume support for autowiring fields is added by MapperScannerConfigurer via
-    // cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
+    // org.springframework.context.annotation.ClassPathBeanDefinitionScanner.includeAnnotationConfig
   }
 
   private void startContext() {
@@ -114,31 +115,28 @@ class MapperScannerConfigurerTest {
     applicationContext.getBean("scopedProxyMapper");
     applicationContext.getBean("scopedTarget.scopedProxyMapper");
 
-//    assertThat(Stream.of(applicationContext.getBeanDefinitionNames())
-//            .filter(x -> x.startsWith("scopedTarget")))
-//            .hasSize(1);
-//    assertThat(applicationContext.getBeanDefinition("mapperInterface").propertyValues()
-//            .getPropertyValue("mapperInterface"))
-//            .isEqualTo(MapperInterface.class);
-//    assertThat(applicationContext.getBeanDefinition("mapperSubinterface").propertyValues().getPropertyValue("mapperInterface"))
-//            .isEqualTo(MapperSubinterface.class);
-//    assertThat(applicationContext.getBeanDefinition("mapperChildInterface").propertyValues().getPropertyValue("mapperInterface"))
-//            .isEqualTo(MapperChildInterface.class);
-//    assertThat(applicationContext.getBeanDefinition("annotatedMapper").propertyValues().getPropertyValue("mapperInterface"))
-//            .isEqualTo(AnnotatedMapper.class);
-//    assertThat(applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper").propertyValues()
-//            .getPropertyValue("mapperInterface")).isEqualTo(ScopedProxyMapper.class);
+    assertThat(Stream.of(applicationContext.getBeanDefinitionNames()).filter(x -> x.startsWith("scopedTarget")))
+            .hasSize(1);
+    assertThat(applicationContext.getBeanDefinition("mapperInterface").getPropertyValues().get("mapperInterface"))
+            .isEqualTo(MapperInterface.class);
+    assertThat(applicationContext.getBeanDefinition("mapperSubinterface").getPropertyValues().get("mapperInterface"))
+            .isEqualTo(MapperSubinterface.class);
+    assertThat(applicationContext.getBeanDefinition("mapperChildInterface").getPropertyValues().get("mapperInterface"))
+            .isEqualTo(MapperChildInterface.class);
+    assertThat(applicationContext.getBeanDefinition("annotatedMapper").getPropertyValues().get("mapperInterface"))
+            .isEqualTo(AnnotatedMapper.class);
+    assertThat(applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper").getPropertyValues()
+            .get("mapperInterface")).isEqualTo(ScopedProxyMapper.class);
   }
 
   @Test
   void testNameGenerator() {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(BeanNamePopulator0.class);
-    applicationContext.registerBeanDefinition("BeanNamePopulator", definition);
+    applicationContext.registerBeanDefinition("beanNameGenerator", definition);
 
-    applicationContext.getBeanDefinition("mapperScanner")
-            .propertyValues()
-            .add("namePopulator", RuntimeBeanReference.from("BeanNamePopulator"));
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("nameGenerator",
+            new RuntimeBeanReference("beanNameGenerator"));
 
     startContext();
 
@@ -151,7 +149,7 @@ class MapperScannerConfigurerTest {
 
   @Test
   void testMarkerInterfaceScan() {
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("markerInterface",
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("markerInterface",
             MapperInterface.class);
 
     startContext();
@@ -166,7 +164,7 @@ class MapperScannerConfigurerTest {
 
   @Test
   void testAnnotationScan() {
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("annotationClass", Component.class);
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("annotationClass", Component.class);
 
     startContext();
 
@@ -180,9 +178,9 @@ class MapperScannerConfigurerTest {
 
   @Test
   void testMarkerInterfaceAndAnnotationScan() {
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("markerInterface",
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("markerInterface",
             MapperInterface.class);
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("annotationClass", Component.class);
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("annotationClass", Component.class);
 
     startContext();
 
@@ -195,19 +193,18 @@ class MapperScannerConfigurerTest {
   }
 
   @Test
-  @Disabled
   void testScopedProxyMapperScan() {
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("annotationClass", Mapper.class);
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("annotationClass", Mapper.class);
 
     startContext();
     {
       BeanDefinition definition = applicationContext.getBeanDefinition("scopedProxyMapper");
-      assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.aop.scope.ScopedProxyFactoryBean");
+      assertThat(definition.getBeanClassName()).isEqualTo("org.springframework.aop.scope.ScopedProxyFactoryBean");
       assertThat(definition.getScope()).isEqualTo("");
     }
     {
       BeanDefinition definition = applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper");
-      assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.orm.mybatis.mapper.MapperFactoryBean");
+      assertThat(definition.getBeanClassName()).isEqualTo("org.mybatis.spring.mapper.MapperFactoryBean");
       assertThat(definition.getScope()).isEqualTo("thread");
     }
     {
@@ -228,9 +225,8 @@ class MapperScannerConfigurerTest {
   }
 
   @Test
-  @Disabled
   void testScopedProxyMapperScanByDefault() {
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("defaultScope", "thread");
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("defaultScope", "thread");
 
     startContext();
 
@@ -243,12 +239,12 @@ class MapperScannerConfigurerTest {
     for (String scopedProxyTargetBean : scopedProxyTargetBeans) {
       {
         BeanDefinition definition = applicationContext.getBeanDefinition(scopedProxyTargetBean);
-        assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.orm.mybatis.mapper.MapperFactoryBean");
+        assertThat(definition.getBeanClassName()).isEqualTo("org.mybatis.spring.mapper.MapperFactoryBean");
         assertThat(definition.getScope()).isEqualTo("thread");
       }
       {
         BeanDefinition definition = applicationContext.getBeanDefinition(scopedProxyTargetBean.substring(13));
-        assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.aop.scope.ScopedProxyFactoryBean");
+        assertThat(definition.getBeanClassName()).isEqualTo("org.springframework.aop.scope.ScopedProxyFactoryBean");
         assertThat(definition.getScope()).isEqualTo("");
       }
     }
@@ -269,7 +265,7 @@ class MapperScannerConfigurerTest {
   void testScanWithExplicitSqlSessionFactory() {
     setupSqlSessionFactory("sqlSessionFactory2");
 
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("sqlSessionFactoryBeanName",
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("sqlSessionFactoryBeanName",
             "sqlSessionFactory2");
 
     startContext();
@@ -281,16 +277,16 @@ class MapperScannerConfigurerTest {
     applicationContext.getBean("annotatedMapper");
   }
 
-/*  @Test
+  @Test
   void testScanWithExplicitSqlSessionTemplate() {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(SqlSessionTemplate.class);
     ConstructorArgumentValues constructorArgs = new ConstructorArgumentValues();
     constructorArgs.addGenericArgumentValue(new RuntimeBeanReference("sqlSessionFactory"));
     definition.setConstructorArgumentValues(constructorArgs);
     applicationContext.registerBeanDefinition("sqlSessionTemplate", definition);
 
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("sqlSessionTemplateBeanName",
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("sqlSessionTemplateBeanName",
             "sqlSessionTemplate");
 
     startContext();
@@ -300,22 +296,22 @@ class MapperScannerConfigurerTest {
     applicationContext.getBean("mapperSubinterface");
     applicationContext.getBean("mapperChildInterface");
     applicationContext.getBean("annotatedMapper");
-  }*/
+  }
 
   @Test
   void testScanWithExplicitSqlSessionFactoryViaPlaceholder() {
     setupSqlSessionFactory("sqlSessionFactory2");
 
     // use a property placeholder for the session factory name
-    applicationContext.getBeanDefinition("mapperScanner").propertyValues().add("sqlSessionFactoryBeanName",
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("sqlSessionFactoryBeanName",
             "${sqlSessionFactoryBeanNameProperty}");
 
     Properties props = new java.util.Properties();
     props.put("sqlSessionFactoryBeanNameProperty", "sqlSessionFactory2");
 
-    BeanDefinition propertyDefinition = new BeanDefinition();
+    GenericBeanDefinition propertyDefinition = new GenericBeanDefinition();
     propertyDefinition.setBeanClass(PropertyPlaceholderConfigurer.class);
-    propertyDefinition.propertyValues().add("properties", props);
+    propertyDefinition.getPropertyValues().add("properties", props);
 
     applicationContext.registerBeanDefinition("propertiesPlaceholder", propertyDefinition);
 
@@ -330,7 +326,7 @@ class MapperScannerConfigurerTest {
 
   @Test
   void testScanWithNameConflict() {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(Object.class);
     applicationContext.registerBeanDefinition("mapperInterface", definition);
 
@@ -342,29 +338,30 @@ class MapperScannerConfigurerTest {
 
   @Test
   void testScanWithPropertyPlaceholders() {
-    BeanDefinition definition = applicationContext.getBeanDefinition("mapperScanner");
+    GenericBeanDefinition definition = (GenericBeanDefinition) applicationContext.getBeanDefinition("mapperScanner");
 
     // use a property placeholder for basePackage
-    definition.propertyValues().remove("basePackage");
-    definition.propertyValues().add("basePackage", "${basePackageProperty}");
-    definition.propertyValues().add("processPropertyPlaceHolders", true);
+    definition.getPropertyValues().remove("basePackage");
+    definition.getPropertyValues().add("basePackage", "${basePackageProperty}");
+    definition.getPropertyValues().add("processPropertyPlaceHolders", true);
     // for lazy initialization
-    definition.propertyValues().add("lazyInitialization", "${mybatis.lazy-initialization:false}");
+    definition.getPropertyValues().add("lazyInitialization", "${mybatis.lazy-initialization:false}");
 
     // also use a property placeholder for an SqlSessionFactory property
     // to make sure the configLocation was setup correctly and MapperScanner did not change
     // regular property placeholder substitution
-    definition = applicationContext.getBeanDefinition("sqlSessionFactory");
-    definition.propertyValues().remove("configLocation");
-    definition.propertyValues().add("configLocation", "${configLocationProperty}");
+    definition = (GenericBeanDefinition) applicationContext.getBeanDefinition("sqlSessionFactory");
+    definition.getPropertyValues().remove("configLocation");
+    definition.getPropertyValues().add("configLocation", "${configLocationProperty}");
 
     Properties props = new java.util.Properties();
-    props.put("basePackageProperty", "cn.taketoday.orm.mybatis.mapper");
-    props.put("configLocationProperty", "classpath:cn/taketoday/orm/mybatis/mybatis-config.xml");
+    props.put("basePackageProperty", "org.mybatis.spring.mapper");
+    props.put("configLocationProperty", "classpath:org/mybatis/spring/mybatis-config.xml");
     props.put("mybatis.lazy-initialization", "true");
 
-    BeanDefinition propertyDefinition = new BeanDefinition(PropertySourcesPlaceholderConfigurer.class);
-    propertyDefinition.propertyValues().add("properties", props);
+    GenericBeanDefinition propertyDefinition = new GenericBeanDefinition();
+    propertyDefinition.setBeanClass(PropertyPlaceholderConfigurer.class);
+    propertyDefinition.getPropertyValues().add("properties", props);
 
     applicationContext.registerBeanDefinition("propertiesPlaceholder", propertyDefinition);
 
@@ -391,9 +388,8 @@ class MapperScannerConfigurerTest {
   @Test
   void testScanWithMapperFactoryBeanClass() {
     DummyMapperFactoryBean.clear();
-
-    applicationContext.getBeanDefinition("mapperScanner")
-            .propertyValues().add("mapperFactoryBeanClass", DummyMapperFactoryBean.class);
+    applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("mapperFactoryBeanClass",
+            DummyMapperFactoryBean.class);
 
     startContext();
 
@@ -414,16 +410,16 @@ class MapperScannerConfigurerTest {
   }
 
   private void setupSqlSessionFactory(String name) {
-    BeanDefinition definition = new BeanDefinition();
+    GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(SqlSessionFactoryBean.class);
-    definition.propertyValues().add("dataSource", new MockDataSource());
+    definition.getPropertyValues().add("dataSource", new MockDataSource());
     applicationContext.registerBeanDefinition(name, definition);
   }
 
   private void assertBeanNotLoaded(String name) {
     try {
-      BeanFactoryUtils.requiredBean(applicationContext, name);
-      fail("bean should not be defined for class " + name);
+      applicationContext.getBean(name);
+      fail("Spring bean should not be defined for class " + name);
     }
     catch (NoSuchBeanDefinitionException nsbde) {
       // success
@@ -437,6 +433,7 @@ class MapperScannerConfigurerTest {
       definition.setBeanName(definition.getBeanClassName());
       return definition.getBeanClassName();
     }
+
   }
 
 }

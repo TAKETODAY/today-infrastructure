@@ -20,8 +20,8 @@
 
 package cn.taketoday.context.annotation.spr16756;
 
-import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.lang.Component;
 
 @Component

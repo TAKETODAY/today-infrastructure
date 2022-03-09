@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,18 +23,20 @@ package cn.taketoday.aop.support;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-import cn.taketoday.aop.Advisor;
-import cn.taketoday.aop.NopInterceptor;
-import cn.taketoday.aop.SerializableNopInterceptor;
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyFactory;
+import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
+import cn.taketoday.aop.testfixture.interceptor.SerializableNopInterceptor;
+import cn.taketoday.beans.testfixture.beans.Person;
+import cn.taketoday.beans.testfixture.beans.SerializablePerson;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * @author Rod Johnson
+ * @author Chris Beams
+ */
 public class NameMatchMethodPointcutTests {
 
   protected NameMatchMethodPointcut pc;
@@ -109,8 +111,7 @@ public class NameMatchMethodPointcutTests {
     testSets();
     // Count is now 2
     Person p2 = SerializationTestUtils.serializeAndDeserialize(proxied);
-    final Advisor[] advisors = ((Advised) p2).getAdvisors();
-    NopInterceptor nop2 = (NopInterceptor) advisors[0].getAdvice();
+    NopInterceptor nop2 = (NopInterceptor) ((Advised) p2).getAdvisors()[0].getAdvice();
     p2.getName();
     assertThat(nop2.getCount()).isEqualTo(2);
     p2.echo(null);
@@ -134,82 +135,6 @@ public class NameMatchMethodPointcutTests {
     pc2.setMappedName(foo);
     assertThat(pc2).isEqualTo(pc1);
     assertThat(pc2.hashCode()).isEqualTo(pc1.hashCode());
-  }
-
-  /**
-   * @author Rod Johnson
-   */
-  public interface Person {
-
-    String getName();
-
-    void setName(String name);
-
-    int getAge();
-
-    void setAge(int i);
-
-    /**
-     * Test for non-property method matching. If the parameter is a Throwable, it will be
-     * thrown rather than returned.
-     */
-    Object echo(Object o) throws Throwable;
-  }
-
-  /**
-   * Serializable implementation of the Person interface.
-   *
-   * @author Rod Johnson
-   */
-  @SuppressWarnings("serial")
-  public static class SerializablePerson implements Person, Serializable {
-
-    private String name;
-
-    private int age;
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public int getAge() {
-      return age;
-    }
-
-    @Override
-    public void setAge(int age) {
-      this.age = age;
-    }
-
-    @Override
-    public Object echo(Object o) throws Throwable {
-      if (o instanceof Throwable) {
-        throw (Throwable) o;
-      }
-      return o;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-      if (!(other instanceof SerializablePerson)) {
-        return false;
-      }
-      SerializablePerson p = (SerializablePerson) other;
-      return p.age == age && Objects.equals(name, p.name);
-    }
-
-    @Override
-    public int hashCode() {
-      return SerializablePerson.class.hashCode();
-    }
-
   }
 
 }

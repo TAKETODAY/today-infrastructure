@@ -26,7 +26,6 @@ import cn.taketoday.transaction.support.DefaultTransactionStatus;
 
 /**
  * @author Juergen Hoeller
- * @since 29.04.2003
  */
 @SuppressWarnings("serial")
 class TestTransactionManager extends AbstractPlatformTransactionManager {

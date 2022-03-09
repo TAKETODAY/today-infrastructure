@@ -44,31 +44,31 @@ import jakarta.servlet.ServletResponse;
  *
  * <p>{@code web.xml} will usually contain a {@code DelegatingFilterProxy} definition,
  * with the specified {@code filter-name} corresponding to a bean name in
- * Spring's root application context. All calls to the filter proxy will then
- * be delegated to that bean in the Spring context, which is required to implement
+ * Framework's root application context. All calls to the filter proxy will then
+ * be delegated to that bean in the Framework context, which is required to implement
  * the standard Servlet Filter interface.
  *
  * <p>This approach is particularly useful for Filter implementation with complex
- * setup needs, allowing to apply the full Spring bean definition machinery to
+ * setup needs, allowing to apply the full Framework bean definition machinery to
  * Filter instances. Alternatively, consider standard Filter setup in combination
- * with looking up service beans from the Spring root application context.
+ * with looking up service beans from the Framework root application context.
  *
  * <p><b>NOTE:</b> The lifecycle methods defined by the Servlet Filter interface
  * will by default <i>not</i> be delegated to the target bean, relying on the
- * Spring application context to manage the lifecycle of that bean. Specifying
+ * Framework application context to manage the lifecycle of that bean. Specifying
  * the "targetFilterLifecycle" filter init-param as "true" will enforce invocation
  * of the {@code Filter.init} and {@code Filter.destroy} lifecycle methods
  * on the target bean, letting the servlet container manage the filter lifecycle.
  *
  * <p> {@code DelegatingFilterProxy} has been updated to optionally
  * accept constructor parameters when using a Servlet container's instance-based filter
- * registration methods, usually in conjunction with Spring's
+ * registration methods, usually in conjunction with Framework's
  * {@link cn.taketoday.web.config.WebApplicationInitializer} SPI. These constructors allow
  * for providing the delegate Filter bean directly, or providing the application context
  * and bean name to fetch, avoiding the need to look up the application context from the
  * ServletContext.
  *
- * <p>This class was originally inspired by Spring Security's {@code FilterToBeanProxy}
+ * <p>This class was originally inspired by Framework Security's {@code FilterToBeanProxy}
  * class, written by Ben Alex.
  *
  * @author Juergen Hoeller
@@ -115,7 +115,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
 
   /**
    * Create a new {@code DelegatingFilterProxy} with the given {@link Filter} delegate.
-   * Bypasses entirely the need for interacting with a Spring application context,
+   * Bypasses entirely the need for interacting with a Framework application context,
    * specifying the {@linkplain #setTargetBeanName target bean name}, etc.
    * <p>For use with instance-based registration of filters.
    *
@@ -133,7 +133,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
 
   /**
    * Create a new {@code DelegatingFilterProxy} that will retrieve the named target
-   * bean from the Spring {@code WebApplicationContext} found in the {@code ServletContext}
+   * bean from the Framework {@code WebApplicationContext} found in the {@code ServletContext}
    * (either the 'root' application context or the context named by
    * {@link #setContextAttribute}).
    * <p>For use with instance-based registration of filters.
@@ -150,7 +150,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
 
   /**
    * Create a new {@code DelegatingFilterProxy} that will retrieve the named target
-   * bean from the given Spring {@code WebApplicationContext}.
+   * bean from the given Framework {@code WebApplicationContext}.
    * <p>For use with instance-based registration of filters.
    * <p>The target bean must implement the standard Servlet Filter interface.
    * <p>The given {@code WebApplicationContext} may or may not be refreshed when passed
@@ -160,7 +160,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * <p>This proxy's {@code Environment} will be inherited from the given
    * {@code WebApplicationContext}.
    *
-   * @param targetBeanName name of the target filter bean in the Spring application
+   * @param targetBeanName name of the target filter bean in the Framework application
    * context (must not be {@code null}).
    * @param wac the application context from which the target filter will be retrieved;
    * if {@code null}, an application context will be looked up from {@code ServletContext}
@@ -195,7 +195,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
   }
 
   /**
-   * Set the name of the target bean in the Spring application context.
+   * Set the name of the target bean in the Framework application context.
    * The target bean must implement the standard Servlet Filter interface.
    * <p>By default, the {@code filter-name} as specified for the
    * DelegatingFilterProxy in {@code web.xml} will be used.
@@ -205,7 +205,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
   }
 
   /**
-   * Return the name of the target bean in the Spring application context.
+   * Return the name of the target bean in the Framework application context.
    */
   @Nullable
   protected String getTargetBeanName() {
@@ -215,7 +215,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
   /**
    * Set whether to invoke the {@code Filter.init} and
    * {@code Filter.destroy} lifecycle methods on the target bean.
-   * <p>Default is "false"; target beans usually rely on the Spring application
+   * <p>Default is "false"; target beans usually rely on the Framework application
    * context for managing their lifecycle. Setting this flag to "true" means
    * that the servlet container will control the lifecycle of the target
    * Filter, with this proxy delegating the corresponding calls.
@@ -240,7 +240,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
         if (this.targetBeanName == null) {
           this.targetBeanName = getFilterName();
         }
-        // Fetch Spring root application context and initialize the delegate early,
+        // Fetch Framework root application context and initialize the delegate early,
         // if possible. If the root application context will be started after this
         // filter proxy, we'll have to resort to lazy initialization.
         WebApplicationContext wac = findWebApplicationContext();

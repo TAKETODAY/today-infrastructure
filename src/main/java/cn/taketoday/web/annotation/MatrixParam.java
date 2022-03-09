@@ -65,7 +65,7 @@ import cn.taketoday.lang.Constant;
  * other lifecycles should only use this annotation on resource method parameters.
  * </p>
  * <p>
- *   like Spring's MatrixVariable
+ *   like Framework's MatrixVariable
  *
  * @author TODAY 2021/10/4 11:47
  * @see <a href="http://www.w3.org/DesignIssues/MatrixURIs.html">Matrix URIs</a>

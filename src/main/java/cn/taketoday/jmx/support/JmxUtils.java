@@ -47,7 +47,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Collection of generic utility methods to support Spring JMX.
+ * Collection of generic utility methods to support Framework JMX.
  * Includes a convenient method to locate an MBeanServer.
  *
  * @author Rob Harrop

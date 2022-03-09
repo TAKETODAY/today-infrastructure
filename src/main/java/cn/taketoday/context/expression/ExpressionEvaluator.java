@@ -333,7 +333,7 @@ public class ExpressionEvaluator implements PlaceholderResolver {
       ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
       StandardExpressionContext elContext = new StandardExpressionContext(exprFactory);
       elContext.setVariable(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
-      elContext.addResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
+      elContext.addResolver(new BeanNameExpressionResolver(beanFactory));
 
       ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
       ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);

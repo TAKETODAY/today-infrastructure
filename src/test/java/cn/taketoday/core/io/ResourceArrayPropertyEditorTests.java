@@ -49,7 +49,7 @@ class ResourceArrayPropertyEditorTests {
     // N.B. this will sometimes fail if you use classpath: instead of classpath*:.
     // The result depends on the classpath - if test-classes are segregated from classes
     // and they come first on the classpath (like in Maven) then it breaks, if classes
-    // comes first (like in Spring Build) then it is OK.
+    // comes first (like in Framework Build) then it is OK.
     PropertyEditor editor = new ResourceArrayPropertyEditor();
     editor.setAsText("classpath*:cn/taketoday/core/io/Resource*Editor.class");
     Resource[] resources = (Resource[]) editor.getValue();

@@ -73,10 +73,10 @@ public final class ConcurrentCache<K, V> {
     return v;
   }
 
-  public void remove(K k) {
+  public Object remove(K k) {
     this.eden.remove(k);
     synchronized(longterm) {
-      this.longterm.remove(k);
+      return this.longterm.remove(k);
     }
   }
 
@@ -107,6 +107,10 @@ public final class ConcurrentCache<K, V> {
       eden.clear();
     }
     eden.putAll(m);
+  }
+
+  public boolean isEmpty() {
+    return eden.isEmpty() && longterm.isEmpty();
   }
 
 }

@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;

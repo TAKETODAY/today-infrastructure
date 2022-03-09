@@ -125,7 +125,7 @@ public class WebDataBinder extends DataBinder {
    * at least not with standard HTML means.
    * <p>One way to address this is to look for a checkbox parameter value if
    * you know that the checkbox has been visible in the form, resetting the
-   * checkbox if no value found. In Spring web MVC, this typically happens
+   * checkbox if no value found. In Framework web MVC, this typically happens
    * in a custom {@code onBind} implementation.
    * <p>This auto-reset mechanism addresses this deficiency, provided
    * that a marker parameter is sent for each checkbox field, like

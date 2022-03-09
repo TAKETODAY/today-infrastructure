@@ -32,7 +32,7 @@ import cn.taketoday.web.servlet.filter.HiddenHttpMethodFilter;
 public class OrderedHiddenHttpMethodFilter extends HiddenHttpMethodFilter implements OrderedFilter {
 
   /**
-   * The default order is high to ensure the filter is applied before Spring Security.
+   * The default order is high to ensure the filter is applied before Framework Security.
    */
   public static final int DEFAULT_ORDER = REQUEST_WRAPPER_FILTER_MAX_ORDER - 10000;
 

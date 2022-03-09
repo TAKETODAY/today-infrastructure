@@ -20,20 +20,14 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.annotation.Annotation;
-import java.util.Optional;
 import java.util.Set;
 
-import cn.taketoday.aop.support.annotation.AspectAutoProxyCreator;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.aop.config.AopConfigUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.cache.annotation.EnableCaching;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -44,17 +38,12 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.cache.annotation.EnableCaching
+ * @see EnableCaching
  * @see cn.taketoday.transaction.annotation.EnableTransactionManagement
  * @since 4.0 2022/1/11 23:38
  */
 public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
   private static final Logger log = LoggerFactory.getLogger(AutoProxyRegistrar.class);
-
-  /**
-   * The bean name of the internally managed auto-proxy creator.
-   */
-  public static final String AUTO_PROXY_CREATOR_BEAN_NAME = "cn.taketoday.aop.internalAutoProxyCreator";
 
   /**
    * Register, escalate, and configure the standard auto proxy creator (APC) against the
@@ -65,47 +54,35 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
    * subclass (CGLIB) proxying.
    * <p>Several {@code @Enable*} annotations expose both {@code mode} and
    * {@code proxyTargetClass} attributes. It is important to note that most of these
-   * capabilities end up sharing a {@linkplain #AUTO_PROXY_CREATOR_BEAN_NAME
+   * capabilities end up sharing a {@linkplain AopConfigUtils#AUTO_PROXY_CREATOR_BEAN_NAME
    * single APC}. For this reason, this implementation doesn't "care" exactly which
    * annotation it finds -- as long as it exposes the right {@code mode} and
    * {@code proxyTargetClass} attributes, the APC can be registered and configured all
    * the same.
    */
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-    BeanDefinitionRegistry registry = context.getRegistry();
-
+  public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BootstrapContext context) {
     boolean candidateFound = false;
-    Set<String> annTypes = importMetadata.getAnnotationTypes();
+    Set<String> annTypes = importingClassMetadata.getAnnotationTypes();
     for (String annType : annTypes) {
-      MergedAnnotation<Annotation> annotation = importMetadata.getAnnotation(annType);
-      if (annotation.isPresent()) {
-        Optional<AdviceMode> mode = annotation.getValue("mode", AdviceMode.class);
-        if (mode.isPresent()) {
-          candidateFound = true;
-          if (mode.get() == AdviceMode.PROXY) {
-            registerAutoProxyCreatorIfNecessary(registry);
-            boolean force = false;
-            Optional<Boolean> proxyTargetClass = annotation.getValue("proxyTargetClass", boolean.class);
-            if (proxyTargetClass.isPresent() && proxyTargetClass.get()) {
-              forceAutoProxyCreatorToUseClassProxying(registry);
-              force = true;
-            }
-
-            Optional<Boolean> exposeProxy = annotation.getValue("exposeProxy", boolean.class);
-            if (exposeProxy.isPresent() && exposeProxy.get()) {
-              forceAutoProxyCreatorToExposeProxy(registry);
-              force = true;
-            }
-
-            if (force) {
-              return;
-            }
+      AnnotationAttributes candidate = AnnotationAttributes.fromMetadata(importingClassMetadata, annType);
+      if (candidate == null) {
+        continue;
+      }
+      Object mode = candidate.get("mode");
+      Object proxyTargetClass = candidate.get("proxyTargetClass");
+      if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
+              Boolean.class == proxyTargetClass.getClass()) {
+        candidateFound = true;
+        if (mode == AdviceMode.PROXY) {
+          AopConfigUtils.registerAutoProxyCreatorIfNecessary(context.getRegistry());
+          if ((Boolean) proxyTargetClass) {
+            AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(context.getRegistry());
+            return;
           }
         }
       }
     }
-
     if (!candidateFound && log.isInfoEnabled()) {
       String name = getClass().getSimpleName();
       log.info(String.format("%s was imported but no annotations were found " +
@@ -117,56 +94,6 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
               "annotations are declared; otherwise remove the import of %s " +
               "altogether.", name, name, name));
     }
-  }
-
-  public static void forceAutoProxyCreatorToUseClassProxying(BeanDefinitionRegistry registry) {
-    BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-    if (definition != null) {
-      definition.getPropertyValues().add("proxyTargetClass", Boolean.TRUE);
-    }
-  }
-
-  public static void forceAutoProxyCreatorToExposeProxy(BeanDefinitionRegistry registry) {
-    BeanDefinition definition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-    if (definition != null) {
-      definition.getPropertyValues().add("exposeProxy", Boolean.TRUE);
-    }
-  }
-
-  @Nullable
-  public static BeanDefinition registerAutoProxyCreatorIfNecessary(BeanDefinitionRegistry registry) {
-    return registerAutoProxyCreatorIfNecessary(registry, null);
-  }
-
-  @Nullable
-  public static BeanDefinition registerAutoProxyCreatorIfNecessary(
-          BeanDefinitionRegistry registry, @Nullable Object source) {
-    return registerAutoProxyCreatorIfNecessary(AspectAutoProxyCreator.class, registry, source);
-  }
-
-  @Nullable
-  public static BeanDefinition registerAutoProxyCreatorIfNecessary(Class<?> cls, BeanDefinitionRegistry registry) {
-    return registerAutoProxyCreatorIfNecessary(cls, registry, null);
-  }
-
-  @Nullable
-  public static BeanDefinition registerAutoProxyCreatorIfNecessary(
-          Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
-
-    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-
-    if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
-      BeanDefinition beanDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-      beanDefinition.setBeanClassName(cls.getName());
-      return null;
-    }
-
-    RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
-    beanDefinition.setSource(source);
-    beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
-    beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-    registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
-    return beanDefinition;
   }
 
 }

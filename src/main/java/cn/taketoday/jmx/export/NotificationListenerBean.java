@@ -36,7 +36,7 @@ import cn.taketoday.lang.Assert;
  * {@link javax.management.Notification Notifications} via the
  * {@link #setMappedObjectNames mappedObjectNames} property.
  *
- * <p>Note: This class supports Spring bean names as
+ * <p>Note: This class supports Framework bean names as
  * {@link #setMappedObjectNames "mappedObjectNames"} as well, as alternative
  * to specifying JMX object names. Note that only beans exported by the
  * same {@link MBeanExporter} are supported for such bean names.

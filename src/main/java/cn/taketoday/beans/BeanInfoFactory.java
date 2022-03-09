@@ -27,7 +27,7 @@ import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Strategy interface for creating {@link BeanInfo} instances for Spring beans.
+ * Strategy interface for creating {@link BeanInfo} instances for Framework beans.
  * Can be used to plug in custom bean property resolution strategies (e.g. for other
  * languages on the JVM) or more efficient {@link BeanInfo} retrieval algorithms.
  *

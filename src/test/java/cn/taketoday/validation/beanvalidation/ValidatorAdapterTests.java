@@ -40,10 +40,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.aop.SerializationTestUtils;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.context.support.StaticMessageSource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.validation.BeanPropertyBindingResult;
 import cn.taketoday.validation.FieldError;

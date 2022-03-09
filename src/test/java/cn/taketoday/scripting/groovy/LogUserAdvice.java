@@ -36,8 +36,7 @@ public class LogUserAdvice implements MethodBeforeAdvice, ThrowsAdvice {
     // System.out.println("Method:" + method.getName());
   }
 
-  @Override
-  public Object afterThrowing(Throwable ex, MethodInvocation invocation) throws Throwable {
+  public Object afterThrowing(Throwable ex) throws Throwable {
     countThrows++;
     // System.out.println("***********************************************************************************");
     // System.out.println("Exception caught:");

@@ -33,15 +33,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.event.ApplicationEventPublisher;
 import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
+import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Component;

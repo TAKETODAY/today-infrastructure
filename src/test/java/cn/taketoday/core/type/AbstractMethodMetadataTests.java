@@ -22,14 +22,13 @@ package cn.taketoday.core.type;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import type.AnnotatedComponent;
 import type.EnclosingAnnotation;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

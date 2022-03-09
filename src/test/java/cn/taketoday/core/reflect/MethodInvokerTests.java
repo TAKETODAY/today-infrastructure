@@ -19,10 +19,6 @@
  */
 package cn.taketoday.core.reflect;
 
-import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Method;
-
 /**
  * @author TODAY 2021/11/10 14:07
  */

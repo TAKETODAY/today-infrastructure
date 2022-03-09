@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.annotation.subpackage;
 
-import cn.taketoday.core.annotation.AliasFor;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * Non-public mock of {@code cn.taketoday.web.bind.annotation.RequestMapping}.

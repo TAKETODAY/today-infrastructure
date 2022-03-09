@@ -23,8 +23,8 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.BeforeEach;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * Unit test proving that ASM-based {@link ConfigurationClassParser} correctly detects

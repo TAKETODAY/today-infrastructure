@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Interface implemented to provide an instance of an AspectJ aspect.
- * Decouples from Spring's bean factory.
+ * Decouples from Framework's bean factory.
  *
  * <p>Extends the {@link cn.taketoday.core.Ordered} interface
  * to express an order value for the underlying aspect in a chain.

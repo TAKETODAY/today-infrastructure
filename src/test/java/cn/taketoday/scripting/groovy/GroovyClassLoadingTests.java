@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.util.ReflectionUtils;
 import groovy.lang.GroovyClassLoader;
@@ -44,14 +44,14 @@ public class GroovyClassLoadingTests {
     Class<?> class1 = gcl.parseClass("class TestBean { def myMethod() { \"foo\" } }");
     Class<?> class2 = gcl.parseClass("class TestBean { def myMethod() { \"bar\" } }");
 
-    context.registerBeanDefinition("testBean", new BeanDefinition(class1));
+    context.registerBeanDefinition("testBean", new RootBeanDefinition(class1));
     Object testBean1 = context.getBean("testBean");
     Method method1 = class1.getDeclaredMethod("myMethod", new Class<?>[0]);
     Object result1 = ReflectionUtils.invokeMethod(method1, testBean1);
     assertThat(result1).isEqualTo("foo");
 
     context.removeBeanDefinition("testBean");
-    context.registerBeanDefinition("testBean", new BeanDefinition(class2));
+    context.registerBeanDefinition("testBean", new RootBeanDefinition(class2));
     Object testBean2 = context.getBean("testBean");
     Method method2 = class2.getDeclaredMethod("myMethod", new Class<?>[0]);
     Object result2 = ReflectionUtils.invokeMethod(method2, testBean2);

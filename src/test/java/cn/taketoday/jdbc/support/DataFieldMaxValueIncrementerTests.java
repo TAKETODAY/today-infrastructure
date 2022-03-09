@@ -47,7 +47,6 @@ import static org.mockito.Mockito.verify;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 27.02.2004
  */
 class DataFieldMaxValueIncrementerTests {
 

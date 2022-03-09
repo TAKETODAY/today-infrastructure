@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
@@ -76,7 +76,7 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
    * {@linkplain #refresh refreshed}.
    */
   public AnnotationConfigServletWebServerApplicationContext() {
-    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
@@ -89,7 +89,7 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
    */
   public AnnotationConfigServletWebServerApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 

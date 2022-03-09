@@ -21,10 +21,6 @@
 package cn.taketoday.scheduling.concurrent;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
-import cn.taketoday.scheduling.Trigger;
-import cn.taketoday.scheduling.TriggerContext;
-import cn.taketoday.util.ErrorHandler;
 
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -32,6 +28,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.scheduling.Trigger;
+import cn.taketoday.scheduling.TriggerContext;
+import cn.taketoday.util.ErrorHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

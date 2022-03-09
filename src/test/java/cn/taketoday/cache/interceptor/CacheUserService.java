@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,9 +20,6 @@
 
 package cn.taketoday.cache.interceptor;
 
-import java.util.concurrent.TimeUnit;
-
-import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheEvict;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.cache.annotation.Cacheable;
@@ -32,7 +29,6 @@ import test.demo.repository.impl.DefaultUserRepository;
 /**
  * @author TODAY 2021/4/21 21:48
  */
-@CacheConfig(cacheName = "users", timeUnit = TimeUnit.MILLISECONDS, expire = 60)
 public class CacheUserService {
   DefaultUserRepository userDao = new DefaultUserRepository();
 

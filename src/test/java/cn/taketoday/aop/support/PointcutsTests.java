@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,11 +27,13 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author TODAY 2021/2/3 23:48
+ * @author Rod Johnson
+ * @author Chris Beams
  */
 public class PointcutsTests {
 
@@ -62,7 +64,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return true;
     }
   };
@@ -80,7 +82,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().startsWith("set");
     }
   };
@@ -93,7 +95,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().startsWith("get");
     }
   };
@@ -109,7 +111,7 @@ public class PointcutsTests {
     }
 
     @Override
-    public boolean matches(Method m, Class<?> targetClass) {
+    public boolean matches(Method m, @Nullable Class<?> targetClass) {
       return m.getName().startsWith("get");
     }
   };

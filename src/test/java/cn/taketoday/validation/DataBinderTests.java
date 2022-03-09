@@ -20,10 +20,6 @@
 
 package cn.taketoday.validation;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
-
 import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyEditor;
@@ -73,16 +69,6 @@ import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.validation.BeanPropertyBindingResult;
-import cn.taketoday.validation.BeanWithObjectProperty;
-import cn.taketoday.validation.BindException;
-import cn.taketoday.validation.BindingResult;
-import cn.taketoday.validation.BindingResultUtils;
-import cn.taketoday.validation.DataBinder;
-import cn.taketoday.validation.DefaultMessageCodesResolver;
-import cn.taketoday.validation.Errors;
-import cn.taketoday.validation.FieldError;
-import cn.taketoday.validation.Validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

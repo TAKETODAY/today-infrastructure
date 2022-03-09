@@ -33,9 +33,9 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.findAllMergedAnnotations;
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.getAllMergedAnnotations;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests that verify support for finding multiple composed annotations on

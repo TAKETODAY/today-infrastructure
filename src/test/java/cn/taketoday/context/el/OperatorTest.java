@@ -43,7 +43,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.support.annotation.Before;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.ValueExpression;
@@ -69,7 +68,6 @@ public class OperatorTest {
   @AfterAll
   public static void tearDownClass() throws Exception { }
 
-  @Before
   public void setUp() { }
 
   void testExpr(String testname, String expr, Long expected) {

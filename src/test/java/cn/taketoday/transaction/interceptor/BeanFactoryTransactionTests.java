@@ -56,7 +56,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @since 23.04.2003
  */
 
 public class BeanFactoryTransactionTests {

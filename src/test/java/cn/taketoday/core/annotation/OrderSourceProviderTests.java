@@ -22,11 +22,11 @@ package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.Ordered;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import cn.taketoday.core.Ordered;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

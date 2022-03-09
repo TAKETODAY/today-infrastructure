@@ -25,14 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.support.ConcurrentMapCache;
+import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
@@ -114,14 +113,14 @@ public class MappedHandlerRegistry extends AbstractUrlHandlerRegistry {
     Object handler = handlers.get(handlerKey);
     if (handler == null) {
       Cache matchingCache = getPatternMatchingCache();
-      handler = matchingCache.get(handlerKey, false);
-      if (handler == null) {
+      Cache.ValueWrapper wrapper = matchingCache.get(handlerKey);
+      if (wrapper == null) {
         // null -> NullValue.INSTANCE
         handler = lookupPatternHandler(handlerKey, context);
         matchingCache.put(handlerKey, handler);
       }
-      else if (handler == NullValue.INSTANCE) {
-        return null;
+      else {
+        handler = wrapper.get();
       }
     }
     return handler;
@@ -158,7 +157,7 @@ public class MappedHandlerRegistry extends AbstractUrlHandlerRegistry {
   /** @since 3.0 */
   @NonNull
   protected ConcurrentMapCache createPatternMatchingCache() {
-    return new ConcurrentMapCache(CACHE_NAME, 128);
+    return new ConcurrentMapCache(CACHE_NAME, true);
   }
 
   /**

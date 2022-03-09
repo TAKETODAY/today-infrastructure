@@ -74,7 +74,7 @@ public class PathResourceResolverTests {
     testCheckResource(location, "../testsecret/secret.txt");
     testCheckResource(location, "test/../../testsecret/secret.txt");
 
-    location = new UrlBasedResource(getClass().getResource("./test/"));
+    location = new UrlBasedResource(getClass().getResource("test/"));
     String secretPath = new UrlBasedResource(getClass().getResource("testsecret/secret.txt")).getLocation().getPath();
     testCheckResource(location, "file:" + secretPath);
     testCheckResource(location, "/file:" + secretPath);
@@ -98,7 +98,7 @@ public class PathResourceResolverTests {
 
   @Test // gh-23463
   public void ignoreInvalidEscapeSequence() throws IOException {
-    UrlBasedResource location = new UrlBasedResource(getClass().getResource("./test/"));
+    UrlBasedResource location = new UrlBasedResource(getClass().getResource("test/"));
     Resource resource = location.createRelative("test%file.txt");
     assertThat(this.resolver.checkResource(resource, location)).isTrue();
   }
@@ -130,7 +130,7 @@ public class PathResourceResolverTests {
 
   @Test // SPR-12624
   public void checkRelativeLocation() throws Exception {
-    String location = new UrlBasedResource(getClass().getResource("./test/")).getLocation().toExternalForm();
+    String location = new UrlBasedResource(getClass().getResource("test/")).getLocation().toExternalForm();
     location = location.replace("/test/cn/taketoday", "/test/cn/../cn/taketoday");
 
     Resource actual = this.resolver.resolveResource(

@@ -21,10 +21,11 @@
 package cn.taketoday.web.util.pattern;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.util.RouteMatcher;
 
 import java.util.Map;
+
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.util.RouteMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

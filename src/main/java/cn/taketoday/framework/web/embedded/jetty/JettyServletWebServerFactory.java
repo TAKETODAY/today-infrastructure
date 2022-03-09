@@ -88,7 +88,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 
 /**
  * {@link ServletWebServerFactory} that can be used to create a {@link JettyWebServer}.
- * Can be initialized using Spring's {@link ServletContextInitializer}s or Jetty
+ * Can be initialized using Framework's {@link ServletContextInitializer}s or Jetty
  * {@link Configuration}s.
  * <p>
  * Unless explicitly configured otherwise this factory will create servers that listen for

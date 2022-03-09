@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,17 +15,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package test.demo.service.impl;
 
-import jakarta.annotation.Resource;
-
-import cn.taketoday.context.properties.Props;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.lang.Service;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import jakarta.annotation.Resource;
 import test.demo.config.Config;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;

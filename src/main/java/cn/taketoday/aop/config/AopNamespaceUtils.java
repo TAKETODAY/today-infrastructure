@@ -60,7 +60,25 @@ public abstract class AopNamespaceUtils {
   public static void registerAutoProxyCreatorIfNecessary(
           ParserContext parserContext, Element sourceElement) {
 
-    BeanDefinition beanDefinition = AutoProxyRegistrar.registerAutoProxyCreatorIfNecessary(
+    BeanDefinition beanDefinition = AopConfigUtils.registerAutoProxyCreatorIfNecessary(
+            parserContext.getRegistry(), parserContext.extractSource(sourceElement));
+    useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
+    registerComponentIfNecessary(beanDefinition, parserContext);
+  }
+
+  public static void registerAspectJAutoProxyCreatorIfNecessary(
+          ParserContext parserContext, Element sourceElement) {
+
+    BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAutoProxyCreatorIfNecessary(
+            parserContext.getRegistry(), parserContext.extractSource(sourceElement));
+    useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
+    registerComponentIfNecessary(beanDefinition, parserContext);
+  }
+
+  public static void registerAspectJAnnotationAutoProxyCreatorIfNecessary(
+          ParserContext parserContext, Element sourceElement) {
+
+    BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(
             parserContext.getRegistry(), parserContext.extractSource(sourceElement));
     useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
     registerComponentIfNecessary(beanDefinition, parserContext);
@@ -70,11 +88,11 @@ public abstract class AopNamespaceUtils {
     if (sourceElement != null) {
       boolean proxyTargetClass = Boolean.parseBoolean(sourceElement.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE));
       if (proxyTargetClass) {
-        AutoProxyRegistrar.forceAutoProxyCreatorToUseClassProxying(registry);
+        AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
       }
       boolean exposeProxy = Boolean.parseBoolean(sourceElement.getAttribute(EXPOSE_PROXY_ATTRIBUTE));
       if (exposeProxy) {
-        AutoProxyRegistrar.forceAutoProxyCreatorToExposeProxy(registry);
+        AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);
       }
     }
   }
@@ -82,7 +100,7 @@ public abstract class AopNamespaceUtils {
   private static void registerComponentIfNecessary(@Nullable BeanDefinition beanDefinition, ParserContext parserContext) {
     if (beanDefinition != null) {
       parserContext.registerComponent(
-              new BeanComponentDefinition(beanDefinition, AutoProxyRegistrar.AUTO_PROXY_CREATOR_BEAN_NAME));
+              new BeanComponentDefinition(beanDefinition, AopConfigUtils.AUTO_PROXY_CREATOR_BEAN_NAME));
     }
   }
 

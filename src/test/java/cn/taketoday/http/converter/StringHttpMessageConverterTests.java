@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

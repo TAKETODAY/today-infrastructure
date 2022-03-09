@@ -36,7 +36,7 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ConcurrentReferenceHashMap.ReferenceType;
 
 /**
- * Adapter to convert Spring's {@link PropertySources} to
+ * Adapter to convert Framework's {@link PropertySources} to
  * {@link ConfigurationPropertySource ConfigurationPropertySources}.
  *
  * @author Phillip Webb

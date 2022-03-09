@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
 
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

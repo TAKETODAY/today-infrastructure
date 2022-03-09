@@ -21,14 +21,15 @@
 package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.OverridingClassLoader;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
+
+import cn.taketoday.core.OverridingClassLoader;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

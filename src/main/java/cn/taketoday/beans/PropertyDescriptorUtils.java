@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * Common delegate methods for Spring's internal {@link PropertyDescriptor} implementations.
+ * Common delegate methods for Framework's internal {@link PropertyDescriptor} implementations.
  *
  * @author Chris Beams
  * @author Juergen Hoeller

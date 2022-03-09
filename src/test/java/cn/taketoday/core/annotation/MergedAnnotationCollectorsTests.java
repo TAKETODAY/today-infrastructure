@@ -20,8 +20,6 @@
 
 package cn.taketoday.core.annotation;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
@@ -32,6 +30,9 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

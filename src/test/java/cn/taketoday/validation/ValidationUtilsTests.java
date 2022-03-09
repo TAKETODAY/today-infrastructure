@@ -24,10 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.validation.BeanPropertyBindingResult;
-import cn.taketoday.validation.Errors;
-import cn.taketoday.validation.ValidationUtils;
-import cn.taketoday.validation.Validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
  * {@code ignoredMethodMappings} property.
  *
  * <p>If you specify values for both {@code ignoredMethodMappings} and
- * {@code ignoredMethods}, Spring will attempt to find method names in the
+ * {@code ignoredMethods}, Framework will attempt to find method names in the
  * mappings first. If no method names for the bean are found, it will use the
  * method names defined by {@code ignoredMethods}.
  *
@@ -85,7 +85,7 @@ public class MethodExclusionMBeanInfoAssembler extends AbstractConfigurableMBean
    * <p>These method names are <b>ignored</b> when creating the management interface.
    * <p>The property key must match the bean key and the property value must match
    * the list of method names. When searching for method names to ignore for a bean,
-   * Spring will check these mappings first.
+   * Framework will check these mappings first.
    */
   public void setIgnoredMethodMappings(Properties mappings) {
     this.ignoredMethodMappings = new HashMap<>();

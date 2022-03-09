@@ -79,7 +79,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * {@link AbstractServletWebServerFactory} that can be used to create
- * {@link TomcatWebServer}s. Can be initialized using Spring's
+ * {@link TomcatWebServer}s. Can be initialized using Framework's
  * {@link ServletContextInitializer}s or Tomcat {@link LifecycleListener}s.
  * <p>
  * Unless explicitly configured otherwise this factory will create containers that listen
@@ -281,7 +281,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     defaultServlet.addInitParameter("debug", "0");
     defaultServlet.addInitParameter("listings", "false");
     defaultServlet.setLoadOnStartup(1);
-    // Otherwise the default location of a Spring DispatcherServlet cannot be set
+    // Otherwise the default location of a Framework DispatcherServlet cannot be set
     defaultServlet.setOverridable(true);
     context.addChild(defaultServlet);
     context.addServletMappingDecoded("/", "default");

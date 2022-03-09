@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Default implementation of the {@link BeanDefinitionDocumentReader} interface that
  * reads bean definitions according to the "spring-beans" DTD and XSD format
- * (Spring's default XML bean definition format).
+ * (Framework's default XML bean definition format).
  *
  * <p>The structure, elements, and attribute names of the required XML document
  * are hard-coded in this class. (Of course a transform could be run if necessary
@@ -324,7 +324,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
    * before we start to process the bean definitions. This method is a natural
    * extension point for any other custom pre-processing of the XML.
    * <p>The default implementation is empty. Subclasses can override this method to
-   * convert custom elements into standard Spring bean definitions, for example.
+   * convert custom elements into standard Framework bean definitions, for example.
    * Implementors have access to the parser's bean definition reader and the
    * underlying XML resource, through the corresponding accessors.
    *
@@ -338,7 +338,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
    * after we finished processing the bean definitions. This method is a natural
    * extension point for any other custom post-processing of the XML.
    * <p>The default implementation is empty. Subclasses can override this method to
-   * convert custom elements into standard Spring bean definitions, for example.
+   * convert custom elements into standard Framework bean definitions, for example.
    * Implementors have access to the parser's bean definition reader and the
    * underlying XML resource, through the corresponding accessors.
    *

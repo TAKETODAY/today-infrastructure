@@ -248,7 +248,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * through reflection.
    * <p>Set this property to {@code true} for JMX implementations that
    * require the "class" field to be specified, for example WebLogic's.
-   * In that case, Spring will expose the target class name there, in case of
+   * In that case, Framework will expose the target class name there, in case of
    * a plain bean instance or a CGLIB proxy. When encountering a JDK dynamic
    * proxy, the <b>first</b> interface implemented by the proxy will be specified.
    * <p><b>WARNING:</b> Review your proxy definitions when exposing a JDK dynamic

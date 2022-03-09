@@ -21,12 +21,13 @@
 package cn.taketoday.jmx.export.annotation;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
-import cn.taketoday.jmx.support.ObjectNameManager;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import cn.taketoday.jmx.support.ObjectNameManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

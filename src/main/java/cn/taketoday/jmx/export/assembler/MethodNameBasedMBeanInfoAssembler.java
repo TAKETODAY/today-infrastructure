@@ -45,7 +45,7 @@ import cn.taketoday.util.StringUtils;
  * {@code methodMappings} property.
  *
  * <p>If you specify values for both {@code methodMappings} and
- * {@code managedMethods}, Spring will attempt to find method names in the
+ * {@code managedMethods}, Framework will attempt to find method names in the
  * mappings first. If no method names for the bean are found, it will use the
  * method names defined by {@code managedMethods}.
  *

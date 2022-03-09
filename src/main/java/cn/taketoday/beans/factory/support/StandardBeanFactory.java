@@ -105,7 +105,7 @@ import jakarta.inject.Provider;
  * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader}.
  *
  * <p>
- * like Spring's DefaultListableBeanFactory
+ * like Framework's StandardBeanFactory
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -1886,7 +1886,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-    throw new NotSerializableException("DefaultListableBeanFactory itself is not deserializable - " +
+    throw new NotSerializableException("StandardBeanFactory itself is not deserializable - " +
             "just a SerializedBeanFactoryReference is");
   }
 
@@ -1896,7 +1896,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return new SerializedBeanFactoryReference(this.serializationId);
     }
     else {
-      throw new NotSerializableException("DefaultListableBeanFactory has no serialization id");
+      throw new NotSerializableException("StandardBeanFactory has no serialization id");
     }
   }
 

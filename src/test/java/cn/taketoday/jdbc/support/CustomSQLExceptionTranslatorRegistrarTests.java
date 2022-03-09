@@ -23,14 +23,11 @@ package cn.taketoday.jdbc.support;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
-import java.util.Map;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;
-import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseFactoryBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,32 +38,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CustomSQLExceptionTranslatorRegistrarTests {
 
-  /*
-  	<jdbc:embedded-database id="dataSource" type="H2"/>
-
-	<bean class="cn.taketoday.jdbc.support.CustomSQLExceptionTranslatorRegistrar">
-		<property name="translators">
-			<map>
-				<entry key="H2">
-					<bean class="cn.taketoday.jdbc.support.CustomSqlExceptionTranslator"/>
-				</entry>
-			</map>
-		</property>
-	</bean>
-
-*/
   @Test
   @SuppressWarnings("resource")
   public void customErrorCodeTranslation() {
-    GenericApplicationContext context = new GenericApplicationContext();
-
-    context.registerBeanDefinition(new BeanDefinition("dataSource", EmbeddedDatabaseFactoryBean.class)
-            .addPropertyValue("databaseType", "H2"));
-
-    context.registerBeanDefinition(new BeanDefinition("customSQLExceptionTranslatorRegistrar", CustomSQLExceptionTranslatorRegistrar.class)
-            .addPropertyValue("translators", Map.of("H2", new CustomSqlExceptionTranslator())));
-
-    context.refresh();
+    new ClassPathXmlApplicationContext("test-custom-translators-context.xml",
+            CustomSQLExceptionTranslatorRegistrarTests.class);
 
     SQLErrorCodes codes = SQLErrorCodesFactory.getInstance().getErrorCodes("H2");
     SQLErrorCodeSQLExceptionTranslator sext = new SQLErrorCodeSQLExceptionTranslator();

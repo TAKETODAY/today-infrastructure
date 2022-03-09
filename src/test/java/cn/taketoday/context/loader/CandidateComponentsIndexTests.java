@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.context.loader.CandidateComponentsIndex;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

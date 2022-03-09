@@ -22,10 +22,10 @@ package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.support.StandardApplicationContext;
 import jakarta.annotation.Resource;
 
 import static cn.taketoday.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;

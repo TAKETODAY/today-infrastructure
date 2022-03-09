@@ -297,7 +297,7 @@ public class HibernateNativeEntityManagerFactorySpringBeanContainerIntegrationTe
 
   /**
    * The lifecycle options used by libraries integrating into Hibernate ORM
-   * and that want a behavior closer to Spring's native behavior,
+   * and that want a behavior closer to Framework's native behavior,
    * such as Hibernate Search.
    */
   private static class NativeLifecycleOptions implements BeanContainer.LifecycleOptions {

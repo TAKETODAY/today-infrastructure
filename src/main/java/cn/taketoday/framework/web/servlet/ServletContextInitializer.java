@@ -33,7 +33,7 @@ import jakarta.servlet.ServletException;
  * automatically bootstrapped by the Servlet container.
  * <p>
  * This interface is designed to act in a similar way to
- * {@link ServletContainerInitializer}, but have a lifecycle that's managed by Spring and
+ * {@link ServletContainerInitializer}, but have a lifecycle that's managed by Framework and
  * not the Servlet container.
  * <p>
  * For configuration examples see {@link WebApplicationInitializer}.

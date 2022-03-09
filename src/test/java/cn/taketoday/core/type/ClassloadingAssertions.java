@@ -20,10 +20,10 @@
 
 package cn.taketoday.core.type;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-
-import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

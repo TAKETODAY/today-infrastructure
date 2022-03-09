@@ -21,10 +21,11 @@
 package cn.taketoday.jmx.export;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jmx.AbstractJmxTests;
-import cn.taketoday.jmx.IJmxTestBean;
 
 import javax.management.ObjectName;
+
+import cn.taketoday.jmx.AbstractJmxTests;
+import cn.taketoday.jmx.IJmxTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

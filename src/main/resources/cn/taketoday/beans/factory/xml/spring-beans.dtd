@@ -3,7 +3,7 @@
 	Authors: Rod Johnson, Juergen Hoeller, Alef Arendsen, Colin Sampaleanu, Rob Harrop
 
 	This defines a simple and consistent way of creating a namespace
-	of JavaBeans objects, managed by a Spring BeanFactory, read by
+	of JavaBeans objects, managed by a Framework BeanFactory, read by
 	XmlBeanDefinitionReader (with DefaultBeanDefinitionDocumentReader).
 
 	This document type is used by most Spring functionality, including

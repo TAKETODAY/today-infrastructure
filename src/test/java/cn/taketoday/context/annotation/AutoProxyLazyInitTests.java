@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
-import cn.taketoday.aop.proxy.BeanNameAutoProxyCreator;
+import cn.taketoday.aop.framework.autoproxy.BeanNameAutoProxyCreator;
+import cn.taketoday.aop.framework.autoproxy.target.LazyInitTargetSourceCreator;
 import cn.taketoday.aop.target.AbstractBeanFactoryTargetSource;
-import cn.taketoday.aop.target.LazyInitTargetSourceCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationListener;

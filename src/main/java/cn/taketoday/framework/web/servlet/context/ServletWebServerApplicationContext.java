@@ -72,7 +72,7 @@ import jakarta.servlet.ServletException;
  * <p>
  * This context will create, initialize and run an {@link WebServer} by searching for a
  * single {@link ServletWebServerFactory} bean within the {@link ApplicationContext}
- * itself. The {@link ServletWebServerFactory} is free to use standard Spring concepts
+ * itself. The {@link ServletWebServerFactory} is free to use standard Framework concepts
  * (such as dependency injection, lifecycle callbacks and property placeholder variables).
  * <p>
  * In addition, any {@link Servlet} or {@link Filter} beans defined in the context will be
@@ -291,7 +291,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
       }
       return;
     }
-    servletContext.log("Initializing Spring embedded WebApplicationContext");
+    servletContext.log("Initializing Framework embedded WebApplicationContext");
     try {
       servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
       if (logger.isDebugEnabled()) {

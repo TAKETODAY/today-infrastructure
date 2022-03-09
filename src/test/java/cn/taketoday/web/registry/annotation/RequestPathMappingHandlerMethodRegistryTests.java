@@ -27,9 +27,9 @@ import java.lang.reflect.Method;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.http.HttpMethod;
 
 /**
  * @author TODAY 2021/4/22 22:07

@@ -21,10 +21,11 @@
 package cn.taketoday.web.client;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.http.client.ClientHttpResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+
+import cn.taketoday.http.client.ClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

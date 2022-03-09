@@ -26,14 +26,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.RestController;
 import jakarta.annotation.Priority;

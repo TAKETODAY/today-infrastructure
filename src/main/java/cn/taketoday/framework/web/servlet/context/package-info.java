@@ -19,7 +19,7 @@
  */
 
 /**
- * Servlet based web integrations with Spring's
+ * Servlet based web integrations with Framework's
  * {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}.
  */
 @NonNullApi

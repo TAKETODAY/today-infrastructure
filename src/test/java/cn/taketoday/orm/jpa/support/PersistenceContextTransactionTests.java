@@ -44,7 +44,6 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
- * @since 4.1.2
  */
 public class PersistenceContextTransactionTests {
 

@@ -37,7 +37,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * Provides access to an application specific temporary directory. Generally speaking
- * different Spring Boot applications will get different locations, however, simply
+ * different Framework applications will get different locations, however, simply
  * restarting an application will give the same location.
  *
  * @author Phillip Webb

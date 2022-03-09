@@ -24,8 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.lang.Repository;
 
 /**

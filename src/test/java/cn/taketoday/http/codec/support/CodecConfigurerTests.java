@@ -42,6 +42,7 @@ import cn.taketoday.core.codec.Encoder;
 import cn.taketoday.core.codec.NettyByteBufDecoder;
 import cn.taketoday.core.codec.NettyByteBufEncoder;
 import cn.taketoday.core.codec.StringDecoder;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.CodecConfigurer;
 import cn.taketoday.http.codec.DecoderHttpMessageReader;
 import cn.taketoday.http.codec.EncoderHttpMessageWriter;
@@ -59,7 +60,6 @@ import cn.taketoday.http.codec.json.Jackson2SmileEncoder;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufEncoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   		https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean class="cn.taketoday.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+	<bean id="annotationSource" class="cn.taketoday.cache.jcache.interceptor.DefaultJCacheOperationSource">
+		<property name="cacheManager" ref="cacheManager"/>
+	</bean>
+
+	<bean id="cacheInterceptor" class="cn.taketoday.cache.jcache.interceptor.JCacheInterceptor">
+		<property name="cacheOperationSource" ref="annotationSource"/>
+	</bean>
+
+	<bean id="advisor" class="cn.taketoday.cache.jcache.interceptor.BeanFactoryJCacheOperationSourceAdvisor">
+		<property name="cacheOperationSource" ref="annotationSource"/>
+		<property name="adviceBeanName" value="cacheInterceptor"/>
+	</bean>
+
+	<bean id="cacheManager" class="cn.taketoday.cache.support.SimpleCacheManager">
+		<property name="caches">
+			<set>
+				<ref bean="defaultCache"/>
+				<bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="primary"/>
+				</bean>
+				<bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="secondary"/>
+				</bean>
+				<bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="exception"/>
+				</bean>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="defaultCache"
+		  class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+		<property name="name" value="default"/>
+	</bean>
+
+	<bean id="cacheableService" class="cn.taketoday.cache.jcache.interceptor.AnnotatedJCacheableService">
+		<constructor-arg ref="defaultCache"/>
+	</bean>
+
+</beans>

@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 
 /**
- * SPI for parsing an XML document that contains Spring bean definitions.
+ * SPI for parsing an XML document that contains Framework bean definitions.
  * Used by {@link XmlBeanDefinitionReader} for actually parsing a DOM document.
  *
  * <p>Instantiated per document to parse: implementations can hold
@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @see XmlBeanDefinitionReader#setDocumentReaderClass
- * @since 4.0.08.12.2003
+ * @since 4.0
  */
 public interface BeanDefinitionDocumentReader {
 

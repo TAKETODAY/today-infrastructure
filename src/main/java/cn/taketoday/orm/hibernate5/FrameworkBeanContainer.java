@@ -195,7 +195,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
       catch (RuntimeException ex2) {
         if (ex instanceof BeanCreationException) {
           logger.debug("Fallback producer failed for {} with name '{}}': {}", beanType, name, ex2.toString());
-          // Rethrow original Spring exception from first attempt.
+          // Rethrow original Framework exception from first attempt.
           throw ex;
         }
         else {

@@ -28,11 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.TargetInvocation;
-import cn.taketoday.aop.proxy.std.DefaultProxyMethodGenerator;
-import cn.taketoday.aop.proxy.std.GeneratorContext;
-import cn.taketoday.aop.proxy.std.NoneProxyMethodGenerator;
-import cn.taketoday.aop.proxy.std.ProxyMethodGenerator;
+import cn.taketoday.aop.framework.std.DefaultProxyMethodGenerator;
+import cn.taketoday.aop.framework.std.GeneratorContext;
+import cn.taketoday.aop.framework.std.NoneProxyMethodGenerator;
+import cn.taketoday.aop.framework.std.ProxyMethodGenerator;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.bytecode.ClassVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
@@ -117,7 +116,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     private Constructor<?> constructor;
 
     public StandardProxyGenerator(AdvisedSupport config,
-                                  Class<?> proxySuperClass) {
+            Class<?> proxySuperClass) {
       super("Aop");
       this.config = config;
       this.targetClass = proxySuperClass;

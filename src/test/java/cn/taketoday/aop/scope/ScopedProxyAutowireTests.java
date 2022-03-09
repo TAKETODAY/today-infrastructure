@@ -22,8 +22,6 @@ package cn.taketoday.aop.scope;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -36,10 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author Chris Beams
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/3/7 21:17
  */
-
 public class ScopedProxyAutowireTests {
 
   @Test
@@ -49,9 +44,9 @@ public class ScopedProxyAutowireTests {
             qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireFalse.xml"));
 
     Set<String> beanNamesForType = bf.getBeanNamesForType(TestBean.class, false, false);
-    assertThat(List.of(beanNamesForType).contains("scoped")).isTrue();
+    assertThat(beanNamesForType.contains("scoped")).isTrue();
     Set<String> beanNamesForType1 = bf.getBeanNamesForType(TestBean.class, true, false);
-    assertThat(List.of(beanNamesForType1).contains("scoped")).isTrue();
+    assertThat(beanNamesForType1.contains("scoped")).isTrue();
     assertThat(bf.containsSingleton("scoped")).isFalse();
     TestBean autowired = (TestBean) bf.getBean("autowired");
     TestBean unscoped = (TestBean) bf.getBean("unscoped");
@@ -64,8 +59,8 @@ public class ScopedProxyAutowireTests {
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(
             qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireTrue.xml"));
 
-    assertThat(Arrays.asList(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped")).isTrue();
-    assertThat(Arrays.asList(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped")).isTrue();
+    assertThat(bf.getBeanNamesForType(TestBean.class, true, false).contains("scoped")).isTrue();
+    assertThat(bf.getBeanNamesForType(TestBean.class, false, false).contains("scoped")).isTrue();
     assertThat(bf.containsSingleton("scoped")).isFalse();
     TestBean autowired = (TestBean) bf.getBean("autowired");
     TestBean scoped = (TestBean) bf.getBean("scoped");

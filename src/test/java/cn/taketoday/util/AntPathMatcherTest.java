@@ -633,7 +633,7 @@ public class AntPathMatcherTest {
   public void isPattern() {
     assertThat(pathMatcher.isPattern("/test/*")).isTrue();
     assertThat(pathMatcher.isPattern("/test/**/name")).isTrue();
-    assertThat(pathMatcher.isPattern("/test?")).isTrue();
+    assertThat(pathMatcher.isPattern("/test")).isTrue();
     assertThat(pathMatcher.isPattern("/test/{name}")).isTrue();
 
     assertThat(pathMatcher.isPattern("/test/name")).isFalse();

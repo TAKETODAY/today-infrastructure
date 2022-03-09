@@ -22,6 +22,8 @@ package cn.taketoday.beans.factory.xml;
 
 import org.w3c.dom.Node;
 
+import cn.taketoday.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator;
+import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 
@@ -43,12 +45,12 @@ import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
  * they may be part of a chain. In particular, a {@link BeanDefinitionDecorator} should
  * be aware that a previous {@link BeanDefinitionDecorator} may have replaced the
  * original {@link BeanDefinition} with a
- * {@link cn.taketoday.aop.proxy.ProxyFactoryBean} definition allowing for
+ * {@link ProxyFactoryBean} definition allowing for
  * custom {@link org.aopalliance.intercept.MethodInterceptor interceptors} to be added.
  *
  * <p>{@link BeanDefinitionDecorator BeanDefinitionDecorators} that wish to add an
  * interceptor to the enclosing bean should extend
- * {@link cn.taketoday.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator}
+ * {@link AbstractInterceptorDrivenBeanDefinitionDecorator}
  * which handles the chaining ensuring that only one proxy is created and that it
  * contains all interceptors from the chain.
  *

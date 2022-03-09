@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.aop.framework.AopProxyUtils;
+import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
@@ -367,7 +367,7 @@ public class ConfigurationClassPostProcessor
     for (Map.Entry<String, AbstractBeanDefinition> entry : configBeanDefs.entrySet()) {
       AbstractBeanDefinition beanDef = entry.getValue();
       // If a @Configuration class gets proxied, always proxy the target class
-      beanDef.setAttribute(AopProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
+      beanDef.setAttribute(AutoProxyUtils.PRESERVE_TARGET_CLASS_ATTRIBUTE, Boolean.TRUE);
       // Set enhanced subclass of the user-specified bean class
       Class<?> configClass = beanDef.getBeanClass();
       Class<?> enhancedClass = enhancer.enhance(configClass, this.beanClassLoader);

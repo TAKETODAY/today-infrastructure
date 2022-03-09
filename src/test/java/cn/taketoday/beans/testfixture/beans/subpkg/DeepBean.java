@@ -20,11 +20,13 @@
 
 package cn.taketoday.beans.testfixture.beans.subpkg;
 
+import cn.taketoday.aop.aspectj.AspectJExpressionPointcutTests;
+
 /**
  * Used for testing pointcut matching.
  *
  * @author Chris Beams
- * @see cn.taketoday.aop.aspectj.AspectJExpressionPointcutTests#testWithinRootAndSubpackages()
+ * @see AspectJExpressionPointcutTests#testWithinRootAndSubpackages()
  */
 public class DeepBean {
   public void aMethod(String foo) {

@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import cn.taketoday.aop.framework.Advised;
-import cn.taketoday.aop.framework.DefaultAdvisorAdapterRegistry;
-import cn.taketoday.aop.proxy.AdvisorAdapterRegistry;
+import cn.taketoday.aop.framework.adapter.DefaultAdvisorAdapterRegistry;
+import cn.taketoday.aop.framework.adapter.AdvisorAdapterRegistry;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

@@ -21,9 +21,6 @@
 package cn.taketoday.jmx.export.assembler;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jmx.AbstractJmxTests;
-import cn.taketoday.jmx.IJmxTestBean;
-import cn.taketoday.jmx.support.ObjectNameManager;
 
 import javax.management.Attribute;
 import javax.management.Descriptor;
@@ -36,6 +33,10 @@ import javax.management.ObjectName;
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
+
+import cn.taketoday.jmx.AbstractJmxTests;
+import cn.taketoday.jmx.IJmxTestBean;
+import cn.taketoday.jmx.support.ObjectNameManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

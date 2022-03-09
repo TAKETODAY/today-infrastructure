@@ -21,12 +21,13 @@
 package cn.taketoday.jmx.export.naming;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.jmx.JmxTestBean;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
+import cn.taketoday.jmx.JmxTestBean;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

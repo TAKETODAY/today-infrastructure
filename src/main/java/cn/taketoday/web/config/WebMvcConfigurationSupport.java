@@ -513,7 +513,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * {@link cn.taketoday.web.annotation.ExceptionHandler} methods.
    * <li>{@link ResponseStatusExceptionHandler} for exceptions annotated with
    * {@link cn.taketoday.web.annotation.ResponseStatus}.
-   * <li>{@link SimpleHandlerExceptionHandler} for resolving known Spring exception types
+   * <li>{@link SimpleHandlerExceptionHandler} for resolving known Framework exception types
    * </ul>
    */
   protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers) {

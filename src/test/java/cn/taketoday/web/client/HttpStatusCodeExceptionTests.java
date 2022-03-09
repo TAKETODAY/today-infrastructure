@@ -21,7 +21,6 @@
 package cn.taketoday.web.client;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.http.HttpStatus;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +28,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
+
+import cn.taketoday.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

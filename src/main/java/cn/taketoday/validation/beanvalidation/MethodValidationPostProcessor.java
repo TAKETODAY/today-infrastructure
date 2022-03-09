@@ -25,11 +25,11 @@ import org.aopalliance.aop.Advice;
 import java.lang.annotation.Annotation;
 
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.framework.AbstractBeanFactoryAwareAdvisingPostProcessor;
+import cn.taketoday.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
 import cn.taketoday.aop.support.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.annotation.Validated;

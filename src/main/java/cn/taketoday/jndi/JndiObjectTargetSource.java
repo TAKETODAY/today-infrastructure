@@ -23,6 +23,7 @@ package cn.taketoday.jndi;
 import javax.naming.NamingException;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -59,7 +60,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see #setLookupOnStartup
  * @see #setCache
- * @see cn.taketoday.aop.proxy.ProxyFactoryBean#setTargetSource
+ * @see ProxyFactoryBean#setTargetSource
  * @see JndiObjectFactoryBean#setProxyInterface
  * @since 4.0
  */

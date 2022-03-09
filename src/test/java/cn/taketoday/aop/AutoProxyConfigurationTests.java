@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,8 +22,8 @@ package cn.taketoday.aop;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.proxy.ProxyConfig;
-import cn.taketoday.aop.proxy.ProxyCreator;
+import cn.taketoday.aop.framework.ProxyConfig;
+import cn.taketoday.aop.framework.ProxyCreator;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.EnableAspectAutoProxy;

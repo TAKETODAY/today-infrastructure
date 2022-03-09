@@ -20,13 +20,6 @@
 
 package cn.taketoday.web.socket.client.standard;
 
-import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
-import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHttpHeaders;
-import cn.taketoday.web.socket.WebSocketSession;
-import jakarta.websocket.ClientEndpointConfig;
-import jakarta.websocket.Endpoint;
-import jakarta.websocket.WebSocketContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,6 +29,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
+import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketHttpHeaders;
+import cn.taketoday.web.socket.WebSocketSession;
+import jakarta.websocket.ClientEndpointConfig;
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.WebSocketContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

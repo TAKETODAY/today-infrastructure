@@ -794,7 +794,7 @@ class CustomEditorTests {
     editor.setAsText("test");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText(" test ");
+    editor.setAsText("test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText("");
@@ -812,7 +812,7 @@ class CustomEditorTests {
     editor.setAsText("test");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText(" test ");
+    editor.setAsText("test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText("  ");
@@ -828,7 +828,7 @@ class CustomEditorTests {
     editor.setAsText("te\ns\ft");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText(" test ");
+    editor.setAsText("test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText("");
@@ -844,7 +844,7 @@ class CustomEditorTests {
     editor.setAsText("te\ns\ft");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText(" test ");
+    editor.setAsText("test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText(" \n\f ");

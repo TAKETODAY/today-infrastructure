@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>This GenericBeanDefinition variant is mainly useful for testing code that expects
  * to operate on an AnnotatedBeanDefinition, for example strategy implementations
- * in Spring's component scanning support (where the default definition class is
+ * in Framework's component scanning support (where the default definition class is
  * {@link cn.taketoday.context.annotation.ScannedGenericBeanDefinition},
  * which also implements the AnnotatedBeanDefinition interface).
  *

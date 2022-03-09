@@ -39,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Hibernate-specific JPA tests with native SessionFactory setup and getCurrentSession interaction.
  *
  * @author Juergen Hoeller
- * @since 5.1
  */
 public class HibernateNativeEntityManagerFactoryIntegrationTests extends AbstractContainerEntityManagerFactoryIntegrationTests {
 

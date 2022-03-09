@@ -32,7 +32,7 @@ import cn.taketoday.lang.Assert;
 
 /**
  * A {@link ScopeMetadataResolver} implementation that by default checks for
- * the presence of Spring's {@link Scope @Scope} annotation on the bean class.
+ * the presence of Framework's {@link Scope @Scope} annotation on the bean class.
  *
  * <p>The exact type of annotation that is checked for is configurable via
  * {@link #setScopeAnnotationType(Class)}.

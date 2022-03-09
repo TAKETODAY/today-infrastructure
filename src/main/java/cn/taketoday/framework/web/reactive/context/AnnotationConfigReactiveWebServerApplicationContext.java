@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanNamePopulator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
@@ -77,7 +77,7 @@ public class AnnotationConfigReactiveWebServerApplicationContext extends Reactiv
    * {@linkplain #refresh refreshed}.
    */
   public AnnotationConfigReactiveWebServerApplicationContext() {
-    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
@@ -90,7 +90,7 @@ public class AnnotationConfigReactiveWebServerApplicationContext extends Reactiv
    */
   public AnnotationConfigReactiveWebServerApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
-    this.reader = new AnnotatedBeanDefinitionReader(this, beanFactory);
+    this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 

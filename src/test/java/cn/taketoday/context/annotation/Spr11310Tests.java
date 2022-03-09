@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

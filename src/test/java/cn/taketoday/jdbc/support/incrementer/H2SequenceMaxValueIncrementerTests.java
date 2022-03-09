@@ -26,7 +26,7 @@ class H2SequenceMaxValueIncrementerTests {
   /**
    * Tests that the incrementer works when using the JDBC connection URL used
    * in the {@code H2EmbeddedDatabaseConfigurer} which is used transparently
-   * when using Spring's {@link EmbeddedDatabaseBuilder}.
+   * when using Framework's {@link EmbeddedDatabaseBuilder}.
    *
    * <p>In other words, this tests compatibility with the default H2
    * <em>compatibility mode</em>.
