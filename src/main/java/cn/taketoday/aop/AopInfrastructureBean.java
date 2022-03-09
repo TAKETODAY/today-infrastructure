@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop;
 
+import cn.taketoday.aop.framework.AbstractAutoProxyCreator;
+
 /**
  * Marker interface that indicates a bean that is part of AOP infrastructure. In
  * particular, this implies that any such bean is not subject to auto-proxying,
@@ -27,7 +29,7 @@ package cn.taketoday.aop;
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/2/1 21:31
- * @see cn.taketoday.aop.proxy.AbstractAutoProxyCreator
+ * @see AbstractAutoProxyCreator
  * @since 3.0
  */
 public interface AopInfrastructureBean {

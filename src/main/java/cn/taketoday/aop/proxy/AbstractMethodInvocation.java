@@ -26,6 +26,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.util.HashMap;
 
 import cn.taketoday.aop.TargetClassAware;
+import cn.taketoday.aop.framework.CglibAopProxy;
+import cn.taketoday.aop.framework.StandardMethodInvocation;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.util.ObjectUtils;
@@ -60,7 +62,7 @@ public abstract class AbstractMethodInvocation
    *
    * @return see the children interfaces' proceed definition.
    * @throws Throwable if the join-point throws an exception.
-   * @see cn.taketoday.aop.proxy.CglibAopProxy.CglibMethodInvocation
+   * @see CglibAopProxy.CglibMethodInvocation
    * @see DefaultMethodInvocation
    * @see StandardMethodInvocation
    */

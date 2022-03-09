@@ -21,6 +21,9 @@
 package cn.taketoday.aop.proxy;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.framework.DefaultAdvisorAdapterRegistry;
+import cn.taketoday.aop.framework.ProxyFactory;
+import cn.taketoday.aop.interceptor.PerformanceMonitorInterceptor;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -96,7 +99,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
    * <p>You may specify any AOP Alliance MethodInterceptors or other
    * Framework AOP Advices, as well as Framework AOP Advisors.
    *
-   * @see cn.taketoday.aop.support.interceptor.PerformanceMonitorInterceptor
+   * @see PerformanceMonitorInterceptor
    */
   public void setPreInterceptors(Object[] preInterceptors) {
     this.preInterceptors = preInterceptors;

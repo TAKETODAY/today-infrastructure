@@ -27,6 +27,7 @@ import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.ThrowsAdvice;
+import cn.taketoday.aop.framework.AdvisorAdapter;
 
 /**
  * Interface for registries of Advisor adapters.

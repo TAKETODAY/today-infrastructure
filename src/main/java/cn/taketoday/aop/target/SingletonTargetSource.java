@@ -23,7 +23,7 @@ package cn.taketoday.aop.target;
 import java.io.Serializable;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.AdvisedSupport;
+import cn.taketoday.aop.framework.AdvisedSupport;
 import cn.taketoday.lang.Assert;
 
 /**

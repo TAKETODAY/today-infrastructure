@@ -25,7 +25,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import java.lang.reflect.Method;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.AdvisedSupport;
+import cn.taketoday.aop.framework.AdvisedSupport;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.core.ClassEmitter;

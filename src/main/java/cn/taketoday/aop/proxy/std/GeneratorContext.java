@@ -23,7 +23,7 @@ package cn.taketoday.aop.proxy.std;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.aop.proxy.AdvisedSupport;
+import cn.taketoday.aop.framework.AdvisedSupport;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.core.ClassEmitter;
 

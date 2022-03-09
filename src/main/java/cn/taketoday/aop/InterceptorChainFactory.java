@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.aop.proxy.Advised;
+import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.lang.Nullable;
 
 /**

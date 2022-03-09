@@ -19,7 +19,6 @@
  */
 package cn.taketoday.aop.support.annotation;
 
-import cn.taketoday.beans.factory.BeanSupplier;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -32,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationUtils;

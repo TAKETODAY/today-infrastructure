@@ -34,6 +34,11 @@ import java.util.Set;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.AopConfigException;
+import cn.taketoday.aop.framework.AopProxy;
+import cn.taketoday.aop.framework.DefaultAdvisorAdapterRegistry;
+import cn.taketoday.aop.framework.ProxyCreatorSupport;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;

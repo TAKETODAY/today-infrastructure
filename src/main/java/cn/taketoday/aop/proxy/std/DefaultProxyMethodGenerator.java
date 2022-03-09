@@ -25,7 +25,7 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import cn.taketoday.aop.TargetSource;
-import cn.taketoday.aop.proxy.AdvisedSupport;
+import cn.taketoday.aop.framework.AdvisedSupport;
 import cn.taketoday.aop.proxy.StandardProxyInvoker;
 import cn.taketoday.aop.proxy.TargetInvocation;
 import cn.taketoday.core.bytecode.Opcodes;

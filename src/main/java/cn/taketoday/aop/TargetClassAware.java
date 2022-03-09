@@ -20,11 +20,13 @@
 
 package cn.taketoday.aop;
 
+import cn.taketoday.aop.framework.Advised;
+
 /**
  * Minimal interface for exposing the target class behind a proxy.
  *
  * <p>Implemented by AOP proxy objects and proxy factories
- * (via {@link cn.taketoday.aop.proxy.Advised})
+ * (via {@link Advised})
  * as well as by {@link TargetSource TargetSources}.
  *
  * @author Juergen Hoeller

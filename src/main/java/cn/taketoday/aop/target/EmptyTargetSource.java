@@ -20,11 +20,11 @@
 
 package cn.taketoday.aop.target;
 
-import cn.taketoday.aop.TargetSource;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+
+import cn.taketoday.aop.TargetSource;
 
 /**
  * Canonical {@code TargetSource} when there is no target

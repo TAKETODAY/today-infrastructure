@@ -23,6 +23,8 @@ package cn.taketoday.aop.proxy;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import cn.taketoday.aop.framework.StandardMethodInvocation;
+
 /**
  * @author TODAY 2021/3/8 13:03
  * @since 3.0

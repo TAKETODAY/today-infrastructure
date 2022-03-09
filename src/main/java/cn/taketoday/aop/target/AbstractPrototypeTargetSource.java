@@ -26,11 +26,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
 import java.io.Serial;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * Base class for dynamic {@link cn.taketoday.aop.TargetSource} implementations

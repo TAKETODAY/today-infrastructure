@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;

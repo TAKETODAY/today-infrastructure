@@ -23,6 +23,8 @@ package cn.taketoday.aop.proxy;
 import java.io.Serial;
 import java.io.Serializable;
 
+import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.AdvisedSupport;
 import cn.taketoday.lang.Assert;
 
 /**

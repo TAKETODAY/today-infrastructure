@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.proxy;
 
+import cn.taketoday.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.lang.Nullable;
 

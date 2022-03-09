@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.framework.AbstractAutoProxyCreator;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Assert;

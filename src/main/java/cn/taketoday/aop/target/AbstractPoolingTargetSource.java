@@ -23,9 +23,9 @@ package cn.taketoday.aop.target;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanInitializationException;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.lang.Nullable;
 
