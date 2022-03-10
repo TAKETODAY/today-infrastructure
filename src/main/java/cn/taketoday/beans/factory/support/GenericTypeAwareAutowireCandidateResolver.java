@@ -65,7 +65,7 @@ public class GenericTypeAwareAutowireCandidateResolver
   }
 
   @Override
-  public boolean isAutowireCandidate(BeanDefinition definition, DependencyDescriptor descriptor) {
+  public boolean isAutowireCandidate(BeanDefinitionHolder definition, DependencyDescriptor descriptor) {
     if (!super.isAutowireCandidate(definition, descriptor)) {
       // If explicitly false, do not proceed with any other checks...
       return false;
@@ -77,7 +77,7 @@ public class GenericTypeAwareAutowireCandidateResolver
    * Match the given dependency type with its generic type information against the given
    * candidate bean definition.
    */
-  protected boolean checkGenericTypeMatch(BeanDefinition definition, DependencyDescriptor descriptor) {
+  protected boolean checkGenericTypeMatch(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
     ResolvableType dependencyType = descriptor.getResolvableType();
     if (dependencyType.getType() instanceof Class) {
       // No generic type -> we know it's a Class type-match, so no need to check again.
@@ -87,8 +87,8 @@ public class GenericTypeAwareAutowireCandidateResolver
     ResolvableType targetType = null;
     boolean cacheType = false;
     RootBeanDefinition rbd = null;
-    if (definition instanceof RootBeanDefinition) {
-      rbd = (RootBeanDefinition) definition;
+    if (bdHolder.getBeanDefinition() instanceof RootBeanDefinition hrbd) {
+      rbd = hrbd;
     }
     if (rbd != null) {
       targetType = rbd.targetType;
@@ -110,8 +110,8 @@ public class GenericTypeAwareAutowireCandidateResolver
 
     if (targetType == null) {
       // Regular case: straight bean instance, with BeanFactory available.
-      if (this.beanFactory != null) {
-        Class<?> beanType = this.beanFactory.getType(definition.getBeanName());
+      if (beanFactory != null) {
+        Class<?> beanType = beanFactory.getType(bdHolder.getBeanName());
         if (beanType != null) {
           targetType = ResolvableType.fromClass(ClassUtils.getUserClass(beanType));
         }

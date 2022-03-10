@@ -20,7 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 
@@ -36,8 +36,8 @@ import cn.taketoday.lang.Nullable;
 public class SimpleAutowireCandidateResolver implements AutowireCandidateResolver {
 
   @Override
-  public boolean isAutowireCandidate(BeanDefinition definition, DependencyDescriptor descriptor) {
-    return definition.isAutowireCandidate();
+  public boolean isAutowireCandidate(BeanDefinitionHolder definition, DependencyDescriptor descriptor) {
+    return definition.getBeanDefinition().isAutowireCandidate();
   }
 
   @Override

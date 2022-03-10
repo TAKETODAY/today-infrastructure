@@ -29,7 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
@@ -45,7 +45,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * {@link AutowireCandidateResolver} implementation that matches bean definition qualifiers
+ * {@link AutowireCandidateResolver} implementation that matches bean holder qualifiers
  * against {@link Qualifier qualifier annotations} on the field or parameter to be autowired.
  *
  * <p>Also supports JSR-330's {@link jakarta.inject.Qualifier} annotation, if available.
@@ -130,12 +130,12 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   }
 
   /**
-   * Determine whether the provided bean definition is an autowire candidate.
+   * Determine whether the provided bean holder is an autowire candidate.
    * <p>To be considered a candidate the bean's <em>autowire-candidate</em>
    * attribute must not have been set to 'false'. Also, if an annotation on
    * the field or parameter to be autowired is recognized by this bean factory
    * as a <em>qualifier</em>, the bean must 'match' against the annotation as
-   * well as any attributes it may contain. The bean definition must contain
+   * well as any attributes it may contain. The bean holder must contain
    * the same qualifier or match by meta attributes. A "value" attribute will
    * fallback to match against the bean name or an alias if a qualifier or
    * attribute does not match.
@@ -143,16 +143,16 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * @see Qualifier
    */
   @Override
-  public boolean isAutowireCandidate(BeanDefinition definition, DependencyDescriptor descriptor) {
-    boolean match = super.isAutowireCandidate(definition, descriptor);
+  public boolean isAutowireCandidate(BeanDefinitionHolder holder, DependencyDescriptor descriptor) {
+    boolean match = super.isAutowireCandidate(holder, descriptor);
     if (match) {
-      match = checkQualifiers(definition, descriptor.getAnnotations());
+      match = checkQualifiers(holder, descriptor.getAnnotations());
       if (match) {
         MethodParameter methodParam = descriptor.getMethodParameter();
         if (methodParam != null) {
           Method method = methodParam.getMethod();
           if (method == null || void.class == method.getReturnType()) {
-            match = checkQualifiers(definition, methodParam.getMethodAnnotations());
+            match = checkQualifiers(holder, methodParam.getMethodAnnotations());
           }
         }
       }
@@ -176,20 +176,19 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   }
 
   /**
-   * Match the given qualifier annotations against the candidate bean definition.
+   * Match the given qualifier annotations against the candidate bean holder.
    */
-  protected boolean checkQualifiers(BeanDefinition definition, Annotation[] annotationsToSearch) {
+  protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
     if (ObjectUtils.isEmpty(annotationsToSearch)) {
       return true;
     }
     SimpleTypeConverter typeConverter = new SimpleTypeConverter();
-
     for (Annotation annotation : annotationsToSearch) {
       Class<? extends Annotation> type = annotation.annotationType();
       boolean checkMeta = true;
       boolean fallbackToMeta = false;
       if (isQualifier(type)) {
-        if (!checkQualifier(definition, annotation, typeConverter)) {
+        if (!checkQualifier(bdHolder, annotation, typeConverter)) {
           fallbackToMeta = true;
         }
         else {
@@ -204,8 +203,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
             foundMeta = true;
             // Only accept fallback match if @Qualifier annotation has a value...
             // Otherwise it is just a marker for a custom qualifier annotation.
-            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn)))
-                    || !checkQualifier(definition, metaAnn, typeConverter)) {
+            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn))) ||
+                    !checkQualifier(bdHolder, metaAnn, typeConverter)) {
               return false;
             }
           }
@@ -231,13 +230,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   }
 
   /**
-   * Match the given qualifier annotation against the candidate bean definition.
+   * Match the given qualifier annotation against the candidate bean holder.
    */
   protected boolean checkQualifier(
-          BeanDefinition definition, Annotation annotation, SimpleTypeConverter typeConverter) {
+          BeanDefinitionHolder bdHolder, Annotation annotation, SimpleTypeConverter typeConverter) {
 
     Class<? extends Annotation> type = annotation.annotationType();
-    RootBeanDefinition bd = (RootBeanDefinition) definition;
+    RootBeanDefinition bd = (RootBeanDefinition) bdHolder.getBeanDefinition();
 
     AutowireCandidateQualifier qualifier = bd.getQualifier(type.getName());
     if (qualifier == null) {
@@ -260,7 +259,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         // Look for matching annotation on the target class
         if (getBeanFactory() != null) {
           try {
-            Class<?> beanType = getBeanFactory().getType(definition.getBeanName());
+            Class<?> beanType = getBeanFactory().getType(bdHolder.getBeanName());
             if (beanType != null) {
               targetAnnotation = AnnotationUtils.getAnnotation(ClassUtils.getUserClass(beanType), type);
             }
@@ -296,7 +295,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         actualValue = bd.getAttribute(attributeName);
       }
       if (actualValue == null && attributeName.equals(AutowireCandidateQualifier.VALUE_KEY) &&
-              expectedValue instanceof String && definition.matchesName((String) expectedValue)) {
+              expectedValue instanceof String && bdHolder.matchesName((String) expectedValue)) {
         // Fall back on bean name (or alias) match
         continue;
       }

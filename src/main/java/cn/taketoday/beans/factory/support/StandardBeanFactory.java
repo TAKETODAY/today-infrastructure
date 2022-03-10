@@ -168,6 +168,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private static final Map<String, Reference<StandardBeanFactory>> serializableFactories =
           new ConcurrentHashMap<>(8);
 
+  /** Map from bean name to merged BeanDefinitionHolder. @since 4.0 */
+  private final Map<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
+
   /** Optional id for this factory, for serialization purposes. @since 4.0 */
   @Nullable
   private String serializationId;
@@ -368,8 +371,15 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  protected void clearMergedBeanDefinition(String beanName) {
+    super.clearMergedBeanDefinition(beanName);
+    this.mergedBeanDefinitionHolders.remove(beanName);
+  }
+
+  @Override
   public void clearMetadataCache() {
     super.clearMetadataCache();
+    this.mergedBeanDefinitionHolders.clear();
     clearByTypeCache();
   }
 
@@ -1268,27 +1278,29 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * to be injected into other beans which declare a dependency of matching type.
    *
    * @param beanName the name of the bean definition to check
-   * @param definition the bean definition to check
+   * @param merged the bean definition to check
    * @param descriptor the descriptor of the dependency to resolve
    * @param resolver the AutowireCandidateResolver to use for the actual resolution algorithm
    * @return whether the bean should be considered as autowire candidate
    */
   protected boolean isAutowireCandidate(
-          String beanName, RootBeanDefinition definition,
+          String beanName, RootBeanDefinition merged,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
 
-    resolveBeanClass(beanName, definition);
-    if (definition.isFactoryMethodUnique && definition.factoryMethodToIntrospect == null) {
-      new ConstructorResolver(this).resolveFactoryMethodIfPossible(definition);
-    }
-
     String bdName = BeanFactoryUtils.transformedBeanName(beanName);
-    if (!beanName.equals(bdName)) {
-      definition = definition.cloneBeanDefinition();
-      definition.setBeanName(beanName);
-      definition.setAliases(getAliases(bdName));
+    resolveBeanClass(bdName, merged);
+    if (merged.isFactoryMethodUnique && merged.factoryMethodToIntrospect == null) {
+      new ConstructorResolver(this).resolveFactoryMethodIfPossible(merged);
     }
-    return resolver.isAutowireCandidate(definition, descriptor);
+    BeanDefinitionHolder holder = getHolder(beanName, merged, bdName);
+    return resolver.isAutowireCandidate(holder, descriptor);
+  }
+
+  private BeanDefinitionHolder getHolder(String beanName, RootBeanDefinition merged, String bdName) {
+    if (beanName.equals(bdName)) {
+      return mergedBeanDefinitionHolders.computeIfAbsent(beanName, key -> new BeanDefinitionHolder(merged, beanName, getAliases(bdName)));
+    }
+    return new BeanDefinitionHolder(merged, beanName, getAliases(bdName));
   }
 
   @Nullable
