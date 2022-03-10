@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanMetadata;
@@ -59,11 +60,9 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.InjectionPoint;
-import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
-import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.AutowiredPropertyMarker;
@@ -71,7 +70,9 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.PropertyValueRetriever;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
@@ -154,6 +155,10 @@ public abstract class AbstractAutowireCapableBeanFactory
   /** Strategy for creating bean instances. */
   private InstantiationStrategy instantiationStrategy;
 
+  /** Cache of filtered BeanProperty: bean Class to PropertyDescriptor array. */
+  private final ConcurrentMap<Class<?>, BeanProperty[]> filteredBeanPropertiesCache =
+          new ConcurrentHashMap<>();
+
   /**
    * Create a new AbstractAutowireCapableBeanFactory.
    */
@@ -186,7 +191,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Override
   @SuppressWarnings("unchecked")
   public <T> T createBean(Class<T> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException {
-    // Use non-singleton bean definition, to avoid registering bean as dependent bean.
+    // Use non-singleton bean merged, to avoid registering bean as dependent bean.
     RootBeanDefinition bd = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     return (T) createBean(beanClass.getName(), bd, null);
@@ -194,13 +199,13 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public void autowireBean(Object existingBean) {
-    // Use non-singleton bean definition, to avoid registering bean as dependent bean.
-    RootBeanDefinition bd = new RootBeanDefinition(ClassUtils.getUserClass(existingBean));
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    bd.allowCaching = ClassUtils.isCacheSafe(bd.getBeanClass(), getBeanClassLoader());
-    BeanWrapper bw = new BeanWrapperImpl(existingBean);
-    initBeanWrapper(bw);
-    populateBean(bd.getBeanClass().getName(), bd, bw);
+    // Use non-singleton bean merged, to avoid registering bean as dependent bean.
+    RootBeanDefinition merged = new RootBeanDefinition(ClassUtils.getUserClass(existingBean));
+    merged.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    merged.allowCaching = ClassUtils.isCacheSafe(merged.getBeanClass(), getBeanClassLoader());
+    BeanWrapper bw = createBeanWrapper(merged, existingBean);
+
+    populateBean(merged.getBeanClass().getName(), merged, bw);
   }
 
   //---------------------------------------------------------------------
@@ -222,8 +227,8 @@ public abstract class AbstractAutowireCapableBeanFactory
     RootBeanDefinition mbdToUse = merged;
 
     // Make sure bean class is actually resolved at this point, and
-    // clone the bean definition in case of a dynamically resolved Class
-    // which cannot be stored in the shared merged bean definition.
+    // clone the bean merged in case of a dynamically resolved Class
+    // which cannot be stored in the shared merged bean merged.
     Class<?> resolvedClass = resolveBeanClass(beanName, merged);
     if (resolvedClass != null && !merged.hasBeanClass() && merged.getBeanClassName() != null) {
       mbdToUse = new RootBeanDefinition(merged);
@@ -277,52 +282,55 @@ public abstract class AbstractAutowireCapableBeanFactory
    * <p>Differentiates between default bean instantiation, use of a
    * factory method, and autowiring a constructor.
    *
-   * @param definition the merged bean definition for the bean
+   * @param merged the merged bean merged for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
    * @return a new instance of the bean
    * @throws BeanCreationException if the bean could not be created
    */
   @Nullable
   protected Object doCreateBean(
-          String beanName, RootBeanDefinition definition, @Nullable Object[] args) throws BeanCreationException {
+          String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
 
-    Object bean = createIfNecessary(beanName, definition, args);
+    Object bean = createIfNecessary(beanName, merged, args);
 
     if (bean == null) {
       return null;
     }
-    definition.resolvedTargetType = bean.getClass();
+    merged.resolvedTargetType = bean.getClass();
 
-    // Allow post-processors to modify the merged bean definition.
-    synchronized(definition.postProcessingLock) {
-      if (!definition.postProcessed) {
+    // Allow post-processors to modify the merged bean merged.
+    synchronized(merged.postProcessingLock) {
+      if (!merged.postProcessed) {
         try {
-          applyBeanDefinitionPostProcessors(definition, bean, beanName);
+          applyBeanDefinitionPostProcessors(merged, bean, beanName);
         }
         catch (Throwable ex) {
-          throw new BeanCreationException(definition.getResourceDescription(), beanName,
-                  "Post-processing of bean definition failed", ex);
+          throw new BeanCreationException(merged.getResourceDescription(), beanName,
+                  "Post-processing of bean merged failed", ex);
         }
-        definition.postProcessed = true;
+        merged.postProcessed = true;
       }
     }
 
     // Eagerly cache singletons to be able to resolve circular references
     // even when triggered by lifecycle interfaces like BeanFactoryAware.
-    boolean earlySingletonExposure = isEarlySingletonExposure(definition, beanName);
+    boolean earlySingletonExposure = isEarlySingletonExposure(merged, beanName);
     if (earlySingletonExposure) {
       if (log.isTraceEnabled()) {
         log.trace("Eagerly caching bean '{}' to allow for resolving potential circular references", beanName);
       }
-      addSingletonFactory(beanName, () -> getEarlyBeanReference(definition, bean));
+      addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, merged, bean));
     }
 
     Object fullyInitializedBean;
     try {
       // apply properties
-      populateBean(bean, definition);
+
+      BeanWrapperImpl beanWrapper = createBeanWrapper(merged, bean);
+
+      populateBean(beanName, merged, beanWrapper);
       // Initialize the bean instance.
-      fullyInitializedBean = initializeBean(bean, beanName, definition);
+      fullyInitializedBean = initializeBean(bean, beanName, merged);
     }
     catch (Throwable ex) {
       if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
@@ -330,7 +338,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       else {
         throw new BeanCreationException(
-                definition.getResourceDescription(), beanName, "Initialization of bean failed", ex);
+                merged.getResourceDescription(), beanName, "Initialization of bean failed", ex);
       }
     }
 
@@ -363,13 +371,28 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // Register bean as disposable.
     try {
-      registerDisposableBeanIfNecessary(beanName, bean, definition);
+      registerDisposableBeanIfNecessary(beanName, bean, merged);
     }
     catch (BeanDefinitionValidationException ex) {
       throw new BeanCreationException(
-              definition.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+              merged.getResourceDescription(), beanName, "Invalid destruction signature", ex);
     }
     return fullyInitializedBean;
+  }
+
+  private BeanWrapperImpl createBeanWrapper(BeanDefinition merged, Object bean) {
+    BeanMetadata metadata;
+    if (merged.isSingleton()) {
+      metadata = new BeanMetadata(bean.getClass());
+    }
+    else {
+      // fast access from cache
+      metadata = BeanMetadata.from(bean);
+    }
+
+    BeanWrapperImpl beanWrapper = new BeanWrapperImpl(bean, metadata);
+    initBeanWrapper(beanWrapper);
+    return beanWrapper;
   }
 
   @Nullable
@@ -393,14 +416,14 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Obtain a reference for early access to the specified bean,
    * typically for the purpose of resolving a circular reference.
    *
-   * @param definition the merged bean definition for the bean
+   * @param beanName the name of the bean (for error handling purposes)
+   * @param merged the merged bean merged for the bean
    * @param bean the raw bean instance
    * @return the object to expose as bean reference
    */
-  protected Object getEarlyBeanReference(RootBeanDefinition definition, Object bean) {
+  protected Object getEarlyBeanReference(String beanName, RootBeanDefinition merged, Object bean) {
     Object exposedObject = bean;
-    if (!definition.isSynthetic()) {
-      String beanName = definition.getBeanName();
+    if (!merged.isSynthetic()) {
       for (SmartInstantiationAwareBeanPostProcessor bp : postProcessors().smartInstantiation) {
         exposedObject = bp.getEarlyBeanReference(exposedObject, beanName);
       }
@@ -423,7 +446,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * {@code setBeanName} and {@code setBeanFactory}, also applying all bean post
    * processors (including ones which might wrap the given raw bean).
    * <p>
-   * Note that no bean definition of the given name has to exist in the bean
+   * Note that no bean merged of the given name has to exist in the bean
    * factory. The passed-in bean name will simply be used for callbacks but not
    * checked against the registered bean definitions.
    *
@@ -483,7 +506,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    *
    * @param beanName the bean name in the factory (for debugging purposes)
    * @param bean the new bean instance we may need to initialize
-   * @param def bean definition that the bean was created with
+   * @param def bean merged that the bean was created with
    * * (can also be {@code null}, if given an existing bean instance)
    * @throws Exception if thrown by init methods or by the invocation process
    * @see Component
@@ -595,7 +618,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * before-instantiation shortcut for the specified bean.
    *
    * @param beanName the name of the bean
-   * @param definition the bean definition for the bean
+   * @param definition the bean merged for the bean
    * @return the shortcut-determined bean instance, or {@code null} if none
    */
   @Nullable
@@ -618,7 +641,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Apply InstantiationAwareBeanPostProcessors to the specified bean definition
+   * Apply InstantiationAwareBeanPostProcessors to the specified bean merged
    * (by class and name), invoking their {@code postProcessBeforeInstantiation} methods.
    * <p>Any returned object will be used as the bean instead of actually instantiating
    * the target bean. A {@code null} return value from the post-processor will
@@ -641,10 +664,10 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Apply BeanDefinitionPostProcessors to the specified bean definition,
+   * Apply BeanDefinitionPostProcessors to the specified bean merged,
    * invoking their {@code postProcessBeanDefinition} methods.
    *
-   * @param mbd the merged bean definition for the bean
+   * @param mbd the merged bean merged for the bean
    * @param bean the actual bean instance
    * @param beanName the name of the bean
    */
@@ -659,75 +682,75 @@ public abstract class AbstractAutowireCapableBeanFactory
    * factory method, constructor autowiring, or simple instantiation.
    *
    * @param beanName the name of the bean
-   * @param definition the bean definition for the bean
+   * @param merged the bean merged for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
    * @return a BeanWrapper for the new instance
    * @see #instantiateUsingFactoryMethod
    * @see #autowireConstructor
    */
   @Nullable
-  protected Object createBeanInstance(String beanName, RootBeanDefinition definition, @Nullable Object[] args) {
+  protected Object createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object[] args) {
     // Make sure bean class is actually resolved at this point.
-    Class<?> beanClass = resolveBeanClass(beanName, definition);
+    Class<?> beanClass = resolveBeanClass(beanName, merged);
 
     if (beanClass != null
             && !Modifier.isPublic(beanClass.getModifiers())
-            && !definition.isNonPublicAccessAllowed()) {
-      throw new BeanCreationException(definition,
+            && !merged.isNonPublicAccessAllowed()) {
+      throw new BeanCreationException(merged.getResourceDescription(),
               "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
     }
 
-    Supplier<?> instanceSupplier = definition.getInstanceSupplier();
+    Supplier<?> instanceSupplier = merged.getInstanceSupplier();
     if (instanceSupplier != null) {
       return instanceSupplier.get(); // maybe null
     }
 
-    if (definition.getFactoryMethodName() != null) {
-      return instantiateUsingFactoryMethod(beanName, definition, args);
+    if (merged.getFactoryMethodName() != null) {
+      return instantiateUsingFactoryMethod(beanName, merged, args);
     }
 
     // Shortcut when re-creating the same bean...
     boolean resolved = false;
     boolean autowireNecessary = false;
     if (args == null) {
-      synchronized(definition.constructorArgumentLock) {
-        if (definition.executable != null) {
+      synchronized(merged.constructorArgumentLock) {
+        if (merged.executable != null) {
           resolved = true;
-          autowireNecessary = definition.constructorArgumentsResolved;
+          autowireNecessary = merged.constructorArgumentsResolved;
         }
       }
     }
 
     if (resolved) {
       if (autowireNecessary) {
-        return autowireConstructor(beanName, definition, null, null);
+        return autowireConstructor(beanName, merged, null, null);
       }
       else {
-        return instantiateBean(beanName, definition).getWrappedInstance();
+        return instantiateBean(beanName, merged).getWrappedInstance();
       }
     }
 
     // Candidate constructors for autowiring?
     Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, beanName);
     if (constructors != null
-            || definition.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
-            || definition.hasConstructorArgumentValues()
+            || merged.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
+            || merged.hasConstructorArgumentValues()
             || ObjectUtils.isNotEmpty(args)) {
-      return autowireConstructor(beanName, definition, constructors, args);
+      return autowireConstructor(beanName, merged, constructors, args);
     }
 
-    return instantiateBean(beanName, definition).getWrappedInstance();
+    return instantiateBean(beanName, merged).getWrappedInstance();
   }
 
   /**
    * Instantiate the bean using a named factory method. The method may be static, if the
-   * mbd parameter specifies a class, rather than a factoryBean, or an instance variable
+   * merged parameter specifies a class, rather than a factoryBean, or an instance variable
    * on a factory object itself configured using Dependency Injection.
    *
    * @param beanName beanName the name of the bean
-   * @param mbd the bean definition for the bean
+   * @param mbd the bean merged for the bean
    * @param explicitArgs argument values passed in programmatically via the getBean method,
-   * or {@code null} if none (implying the use of constructor argument values from bean definition)
+   * or {@code null} if none (implying the use of constructor argument values from bean merged)
    * @return a BeanWrapper for the new instance
    * @see #getBean(String, Object[])
    * @since 4.0
@@ -746,10 +769,10 @@ public abstract class AbstractAutowireCapableBeanFactory
    * dependency resolution.
    *
    * @param beanName the name of the bean
-   * @param mbd the bean definition for the bean
+   * @param mbd the bean merged for the bean
    * @param ctors the chosen candidate constructors
    * @param explicitArgs argument values passed in programmatically via the getBean method,
-   * or {@code null} if none (implying the use of constructor argument values from bean definition)
+   * or {@code null} if none (implying the use of constructor argument values from bean merged)
    * @return a BeanWrapper for the new instance
    * @since 4.0
    */
@@ -788,19 +811,17 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Instantiate the given bean using its default constructor.
    *
    * @param beanName the name of the bean
-   * @param mbd the bean definition for the bean
+   * @param merged the bean merged for the bean
    * @return a BeanWrapper for the new instance
    */
-  protected BeanWrapper instantiateBean(String beanName, RootBeanDefinition mbd) {
+  protected BeanWrapper instantiateBean(String beanName, RootBeanDefinition merged) {
     try {
-      Object beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, this);
-      BeanWrapper bw = new BeanWrapperImpl(beanInstance);
-      initBeanWrapper(bw);
-      return bw;
+      Object beanInstance = getInstantiationStrategy().instantiate(merged, beanName, this);
+      return createBeanWrapper(merged, beanInstance);
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              mbd.getResourceDescription(), beanName, "Instantiation of bean failed", ex);
+              merged.getResourceDescription(), beanName, "Instantiation of bean failed", ex);
     }
   }
 
@@ -816,15 +837,16 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException {
-    // Use non-singleton bean definition, to avoid registering bean as dependent bean.
-    RootBeanDefinition bd = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    if (bd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR) {
-      return autowireConstructor(beanClass.getName(), bd, null, null);
+    // Use non-singleton bean merged, to avoid registering bean as dependent bean.
+    RootBeanDefinition merged = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
+    merged.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    if (merged.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR) {
+      return autowireConstructor(beanClass.getName(), merged, null, null);
     }
     else {
-      Object bean = getInstantiationStrategy().instantiate(bd, null, this);
-      populateBean(bean, bd);
+      Object bean = getInstantiationStrategy().instantiate(merged, null, this);
+      BeanWrapperImpl beanWrapper = createBeanWrapper(merged, bean);
+      populateBean(beanClass.getName(), merged, beanWrapper);
       return bean;
     }
   }
@@ -840,110 +862,114 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (autowireMode == AUTOWIRE_CONSTRUCTOR) {
       throw new IllegalArgumentException("AUTOWIRE_CONSTRUCTOR not supported for existing bean instance");
     }
-    // Use non-singleton bean definition, to avoid registering bean as dependent bean.
-    RootBeanDefinition bd =
+    // Use non-singleton bean merged, to avoid registering bean as dependent bean.
+    RootBeanDefinition merged =
             new RootBeanDefinition(ClassUtils.getUserClass(existingBean), autowireMode, dependencyCheck);
-    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    BeanWrapper bw = new BeanWrapperImpl(existingBean);
-    initBeanWrapper(bw);
-    populateBean(bd.getBeanClass().getName(), bd, bw);
+    merged.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    BeanWrapper bw = createBeanWrapper(merged, existingBean);
+
+    populateBean(merged.getBeanClass().getName(), merged, bw);
   }
 
   @Override
   public void applyBeanPropertyValues(Object existingBean, String beanName) throws BeansException {
     markBeanAsCreated(beanName);
-    BeanDefinition bd = getMergedBeanDefinition(beanName);
-    BeanWrapper bw = new BeanWrapperImpl(existingBean);
-    initBeanWrapper(bw);
-    applyPropertyValues(beanName, bd, bw, bd.getPropertyValues());
+    BeanDefinition merged = getMergedBeanDefinition(beanName);
+    BeanWrapper bw = createBeanWrapper(merged, existingBean);
+    applyPropertyValues(beanName, merged, bw, merged.getPropertyValues());
   }
 
   @Override
   public Object configureBean(Object existingBean, String beanName) throws BeansException {
     markBeanAsCreated(beanName);
-    BeanDefinition mbd = getMergedBeanDefinition(beanName);
+    BeanDefinition merged = getMergedBeanDefinition(beanName);
     RootBeanDefinition bd = null;
-    if (mbd instanceof RootBeanDefinition rbd) {
-      bd = (rbd.isPrototype() ? rbd : rbd.cloneBeanDefinition());
+    if (merged instanceof RootBeanDefinition rbd) {
+      bd = rbd.isPrototype() ? rbd : rbd.cloneBeanDefinition();
     }
     if (bd == null) {
-      bd = new RootBeanDefinition(mbd);
+      bd = new RootBeanDefinition(merged);
     }
     if (!bd.isPrototype()) {
       bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
       bd.allowCaching = ClassUtils.isCacheSafe(ClassUtils.getUserClass(existingBean), getBeanClassLoader());
     }
-    BeanWrapper bw = new BeanWrapperImpl(existingBean);
-    initBeanWrapper(bw);
+
+    BeanWrapper bw = createBeanWrapper(merged, existingBean);
     populateBean(beanName, bd, bw);
     return initializeBean(existingBean, beanName, bd);
   }
 
-  @Deprecated
-  public void populateBean(Object bean, RootBeanDefinition definition) {
-    populateBean(definition.getBeanName(), bean, definition);
-  }
+  public void populateBean(String beanName, RootBeanDefinition merged, BeanWrapper beanWrapper) {
+    if (beanWrapper == null) {
+      if (merged.hasPropertyValues()) {
+        throw new BeanCreationException(
+                merged.getResourceDescription(), beanName, "Cannot apply property values to null instance");
+      }
+      else {
+        // Skip property population phase for null instance.
+        return;
+      }
+    }
 
-  public void populateBean(String beanName, RootBeanDefinition definition, BeanWrapper beanWrapper) {
-    // TODO
-    populateBean(beanName, beanWrapper.getWrappedInstance(), definition);
-  }
-
-  @Deprecated
-  public void populateBean(String beanName, Object bean, RootBeanDefinition definition) {
     // Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
     // state of the bean before properties are set. This can be used, for example,
     // to support styles of field injection.
 
-    if (!definition.isSynthetic()) {
+    Object wrappedInstance = beanWrapper.getWrappedInstance();
+    if (!merged.isSynthetic()) {
       for (InstantiationAwareBeanPostProcessor processor : postProcessors().instantiation) {
-        if (!processor.postProcessAfterInstantiation(bean, beanName)) {
+        if (!processor.postProcessAfterInstantiation(wrappedInstance, beanName)) {
           return;
         }
       }
     }
 
-    BeanMetadata metadata;
-    BeanWrapperImpl beanWrapper = null;
     // maybe null
-    PropertyValues propertyValues = definition.getPropertyValues();
-    int resolvedAutowireMode = definition.getResolvedAutowireMode();
+    PropertyValues propertyValues = merged.getPropertyValues();
+    int resolvedAutowireMode = merged.getResolvedAutowireMode();
     if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
-      metadata = getMetadata(bean, definition);
-      beanWrapper = new BeanWrapperImpl(bean, metadata);
-      initBeanWrapper(beanWrapper);
-
       PropertyValues newPvs = new PropertyValues(propertyValues);
       // Add property values based on autowire by name if applicable.
       if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
-        autowireByName(beanName, definition, beanWrapper, newPvs);
+        autowireByName(beanName, merged, beanWrapper, newPvs);
       }
       // Add property values based on autowire by type if applicable.
       if (resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
-        autowireByType(beanName, definition, beanWrapper, newPvs);
+        autowireByType(beanName, merged, beanWrapper, newPvs);
       }
       propertyValues = newPvs;
     }
 
-    if (!definition.isSynthetic() && definition.isEnableDependencyInjection()) {
+    boolean hasDependenciesProcessors = !postProcessors().dependencies.isEmpty();
+    if (hasDependenciesProcessors && !merged.isSynthetic() && merged.isEnableDependencyInjection()) {
       // -----------------------------------------------
       // apply dependency injection (DI)
       // apply outside framework expanded
       // -----------------------------------------------
 
-      for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
-        processor.processDependencies(propertyValues, bean, beanName);
+      if (propertyValues == null) {
+        propertyValues = merged.getPropertyValues();
       }
+
+      for (DependenciesBeanPostProcessor processor : postProcessors().dependencies) {
+        PropertyValues pvsToUse = processor.processDependencies(propertyValues, wrappedInstance, beanName);
+        if (pvsToUse == null) {
+          return;
+        }
+        propertyValues = pvsToUse;
+      }
+    }
+
+    boolean needsDepCheck = merged.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE;
+    if (needsDepCheck) {
+      BeanProperty[] filteredPds = filterBeanPropertiesForDependencyCheck(beanWrapper, merged.allowCaching);
+      checkDependencies(beanName, merged, filteredPds, propertyValues);
     }
 
     if (propertyValues != null) {
-      if (beanWrapper == null) {
-        beanWrapper = new BeanWrapperImpl(bean);
-        initBeanWrapper(beanWrapper);
-      }
-      applyPropertyValues(beanName, definition, beanWrapper, propertyValues);
+      applyPropertyValues(beanName, merged, beanWrapper, propertyValues);
     }
-
   }
 
   /**
@@ -952,7 +978,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * don't permanently modify this property.
    *
    * @param beanName the bean name passed for better exception information
-   * @param definition the bean definition
+   * @param definition the bean merged
    * @param beanWrapper the BeanWrapper wrapping the target object
    * @param pvs the new property values
    */
@@ -1022,7 +1048,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         if (convertible) {
           convertedValue = convertForProperty(resolvedValue, propertyName, beanWrapper, converter);
         }
-        // Possibly store converted value in merged bean definition,
+        // Possibly store converted value in merged bean merged,
         // in order to avoid re-conversion for every created bean instance.
         if (resolvedValue == originalValue) {
           if (convertible) {
@@ -1078,7 +1104,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    *
    * @param beanName the name of the bean we're wiring up.
    * Useful for debugging messages; not used functionally.
-   * @param definition bean definition to update through autowiring
+   * @param definition bean merged to update through autowiring
    * @param bw the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
@@ -1110,7 +1136,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * behavior for bigger applications.
    *
    * @param beanName the name of the bean to autowire by type
-   * @param definition the merged bean definition to update through autowiring
+   * @param definition the merged bean merged to update through autowiring
    * @param wrapper the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
@@ -1161,7 +1187,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * These are probably unsatisfied references to other beans in the
    * factory. Does not include simple properties like primitives or Strings.
    *
-   * @param definition the merged bean definition the bean was created with
+   * @param definition the merged bean merged the bean was created with
    * @param wrapper the BeanWrapper the bean was created with
    * @return an array of bean property names
    * @see BeanUtils#isSimpleProperty
@@ -1181,6 +1207,74 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
+   * Extract a filtered set of PropertyDescriptors from the given BeanWrapper,
+   * excluding ignored dependency types or properties defined on ignored dependency interfaces.
+   *
+   * @param bw the BeanWrapper the bean was created with
+   * @param cache whether to cache filtered PropertyDescriptors for the given bean Class
+   * @return the filtered PropertyDescriptors
+   * @see #isExcludedFromDependencyCheck
+   * @see #filterBeanPropertiesForDependencyCheck(BeanWrapper)
+   * @since 4.0
+   */
+  protected BeanProperty[] filterBeanPropertiesForDependencyCheck(BeanWrapper bw, boolean cache) {
+    BeanProperty[] filtered = filteredBeanPropertiesCache.get(bw.getWrappedClass());
+    if (filtered == null) {
+      filtered = filterBeanPropertiesForDependencyCheck(bw);
+      if (cache) {
+        BeanProperty[] existing = filteredBeanPropertiesCache.putIfAbsent(bw.getWrappedClass(), filtered);
+        if (existing != null) {
+          filtered = existing;
+        }
+      }
+    }
+    return filtered;
+  }
+
+  /**
+   * Extract a filtered set of BeanProperties from the given BeanWrapper,
+   * excluding ignored dependency types or properties defined on ignored dependency interfaces.
+   *
+   * @param bw the BeanWrapper the bean was created with
+   * @return the filtered PropertyDescriptors
+   * @see #isExcludedFromDependencyCheck
+   */
+  protected BeanProperty[] filterBeanPropertiesForDependencyCheck(BeanWrapper bw) {
+    ArrayList<BeanProperty> pds = new ArrayList<>(bw.getBeanProperties());
+    pds.removeIf(this::isExcludedFromDependencyCheck);
+    return pds.toArray(new BeanProperty[0]);
+  }
+
+  /**
+   * Perform a dependency check that all properties exposed have been set,
+   * if desired. Dependency checks can be objects (collaborating beans),
+   * simple (primitives and String), or all (both).
+   *
+   * @param beanName the name of the bean
+   * @param mbd the merged bean merged the bean was created with
+   * @param beanProperties the relevant property descriptors for the target bean
+   * @param propertyValues the property values to be applied to the bean
+   * @see #isExcludedFromDependencyCheck(BeanProperty)
+   */
+  protected void checkDependencies(String beanName, AbstractBeanDefinition mbd,
+          BeanProperty[] beanProperties, @Nullable PropertyValues propertyValues) throws UnsatisfiedDependencyException {
+
+    int dependencyCheck = mbd.getDependencyCheck();
+    for (BeanProperty property : beanProperties) {
+      if (property.isWriteable() && (propertyValues == null || !propertyValues.contains(property.getName()))) {
+        boolean isSimple = BeanUtils.isSimpleProperty(property.getType());
+        boolean unsatisfied = (dependencyCheck == AbstractBeanDefinition.DEPENDENCY_CHECK_ALL)
+                || (isSimple && dependencyCheck == AbstractBeanDefinition.DEPENDENCY_CHECK_SIMPLE)
+                || (!isSimple && dependencyCheck == AbstractBeanDefinition.DEPENDENCY_CHECK_OBJECTS);
+        if (unsatisfied) {
+          throw new UnsatisfiedDependencyException(mbd.getResourceDescription(), beanName, property.getName(),
+                  "Set this property value or disable dependency checking for this bean.");
+        }
+      }
+    }
+  }
+
+  /**
    * Determine whether the given bean property is excluded from dependency checks.
    * <p>This implementation excludes properties defined by CGLIB and
    * properties whose type matches an ignored dependency type or which
@@ -1195,14 +1289,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     return ignoredDependencyTypes.contains(property.getType())
             || AutowireUtils.isExcludedFromDependencyCheck(property)
             || AutowireUtils.isSetterDefinedInInterface(property, ignoredDependencyInterfaces);
-  }
-
-  private BeanMetadata getMetadata(Object bean, BeanDefinition definition) {
-    if (definition.isSingleton()) {
-      return new BeanMetadata(bean.getClass());
-    }
-    // fast access from cache
-    return BeanMetadata.from(bean);
   }
 
   @Override
@@ -1271,10 +1357,10 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Determine the target type for the given bean definition.
+   * Determine the target type for the given bean merged.
    *
    * @param beanName the name of the bean (for error handling purposes)
-   * @param mbd the merged bean definition for the bean
+   * @param mbd the merged bean merged for the bean
    * @param typesToMatch the types to match in case of internal type matching purposes
    * (also signals that the returned {@code Class} will never be exposed to application code)
    * @return the type for the bean if determinable, or {@code null} otherwise
@@ -1294,7 +1380,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Determine the target type for the given bean definition which is based on
+   * Determine the target type for the given bean merged which is based on
    * a factory method. Only called if there is no singleton instance registered
    * for the target bean already.
    * <p>This implementation determines the type matching {@link #createBean}'s
@@ -1302,7 +1388,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * type checking to avoid creation of the target bean.
    *
    * @param beanName the name of the bean (for error handling purposes)
-   * @param merged the merged bean definition for the bean
+   * @param merged the merged bean merged for the bean
    * @return the type for the bean if determinable, or {@code null} otherwise
    * @see #createBean
    */
@@ -1323,8 +1409,8 @@ public abstract class AbstractAutowireCapableBeanFactory
       String factoryBeanName = merged.getFactoryBeanName();
       if (factoryBeanName != null) {
         if (factoryBeanName.equals(merged.getBeanName())) {
-          throw new BeanDefinitionStoreException(merged,
-                  "factory-bean reference points back to the same bean definition");
+          throw new BeanDefinitionStoreException(merged.getResourceDescription(),
+                  "factory-bean reference points back to the same bean merged");
         }
         // Check declared factory method return type on factory class.
         factoryClass = getType(factoryBeanName);
@@ -1435,7 +1521,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   @Override
   protected ResolvableType getTypeForFactoryBean(String beanName, RootBeanDefinition merged, boolean allowInit) {
-    // Check if the bean definition itself has defined the type with an attribute
+    // Check if the bean merged itself has defined the type with an attribute
     ResolvableType result = getTypeForFactoryBeanFromAttributes(merged);
     if (result != ResolvableType.NONE) {
       return result;

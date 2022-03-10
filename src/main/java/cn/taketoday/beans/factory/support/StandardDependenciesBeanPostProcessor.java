@@ -38,22 +38,22 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InjectionPoint;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
 import cn.taketoday.beans.factory.annotation.Lookup;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Ordered;
@@ -213,10 +213,11 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
    * post process after property-value {@link BeanDefinition#getPropertyValues()}
    */
   @Override
-  public void processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
+  public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
     InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), propertyValues);
     try {
       metadata.inject(bean, beanName, propertyValues);
+      return propertyValues;
     }
     catch (BeanCreationException ex) {
       throw ex;

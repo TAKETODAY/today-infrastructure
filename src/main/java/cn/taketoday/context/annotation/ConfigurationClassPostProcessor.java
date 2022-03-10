@@ -398,11 +398,12 @@ public class ConfigurationClassPostProcessor
     }
 
     @Override
-    public void processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
+    public PropertyValues processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         enhancedConfiguration.setBeanFactory(this.beanFactory);
       }
+      return propertyValues;
     }
 
     @Override

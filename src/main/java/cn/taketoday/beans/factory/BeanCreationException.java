@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.FatalBeanException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;
 
@@ -94,15 +93,6 @@ public class BeanCreationException extends FatalBeanException {
   public BeanCreationException(String beanName, String msg, Throwable cause) {
     this(beanName, msg);
     initCause(cause);
-  }
-
-  public BeanCreationException(BeanDefinition definition, String msg, Throwable cause) {
-    this(definition, msg);
-    initCause(cause);
-  }
-
-  public BeanCreationException(BeanDefinition definition, String msg) {
-    this(definition.getResourceDescription(), definition.getBeanName(), msg);
   }
 
   /**

@@ -33,7 +33,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
-
   /**
    * Post-process the given property values before the factory applies them
    * to the given bean.
@@ -42,8 +41,14 @@ public interface DependenciesBeanPostProcessor extends BeanPostProcessor {
    * @param pvs the property values that the factory is about to apply (never {@code null})
    * @param bean the bean instance created, but whose properties have not yet been set
    * @param beanName the name of the bean
+   * @return the actual property values to apply to the given bean (can be the passed-in
+   * PropertyValues instance), or {@code null} to skip property population
    * @throws BeansException in case of errors
    * @see BeanDefinition#isEnableDependencyInjection()
    */
-  void processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName);
+  @Nullable
+  default PropertyValues processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName) {
+    return pvs;
+  }
+
 }

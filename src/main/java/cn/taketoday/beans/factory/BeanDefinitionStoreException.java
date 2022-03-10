@@ -22,7 +22,6 @@ package cn.taketoday.beans.factory;
 import java.io.Serial;
 
 import cn.taketoday.beans.FatalBeanException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -101,18 +100,6 @@ public class BeanDefinitionStoreException extends FatalBeanException {
    */
   public BeanDefinitionStoreException(@Nullable String resourceDescription, String beanName, String msg) {
     this(resourceDescription, beanName, msg, null);
-  }
-
-  /**
-   * Create a new BeanDefinitionStoreException.
-   *
-   * @param definition the bean definition
-   * @param msg the detail message (appended to an introductory message that indicates
-   * the resource and the name of the bean)
-   * @since 4.0
-   */
-  public BeanDefinitionStoreException(BeanDefinition definition, String msg) {
-    this(definition.getResourceDescription(), definition.getBeanName(), msg, null);
   }
 
   /**

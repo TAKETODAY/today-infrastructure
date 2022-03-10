@@ -230,7 +230,7 @@ public abstract class BeanInstantiator {
    * @return ReflectiveConstructor
    * @see ReflectiveInstantiator
    */
-  public static ConstructorAccessor fromReflective(Constructor<?> constructor) {
+  public static ConstructorAccessor forReflective(Constructor<?> constructor) {
     Assert.notNull(constructor, "constructor must not be null");
     ReflectionUtils.makeAccessible(constructor);
     return new ReflectiveInstantiator(constructor);

@@ -33,12 +33,12 @@ public class ReflectiveInstantiatorFactory implements BeanInstantiatorFactory {
 
   @Override
   public BeanInstantiator newInstantiator(Constructor<?> constructor) {
-    return BeanInstantiator.fromReflective(constructor);
+    return BeanInstantiator.forReflective(constructor);
   }
 
   @Override
   public BeanInstantiator newInstantiator(Class<?> cls) {
-    return BeanInstantiator.fromReflective(BeanUtils.obtainConstructor(cls));
+    return BeanInstantiator.forReflective(BeanUtils.obtainConstructor(cls));
   }
 
 }

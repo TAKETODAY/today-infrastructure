@@ -48,7 +48,7 @@ public class BeanClassLoadFailedException extends BeansException {
    * @param cause the root cause
    */
   public BeanClassLoadFailedException(BeanDefinition def, @Nullable String beanName, ClassNotFoundException cause) {
-    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + def.getBeanName()
+    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + beanName
             + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
     this.beanDefinition = def;
     this.resourceDescription = def.getResourceDescription();
@@ -61,7 +61,7 @@ public class BeanClassLoadFailedException extends BeansException {
    * @param cause the root cause
    */
   public BeanClassLoadFailedException(BeanDefinition def, @Nullable String beanName, LinkageError cause) {
-    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + def.getBeanName()
+    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + beanName
             + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
     this.beanDefinition = def;
     this.beanName = beanName;
@@ -81,10 +81,7 @@ public class BeanClassLoadFailedException extends BeansException {
    * Return the name of the bean requested.
    */
   public String getBeanName() {
-    if (beanName != null) {
-      return beanName;
-    }
-    return this.beanDefinition.getBeanName();
+    return beanName;
   }
 
   /**

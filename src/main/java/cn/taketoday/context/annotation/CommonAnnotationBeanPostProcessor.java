@@ -41,7 +41,6 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -49,11 +48,12 @@ import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Ordered;
@@ -291,11 +291,11 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
-  public void processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
-    InjectionMetadata metadata = findResourceMetadata(
-            beanName, bean.getClass(), propertyValues);
+  public PropertyValues processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
+    InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), propertyValues);
     try {
       metadata.inject(bean, beanName, propertyValues);
+      return propertyValues;
     }
     catch (Throwable ex) {
       throw new BeanCreationException(beanName, "Injection of resource dependencies failed", ex);

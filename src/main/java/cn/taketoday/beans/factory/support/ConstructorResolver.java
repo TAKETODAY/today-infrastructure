@@ -169,7 +169,7 @@ final class ConstructorResolver {
                        : beanClass.getConstructors();
         }
         catch (Throwable ex) {
-          throw new BeanCreationException(merged,
+          throw new BeanCreationException(merged.getResourceDescription(), beanName,
                   "Resolution of declared constructors on bean Class [" + beanClass.getName() +
                           "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
         }
@@ -302,14 +302,14 @@ final class ConstructorResolver {
     return instantiate(beanName, merged, constructorToUse, argsToUse);
   }
 
-  private Object instantiate(String beanName, RootBeanDefinition mbd,
+  private Object instantiate(String beanName, RootBeanDefinition merged,
           Constructor<?> constructorToUse, Object[] argsToUse) {
     try {
       return beanFactory.getInstantiationStrategy().instantiate(
-              mbd, beanName, beanFactory, constructorToUse, argsToUse);
+              merged, beanName, beanFactory, constructorToUse, argsToUse);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(mbd,
+      throw new BeanCreationException(merged.getResourceDescription(), beanName,
               "Bean instantiation via constructor failed", ex);
     }
   }
@@ -394,7 +394,7 @@ final class ConstructorResolver {
     String factoryBeanName = merged.getFactoryBeanName();
     if (factoryBeanName != null) {
       if (factoryBeanName.equals(beanName)) {
-        throw new BeanDefinitionStoreException(merged,
+        throw new BeanDefinitionStoreException(merged.getResourceDescription(),
                 "factory-bean reference points back to the same bean definition");
       }
       factoryBean = BeanFactoryUtils.requiredBean(beanFactory, factoryBeanName);
@@ -408,7 +408,7 @@ final class ConstructorResolver {
     else {
       // It's a static factory method on the bean class.
       if (!merged.hasBeanClass()) {
-        throw new BeanDefinitionStoreException(merged,
+        throw new BeanDefinitionStoreException(merged.getResourceDescription(),
                 "bean definition declares neither a bean class nor a factory-bean reference");
       }
       factoryBean = null;
@@ -631,15 +631,15 @@ final class ConstructorResolver {
     return instantiate(beanName, merged, factoryBean, factoryMethodToUse, argsToUse);
   }
 
-  private Object instantiate(String beanName, RootBeanDefinition mbd,
+  private Object instantiate(String beanName, RootBeanDefinition merged,
           @Nullable Object factoryBean, Method factoryMethod, Object[] args) {
 
     try {
       return beanFactory.getInstantiationStrategy().instantiate(
-              mbd, beanName, beanFactory, factoryBean, factoryMethod, args);
+              merged, beanName, beanFactory, factoryBean, factoryMethod, args);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(mbd, "Bean instantiation via factory method failed", ex);
+      throw new BeanCreationException(merged.getResourceDescription(), beanName, "Bean instantiation via factory method failed", ex);
     }
   }
 
@@ -648,19 +648,19 @@ final class ConstructorResolver {
    * This may involve looking up other beans.
    * <p>This method is also used for handling invocations of static factory methods.
    */
-  private int resolveConstructorArguments(BeanDefinition mbd, BeanWrapper bw,
+  private int resolveConstructorArguments(BeanDefinition merged, BeanWrapper bw,
           ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
 
     TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
     TypeConverter converter = (customConverter != null ? customConverter : bw);
 
-    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, mbd, converter);
+    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, merged, converter);
     int minNrOfArgs = cargs.getArgumentCount();
     for (Map.Entry<Integer, ValueHolder> entry : cargs.getIndexedArgumentValues().entrySet()) {
       int index = entry.getKey();
       if (index < 0) {
         throw new BeanCreationException(
-                mbd, "Invalid constructor argument index: " + index);
+                merged.getResourceDescription(), "Invalid constructor argument index: " + index);
       }
       if (index + 1 > minNrOfArgs) {
         minNrOfArgs = index + 1;

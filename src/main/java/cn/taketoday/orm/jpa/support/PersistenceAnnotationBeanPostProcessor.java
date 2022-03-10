@@ -36,17 +36,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
-import cn.taketoday.beans.factory.config.NamedBeanHolder;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
@@ -343,10 +343,11 @@ public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwar
   }
 
   @Override
-  public void processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName) {
+  public PropertyValues processDependencies(@Nullable PropertyValues pvs, Object bean, String beanName) {
     InjectionMetadata metadata = findPersistenceMetadata(beanName, bean.getClass(), pvs);
     try {
       metadata.inject(bean, beanName, pvs);
+      return pvs;
     }
     catch (Throwable ex) {
       throw new BeanCreationException(beanName, "Injection of persistence dependencies failed", ex);

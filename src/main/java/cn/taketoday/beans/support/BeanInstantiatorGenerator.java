@@ -128,7 +128,7 @@ public class BeanInstantiatorGenerator
 
   @Override
   protected ConstructorAccessor fallbackInstance() {
-    return BeanInstantiator.fromReflective(targetConstructor);
+    return BeanInstantiator.forReflective(targetConstructor);
   }
 
   @Override

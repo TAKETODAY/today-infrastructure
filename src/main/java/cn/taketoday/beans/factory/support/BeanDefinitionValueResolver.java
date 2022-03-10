@@ -317,7 +317,7 @@ class BeanDefinitionValueResolver {
       if (ref.isToParent()) {
         BeanFactory parent = beanFactory.getParentBeanFactory();
         if (parent == null) {
-          throw new BeanCreationException(beanDefinition,
+          throw new BeanCreationException(beanDefinition.getResourceDescription(),
                   "Cannot resolve reference to bean " + ref +
                           " in parent factory: no parent factory available");
         }
@@ -344,7 +344,7 @@ class BeanDefinitionValueResolver {
       return bean;
     }
     catch (BeansException ex) {
-      throw new BeanCreationException(beanDefinition,
+      throw new BeanCreationException(beanDefinition.getResourceDescription(), beanName,
               "Cannot resolve reference to bean '" + ref.getBeanName() + "' while setting " + argName, ex);
     }
   }
