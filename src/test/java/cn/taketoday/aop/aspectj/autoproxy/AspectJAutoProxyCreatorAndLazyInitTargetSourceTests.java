@@ -35,28 +35,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AspectJAutoProxyCreatorAndLazyInitTargetSourceTests {
 
-	@Test
-	public void testAdrian() {
-		ClassPathXmlApplicationContext ctx =
-			new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+  @Test
+  public void testAdrian() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
 
-		ITestBean adrian = (ITestBean) ctx.getBean("adrian");
-		assertThat(LazyTestBean.instantiations).isEqualTo(0);
-		assertThat(adrian).isNotNull();
-		adrian.getAge();
-		assertThat(adrian.getAge()).isEqualTo(68);
-		assertThat(LazyTestBean.instantiations).isEqualTo(1);
-	}
+    ITestBean adrian = (ITestBean) ctx.getBean("adrian");
+    assertThat(LazyTestBean.instantiations).isEqualTo(0);
+    assertThat(adrian).isNotNull();
+    adrian.getAge();
+    assertThat(adrian.getAge()).isEqualTo(68);
+    assertThat(LazyTestBean.instantiations).isEqualTo(1);
+  }
 
 }
 
-
 class LazyTestBean extends TestBean {
 
-	public static int instantiations;
+  public static int instantiations;
 
-	public LazyTestBean() {
-		++instantiations;
-	}
+  public LazyTestBean() {
+    ++instantiations;
+  }
 
 }

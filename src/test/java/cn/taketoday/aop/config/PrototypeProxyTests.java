@@ -30,10 +30,10 @@ import cn.taketoday.context.support.ClassPathXmlApplicationContext;
  */
 class PrototypeProxyTests {
 
-	@Test
-	@SuppressWarnings("resource")
-	void injectionBeforeWrappingCheckDoesNotKickInForPrototypeProxy() {
-		new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
-	}
+  @Test
+  @SuppressWarnings("resource")
+  void injectionBeforeWrappingCheckDoesNotKickInForPrototypeProxy() {
+    new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+  }
 
 }

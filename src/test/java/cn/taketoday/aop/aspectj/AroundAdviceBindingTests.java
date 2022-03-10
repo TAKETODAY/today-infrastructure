@@ -43,101 +43,100 @@ import static org.mockito.Mockito.verify;
  */
 public class AroundAdviceBindingTests {
 
-	private AroundAdviceBindingTestAspect.AroundAdviceBindingCollaborator mockCollaborator;
+  private AroundAdviceBindingTestAspect.AroundAdviceBindingCollaborator mockCollaborator;
 
-	private ITestBean testBeanProxy;
+  private ITestBean testBeanProxy;
 
-	private TestBean testBeanTarget;
+  private TestBean testBeanTarget;
 
-	protected ApplicationContext ctx;
+  protected ApplicationContext ctx;
 
-	@BeforeEach
-	public void onSetUp() throws Exception {
-		ctx = new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+  @BeforeEach
+  public void onSetUp() throws Exception {
+    ctx = new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
 
-		AroundAdviceBindingTestAspect  aroundAdviceAspect = ((AroundAdviceBindingTestAspect) ctx.getBean("testAspect"));
+    AroundAdviceBindingTestAspect aroundAdviceAspect = ((AroundAdviceBindingTestAspect) ctx.getBean("testAspect"));
 
-		ITestBean injectedTestBean = (ITestBean) ctx.getBean("testBean");
-		assertThat(AopUtils.isAopProxy(injectedTestBean)).isTrue();
+    ITestBean injectedTestBean = (ITestBean) ctx.getBean("testBean");
+    assertThat(AopUtils.isAopProxy(injectedTestBean)).isTrue();
 
-		this.testBeanProxy = injectedTestBean;
-		// we need the real target too, not just the proxy...
+    this.testBeanProxy = injectedTestBean;
+    // we need the real target too, not just the proxy...
 
-		this.testBeanTarget = (TestBean) ((Advised) testBeanProxy).getTargetSource().getTarget();
+    this.testBeanTarget = (TestBean) ((Advised) testBeanProxy).getTargetSource().getTarget();
 
-		mockCollaborator = mock(AroundAdviceBindingTestAspect.AroundAdviceBindingCollaborator.class);
-		aroundAdviceAspect.setCollaborator(mockCollaborator);
-	}
+    mockCollaborator = mock(AroundAdviceBindingTestAspect.AroundAdviceBindingCollaborator.class);
+    aroundAdviceAspect.setCollaborator(mockCollaborator);
+  }
 
-	@Test
-	public void testOneIntArg() {
-		testBeanProxy.setAge(5);
-		verify(mockCollaborator).oneIntArg(5);
-	}
+  @Test
+  public void testOneIntArg() {
+    testBeanProxy.setAge(5);
+    verify(mockCollaborator).oneIntArg(5);
+  }
 
-	@Test
-	public void testOneObjectArgBoundToTarget() {
-		testBeanProxy.getAge();
-		verify(mockCollaborator).oneObjectArg(this.testBeanTarget);
-	}
+  @Test
+  public void testOneObjectArgBoundToTarget() {
+    testBeanProxy.getAge();
+    verify(mockCollaborator).oneObjectArg(this.testBeanTarget);
+  }
 
-	@Test
-	public void testOneIntAndOneObjectArgs() {
-		testBeanProxy.setAge(5);
-		verify(mockCollaborator).oneIntAndOneObject(5, this.testBeanProxy);
-	}
+  @Test
+  public void testOneIntAndOneObjectArgs() {
+    testBeanProxy.setAge(5);
+    verify(mockCollaborator).oneIntAndOneObject(5, this.testBeanProxy);
+  }
 
-	@Test
-	public void testJustJoinPoint() {
-		testBeanProxy.getAge();
-		verify(mockCollaborator).justJoinPoint("getAge");
-	}
+  @Test
+  public void testJustJoinPoint() {
+    testBeanProxy.getAge();
+    verify(mockCollaborator).justJoinPoint("getAge");
+  }
 
 }
 
-
 class AroundAdviceBindingTestAspect {
 
-	private AroundAdviceBindingCollaborator collaborator = null;
+  private AroundAdviceBindingCollaborator collaborator = null;
 
-	public void setCollaborator(AroundAdviceBindingCollaborator aCollaborator) {
-		this.collaborator = aCollaborator;
-	}
+  public void setCollaborator(AroundAdviceBindingCollaborator aCollaborator) {
+    this.collaborator = aCollaborator;
+  }
 
-	// "advice" methods
-	public void oneIntArg(ProceedingJoinPoint pjp, int age) throws Throwable {
-		this.collaborator.oneIntArg(age);
-		pjp.proceed();
-	}
+  // "advice" methods
+  public void oneIntArg(ProceedingJoinPoint pjp, int age) throws Throwable {
+    this.collaborator.oneIntArg(age);
+    pjp.proceed();
+  }
 
-	public int oneObjectArg(ProceedingJoinPoint pjp, Object bean) throws Throwable {
-		this.collaborator.oneObjectArg(bean);
-		return ((Integer) pjp.proceed()).intValue();
-	}
+  public int oneObjectArg(ProceedingJoinPoint pjp, Object bean) throws Throwable {
+    this.collaborator.oneObjectArg(bean);
+    return ((Integer) pjp.proceed()).intValue();
+  }
 
-	public void oneIntAndOneObject(ProceedingJoinPoint pjp, int x , Object o) throws Throwable {
-		this.collaborator.oneIntAndOneObject(x,o);
-		pjp.proceed();
-	}
+  public void oneIntAndOneObject(ProceedingJoinPoint pjp, int x, Object o) throws Throwable {
+    this.collaborator.oneIntAndOneObject(x, o);
+    pjp.proceed();
+  }
 
-	public int justJoinPoint(ProceedingJoinPoint pjp) throws Throwable {
-		this.collaborator.justJoinPoint(pjp.getSignature().getName());
-		return ((Integer) pjp.proceed()).intValue();
-	}
+  public int justJoinPoint(ProceedingJoinPoint pjp) throws Throwable {
+    this.collaborator.justJoinPoint(pjp.getSignature().getName());
+    return ((Integer) pjp.proceed()).intValue();
+  }
 
-	/**
-	 * Collaborator interface that makes it easy to test this aspect
-	 * is working as expected through mocking.
-	 */
-	public interface AroundAdviceBindingCollaborator {
+  /**
+   * Collaborator interface that makes it easy to test this aspect
+   * is working as expected through mocking.
+   */
+  public interface AroundAdviceBindingCollaborator {
 
-		void oneIntArg(int x);
+    void oneIntArg(int x);
 
-		void oneObjectArg(Object o);
+    void oneObjectArg(Object o);
 
-		void oneIntAndOneObject(int x, Object o);
+    void oneIntAndOneObject(int x, Object o);
 
-		void justJoinPoint(String s);
-	}
+    void justJoinPoint(String s);
+  }
 
 }

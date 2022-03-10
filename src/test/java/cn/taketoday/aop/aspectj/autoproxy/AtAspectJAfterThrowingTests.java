@@ -39,41 +39,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AtAspectJAfterThrowingTests {
 
-	@Test
-	public void testAccessThrowable() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+  @Test
+  public void testAccessThrowable() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
 
-		ITestBean bean = (ITestBean) ctx.getBean("testBean");
-		ExceptionHandlingAspect aspect = (ExceptionHandlingAspect) ctx.getBean("aspect");
+    ITestBean bean = (ITestBean) ctx.getBean("testBean");
+    ExceptionHandlingAspect aspect = (ExceptionHandlingAspect) ctx.getBean("aspect");
 
-		assertThat(AopUtils.isAopProxy(bean)).isTrue();
-		IOException exceptionThrown = null;
-		try {
-			bean.unreliableFileOperation();
-		}
-		catch (IOException ex) {
-			exceptionThrown = ex;
-		}
+    assertThat(AopUtils.isAopProxy(bean)).isTrue();
+    IOException exceptionThrown = null;
+    try {
+      bean.unreliableFileOperation();
+    }
+    catch (IOException ex) {
+      exceptionThrown = ex;
+    }
 
-		assertThat(aspect.handled).isEqualTo(1);
-		assertThat(aspect.lastException).isSameAs(exceptionThrown);
-	}
+    assertThat(aspect.handled).isEqualTo(1);
+    assertThat(aspect.lastException).isSameAs(exceptionThrown);
+  }
 
 }
-
 
 @Aspect
 class ExceptionHandlingAspect {
 
-	public int handled;
+  public int handled;
 
-	public IOException lastException;
+  public IOException lastException;
 
-	@AfterThrowing(pointcut = "within(cn.taketoday.beans.testfixture.beans.ITestBean+)", throwing = "ex")
-	public void handleIOException(IOException ex) {
-		handled++;
-		lastException = ex;
-	}
+  @AfterThrowing(pointcut = "within(cn.taketoday.beans.testfixture.beans.ITestBean+)", throwing = "ex")
+  public void handleIOException(IOException ex) {
+    handled++;
+    lastException = ex;
+  }
 
 }

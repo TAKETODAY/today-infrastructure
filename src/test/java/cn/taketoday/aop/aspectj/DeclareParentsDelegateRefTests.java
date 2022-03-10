@@ -33,39 +33,35 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DeclareParentsDelegateRefTests {
 
-	protected NoMethodsBean noMethodsBean;
+  protected NoMethodsBean noMethodsBean;
 
-	protected Counter counter;
+  protected Counter counter;
 
+  @BeforeEach
+  public void setup() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+    noMethodsBean = (NoMethodsBean) ctx.getBean("noMethodsBean");
+    counter = (Counter) ctx.getBean("counter");
+    counter.reset();
+  }
 
-	@BeforeEach
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
-		noMethodsBean = (NoMethodsBean) ctx.getBean("noMethodsBean");
-		counter = (Counter) ctx.getBean("counter");
-		counter.reset();
-	}
+  @Test
+  public void testIntroductionWasMade() {
+    boolean condition = noMethodsBean instanceof ICounter;
+    assertThat(condition).as("Introduction must have been made").isTrue();
+  }
 
-
-	@Test
-	public void testIntroductionWasMade() {
-		boolean condition = noMethodsBean instanceof ICounter;
-		assertThat(condition).as("Introduction must have been made").isTrue();
-	}
-
-	@Test
-	public void testIntroductionDelegation() {
-		((ICounter)noMethodsBean).increment();
-		assertThat(counter.getCount()).as("Delegate's counter should be updated").isEqualTo(1);
-	}
+  @Test
+  public void testIntroductionDelegation() {
+    ((ICounter) noMethodsBean).increment();
+    assertThat(counter.getCount()).as("Delegate's counter should be updated").isEqualTo(1);
+  }
 
 }
-
 
 interface NoMethodsBean {
 }
-
 
 class NoMethodsBeanImpl implements NoMethodsBean {
 }

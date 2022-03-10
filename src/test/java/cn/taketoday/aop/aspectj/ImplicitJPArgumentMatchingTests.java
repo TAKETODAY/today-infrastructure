@@ -34,16 +34,16 @@ import cn.taketoday.context.support.ClassPathXmlApplicationContext;
  */
 public class ImplicitJPArgumentMatchingTests {
 
-	@Test
-	public void testAspect() {
-		// nothing to really test; it is enough if we don't get error while creating app context
-		new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
-	}
+  @Test
+  public void testAspect() {
+    // nothing to really test; it is enough if we don't get error while creating app context
+    new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+  }
 
-	static class CounterAspect {
-		public void increment(ProceedingJoinPoint pjp, Object bean, Object argument) throws Throwable {
-			pjp.proceed();
-		}
-	}
+  static class CounterAspect {
+    public void increment(ProceedingJoinPoint pjp, Object bean, Object argument) throws Throwable {
+      pjp.proceed();
+    }
+  }
 }
 

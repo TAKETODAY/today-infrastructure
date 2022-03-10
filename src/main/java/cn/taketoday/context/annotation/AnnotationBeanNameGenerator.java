@@ -107,7 +107,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
       if (attributes != null) {
         Set<String> metaTypes = this.metaAnnotationTypesCache.computeIfAbsent(type, key -> {
           Set<String> result = amd.getMetaAnnotationTypes(key);
-          return (result.isEmpty() ? Collections.emptySet() : result);
+          return result.isEmpty() ? Collections.emptySet() : result;
         });
         if (isStereotypeWithNameValue(type, metaTypes, attributes)) {
           Object value = attributes.get("value");

@@ -38,91 +38,83 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TargetPointcutSelectionTests {
 
-	public TestInterface testImpl1;
+  public TestInterface testImpl1;
 
-	public TestInterface testImpl2;
+  public TestInterface testImpl2;
 
-	public TestAspect testAspectForTestImpl1;
+  public TestAspect testAspectForTestImpl1;
 
-	public TestAspect testAspectForAbstractTestImpl;
+  public TestAspect testAspectForAbstractTestImpl;
 
-	public TestInterceptor testInterceptor;
+  public TestInterceptor testInterceptor;
 
+  @BeforeEach
+  public void setup() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+    testImpl1 = (TestInterface) ctx.getBean("testImpl1");
+    testImpl2 = (TestInterface) ctx.getBean("testImpl2");
+    testAspectForTestImpl1 = (TestAspect) ctx.getBean("testAspectForTestImpl1");
+    testAspectForAbstractTestImpl = (TestAspect) ctx.getBean("testAspectForAbstractTestImpl");
+    testInterceptor = (TestInterceptor) ctx.getBean("testInterceptor");
 
-	@BeforeEach
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
-		testImpl1 = (TestInterface) ctx.getBean("testImpl1");
-		testImpl2 = (TestInterface) ctx.getBean("testImpl2");
-		testAspectForTestImpl1 = (TestAspect) ctx.getBean("testAspectForTestImpl1");
-		testAspectForAbstractTestImpl = (TestAspect) ctx.getBean("testAspectForAbstractTestImpl");
-		testInterceptor = (TestInterceptor) ctx.getBean("testInterceptor");
+    testAspectForTestImpl1.count = 0;
+    testAspectForAbstractTestImpl.count = 0;
+    testInterceptor.count = 0;
+  }
 
-		testAspectForTestImpl1.count = 0;
-		testAspectForAbstractTestImpl.count = 0;
-		testInterceptor.count = 0;
-	}
+  @Test
+  public void targetSelectionForMatchedType() {
+    testImpl1.interfaceMethod();
+    assertThat(testAspectForTestImpl1.count).as("Should have been advised by POJO advice for impl").isEqualTo(1);
+    assertThat(testAspectForAbstractTestImpl.count).as("Should have been advised by POJO advice for base type").isEqualTo(1);
+    assertThat(testInterceptor.count).as("Should have been advised by advisor").isEqualTo(1);
+  }
 
+  @Test
+  public void targetNonSelectionForMismatchedType() {
+    testImpl2.interfaceMethod();
+    assertThat(testAspectForTestImpl1.count).as("Shouldn't have been advised by POJO advice for impl").isEqualTo(0);
+    assertThat(testAspectForAbstractTestImpl.count).as("Should have been advised by POJO advice for base type").isEqualTo(1);
+    assertThat(testInterceptor.count).as("Shouldn't have been advised by advisor").isEqualTo(0);
+  }
 
-	@Test
-	public void targetSelectionForMatchedType() {
-		testImpl1.interfaceMethod();
-		assertThat(testAspectForTestImpl1.count).as("Should have been advised by POJO advice for impl").isEqualTo(1);
-		assertThat(testAspectForAbstractTestImpl.count).as("Should have been advised by POJO advice for base type").isEqualTo(1);
-		assertThat(testInterceptor.count).as("Should have been advised by advisor").isEqualTo(1);
-	}
+  public static interface TestInterface {
 
-	@Test
-	public void targetNonSelectionForMismatchedType() {
-		testImpl2.interfaceMethod();
-		assertThat(testAspectForTestImpl1.count).as("Shouldn't have been advised by POJO advice for impl").isEqualTo(0);
-		assertThat(testAspectForAbstractTestImpl.count).as("Should have been advised by POJO advice for base type").isEqualTo(1);
-		assertThat(testInterceptor.count).as("Shouldn't have been advised by advisor").isEqualTo(0);
-	}
+    public void interfaceMethod();
+  }
 
+  // Reproducing bug requires that the class specified in target() pointcut doesn't
+  // include the advised method's implementation (instead a base class should include it)
+  public static abstract class AbstractTestImpl implements TestInterface {
 
-	public static interface TestInterface {
+    @Override
+    public void interfaceMethod() {
+    }
+  }
 
-		public void interfaceMethod();
-	}
+  public static class TestImpl1 extends AbstractTestImpl {
+  }
 
+  public static class TestImpl2 extends AbstractTestImpl {
+  }
 
-	// Reproducing bug requires that the class specified in target() pointcut doesn't
-	// include the advised method's implementation (instead a base class should include it)
-	public static abstract class AbstractTestImpl implements TestInterface {
+  public static class TestAspect {
 
-		@Override
-		public void interfaceMethod() {
-		}
-	}
+    public int count;
 
+    public void increment() {
+      count++;
+    }
+  }
 
-	public static class TestImpl1 extends AbstractTestImpl {
-	}
+  public static class TestInterceptor extends TestAspect implements MethodInterceptor {
 
-
-	public static class TestImpl2 extends AbstractTestImpl {
-	}
-
-
-	public static class TestAspect {
-
-		public int count;
-
-		public void increment() {
-			count++;
-		}
-	}
-
-
-	public static class TestInterceptor extends TestAspect implements MethodInterceptor {
-
-		@Override
-		public Object invoke(MethodInvocation mi) throws Throwable {
-			increment();
-			return mi.proceed();
-		}
-	}
+    @Override
+    public Object invoke(MethodInvocation mi) throws Throwable {
+      increment();
+      return mi.proceed();
+    }
+  }
 
 }

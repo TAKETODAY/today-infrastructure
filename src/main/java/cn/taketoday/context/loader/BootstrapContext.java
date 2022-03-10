@@ -36,8 +36,8 @@ import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
+import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -92,7 +92,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
   public BootstrapContext(ApplicationContext context) {
-    this(new DefaultBeanDefinitionRegistry(), context);
+    this(new SimpleBeanDefinitionRegistry(), context);
   }
 
   public BootstrapContext(BeanDefinitionRegistry registry, ApplicationContext context) {

@@ -25,14 +25,14 @@ package cn.taketoday.aop.aspectj;
  */
 interface ICounter {
 
-	void increment();
+  void increment();
 
-	void decrement();
+  void decrement();
 
-	int getCount();
+  int getCount();
 
-	void setCount(int counter);
+  void setCount(int counter);
 
-	void reset();
+  void reset();
 
 }

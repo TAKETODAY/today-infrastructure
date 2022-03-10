@@ -31,52 +31,49 @@ import org.aspectj.lang.JoinPoint;
  */
 class AdviceBindingTestAspect {
 
-	protected AdviceBindingCollaborator collaborator;
+  protected AdviceBindingCollaborator collaborator;
 
+  public void setCollaborator(AdviceBindingCollaborator aCollaborator) {
+    this.collaborator = aCollaborator;
+  }
 
-	public void setCollaborator(AdviceBindingCollaborator aCollaborator) {
-		this.collaborator = aCollaborator;
-	}
+  // "advice" methods
 
+  public void oneIntArg(int age) {
+    this.collaborator.oneIntArg(age);
+  }
 
-	// "advice" methods
+  public void oneObjectArg(Object bean) {
+    this.collaborator.oneObjectArg(bean);
+  }
 
-	public void oneIntArg(int age) {
-		this.collaborator.oneIntArg(age);
-	}
+  public void oneIntAndOneObject(int x, Object o) {
+    this.collaborator.oneIntAndOneObject(x, o);
+  }
 
-	public void oneObjectArg(Object bean) {
-		this.collaborator.oneObjectArg(bean);
-	}
+  public void needsJoinPoint(JoinPoint tjp) {
+    this.collaborator.needsJoinPoint(tjp.getSignature().getName());
+  }
 
-	public void oneIntAndOneObject(int x, Object o) {
-		this.collaborator.oneIntAndOneObject(x,o);
-	}
+  public void needsJoinPointStaticPart(JoinPoint.StaticPart tjpsp) {
+    this.collaborator.needsJoinPointStaticPart(tjpsp.getSignature().getName());
+  }
 
-	public void needsJoinPoint(JoinPoint tjp) {
-		this.collaborator.needsJoinPoint(tjp.getSignature().getName());
-	}
+  /**
+   * Collaborator interface that makes it easy to test this aspect is
+   * working as expected through mocking.
+   */
+  public interface AdviceBindingCollaborator {
 
-	public void needsJoinPointStaticPart(JoinPoint.StaticPart tjpsp) {
-		this.collaborator.needsJoinPointStaticPart(tjpsp.getSignature().getName());
-	}
+    void oneIntArg(int x);
 
+    void oneObjectArg(Object o);
 
-	/**
-	 * Collaborator interface that makes it easy to test this aspect is
-	 * working as expected through mocking.
-	 */
-	public interface AdviceBindingCollaborator {
+    void oneIntAndOneObject(int x, Object o);
 
-		void oneIntArg(int x);
+    void needsJoinPoint(String s);
 
-		void oneObjectArg(Object o);
-
-		void oneIntAndOneObject(int x, Object o);
-
-		void needsJoinPoint(String s);
-
-		void needsJoinPointStaticPart(String s);
-	}
+    void needsJoinPointStaticPart(String s);
+  }
 
 }

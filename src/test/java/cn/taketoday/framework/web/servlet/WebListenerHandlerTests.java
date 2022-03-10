@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import jakarta.servlet.ServletContextAttributeEvent;
 import jakarta.servlet.ServletContextAttributeListener;
@@ -42,7 +42,7 @@ class WebListenerHandlerTests {
 
   private final WebListenerHandler handler = new WebListenerHandler();
 
-  private final DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+  private final SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 
   @Test
   void listener() throws IOException {

@@ -45,71 +45,66 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class GenericBridgeMethodMatchingTests {
 
-	protected DerivedInterface<String> testBean;
+  protected DerivedInterface<String> testBean;
 
-	protected GenericCounterAspect counterAspect;
+  protected GenericCounterAspect counterAspect;
 
+  @SuppressWarnings("unchecked")
+  @org.junit.jupiter.api.BeforeEach
+  public void setup() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
 
-	@SuppressWarnings("unchecked")
-	@org.junit.jupiter.api.BeforeEach
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+    counterAspect = (GenericCounterAspect) ctx.getBean("counterAspect");
+    counterAspect.count = 0;
 
-		counterAspect = (GenericCounterAspect) ctx.getBean("counterAspect");
-		counterAspect.count = 0;
+    testBean = (DerivedInterface<String>) ctx.getBean("testBean");
+  }
 
-		testBean = (DerivedInterface<String>) ctx.getBean("testBean");
-	}
+  @Test
+  public void testGenericDerivedInterfaceMethodThroughInterface() {
+    testBean.genericDerivedInterfaceMethod("");
+    assertThat(counterAspect.count).isEqualTo(1);
+  }
 
-
-	@Test
-	public void testGenericDerivedInterfaceMethodThroughInterface() {
-		testBean.genericDerivedInterfaceMethod("");
-		assertThat(counterAspect.count).isEqualTo(1);
-	}
-
-	@Test
-	public void testGenericBaseInterfaceMethodThroughInterface() {
-		testBean.genericBaseInterfaceMethod("");
-		assertThat(counterAspect.count).isEqualTo(1);
-	}
+  @Test
+  public void testGenericBaseInterfaceMethodThroughInterface() {
+    testBean.genericBaseInterfaceMethod("");
+    assertThat(counterAspect.count).isEqualTo(1);
+  }
 
 }
-
 
 interface BaseInterface<T> {
 
-	void genericBaseInterfaceMethod(T t);
+  void genericBaseInterfaceMethod(T t);
 }
-
 
 interface DerivedInterface<T> extends BaseInterface<T> {
 
-	public void genericDerivedInterfaceMethod(T t);
+  public void genericDerivedInterfaceMethod(T t);
 }
-
 
 class DerivedStringParameterizedClass implements DerivedInterface<String> {
 
-	@Override
-	public void genericDerivedInterfaceMethod(String t) {
-	}
+  @Override
+  public void genericDerivedInterfaceMethod(String t) {
+  }
 
-	@Override
-	public void genericBaseInterfaceMethod(String t) {
-	}
+  @Override
+  public void genericBaseInterfaceMethod(String t) {
+  }
 }
 
 @Aspect
 class GenericCounterAspect {
 
-	public int count;
+  public int count;
 
-	@Before("execution(* *..BaseInterface+.*(..))")
-	public void increment() {
-		count++;
-	}
+  @Before("execution(* *..BaseInterface+.*(..))")
+  public void increment() {
+    count++;
+  }
 
 }
 

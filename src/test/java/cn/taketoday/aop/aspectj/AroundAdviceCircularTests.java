@@ -32,12 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AroundAdviceCircularTests extends AroundAdviceBindingTests {
 
-	@Test
-	public void testBothBeansAreProxies() {
-		Object tb = ctx.getBean("testBean");
-		assertThat(AopUtils.isAopProxy(tb)).isTrue();
-		Object tb2 = ctx.getBean("testBean2");
-		assertThat(AopUtils.isAopProxy(tb2)).isTrue();
-	}
+  @Test
+  public void testBothBeansAreProxies() {
+    Object tb = ctx.getBean("testBean");
+    assertThat(AopUtils.isAopProxy(tb)).isTrue();
+    Object tb2 = ctx.getBean("testBean2");
+    assertThat(AopUtils.isAopProxy(tb2)).isTrue();
+  }
 
 }

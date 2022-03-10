@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
@@ -47,13 +47,13 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void setParserClassSunnyDay() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     new XmlBeanDefinitionReader(registry).setDocumentReaderClass(DefaultBeanDefinitionDocumentReader.class);
   }
 
   @Test
   public void withOpenInputStream() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     Resource resource = new InputStreamResource(getClass().getResourceAsStream("test.xml"));
     assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
             new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource));
@@ -61,7 +61,7 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void withOpenInputStreamAndExplicitValidationMode() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     Resource resource = new InputStreamResource(getClass().getResourceAsStream("test.xml"));
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
     reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD);
@@ -71,7 +71,7 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void withImport() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     Resource resource = new ClassPathResource("import.xml", getClass());
     new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
     testBeanDefinitions(registry);
@@ -79,7 +79,7 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void withWildcardImport() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     Resource resource = new ClassPathResource("importPattern.xml", getClass());
     new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
     testBeanDefinitions(registry);
@@ -87,7 +87,7 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void withInputSource() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     InputSource resource = new InputSource(getClass().getResourceAsStream("test.xml"));
     assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
             new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource));
@@ -95,7 +95,7 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void withInputSourceAndExplicitValidationMode() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     InputSource resource = new InputSource(getClass().getResourceAsStream("test.xml"));
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
     reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD);
@@ -105,7 +105,7 @@ public class XmlBeanDefinitionReaderTests {
 
   @Test
   public void withFreshInputStream() {
-    DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
     Resource resource = new ClassPathResource("test.xml", getClass());
     new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
     testBeanDefinitions(registry);

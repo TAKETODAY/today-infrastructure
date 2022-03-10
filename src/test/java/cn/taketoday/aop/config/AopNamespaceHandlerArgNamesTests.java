@@ -33,16 +33,16 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class AopNamespaceHandlerArgNamesTests {
 
-	@Test
-	public void testArgNamesOK() {
-		new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-ok.xml", getClass());
-	}
+  @Test
+  public void testArgNamesOK() {
+    new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-ok.xml", getClass());
+  }
 
-	@Test
-	public void testArgNamesError() {
-		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-error.xml", getClass()))
-			.matches(ex -> ex.contains(IllegalArgumentException.class));
-	}
+  @Test
+  public void testArgNamesError() {
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
+                    new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-error.xml", getClass()))
+            .matches(ex -> ex.contains(IllegalArgumentException.class));
+  }
 
 }

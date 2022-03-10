@@ -37,34 +37,32 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AspectImplementingInterfaceTests {
 
-	@Test
-	public void testProxyCreation() {
-		ClassPathXmlApplicationContext ctx =
-			new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+  @Test
+  public void testProxyCreation() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
 
-		ITestBean testBean = (ITestBean) ctx.getBean("testBean");
-		AnInterface interfaceExtendingAspect = (AnInterface) ctx.getBean("interfaceExtendingAspect");
+    ITestBean testBean = (ITestBean) ctx.getBean("testBean");
+    AnInterface interfaceExtendingAspect = (AnInterface) ctx.getBean("interfaceExtendingAspect");
 
-		boolean condition = testBean instanceof Advised;
-		assertThat(condition).isTrue();
-		boolean condition1 = interfaceExtendingAspect instanceof Advised;
-		assertThat(condition1).isFalse();
-	}
+    boolean condition = testBean instanceof Advised;
+    assertThat(condition).isTrue();
+    boolean condition1 = interfaceExtendingAspect instanceof Advised;
+    assertThat(condition1).isFalse();
+  }
 
 }
-
 
 interface AnInterface {
-	public void interfaceMethod();
+  public void interfaceMethod();
 }
 
-
 class InterfaceExtendingAspect implements AnInterface {
-	public void increment(ProceedingJoinPoint pjp) throws Throwable {
-		pjp.proceed();
-	}
+  public void increment(ProceedingJoinPoint pjp) throws Throwable {
+    pjp.proceed();
+  }
 
-	@Override
-	public void interfaceMethod() {
-	}
+  @Override
+  public void interfaceMethod() {
+  }
 }

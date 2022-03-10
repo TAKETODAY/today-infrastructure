@@ -30,7 +30,7 @@ import java.util.Set;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
@@ -54,7 +54,7 @@ class WebFilterHandlerTests {
 
   private final WebFilterHandler handler = new WebFilterHandler();
 
-  private final DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+  private final SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 
   @SuppressWarnings("unchecked")
   @Test

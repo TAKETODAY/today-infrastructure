@@ -22,10 +22,10 @@ package cn.taketoday.aop.framework;
 
 public interface IEcho {
 
-	int echoException(int i, Throwable t) throws Throwable;
+  int echoException(int i, Throwable t) throws Throwable;
 
-	int getA();
+  int getA();
 
-	void setA(int a);
+  void setA(int a);
 
 }

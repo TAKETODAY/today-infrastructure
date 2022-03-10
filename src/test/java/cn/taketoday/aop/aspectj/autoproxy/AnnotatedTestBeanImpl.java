@@ -26,28 +26,28 @@ package cn.taketoday.aop.aspectj.autoproxy;
  */
 class AnnotatedTestBeanImpl implements AnnotatedTestBean {
 
-	@Override
-	@TestAnnotation("this value")
-	public String doThis() {
-		return "doThis";
-	}
+  @Override
+  @TestAnnotation("this value")
+  public String doThis() {
+    return "doThis";
+  }
 
-	@Override
-	@TestAnnotation("that value")
-	public String doThat() {
-		return "doThat";
-	}
+  @Override
+  @TestAnnotation("that value")
+  public String doThat() {
+    return "doThat";
+  }
 
-	@Override
-	@TestAnnotation("array value")
-	public String[] doArray() {
-		return new String[] {"doThis", "doThat"};
-	}
+  @Override
+  @TestAnnotation("array value")
+  public String[] doArray() {
+    return new String[] { "doThis", "doThat" };
+  }
 
-	// not annotated
-	@Override
-	public String doTheOther() {
-		return "doTheOther";
-	}
+  // not annotated
+  @Override
+  public String doTheOther() {
+    return "doTheOther";
+  }
 
 }

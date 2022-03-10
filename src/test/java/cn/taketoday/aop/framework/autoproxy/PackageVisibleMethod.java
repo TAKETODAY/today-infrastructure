@@ -22,7 +22,7 @@ package cn.taketoday.aop.framework.autoproxy;
 
 public class PackageVisibleMethod {
 
-	void doSomething() {
-	}
+  void doSomething() {
+  }
 
 }

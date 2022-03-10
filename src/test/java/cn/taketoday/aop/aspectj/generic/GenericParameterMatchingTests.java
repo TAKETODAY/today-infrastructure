@@ -40,99 +40,94 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class GenericParameterMatchingTests {
 
-	private CounterAspect counterAspect;
+  private CounterAspect counterAspect;
 
-	private GenericInterface<String> testBean;
+  private GenericInterface<String> testBean;
 
+  @SuppressWarnings("unchecked")
+  @org.junit.jupiter.api.BeforeEach
+  public void setup() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
 
-	@SuppressWarnings("unchecked")
-	@org.junit.jupiter.api.BeforeEach
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+    counterAspect = (CounterAspect) ctx.getBean("counterAspect");
+    counterAspect.reset();
 
-		counterAspect = (CounterAspect) ctx.getBean("counterAspect");
-		counterAspect.reset();
+    testBean = (GenericInterface<String>) ctx.getBean("testBean");
+  }
 
-		testBean = (GenericInterface<String>) ctx.getBean("testBean");
-	}
+  @Test
+  public void testGenericInterfaceGenericArgExecution() {
+    testBean.save("");
+    assertThat(counterAspect.genericInterfaceGenericArgExecutionCount).isEqualTo(1);
+  }
 
+  @Test
+  public void testGenericInterfaceGenericCollectionArgExecution() {
+    testBean.saveAll(null);
+    assertThat(counterAspect.genericInterfaceGenericCollectionArgExecutionCount).isEqualTo(1);
+  }
 
-	@Test
-	public void testGenericInterfaceGenericArgExecution() {
-		testBean.save("");
-		assertThat(counterAspect.genericInterfaceGenericArgExecutionCount).isEqualTo(1);
-	}
+  @Test
+  public void testGenericInterfaceSubtypeGenericCollectionArgExecution() {
+    testBean.saveAll(null);
+    assertThat(counterAspect.genericInterfaceSubtypeGenericCollectionArgExecutionCount).isEqualTo(1);
+  }
 
-	@Test
-	public void testGenericInterfaceGenericCollectionArgExecution() {
-		testBean.saveAll(null);
-		assertThat(counterAspect.genericInterfaceGenericCollectionArgExecutionCount).isEqualTo(1);
-	}
+  static interface GenericInterface<T> {
 
-	@Test
-	public void testGenericInterfaceSubtypeGenericCollectionArgExecution() {
-		testBean.saveAll(null);
-		assertThat(counterAspect.genericInterfaceSubtypeGenericCollectionArgExecutionCount).isEqualTo(1);
-	}
+    public void save(T bean);
 
+    public void saveAll(Collection<T> beans);
+  }
 
-	static interface GenericInterface<T> {
+  static class GenericImpl<T> implements GenericInterface<T> {
 
-		public void save(T bean);
+    @Override
+    public void save(T bean) {
+    }
 
-		public void saveAll(Collection<T> beans);
-	}
+    @Override
+    public void saveAll(Collection<T> beans) {
+    }
+  }
 
+  @Aspect
+  static class CounterAspect {
 
-	static class GenericImpl<T> implements GenericInterface<T> {
+    int genericInterfaceGenericArgExecutionCount;
+    int genericInterfaceGenericCollectionArgExecutionCount;
+    int genericInterfaceSubtypeGenericCollectionArgExecutionCount;
 
-		@Override
-		public void save(T bean) {
-		}
+    public void reset() {
+      genericInterfaceGenericArgExecutionCount = 0;
+      genericInterfaceGenericCollectionArgExecutionCount = 0;
+      genericInterfaceSubtypeGenericCollectionArgExecutionCount = 0;
+    }
 
-		@Override
-		public void saveAll(Collection<T> beans) {
-		}
-	}
+    @Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericParameterMatchingTests.GenericInterface.save(..))")
+    public void genericInterfaceGenericArgExecution() { }
 
+    @Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericParameterMatchingTests.GenericInterface.saveAll(..))")
+    public void GenericInterfaceGenericCollectionArgExecution() { }
 
-	@Aspect
-	static class CounterAspect {
+    @Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericParameterMatchingTests.GenericInterface+.saveAll(..))")
+    public void genericInterfaceSubtypeGenericCollectionArgExecution() { }
 
-		int genericInterfaceGenericArgExecutionCount;
-		int genericInterfaceGenericCollectionArgExecutionCount;
-		int genericInterfaceSubtypeGenericCollectionArgExecutionCount;
+    @Before("genericInterfaceGenericArgExecution()")
+    public void incrementGenericInterfaceGenericArgExecution() {
+      genericInterfaceGenericArgExecutionCount++;
+    }
 
-		public void reset() {
-			genericInterfaceGenericArgExecutionCount = 0;
-			genericInterfaceGenericCollectionArgExecutionCount = 0;
-			genericInterfaceSubtypeGenericCollectionArgExecutionCount = 0;
-		}
+    @Before("GenericInterfaceGenericCollectionArgExecution()")
+    public void incrementGenericInterfaceGenericCollectionArgExecution() {
+      genericInterfaceGenericCollectionArgExecutionCount++;
+    }
 
-		@Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericParameterMatchingTests.GenericInterface.save(..))")
-		public void genericInterfaceGenericArgExecution() {}
-
-		@Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericParameterMatchingTests.GenericInterface.saveAll(..))")
-		public void GenericInterfaceGenericCollectionArgExecution() {}
-
-		@Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericParameterMatchingTests.GenericInterface+.saveAll(..))")
-		public void genericInterfaceSubtypeGenericCollectionArgExecution() {}
-
-		@Before("genericInterfaceGenericArgExecution()")
-		public void incrementGenericInterfaceGenericArgExecution() {
-			genericInterfaceGenericArgExecutionCount++;
-		}
-
-		@Before("GenericInterfaceGenericCollectionArgExecution()")
-		public void incrementGenericInterfaceGenericCollectionArgExecution() {
-			genericInterfaceGenericCollectionArgExecutionCount++;
-		}
-
-		@Before("genericInterfaceSubtypeGenericCollectionArgExecution()")
-		public void incrementGenericInterfaceSubtypeGenericCollectionArgExecution() {
-			genericInterfaceSubtypeGenericCollectionArgExecutionCount++;
-		}
-	}
+    @Before("genericInterfaceSubtypeGenericCollectionArgExecution()")
+    public void incrementGenericInterfaceSubtypeGenericCollectionArgExecution() {
+      genericInterfaceSubtypeGenericCollectionArgExecutionCount++;
+    }
+  }
 
 }

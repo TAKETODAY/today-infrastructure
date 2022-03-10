@@ -28,7 +28,7 @@ import java.util.Map;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
@@ -47,7 +47,7 @@ class WebServletHandlerTests {
 
   private final WebServletHandler handler = new WebServletHandler();
 
-  private final DefaultBeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
+  private final SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 
   @SuppressWarnings("unchecked")
   @Test

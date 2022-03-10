@@ -123,11 +123,11 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.web.servlet.ServletContextAware#setServletContext
  * @see InitializationBeanPostProcessor#postProcessBeforeInitialization
  * @see InitializingBean#afterPropertiesSet
- * @see BeanDefinition#getInitMethods()
+ * @see BeanDefinition#getInitMethodName()
  * @see InitializationBeanPostProcessor#postProcessAfterInitialization
  * @see DestructionAwareBeanPostProcessor#postProcessBeforeDestruction
  * @see DisposableBean#destroy
- * @see BeanDefinition#getDestroyMethod()
+ * @see BeanDefinition#getDestroyMethodName()
  * @since 2018-06-23 11:22:26
  */
 public interface BeanFactory extends DependencyInjectorProvider {

@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
@@ -37,7 +39,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/10/1 14:56
  * @since 4.0
  */
-public class DefaultBeanDefinitionRegistry
+public class SimpleBeanDefinitionRegistry
         extends DefaultAliasRegistry implements BeanDefinitionRegistry {
 
   /** Map of bean definition objects, keyed by bean name. */
@@ -52,20 +54,28 @@ public class DefaultBeanDefinitionRegistry
   }
 
   @Override
-  public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
+  public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+          throws BeanDefinitionStoreException {
+
     Assert.hasText(beanName, "'beanName' must not be empty");
     Assert.notNull(beanDefinition, "BeanDefinition must not be null");
     this.beanDefinitionMap.put(beanName, beanDefinition);
   }
 
   @Override
-  public void removeBeanDefinition(String beanName) {
-    this.beanDefinitionMap.remove(beanName);
+  public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+    if (this.beanDefinitionMap.remove(beanName) == null) {
+      throw new NoSuchBeanDefinitionException(beanName);
+    }
   }
 
   @Override
-  public BeanDefinition getBeanDefinition(String beanName) {
-    return beanDefinitionMap.get(beanName);
+  public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+    BeanDefinition bd = this.beanDefinitionMap.get(beanName);
+    if (bd == null) {
+      throw new NoSuchBeanDefinitionException(beanName);
+    }
+    return bd;
   }
 
   @Override

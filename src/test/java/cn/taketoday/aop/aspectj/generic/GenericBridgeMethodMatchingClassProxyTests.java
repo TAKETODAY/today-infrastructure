@@ -36,16 +36,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class GenericBridgeMethodMatchingClassProxyTests extends GenericBridgeMethodMatchingTests {
 
-	@Test
-	public void testGenericDerivedInterfaceMethodThroughClass() {
-		((DerivedStringParameterizedClass) testBean).genericDerivedInterfaceMethod("");
-		assertThat(counterAspect.count).isEqualTo(1);
-	}
+  @Test
+  public void testGenericDerivedInterfaceMethodThroughClass() {
+    ((DerivedStringParameterizedClass) testBean).genericDerivedInterfaceMethod("");
+    assertThat(counterAspect.count).isEqualTo(1);
+  }
 
-	@Test
-	public void testGenericBaseInterfaceMethodThroughClass() {
-		((DerivedStringParameterizedClass) testBean).genericBaseInterfaceMethod("");
-		assertThat(counterAspect.count).isEqualTo(1);
-	}
+  @Test
+  public void testGenericBaseInterfaceMethodThroughClass() {
+    ((DerivedStringParameterizedClass) testBean).genericBaseInterfaceMethod("");
+    assertThat(counterAspect.count).isEqualTo(1);
+  }
 
 }

@@ -46,135 +46,131 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AfterReturningGenericTypeMatchingTests {
 
-	private GenericReturnTypeVariationClass testBean;
+  private GenericReturnTypeVariationClass testBean;
 
-	private CounterAspect counterAspect;
+  private CounterAspect counterAspect;
 
+  @BeforeEach
+  public void setup() {
+    ClassPathXmlApplicationContext ctx =
+            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
 
-	@BeforeEach
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-context.xml", getClass());
+    counterAspect = (CounterAspect) ctx.getBean("counterAspect");
+    counterAspect.reset();
 
-		counterAspect = (CounterAspect) ctx.getBean("counterAspect");
-		counterAspect.reset();
+    testBean = (GenericReturnTypeVariationClass) ctx.getBean("testBean");
+  }
 
-		testBean = (GenericReturnTypeVariationClass) ctx.getBean("testBean");
-	}
+  @Test
+  public void testReturnTypeExactMatching() {
+    testBean.getStrings();
+    assertThat(counterAspect.getStringsInvocationsCount).isEqualTo(1);
+    assertThat(counterAspect.getIntegersInvocationsCount).isEqualTo(0);
 
+    counterAspect.reset();
 
-	@Test
-	public void testReturnTypeExactMatching() {
-		testBean.getStrings();
-		assertThat(counterAspect.getStringsInvocationsCount).isEqualTo(1);
-		assertThat(counterAspect.getIntegersInvocationsCount).isEqualTo(0);
+    testBean.getIntegers();
+    assertThat(counterAspect.getStringsInvocationsCount).isEqualTo(0);
+    assertThat(counterAspect.getIntegersInvocationsCount).isEqualTo(1);
+  }
 
-		counterAspect.reset();
+  @Test
+  public void testReturnTypeRawMatching() {
+    testBean.getStrings();
+    assertThat(counterAspect.getRawsInvocationsCount).isEqualTo(1);
 
-		testBean.getIntegers();
-		assertThat(counterAspect.getStringsInvocationsCount).isEqualTo(0);
-		assertThat(counterAspect.getIntegersInvocationsCount).isEqualTo(1);
-	}
+    counterAspect.reset();
 
-	@Test
-	public void testReturnTypeRawMatching() {
-		testBean.getStrings();
-		assertThat(counterAspect.getRawsInvocationsCount).isEqualTo(1);
+    testBean.getIntegers();
+    assertThat(counterAspect.getRawsInvocationsCount).isEqualTo(1);
+  }
 
-		counterAspect.reset();
+  @Test
+  public void testReturnTypeUpperBoundMatching() {
+    testBean.getIntegers();
+    assertThat(counterAspect.getNumbersInvocationsCount).isEqualTo(1);
+  }
 
-		testBean.getIntegers();
-		assertThat(counterAspect.getRawsInvocationsCount).isEqualTo(1);
-	}
+  @Test
+  public void testReturnTypeLowerBoundMatching() {
+    testBean.getTestBeans();
+    assertThat(counterAspect.getTestBeanInvocationsCount).isEqualTo(1);
 
-	@Test
-	public void testReturnTypeUpperBoundMatching() {
-		testBean.getIntegers();
-		assertThat(counterAspect.getNumbersInvocationsCount).isEqualTo(1);
-	}
+    counterAspect.reset();
 
-	@Test
-	public void testReturnTypeLowerBoundMatching() {
-		testBean.getTestBeans();
-		assertThat(counterAspect.getTestBeanInvocationsCount).isEqualTo(1);
-
-		counterAspect.reset();
-
-		testBean.getEmployees();
-		assertThat(counterAspect.getTestBeanInvocationsCount).isEqualTo(0);
-	}
+    testBean.getEmployees();
+    assertThat(counterAspect.getTestBeanInvocationsCount).isEqualTo(0);
+  }
 
 }
-
 
 class GenericReturnTypeVariationClass {
 
-	public Collection<String> getStrings() {
-		return new ArrayList<>();
-	}
+  public Collection<String> getStrings() {
+    return new ArrayList<>();
+  }
 
-	public Collection<Integer> getIntegers() {
-		return new ArrayList<>();
-	}
+  public Collection<Integer> getIntegers() {
+    return new ArrayList<>();
+  }
 
-	public Collection<TestBean> getTestBeans() {
-		return new ArrayList<>();
-	}
+  public Collection<TestBean> getTestBeans() {
+    return new ArrayList<>();
+  }
 
-	public Collection<Employee> getEmployees() {
-		return new ArrayList<>();
-	}
+  public Collection<Employee> getEmployees() {
+    return new ArrayList<>();
+  }
 }
-
 
 @Aspect
 class CounterAspect {
 
-	int getRawsInvocationsCount;
+  int getRawsInvocationsCount;
 
-	int getStringsInvocationsCount;
+  int getStringsInvocationsCount;
 
-	int getIntegersInvocationsCount;
+  int getIntegersInvocationsCount;
 
-	int getNumbersInvocationsCount;
+  int getNumbersInvocationsCount;
 
-	int getTestBeanInvocationsCount;
+  int getTestBeanInvocationsCount;
 
-	@Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericReturnTypeVariationClass.*(..))")
-	public void anyTestMethod() {
-	}
+  @Pointcut("execution(* cn.taketoday.aop.aspectj.generic.GenericReturnTypeVariationClass.*(..))")
+  public void anyTestMethod() {
+  }
 
-	@AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
-	public void incrementGetRawsInvocationsCount(Collection<?> ret) {
-		getRawsInvocationsCount++;
-	}
+  @AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
+  public void incrementGetRawsInvocationsCount(Collection<?> ret) {
+    getRawsInvocationsCount++;
+  }
 
-	@AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
-	public void incrementGetStringsInvocationsCount(Collection<String> ret) {
-		getStringsInvocationsCount++;
-	}
+  @AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
+  public void incrementGetStringsInvocationsCount(Collection<String> ret) {
+    getStringsInvocationsCount++;
+  }
 
-	@AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
-	public void incrementGetIntegersInvocationsCount(Collection<Integer> ret) {
-		getIntegersInvocationsCount++;
-	}
+  @AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
+  public void incrementGetIntegersInvocationsCount(Collection<Integer> ret) {
+    getIntegersInvocationsCount++;
+  }
 
-	@AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
-	public void incrementGetNumbersInvocationsCount(Collection<? extends Number> ret) {
-		getNumbersInvocationsCount++;
-	}
+  @AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
+  public void incrementGetNumbersInvocationsCount(Collection<? extends Number> ret) {
+    getNumbersInvocationsCount++;
+  }
 
-	@AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
-	public void incrementTestBeanInvocationsCount(Collection<? super TestBean> ret) {
-		getTestBeanInvocationsCount++;
-	}
+  @AfterReturning(pointcut = "anyTestMethod()", returning = "ret")
+  public void incrementTestBeanInvocationsCount(Collection<? super TestBean> ret) {
+    getTestBeanInvocationsCount++;
+  }
 
-	public void reset() {
-		getRawsInvocationsCount = 0;
-		getStringsInvocationsCount = 0;
-		getIntegersInvocationsCount = 0;
-		getNumbersInvocationsCount = 0;
-		getTestBeanInvocationsCount = 0;
-	}
+  public void reset() {
+    getRawsInvocationsCount = 0;
+    getStringsInvocationsCount = 0;
+    getIntegersInvocationsCount = 0;
+    getNumbersInvocationsCount = 0;
+    getTestBeanInvocationsCount = 0;
+  }
 }
 
