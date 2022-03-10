@@ -266,6 +266,9 @@ class ConfigurationClassBeanDefinitionReader {
   }
 
   protected boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName) {
+    if (!bootstrapContext.containsBeanDefinition(beanName)) {
+      return false;
+    }
     BeanDefinition existingBeanDef = bootstrapContext.getBeanDefinition(beanName);
     if (existingBeanDef == null) {
       return false;
