@@ -58,7 +58,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
     MimeType allMimeType = MimeType.valueOf("*/*");
 
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Resource.class),
-                                      MimeTypeUtils.APPLICATION_OCTET_STREAM)).isFalse();
+            MimeTypeUtils.APPLICATION_OCTET_STREAM)).isFalse();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Resource.class), allMimeType)).isFalse();
     assertThat(this.encoder.canEncode(resourceRegion, MimeTypeUtils.APPLICATION_OCTET_STREAM)).isTrue();
     assertThat(this.encoder.canEncode(resourceRegion, allMimeType)).isTrue();

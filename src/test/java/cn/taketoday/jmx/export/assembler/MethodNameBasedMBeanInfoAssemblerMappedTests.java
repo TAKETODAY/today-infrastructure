@@ -36,79 +36,78 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MethodNameBasedMBeanInfoAssemblerMappedTests extends AbstractJmxAssemblerTests {
 
-	protected static final String OBJECT_NAME = "bean:name=testBean4";
+  protected static final String OBJECT_NAME = "bean:name=testBean4";
 
+  @Test
+  public void testGetAgeIsReadOnly() throws Exception {
+    ModelMBeanInfo info = getMBeanInfoFromAssembler();
+    ModelMBeanAttributeInfo attr = info.getAttribute(AGE_ATTRIBUTE);
 
-	@Test
-	public void testGetAgeIsReadOnly() throws Exception {
-		ModelMBeanInfo info = getMBeanInfoFromAssembler();
-		ModelMBeanAttributeInfo attr = info.getAttribute(AGE_ATTRIBUTE);
+    assertThat(attr.isReadable()).as("Age is not readable").isTrue();
+    assertThat(attr.isWritable()).as("Age is not writable").isFalse();
+  }
 
-		assertThat(attr.isReadable()).as("Age is not readable").isTrue();
-		assertThat(attr.isWritable()).as("Age is not writable").isFalse();
-	}
+  @Test
+  public void testWithFallThrough() throws Exception {
+    MethodNameBasedMBeanInfoAssembler assembler =
+            getWithMapping("foobar", "add,myOperation,getName,setName,getAge");
+    assembler.setManagedMethods("getNickName", "setNickName");
 
-	@Test
-	public void testWithFallThrough() throws Exception {
-		MethodNameBasedMBeanInfoAssembler assembler =
-				getWithMapping("foobar", "add,myOperation,getName,setName,getAge");
-		assembler.setManagedMethods("getNickName", "setNickName");
+    ModelMBeanInfo inf = assembler.getMBeanInfo(getBean(), getObjectName());
+    MBeanAttributeInfo attr = inf.getAttribute("NickName");
 
-		ModelMBeanInfo inf = assembler.getMBeanInfo(getBean(), getObjectName());
-		MBeanAttributeInfo attr = inf.getAttribute("NickName");
+    assertNickName(attr);
+  }
 
-		assertNickName(attr);
-	}
+  @Test
+  public void testNickNameIsExposed() throws Exception {
+    ModelMBeanInfo inf = (ModelMBeanInfo) getMBeanInfo();
+    MBeanAttributeInfo attr = inf.getAttribute("NickName");
 
-	@Test
-	public void testNickNameIsExposed() throws Exception {
-		ModelMBeanInfo inf = (ModelMBeanInfo) getMBeanInfo();
-		MBeanAttributeInfo attr = inf.getAttribute("NickName");
+    assertNickName(attr);
+  }
 
-		assertNickName(attr);
-	}
+  @Override
+  protected String getObjectName() {
+    return OBJECT_NAME;
+  }
 
-	@Override
-	protected String getObjectName() {
-		return OBJECT_NAME;
-	}
+  @Override
+  protected int getExpectedOperationCount() {
+    return 7;
+  }
 
-	@Override
-	protected int getExpectedOperationCount() {
-		return 7;
-	}
+  @Override
+  protected int getExpectedAttributeCount() {
+    return 3;
+  }
 
-	@Override
-	protected int getExpectedAttributeCount() {
-		return 3;
-	}
+  @Override
+  protected MBeanInfoAssembler getAssembler() throws Exception {
+    return getWithMapping("getNickName,setNickName,add,myOperation,getName,setName,getAge");
+  }
 
-	@Override
-	protected MBeanInfoAssembler getAssembler() throws Exception {
-		return getWithMapping("getNickName,setNickName,add,myOperation,getName,setName,getAge");
-	}
+  @Override
+  protected String getApplicationContextPath() {
+    return "cn/taketoday/jmx/export/assembler/methodNameAssemblerMapped.xml";
+  }
 
-	@Override
-	protected String getApplicationContextPath() {
-		return "cn/taketoday/jmx/export/assembler/methodNameAssemblerMapped.xml";
-	}
+  private MethodNameBasedMBeanInfoAssembler getWithMapping(String mapping) {
+    return getWithMapping(OBJECT_NAME, mapping);
+  }
 
-	private MethodNameBasedMBeanInfoAssembler getWithMapping(String mapping) {
-		return getWithMapping(OBJECT_NAME, mapping);
-	}
+  private MethodNameBasedMBeanInfoAssembler getWithMapping(String name, String mapping) {
+    MethodNameBasedMBeanInfoAssembler assembler = new MethodNameBasedMBeanInfoAssembler();
+    Properties props = new Properties();
+    props.setProperty(name, mapping);
+    assembler.setMethodMappings(props);
+    return assembler;
+  }
 
-	private MethodNameBasedMBeanInfoAssembler getWithMapping(String name, String mapping) {
-		MethodNameBasedMBeanInfoAssembler assembler = new MethodNameBasedMBeanInfoAssembler();
-		Properties props = new Properties();
-		props.setProperty(name, mapping);
-		assembler.setMethodMappings(props);
-		return assembler;
-	}
-
-	private void assertNickName(MBeanAttributeInfo attr) {
-		assertThat(attr).as("Nick Name should not be null").isNotNull();
-		assertThat(attr.isWritable()).as("Nick Name should be writable").isTrue();
-		assertThat(attr.isReadable()).as("Nick Name should be readable").isTrue();
-	}
+  private void assertNickName(MBeanAttributeInfo attr) {
+    assertThat(attr).as("Nick Name should not be null").isNotNull();
+    assertThat(attr.isWritable()).as("Nick Name should be writable").isTrue();
+    assertThat(attr.isReadable()).as("Nick Name should be readable").isTrue();
+  }
 
 }

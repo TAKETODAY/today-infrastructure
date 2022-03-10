@@ -74,8 +74,7 @@ public class ASMifierTest extends AsmTest {
   /**
    * Tests that the code produced with an ASMifier compiles and generates the original class.
    *
-   * @throws Exception
-   *         if something goes wrong.
+   * @throws Exception if something goes wrong.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)

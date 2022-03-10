@@ -48,90 +48,89 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class CustomInterceptorTests {
 
-	protected ConfigurableApplicationContext ctx;
+  protected ConfigurableApplicationContext ctx;
 
-	protected CacheableService<?> cs;
+  protected CacheableService<?> cs;
 
-	@BeforeEach
-	public void setup() {
-		this.ctx = new AnnotationConfigApplicationContext(EnableCachingConfig.class);
-		this.cs = ctx.getBean("service", CacheableService.class);
-	}
+  @BeforeEach
+  public void setup() {
+    this.ctx = new AnnotationConfigApplicationContext(EnableCachingConfig.class);
+    this.cs = ctx.getBean("service", CacheableService.class);
+  }
 
-	@AfterEach
-	public void tearDown() {
-		this.ctx.close();
-	}
+  @AfterEach
+  public void tearDown() {
+    this.ctx.close();
+  }
 
-	@Test
-	public void onlyOneInterceptorIsAvailable() {
-		Map<String, CacheInterceptor> interceptors = this.ctx.getBeansOfType(CacheInterceptor.class);
-		assertThat(interceptors.size()).as("Only one interceptor should be defined").isEqualTo(1);
-		CacheInterceptor interceptor = interceptors.values().iterator().next();
-		assertThat(interceptor.getClass()).as("Custom interceptor not defined").isEqualTo(TestCacheInterceptor.class);
-	}
+  @Test
+  public void onlyOneInterceptorIsAvailable() {
+    Map<String, CacheInterceptor> interceptors = this.ctx.getBeansOfType(CacheInterceptor.class);
+    assertThat(interceptors.size()).as("Only one interceptor should be defined").isEqualTo(1);
+    CacheInterceptor interceptor = interceptors.values().iterator().next();
+    assertThat(interceptor.getClass()).as("Custom interceptor not defined").isEqualTo(TestCacheInterceptor.class);
+  }
 
-	@Test
-	public void customInterceptorAppliesWithRuntimeException() {
-		Object o = this.cs.throwUnchecked(0L);
-		// See TestCacheInterceptor
-		assertThat(o).isEqualTo(55L);
-	}
+  @Test
+  public void customInterceptorAppliesWithRuntimeException() {
+    Object o = this.cs.throwUnchecked(0L);
+    // See TestCacheInterceptor
+    assertThat(o).isEqualTo(55L);
+  }
 
-	@Test
-	public void customInterceptorAppliesWithCheckedException() {
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-				this.cs.throwChecked(0L))
-			.withCauseExactlyInstanceOf(IOException.class);
-	}
+  @Test
+  public void customInterceptorAppliesWithCheckedException() {
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
+                    this.cs.throwChecked(0L))
+            .withCauseExactlyInstanceOf(IOException.class);
+  }
 
+  @Configuration
+  @EnableCaching
+  static class EnableCachingConfig {
 
-	@Configuration
-	@EnableCaching
-	static class EnableCachingConfig {
+    @Bean
+    public CacheManager cacheManager() {
+      return CacheTestUtils.createSimpleCacheManager("testCache", "primary", "secondary");
+    }
 
-		@Bean
-		public CacheManager cacheManager() {
-			return CacheTestUtils.createSimpleCacheManager("testCache", "primary", "secondary");
-		}
+    @Bean
+    public CacheableService<?> service() {
+      return new DefaultCacheableService();
+    }
 
-		@Bean
-		public CacheableService<?> service() {
-			return new DefaultCacheableService();
-		}
+    @Bean
+    public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {
+      CacheInterceptor cacheInterceptor = new TestCacheInterceptor();
+      cacheInterceptor.setCacheManager(cacheManager());
+      cacheInterceptor.setCacheOperationSources(cacheOperationSource);
+      return cacheInterceptor;
+    }
+  }
 
-		@Bean
-		public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {
-			CacheInterceptor cacheInterceptor = new TestCacheInterceptor();
-			cacheInterceptor.setCacheManager(cacheManager());
-			cacheInterceptor.setCacheOperationSources(cacheOperationSource);
-			return cacheInterceptor;
-		}
-	}
+  /**
+   * A test {@link CacheInterceptor} that handles special exception
+   * types.
+   */
+  @SuppressWarnings("serial")
+  static class TestCacheInterceptor extends CacheInterceptor {
 
-	/**
-	 * A test {@link CacheInterceptor} that handles special exception
-	 * types.
-	 */
-	@SuppressWarnings("serial")
-	static class TestCacheInterceptor extends CacheInterceptor {
-
-		@Override
-		protected Object invokeOperation(CacheOperationInvoker invoker) {
-			try {
-				return super.invokeOperation(invoker);
-			}
-			catch (CacheOperationInvoker.ThrowableWrapper e) {
-				Throwable original = e.getOriginal();
-				if (original.getClass() == UnsupportedOperationException.class) {
-					return 55L;
-				}
-				else {
-					throw new CacheOperationInvoker.ThrowableWrapper(
-							new RuntimeException("wrapping original", original));
-				}
-			}
-		}
-	}
+    @Override
+    protected Object invokeOperation(CacheOperationInvoker invoker) {
+      try {
+        return super.invokeOperation(invoker);
+      }
+      catch (CacheOperationInvoker.ThrowableWrapper e) {
+        Throwable original = e.getOriginal();
+        if (original.getClass() == UnsupportedOperationException.class) {
+          return 55L;
+        }
+        else {
+          throw new CacheOperationInvoker.ThrowableWrapper(
+                  new RuntimeException("wrapping original", original));
+        }
+      }
+    }
+  }
 
 }

@@ -25,8 +25,8 @@ package cn.taketoday.jmx.export.assembler;
  */
 public interface ICustomBase {
 
-	int add(int x, int y);
+  int add(int x, int y);
 
-	long myOperation();
+  long myOperation();
 
 }

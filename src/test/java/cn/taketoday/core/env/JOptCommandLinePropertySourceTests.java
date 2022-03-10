@@ -58,7 +58,8 @@ class JOptCommandLinePropertySourceTests {
     assertThat(ps.getProperty("foo")).isEqualTo("");
   }
 
-  @Test // gh-24464
+  @Test
+    // gh-24464
   void withOptionalArg_andArgIsEmpty() {
     OptionParser parser = new OptionParser();
     parser.accepts("foo").withOptionalArg();

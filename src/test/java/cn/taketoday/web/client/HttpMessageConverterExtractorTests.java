@@ -56,163 +56,165 @@ import static org.mockito.Mockito.mock;
  */
 class HttpMessageConverterExtractorTests {
 
-	@SuppressWarnings("unchecked")
-	private final HttpMessageConverter<String> converter = mock(HttpMessageConverter.class);
-	private final HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<>(String.class, asList(converter));
-	private final MediaType contentType = MediaType.TEXT_PLAIN;
-	private final HttpHeaders responseHeaders = HttpHeaders.create();
-	private final ClientHttpResponse response = mock(ClientHttpResponse.class);
+  @SuppressWarnings("unchecked")
+  private final HttpMessageConverter<String> converter = mock(HttpMessageConverter.class);
+  private final HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<>(String.class, asList(converter));
+  private final MediaType contentType = MediaType.TEXT_PLAIN;
+  private final HttpHeaders responseHeaders = HttpHeaders.create();
+  private final ClientHttpResponse response = mock(ClientHttpResponse.class);
 
+  @Test
+  void constructorPreconditions() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new HttpMessageConverterExtractor<>(String.class, (List<HttpMessageConverter<?>>) null))
+            .withMessage("'messageConverters' must not be empty");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new HttpMessageConverterExtractor<>(String.class, Arrays.asList(null, this.converter)))
+            .withMessage("'messageConverters' must not contain null elements");
+  }
 
-	@Test
-	void constructorPreconditions() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new HttpMessageConverterExtractor<>(String.class, (List<HttpMessageConverter<?>>) null))
-				.withMessage("'messageConverters' must not be empty");
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new HttpMessageConverterExtractor<>(String.class, Arrays.asList(null, this.converter)))
-				.withMessage("'messageConverters' must not contain null elements");
-	}
+  @Test
+  void noContent() throws IOException {
+    given(response.getRawStatusCode()).willReturn(HttpStatus.NO_CONTENT.value());
 
-	@Test
-	void noContent() throws IOException {
-		given(response.getRawStatusCode()).willReturn(HttpStatus.NO_CONTENT.value());
+    Object result = extractor.extractData(response);
+    assertThat(result).isNull();
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isNull();
-	}
+  @Test
+  void notModified() throws IOException {
+    given(response.getRawStatusCode()).willReturn(HttpStatus.NOT_MODIFIED.value());
 
-	@Test
-	void notModified() throws IOException {
-		given(response.getRawStatusCode()).willReturn(HttpStatus.NOT_MODIFIED.value());
+    Object result = extractor.extractData(response);
+    assertThat(result).isNull();
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isNull();
-	}
+  @Test
+  void informational() throws IOException {
+    given(response.getRawStatusCode()).willReturn(HttpStatus.CONTINUE.value());
 
-	@Test
-	void informational() throws IOException {
-		given(response.getRawStatusCode()).willReturn(HttpStatus.CONTINUE.value());
+    Object result = extractor.extractData(response);
+    assertThat(result).isNull();
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isNull();
-	}
+  @Test
+  void zeroContentLength() throws IOException {
+    responseHeaders.setContentLength(0);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
 
-	@Test
-	void zeroContentLength() throws IOException {
-		responseHeaders.setContentLength(0);
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
+    Object result = extractor.extractData(response);
+    assertThat(result).isNull();
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isNull();
-	}
+  @Test
+  void emptyMessageBody() throws IOException {
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream("".getBytes()));
 
-	@Test
-	void emptyMessageBody() throws IOException {
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream("".getBytes()));
+    Object result = extractor.extractData(response);
+    assertThat(result).isNull();
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isNull();
-	}
+  @Test
+    // gh-22265
+  void nullMessageBody() throws IOException {
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(null);
 
-	@Test // gh-22265
-	void nullMessageBody() throws IOException {
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(null);
+    Object result = extractor.extractData(response);
+    assertThat(result).isNull();
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isNull();
-	}
+  @Test
+  void normal() throws IOException {
+    responseHeaders.setContentType(contentType);
+    String expected = "Foo";
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
+    given(converter.canRead(String.class, contentType)).willReturn(true);
+    given(converter.read(eq(String.class), any(HttpInputMessage.class))).willReturn(expected);
 
-	@Test
-	void normal() throws IOException {
-		responseHeaders.setContentType(contentType);
-		String expected = "Foo";
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
-		given(converter.canRead(String.class, contentType)).willReturn(true);
-		given(converter.read(eq(String.class), any(HttpInputMessage.class))).willReturn(expected);
+    Object result = extractor.extractData(response);
+    assertThat(result).isEqualTo(expected);
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isEqualTo(expected);
-	}
+  @Test
+  void cannotRead() throws IOException {
+    responseHeaders.setContentType(contentType);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
+    given(converter.canRead(String.class, contentType)).willReturn(false);
+    assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response));
+  }
 
-	@Test
-	void cannotRead() throws IOException {
-		responseHeaders.setContentType(contentType);
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
-		given(converter.canRead(String.class, contentType)).willReturn(false);
-		assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response));
-	}
+  @Test
+  @SuppressWarnings("unchecked")
+  void generics() throws IOException {
+    responseHeaders.setContentType(contentType);
+    String expected = "Foo";
+    TypeReference<List<String>> reference = new TypeReference<List<String>>() { };
+    Type type = reference.getType();
 
-	@Test
-	@SuppressWarnings("unchecked")
-	void generics() throws IOException {
-		responseHeaders.setContentType(contentType);
-		String expected = "Foo";
-		TypeReference<List<String>> reference = new TypeReference<List<String>>() {};
-		Type type = reference.getType();
+    GenericHttpMessageConverter<String> converter = mock(GenericHttpMessageConverter.class);
+    HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<List<String>>(type, asList(converter));
 
-		GenericHttpMessageConverter<String> converter = mock(GenericHttpMessageConverter.class);
-		HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<List<String>>(type, asList(converter));
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
+    given(converter.canRead(type, null, contentType)).willReturn(true);
+    given(converter.read(eq(type), eq(null), any(HttpInputMessage.class))).willReturn(expected);
 
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream(expected.getBytes()));
-		given(converter.canRead(type, null, contentType)).willReturn(true);
-		given(converter.read(eq(type), eq(null), any(HttpInputMessage.class))).willReturn(expected);
+    Object result = extractor.extractData(response);
+    assertThat(result).isEqualTo(expected);
+  }
 
-		Object result = extractor.extractData(response);
-		assertThat(result).isEqualTo(expected);
-	}
+  @Test
+    // SPR-13592
+  void converterThrowsIOException() throws IOException {
+    responseHeaders.setContentType(contentType);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
+    given(converter.canRead(String.class, contentType)).willReturn(true);
+    given(converter.read(eq(String.class), any(HttpInputMessage.class))).willThrow(IOException.class);
+    assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response))
+            .withMessageContaining("Error while extracting response for type [class java.lang.String] and content type [text/plain]")
+            .withCauseInstanceOf(IOException.class);
+  }
 
-	@Test  // SPR-13592
-	void converterThrowsIOException() throws IOException {
-		responseHeaders.setContentType(contentType);
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
-		given(converter.canRead(String.class, contentType)).willReturn(true);
-		given(converter.read(eq(String.class), any(HttpInputMessage.class))).willThrow(IOException.class);
-		assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response))
-			.withMessageContaining("Error while extracting response for type [class java.lang.String] and content type [text/plain]")
-			.withCauseInstanceOf(IOException.class);
-	}
+  @Test
+    // SPR-13592
+  void converterThrowsHttpMessageNotReadableException() throws IOException {
+    responseHeaders.setContentType(contentType);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
+    given(converter.canRead(String.class, contentType)).willThrow(HttpMessageNotReadableException.class);
+    assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response))
+            .withMessageContaining("Error while extracting response for type [class java.lang.String] and content type [text/plain]")
+            .withCauseInstanceOf(HttpMessageNotReadableException.class);
+  }
 
-	@Test  // SPR-13592
-	void converterThrowsHttpMessageNotReadableException() throws IOException {
-		responseHeaders.setContentType(contentType);
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
-		given(converter.canRead(String.class, contentType)).willThrow(HttpMessageNotReadableException.class);
-		assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response))
-			.withMessageContaining("Error while extracting response for type [class java.lang.String] and content type [text/plain]")
-			.withCauseInstanceOf(HttpMessageNotReadableException.class);
-	}
+  @Test
+  void unknownContentTypeExceptionContainsCorrectResponseBody() throws IOException {
+    responseHeaders.setContentType(contentType);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    given(response.getHeaders()).willReturn(responseHeaders);
+    given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()) {
+      @Override
+      public boolean markSupported() {
+        return false;
+      }
+    });
+    given(converter.canRead(String.class, contentType)).willReturn(false);
 
-	@Test
-	void unknownContentTypeExceptionContainsCorrectResponseBody() throws IOException {
-		responseHeaders.setContentType(contentType);
-		given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		given(response.getHeaders()).willReturn(responseHeaders);
-		given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes())  {
-			@Override
-			public boolean markSupported() {
-				return false;
-			}
-		});
-		given(converter.canRead(String.class, contentType)).willReturn(false);
-
-		assertThatExceptionOfType(UnknownContentTypeException.class).isThrownBy(() -> extractor.extractData(response))
-			.satisfies(exception -> assertThat(exception.getResponseBodyAsString()).isEqualTo("Foobar"));
-	}
+    assertThatExceptionOfType(UnknownContentTypeException.class).isThrownBy(() -> extractor.extractData(response))
+            .satisfies(exception -> assertThat(exception.getResponseBodyAsString()).isEqualTo("Foobar"));
+  }
 
 }

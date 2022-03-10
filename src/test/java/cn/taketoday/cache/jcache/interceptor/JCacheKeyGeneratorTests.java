@@ -50,113 +50,111 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JCacheKeyGeneratorTests {
 
-	private TestKeyGenerator keyGenerator;
+  private TestKeyGenerator keyGenerator;
 
-	private SimpleService simpleService;
+  private SimpleService simpleService;
 
-	private Cache cache;
+  private Cache cache;
 
-	@BeforeEach
-	public void setup() {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-		this.keyGenerator = context.getBean(TestKeyGenerator.class);
-		this.simpleService = context.getBean(SimpleService.class);
-		this.cache = context.getBean(CacheManager.class).getCache("test");
-		context.close();
-	}
+  @BeforeEach
+  public void setup() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+    this.keyGenerator = context.getBean(TestKeyGenerator.class);
+    this.simpleService = context.getBean(SimpleService.class);
+    this.cache = context.getBean(CacheManager.class).getCache("test");
+    context.close();
+  }
 
-	@Test
-	public void getSimple() {
-		this.keyGenerator.expect(1L);
-		Object first = this.simpleService.get(1L);
-		Object second = this.simpleService.get(1L);
-		assertThat(second).isSameAs(first);
+  @Test
+  public void getSimple() {
+    this.keyGenerator.expect(1L);
+    Object first = this.simpleService.get(1L);
+    Object second = this.simpleService.get(1L);
+    assertThat(second).isSameAs(first);
 
-		Object key = new SimpleKey(1L);
-		assertThat(cache.get(key).get()).isEqualTo(first);
-	}
+    Object key = new SimpleKey(1L);
+    assertThat(cache.get(key).get()).isEqualTo(first);
+  }
 
-	@Test
-	public void getFlattenVararg() {
-		this.keyGenerator.expect(1L, "foo", "bar");
-		Object first = this.simpleService.get(1L, "foo", "bar");
-		Object second = this.simpleService.get(1L, "foo", "bar");
-		assertThat(second).isSameAs(first);
+  @Test
+  public void getFlattenVararg() {
+    this.keyGenerator.expect(1L, "foo", "bar");
+    Object first = this.simpleService.get(1L, "foo", "bar");
+    Object second = this.simpleService.get(1L, "foo", "bar");
+    assertThat(second).isSameAs(first);
 
-		Object key = new SimpleKey(1L, "foo", "bar");
-		assertThat(cache.get(key).get()).isEqualTo(first);
-	}
+    Object key = new SimpleKey(1L, "foo", "bar");
+    assertThat(cache.get(key).get()).isEqualTo(first);
+  }
 
-	@Test
-	public void getFiltered() {
-		this.keyGenerator.expect(1L);
-		Object first = this.simpleService.getFiltered(1L, "foo", "bar");
-		Object second = this.simpleService.getFiltered(1L, "foo", "bar");
-		assertThat(second).isSameAs(first);
+  @Test
+  public void getFiltered() {
+    this.keyGenerator.expect(1L);
+    Object first = this.simpleService.getFiltered(1L, "foo", "bar");
+    Object second = this.simpleService.getFiltered(1L, "foo", "bar");
+    assertThat(second).isSameAs(first);
 
-		Object key = new SimpleKey(1L);
-		assertThat(cache.get(key).get()).isEqualTo(first);
-	}
+    Object key = new SimpleKey(1L);
+    assertThat(cache.get(key).get()).isEqualTo(first);
+  }
 
+  @Configuration
+  @EnableCaching
+  static class Config implements JCacheConfigurer {
 
-	@Configuration
-	@EnableCaching
-	static class Config implements JCacheConfigurer {
+    @Bean
+    @Override
+    public CacheManager cacheManager() {
+      return new ConcurrentMapCacheManager();
+    }
 
-		@Bean
-		@Override
-		public CacheManager cacheManager() {
-			return new ConcurrentMapCacheManager();
-		}
+    @Bean
+    @Override
+    public KeyGenerator keyGenerator() {
+      return new TestKeyGenerator();
+    }
 
-		@Bean
-		@Override
-		public KeyGenerator keyGenerator() {
-			return new TestKeyGenerator();
-		}
+    @Bean
+    public SimpleService simpleService() {
+      return new SimpleService();
+    }
 
-		@Bean
-		public SimpleService simpleService() {
-			return new SimpleService();
-		}
+  }
 
-	}
+  @CacheDefaults(cacheName = "test")
+  public static class SimpleService {
+    private AtomicLong counter = new AtomicLong();
 
-	@CacheDefaults(cacheName = "test")
-	public static class SimpleService {
-		private AtomicLong counter = new AtomicLong();
+    @CacheResult
+    public Object get(long id) {
+      return counter.getAndIncrement();
+    }
 
-		@CacheResult
-		public Object get(long id) {
-			return counter.getAndIncrement();
-		}
+    @CacheResult
+    public Object get(long id, String... items) {
+      return counter.getAndIncrement();
+    }
 
-		@CacheResult
-		public Object get(long id, String... items) {
-			return counter.getAndIncrement();
-		}
+    @CacheResult
+    public Object getFiltered(@CacheKey long id, String... items) {
+      return counter.getAndIncrement();
+    }
 
-		@CacheResult
-		public Object getFiltered(@CacheKey long id, String... items) {
-			return counter.getAndIncrement();
-		}
+  }
 
-	}
+  private static class TestKeyGenerator extends SimpleKeyGenerator {
 
+    private Object[] expectedParams;
 
-	private static class TestKeyGenerator extends SimpleKeyGenerator {
+    private void expect(Object... params) {
+      this.expectedParams = params;
+    }
 
-		private Object[] expectedParams;
-
-		private void expect(Object... params) {
-			this.expectedParams = params;
-		}
-
-		@Override
-		public Object generate(Object target, Method method, Object... params) {
-			assertThat(Arrays.equals(expectedParams, params)).as("Unexpected parameters: expected: "
-					+ Arrays.toString(this.expectedParams) + " but got: " + Arrays.toString(params)).isTrue();
-			return new SimpleKey(params);
-		}
-	}
+    @Override
+    public Object generate(Object target, Method method, Object... params) {
+      assertThat(Arrays.equals(expectedParams, params)).as("Unexpected parameters: expected: "
+              + Arrays.toString(this.expectedParams) + " but got: " + Arrays.toString(params)).isTrue();
+      return new SimpleKey(params);
+    }
+  }
 }

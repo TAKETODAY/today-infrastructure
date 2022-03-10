@@ -44,28 +44,28 @@ class ProfilesTests {
   @Test
   void ofWhenNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            Profiles.of((String[]) null))
+                    Profiles.of((String[]) null))
             .withMessageContaining("Must specify at least one profile");
   }
 
   @Test
   void ofWhenEmptyThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            Profiles.of())
+                    Profiles.of())
             .withMessageContaining("Must specify at least one profile");
   }
 
   @Test
   void ofNullElement() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            Profiles.of((String) null))
+                    Profiles.of((String) null))
             .withMessageContaining("must contain text");
   }
 
   @Test
   void ofEmptyElement() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            Profiles.of("  "))
+                    Profiles.of("  "))
             .withMessageContaining("must contain text");
   }
 

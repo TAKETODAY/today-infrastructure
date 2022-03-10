@@ -395,20 +395,20 @@ class CodecConfigurerTests {
 
   private void assertDecoderInstance(Decoder<?> decoder) {
     assertThat(this.configurer.getReaders().stream()
-                       .filter(writer -> writer instanceof DecoderHttpMessageReader)
-                       .map(writer -> ((DecoderHttpMessageReader<?>) writer).getDecoder())
-                       .filter(e -> decoder.getClass().equals(e.getClass()))
-                       .findFirst()
-                       .filter(e -> e == decoder).orElse(null)).isSameAs(decoder);
+            .filter(writer -> writer instanceof DecoderHttpMessageReader)
+            .map(writer -> ((DecoderHttpMessageReader<?>) writer).getDecoder())
+            .filter(e -> decoder.getClass().equals(e.getClass()))
+            .findFirst()
+            .filter(e -> e == decoder).orElse(null)).isSameAs(decoder);
   }
 
   private void assertEncoderInstance(Encoder<?> encoder) {
     assertThat(this.configurer.getWriters().stream()
-                       .filter(writer -> writer instanceof EncoderHttpMessageWriter)
-                       .map(writer -> ((EncoderHttpMessageWriter<?>) writer).getEncoder())
-                       .filter(e -> encoder.getClass().equals(e.getClass()))
-                       .findFirst()
-                       .filter(e -> e == encoder).orElse(null)).isSameAs(encoder);
+            .filter(writer -> writer instanceof EncoderHttpMessageWriter)
+            .map(writer -> ((EncoderHttpMessageWriter<?>) writer).getEncoder())
+            .filter(e -> encoder.getClass().equals(e.getClass()))
+            .findFirst()
+            .filter(e -> e == encoder).orElse(null)).isSameAs(encoder);
   }
 
   private static class TestCodecConfigurer extends BaseCodecConfigurer {

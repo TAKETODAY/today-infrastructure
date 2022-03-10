@@ -228,7 +228,7 @@ class StringDecoderTests extends AbstractDecoderTests<StringDecoder> {
   void decodeEmptyDataBuffer() {
     Flux<DataBuffer> input = Flux.just(stringBuffer(""));
     Flux<String> output = this.decoder.decode(input,
-                                              TYPE, null, Collections.emptyMap());
+            TYPE, null, Collections.emptyMap());
 
     StepVerifier.create(output)
             .expectNext("")

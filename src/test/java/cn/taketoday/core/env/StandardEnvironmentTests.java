@@ -354,7 +354,7 @@ public class StandardEnvironmentTests {
     env.addActiveProfile("validProfile"); // succeeds
 
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            env.addActiveProfile("invalid-profile"))
+                    env.addActiveProfile("invalid-profile"))
             .withMessage("Invalid profile [invalid-profile]: must not contain dash character");
   }
 

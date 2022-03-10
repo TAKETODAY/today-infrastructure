@@ -25,10 +25,10 @@ package cn.taketoday.jmx.export.assembler;
  */
 public interface ICustomJmxBean extends ICustomBase {
 
-	String getName();
+  String getName();
 
-	void setName(String name);
+  void setName(String name);
 
-	int getAge();
+  int getAge();
 
 }

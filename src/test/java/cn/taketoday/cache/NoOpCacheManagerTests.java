@@ -36,61 +36,61 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class NoOpCacheManagerTests {
 
-	private final CacheManager manager = new NoOpCacheManager();
+  private final CacheManager manager = new NoOpCacheManager();
 
-	@Test
-	public void testGetCache() throws Exception {
-		Cache cache = this.manager.getCache("bucket");
-		assertThat(cache).isNotNull();
-		assertThat(this.manager.getCache("bucket")).isSameAs(cache);
-	}
+  @Test
+  public void testGetCache() throws Exception {
+    Cache cache = this.manager.getCache("bucket");
+    assertThat(cache).isNotNull();
+    assertThat(this.manager.getCache("bucket")).isSameAs(cache);
+  }
 
-	@Test
-	public void testNoOpCache() throws Exception {
-		String name = createRandomKey();
-		Cache cache = this.manager.getCache(name);
-		assertThat(cache.getName()).isEqualTo(name);
-		Object key = new Object();
-		cache.put(key, new Object());
-		assertThat(cache.get(key)).isNull();
-		assertThat(cache.get(key, Object.class)).isNull();
-		assertThat(cache.getNativeCache()).isSameAs(cache);
-	}
+  @Test
+  public void testNoOpCache() throws Exception {
+    String name = createRandomKey();
+    Cache cache = this.manager.getCache(name);
+    assertThat(cache.getName()).isEqualTo(name);
+    Object key = new Object();
+    cache.put(key, new Object());
+    assertThat(cache.get(key)).isNull();
+    assertThat(cache.get(key, Object.class)).isNull();
+    assertThat(cache.getNativeCache()).isSameAs(cache);
+  }
 
-	@Test
-	public void testCacheName() throws Exception {
-		String name = "bucket";
-		assertThat(this.manager.getCacheNames().contains(name)).isFalse();
-		this.manager.getCache(name);
-		assertThat(this.manager.getCacheNames().contains(name)).isTrue();
-	}
+  @Test
+  public void testCacheName() throws Exception {
+    String name = "bucket";
+    assertThat(this.manager.getCacheNames().contains(name)).isFalse();
+    this.manager.getCache(name);
+    assertThat(this.manager.getCacheNames().contains(name)).isTrue();
+  }
 
-	@Test
-	public void testCacheCallable() throws Exception {
-		String name = createRandomKey();
-		Cache cache = this.manager.getCache(name);
-		Object returnValue = new Object();
-		Object value = cache.get(new Object(), () -> returnValue);
-		assertThat(value).isEqualTo(returnValue);
-	}
+  @Test
+  public void testCacheCallable() throws Exception {
+    String name = createRandomKey();
+    Cache cache = this.manager.getCache(name);
+    Object returnValue = new Object();
+    Object value = cache.get(new Object(), () -> returnValue);
+    assertThat(value).isEqualTo(returnValue);
+  }
 
-	@Test
-	public void testCacheGetCallableFail() {
-		Cache cache = this.manager.getCache(createRandomKey());
-		String key = createRandomKey();
-		try {
-			cache.get(key, () -> {
-				throw new UnsupportedOperationException("Expected exception");
-			});
-		}
-		catch (Cache.ValueRetrievalException ex) {
-			assertThat(ex.getCause()).isNotNull();
-			assertThat(ex.getCause().getClass()).isEqualTo(UnsupportedOperationException.class);
-		}
-	}
+  @Test
+  public void testCacheGetCallableFail() {
+    Cache cache = this.manager.getCache(createRandomKey());
+    String key = createRandomKey();
+    try {
+      cache.get(key, () -> {
+        throw new UnsupportedOperationException("Expected exception");
+      });
+    }
+    catch (Cache.ValueRetrievalException ex) {
+      assertThat(ex.getCause()).isNotNull();
+      assertThat(ex.getCause().getClass()).isEqualTo(UnsupportedOperationException.class);
+    }
+  }
 
-	private String createRandomKey() {
-		return UUID.randomUUID().toString();
-	}
+  private String createRandomKey() {
+    return UUID.randomUUID().toString();
+  }
 
 }

@@ -62,7 +62,7 @@ public class AdvisorComponentDefinition extends AbstractComponentDefinition {
     this.advisorDefinition = advisorDefinition;
 
     PropertyValues pvs = advisorDefinition.getPropertyValues();
-    BeanReference adviceReference = (BeanReference) pvs.get("adviceBeanName");
+    BeanReference adviceReference = (BeanReference) pvs.getPropertyValue("adviceBeanName");
     Assert.state(adviceReference != null, "Missing 'adviceBeanName' property");
 
     if (pointcutDefinition != null) {
@@ -71,7 +71,7 @@ public class AdvisorComponentDefinition extends AbstractComponentDefinition {
       this.description = buildDescription(adviceReference, pointcutDefinition);
     }
     else {
-      BeanReference pointcutReference = (BeanReference) pvs.get("pointcut");
+      BeanReference pointcutReference = (BeanReference) pvs.getPropertyValue("pointcut");
       Assert.state(pointcutReference != null, "Missing 'pointcut' property");
       this.beanReferences = new BeanReference[] { adviceReference, pointcutReference };
       this.beanDefinitions = new BeanDefinition[] { advisorDefinition };
@@ -82,7 +82,7 @@ public class AdvisorComponentDefinition extends AbstractComponentDefinition {
   private String buildDescription(BeanReference adviceReference, BeanDefinition pointcutDefinition) {
     return "Advisor <advice(ref)='" +
             adviceReference.getBeanName() + "', pointcut(expression)=[" +
-            pointcutDefinition.getPropertyValues().get("expression") + "]>";
+            pointcutDefinition.getPropertyValues().getPropertyValue("expression") + "]>";
   }
 
   private String buildDescription(BeanReference adviceReference, BeanReference pointcutReference) {

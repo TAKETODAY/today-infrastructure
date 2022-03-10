@@ -114,7 +114,7 @@ public class ServerHttpResponseTests {
     assertThat(response.headersWritten).isFalse();
     assertThat(response.cookiesWritten).isFalse();
     assertThat(headers).doesNotContainKeys(HttpHeaders.CONTENT_TYPE, HttpHeaders.CONTENT_LENGTH,
-                                           HttpHeaders.CONTENT_ENCODING);
+            HttpHeaders.CONTENT_ENCODING);
     assertThat(response.body.isEmpty()).isTrue();
   }
 
@@ -212,8 +212,8 @@ public class ServerHttpResponseTests {
 
     HttpMessageWriter<Object> messageWriter = new EncoderHttpMessageWriter<>(new Jackson2JsonEncoder());
     Mono<Void> result = messageWriter.write(Mono.just(Collections.singletonMap("foo", "bar")),
-                                            ResolvableType.fromClass(Mono.class), ResolvableType.fromClass(Map.class), null,
-                                            request, response, Collections.emptyMap());
+            ResolvableType.fromClass(Mono.class), ResolvableType.fromClass(Map.class), null,
+            request, response, Collections.emptyMap());
 
     StepVerifier.create(result).expectError(AbortedException.class).verify();
 
@@ -273,10 +273,10 @@ public class ServerHttpResponseTests {
     protected Mono<Void> writeAndFlushWithInternal(
             Publisher<? extends Publisher<? extends DataBuffer>> bodyWithFlush) {
       return Flux.from(bodyWithFlush).flatMap(body ->
-                                                      Flux.from(body).map(b -> {
-                                                        this.body.add(b);
-                                                        return b;
-                                                      })
+              Flux.from(body).map(b -> {
+                this.body.add(b);
+                return b;
+              })
       ).then();
     }
   }

@@ -8,19 +8,19 @@ package cn.taketoday.context.event;
  */
 public class TestApplicationListener implements ApplicationListener<ApplicationEvent> {
 
-	private int eventCount;
+  private int eventCount;
 
-	public int getEventCount() {
-		return eventCount;
-	}
+  public int getEventCount() {
+    return eventCount;
+  }
 
-	public void zeroCounter() {
-		eventCount = 0;
-	}
+  public void zeroCounter() {
+    eventCount = 0;
+  }
 
-	@Override
-	public void onApplicationEvent(ApplicationEvent e) {
-		++eventCount;
-	}
+  @Override
+  public void onApplicationEvent(ApplicationEvent e) {
+    ++eventCount;
+  }
 
 }

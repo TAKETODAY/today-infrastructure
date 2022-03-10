@@ -20,9 +20,8 @@
 
 package cn.taketoday.tests.sample.objects;
 
-
 public interface ITestInterface {
 
-	void absquatulate();
+  void absquatulate();
 
 }

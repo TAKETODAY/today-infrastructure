@@ -30,7 +30,7 @@ import lombok.Getter;
 /**
  * @author Today <br>
  *
- *         2018-08-08 16:32
+ * 2018-08-08 16:32
  */
 @Singleton
 @Getter

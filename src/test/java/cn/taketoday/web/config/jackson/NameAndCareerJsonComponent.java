@@ -50,7 +50,7 @@ public class NameAndCareerJsonComponent {
 
     @Override
     protected Name deserializeObject(JsonParser jsonParser, DeserializationContext context, ObjectCodec codec,
-                                     JsonNode tree) throws IOException {
+            JsonNode tree) throws IOException {
       String name = nullSafeValue(tree.get("name"), String.class);
       String career = nullSafeValue(tree.get("career"), String.class);
       return new NameAndCareer(name, career);

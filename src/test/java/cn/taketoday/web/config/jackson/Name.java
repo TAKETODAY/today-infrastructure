@@ -27,14 +27,14 @@ package cn.taketoday.web.config.jackson;
  */
 public class Name {
 
-	protected final String name;
+  protected final String name;
 
-	public Name(String name) {
-		this.name = name;
-	}
+  public Name(String name) {
+    this.name = name;
+  }
 
-	public String getName() {
-		return this.name;
-	}
+  public String getName() {
+    return this.name;
+  }
 
 }

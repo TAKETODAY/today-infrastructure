@@ -308,7 +308,7 @@ class ClassUtilsTests {
             Map<String, Object> stringMap) { }
 
     void generic(List<String> stringList,
-                 Map<String, Object> stringMap) { }
+            Map<String, Object> stringMap) { }
   }
 
   @Test
@@ -756,8 +756,8 @@ class ClassUtilsTests {
   public static class AutowirableClass {
 
     public AutowirableClass(@Autowired String firstParameter,
-                            String secondParameter, String thirdParameter,
-                            @Autowired(required = false) String fourthParameter) {
+            String secondParameter, String thirdParameter,
+            @Autowired(required = false) String fourthParameter) {
     }
 
     public AutowirableClass(String notAutowirableParameter) {

@@ -45,153 +45,148 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests {
 
-	private final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+  private final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 
+  @Override
+  protected AsyncListenableTaskExecutor buildExecutor() {
+    scheduler.setThreadNamePrefix(this.threadNamePrefix);
+    scheduler.afterPropertiesSet();
+    return scheduler;
+  }
 
-	@Override
-	protected AsyncListenableTaskExecutor buildExecutor() {
-		scheduler.setThreadNamePrefix(this.threadNamePrefix);
-		scheduler.afterPropertiesSet();
-		return scheduler;
-	}
+  @Test
+  void executeFailingRunnableWithErrorHandler() {
+    TestTask task = new TestTask(this.testName, 0);
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+    scheduler.execute(task);
+    await(errorHandler);
+    assertThat(errorHandler.lastError).isNotNull();
+  }
 
+  @Test
+  void submitFailingRunnableWithErrorHandler() throws Exception {
+    TestTask task = new TestTask(this.testName, 0);
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+    Future<?> future = scheduler.submit(task);
+    Object result = future.get(1000, TimeUnit.MILLISECONDS);
+    assertThat(future.isDone()).isTrue();
+    assertThat(result).isNull();
+    assertThat(errorHandler.lastError).isNotNull();
+  }
 
-	@Test
-	void executeFailingRunnableWithErrorHandler() {
-		TestTask task = new TestTask(this.testName, 0);
-		TestErrorHandler errorHandler = new TestErrorHandler(1);
-		scheduler.setErrorHandler(errorHandler);
-		scheduler.execute(task);
-		await(errorHandler);
-		assertThat(errorHandler.lastError).isNotNull();
-	}
+  @Test
+  void submitFailingCallableWithErrorHandler() throws Exception {
+    TestCallable task = new TestCallable(this.testName, 0);
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+    Future<String> future = scheduler.submit(task);
+    Object result = future.get(1000, TimeUnit.MILLISECONDS);
+    assertThat(future.isDone()).isTrue();
+    assertThat(result).isNull();
+    assertThat(errorHandler.lastError).isNotNull();
+  }
 
-	@Test
-	void submitFailingRunnableWithErrorHandler() throws Exception {
-		TestTask task = new TestTask(this.testName, 0);
-		TestErrorHandler errorHandler = new TestErrorHandler(1);
-		scheduler.setErrorHandler(errorHandler);
-		Future<?> future = scheduler.submit(task);
-		Object result = future.get(1000, TimeUnit.MILLISECONDS);
-		assertThat(future.isDone()).isTrue();
-		assertThat(result).isNull();
-		assertThat(errorHandler.lastError).isNotNull();
-	}
+  @Test
+  void scheduleOneTimeTask() throws Exception {
+    TestTask task = new TestTask(this.testName, 1);
+    Future<?> future = scheduler.schedule(task, new Date());
+    Object result = future.get(1000, TimeUnit.MILLISECONDS);
+    assertThat(result).isNull();
+    assertThat(future.isDone()).isTrue();
+    assertThreadNamePrefix(task);
+  }
 
-	@Test
-	void submitFailingCallableWithErrorHandler() throws Exception {
-		TestCallable task = new TestCallable(this.testName, 0);
-		TestErrorHandler errorHandler = new TestErrorHandler(1);
-		scheduler.setErrorHandler(errorHandler);
-		Future<String> future = scheduler.submit(task);
-		Object result = future.get(1000, TimeUnit.MILLISECONDS);
-		assertThat(future.isDone()).isTrue();
-		assertThat(result).isNull();
-		assertThat(errorHandler.lastError).isNotNull();
-	}
+  @Test
+  void scheduleOneTimeFailingTaskWithoutErrorHandler() throws Exception {
+    TestTask task = new TestTask(this.testName, 0);
+    Future<?> future = scheduler.schedule(task, new Date());
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(() -> future.get(1000, TimeUnit.MILLISECONDS));
+    assertThat(future.isDone()).isTrue();
+  }
 
-	@Test
-	void scheduleOneTimeTask() throws Exception {
-		TestTask task = new TestTask(this.testName, 1);
-		Future<?> future = scheduler.schedule(task, new Date());
-		Object result = future.get(1000, TimeUnit.MILLISECONDS);
-		assertThat(result).isNull();
-		assertThat(future.isDone()).isTrue();
-		assertThreadNamePrefix(task);
-	}
+  @Test
+  void scheduleOneTimeFailingTaskWithErrorHandler() throws Exception {
+    TestTask task = new TestTask(this.testName, 0);
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+    Future<?> future = scheduler.schedule(task, new Date());
+    Object result = future.get(1000, TimeUnit.MILLISECONDS);
+    assertThat(future.isDone()).isTrue();
+    assertThat(result).isNull();
+    assertThat(errorHandler.lastError).isNotNull();
+  }
 
-	@Test
-	void scheduleOneTimeFailingTaskWithoutErrorHandler() throws Exception {
-		TestTask task = new TestTask(this.testName, 0);
-		Future<?> future = scheduler.schedule(task, new Date());
-		assertThatExceptionOfType(ExecutionException.class).isThrownBy(() -> future.get(1000, TimeUnit.MILLISECONDS));
-		assertThat(future.isDone()).isTrue();
-	}
+  @Test
+  void scheduleTriggerTask() throws Exception {
+    TestTask task = new TestTask(this.testName, 3);
+    Future<?> future = scheduler.schedule(task, new TestTrigger(3));
+    Object result = future.get(1000, TimeUnit.MILLISECONDS);
+    assertThat(result).isNull();
+    await(task);
+    assertThreadNamePrefix(task);
+  }
 
-	@Test
-	void scheduleOneTimeFailingTaskWithErrorHandler() throws Exception {
-		TestTask task = new TestTask(this.testName, 0);
-		TestErrorHandler errorHandler = new TestErrorHandler(1);
-		scheduler.setErrorHandler(errorHandler);
-		Future<?> future = scheduler.schedule(task, new Date());
-		Object result = future.get(1000, TimeUnit.MILLISECONDS);
-		assertThat(future.isDone()).isTrue();
-		assertThat(result).isNull();
-		assertThat(errorHandler.lastError).isNotNull();
-	}
+  @Test
+  void scheduleMultipleTriggerTasks() throws Exception {
+    for (int i = 0; i < 100; i++) {
+      scheduleTriggerTask();
+    }
+  }
 
-	@Test
-	void scheduleTriggerTask() throws Exception {
-		TestTask task = new TestTask(this.testName, 3);
-		Future<?> future = scheduler.schedule(task, new TestTrigger(3));
-		Object result = future.get(1000, TimeUnit.MILLISECONDS);
-		assertThat(result).isNull();
-		await(task);
-		assertThreadNamePrefix(task);
-	}
+  private void await(TestTask task) {
+    await(task.latch);
+  }
 
-	@Test
-	void scheduleMultipleTriggerTasks() throws Exception {
-		for (int i = 0; i < 100; i++) {
-			scheduleTriggerTask();
-		}
-	}
+  private void await(TestErrorHandler errorHandler) {
+    await(errorHandler.latch);
+  }
 
+  private void await(CountDownLatch latch) {
+    try {
+      latch.await(1000, TimeUnit.MILLISECONDS);
+    }
+    catch (InterruptedException ex) {
+      throw new IllegalStateException(ex);
+    }
+    assertThat(latch.getCount()).as("latch did not count down,").isEqualTo(0);
+  }
 
-	private void await(TestTask task) {
-		await(task.latch);
-	}
+  private static class TestErrorHandler implements ErrorHandler {
 
-	private void await(TestErrorHandler errorHandler) {
-		await(errorHandler.latch);
-	}
+    private final CountDownLatch latch;
 
-	private void await(CountDownLatch latch) {
-		try {
-			latch.await(1000, TimeUnit.MILLISECONDS);
-		}
-		catch (InterruptedException ex) {
-			throw new IllegalStateException(ex);
-		}
-		assertThat(latch.getCount()).as("latch did not count down,").isEqualTo(0);
-	}
+    private volatile Throwable lastError;
 
+    TestErrorHandler(int expectedErrorCount) {
+      this.latch = new CountDownLatch(expectedErrorCount);
+    }
 
-	private static class TestErrorHandler implements ErrorHandler {
+    @Override
+    public void handleError(Throwable t) {
+      this.lastError = t;
+      this.latch.countDown();
+    }
+  }
 
-		private final CountDownLatch latch;
+  private static class TestTrigger implements Trigger {
 
-		private volatile Throwable lastError;
+    private final int maxRunCount;
 
-		TestErrorHandler(int expectedErrorCount) {
-			this.latch = new CountDownLatch(expectedErrorCount);
-		}
+    private final AtomicInteger actualRunCount = new AtomicInteger();
 
-		@Override
-		public void handleError(Throwable t) {
-			this.lastError = t;
-			this.latch.countDown();
-		}
-	}
+    TestTrigger(int maxRunCount) {
+      this.maxRunCount = maxRunCount;
+    }
 
-
-	private static class TestTrigger implements Trigger {
-
-		private final int maxRunCount;
-
-		private final AtomicInteger actualRunCount = new AtomicInteger();
-
-		TestTrigger(int maxRunCount) {
-			this.maxRunCount = maxRunCount;
-		}
-
-		@Override
-		public Date nextExecutionTime(TriggerContext triggerContext) {
-			if (this.actualRunCount.incrementAndGet() > this.maxRunCount) {
-				return null;
-			}
-			return new Date();
-		}
-	}
+    @Override
+    public Date nextExecutionTime(TriggerContext triggerContext) {
+      if (this.actualRunCount.incrementAndGet() > this.maxRunCount) {
+        return null;
+      }
+      return new Date();
+    }
+  }
 
 }

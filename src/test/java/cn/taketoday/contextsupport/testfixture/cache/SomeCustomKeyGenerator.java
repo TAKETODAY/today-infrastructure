@@ -32,20 +32,20 @@ import cn.taketoday.cache.interceptor.KeyGenerator;
  */
 public class SomeCustomKeyGenerator implements KeyGenerator {
 
-	@Override
-	public Object generate(Object target, Method method, Object... params) {
-		return generateKey(method.getName(), params);
-	}
+  @Override
+  public Object generate(Object target, Method method, Object... params) {
+    return generateKey(method.getName(), params);
+  }
 
-	/**
-	 * @see #generate(Object, Method, Object...)
-	 */
-	public static Object generateKey(String methodName, Object... params) {
-		final StringBuilder sb = new StringBuilder(methodName);
-		for (Object param : params) {
-			sb.append(param);
-		}
-		return sb.toString();
-	}
+  /**
+   * @see #generate(Object, Method, Object...)
+   */
+  public static Object generateKey(String methodName, Object... params) {
+    final StringBuilder sb = new StringBuilder(methodName);
+    for (Object param : params) {
+      sb.append(param);
+    }
+    return sb.toString();
+  }
 
 }

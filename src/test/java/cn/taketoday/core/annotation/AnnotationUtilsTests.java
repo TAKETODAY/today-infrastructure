@@ -1327,7 +1327,7 @@ class AnnotationUtilsTests {
   }
 
   static class SubSubMyRepeatableWithAdditionalLocalDeclarationsClass extends
-                                                                      SubMyRepeatableWithAdditionalLocalDeclarationsClass {
+          SubMyRepeatableWithAdditionalLocalDeclarationsClass {
   }
 
   enum RequestMethod {

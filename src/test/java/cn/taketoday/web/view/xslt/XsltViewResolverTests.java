@@ -35,21 +35,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class XsltViewResolverTests {
 
-	@Test
-	public void resolveView() throws Exception {
-		StaticApplicationContext ctx = new StaticApplicationContext();
+  @Test
+  public void resolveView() throws Exception {
+    StaticApplicationContext ctx = new StaticApplicationContext();
 
-		String prefix = ClassUtils.classPackageAsResourcePath(getClass());
-		String suffix = ".xsl";
-		String viewName = "products";
+    String prefix = ClassUtils.classPackageAsResourcePath(getClass());
+    String suffix = ".xsl";
+    String viewName = "products";
 
-		XsltViewResolver viewResolver = new XsltViewResolver();
-		viewResolver.setPrefix(prefix);
-		viewResolver.setSuffix(suffix);
-		viewResolver.setApplicationContext(ctx);
+    XsltViewResolver viewResolver = new XsltViewResolver();
+    viewResolver.setPrefix(prefix);
+    viewResolver.setSuffix(suffix);
+    viewResolver.setApplicationContext(ctx);
 
-		XsltView view = (XsltView) viewResolver.resolveViewName(viewName, Locale.ENGLISH);
-		assertThat(view).as("View should not be null").isNotNull();
-		assertThat(view.getUrl()).as("Incorrect URL").isEqualTo((prefix + viewName + suffix));
-	}
+    XsltView view = (XsltView) viewResolver.resolveViewName(viewName, Locale.ENGLISH);
+    assertThat(view).as("View should not be null").isNotNull();
+    assertThat(view.getUrl()).as("Incorrect URL").isEqualTo((prefix + viewName + suffix));
+  }
 }

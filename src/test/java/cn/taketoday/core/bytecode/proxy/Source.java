@@ -16,7 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
- */package cn.taketoday.core.bytecode.proxy;
+ */
+package cn.taketoday.core.bytecode.proxy;
 
 public abstract class Source implements java.io.Serializable {
 
@@ -124,7 +125,7 @@ public abstract class Source implements java.io.Serializable {
   }
 
   public void multiArg(int arg1, long arg2,
-                       double arg3, float arg4, Object arg5, Object arg6, Object arg7) {
+          double arg3, float arg4, Object arg5, Object arg6, Object arg7) {
 
   }
 

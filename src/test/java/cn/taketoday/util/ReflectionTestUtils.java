@@ -140,7 +140,7 @@ public class ReflectionTestUtils {
    * @see AopTestUtils#getUltimateTargetObject(Object)
    */
   public static void setField(@Nullable Object targetObject, @Nullable Class<?> targetClass,
-                              @Nullable String name, @Nullable Object value, @Nullable Class<?> type) {
+          @Nullable String name, @Nullable Object value, @Nullable Class<?> type) {
 
     Assert.isTrue(targetObject != null || targetClass != null,
             "Either targetObject or targetClass for the field must be specified");
@@ -449,7 +449,7 @@ public class ReflectionTestUtils {
   @SuppressWarnings("unchecked")
   @Nullable
   public static <T> T invokeMethod(@Nullable Object targetObject, @Nullable Class<?> targetClass, String name,
-                                   Object... args) {
+          Object... args) {
 
     Assert.isTrue(targetObject != null || targetClass != null,
             "Either 'targetObject' or 'targetClass' for the method must be specified");

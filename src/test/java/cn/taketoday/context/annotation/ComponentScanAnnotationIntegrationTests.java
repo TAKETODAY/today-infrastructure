@@ -162,7 +162,7 @@ public class ComponentScanAnnotationIntegrationTests {
 
     def.getConstructorArgumentValues().addGenericArgumentValue(loadingContext);
 
-    bf.registerBeanDefinition("configurationClassPostProcessor",def);
+    bf.registerBeanDefinition("configurationClassPostProcessor", def);
 
     ctx.refresh();
     ctx.getBean(ComponentScanAnnotatedConfig.class);

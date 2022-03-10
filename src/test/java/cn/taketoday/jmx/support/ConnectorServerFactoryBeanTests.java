@@ -49,86 +49,85 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class ConnectorServerFactoryBeanTests extends AbstractMBeanServerTests {
 
-	private static final String OBJECT_NAME = "spring:type=connector,name=test";
+  private static final String OBJECT_NAME = "spring:type=connector,name=test";
 
-	@SuppressWarnings("deprecation")
-	private final String serviceUrl = "service:jmx:jmxmp://localhost:" + TestSocketUtils.findAvailableTcpPort();
+  @SuppressWarnings("deprecation")
+  private final String serviceUrl = "service:jmx:jmxmp://localhost:" + TestSocketUtils.findAvailableTcpPort();
 
+  @Test
+  void startupWithLocatedServer() throws Exception {
+    ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+    bean.setServiceUrl(this.serviceUrl);
+    bean.afterPropertiesSet();
 
-	@Test
-	void startupWithLocatedServer() throws Exception {
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.setServiceUrl(this.serviceUrl);
-		bean.afterPropertiesSet();
+    try {
+      checkServerConnection(getServer());
+    }
+    finally {
+      bean.destroy();
+    }
+  }
 
-		try {
-			checkServerConnection(getServer());
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+  @Test
+  void startupWithSuppliedServer() throws Exception {
+    ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+    bean.setServiceUrl(this.serviceUrl);
+    bean.setServer(getServer());
+    bean.afterPropertiesSet();
 
-	@Test
-	void startupWithSuppliedServer() throws Exception {
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.setServiceUrl(this.serviceUrl);
-		bean.setServer(getServer());
-		bean.afterPropertiesSet();
+    try {
+      checkServerConnection(getServer());
+    }
+    finally {
+      bean.destroy();
+    }
+  }
 
-		try {
-			checkServerConnection(getServer());
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+  @Test
+  void registerWithMBeanServer() throws Exception {
+    ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+    bean.setServiceUrl(this.serviceUrl);
+    bean.setObjectName(OBJECT_NAME);
+    bean.afterPropertiesSet();
 
-	@Test
-	void registerWithMBeanServer() throws Exception {
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.setServiceUrl(this.serviceUrl);
-		bean.setObjectName(OBJECT_NAME);
-		bean.afterPropertiesSet();
+    try {
+      // Try to get the connector bean.
+      ObjectInstance instance = getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME));
+      assertThat(instance).as("ObjectInstance should not be null").isNotNull();
+    }
+    finally {
+      bean.destroy();
+    }
+  }
 
-		try {
-			// Try to get the connector bean.
-			ObjectInstance instance = getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME));
-			assertThat(instance).as("ObjectInstance should not be null").isNotNull();
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+  @Test
+  void noRegisterWithMBeanServer() throws Exception {
+    ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+    bean.setServiceUrl(this.serviceUrl);
+    bean.afterPropertiesSet();
+    try {
+      // Try to get the connector bean.
+      assertThatExceptionOfType(InstanceNotFoundException.class).isThrownBy(() ->
+              getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME)));
+    }
+    finally {
+      bean.destroy();
+    }
+  }
 
-	@Test
-	void noRegisterWithMBeanServer() throws Exception {
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.setServiceUrl(this.serviceUrl);
-		bean.afterPropertiesSet();
-		try {
-			// Try to get the connector bean.
-			assertThatExceptionOfType(InstanceNotFoundException.class).isThrownBy(() ->
-				getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME)));
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+  private void checkServerConnection(MBeanServer hostedServer) throws IOException, MalformedURLException {
+    // Try to connect using client.
+    JMXServiceURL serviceURL = new JMXServiceURL(this.serviceUrl);
+    JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
 
-	private void checkServerConnection(MBeanServer hostedServer) throws IOException, MalformedURLException {
-		// Try to connect using client.
-		JMXServiceURL serviceURL = new JMXServiceURL(this.serviceUrl);
-		JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
+    assertThat(connector).as("Client Connector should not be null").isNotNull();
 
-		assertThat(connector).as("Client Connector should not be null").isNotNull();
+    // Get the MBean server connection.
+    MBeanServerConnection connection = connector.getMBeanServerConnection();
+    assertThat(connection).as("MBeanServerConnection should not be null").isNotNull();
 
-		// Get the MBean server connection.
-		MBeanServerConnection connection = connector.getMBeanServerConnection();
-		assertThat(connection).as("MBeanServerConnection should not be null").isNotNull();
-
-		// Test for MBean server equality.
-		assertThat(connection.getMBeanCount()).as("Registered MBean count should be the same").isEqualTo(hostedServer.getMBeanCount());
-	}
+    // Test for MBean server equality.
+    assertThat(connection.getMBeanCount()).as("Registered MBean count should be the same").isEqualTo(hostedServer.getMBeanCount());
+  }
 
 }

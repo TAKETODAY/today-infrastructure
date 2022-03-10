@@ -50,7 +50,7 @@ class RedirectViewUriTemplateTests {
     this.request = new MockHttpServletRequest();
     this.response = new MockHttpServletResponse();
     context.refresh();
-    
+
     this.context = new MockServletRequestContext(context, request, response);
   }
 

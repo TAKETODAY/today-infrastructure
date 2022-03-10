@@ -82,7 +82,7 @@ public class DataBase {
 
   void initCustomer() {
     c("John Doe", "123 Willow Road", "Menlo Park", "USA",
-      "650-734-2187");
+            "650-734-2187");
     c("Mary Lane", "75 State Street", "Atlanta", "USA", "302-145-8765");
     c("Charlie Yeh", "5 Nathan Road", "Kowlon", "Hong Kong", "11-7565-2323");
   }
@@ -106,7 +106,7 @@ public class DataBase {
   }
 
   void c(String name, String address, String city,
-         String country, String phone) {
+          String country, String phone) {
     customers.add(new Customer(curCustomer++, name, address, city, country, phone));
   }
 

@@ -98,7 +98,7 @@ public class CollectionUtilsTest {
     // cannot be cast to a Color.
 
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
-                                                                           ints.add(42));
+            ints.add(42));
   }
 
   @Test
@@ -113,7 +113,7 @@ public class CollectionUtilsTest {
     // to a Color.
 
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
-                                                                           ints.add(42));
+            ints.add(42));
   }
 
   /**
@@ -138,7 +138,7 @@ public class CollectionUtilsTest {
     // cast to a Color.
 
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
-                                                                           map.put("foo", 1));
+            map.put("foo", 1));
   }
 
   @Test
@@ -153,7 +153,7 @@ public class CollectionUtilsTest {
     // Color.
 
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
-                                                                           map.put("foo", 1));
+            map.put("foo", 1));
   }
 
   @Test
@@ -168,7 +168,7 @@ public class CollectionUtilsTest {
     // cast to a List.
 
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
-                                                                           map.put("foo", 1));
+            map.put("foo", 1));
   }
 
   @Test
@@ -314,7 +314,7 @@ public class CollectionUtilsTest {
   @Test
   void rejectsNullMapType() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            createMap(null, Object.class, 0));
+            createMap(null, Object.class, 0));
   }
 
   enum Color {

@@ -418,8 +418,8 @@ abstract class AbstractPropertyAccessorTests {
     accessor.setConversionService(new GenericConversionService() {
       @Override
       public Object convert(@Nullable Object source,
-                            @Nullable TypeDescriptor sourceType,
-                            TypeDescriptor targetType) {
+              @Nullable TypeDescriptor sourceType,
+              TypeDescriptor targetType) {
         throw new ConversionFailedException(sourceType, targetType, source, null);
       }
     });

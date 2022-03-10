@@ -28,22 +28,22 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
  */
 public class FieldAccessBean {
 
-	public String name;
+  public String name;
 
-	protected int age;
+  protected int age;
 
-	private TestBean spouse;
+  private TestBean spouse;
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public int getAge() {
-		return age;
-	}
+  public int getAge() {
+    return age;
+  }
 
-	public TestBean getSpouse() {
-		return spouse;
-	}
+  public TestBean getSpouse() {
+    return spouse;
+  }
 
 }

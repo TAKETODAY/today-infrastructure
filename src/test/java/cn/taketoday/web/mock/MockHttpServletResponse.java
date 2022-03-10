@@ -216,9 +216,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * {@code Content-Type}.
    *
    * @return the content as a {@code String}
-   *
-   * @throws UnsupportedEncodingException
-   *         if the character encoding is not supported
+   * @throws UnsupportedEncodingException if the character encoding is not supported
    * @see #getContentAsString(Charset)
    */
   public String getContentAsString() throws UnsupportedEncodingException {
@@ -234,9 +232,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * {@code Content-Type}.
    *
    * @return the content as a {@code String}
-   *
-   * @throws UnsupportedEncodingException
-   *         if the character encoding is not supported
+   * @throws UnsupportedEncodingException if the character encoding is not supported
    * @see #getContentAsString()
    * @since 4.0
    */
@@ -449,9 +445,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Will return the first value in case of multiple values.
    * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
    *
-   * @param name
-   *         the name of the header
-   *
+   * @param name the name of the header
    * @return the associated header value, or {@code null} if none
    */
   @Override
@@ -463,9 +457,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return all values for the given header as a List of Strings.
    *
-   * @param name
-   *         the name of the header
-   *
+   * @param name the name of the header
    * @return the associated header values, or an empty List if none
    */
   @Override
@@ -483,9 +475,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Return the primary value for the given header, if any.
    * <p>Will return the first value in case of multiple values.
    *
-   * @param name
-   *         the name of the header
-   *
+   * @param name the name of the header
    * @return the associated header value, or {@code null} if none
    */
 
@@ -497,9 +487,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return all values for the given header as a List of value objects.
    *
-   * @param name
-   *         the name of the header
-   *
+   * @param name the name of the header
    * @return the associated header values, or an empty List if none
    */
   public List<Object> getHeaderValues(String name) {
@@ -702,9 +690,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Set the {@code Set-Cookie} header to the supplied {@link Cookie},
    * overwriting any previous cookies.
    *
-   * @param cookie
-   *         the {@code Cookie} to set
-   *
+   * @param cookie the {@code Cookie} to set
    * @see #addCookie(Cookie)
    * @since 4.0
    */
@@ -762,7 +748,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   public String getIncludedUrl() {
     int count = this.includedUrls.size();
     Assert.state(count <= 1,
-                 () -> "More than 1 URL included - check getIncludedUrls instead: " + this.includedUrls);
+            () -> "More than 1 URL included - check getIncludedUrls instead: " + this.includedUrls);
     return (count == 1 ? this.includedUrls.get(0) : null);
   }
 

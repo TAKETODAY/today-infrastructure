@@ -29,10 +29,10 @@ import cn.taketoday.contextsupport.testfixture.jcache.AbstractJCacheAnnotationTe
  */
 public class JCacheStandaloneConfigTests extends AbstractJCacheAnnotationTests {
 
-	@Override
-	protected ApplicationContext getApplicationContext() {
-		return new GenericXmlApplicationContext(
-				"cn/taketoday/cache/jcache/config/jCacheStandaloneConfig.xml");
-	}
+  @Override
+  protected ApplicationContext getApplicationContext() {
+    return new GenericXmlApplicationContext(
+            "cn/taketoday/cache/jcache/config/jCacheStandaloneConfig.xml");
+  }
 
 }

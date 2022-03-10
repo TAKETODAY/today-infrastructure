@@ -42,78 +42,78 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class MBeanExporterOperationsTests extends AbstractMBeanServerTests {
 
-	@Test
-	void testRegisterManagedResourceWithUserSuppliedObjectName() throws Exception {
-		ObjectName objectName = ObjectNameManager.getInstance("spring:name=Foo");
+  @Test
+  void testRegisterManagedResourceWithUserSuppliedObjectName() throws Exception {
+    ObjectName objectName = ObjectNameManager.getInstance("spring:name=Foo");
 
-		JmxTestBean bean = new JmxTestBean();
-		bean.setName("Rob Harrop");
+    JmxTestBean bean = new JmxTestBean();
+    bean.setName("Rob Harrop");
 
-		MBeanExporter exporter = new MBeanExporter();
-		exporter.setServer(getServer());
-		exporter.registerManagedResource(bean, objectName);
+    MBeanExporter exporter = new MBeanExporter();
+    exporter.setServer(getServer());
+    exporter.registerManagedResource(bean, objectName);
 
-		String name = (String) getServer().getAttribute(objectName, "Name");
-		assertThat(bean.getName()).as("Incorrect name on MBean").isEqualTo(name);
-	}
+    String name = (String) getServer().getAttribute(objectName, "Name");
+    assertThat(bean.getName()).as("Incorrect name on MBean").isEqualTo(name);
+  }
 
-	@Test
-	void testRegisterExistingMBeanWithUserSuppliedObjectName() throws Exception {
-		ObjectName objectName = ObjectNameManager.getInstance("spring:name=Foo");
-		ModelMBeanInfo info = new ModelMBeanInfoSupport("myClass", "myDescription", null, null, null, null);
-		RequiredModelMBean bean = new RequiredModelMBean(info);
+  @Test
+  void testRegisterExistingMBeanWithUserSuppliedObjectName() throws Exception {
+    ObjectName objectName = ObjectNameManager.getInstance("spring:name=Foo");
+    ModelMBeanInfo info = new ModelMBeanInfoSupport("myClass", "myDescription", null, null, null, null);
+    RequiredModelMBean bean = new RequiredModelMBean(info);
 
-		MBeanExporter exporter = new MBeanExporter();
-		exporter.setServer(getServer());
-		exporter.registerManagedResource(bean, objectName);
+    MBeanExporter exporter = new MBeanExporter();
+    exporter.setServer(getServer());
+    exporter.registerManagedResource(bean, objectName);
 
-		MBeanInfo infoFromServer = getServer().getMBeanInfo(objectName);
-		assertThat(infoFromServer).isEqualTo(info);
-	}
+    MBeanInfo infoFromServer = getServer().getMBeanInfo(objectName);
+    assertThat(infoFromServer).isEqualTo(info);
+  }
 
-	@Test
-	void testRegisterManagedResourceWithGeneratedObjectName() throws Exception {
-		final ObjectName objectNameTemplate = ObjectNameManager.getInstance("spring:type=Test");
+  @Test
+  void testRegisterManagedResourceWithGeneratedObjectName() throws Exception {
+    final ObjectName objectNameTemplate = ObjectNameManager.getInstance("spring:type=Test");
 
-		MBeanExporter exporter = new MBeanExporter();
-		exporter.setServer(getServer());
-		exporter.setNamingStrategy((managedBean, beanKey) -> objectNameTemplate);
+    MBeanExporter exporter = new MBeanExporter();
+    exporter.setServer(getServer());
+    exporter.setNamingStrategy((managedBean, beanKey) -> objectNameTemplate);
 
-		JmxTestBean bean1 = new JmxTestBean();
-		JmxTestBean bean2 = new JmxTestBean();
+    JmxTestBean bean1 = new JmxTestBean();
+    JmxTestBean bean2 = new JmxTestBean();
 
-		ObjectName reg1 = exporter.registerManagedResource(bean1);
-		ObjectName reg2 = exporter.registerManagedResource(bean2);
+    ObjectName reg1 = exporter.registerManagedResource(bean1);
+    ObjectName reg2 = exporter.registerManagedResource(bean2);
 
-		assertIsRegistered("Bean 1 not registered with MBeanServer", reg1);
-		assertIsRegistered("Bean 2 not registered with MBeanServer", reg2);
+    assertIsRegistered("Bean 1 not registered with MBeanServer", reg1);
+    assertIsRegistered("Bean 2 not registered with MBeanServer", reg2);
 
-		assertObjectNameMatchesTemplate(objectNameTemplate, reg1);
-		assertObjectNameMatchesTemplate(objectNameTemplate, reg2);
-	}
+    assertObjectNameMatchesTemplate(objectNameTemplate, reg1);
+    assertObjectNameMatchesTemplate(objectNameTemplate, reg2);
+  }
 
-	@Test
-	void testRegisterManagedResourceWithGeneratedObjectNameWithoutUniqueness() throws Exception {
-		final ObjectName objectNameTemplate = ObjectNameManager.getInstance("spring:type=Test");
+  @Test
+  void testRegisterManagedResourceWithGeneratedObjectNameWithoutUniqueness() throws Exception {
+    final ObjectName objectNameTemplate = ObjectNameManager.getInstance("spring:type=Test");
 
-		MBeanExporter exporter = new MBeanExporter();
-		exporter.setServer(getServer());
-		exporter.setEnsureUniqueRuntimeObjectNames(false);
-		exporter.setNamingStrategy((managedBean, beanKey) -> objectNameTemplate);
+    MBeanExporter exporter = new MBeanExporter();
+    exporter.setServer(getServer());
+    exporter.setEnsureUniqueRuntimeObjectNames(false);
+    exporter.setNamingStrategy((managedBean, beanKey) -> objectNameTemplate);
 
-		JmxTestBean bean1 = new JmxTestBean();
-		JmxTestBean bean2 = new JmxTestBean();
+    JmxTestBean bean1 = new JmxTestBean();
+    JmxTestBean bean2 = new JmxTestBean();
 
-		ObjectName reg1 = exporter.registerManagedResource(bean1);
-		assertIsRegistered("Bean 1 not registered with MBeanServer", reg1);
+    ObjectName reg1 = exporter.registerManagedResource(bean1);
+    assertIsRegistered("Bean 1 not registered with MBeanServer", reg1);
 
-		assertThatExceptionOfType(MBeanExportException.class).isThrownBy(()->
-				exporter.registerManagedResource(bean2))
-			.withCauseExactlyInstanceOf(InstanceAlreadyExistsException.class);
-	}
+    assertThatExceptionOfType(MBeanExportException.class).isThrownBy(() ->
+                    exporter.registerManagedResource(bean2))
+            .withCauseExactlyInstanceOf(InstanceAlreadyExistsException.class);
+  }
 
-	private void assertObjectNameMatchesTemplate(ObjectName objectNameTemplate, ObjectName registeredName) {
-		assertThat(registeredName.getDomain()).as("Domain is incorrect").isEqualTo(objectNameTemplate.getDomain());
-	}
+  private void assertObjectNameMatchesTemplate(ObjectName objectNameTemplate, ObjectName registeredName) {
+    assertThat(registeredName.getDomain()).as("Domain is incorrect").isEqualTo(objectNameTemplate.getDomain());
+  }
 
 }

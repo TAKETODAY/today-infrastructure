@@ -184,7 +184,7 @@ public class WebUtilsTests {
   }
 
   private void testWithXForwardedHeaders(String serverName, int port, String forwardedProto,
-                                         String forwardedHost, int forwardedPort, String originHeader) throws Exception {
+          String forwardedHost, int forwardedPort, String originHeader) throws Exception {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setServerName(serverName);
@@ -209,7 +209,7 @@ public class WebUtilsTests {
   }
 
   private void testWithForwardedHeader(String serverName, int port, String forwardedHeader,
-                                       String originHeader) throws Exception {
+          String originHeader) throws Exception {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setServerName(serverName);

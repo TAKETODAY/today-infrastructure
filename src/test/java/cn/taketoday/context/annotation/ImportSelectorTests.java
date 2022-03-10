@@ -208,7 +208,7 @@ public class ImportSelectorTests {
 
   private static class SampleImportSelector
           implements ImportSelector, BeanClassLoaderAware,
-                     ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
+          ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
 
     static ClassLoader classLoader;
     static ResourceLoader resourceLoader;
@@ -496,7 +496,7 @@ public class ImportSelectorTests {
 
   public static class TestImportGroup
           implements DeferredImportSelector.Group,
-                     BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
+          BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware {
 
     static ClassLoader classLoader;
     static ResourceLoader resourceLoader;

@@ -86,7 +86,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     DataBuffer buffer = createDataBuffer(1);
     try {
       assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() ->
-                                                                                    buffer.readPosition(-1));
+              buffer.readPosition(-1));
     }
     finally {
       release(buffer);
@@ -100,7 +100,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     DataBuffer buffer = createDataBuffer(1);
     try {
       assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() ->
-                                                                                    buffer.readPosition(1));
+              buffer.readPosition(1));
     }
     finally {
       release(buffer);
@@ -269,7 +269,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     DataBuffer buffer = createDataBuffer(1);
     try {
       assertThatIllegalArgumentException().isThrownBy(() ->
-                                                              buffer.toString(null));
+              buffer.toString(null));
     }
     finally {
       release(buffer);
@@ -715,7 +715,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     super.bufferFactory = bufferFactory;
 
     DataBuffer composite = this.bufferFactory.join(Arrays.asList(stringBuffer("a"),
-                                                                 stringBuffer("b"), stringBuffer("c")));
+            stringBuffer("b"), stringBuffer("c")));
     assertThat(composite.readableByteCount()).isEqualTo(3);
     byte[] bytes = new byte[3];
     composite.read(bytes);

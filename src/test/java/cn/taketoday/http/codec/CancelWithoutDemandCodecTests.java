@@ -73,7 +73,7 @@ public class CancelWithoutDemandCodecTests {
     CancellingOutputMessage outputMessage = new CancellingOutputMessage(this.bufferFactory);
 
     writer.write(Mono.just("foo"), ResolvableType.fromType(String.class), MediaType.TEXT_PLAIN,
-                 outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
+            outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
   }
 
   @Test // gh-22107
@@ -81,8 +81,8 @@ public class CancelWithoutDemandCodecTests {
     Jackson2JsonEncoder encoder = new Jackson2JsonEncoder();
 
     Flux<DataBuffer> flux = encoder.encode(Flux.just(new Pojo("foofoo", "barbar"), new Pojo("bar", "baz")),
-                                           this.bufferFactory, ResolvableType.fromClass(Pojo.class),
-                                           MediaType.APPLICATION_JSON, Collections.emptyMap());
+            this.bufferFactory, ResolvableType.fromClass(Pojo.class),
+            MediaType.APPLICATION_JSON, Collections.emptyMap());
 
     BaseSubscriber<DataBuffer> subscriber = new ZeroDemandSubscriber();
     flux.subscribe(subscriber); // Assume sync execution (e.g. encoding with Flux.just)..
@@ -95,8 +95,8 @@ public class CancelWithoutDemandCodecTests {
     Msg msg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
 
     Flux<DataBuffer> flux = encoder.encode(Mono.just(msg),
-                                           this.bufferFactory, ResolvableType.fromClass(Msg.class),
-                                           new MimeType("application", "x-protobuf"), Collections.emptyMap());
+            this.bufferFactory, ResolvableType.fromClass(Msg.class),
+            new MimeType("application", "x-protobuf"), Collections.emptyMap());
 
     BaseSubscriber<DataBuffer> subscriber = new ZeroDemandSubscriber();
     flux.subscribe(subscriber); // Assume sync execution (e.g. encoding with Flux.just)..
@@ -116,7 +116,7 @@ public class CancelWithoutDemandCodecTests {
     });
 
     Flux<Message> messages = decoder.decode(input, ResolvableType.fromType(Msg.class),
-                                            new MimeType("application", "x-protobuf"), Collections.emptyMap());
+            new MimeType("application", "x-protobuf"), Collections.emptyMap());
     ZeroDemandMessageSubscriber subscriber = new ZeroDemandMessageSubscriber();
     messages.subscribe(subscriber);
     subscriber.cancel();
@@ -133,7 +133,7 @@ public class CancelWithoutDemandCodecTests {
     CancellingOutputMessage outputMessage = new CancellingOutputMessage(this.bufferFactory);
 
     writer.write(Mono.just(builder.build()), null, MediaType.MULTIPART_FORM_DATA,
-                 outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
+            outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
   }
 
   @Test // gh-22107
@@ -143,7 +143,7 @@ public class CancelWithoutDemandCodecTests {
     CancellingOutputMessage outputMessage = new CancellingOutputMessage(this.bufferFactory);
 
     writer.write(Mono.just(event), ResolvableType.fromClass(ServerSentEvent.class), MediaType.TEXT_EVENT_STREAM,
-                 outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
+            outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
   }
 
   private static class CancellingOutputMessage implements ReactiveHttpOutputMessage {

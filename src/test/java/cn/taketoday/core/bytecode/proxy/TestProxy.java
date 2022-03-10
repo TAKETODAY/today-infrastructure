@@ -64,7 +64,7 @@ public class TestProxy {
     Class proxyClass = Proxy.getProxyClass(TestProxy.class.getClassLoader(), new Class[] { Map.class });
     Map proxyMap = (Map) proxyClass.getConstructor(new Class[] { InvocationHandler.class }).newInstance(new Object[] { handler });
     assertEquals(map.get("test"),
-                 proxyMap.get("test"), "proxy delegation not correct");
+            proxyMap.get("test"), "proxy delegation not correct");
   }
 
   @Test
@@ -107,7 +107,7 @@ public class TestProxy {
     System.err.println("hello");
     ProxySampleInterface_ReturnsBasic rb = (ProxySampleInterface_ReturnsBasic)
             Proxy.newProxyInstance(null, new Class[] { ProxySampleInterface_ReturnsBasic.class },
-                                   new ReturnNullHandler());
+                    new ReturnNullHandler());
     try {
       int result = rb.getKala(11);
       fail("must throw an exception, but returned " + result);

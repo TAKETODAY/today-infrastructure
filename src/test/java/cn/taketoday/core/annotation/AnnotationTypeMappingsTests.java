@@ -479,7 +479,7 @@ class AnnotationTypeMappingsTests {
   }
 
   private Method[] resolveMirrorSets(AnnotationTypeMapping mapping, Class<?> element,
-                                     Class<? extends Annotation> annotationClass) {
+          Class<? extends Annotation> annotationClass) {
     Annotation annotation = element.getAnnotation(annotationClass);
     int[] resolved = mapping.getMirrorSets().resolve(element.getName(), annotation, ReflectionUtils::invokeMethod);
     Method[] result = new Method[resolved.length];
@@ -502,7 +502,7 @@ class AnnotationTypeMappingsTests {
   }
 
   private AnnotationTypeMapping getMapping(AnnotationTypeMappings mappings,
-                                           Class<? extends Annotation> annotationType) {
+          Class<? extends Annotation> annotationType) {
 
     for (AnnotationTypeMapping candidate : getAll(mappings)) {
       if (candidate.getAnnotationType() == annotationType) {

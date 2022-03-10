@@ -361,8 +361,7 @@ public class ClassWriterTest extends AsmTest {
    * Tests that the COMPUTE_MAXS option works correctly on classes with very large or deeply nested
    * subroutines (#307600, #311642).
    *
-   * @throws IOException
-   *         if the input class file can't be read.
+   * @throws IOException if the input class file can't be read.
    */
   @ParameterizedTest
   @ValueSource(strings = { "Issue307600.class", "Issue311642.class" })

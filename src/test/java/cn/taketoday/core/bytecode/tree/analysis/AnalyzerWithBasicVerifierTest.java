@@ -223,8 +223,7 @@ public class AnalyzerWithBasicVerifierTest extends AsmTest {
   /**
    * Tests that the precompiled classes can be successfully analyzed with a BasicVerifier.
    *
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)

@@ -44,137 +44,134 @@ import static org.mockito.Mockito.mock;
  */
 public class ExtractingResponseErrorHandlerTests {
 
-	private ExtractingResponseErrorHandler errorHandler;
+  private ExtractingResponseErrorHandler errorHandler;
 
-	private final ClientHttpResponse response = mock(ClientHttpResponse.class);
+  private final ClientHttpResponse response = mock(ClientHttpResponse.class);
 
+  @BeforeEach
+  public void setup() {
+    HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter();
+    this.errorHandler = new ExtractingResponseErrorHandler(
+            Collections.singletonList(converter));
 
-	@BeforeEach
-	public void setup() {
-		HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter();
-		this.errorHandler = new ExtractingResponseErrorHandler(
-				Collections.singletonList(converter));
+    this.errorHandler.setStatusMapping(
+            Collections.singletonMap(HttpStatus.I_AM_A_TEAPOT, MyRestClientException.class));
+    this.errorHandler.setSeriesMapping(Collections
+            .singletonMap(HttpStatus.Series.SERVER_ERROR, MyRestClientException.class));
+  }
 
-		this.errorHandler.setStatusMapping(
-				Collections.singletonMap(HttpStatus.I_AM_A_TEAPOT, MyRestClientException.class));
-		this.errorHandler.setSeriesMapping(Collections
-				.singletonMap(HttpStatus.Series.SERVER_ERROR, MyRestClientException.class));
-	}
+  @Test
+  public void hasError() throws Exception {
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
+    assertThat(this.errorHandler.hasError(this.response)).isTrue();
 
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    assertThat(this.errorHandler.hasError(this.response)).isTrue();
 
-	@Test
-	public void hasError() throws Exception {
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
-		assertThat(this.errorHandler.hasError(this.response)).isTrue();
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    assertThat(this.errorHandler.hasError(this.response)).isFalse();
+  }
 
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		assertThat(this.errorHandler.hasError(this.response)).isTrue();
+  @Test
+  public void hasErrorOverride() throws Exception {
+    this.errorHandler.setSeriesMapping(Collections
+            .singletonMap(HttpStatus.Series.CLIENT_ERROR, null));
 
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		assertThat(this.errorHandler.hasError(this.response)).isFalse();
-	}
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
+    assertThat(this.errorHandler.hasError(this.response)).isTrue();
 
-	@Test
-	public void hasErrorOverride() throws Exception {
-		this.errorHandler.setSeriesMapping(Collections
-				.singletonMap(HttpStatus.Series.CLIENT_ERROR, null));
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
+    assertThat(this.errorHandler.hasError(this.response)).isFalse();
 
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
-		assertThat(this.errorHandler.hasError(this.response)).isTrue();
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+    assertThat(this.errorHandler.hasError(this.response)).isFalse();
+  }
 
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
-		assertThat(this.errorHandler.hasError(this.response)).isFalse();
+  @Test
+  public void handleErrorStatusMatch() throws Exception {
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
+    HttpHeaders responseHeaders = HttpHeaders.create();
+    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    given(this.response.getHeaders()).willReturn(responseHeaders);
 
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
-		assertThat(this.errorHandler.hasError(this.response)).isFalse();
-	}
+    byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
+    responseHeaders.setContentLength(body.length);
+    given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
 
-	@Test
-	public void handleErrorStatusMatch() throws Exception {
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
-		HttpHeaders responseHeaders = HttpHeaders.create();
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-		given(this.response.getHeaders()).willReturn(responseHeaders);
+    assertThatExceptionOfType(MyRestClientException.class).isThrownBy(() ->
+                    this.errorHandler.handleError(this.response))
+            .satisfies(ex -> assertThat(ex.getFoo()).isEqualTo("bar"));
+  }
 
-		byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
-		responseHeaders.setContentLength(body.length);
-		given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
+  @Test
+  public void handleErrorSeriesMatch() throws Exception {
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    HttpHeaders responseHeaders = HttpHeaders.create();
+    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    given(this.response.getHeaders()).willReturn(responseHeaders);
 
-		assertThatExceptionOfType(MyRestClientException.class).isThrownBy(() ->
-				this.errorHandler.handleError(this.response))
-			.satisfies(ex -> assertThat(ex.getFoo()).isEqualTo("bar"));
-	}
+    byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
+    responseHeaders.setContentLength(body.length);
+    given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
 
-	@Test
-	public void handleErrorSeriesMatch() throws Exception {
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		HttpHeaders responseHeaders = HttpHeaders.create();
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-		given(this.response.getHeaders()).willReturn(responseHeaders);
+    assertThatExceptionOfType(MyRestClientException.class).isThrownBy(() ->
+                    this.errorHandler.handleError(this.response))
+            .satisfies(ex -> assertThat(ex.getFoo()).isEqualTo("bar"));
+  }
 
-		byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
-		responseHeaders.setContentLength(body.length);
-		given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
+  @Test
+  public void handleNoMatch() throws Exception {
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
+    HttpHeaders responseHeaders = HttpHeaders.create();
+    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    given(this.response.getHeaders()).willReturn(responseHeaders);
 
-		assertThatExceptionOfType(MyRestClientException.class).isThrownBy(() ->
-				this.errorHandler.handleError(this.response))
-			.satisfies(ex -> assertThat(ex.getFoo()).isEqualTo("bar"));
-	}
+    byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
+    responseHeaders.setContentLength(body.length);
+    given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
 
-	@Test
-	public void handleNoMatch() throws Exception {
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
-		HttpHeaders responseHeaders = HttpHeaders.create();
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-		given(this.response.getHeaders()).willReturn(responseHeaders);
+    assertThatExceptionOfType(HttpClientErrorException.class).isThrownBy(() ->
+                    this.errorHandler.handleError(this.response))
+            .satisfies(ex -> {
+              assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+              assertThat(ex.getResponseBodyAsByteArray()).isEqualTo(body);
+            });
+  }
 
-		byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
-		responseHeaders.setContentLength(body.length);
-		given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
+  @Test
+  public void handleNoMatchOverride() throws Exception {
+    this.errorHandler.setSeriesMapping(Collections
+            .singletonMap(HttpStatus.Series.CLIENT_ERROR, null));
 
-		assertThatExceptionOfType(HttpClientErrorException.class).isThrownBy(() ->
-				this.errorHandler.handleError(this.response))
-			.satisfies(ex -> {
-				assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(ex.getResponseBodyAsByteArray()).isEqualTo(body);
-			});
-	}
+    given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
+    HttpHeaders responseHeaders = HttpHeaders.create();
+    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+    given(this.response.getHeaders()).willReturn(responseHeaders);
 
-	@Test
-	public void handleNoMatchOverride() throws Exception {
-		this.errorHandler.setSeriesMapping(Collections
-				.singletonMap(HttpStatus.Series.CLIENT_ERROR, null));
+    byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
+    responseHeaders.setContentLength(body.length);
+    given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
 
-		given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
-		HttpHeaders responseHeaders = HttpHeaders.create();
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-		given(this.response.getHeaders()).willReturn(responseHeaders);
+    this.errorHandler.handleError(this.response);
+  }
 
-		byte[] body = "{\"foo\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
-		responseHeaders.setContentLength(body.length);
-		given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
+  @SuppressWarnings("serial")
+  private static class MyRestClientException extends RestClientException {
 
-		this.errorHandler.handleError(this.response);
-	}
+    private String foo;
 
+    public MyRestClientException(String msg) {
+      super(msg);
+    }
 
-	@SuppressWarnings("serial")
-	private static class MyRestClientException extends RestClientException {
+    public MyRestClientException(String msg, Throwable ex) {
+      super(msg, ex);
+    }
 
-		private String foo;
+    public String getFoo() {
+      return this.foo;
+    }
 
-		public MyRestClientException(String msg) {
-			super(msg);
-		}
-
-		public MyRestClientException(String msg, Throwable ex) {
-			super(msg, ex);
-		}
-
-		public String getFoo() {
-			return this.foo;
-		}
-
-	}
+  }
 
 }

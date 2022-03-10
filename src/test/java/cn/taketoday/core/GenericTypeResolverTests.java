@@ -64,9 +64,9 @@ public class GenericTypeResolverTests {
   @Test
   void methodReturnTypes() {
     assertEquals(Integer.class,
-                 GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "integer"), MyInterfaceType.class));
+            GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "integer"), MyInterfaceType.class));
     assertEquals(String.class,
-                 GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "string"), MyInterfaceType.class));
+            GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "string"), MyInterfaceType.class));
     assertNull(GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "raw"), MyInterfaceType.class));
     assertNull(GenericTypeResolver.resolveReturnTypeArgument(findMethod(MyTypeWithMethods.class, "object"), MyInterfaceType.class));
   }

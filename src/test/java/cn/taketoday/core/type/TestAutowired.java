@@ -26,13 +26,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD})
+@Target({ ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD })
 public @interface TestAutowired {
 
-	/**
-	 * Declares whether the annotated dependency is required.
-	 * <p>Defaults to {@code true}.
-	 */
-	boolean required() default true;
+  /**
+   * Declares whether the annotated dependency is required.
+   * <p>Defaults to {@code true}.
+   */
+  boolean required() default true;
 
 }

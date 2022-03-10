@@ -25,29 +25,29 @@ package cn.taketoday.jmx.export.annotation;
  */
 public class AnotherAnnotationTestBeanImpl implements AnotherAnnotationTestBean {
 
-	private String bar;
+  private String bar;
 
-	@Override
-	public void foo() {
-	}
+  @Override
+  public void foo() {
+  }
 
-	public void doNotExpose() {
+  public void doNotExpose() {
 
-	}
+  }
 
-	@Override
-	public String getBar() {
-		return this.bar;
-	}
+  @Override
+  public String getBar() {
+    return this.bar;
+  }
 
-	@Override
-	public void setBar(String bar) {
-		this.bar = bar;
-	}
+  @Override
+  public void setBar(String bar) {
+    this.bar = bar;
+  }
 
-	@Override
-	public int getCacheEntries() {
-		return 42;
-	}
+  @Override
+  public int getCacheEntries() {
+    return 42;
+  }
 
 }

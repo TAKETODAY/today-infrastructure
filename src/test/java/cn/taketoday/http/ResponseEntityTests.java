@@ -20,8 +20,6 @@
 
 package cn.taketoday.http;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -256,7 +254,7 @@ public class ResponseEntityTests {
     ResponseEntity<Integer> responseEntity =
             ResponseEntity.status(HttpStatus.OK)
                     .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePrivate().
-                                          mustRevalidate().proxyRevalidate().sMaxAge(30, TimeUnit.MINUTES))
+                            mustRevalidate().proxyRevalidate().sMaxAge(30, TimeUnit.MINUTES))
                     .body(entity);
 
     assertThat(responseEntity).isNotNull();

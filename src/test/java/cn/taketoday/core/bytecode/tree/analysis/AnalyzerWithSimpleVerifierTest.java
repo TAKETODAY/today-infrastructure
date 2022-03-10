@@ -144,8 +144,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
   /**
    * Tests that the precompiled classes can be successfully analyzed with a SimpleVerifier.
    *
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
@@ -172,8 +171,7 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
    * algorithm, due to multiple interface inheritance), but the subtyping check is relaxed if the
    * super type is an interface type.
    *
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
   public void testIsAssignableFrom_interface() throws AnalyzerException {

@@ -203,9 +203,7 @@ public abstract class AsmTest {
      * API. For instance, returns true for a class compiled with the JDK 1.8 if the ASM API version
      * is ASM4.
      *
-     * @param api
-     *         an ASM API version.
-     *
+     * @param api an ASM API version.
      * @return whether this class was compiled with a JDK which is more recent than api.
      */
     public boolean isMoreRecentThan(final Api api) {

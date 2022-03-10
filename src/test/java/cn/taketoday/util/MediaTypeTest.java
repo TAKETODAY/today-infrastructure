@@ -441,43 +441,43 @@ public class MediaTypeTest {
     assertThat(new MediaType("text", "*").isConcrete()).as("text/* concrete").isFalse();
   }
 
-	@Test
-	void isMoreSpecific() {
-		MediaType audio = new MediaType("audio");
-		MediaType audioBasic = new MediaType("audio", "basic");
-		MediaType audioBasic07 = new MediaType("audio", "basic", 0.7);
-		MediaType audioBasic03 = new MediaType("audio", "basic", 0.3);
+  @Test
+  void isMoreSpecific() {
+    MediaType audio = new MediaType("audio");
+    MediaType audioBasic = new MediaType("audio", "basic");
+    MediaType audioBasic07 = new MediaType("audio", "basic", 0.7);
+    MediaType audioBasic03 = new MediaType("audio", "basic", 0.3);
 
-		assertThat(audioBasic.isMoreSpecific(audio)).isTrue();
-		assertThat(audio.isMoreSpecific(audioBasic)).isFalse();
+    assertThat(audioBasic.isMoreSpecific(audio)).isTrue();
+    assertThat(audio.isMoreSpecific(audioBasic)).isFalse();
 
-		assertThat(audio.isMoreSpecific(audioBasic07)).isTrue();
-		assertThat(audioBasic07.isMoreSpecific(audio)).isFalse();
+    assertThat(audio.isMoreSpecific(audioBasic07)).isTrue();
+    assertThat(audioBasic07.isMoreSpecific(audio)).isFalse();
 
-		assertThat(audioBasic07.isMoreSpecific(audioBasic03)).isTrue();
-		assertThat(audioBasic03.isMoreSpecific(audioBasic07)).isFalse();
+    assertThat(audioBasic07.isMoreSpecific(audioBasic03)).isTrue();
+    assertThat(audioBasic03.isMoreSpecific(audioBasic07)).isFalse();
 
-		assertThat(audioBasic.isMoreSpecific(MediaType.TEXT_HTML)).isFalse();
-	}
+    assertThat(audioBasic.isMoreSpecific(MediaType.TEXT_HTML)).isFalse();
+  }
 
-	@Test
-	void isLessSpecific() {
-		MediaType audio = new MediaType("audio");
-		MediaType audioBasic = new MediaType("audio", "basic");
-		MediaType audioBasic07 = new MediaType("audio", "basic", 0.7);
-		MediaType audioBasic03 = new MediaType("audio", "basic", 0.3);
+  @Test
+  void isLessSpecific() {
+    MediaType audio = new MediaType("audio");
+    MediaType audioBasic = new MediaType("audio", "basic");
+    MediaType audioBasic07 = new MediaType("audio", "basic", 0.7);
+    MediaType audioBasic03 = new MediaType("audio", "basic", 0.3);
 
-		assertThat(audioBasic.isLessSpecific(audio)).isFalse();
-		assertThat(audio.isLessSpecific(audioBasic)).isTrue();
+    assertThat(audioBasic.isLessSpecific(audio)).isFalse();
+    assertThat(audio.isLessSpecific(audioBasic)).isTrue();
 
-		assertThat(audio.isLessSpecific(audioBasic07)).isFalse();
-		assertThat(audioBasic07.isLessSpecific(audio)).isTrue();
+    assertThat(audio.isLessSpecific(audioBasic07)).isFalse();
+    assertThat(audioBasic07.isLessSpecific(audio)).isTrue();
 
-		assertThat(audioBasic07.isLessSpecific(audioBasic03)).isFalse();
-		assertThat(audioBasic03.isLessSpecific(audioBasic07)).isTrue();
+    assertThat(audioBasic07.isLessSpecific(audioBasic03)).isFalse();
+    assertThat(audioBasic03.isLessSpecific(audioBasic07)).isTrue();
 
-		assertThat(audioBasic.isLessSpecific(MediaType.TEXT_HTML)).isFalse();
-	}
+    assertThat(audioBasic.isLessSpecific(MediaType.TEXT_HTML)).isFalse();
+  }
 
   // ------------------------------------------------
 
@@ -491,33 +491,33 @@ public class MediaTypeTest {
     assertThat(MediaType.fromResource(null)).isNull();
   }
 
-	@Test
-	public void sortBySpecificity() {
-		MediaType audioBasic = new MediaType("audio", "basic");
-		MediaType audio = new MediaType("audio");
-		MediaType audio03 = new MediaType("audio", "*", 0.3);
-		MediaType audio07 = new MediaType("audio", "*", 0.7);
-		MediaType audioBasicLevel = new MediaType("audio", "basic", Collections.singletonMap("level", "1"));
-		MediaType all = MediaType.ALL;
+  @Test
+  public void sortBySpecificity() {
+    MediaType audioBasic = new MediaType("audio", "basic");
+    MediaType audio = new MediaType("audio");
+    MediaType audio03 = new MediaType("audio", "*", 0.3);
+    MediaType audio07 = new MediaType("audio", "*", 0.7);
+    MediaType audioBasicLevel = new MediaType("audio", "basic", Collections.singletonMap("level", "1"));
+    MediaType all = MediaType.ALL;
 
-		List<MediaType> expected = new ArrayList<>();
-		expected.add(audioBasicLevel);
-		expected.add(audioBasic);
-		expected.add(audio);
-		expected.add(all);
-		expected.add(audio07);
-		expected.add(audio03);
+    List<MediaType> expected = new ArrayList<>();
+    expected.add(audioBasicLevel);
+    expected.add(audioBasic);
+    expected.add(audio);
+    expected.add(all);
+    expected.add(audio07);
+    expected.add(audio03);
 
-		List<MediaType> result = new ArrayList<>(expected);
-		Random rnd = new Random();
-		// shuffle & sort 10 times
-		for (int i = 0; i < 10; i++) {
-			Collections.shuffle(result, rnd);
-			MimeTypeUtils.sortBySpecificity(result);
+    List<MediaType> result = new ArrayList<>(expected);
+    Random rnd = new Random();
+    // shuffle & sort 10 times
+    for (int i = 0; i < 10; i++) {
+      Collections.shuffle(result, rnd);
+      MimeTypeUtils.sortBySpecificity(result);
 
-			assertThat(result).containsExactlyElementsOf(expected);
+      assertThat(result).containsExactlyElementsOf(expected);
 
-		}
-	}
+    }
+  }
 
 }

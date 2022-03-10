@@ -54,13 +54,13 @@ class ResourceEncoderTests extends AbstractEncoderTests<ResourceEncoder> {
   @Test
   public void canEncode() {
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(InputStreamResource.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(ByteArrayResource.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Resource.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(InputStreamResource.class),
-                                      MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // SPR-15464
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();
@@ -78,7 +78,7 @@ class ResourceEncoderTests extends AbstractEncoderTests<ResourceEncoder> {
 
   @Override
   protected void testEncodeError(Publisher<?> input, ResolvableType outputType,
-                                 @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Flux<Resource> i = Flux.error(new InputException());
 

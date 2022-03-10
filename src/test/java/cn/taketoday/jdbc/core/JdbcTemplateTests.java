@@ -191,7 +191,7 @@ public class JdbcTemplateTests {
   }
 
   private void doTestStrings(Integer fetchSize, Integer maxRows, Integer queryTimeout,
-                             Object argument, JdbcTemplateCallback jdbcTemplateCallback) throws Exception {
+          Object argument, JdbcTemplateCallback jdbcTemplateCallback) throws Exception {
 
     String sql = "SELECT FORENAME FROM CUSTMR";
     String[] results = { "rod", "gary", " portia" };

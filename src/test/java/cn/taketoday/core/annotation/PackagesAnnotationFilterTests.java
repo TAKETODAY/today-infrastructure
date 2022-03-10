@@ -32,54 +32,54 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class PackagesAnnotationFilterTests {
 
-	@Test
-	void createWhenPackagesIsNullThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				new PackagesAnnotationFilter((String[]) null))
-			.withMessage("Packages array must not be null");
-	}
+  @Test
+  void createWhenPackagesIsNullThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    new PackagesAnnotationFilter((String[]) null))
+            .withMessage("Packages array must not be null");
+  }
 
-	@Test
-	void createWhenPackagesContainsNullThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				new PackagesAnnotationFilter((String) null))
-			.withMessage("Packages array must not have empty elements");
-	}
+  @Test
+  void createWhenPackagesContainsNullThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    new PackagesAnnotationFilter((String) null))
+            .withMessage("Packages array must not have empty elements");
+  }
 
-	@Test
-	void createWhenPackagesContainsEmptyTextThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				new PackagesAnnotationFilter(""))
-			.withMessage("Packages array must not have empty elements");
-	}
+  @Test
+  void createWhenPackagesContainsEmptyTextThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+                    new PackagesAnnotationFilter(""))
+            .withMessage("Packages array must not have empty elements");
+  }
 
-	@Test
-	void matchesWhenInPackageReturnsTrue() {
-		PackagesAnnotationFilter filter = new PackagesAnnotationFilter("com.example");
-		assertThat(filter.matches("com.example.Component")).isTrue();
-	}
+  @Test
+  void matchesWhenInPackageReturnsTrue() {
+    PackagesAnnotationFilter filter = new PackagesAnnotationFilter("com.example");
+    assertThat(filter.matches("com.example.Component")).isTrue();
+  }
 
-	@Test
-	void matchesWhenNotInPackageReturnsFalse() {
-		PackagesAnnotationFilter filter = new PackagesAnnotationFilter("com.example");
-		assertThat(filter.matches("cn.taketoday.sterotype.Component")).isFalse();
-	}
+  @Test
+  void matchesWhenNotInPackageReturnsFalse() {
+    PackagesAnnotationFilter filter = new PackagesAnnotationFilter("com.example");
+    assertThat(filter.matches("cn.taketoday.sterotype.Component")).isFalse();
+  }
 
-	@Test
-	void matchesWhenInSimilarPackageReturnsFalse() {
-		PackagesAnnotationFilter filter = new PackagesAnnotationFilter("com.example");
-		assertThat(filter.matches("com.examples.Component")).isFalse();
-	}
+  @Test
+  void matchesWhenInSimilarPackageReturnsFalse() {
+    PackagesAnnotationFilter filter = new PackagesAnnotationFilter("com.example");
+    assertThat(filter.matches("com.examples.Component")).isFalse();
+  }
 
-	@Test
-	void equalsAndHashCode() {
-		PackagesAnnotationFilter filter1 = new PackagesAnnotationFilter("com.example",
-				"cn.taketoday");
-		PackagesAnnotationFilter filter2 = new PackagesAnnotationFilter(
-				"cn.taketoday", "com.example");
-		PackagesAnnotationFilter filter3 = new PackagesAnnotationFilter("com.examples");
-		assertThat(filter1.hashCode()).isEqualTo(filter2.hashCode());
-		assertThat(filter1).isEqualTo(filter1).isEqualTo(filter2).isNotEqualTo(filter3);
-	}
+  @Test
+  void equalsAndHashCode() {
+    PackagesAnnotationFilter filter1 = new PackagesAnnotationFilter("com.example",
+            "cn.taketoday");
+    PackagesAnnotationFilter filter2 = new PackagesAnnotationFilter(
+            "cn.taketoday", "com.example");
+    PackagesAnnotationFilter filter3 = new PackagesAnnotationFilter("com.examples");
+    assertThat(filter1.hashCode()).isEqualTo(filter2.hashCode());
+    assertThat(filter1).isEqualTo(filter1).isEqualTo(filter2).isNotEqualTo(filter3);
+  }
 
 }

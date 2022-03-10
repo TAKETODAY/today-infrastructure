@@ -269,7 +269,7 @@ public class MockServletContext implements ServletContext {
     catch (InvalidPathException | IOException ex) {
       if (logger.isWarnEnabled()) {
         logger.warn("Could not get resource paths for " +
-                            (resource != null ? resource : resourceLocation), ex);
+                (resource != null ? resource : resourceLocation), ex);
       }
       return null;
     }
@@ -293,7 +293,7 @@ public class MockServletContext implements ServletContext {
     catch (InvalidPathException | IOException ex) {
       if (logger.isWarnEnabled()) {
         logger.warn("Could not get URL for resource " +
-                            (resource != null ? resource : resourceLocation), ex);
+                (resource != null ? resource : resourceLocation), ex);
       }
       return null;
     }
@@ -314,7 +314,7 @@ public class MockServletContext implements ServletContext {
     catch (InvalidPathException | IOException ex) {
       if (logger.isWarnEnabled()) {
         logger.warn("Could not open InputStream for resource " +
-                            (resource != null ? resource : resourceLocation), ex);
+                (resource != null ? resource : resourceLocation), ex);
       }
       return null;
     }
@@ -323,7 +323,7 @@ public class MockServletContext implements ServletContext {
   @Override
   public RequestDispatcher getRequestDispatcher(String path) {
     Assert.isTrue(path.startsWith("/"),
-                  () -> "RequestDispatcher path [" + path + "] at ServletContext level must start with '/'");
+            () -> "RequestDispatcher path [" + path + "] at ServletContext level must start with '/'");
     return new MockRequestDispatcher(path);
   }
 
@@ -434,7 +434,7 @@ public class MockServletContext implements ServletContext {
     catch (InvalidPathException | IOException ex) {
       if (logger.isWarnEnabled()) {
         logger.warn("Could not determine real path of resource " +
-                            (resource != null ? resource : resourceLocation), ex);
+                (resource != null ? resource : resourceLocation), ex);
       }
       return null;
     }

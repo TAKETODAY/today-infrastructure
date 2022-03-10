@@ -62,8 +62,7 @@ public class TextifierTest extends AsmTest {
   /**
    * Tests that the text produced with a Textifier is equal to the expected text.
    *
-   * @throws IOException
-   *         if the expected text can't be read from disk.
+   * @throws IOException if the expected text can't be read from disk.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)

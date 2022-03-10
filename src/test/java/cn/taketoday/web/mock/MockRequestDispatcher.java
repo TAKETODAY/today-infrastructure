@@ -46,9 +46,8 @@ public class MockRequestDispatcher implements RequestDispatcher {
   /**
    * Create a new MockRequestDispatcher for the given resource.
    *
-   * @param resource
-   *         the server resource to dispatch to, located at a
-   *         particular path or given by a particular name
+   * @param resource the server resource to dispatch to, located at a
+   * particular path or given by a particular name
    */
   public MockRequestDispatcher(String resource) {
     Assert.notNull(resource, "Resource must not be null");

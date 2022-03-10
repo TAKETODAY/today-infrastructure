@@ -45,7 +45,8 @@ class DefaultAliasRegistryTests {
     assertThat(registry.canonicalName("testAlias3")).isEqualTo("test");
   }
 
-  @Test  // SPR-17191
+  @Test
+    // SPR-17191
   void aliasChainingWithMultipleAliases() {
     registry.registerAlias("name", "alias_a");
     registry.registerAlias("name", "alias_b");

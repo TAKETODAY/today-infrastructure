@@ -20,8 +20,6 @@
 
 package cn.taketoday.util;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -141,13 +139,13 @@ public class SortedPropertiesTests {
     assertThat(lines[0]).matches(regex);
     assertThat(lines).filteredOn(line -> !line.matches(regex))
             .containsExactly("<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">",
-                             "<properties>", //
-                             "<entry key=\"color\">blue</entry>", //
-                             "<entry key=\"fragrance\">sweet</entry>", //
-                             "<entry key=\"fruit\">apple</entry>", //
-                             "<entry key=\"size\">medium</entry>", //
-                             "<entry key=\"vehicle\">car</entry>", //
-                             "</properties>" //
+                    "<properties>", //
+                    "<entry key=\"color\">blue</entry>", //
+                    "<entry key=\"fragrance\">sweet</entry>", //
+                    "<entry key=\"fruit\">apple</entry>", //
+                    "<entry key=\"size\">medium</entry>", //
+                    "<entry key=\"vehicle\">car</entry>", //
+                    "</properties>" //
             );
   }
 

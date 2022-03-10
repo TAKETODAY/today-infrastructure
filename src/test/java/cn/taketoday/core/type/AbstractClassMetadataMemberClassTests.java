@@ -33,45 +33,45 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class AbstractClassMetadataMemberClassTests {
 
-	protected abstract ClassMetadata getClassMetadataFor(Class<?> clazz);
+  protected abstract ClassMetadata getClassMetadataFor(Class<?> clazz);
 
-	@Test
-	void withNoMemberClasses() {
-		ClassMetadata metadata = getClassMetadataFor(L0_a.class);
-		String[] nestedClasses = metadata.getMemberClassNames();
-		assertThat(nestedClasses).isEmpty();
-	}
+  @Test
+  void withNoMemberClasses() {
+    ClassMetadata metadata = getClassMetadataFor(L0_a.class);
+    String[] nestedClasses = metadata.getMemberClassNames();
+    assertThat(nestedClasses).isEmpty();
+  }
 
-	@Test
-	void withPublicMemberClasses() {
-		ClassMetadata metadata = getClassMetadataFor(L0_b.class);
-		String[] nestedClasses = metadata.getMemberClassNames();
-		assertThat(nestedClasses).containsOnly(L0_b.L1.class.getName());
-	}
+  @Test
+  void withPublicMemberClasses() {
+    ClassMetadata metadata = getClassMetadataFor(L0_b.class);
+    String[] nestedClasses = metadata.getMemberClassNames();
+    assertThat(nestedClasses).containsOnly(L0_b.L1.class.getName());
+  }
 
-	@Test
-	void withNonPublicMemberClasses() {
-		ClassMetadata metadata = getClassMetadataFor(L0_c.class);
-		String[] nestedClasses = metadata.getMemberClassNames();
-		assertThat(nestedClasses).containsOnly(L0_c.L1.class.getName());
-	}
+  @Test
+  void withNonPublicMemberClasses() {
+    ClassMetadata metadata = getClassMetadataFor(L0_c.class);
+    String[] nestedClasses = metadata.getMemberClassNames();
+    assertThat(nestedClasses).containsOnly(L0_c.L1.class.getName());
+  }
 
-	@Test
-	void againstMemberClass() {
-		ClassMetadata metadata = getClassMetadataFor(L0_b.L1.class);
-		String[] nestedClasses = metadata.getMemberClassNames();
-		assertThat(nestedClasses).isEmpty();
-	}
+  @Test
+  void againstMemberClass() {
+    ClassMetadata metadata = getClassMetadataFor(L0_b.L1.class);
+    String[] nestedClasses = metadata.getMemberClassNames();
+    assertThat(nestedClasses).isEmpty();
+  }
 
-	public static class L0_a {
-	}
+  public static class L0_a {
+  }
 
-	public static class L0_b {
-		public static class L1 { }
-	}
+  public static class L0_b {
+    public static class L1 { }
+  }
 
-	public static class L0_c {
-		private static class L1 { }
-	}
+  public static class L0_c {
+    private static class L1 { }
+  }
 
 }

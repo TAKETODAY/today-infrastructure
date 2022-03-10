@@ -132,7 +132,7 @@ class RestTemplateTests {
     mockResponseStatus(HttpStatus.OK);
 
     template.execute("https://example.com/hotels/{hotel}/bookings/{booking}", GET,
-                     null, null, "42", "21");
+            null, null, "42", "21");
 
     verify(response).close();
   }
@@ -192,7 +192,7 @@ class RestTemplateTests {
             .given(errorHandler).handleError(new URI(url), GET, response);
 
     assertThatExceptionOfType(HttpServerErrorException.class).isThrownBy(() ->
-                                                                                 template.execute(url, GET, null, null));
+            template.execute(url, GET, null, null));
 
     verify(response).close();
   }
@@ -227,7 +227,7 @@ class RestTemplateTests {
     given(converter.canRead(String.class, barBaz)).willReturn(false);
 
     assertThatExceptionOfType(RestClientException.class).isThrownBy(() ->
-                                                                            template.getForObject("https://example.com/{p}", String.class, "resource"));
+            template.getForObject("https://example.com/{p}", String.class, "resource"));
 
     verify(response).close();
   }
@@ -500,7 +500,8 @@ class RestTemplateTests {
     }
   }
 
-  @Test // gh-23740
+  @Test
+    // gh-23740
   void keepGivenAcceptHeaderOnPut() throws Exception {
     try (MockWebServer server = new MockWebServer()) {
       server.enqueue(new MockResponse().setResponseCode(500).setBody("internal server error"));
@@ -605,9 +606,9 @@ class RestTemplateTests {
     given(request.execute()).willThrow(new IOException("Socket failure"));
 
     assertThatExceptionOfType(ResourceAccessException.class).isThrownBy(() ->
-                                                                                template.getForObject(url, String.class))
+                    template.getForObject(url, String.class))
             .withMessage("I/O error on GET request for \"https://example.com/resource\": " +
-                                 "Socket failure");
+                    "Socket failure");
   }
 
   @Test
@@ -625,7 +626,7 @@ class RestTemplateTests {
     assertThatExceptionOfType(ResourceAccessException.class)
             .isThrownBy(() -> template.getForObject(uri, String.class))
             .withMessage("I/O error on GET request for \"https://example.com/resource\": " +
-                                 "Socket failure");
+                    "Socket failure");
   }
 
   @Test

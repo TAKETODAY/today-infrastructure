@@ -460,7 +460,7 @@ public class DataSourceJtaTransactionTests {
   }
 
   private void doTestJtaTransactionWithPropagationRequiresNewAndBeginException(boolean suspendException,
-                                                                               final boolean openOuterConnection, final boolean useTransactionAwareDataSource) throws Exception {
+          final boolean openOuterConnection, final boolean useTransactionAwareDataSource) throws Exception {
 
     given(userTransaction.getStatus()).willReturn(
             Status.STATUS_NO_TRANSACTION,

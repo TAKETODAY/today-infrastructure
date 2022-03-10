@@ -71,7 +71,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
   private final Resource resource;
   private final Path tempFile;
 
-
   DataBufferUtilsTests() throws Exception {
     this.resource = new ClassPathResource("DataBufferUtilsTests.txt", getClass());
     this.tempFile = Files.createTempFile("DataBufferUtilsTests", null);
@@ -275,7 +274,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
 
     flux = DataBufferUtils.takeUntilByteCount(flux, 5);
 
-
     StepVerifier.create(flux)
             .consumeNextWith(stringConsumer("bar"))
             .consumeNextWith(stringConsumer("ba"))
@@ -291,7 +289,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     Flux<DataBuffer> flux = DataBufferUtils.read(resource, 3, super.bufferFactory, 3);
 
     flux = DataBufferUtils.takeUntilByteCount(flux, 5);
-
 
     StepVerifier.create(flux)
             .consumeNextWith(stringConsumer("bar"))
@@ -902,7 +899,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     result = matcher.match(bar);
     assertThat(result).isEqualTo(1);
 
-
     release(foo, bar);
   }
 
@@ -966,7 +962,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
               .consumeNextWith(DataBufferUtils::release)
               .verifyComplete();
 
-
     }
   }
 
@@ -989,7 +984,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
       StepVerifier.create(result)
               .consumeNextWith(DataBufferUtils::release)
               .verifyComplete();
-
 
     }
   }

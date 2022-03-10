@@ -20,7 +20,6 @@
 
 package cn.taketoday.core.io.buffer;
 
-
 import cn.taketoday.lang.Assert;
 
 /**
@@ -57,7 +56,6 @@ class LeakAwareDataBuffer extends DataBufferWrapper implements PooledDataBuffer 
   AssertionError leakError() {
     return this.leakError;
   }
-
 
   @Override
   public boolean isAllocated() {

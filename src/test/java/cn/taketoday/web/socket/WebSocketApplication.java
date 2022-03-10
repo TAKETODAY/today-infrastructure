@@ -107,8 +107,8 @@ public class WebSocketApplication {
     // @jakarta.websocket.OnMessage
     @OnMessage
     public void handleTextMessage(WebSocketSession session, TextMessage message,
-                                  @Message String text, @Message byte[] bytes,
-                                  @MessageBody Body body, boolean last) throws IOException {
+            @Message String text, @Message byte[] bytes,
+            @MessageBody Body body, boolean last) throws IOException {
       System.out.println("handleTextMessage" + message);
       System.out.println(text == message.getPayload());
       System.out.println(new String(bytes));

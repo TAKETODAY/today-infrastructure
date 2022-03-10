@@ -102,7 +102,7 @@ class ConcurrentReferenceHashMapTests {
   void shouldNeedNonNegativeInitialCapacity() {
     new ConcurrentReferenceHashMap<Integer, String>(0, 1);
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new TestWeakConcurrentCache<Integer, String>(-1, 1))
+                    new TestWeakConcurrentCache<Integer, String>(-1, 1))
             .withMessageContaining("Initial capacity must not be negative");
   }
 
@@ -110,7 +110,7 @@ class ConcurrentReferenceHashMapTests {
   void shouldNeedPositiveLoadFactor() {
     new ConcurrentReferenceHashMap<Integer, String>(0, 0.1f, 1);
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new TestWeakConcurrentCache<Integer, String>(0, 0.0f, 1))
+                    new TestWeakConcurrentCache<Integer, String>(0, 0.0f, 1))
             .withMessageContaining("Load factor must be positive");
   }
 
@@ -118,7 +118,7 @@ class ConcurrentReferenceHashMapTests {
   void shouldNeedPositiveConcurrencyLevel() {
     new ConcurrentReferenceHashMap<Integer, String>(1, 1);
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new TestWeakConcurrentCache<Integer, String>(1, 0))
+                    new TestWeakConcurrentCache<Integer, String>(1, 0))
             .withMessageContaining("Concurrency level must be positive");
   }
 
@@ -514,7 +514,7 @@ class ConcurrentReferenceHashMapTests {
    * @return the timing stopwatch
    */
   private <V> StopWatch timeMultiThreaded(String id, final Map<Integer, V> map,
-                                          ValueFactory<V> factory) throws InterruptedException {
+          ValueFactory<V> factory) throws InterruptedException {
 
     StopWatch stopWatch = new StopWatch(id);
     for (int i = 0; i < 500; i++) {

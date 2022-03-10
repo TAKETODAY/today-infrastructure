@@ -115,7 +115,7 @@ public class UriUtilsTests {
   @Test
   public void decodeInvalidSequence() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            UriUtils.decode("foo%2", CHARSET));
+            UriUtils.decode("foo%2", CHARSET));
   }
 
   @Test

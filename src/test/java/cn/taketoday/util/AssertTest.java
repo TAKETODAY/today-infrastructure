@@ -19,8 +19,6 @@
  */
 package cn.taketoday.util;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -400,7 +398,7 @@ public class AssertTest {
   public void noNullElementsWithNullElementsAndMessageSupplier() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Assert.noNullElements(new String[]
-                                                            { "foo", null, "bar" }, () -> "enigma"))
+                    { "foo", null, "bar" }, () -> "enigma"))
             .withMessageContaining("enigma");
   }
 
@@ -408,7 +406,7 @@ public class AssertTest {
   public void noNullElementsWithNullElementsAndNullMessageSupplier() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Assert.noNullElements(new String[]
-                                                            { "foo", null, "bar" }, (Supplier<String>) null))
+                    { "foo", null, "bar" }, (Supplier<String>) null))
             .withMessage(null);
   }
 

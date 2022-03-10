@@ -34,27 +34,26 @@ import static org.mockito.Mockito.mock;
 /**
  * Unit tests for {@link MessageBodyClientHttpResponseWrapper}.
  *
- * @since 4.0
  * @author Yin-Jui Liao
+ * @since 4.0
  */
 class MessageBodyClientHttpResponseWrapperTests {
 
-	private final ClientHttpResponse response = mock(ClientHttpResponse.class);
+  private final ClientHttpResponse response = mock(ClientHttpResponse.class);
 
-	private final MessageBodyClientHttpResponseWrapper responseWrapper = new MessageBodyClientHttpResponseWrapper(response);
+  private final MessageBodyClientHttpResponseWrapper responseWrapper = new MessageBodyClientHttpResponseWrapper(response);
 
+  @Test
+  void messageBodyDoesNotExist() throws Exception {
+    given(response.getBody()).willReturn(null);
+    assertThat(responseWrapper.hasEmptyMessageBody()).isTrue();
+  }
 
-	@Test
-	void messageBodyDoesNotExist() throws Exception {
-		given(response.getBody()).willReturn(null);
-		assertThat(responseWrapper.hasEmptyMessageBody()).isTrue();
-	}
-
-	@Test
-	void messageBodyExists() throws Exception {
-		InputStream stream = new ByteArrayInputStream("content".getBytes());
-		given(response.getBody()).willReturn(stream);
-		assertThat(responseWrapper.hasEmptyMessageBody()).isFalse();
-	}
+  @Test
+  void messageBodyExists() throws Exception {
+    InputStream stream = new ByteArrayInputStream("content".getBytes());
+    given(response.getBody()).willReturn(stream);
+    assertThat(responseWrapper.hasEmptyMessageBody()).isFalse();
+  }
 
 }

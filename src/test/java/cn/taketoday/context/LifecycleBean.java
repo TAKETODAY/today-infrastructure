@@ -49,8 +49,8 @@ import jakarta.annotation.PreDestroy;
 @Singleton
 public class LifecycleBean
         implements DisposableBean, BeanNameAware,
-                   InitializingBean, BeanFactoryAware,
-                   EnvironmentAware, ApplicationContextAware {
+        InitializingBean, BeanFactoryAware,
+        EnvironmentAware, ApplicationContextAware {
 
   private static final Logger log = LoggerFactory.getLogger(LifecycleBean.class);
 

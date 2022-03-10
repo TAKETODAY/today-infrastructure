@@ -115,7 +115,7 @@ class PropertySourcesPropertyResolverTests {
     class TestType { }
 
     assertThatExceptionOfType(ConverterNotFoundException.class).isThrownBy(() ->
-                                                                                   propertyResolver.getProperty("foo", TestType.class));
+            propertyResolver.getProperty("foo", TestType.class));
   }
 
   @Test
@@ -170,7 +170,7 @@ class PropertySourcesPropertyResolverTests {
     assertThat(propertyResolver.getRequiredProperty("exists")).isEqualTo("xyz");
 
     assertThatIllegalStateException().isThrownBy(() ->
-                                                         propertyResolver.getRequiredProperty("bogus"));
+            propertyResolver.getRequiredProperty("bogus"));
   }
 
   @Test
@@ -179,7 +179,7 @@ class PropertySourcesPropertyResolverTests {
     assertThat(propertyResolver.getRequiredProperty("exists", String[].class)).isEqualTo(new String[] { "abc", "123" });
 
     assertThatIllegalStateException().isThrownBy(() ->
-                                                         propertyResolver.getRequiredProperty("bogus", String[].class));
+            propertyResolver.getRequiredProperty("bogus", String[].class));
   }
 
   @Test
@@ -211,7 +211,7 @@ class PropertySourcesPropertyResolverTests {
   @Test
   void resolvePlaceholders_withNullInput() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new PropertySourcesPropertyResolver(new PropertySources()).resolvePlaceholders(null));
+            new PropertySourcesPropertyResolver(new PropertySources()).resolvePlaceholders(null));
   }
 
   @Test
@@ -228,7 +228,7 @@ class PropertySourcesPropertyResolverTests {
     propertySources.addFirst(new MockPropertySource().withProperty("key", "value"));
     PropertyResolver resolver = new PropertySourcesPropertyResolver(propertySources);
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            resolver.resolveRequiredPlaceholders("Replace this ${key} plus ${unknown}"));
+            resolver.resolveRequiredPlaceholders("Replace this ${key} plus ${unknown}"));
   }
 
   @Test
@@ -243,7 +243,7 @@ class PropertySourcesPropertyResolverTests {
   @Test
   void resolveRequiredPlaceholders_withNullInput() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            new PropertySourcesPropertyResolver(new PropertySources()).resolveRequiredPlaceholders(null));
+            new PropertySourcesPropertyResolver(new PropertySources()).resolveRequiredPlaceholders(null));
   }
 
   @Test
@@ -258,14 +258,14 @@ class PropertySourcesPropertyResolverTests {
     assertThatExceptionOfType(MissingRequiredPropertiesException.class).isThrownBy(
                     propertyResolver::validateRequiredProperties)
             .withMessage("The following properties were declared as required " +
-                                 "but could not be resolved: [foo, bar]");
+                    "but could not be resolved: [foo, bar]");
 
     // add foo property -> validation should fail only on missing 'bar' property
     testProperties.put("foo", "fooValue");
     assertThatExceptionOfType(MissingRequiredPropertiesException.class).isThrownBy(
                     propertyResolver::validateRequiredProperties)
             .withMessage("The following properties were declared as required " +
-                                 "but could not be resolved: [bar]");
+                    "but could not be resolved: [bar]");
 
     // add bar property -> validation should pass, even with an empty string value
     testProperties.put("bar", "");
@@ -276,14 +276,14 @@ class PropertySourcesPropertyResolverTests {
   void resolveNestedPropertyPlaceholders() {
     PropertySources ps = new PropertySources();
     ps.addFirst(new MockPropertySource()
-                        .withProperty("p1", "v1")
-                        .withProperty("p2", "v2")
-                        .withProperty("p3", "${p1}:${p2}")              // nested placeholders
-                        .withProperty("p4", "${p3}")                    // deeply nested placeholders
-                        .withProperty("p5", "${p1}:${p2}:${bogus}")     // unresolvable placeholder
-                        .withProperty("p6", "${p1}:${p2}:${bogus:def}") // unresolvable w/ default
-                        .withProperty("pL", "${pR}")                    // cyclic reference left
-                        .withProperty("pR", "${pL}")                    // cyclic reference right
+            .withProperty("p1", "v1")
+            .withProperty("p2", "v2")
+            .withProperty("p3", "${p1}:${p2}")              // nested placeholders
+            .withProperty("p4", "${p3}")                    // deeply nested placeholders
+            .withProperty("p5", "${p1}:${p2}:${bogus}")     // unresolvable placeholder
+            .withProperty("p6", "${p1}:${p2}:${bogus:def}") // unresolvable w/ default
+            .withProperty("pL", "${pR}")                    // cyclic reference left
+            .withProperty("pR", "${pL}")                    // cyclic reference right
     );
     ConfigurablePropertyResolver pr = new PropertySourcesPropertyResolver(ps);
     assertThat(pr.getProperty("p1")).isEqualTo("v1");
@@ -291,11 +291,11 @@ class PropertySourcesPropertyResolverTests {
     assertThat(pr.getProperty("p3")).isEqualTo("v1:v2");
     assertThat(pr.getProperty("p4")).isEqualTo("v1:v2");
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pr.getProperty("p5"))
+                    pr.getProperty("p5"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
     assertThat(pr.getProperty("p6")).isEqualTo("v1:v2:def");
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pr.getProperty("pL"))
+                    pr.getProperty("pL"))
             .withMessageContaining("Circular");
   }
 
@@ -303,10 +303,10 @@ class PropertySourcesPropertyResolverTests {
   void ignoreUnresolvableNestedPlaceholdersIsConfigurable() {
     PropertySources ps = new PropertySources();
     ps.addFirst(new MockPropertySource()
-                        .withProperty("p1", "v1")
-                        .withProperty("p2", "v2")
-                        .withProperty("p3", "${p1}:${p2}:${bogus:def}") // unresolvable w/ default
-                        .withProperty("p4", "${p1}:${p2}:${bogus}")     // unresolvable placeholder
+            .withProperty("p1", "v1")
+            .withProperty("p2", "v2")
+            .withProperty("p3", "${p1}:${p2}:${bogus:def}") // unresolvable w/ default
+            .withProperty("p4", "${p1}:${p2}:${bogus}")     // unresolvable placeholder
     );
     ConfigurablePropertyResolver pr = new PropertySourcesPropertyResolver(ps);
     assertThat(pr.getProperty("p1")).isEqualTo("v1");
@@ -316,7 +316,7 @@ class PropertySourcesPropertyResolverTests {
     // placeholders nested within the value of "p4" are unresolvable and cause an
     // exception by default
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pr.getProperty("p4"))
+                    pr.getProperty("p4"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
 
     // relax the treatment of unresolvable nested placeholders
@@ -328,7 +328,7 @@ class PropertySourcesPropertyResolverTests {
     // ignoreUnresolvableNestedPlaceholders
     assertThat(pr.resolvePlaceholders("${p1}:${p2}:${bogus}")).isEqualTo("v1:v2:${bogus}");
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pr.resolveRequiredPlaceholders("${p1}:${p2}:${bogus}"))
+                    pr.resolveRequiredPlaceholders("${p1}:${p2}:${bogus}"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
   }
 

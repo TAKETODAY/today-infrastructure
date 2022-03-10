@@ -27,12 +27,12 @@ import cn.taketoday.core.io.ClassPathResource;
  */
 public class PropertiesFileNamingStrategyTests extends PropertiesNamingStrategyTests {
 
-	@Override
-	protected ObjectNamingStrategy getStrategy() throws Exception {
-		KeyNamingStrategy strat = new KeyNamingStrategy();
-		strat.setMappingLocation(new ClassPathResource("jmx-names.properties", getClass()));
-		strat.afterPropertiesSet();
-		return strat;
-	}
+  @Override
+  protected ObjectNamingStrategy getStrategy() throws Exception {
+    KeyNamingStrategy strat = new KeyNamingStrategy();
+    strat.setMappingLocation(new ClassPathResource("jmx-names.properties", getClass()));
+    strat.afterPropertiesSet();
+    return strat;
+  }
 
 }

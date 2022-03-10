@@ -112,7 +112,6 @@ class ConventionsTests {
     assertThat(Conventions.getQualifiedAttributeName(cls, baseName)).isEqualTo(desiredResult);
   }
 
-
   private static Parameter getMethodParameter(Class<?> parameterType) {
     Method method = ReflectionUtils.getMethod(TestBean.class, "handle", (Class<?>[]) null);
     for (int i = 0; i < method.getParameterCount(); i++) {
@@ -131,14 +130,13 @@ class ConventionsTests {
                     new IllegalArgumentException("Unique return type not found: " + returnType));
   }
 
-
   @SuppressWarnings("unused")
   private static class TestBean {
 
     public void handle(TestObject to,
-                       List<TestObject> toList, Set<TestObject> toSet,
-                       Mono<TestObject> toMono, Flux<TestObject> toFlux,
-                       Single<TestObject> toSingle, Observable<TestObject> toObservable) { }
+            List<TestObject> toList, Set<TestObject> toSet,
+            Mono<TestObject> toMono, Flux<TestObject> toFlux,
+            Single<TestObject> toSingle, Observable<TestObject> toObservable) { }
 
     public TestObject handleTo() { return null; }
 

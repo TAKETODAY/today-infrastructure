@@ -198,7 +198,7 @@ public class ParserStrategyUtilsTests {
     final ResourceLoader resourceLoader;
 
     ArgsConstructor(Environment environment, BeanFactory beanFactory,
-                    ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
+            ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
       this.environment = environment;
       this.beanFactory = beanFactory;
       this.beanClassLoader = beanClassLoader;
@@ -218,7 +218,7 @@ public class ParserStrategyUtilsTests {
     final ResourceLoader resourceLoader;
 
     ArgsConstructorAndAware(Environment environment, BeanFactory beanFactory,
-                            ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
+            ClassLoader beanClassLoader, ResourceLoader resourceLoader) {
       this.environment = environment;
       this.beanFactory = beanFactory;
       this.beanClassLoader = beanClassLoader;

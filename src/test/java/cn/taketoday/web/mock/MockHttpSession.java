@@ -84,8 +84,7 @@ public class MockHttpSession implements HttpSession {
   /**
    * Create a new MockHttpSession.
    *
-   * @param servletContext
-   *         the ServletContext that the session runs in
+   * @param servletContext the ServletContext that the session runs in
    */
   public MockHttpSession(ServletContext servletContext) {
     this(servletContext, null);
@@ -94,10 +93,8 @@ public class MockHttpSession implements HttpSession {
   /**
    * Create a new MockHttpSession.
    *
-   * @param servletContext
-   *         the ServletContext that the session runs in
-   * @param id
-   *         a unique identifier for this session
+   * @param servletContext the ServletContext that the session runs in
+   * @param id a unique identifier for this session
    */
   public MockHttpSession(ServletContext servletContext, String id) {
     this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
@@ -119,7 +116,6 @@ public class MockHttpSession implements HttpSession {
    * As of Servlet 3.1, the id of a session can be changed.
    *
    * @return the new session id
-   *
    * @since 4.0
    */
   public String changeSessionId() {
@@ -240,8 +236,7 @@ public class MockHttpSession implements HttpSession {
   /**
    * Invalidates this session then unbinds any objects bound to it.
    *
-   * @throws IllegalStateException
-   *         if this method is called on an already invalidated session
+   * @throws IllegalStateException if this method is called on an already invalidated session
    */
   @Override
   public void invalidate() {
@@ -258,8 +253,7 @@ public class MockHttpSession implements HttpSession {
    * Convenience method for asserting that this session has not been
    * {@linkplain #invalidate() invalidated}.
    *
-   * @throws IllegalStateException
-   *         if this session has been invalidated
+   * @throws IllegalStateException if this session has been invalidated
    */
   private void assertIsValid() {
     Assert.state(!isInvalid(), "The session has already been invalidated");
@@ -306,8 +300,7 @@ public class MockHttpSession implements HttpSession {
    * Deserialize the attributes of this session from a state object created by
    * {@link #serializeState()}.
    *
-   * @param state
-   *         a representation of this session's serialized state
+   * @param state a representation of this session's serialized state
    */
   @SuppressWarnings("unchecked")
   public void deserializeState(Serializable state) {

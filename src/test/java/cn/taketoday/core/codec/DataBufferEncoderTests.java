@@ -37,44 +37,43 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class DataBufferEncoderTests extends AbstractEncoderTests<DataBufferEncoder> {
 
-	private final byte[] fooBytes = "foo".getBytes(StandardCharsets.UTF_8);
+  private final byte[] fooBytes = "foo".getBytes(StandardCharsets.UTF_8);
 
-	private final byte[] barBytes = "bar".getBytes(StandardCharsets.UTF_8);
+  private final byte[] barBytes = "bar".getBytes(StandardCharsets.UTF_8);
 
-	DataBufferEncoderTests() {
-		super(new DataBufferEncoder());
-	}
+  DataBufferEncoderTests() {
+    super(new DataBufferEncoder());
+  }
 
+  @Override
+  @Test
+  public void canEncode() {
+    assertThat(this.encoder.canEncode(ResolvableType.fromClass(DataBuffer.class),
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
+            MimeTypeUtils.TEXT_PLAIN)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.fromClass(DataBuffer.class),
+            MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
-	@Override
-	@Test
-	public void canEncode() {
-		assertThat(this.encoder.canEncode(ResolvableType.fromClass(DataBuffer.class),
-				MimeTypeUtils.TEXT_PLAIN)).isTrue();
-		assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN)).isFalse();
-		assertThat(this.encoder.canEncode(ResolvableType.fromClass(DataBuffer.class),
-				MimeTypeUtils.APPLICATION_JSON)).isTrue();
+    // SPR-15464
+    assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();
+  }
 
-		// SPR-15464
-		assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();
-	}
+  @Override
+  @Test
+  public void encode() throws Exception {
+    Flux<DataBuffer> input = Flux.just(this.fooBytes, this.barBytes)
+            .flatMap(bytes -> Mono.defer(() -> {
+              DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(bytes.length);
+              dataBuffer.write(bytes);
+              return Mono.just(dataBuffer);
+            }));
 
-	@Override
-	@Test
-	public void encode() throws Exception {
-		Flux<DataBuffer> input = Flux.just(this.fooBytes, this.barBytes)
-				.flatMap(bytes -> Mono.defer(() -> {
-					DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(bytes.length);
-					dataBuffer.write(bytes);
-					return Mono.just(dataBuffer);
-				}));
+    testEncodeAll(input, DataBuffer.class, step -> step
+            .consumeNextWith(expectBytes(this.fooBytes))
+            .consumeNextWith(expectBytes(this.barBytes))
+            .verifyComplete());
 
-		testEncodeAll(input, DataBuffer.class, step -> step
-				.consumeNextWith(expectBytes(this.fooBytes))
-				.consumeNextWith(expectBytes(this.barBytes))
-				.verifyComplete());
-
-	}
+  }
 
 }

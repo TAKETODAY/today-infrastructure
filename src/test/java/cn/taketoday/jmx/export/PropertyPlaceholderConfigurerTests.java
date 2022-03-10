@@ -35,28 +35,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PropertyPlaceholderConfigurerTests extends AbstractJmxTests {
 
-	@Override
-	protected String getApplicationContextPath() {
-		return "cn/taketoday/jmx/export/propertyPlaceholderConfigurer.xml";
-	}
+  @Override
+  protected String getApplicationContextPath() {
+    return "cn/taketoday/jmx/export/propertyPlaceholderConfigurer.xml";
+  }
 
-	@Test
-	void propertiesReplacedInApplicationContext() {
-		IJmxTestBean bean = getContext().getBean("testBean", IJmxTestBean.class);
+  @Test
+  void propertiesReplacedInApplicationContext() {
+    IJmxTestBean bean = getContext().getBean("testBean", IJmxTestBean.class);
 
-		assertThat(bean.getName()).as("Name").isEqualTo("Rob Harrop");
-		assertThat(bean.getAge()).as("Age").isEqualTo(100);
-	}
+    assertThat(bean.getName()).as("Name").isEqualTo("Rob Harrop");
+    assertThat(bean.getAge()).as("Age").isEqualTo(100);
+  }
 
-	@Test
-	void propertiesCorrectInJmx() throws Exception {
-		ObjectName oname = new ObjectName("bean:name=proxyTestBean1");
-		Object name = getServer().getAttribute(oname, "Name");
-		Integer age = (Integer) getServer().getAttribute(oname, "Age");
+  @Test
+  void propertiesCorrectInJmx() throws Exception {
+    ObjectName oname = new ObjectName("bean:name=proxyTestBean1");
+    Object name = getServer().getAttribute(oname, "Name");
+    Integer age = (Integer) getServer().getAttribute(oname, "Age");
 
-		assertThat(name).as("Name is incorrect in JMX").isEqualTo("Rob Harrop");
-		assertThat(age.intValue()).as("Age is incorrect in JMX").isEqualTo(100);
-	}
+    assertThat(name).as("Name is incorrect in JMX").isEqualTo("Rob Harrop");
+    assertThat(age.intValue()).as("Age is incorrect in JMX").isEqualTo(100);
+  }
 
 }
 

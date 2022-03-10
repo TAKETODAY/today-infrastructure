@@ -57,12 +57,12 @@ class WebServletHandlerTests {
     BeanDefinition servletRegistrationBean = this.registry
             .getBeanDefinition(DefaultConfigurationServlet.class.getName());
     PropertyValues propertyValues = servletRegistrationBean.getPropertyValues();
-    assertThat(propertyValues.get("asyncSupported")).isEqualTo(false);
-    assertThat(((Map<String, String>) propertyValues.get("initParameters"))).isEmpty();
+    assertThat(propertyValues.getPropertyValue("asyncSupported")).isEqualTo(false);
+    assertThat(((Map<String, String>) propertyValues.getPropertyValue("initParameters"))).isEmpty();
     assertThat((Integer) propertyValues.getPropertyValue("loadOnStartup")).isEqualTo(-1);
-    assertThat(propertyValues.get("name")).isEqualTo(DefaultConfigurationServlet.class.getName());
+    assertThat(propertyValues.getPropertyValue("name")).isEqualTo(DefaultConfigurationServlet.class.getName());
     assertThat((String[]) propertyValues.getPropertyValue("urlMappings")).isEmpty();
-    assertThat(propertyValues.get("servlet")).isEqualTo(servletDefinition);
+    assertThat(propertyValues.getPropertyValue("servlet")).isEqualTo(servletDefinition);
   }
 
   @Test
@@ -71,14 +71,14 @@ class WebServletHandlerTests {
     this.handler.handle(definition, this.registry);
     BeanDefinition servletRegistrationBean = this.registry.getBeanDefinition("custom");
     PropertyValues propertyValues = servletRegistrationBean.getPropertyValues();
-    assertThat(propertyValues.get("name")).isEqualTo("custom");
+    assertThat(propertyValues.getPropertyValue("name")).isEqualTo("custom");
   }
 
   @Test
   void asyncSupported() throws IOException {
     BeanDefinition servletRegistrationBean = handleBeanDefinitionForClass(AsyncSupportedServlet.class);
     PropertyValues propertyValues = servletRegistrationBean.getPropertyValues();
-    assertThat(propertyValues.get("asyncSupported")).isEqualTo(true);
+    assertThat(propertyValues.getPropertyValue("asyncSupported")).isEqualTo(true);
   }
 
   @SuppressWarnings("unchecked")
@@ -86,7 +86,7 @@ class WebServletHandlerTests {
   void initParameters() throws IOException {
     BeanDefinition servletRegistrationBean = handleBeanDefinitionForClass(InitParametersServlet.class);
     PropertyValues propertyValues = servletRegistrationBean.getPropertyValues();
-    assertThat((Map<String, String>) propertyValues.get("initParameters")).containsEntry("a", "alpha")
+    assertThat((Map<String, String>) propertyValues.getPropertyValue("initParameters")).containsEntry("a", "alpha")
             .containsEntry("b", "bravo");
   }
 

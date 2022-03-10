@@ -67,7 +67,7 @@ class WebFilterHandlerTests {
     assertThat(propertyValues.getPropertyValue("asyncSupported")).isEqualTo(false);
     assertThat((EnumSet<jakarta.servlet.DispatcherType>) propertyValues.getPropertyValue("dispatcherTypes"))
             .containsExactly(jakarta.servlet.DispatcherType.REQUEST);
-    assertThat(((Map<String, String>) propertyValues.get("initParameters"))).isEmpty();
+    assertThat(((Map<String, String>) propertyValues.getPropertyValue("initParameters"))).isEmpty();
     assertThat((String[]) propertyValues.getPropertyValue("servletNames")).isEmpty();
     assertThat((String[]) propertyValues.getPropertyValue("urlPatterns")).isEmpty();
     assertThat(propertyValues.getPropertyValue("name")).isEqualTo(DefaultConfigurationFilter.class.getName());
@@ -80,14 +80,14 @@ class WebFilterHandlerTests {
     this.handler.handle(definition, this.registry);
     BeanDefinition filterRegistrationBean = this.registry.getBeanDefinition("custom");
     PropertyValues propertyValues = filterRegistrationBean.getPropertyValues();
-    assertThat(propertyValues.get("name")).isEqualTo("custom");
+    assertThat(propertyValues.getPropertyValue("name")).isEqualTo("custom");
   }
 
   @Test
   void asyncSupported() throws IOException {
     BeanDefinition filterRegistrationBean = handleBeanDefinitionForClass(AsyncSupportedFilter.class);
     PropertyValues propertyValues = filterRegistrationBean.getPropertyValues();
-    assertThat(propertyValues.get("asyncSupported")).isEqualTo(true);
+    assertThat(propertyValues.getPropertyValue("asyncSupported")).isEqualTo(true);
   }
 
   @Test
@@ -95,7 +95,7 @@ class WebFilterHandlerTests {
   void dispatcherTypes() throws IOException {
     BeanDefinition filterRegistrationBean = handleBeanDefinitionForClass(DispatcherTypesFilter.class);
     PropertyValues propertyValues = filterRegistrationBean.getPropertyValues();
-    assertThat((Set<jakarta.servlet.DispatcherType>) propertyValues.get("dispatcherTypes")).containsExactly(jakarta.servlet.DispatcherType.FORWARD,
+    assertThat((Set<jakarta.servlet.DispatcherType>) propertyValues.getPropertyValue("dispatcherTypes")).containsExactly(jakarta.servlet.DispatcherType.FORWARD,
             jakarta.servlet.DispatcherType.INCLUDE, jakarta.servlet.DispatcherType.REQUEST);
   }
 
@@ -104,7 +104,7 @@ class WebFilterHandlerTests {
   void initParameters() throws IOException {
     BeanDefinition filterRegistrationBean = handleBeanDefinitionForClass(InitParametersFilter.class);
     PropertyValues propertyValues = filterRegistrationBean.getPropertyValues();
-    assertThat((Map<String, String>) propertyValues.get("initParameters")).containsEntry("a", "alpha")
+    assertThat((Map<String, String>) propertyValues.getPropertyValue("initParameters")).containsEntry("a", "alpha")
             .containsEntry("b", "bravo");
   }
 

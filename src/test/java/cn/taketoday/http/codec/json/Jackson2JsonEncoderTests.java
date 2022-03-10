@@ -79,11 +79,11 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     assertThat(this.encoder.canEncode(pojoType, null)).isTrue();
 
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Pojo.class),
-                                      new MediaType("application", "json", StandardCharsets.UTF_8))).isTrue();
+            new MediaType("application", "json", StandardCharsets.UTF_8))).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Pojo.class),
-                                      new MediaType("application", "json", StandardCharsets.US_ASCII))).isTrue();
+            new MediaType("application", "json", StandardCharsets.US_ASCII))).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Pojo.class),
-                                      new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isFalse();
+            new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isFalse();
 
     // SPR-15464
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isTrue();
@@ -97,15 +97,15 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
   @SuppressWarnings("deprecation")
   public void encode() throws Exception {
     Flux<Object> input = Flux.just(new Pojo("foo", "bar"),
-                                   new Pojo("foofoo", "barbar"),
-                                   new Pojo("foofoofoo", "barbarbar"));
+            new Pojo("foofoo", "barbar"),
+            new Pojo("foofoofoo", "barbarbar"));
 
     testEncodeAll(input, ResolvableType.fromClass(Pojo.class), step -> step
-                          .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}\n"))
-                          .consumeNextWith(expectString("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}\n"))
-                          .consumeNextWith(expectString("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}\n"))
-                          .verifyComplete(),
-                  APPLICATION_STREAM_JSON, null);
+                    .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}\n"))
+                    .consumeNextWith(expectString("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}\n"))
+                    .consumeNextWith(expectString("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}\n"))
+                    .verifyComplete(),
+            APPLICATION_STREAM_JSON, null);
   }
 
   @Test // SPR-15866
@@ -122,7 +122,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     Jackson2JsonEncoder encoder = new Jackson2JsonEncoder(new ObjectMapper(), textJavascript);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-                                                                                      encoder.getMimeTypes().add(new MimeType("text", "ecmascript")));
+            encoder.getMimeTypes().add(new MimeType("text", "ecmascript")));
   }
 
   @Test
@@ -144,10 +144,10 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
 
     testEncode(input, Pojo.class, step -> step
             .consumeNextWith(expectString("[" +
-                                                  "{\"foo\":\"foo\",\"bar\":\"bar\"}," +
-                                                  "{\"foo\":\"foofoo\",\"bar\":\"barbar\"}," +
-                                                  "{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}]")
-                                     .andThen(DataBufferUtils::release))
+                    "{\"foo\":\"foo\",\"bar\":\"bar\"}," +
+                    "{\"foo\":\"foofoo\",\"bar\":\"barbar\"}," +
+                    "{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}]")
+                    .andThen(DataBufferUtils::release))
             .verifyComplete());
   }
 
@@ -157,7 +157,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
 
     testEncode(input, ParentClass.class, step -> step
             .consumeNextWith(expectString("[{\"type\":\"foo\"},{\"type\":\"bar\"}]")
-                                     .andThen(DataBufferUtils::release))
+                    .andThen(DataBufferUtils::release))
             .verifyComplete());
   }
 
@@ -173,14 +173,14 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     );
 
     testEncode(input, ResolvableType.fromClass(Pojo.class), step -> step
-                       .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}\n")
-                                                .andThen(DataBufferUtils::release))
-                       .consumeNextWith(expectString("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}\n")
-                                                .andThen(DataBufferUtils::release))
-                       .consumeNextWith(expectString("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}\n")
-                                                .andThen(DataBufferUtils::release))
-                       .verifyComplete(),
-               barMediaType, null);
+                    .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}\n")
+                            .andThen(DataBufferUtils::release))
+                    .consumeNextWith(expectString("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}\n")
+                            .andThen(DataBufferUtils::release))
+                    .consumeNextWith(expectString("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}\n")
+                            .andThen(DataBufferUtils::release))
+                    .verifyComplete(),
+            barMediaType, null);
   }
 
   @Test
@@ -195,10 +195,10 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     Map<String, Object> hints = singletonMap(JSON_VIEW_HINT, MyJacksonView1.class);
 
     testEncode(input, type, step -> step
-                       .consumeNextWith(expectString("{\"withView1\":\"with\"}")
-                                                .andThen(DataBufferUtils::release))
-                       .verifyComplete(),
-               null, hints);
+                    .consumeNextWith(expectString("{\"withView1\":\"with\"}")
+                            .andThen(DataBufferUtils::release))
+                    .verifyComplete(),
+            null, hints);
   }
 
   @Test
@@ -213,10 +213,10 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     Map<String, Object> hints = singletonMap(JSON_VIEW_HINT, MyJacksonView3.class);
 
     testEncode(input, type, step -> step
-                       .consumeNextWith(expectString("{\"withoutView\":\"without\"}")
-                                                .andThen(DataBufferUtils::release))
-                       .verifyComplete(),
-               null, hints);
+                    .consumeNextWith(expectString("{\"withoutView\":\"without\"}")
+                            .andThen(DataBufferUtils::release))
+                    .verifyComplete(),
+            null, hints);
   }
 
   @Test
@@ -232,10 +232,10 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     ResolvableType type = ResolvableType.fromClass(MappingJacksonValue.class);
 
     testEncode(Mono.just(jacksonValue), type, step -> step
-                       .consumeNextWith(expectString("{\"withView1\":\"with\"}")
-                                                .andThen(DataBufferUtils::release))
-                       .verifyComplete(),
-               null, Collections.emptyMap());
+                    .consumeNextWith(expectString("{\"withView1\":\"with\"}")
+                            .andThen(DataBufferUtils::release))
+                    .verifyComplete(),
+            null, Collections.emptyMap());
   }
 
   @Test // gh-22771
@@ -245,7 +245,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     Jackson2JsonEncoder encoder = new Jackson2JsonEncoder(mapper);
 
     Flux<DataBuffer> result = encoder.encode(Flux.just(new Pojo("foo", "bar")), this.bufferFactory,
-                                             ResolvableType.fromClass(Pojo.class), MimeTypeUtils.APPLICATION_JSON, Collections.emptyMap());
+            ResolvableType.fromClass(Pojo.class), MimeTypeUtils.APPLICATION_JSON, Collections.emptyMap());
 
     StepVerifier.create(result)
             .consumeNextWith(expectString("[{\"foo\":\"foo\",\"bar\":\"bar\"}]"))
@@ -258,9 +258,9 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     Mono<Object> input = Mono.just(new Pojo("foo", "bar"));
 
     testEncode(input, ResolvableType.fromClass(Pojo.class), step -> step
-                       .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}"))
-                       .verifyComplete(),
-               new MimeType("application", "json", StandardCharsets.US_ASCII), null);
+                    .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}"))
+                    .verifyComplete(),
+            new MimeType("application", "json", StandardCharsets.US_ASCII), null);
   }
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

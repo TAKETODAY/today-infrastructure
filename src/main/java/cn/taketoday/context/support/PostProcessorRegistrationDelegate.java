@@ -27,15 +27,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
-import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.support.AbstractBeanFactory;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
@@ -357,9 +357,9 @@ final class PostProcessorRegistrationDelegate {
     }
 
     private boolean isInfrastructureBean(@Nullable String beanName) {
-      if (beanName != null) {
-        BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
-        return definition != null && definition.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE;
+      if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
+        BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
+        return bd.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE;
       }
       return false;
     }

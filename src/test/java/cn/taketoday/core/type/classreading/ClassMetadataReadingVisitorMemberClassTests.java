@@ -27,21 +27,21 @@ import cn.taketoday.core.type.ClassMetadata;
 
 /**
  * @author Chris Beams
- * @since 4.0
  * @see AbstractClassMetadataMemberClassTests
+ * @since 4.0
  */
 class ClassMetadataReadingVisitorMemberClassTests extends AbstractClassMetadataMemberClassTests {
 
-	@Override
-	public ClassMetadata getClassMetadataFor(Class<?> clazz) {
-		try {
-			MetadataReader reader =
-				new SimpleMetadataReaderFactory().getMetadataReader(clazz.getName());
-			return reader.getAnnotationMetadata();
-		}
-		catch (IOException ex) {
-			throw new IllegalStateException(ex);
-		}
-	}
+  @Override
+  public ClassMetadata getClassMetadataFor(Class<?> clazz) {
+    try {
+      MetadataReader reader =
+              new SimpleMetadataReaderFactory().getMetadataReader(clazz.getName());
+      return reader.getAnnotationMetadata();
+    }
+    catch (IOException ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
 
 }

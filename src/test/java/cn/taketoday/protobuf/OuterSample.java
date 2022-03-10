@@ -4,57 +4,61 @@
 package cn.taketoday.protobuf;
 
 public final class OuterSample {
-  private OuterSample() {}
+  private OuterSample() { }
+
   public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
+          com.google.protobuf.ExtensionRegistryLite registry) {
   }
 
   public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
+          com.google.protobuf.ExtensionRegistry registry) {
     registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
+            (com.google.protobuf.ExtensionRegistryLite) registry);
   }
+
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_Msg_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_Msg_fieldAccessorTable;
+          internal_static_Msg_descriptor;
+  static final
+  com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internal_static_Msg_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_SecondMsg_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_SecondMsg_fieldAccessorTable;
+          internal_static_SecondMsg_descriptor;
+  static final
+  com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internal_static_SecondMsg_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
+  getDescriptor() {
     return descriptor;
   }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
+
+  private static com.google.protobuf.Descriptors.FileDescriptor
+          descriptor;
+
   static {
     java.lang.String[] descriptorData = {
-      "\n\014sample.proto\"G\n\003Msg\022\020\n\003foo\030\001 \001(\tH\000\210\001\001\022" +
-      "\035\n\004blah\030\002 \001(\0132\n.SecondMsgH\001\210\001\001B\006\n\004_fooB\007" +
-      "\n\005_blah\"\'\n\tSecondMsg\022\021\n\004blah\030\001 \001(\005H\000\210\001\001B" +
-      "\007\n\005_blahB&\n\025cn.taketoday.protobufB\013Outer" +
-      "SampleP\001b\006proto3"
+            "\n\014sample.proto\"G\n\003Msg\022\020\n\003foo\030\001 \001(\tH\000\210\001\001\022" +
+                    "\035\n\004blah\030\002 \001(\0132\n.SecondMsgH\001\210\001\001B\006\n\004_fooB\007" +
+                    "\n\005_blah\"\'\n\tSecondMsg\022\021\n\004blah\030\001 \001(\005H\000\210\001\001B" +
+                    "\007\n\005_blahB&\n\025cn.taketoday.protobufB\013Outer" +
+                    "SampleP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
-      .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
-        });
+            .internalBuildGeneratedFileFrom(descriptorData,
+                    new com.google.protobuf.Descriptors.FileDescriptor[] {
+                    });
     internal_static_Msg_descriptor =
-      getDescriptor().getMessageTypes().get(0);
+            getDescriptor().getMessageTypes().get(0);
     internal_static_Msg_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_Msg_descriptor,
-        new java.lang.String[] { "Foo", "Blah", "Foo", "Blah", });
+            com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_Msg_descriptor,
+            new java.lang.String[] { "Foo", "Blah", "Foo", "Blah", });
     internal_static_SecondMsg_descriptor =
-      getDescriptor().getMessageTypes().get(1);
+            getDescriptor().getMessageTypes().get(1);
     internal_static_SecondMsg_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_SecondMsg_descriptor,
-        new java.lang.String[] { "Blah", "Blah", });
+            com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_SecondMsg_descriptor,
+            new java.lang.String[] { "Blah", "Blah", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -37,183 +37,182 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class AbstractCacheTests<T extends Cache> {
 
-	protected final static String CACHE_NAME = "testCache";
+  protected final static String CACHE_NAME = "testCache";
 
-	protected abstract T getCache();
+  protected abstract T getCache();
 
-	protected abstract Object getNativeCache();
+  protected abstract Object getNativeCache();
 
+  @Test
+  public void testCacheName() throws Exception {
+    assertThat(getCache().getName()).isEqualTo(CACHE_NAME);
+  }
 
-	@Test
-	public void testCacheName() throws Exception {
-		assertThat(getCache().getName()).isEqualTo(CACHE_NAME);
-	}
+  @Test
+  public void testNativeCache() throws Exception {
+    assertThat(getCache().getNativeCache()).isSameAs(getNativeCache());
+  }
 
-	@Test
-	public void testNativeCache() throws Exception {
-		assertThat(getCache().getNativeCache()).isSameAs(getNativeCache());
-	}
+  @Test
+  public void testCachePut() throws Exception {
+    T cache = getCache();
 
-	@Test
-	public void testCachePut() throws Exception {
-		T cache = getCache();
+    String key = createRandomKey();
+    Object value = "george";
 
-		String key = createRandomKey();
-		Object value = "george";
+    assertThat((Object) cache.get(key)).isNull();
+    assertThat(cache.get(key, String.class)).isNull();
+    assertThat(cache.get(key, Object.class)).isNull();
 
-		assertThat((Object) cache.get(key)).isNull();
-		assertThat(cache.get(key, String.class)).isNull();
-		assertThat(cache.get(key, Object.class)).isNull();
+    cache.put(key, value);
+    assertThat(cache.get(key).get()).isEqualTo(value);
+    assertThat(cache.get(key, String.class)).isEqualTo(value);
+    assertThat(cache.get(key, Object.class)).isEqualTo(value);
+    assertThat(cache.get(key, (Class<?>) null)).isEqualTo(value);
 
-		cache.put(key, value);
-		assertThat(cache.get(key).get()).isEqualTo(value);
-		assertThat(cache.get(key, String.class)).isEqualTo(value);
-		assertThat(cache.get(key, Object.class)).isEqualTo(value);
-		assertThat(cache.get(key, (Class<?>) null)).isEqualTo(value);
+    cache.put(key, null);
+    assertThat(cache.get(key)).isNotNull();
+    assertThat(cache.get(key).get()).isNull();
+    assertThat(cache.get(key, String.class)).isNull();
+    assertThat(cache.get(key, Object.class)).isNull();
+  }
 
-		cache.put(key, null);
-		assertThat(cache.get(key)).isNotNull();
-		assertThat(cache.get(key).get()).isNull();
-		assertThat(cache.get(key, String.class)).isNull();
-		assertThat(cache.get(key, Object.class)).isNull();
-	}
+  @Test
+  public void testCachePutIfAbsent() throws Exception {
+    T cache = getCache();
 
-	@Test
-	public void testCachePutIfAbsent() throws Exception {
-		T cache = getCache();
+    String key = createRandomKey();
+    Object value = "initialValue";
 
-		String key = createRandomKey();
-		Object value = "initialValue";
+    assertThat(cache.get(key)).isNull();
+    assertThat(cache.putIfAbsent(key, value)).isNull();
+    assertThat(cache.get(key).get()).isEqualTo(value);
+    assertThat(cache.putIfAbsent(key, "anotherValue").get()).isEqualTo("initialValue");
+    // not changed
+    assertThat(cache.get(key).get()).isEqualTo(value);
+  }
 
-		assertThat(cache.get(key)).isNull();
-		assertThat(cache.putIfAbsent(key, value)).isNull();
-		assertThat(cache.get(key).get()).isEqualTo(value);
-		assertThat(cache.putIfAbsent(key, "anotherValue").get()).isEqualTo("initialValue");
-		// not changed
-		assertThat(cache.get(key).get()).isEqualTo(value);
-	}
+  @Test
+  public void testCacheRemove() throws Exception {
+    T cache = getCache();
 
-	@Test
-	public void testCacheRemove() throws Exception {
-		T cache = getCache();
+    String key = createRandomKey();
+    Object value = "george";
 
-		String key = createRandomKey();
-		Object value = "george";
+    assertThat((Object) cache.get(key)).isNull();
+    cache.put(key, value);
+  }
 
-		assertThat((Object) cache.get(key)).isNull();
-		cache.put(key, value);
-	}
+  @Test
+  public void testCacheClear() throws Exception {
+    T cache = getCache();
 
-	@Test
-	public void testCacheClear() throws Exception {
-		T cache = getCache();
+    assertThat((Object) cache.get("enescu")).isNull();
+    cache.put("enescu", "george");
+    assertThat((Object) cache.get("vlaicu")).isNull();
+    cache.put("vlaicu", "aurel");
+    cache.clear();
+    assertThat((Object) cache.get("vlaicu")).isNull();
+    assertThat((Object) cache.get("enescu")).isNull();
+  }
 
-		assertThat((Object) cache.get("enescu")).isNull();
-		cache.put("enescu", "george");
-		assertThat((Object) cache.get("vlaicu")).isNull();
-		cache.put("vlaicu", "aurel");
-		cache.clear();
-		assertThat((Object) cache.get("vlaicu")).isNull();
-		assertThat((Object) cache.get("enescu")).isNull();
-	}
+  @Test
+  public void testCacheGetCallable() {
+    doTestCacheGetCallable("test");
+  }
 
-	@Test
-	public void testCacheGetCallable() {
-		doTestCacheGetCallable("test");
-	}
+  @Test
+  public void testCacheGetCallableWithNull() {
+    doTestCacheGetCallable(null);
+  }
 
-	@Test
-	public void testCacheGetCallableWithNull() {
-		doTestCacheGetCallable(null);
-	}
+  private void doTestCacheGetCallable(Object returnValue) {
+    T cache = getCache();
 
-	private void doTestCacheGetCallable(Object returnValue) {
-		T cache = getCache();
+    String key = createRandomKey();
 
-		String key = createRandomKey();
+    assertThat((Object) cache.get(key)).isNull();
+    Object value = cache.get(key, () -> returnValue);
+    assertThat(value).isEqualTo(returnValue);
+    assertThat(cache.get(key).get()).isEqualTo(value);
+  }
 
-		assertThat((Object) cache.get(key)).isNull();
-		Object value = cache.get(key, () -> returnValue);
-		assertThat(value).isEqualTo(returnValue);
-		assertThat(cache.get(key).get()).isEqualTo(value);
-	}
+  @Test
+  public void testCacheGetCallableNotInvokedWithHit() {
+    doTestCacheGetCallableNotInvokedWithHit("existing");
+  }
 
-	@Test
-	public void testCacheGetCallableNotInvokedWithHit() {
-		doTestCacheGetCallableNotInvokedWithHit("existing");
-	}
+  @Test
+  public void testCacheGetCallableNotInvokedWithHitNull() {
+    doTestCacheGetCallableNotInvokedWithHit(null);
+  }
 
-	@Test
-	public void testCacheGetCallableNotInvokedWithHitNull() {
-		doTestCacheGetCallableNotInvokedWithHit(null);
-	}
+  private void doTestCacheGetCallableNotInvokedWithHit(Object initialValue) {
+    T cache = getCache();
 
-	private void doTestCacheGetCallableNotInvokedWithHit(Object initialValue) {
-		T cache = getCache();
+    String key = createRandomKey();
+    cache.put(key, initialValue);
 
-		String key = createRandomKey();
-		cache.put(key, initialValue);
+    Object value = cache.get(key, () -> {
+      throw new IllegalStateException("Should not have been invoked");
+    });
+    assertThat(value).isEqualTo(initialValue);
+  }
 
-		Object value = cache.get(key, () -> {
-			throw new IllegalStateException("Should not have been invoked");
-		});
-		assertThat(value).isEqualTo(initialValue);
-	}
+  @Test
+  public void testCacheGetCallableFail() {
+    T cache = getCache();
 
-	@Test
-	public void testCacheGetCallableFail() {
-		T cache = getCache();
+    String key = createRandomKey();
+    assertThat((Object) cache.get(key)).isNull();
 
-		String key = createRandomKey();
-		assertThat((Object) cache.get(key)).isNull();
+    try {
+      cache.get(key, () -> {
+        throw new UnsupportedOperationException("Expected exception");
+      });
+    }
+    catch (Cache.ValueRetrievalException ex) {
+      assertThat(ex.getCause()).isNotNull();
+      assertThat(ex.getCause().getClass()).isEqualTo(UnsupportedOperationException.class);
+    }
+  }
 
-		try {
-			cache.get(key, () -> {
-				throw new UnsupportedOperationException("Expected exception");
-			});
-		}
-		catch (Cache.ValueRetrievalException ex) {
-			assertThat(ex.getCause()).isNotNull();
-			assertThat(ex.getCause().getClass()).isEqualTo(UnsupportedOperationException.class);
-		}
-	}
+  /**
+   * Test that a call to get with a Callable concurrently properly synchronize the
+   * invocations.
+   */
+  @Test
+  public void testCacheGetSynchronized() throws InterruptedException {
+    T cache = getCache();
+    final AtomicInteger counter = new AtomicInteger();
+    final List<Object> results = new CopyOnWriteArrayList<>();
+    final CountDownLatch latch = new CountDownLatch(10);
 
-	/**
-	 * Test that a call to get with a Callable concurrently properly synchronize the
-	 * invocations.
-	 */
-	@Test
-	public void testCacheGetSynchronized() throws InterruptedException {
-		T cache = getCache();
-		final AtomicInteger counter = new AtomicInteger();
-		final List<Object> results = new CopyOnWriteArrayList<>();
-		final CountDownLatch latch = new CountDownLatch(10);
+    String key = createRandomKey();
+    Runnable run = () -> {
+      try {
+        Integer value = cache.get(key, () -> {
+          Thread.sleep(50); // make sure the thread will overlap
+          return counter.incrementAndGet();
+        });
+        results.add(value);
+      }
+      finally {
+        latch.countDown();
+      }
+    };
 
-		String key = createRandomKey();
-		Runnable run = () -> {
-			try {
-				Integer value = cache.get(key, () -> {
-					Thread.sleep(50); // make sure the thread will overlap
-					return counter.incrementAndGet();
-				});
-				results.add(value);
-			}
-			finally {
-				latch.countDown();
-			}
-		};
+    for (int i = 0; i < 10; i++) {
+      new Thread(run).start();
+    }
+    latch.await();
 
-		for (int i = 0; i < 10; i++) {
-			new Thread(run).start();
-		}
-		latch.await();
+    assertThat(results.size()).isEqualTo(10);
+    results.forEach(r -> assertThat(r).isEqualTo(1)); // Only one method got invoked
+  }
 
-		assertThat(results.size()).isEqualTo(10);
-		results.forEach(r -> assertThat(r).isEqualTo(1)); // Only one method got invoked
-	}
-
-	protected String createRandomKey() {
-		return UUID.randomUUID().toString();
-	}
+  protected String createRandomKey() {
+    return UUID.randomUUID().toString();
+  }
 
 }

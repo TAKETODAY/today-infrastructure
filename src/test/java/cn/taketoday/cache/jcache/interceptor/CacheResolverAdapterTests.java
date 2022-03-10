@@ -44,57 +44,56 @@ import static org.mockito.Mockito.mock;
  */
 public class CacheResolverAdapterTests extends AbstractJCacheTests {
 
-	@Test
-	public void resolveSimpleCache() throws Exception {
-		DefaultCacheInvocationContext<?> dummyContext = createDummyContext();
-		CacheResolverAdapter adapter = new CacheResolverAdapter(getCacheResolver(dummyContext, "testCache"));
-		Collection<? extends Cache> caches = adapter.resolveCaches(dummyContext);
-		assertThat(caches).isNotNull();
-		assertThat(caches.size()).isEqualTo(1);
-		assertThat(caches.iterator().next().getName()).isEqualTo("testCache");
-	}
+  @Test
+  public void resolveSimpleCache() throws Exception {
+    DefaultCacheInvocationContext<?> dummyContext = createDummyContext();
+    CacheResolverAdapter adapter = new CacheResolverAdapter(getCacheResolver(dummyContext, "testCache"));
+    Collection<? extends Cache> caches = adapter.resolveCaches(dummyContext);
+    assertThat(caches).isNotNull();
+    assertThat(caches.size()).isEqualTo(1);
+    assertThat(caches.iterator().next().getName()).isEqualTo("testCache");
+  }
 
-	@Test
-	public void resolveUnknownCache() throws Exception {
-		DefaultCacheInvocationContext<?> dummyContext = createDummyContext();
-		CacheResolverAdapter adapter = new CacheResolverAdapter(getCacheResolver(dummyContext, null));
+  @Test
+  public void resolveUnknownCache() throws Exception {
+    DefaultCacheInvocationContext<?> dummyContext = createDummyContext();
+    CacheResolverAdapter adapter = new CacheResolverAdapter(getCacheResolver(dummyContext, null));
 
-		assertThatIllegalStateException().isThrownBy(() ->
-				adapter.resolveCaches(dummyContext));
-	}
+    assertThatIllegalStateException().isThrownBy(() ->
+            adapter.resolveCaches(dummyContext));
+  }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected CacheResolver getCacheResolver(CacheInvocationContext<? extends Annotation> context, String cacheName) {
-		CacheResolver cacheResolver = mock(CacheResolver.class);
-		javax.cache.Cache cache;
-		if (cacheName == null) {
-			cache = null;
-		}
-		else {
-			cache = mock(javax.cache.Cache.class);
-			given(cache.getName()).willReturn(cacheName);
-		}
-		given(cacheResolver.resolveCache(context)).willReturn(cache);
-		return cacheResolver;
-	}
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  protected CacheResolver getCacheResolver(CacheInvocationContext<? extends Annotation> context, String cacheName) {
+    CacheResolver cacheResolver = mock(CacheResolver.class);
+    javax.cache.Cache cache;
+    if (cacheName == null) {
+      cache = null;
+    }
+    else {
+      cache = mock(javax.cache.Cache.class);
+      given(cache.getName()).willReturn(cacheName);
+    }
+    given(cacheResolver.resolveCache(context)).willReturn(cache);
+    return cacheResolver;
+  }
 
-	protected DefaultCacheInvocationContext<?> createDummyContext() throws Exception {
-		Method method = Sample.class.getMethod("get", String.class);
-		CacheResult cacheAnnotation = method.getAnnotation(CacheResult.class);
-		CacheMethodDetails<CacheResult> methodDetails =
-				new DefaultCacheMethodDetails<>(method, cacheAnnotation, "test");
-		CacheResultOperation operation = new CacheResultOperation(methodDetails,
-				defaultCacheResolver, defaultKeyGenerator, defaultExceptionCacheResolver);
-		return new DefaultCacheInvocationContext<>(operation, new Sample(), new Object[] {"id"});
-	}
+  protected DefaultCacheInvocationContext<?> createDummyContext() throws Exception {
+    Method method = Sample.class.getMethod("get", String.class);
+    CacheResult cacheAnnotation = method.getAnnotation(CacheResult.class);
+    CacheMethodDetails<CacheResult> methodDetails =
+            new DefaultCacheMethodDetails<>(method, cacheAnnotation, "test");
+    CacheResultOperation operation = new CacheResultOperation(methodDetails,
+            defaultCacheResolver, defaultKeyGenerator, defaultExceptionCacheResolver);
+    return new DefaultCacheInvocationContext<>(operation, new Sample(), new Object[] { "id" });
+  }
 
+  static class Sample {
 
-	static class Sample {
-
-		@CacheResult
-		public Object get(String id) {
-			return null;
-		}
-	}
+    @CacheResult
+    public Object get(String id) {
+      return null;
+    }
+  }
 
 }

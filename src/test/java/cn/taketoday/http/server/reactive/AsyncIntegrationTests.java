@@ -68,7 +68,7 @@ class AsyncIntegrationTests extends AbstractHttpHandlerIntegrationTests {
                       .delayElements(Duration.ofMillis(100))
                       .publishOn(asyncGroup)
                       .collect(DefaultDataBufferFactory.sharedInstance::allocateBuffer,
-                               (buffer, str) -> buffer.write(str.getBytes())));
+                              (buffer, str) -> buffer.write(str.getBytes())));
     }
   }
 

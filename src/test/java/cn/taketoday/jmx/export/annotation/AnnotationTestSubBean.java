@@ -25,39 +25,39 @@ package cn.taketoday.jmx.export.annotation;
  */
 public class AnnotationTestSubBean extends AnnotationTestBean implements IAnnotationTestBean {
 
-	private String colour;
+  private String colour;
 
-	@Override
-	public long myOperation() {
-		return 123L;
-	}
+  @Override
+  public long myOperation() {
+    return 123L;
+  }
 
-	@Override
-	public void setAge(int age) {
-		super.setAge(age);
-	}
+  @Override
+  public void setAge(int age) {
+    super.setAge(age);
+  }
 
-	@Override
-	public int getAge() {
-		return super.getAge();
-	}
+  @Override
+  public int getAge() {
+    return super.getAge();
+  }
 
-	@Override
-	public String getColour() {
-		return this.colour;
-	}
+  @Override
+  public String getColour() {
+    return this.colour;
+  }
 
-	@Override
-	public void setColour(String colour) {
-		this.colour = colour;
-	}
+  @Override
+  public void setColour(String colour) {
+    this.colour = colour;
+  }
 
-	@Override
-	public void fromInterface() {
-	}
+  @Override
+  public void fromInterface() {
+  }
 
-	@Override
-	public int getExpensiveToCalculate() {
-		return Integer.MAX_VALUE;
-	}
+  @Override
+  public int getExpensiveToCalculate() {
+    return Integer.MAX_VALUE;
+  }
 }

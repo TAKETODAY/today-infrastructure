@@ -112,7 +112,7 @@ public abstract class AbstractInterceptorDrivenBeanDefinitionDecorator implement
 
   @SuppressWarnings("unchecked")
   private void addInterceptorNameToList(String interceptorName, BeanDefinition beanDefinition) {
-    List<String> list = (List<String>) beanDefinition.getPropertyValues().get("interceptorNames");
+    List<String> list = (List<String>) beanDefinition.getPropertyValues().getPropertyValue("interceptorNames");
     Assert.state(list != null, "Missing 'interceptorNames' property");
     list.add(interceptorName);
   }

@@ -34,5 +34,4 @@ class DefaultMultiValueMapTests {
     assertThat(objectList).isEqualTo(list);
   }
 
-
 }

@@ -30,10 +30,10 @@ import cn.taketoday.contextsupport.testfixture.cache.AbstractCacheAnnotationTest
  */
 public class AnnotationDrivenCacheConfigTests extends AbstractCacheAnnotationTests {
 
-	@Override
-	protected ConfigurableApplicationContext getApplicationContext() {
-		return new GenericXmlApplicationContext(
-				"cn/taketoday/cache/config/annotationDrivenCacheConfig.xml");
-	}
+  @Override
+  protected ConfigurableApplicationContext getApplicationContext() {
+    return new GenericXmlApplicationContext(
+            "cn/taketoday/cache/config/annotationDrivenCacheConfig.xml");
+  }
 
 }

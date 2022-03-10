@@ -128,8 +128,7 @@ public class ClassFile {
   /**
    * Constructs a new ClassFile instance.
    *
-   * @param classBytes
-   *         the binary content of a Java class file.
+   * @param classBytes the binary content of a Java class file.
    */
   public ClassFile(final byte[] classBytes) {
     this.classBytes = classBytes;
@@ -153,10 +152,8 @@ public class ClassFile {
    *
    * @return a new instance of the class, or {@literal null} if the class is abstract, is an enum,
    * or a module info.
-   *
-   * @throws ReflectiveOperationException
-   *         if the class is invalid or if an error occurs in its
-   *         constructor.
+   * @throws ReflectiveOperationException if the class is invalid or if an error occurs in its
+   * constructor.
    */
   public Object newInstance() throws ReflectiveOperationException {
     if (className == null) {
@@ -168,17 +165,12 @@ public class ClassFile {
   /**
    * Returns a new instance of the given class. The class is loaded in a new class loader.
    *
-   * @param className
-   *         the name of the class to load.
-   * @param classContent
-   *         the content of the class to load.
-   *
+   * @param className the name of the class to load.
+   * @param classContent the content of the class to load.
    * @return a new instance of the class, or {@literal null} if the class is abstract, is an enum,
    * or a module info.
-   *
-   * @throws ReflectiveOperationException
-   *         if the class is invalid or if an error occurs in its
-   *         constructor.
+   * @throws ReflectiveOperationException if the class is invalid or if an error occurs in its
+   * constructor.
    */
   static Object newInstance(final String className, final byte[] classContent)
           throws ReflectiveOperationException {
@@ -213,9 +205,7 @@ public class ClassFile {
    * Returns whether the given class file is the same as this one.
    *
    * @return true if 'other' is a {@link ClassFile} with the same string representation.
-   *
-   * @throws ClassFormatException
-   *         if the class content can't be parsed.
+   * @throws ClassFormatException if the class content can't be parsed.
    */
   @Override
   public boolean equals(final Object other) {
@@ -229,9 +219,7 @@ public class ClassFile {
    * Returns the hashcode of this class file.
    *
    * @return the hashcode of the string representation of this class file.
-   *
-   * @throws ClassFormatException
-   *         if the class content can't be parsed.
+   * @throws ClassFormatException if the class content can't be parsed.
    */
   @Override
   public int hashCode() {
@@ -242,9 +230,7 @@ public class ClassFile {
    * Returns a string representation of this class file.
    *
    * @return a string representation of this class file (see the class comments for more details).
-   *
-   * @throws ClassFormatException
-   *         if the class content can't be parsed.
+   * @throws ClassFormatException if the class content can't be parsed.
    */
   @Override
   public String toString() {
@@ -258,8 +244,7 @@ public class ClassFile {
    * Computes the name and the string representation of the class (and of its constant pool)
    * contained in this class file.
    *
-   * @throws ClassFormatException
-   *         if the class content can't be parsed.
+   * @throws ClassFormatException if the class content can't be parsed.
    */
   private void computeNameAndDumps() {
     try {
@@ -283,17 +268,11 @@ public class ClassFile {
   /**
    * Parses and dumps the high level structure of the class.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   * @param constantPoolBuilder
-   *         a dump builder for the constant pool.
-   *
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @param constantPoolBuilder a dump builder for the constant pool.
    * @return the ConstantClassInfo corresponding to the parsed class.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    * 4.1</a>
    */
@@ -339,13 +318,9 @@ public class ClassFile {
   /**
    * Parses and dumps a list of attributes.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.1">JVMS
    * 4.1</a>
    */
@@ -361,15 +336,10 @@ public class ClassFile {
   /**
    * Parses a cp_info structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param classContext
-   *         a context to lookup constant pool items from their index.
-   *
+   * @param parser a class parser.
+   * @param classContext a context to lookup constant pool items from their index.
    * @return the parsed constant pool item.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.4">JVMS
    * 4.4</a>
    */
@@ -419,13 +389,9 @@ public class ClassFile {
   /**
    * Parses and dumps a field_info structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.5">JVMS
    * 4.5</a>
    */
@@ -439,13 +405,9 @@ public class ClassFile {
   /**
    * Parses and dumps a method_info structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">JVMS
    * 4.6</a>
    */
@@ -458,13 +420,9 @@ public class ClassFile {
   /**
    * Parses and dumps an attribute_info structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param sortedBuilder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param sortedBuilder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7">JVMS
    * 4.7</a>
    */
@@ -576,13 +534,9 @@ public class ClassFile {
   /**
    * Parses and dumps a ConstantValue attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    * 4.7.2</a>
    */
@@ -594,13 +548,9 @@ public class ClassFile {
   /**
    * Parses and dumps a Code attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
    * 4.7.3</a>
    */
@@ -623,15 +573,10 @@ public class ClassFile {
   /**
    * Parses and dumps the bytecode instructions of a method.
    *
-   * @param codeLength
-   *         the number of bytes to parse.
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param codeLength the number of bytes to parse.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5">JVMS
    * 6.5</a>
    */
@@ -1077,13 +1022,9 @@ public class ClassFile {
   /**
    * Parses and dumps a StackMapTable attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4">JVMS
    * 4.7.4</a>
    */
@@ -1150,13 +1091,9 @@ public class ClassFile {
   /**
    * Parses and dumps a verification_type_info structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.2">JVMS
    * 4.7.2</a>
    */
@@ -1177,13 +1114,9 @@ public class ClassFile {
   /**
    * Parses and dumps an Exception attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.5">JVMS
    * 4.7.5</a>
    */
@@ -1198,13 +1131,9 @@ public class ClassFile {
   /**
    * Parses and dumps an InnerClasses attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.6">JVMS
    * 4.7.6</a>
    */
@@ -1222,13 +1151,9 @@ public class ClassFile {
   /**
    * Parses and dumps an EnclosingMethod attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.7">JVMS
    * 4.7.7</a>
    */
@@ -1251,13 +1176,9 @@ public class ClassFile {
   /**
    * Parses and dumps a Signature attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.9">JVMS
    * 4.7.9</a>
    */
@@ -1269,13 +1190,9 @@ public class ClassFile {
   /**
    * Parses and dumps a SourceFile attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.10">JVMS
    * 4.7.10</a>
    */
@@ -1287,15 +1204,10 @@ public class ClassFile {
   /**
    * Parses and dumps a SourceDebug attribute.
    *
-   * @param attributeLength
-   *         the length of the SourceDebug attribute (excluding its 6 header bytes).
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param attributeLength the length of the SourceDebug attribute (excluding its 6 header bytes).
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.11">JVMS
    * 4.7.11</a>
    */
@@ -1312,13 +1224,9 @@ public class ClassFile {
   /**
    * Parses and dumps a LineNumberTable attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.12">JVMS
    * 4.7.12</a>
    */
@@ -1334,13 +1242,9 @@ public class ClassFile {
   /**
    * Parses and dumps a LocalVariableTable attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.13">JVMS
    * 4.7.13</a>
    */
@@ -1359,13 +1263,9 @@ public class ClassFile {
   /**
    * Parses and dumps a LocalVariableTypeTable attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.14">JVMS
    * 4.7.14</a>
    */
@@ -1394,13 +1294,9 @@ public class ClassFile {
   /**
    * Parses and dumps a RuntimeVisibleAnnotations attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    * 4.7.16</a>
    */
@@ -1415,13 +1311,9 @@ public class ClassFile {
   /**
    * Parses and dumps an annotations structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16">JVMS
    * 4.7.16</a>
    */
@@ -1438,13 +1330,9 @@ public class ClassFile {
   /**
    * Parses and dumps an element_value structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a
    * href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.16.1">JVMS
    * 4.7.16.1</a>
@@ -1489,13 +1377,9 @@ public class ClassFile {
   /**
    * Parses and dumps a RuntimeInvisibleAnnotations attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.17">JVMS
    * 4.7.17</a>
    */
@@ -1507,13 +1391,9 @@ public class ClassFile {
   /**
    * Parses and dumps a RuntimeVisibleParameterAnnotations attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.18">JVMS
    * 4.7.18</a>
    */
@@ -1531,13 +1411,9 @@ public class ClassFile {
   /**
    * Parses and dumps a RuntimeInvisibleParameterAnnotations attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.19">JVMS
    * 4.7.19</a>
    */
@@ -1549,13 +1425,9 @@ public class ClassFile {
   /**
    * Parses and dumps a RuntimeVisibleTypeAnnotations attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    * 4.7.20</a>
    */
@@ -1571,13 +1443,9 @@ public class ClassFile {
   /**
    * Parses and dumps a type_annotation structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param sortedBuilder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param sortedBuilder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20">JVMS
    * 4.7.20</a>
    */
@@ -1659,13 +1527,9 @@ public class ClassFile {
   /**
    * Parses and dumps a type_path structure.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a
    * href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.20.2">JVMS
    * 4.7.20.2</a>
@@ -1681,13 +1545,9 @@ public class ClassFile {
   /**
    * Parses and dumps a RuntimeInvisibleTypeAnnotations attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.21">JVMS
    * 4.7.21</a>
    */
@@ -1699,13 +1559,9 @@ public class ClassFile {
   /**
    * Parses and dumps an AnnotationDefault attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.22">JVMS
    * 4.7.22</a>
    */
@@ -1717,13 +1573,9 @@ public class ClassFile {
   /**
    * Parses and dumps a BootstrapMethods attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.23">JVMS
    * 4.7.23</a>
    */
@@ -1742,13 +1594,9 @@ public class ClassFile {
   /**
    * Parses and dumps a MethodParameters attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.24">JVMS
    * 4.7.24</a>
    */
@@ -1764,13 +1612,9 @@ public class ClassFile {
   /**
    * Parses and dumps a Module attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
    * 4.7.25</a>
    */
@@ -1820,13 +1664,9 @@ public class ClassFile {
   /**
    * Parses and dumps a ModulePackages attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26">JVMS
    * 4.7.26</a>
    */
@@ -1841,13 +1681,9 @@ public class ClassFile {
   /**
    * Parses and dumps a ModuleMainClass attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.27">JVMS
    * 4.7.27</a>
    */
@@ -1859,13 +1695,9 @@ public class ClassFile {
   /**
    * Parses and dumps a NestHost attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.28">JVMS
    * 4.7.28</a>
    */
@@ -1877,13 +1709,9 @@ public class ClassFile {
   /**
    * Parses and dumps a NestMembers attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.29">JVMS
    * 4.7.29</a>
    */
@@ -1898,13 +1726,9 @@ public class ClassFile {
   /**
    * Parses and dumps a PermittedSubclasses attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://openjdk.java.net/jeps/360">JEP 360</a>
    */
   private static void dumpPermittedSubclassesAttribute(final Parser parser, final Builder builder)
@@ -1918,13 +1742,9 @@ public class ClassFile {
   /**
    * Parses and dumps a Record attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a href="https://openjdk.java.net/jeps/360">JEP 360</a>
    */
   private static void dumpRecordAttribute(final Parser parser, final Builder builder)
@@ -1940,13 +1760,9 @@ public class ClassFile {
   /**
    * Parses and dumps a StackMap attribute.
    *
-   * @param parser
-   *         a class parser.
-   * @param builder
-   *         a dump builder.
-   *
-   * @throws IOException
-   *         if the class can't be parsed.
+   * @param parser a class parser.
+   * @param builder a dump builder.
+   * @throws IOException if the class can't be parsed.
    * @see <a
    * href="http://docs.oracle.com/javame/config/cldc/opt-pkgs/api/cldc/api/Appendix1-verifier.pdf">CLDC</a>
    */
@@ -1976,8 +1792,7 @@ public class ClassFile {
     /**
      * Constructs a CpInfo for an item without references to other items.
      *
-     * @param dump
-     *         the dump of this item.
+     * @param dump the dump of this item.
      */
     CpInfo(final String dump) {
       this.dump = dump;
@@ -1987,8 +1802,7 @@ public class ClassFile {
     /**
      * Constructs a CpInfo for an item with references to other items.
      *
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
+     * @param classContext a context to lookup constant pool items from their index.
      */
     CpInfo(final ClassContext classContext) {
       this.classContext = classContext;
@@ -2006,13 +1820,9 @@ public class ClassFile {
     /**
      * Returns the constant pool item with the given index.
      *
-     * @param <C>
-     *         a CpInfo subclass.
-     * @param cpIndex
-     *         a constant pool entry index.
-     * @param cpInfoType
-     *         the expected type of the constant pool entry.
-     *
+     * @param <C> a CpInfo subclass.
+     * @param cpIndex a constant pool entry index.
+     * @param cpInfoType the expected type of the constant pool entry.
      * @return the constant pool item with the given index.
      */
     <C extends CpInfo> C getCpInfo(final int cpIndex, final Class<C> cpInfoType) {
@@ -2049,13 +1859,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Class_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantClassInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2081,13 +1887,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Fieldref_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantFieldRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2116,13 +1918,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Methodref_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantMethodRefInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2151,13 +1949,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_InterfaceMethodref_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantInterfaceMethodRefInfo(final Parser parser, final ClassContext classContext)
             throws IOException {
@@ -2186,13 +1980,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_String_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantStringInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2216,11 +2006,8 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Integer_info item.
      *
-     * @param parser
-     *         a class parser.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantIntegerInfo(final Parser parser) throws IOException {
       super(Integer.toString(parser.u4()));
@@ -2238,11 +2025,8 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Float_info item.
      *
-     * @param parser
-     *         a class parser.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantFloatInfo(final Parser parser) throws IOException {
       super(Float.toString(Float.intBitsToFloat(parser.u4())));
@@ -2260,11 +2044,8 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Long_info item.
      *
-     * @param parser
-     *         a class parser.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantLongInfo(final Parser parser) throws IOException {
       super(Long.toString(parser.s8()));
@@ -2287,11 +2068,8 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Double_info item.
      *
-     * @param parser
-     *         a class parser.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantDoubleInfo(final Parser parser) throws IOException {
       super(Double.toString(Double.longBitsToDouble(parser.s8())));
@@ -2316,13 +2094,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_NameAndType_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantNameAndTypeInfo(final Parser parser, final ClassContext classContext)
             throws IOException {
@@ -2349,11 +2123,8 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Utf8_info item.
      *
-     * @param parser
-     *         a class parser.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantUtf8Info(final Parser parser) throws IOException {
       super(parser.utf8());
@@ -2373,13 +2144,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_MethodHandle_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantMethodHandleInfo(final Parser parser, final ClassContext classContext)
             throws IOException {
@@ -2406,13 +2173,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_MethodType_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantMethodTypeInfo(final Parser parser, final ClassContext classContext)
             throws IOException {
@@ -2439,13 +2202,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_InvokeDynamic_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantInvokeDynamicInfo(final Parser parser, final ClassContext classContext)
             throws IOException {
@@ -2474,13 +2233,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Module_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantModuleInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2505,13 +2260,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Package_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantPackageInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2537,13 +2288,9 @@ public class ClassFile {
     /**
      * Parses a CONSTANT_Dynamic_info item.
      *
-     * @param parser
-     *         a class parser.
-     * @param classContext
-     *         a context to lookup constant pool items from their index.
-     *
-     * @throws IOException
-     *         if the class can't be parsed.
+     * @param parser a class parser.
+     * @param classContext a context to lookup constant pool items from their index.
+     * @throws IOException if the class can't be parsed.
      */
     ConstantDynamicInfo(final Parser parser, final ClassContext classContext) throws IOException {
       super(classContext);
@@ -2680,9 +2427,7 @@ public class ClassFile {
     /**
      * Lookup constant pool items from their index.
      *
-     * @param cpIndex
-     *         a constant pool item index.
-     *
+     * @param cpIndex a constant pool item index.
      * @return the constant pool item at the given index.
      */
     CpInfo getCpInfo(final int cpIndex) {
@@ -2717,10 +2462,8 @@ public class ClassFile {
     /**
      * Registers the CpInfo for the given constant pool index.
      *
-     * @param cpIndex
-     *         a constant pool item index.
-     * @param cpInfo
-     *         a constant pool item.
+     * @param cpIndex a constant pool item index.
+     * @param cpInfo a constant pool item.
      */
     void putCpInfo(final int cpIndex, final CpInfo cpInfo) {
       context.put(CP_INFO_KEY | cpIndex, cpInfo);
@@ -2729,10 +2472,8 @@ public class ClassFile {
     /**
      * Registers the instruction index for the given bytecode offset.
      *
-     * @param bytecodeOffset
-     *         a bytecode offset.
-     * @param instructionIndex
-     *         the index of a bytecode instruction.
+     * @param bytecodeOffset a bytecode offset.
+     * @param instructionIndex the index of a bytecode instruction.
      */
     void putInsnIndex(final int bytecodeOffset, final int instructionIndex) {
       context.put(bytecodeOffset, instructionIndex);
@@ -2741,8 +2482,7 @@ public class ClassFile {
     /**
      * Recursively appends the builder's children to the given string.
      *
-     * @param stringBuilder
-     *         a string builder.
+     * @param stringBuilder a string builder.
      */
     void build(final StringBuilder stringBuilder) {
       for (Object child : children) {
@@ -2758,9 +2498,7 @@ public class ClassFile {
     /**
      * Returns the value associated with the given key.
      *
-     * @param key
-     *         a context key.
-     *
+     * @param key a context key.
      * @return the value associated with the given key in this context or, if not found, in the
      * parent context (recursively).
      */
@@ -2786,13 +2524,9 @@ public class ClassFile {
     /**
      * Appends name and value to children and returns value.
      *
-     * @param <T>
-     *         a value type.
-     * @param name
-     *         a name.
-     * @param value
-     *         a value.
-     *
+     * @param <T> a value type.
+     * @param name a name.
+     * @param value a value.
      * @return value
      */
     <T> T add(final String name, final T value) {
@@ -2806,11 +2540,8 @@ public class ClassFile {
      * Appends name and the instruction index corresponding to bytecodeOffset to children, and
      * returns bytecodeOffset.
      *
-     * @param name
-     *         a name.
-     * @param bytecodeOffset
-     *         the offset of a bytecode instruction.
-     *
+     * @param name a name.
+     * @param bytecodeOffset the offset of a bytecode instruction.
      * @return bytecodeOffset.
      */
     int addInsnIndex(final String name, final int bytecodeOffset) {
@@ -2821,12 +2552,9 @@ public class ClassFile {
     /**
      * Appends the given arguments to children.
      *
-     * @param insnIndex
-     *         the index of a bytecode instruction.
-     * @param opcode
-     *         a bytecode instruction opcode.
-     * @param arguments
-     *         the bytecode instruction arguments.
+     * @param insnIndex the index of a bytecode instruction.
+     * @param opcode a bytecode instruction opcode.
+     * @param arguments the bytecode instruction arguments.
      */
     void addInsn(final int insnIndex, final int opcode, final Object... arguments) {
       children.add(insnIndex);
@@ -2842,10 +2570,8 @@ public class ClassFile {
     /**
      * Appends name and the CpInfo corresponding to cpIndex to children.
      *
-     * @param name
-     *         a name.
-     * @param cpIndex
-     *         a constant pool item index.
+     * @param name a name.
+     * @param cpIndex a constant pool item index.
      */
     void addCpInfo(final String name, final int cpIndex) {
       add(name, cpIndex == 0 ? 0 : getCpInfo(cpIndex));
@@ -2902,9 +2628,7 @@ public class ClassFile {
     /**
      * Appends a new {@link Builder} to children and returns it.
      *
-     * @param name
-     *         the name of the new builder.
-     *
+     * @param name the name of the new builder.
      * @return the new builder.
      */
     Builder addBuilder(final String name) {

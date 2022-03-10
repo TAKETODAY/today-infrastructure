@@ -19,8 +19,6 @@
  */
 package cn.taketoday.util;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -367,12 +365,12 @@ public class AntPathMatcherTest {
   public void extractUriTemplateVariablesRegex() {
     Map<String, String> result = pathMatcher
             .extractUriTemplateVariables("{symbolicName:[\\w\\.]+}-{version:[\\w\\.]+}.jar",
-                                         "com.example-1.0.0.jar");
+                    "com.example-1.0.0.jar");
     assertThat(result.get("symbolicName")).isEqualTo("com.example");
     assertThat(result.get("version")).isEqualTo("1.0.0");
 
     result = pathMatcher.extractUriTemplateVariables("{symbolicName:[\\w\\.]+}-sources-{version:[\\w\\.]+}.jar",
-                                                     "com.example-sources-1.0.0.jar");
+            "com.example-sources-1.0.0.jar");
     assertThat(result.get("symbolicName")).isEqualTo("com.example");
     assertThat(result.get("version")).isEqualTo("1.0.0");
   }
@@ -398,7 +396,7 @@ public class AntPathMatcherTest {
     assertThat(result.get("day")).isEqualTo("20");
 
     result = pathMatcher.extractUriTemplateVariables("{symbolicName:[\\p{L}\\.]+}-sources-{version:[\\p{N}\\.\\{\\}]+}.jar",
-                                                     "com.example-sources-1.0.0.{12}.jar");
+            "com.example-sources-1.0.0.{12}.jar");
     assertThat(result.get("symbolicName")).isEqualTo("com.example");
     assertThat(result.get("version")).isEqualTo("1.0.0.{12}");
   }

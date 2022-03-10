@@ -212,8 +212,8 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @SuppressWarnings("ConstantConditions")
   private String decodeToString(Part part) {
     return StringDecoder.textPlainOnly().decodeToMono(part.content(),
-                                                      ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
-                                                      Collections.emptyMap()).block(Duration.ZERO);
+            ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
+            Collections.emptyMap()).block(Duration.ZERO);
   }
 
   @Test  // SPR-16402
@@ -279,7 +279,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
     Map<String, Object> hints = Collections.emptyMap();
     this.writer.write(Mono.just(multipartData), null, MediaType.MULTIPART_FORM_DATA,
-                      this.response, hints).block();
+            this.response, hints).block();
 
     MultiValueMap<String, Part> requestParts = parse(this.response, hints);
     assertThat(requestParts.size()).isEqualTo(2);

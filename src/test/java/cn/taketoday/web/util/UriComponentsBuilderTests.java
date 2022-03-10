@@ -258,7 +258,7 @@ class UriComponentsBuilderTests {
   @Test
   void fromUriStringInvalidIPv6Host() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            UriComponentsBuilder.fromUriString("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource"));
+            UriComponentsBuilder.fromUriString("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource"));
   }
 
   @Test
@@ -509,7 +509,7 @@ class UriComponentsBuilderTests {
     HttpRequest httpRequest = new ServletServerHttpRequest(request);
 
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            UriComponentsBuilder.fromHttpRequest(httpRequest).build());
+            UriComponentsBuilder.fromHttpRequest(httpRequest).build());
   }
 
   @Test

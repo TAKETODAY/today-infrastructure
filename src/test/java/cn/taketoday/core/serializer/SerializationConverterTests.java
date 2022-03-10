@@ -39,44 +39,43 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class SerializationConverterTests {
 
-	@Test
-	void serializeAndDeserializeString() {
-		SerializingConverter toBytes = new SerializingConverter();
-		byte[] bytes = toBytes.convert("Testing");
-		DeserializingConverter fromBytes = new DeserializingConverter();
-		assertThat(fromBytes.convert(bytes)).isEqualTo("Testing");
-	}
+  @Test
+  void serializeAndDeserializeString() {
+    SerializingConverter toBytes = new SerializingConverter();
+    byte[] bytes = toBytes.convert("Testing");
+    DeserializingConverter fromBytes = new DeserializingConverter();
+    assertThat(fromBytes.convert(bytes)).isEqualTo("Testing");
+  }
 
-	@Test
-	void nonSerializableObject() {
-		SerializingConverter toBytes = new SerializingConverter();
-		assertThatExceptionOfType(SerializationFailedException.class).isThrownBy(() ->
-				toBytes.convert(new Object()))
-			.withCauseInstanceOf(IllegalArgumentException.class);
-	}
+  @Test
+  void nonSerializableObject() {
+    SerializingConverter toBytes = new SerializingConverter();
+    assertThatExceptionOfType(SerializationFailedException.class).isThrownBy(() ->
+                    toBytes.convert(new Object()))
+            .withCauseInstanceOf(IllegalArgumentException.class);
+  }
 
-	@Test
-	void nonSerializableField() {
-		SerializingConverter toBytes = new SerializingConverter();
-		assertThatExceptionOfType(SerializationFailedException.class).isThrownBy(() ->
-				toBytes.convert(new UnSerializable()))
-			.withCauseInstanceOf(NotSerializableException.class);
-	}
+  @Test
+  void nonSerializableField() {
+    SerializingConverter toBytes = new SerializingConverter();
+    assertThatExceptionOfType(SerializationFailedException.class).isThrownBy(() ->
+                    toBytes.convert(new UnSerializable()))
+            .withCauseInstanceOf(NotSerializableException.class);
+  }
 
-	@Test
-	void deserializationFailure() {
-		DeserializingConverter fromBytes = new DeserializingConverter();
-		assertThatExceptionOfType(SerializationFailedException.class).isThrownBy(() ->
-				fromBytes.convert("Junk".getBytes()));
-	}
+  @Test
+  void deserializationFailure() {
+    DeserializingConverter fromBytes = new DeserializingConverter();
+    assertThatExceptionOfType(SerializationFailedException.class).isThrownBy(() ->
+            fromBytes.convert("Junk".getBytes()));
+  }
 
+  class UnSerializable implements Serializable {
 
-	class UnSerializable implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-		private static final long serialVersionUID = 1L;
-
-		@SuppressWarnings("unused")
-		private Object object;
-	}
+    @SuppressWarnings("unused")
+    private Object object;
+  }
 
 }

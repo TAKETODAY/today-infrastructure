@@ -145,12 +145,12 @@ class Jackson2ObjectMapperBuilderTests {
   void booleanSetters() {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
             .featuresToEnable(MapperFeature.DEFAULT_VIEW_INCLUSION,
-                              DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                              SerializationFeature.INDENT_OUTPUT)
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                    SerializationFeature.INDENT_OUTPUT)
             .featuresToDisable(MapperFeature.AUTO_DETECT_FIELDS,
-                               MapperFeature.AUTO_DETECT_GETTERS,
-                               MapperFeature.AUTO_DETECT_SETTERS,
-                               SerializationFeature.FAIL_ON_EMPTY_BEANS).build();
+                    MapperFeature.AUTO_DETECT_GETTERS,
+                    MapperFeature.AUTO_DETECT_SETTERS,
+                    SerializationFeature.FAIL_ON_EMPTY_BEANS).build();
     assertThat(objectMapper).isNotNull();
     assertThat(objectMapper.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)).isTrue();
     assertThat(objectMapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)).isTrue();
@@ -229,7 +229,7 @@ class Jackson2ObjectMapperBuilderTests {
   void wrongTimeZoneStringSetter() {
     String zoneId = "foo";
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            Jackson2ObjectMapperBuilder.json().timeZone(zoneId).build());
+            Jackson2ObjectMapperBuilder.json().timeZone(zoneId).build());
   }
 
   @Test
@@ -295,13 +295,13 @@ class Jackson2ObjectMapperBuilderTests {
     builder.modulesToInstall(fooModule, barModule);
     ObjectMapper objectMapper = builder.build();
     assertThat(StreamSupport
-                       .stream(getSerializerFactoryConfig(objectMapper).serializers().spliterator(), false)
-                       .filter(s -> s.findSerializer(null, SimpleType.construct(Foo.class), null) != null)
-                       .count()).isEqualTo(1);
+            .stream(getSerializerFactoryConfig(objectMapper).serializers().spliterator(), false)
+            .filter(s -> s.findSerializer(null, SimpleType.construct(Foo.class), null) != null)
+            .count()).isEqualTo(1);
     assertThat(StreamSupport
-                       .stream(getSerializerFactoryConfig(objectMapper).serializers().spliterator(), false)
-                       .filter(s -> s.findSerializer(null, SimpleType.construct(Bar.class), null) != null)
-                       .count()).isEqualTo(1);
+            .stream(getSerializerFactoryConfig(objectMapper).serializers().spliterator(), false)
+            .filter(s -> s.findSerializer(null, SimpleType.construct(Bar.class), null) != null)
+            .count()).isEqualTo(1);
   }
 
   private static SerializerFactoryConfig getSerializerFactoryConfig(ObjectMapper objectMapper) {
@@ -423,13 +423,13 @@ class Jackson2ObjectMapperBuilderTests {
             .annotationIntrospector(introspector)
             .annotationIntrospector(current -> AnnotationIntrospector.pair(current, introspector))
             .featuresToEnable(SerializationFeature.FAIL_ON_EMPTY_BEANS,
-                              DeserializationFeature.UNWRAP_ROOT_VALUE,
-                              JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
-                              JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS)
+                    DeserializationFeature.UNWRAP_ROOT_VALUE,
+                    JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+                    JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS)
             .featuresToDisable(MapperFeature.AUTO_DETECT_GETTERS,
-                               MapperFeature.AUTO_DETECT_FIELDS,
-                               JsonParser.Feature.AUTO_CLOSE_SOURCE,
-                               JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                    MapperFeature.AUTO_DETECT_FIELDS,
+                    JsonParser.Feature.AUTO_CLOSE_SOURCE,
+                    JsonGenerator.Feature.QUOTE_FIELD_NAMES)
             .serializationInclusion(JsonInclude.Include.NON_NULL);
 
     ObjectMapper mapper = new ObjectMapper();

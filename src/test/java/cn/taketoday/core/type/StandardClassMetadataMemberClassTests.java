@@ -22,15 +22,15 @@ package cn.taketoday.core.type;
 
 /**
  * @author Chris Beams
- * @since 4.0
  * @see AbstractClassMetadataMemberClassTests
+ * @since 4.0
  */
 class StandardClassMetadataMemberClassTests extends AbstractClassMetadataMemberClassTests {
 
-	@Override
-	@SuppressWarnings("deprecation")
-	public ClassMetadata getClassMetadataFor(Class<?> clazz) {
-		return new StandardClassMetadata(clazz);
-	}
+  @Override
+  @SuppressWarnings("deprecation")
+  public ClassMetadata getClassMetadataFor(Class<?> clazz) {
+    return new StandardClassMetadata(clazz);
+  }
 
 }

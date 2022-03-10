@@ -99,7 +99,7 @@ public class ResourceHttpMessageConverterTests {
       MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
       inputMessage.getHeaders().setContentType(MediaType.IMAGE_JPEG);
       assertThatExceptionOfType(HttpMessageNotReadableException.class).isThrownBy(() ->
-                                                                                          noStreamConverter.read(InputStreamResource.class, inputMessage));
+              noStreamConverter.read(InputStreamResource.class, inputMessage));
     }
   }
 

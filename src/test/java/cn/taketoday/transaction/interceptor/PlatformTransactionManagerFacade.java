@@ -36,24 +36,24 @@ import cn.taketoday.transaction.TransactionStatus;
  */
 public class PlatformTransactionManagerFacade implements PlatformTransactionManager {
 
-	/**
-	 * This member can be changed to change behavior class-wide.
-	 */
-	public static PlatformTransactionManager delegate;
+  /**
+   * This member can be changed to change behavior class-wide.
+   */
+  public static PlatformTransactionManager delegate;
 
-	@Override
-	public TransactionStatus getTransaction(@Nullable TransactionDefinition definition) {
-		return delegate.getTransaction(definition);
-	}
+  @Override
+  public TransactionStatus getTransaction(@Nullable TransactionDefinition definition) {
+    return delegate.getTransaction(definition);
+  }
 
-	@Override
-	public void commit(TransactionStatus status) {
-		delegate.commit(status);
-	}
+  @Override
+  public void commit(TransactionStatus status) {
+    delegate.commit(status);
+  }
 
-	@Override
-	public void rollback(TransactionStatus status) {
-		delegate.rollback(status);
-	}
+  @Override
+  public void rollback(TransactionStatus status) {
+    delegate.rollback(status);
+  }
 
 }

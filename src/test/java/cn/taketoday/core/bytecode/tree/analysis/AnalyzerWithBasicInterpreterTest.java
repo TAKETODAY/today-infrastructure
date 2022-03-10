@@ -80,8 +80,7 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, and
    * that Analyzer can be subclassed to use custom frames.
    *
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
@@ -118,8 +117,7 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * Tests that the precompiled classes can be successfully analyzed with a BasicInterpreter, even
    * if the method node's max locals and max stack size are not set.
    *
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
@@ -152,8 +150,7 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * does not follow its required contract (namely that if the merge result is equal to the first
    * argument, the first argument should be returned - see #316326).
    *
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
   public void testAnalyze_badInterpreter() {
@@ -182,10 +179,8 @@ public class AnalyzerWithBasicInterpreterTest extends AsmTest {
    * Tests that stack map frames are correctly merged when a JSR instruction can be reached from two
    * different control flow paths, with different local variable types (#316204).
    *
-   * @throws IOException
-   *         if the test class can't be loaded.
-   * @throws AnalyzerException
-   *         if the test class can't be analyzed.
+   * @throws IOException if the test class can't be loaded.
+   * @throws AnalyzerException if the test class can't be analyzed.
    */
   @Test
   public void testAnalyze_mergeWithJsrReachableFromTwoDifferentPaths()

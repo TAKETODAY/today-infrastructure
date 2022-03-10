@@ -252,10 +252,10 @@ public class PathPatternParserTests {
     checkError("/foobar/{abc:..}_{abc:..}", 8, PatternMessage.ILLEGAL_DOUBLE_CAPTURE);
     PathPattern pp = parse("/{abc:foo(bar)}");
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pp.matchAndExtract(toPSC("/foo")))
+                    pp.matchAndExtract(toPSC("/foo")))
             .withMessage("No capture groups allowed in the constraint regex: foo(bar)");
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            pp.matchAndExtract(toPSC("/foobar")))
+                    pp.matchAndExtract(toPSC("/foobar")))
             .withMessage("No capture groups allowed in the constraint regex: foo(bar)");
   }
 
@@ -319,17 +319,17 @@ public class PathPatternParserTests {
     pathPattern = checkStructure("///aaa");
     assertThat(pathPattern.getNormalizedLength()).isEqualTo(6);
     assertPathElements(pathPattern, SeparatorPathElement.class, SeparatorPathElement.class,
-                       SeparatorPathElement.class, LiteralPathElement.class);
+            SeparatorPathElement.class, LiteralPathElement.class);
     pathPattern = checkStructure("///aaa////aaa/b");
     assertThat(pathPattern.getNormalizedLength()).isEqualTo(15);
     assertPathElements(pathPattern, SeparatorPathElement.class, SeparatorPathElement.class,
-                       SeparatorPathElement.class, LiteralPathElement.class, SeparatorPathElement.class,
-                       SeparatorPathElement.class, SeparatorPathElement.class, SeparatorPathElement.class,
-                       LiteralPathElement.class, SeparatorPathElement.class, LiteralPathElement.class);
+            SeparatorPathElement.class, LiteralPathElement.class, SeparatorPathElement.class,
+            SeparatorPathElement.class, SeparatorPathElement.class, SeparatorPathElement.class,
+            LiteralPathElement.class, SeparatorPathElement.class, LiteralPathElement.class);
     pathPattern = checkStructure("/////**");
     assertThat(pathPattern.getNormalizedLength()).isEqualTo(5);
     assertPathElements(pathPattern, SeparatorPathElement.class, SeparatorPathElement.class,
-                       SeparatorPathElement.class, SeparatorPathElement.class, WildcardTheRestPathElement.class);
+            SeparatorPathElement.class, SeparatorPathElement.class, WildcardTheRestPathElement.class);
   }
 
   @Test
@@ -463,7 +463,7 @@ public class PathPatternParserTests {
    * @param expectedPos the expected position, or {@code -1} if the position should not be checked
    */
   private void checkError(String pattern, int expectedPos, PatternMessage expectedMessage,
-                          String... expectedInserts) {
+          String... expectedInserts) {
 
     assertThatExceptionOfType(PatternParseException.class)
             .isThrownBy(() -> pathPattern = parse(pattern))

@@ -62,7 +62,7 @@ class HiddenHttpMethodFilterTests {
   private void filterWithParameterForMethod(String methodParam, String expectedMethod)
           throws IOException, ServletException {
     MockHttpServletRequest request = new MockHttpServletRequest("POST", "/hotels");
-    if(methodParam != null) {
+    if (methodParam != null) {
       request.addParameter("_method", methodParam);
     }
     MockHttpServletResponse response = new MockHttpServletResponse();

@@ -286,14 +286,14 @@ public class Jackson2ObjectMapperFactoryBeanTests {
     this.factory.setAnnotationIntrospector(annotationIntrospector);
 
     this.factory.setFeaturesToEnable(SerializationFeature.FAIL_ON_EMPTY_BEANS,
-                                     DeserializationFeature.UNWRAP_ROOT_VALUE,
-                                     JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
-                                     JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+            DeserializationFeature.UNWRAP_ROOT_VALUE,
+            JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+            JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
 
     this.factory.setFeaturesToDisable(MapperFeature.AUTO_DETECT_GETTERS,
-                                      MapperFeature.AUTO_DETECT_FIELDS,
-                                      JsonParser.Feature.AUTO_CLOSE_SOURCE,
-                                      JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+            MapperFeature.AUTO_DETECT_FIELDS,
+            JsonParser.Feature.AUTO_CLOSE_SOURCE,
+            JsonGenerator.Feature.QUOTE_FIELD_NAMES);
 
     assertThat(getSerializerFactoryConfig(objectMapper).hasSerializers()).isFalse();
     assertThat(getDeserializerFactoryConfig(objectMapper).hasDeserializers()).isFalse();

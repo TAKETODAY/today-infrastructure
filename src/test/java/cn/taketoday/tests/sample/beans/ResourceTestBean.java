@@ -32,74 +32,72 @@ import cn.taketoday.core.io.Resource;
  */
 public class ResourceTestBean {
 
-	private Resource resource;
+  private Resource resource;
 
-	private ContextResource contextResource;
+  private ContextResource contextResource;
 
-	private InputStream inputStream;
+  private InputStream inputStream;
 
-	private Resource[] resourceArray;
+  private Resource[] resourceArray;
 
-	private Map<String, Resource> resourceMap;
+  private Map<String, Resource> resourceMap;
 
-	private Map<String, Resource[]> resourceArrayMap;
+  private Map<String, Resource[]> resourceArrayMap;
 
+  public ResourceTestBean() {
+  }
 
-	public ResourceTestBean() {
-	}
+  public ResourceTestBean(Resource resource, InputStream inputStream) {
+    this.resource = resource;
+    this.inputStream = inputStream;
+  }
 
-	public ResourceTestBean(Resource resource, InputStream inputStream) {
-		this.resource = resource;
-		this.inputStream = inputStream;
-	}
+  public Resource getResource() {
+    return resource;
+  }
 
+  public void setResource(Resource resource) {
+    this.resource = resource;
+  }
 
-	public Resource getResource() {
-		return resource;
-	}
+  public ContextResource getContextResource() {
+    return contextResource;
+  }
 
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
+  public void setContextResource(ContextResource contextResource) {
+    this.contextResource = contextResource;
+  }
 
-	public ContextResource getContextResource() {
-		return contextResource;
-	}
+  public InputStream getInputStream() {
+    return inputStream;
+  }
 
-	public void setContextResource(ContextResource contextResource) {
-		this.contextResource = contextResource;
-	}
+  public void setInputStream(InputStream inputStream) {
+    this.inputStream = inputStream;
+  }
 
-	public InputStream getInputStream() {
-		return inputStream;
-	}
+  public Resource[] getResourceArray() {
+    return resourceArray;
+  }
 
-	public void setInputStream(InputStream inputStream) {
-		this.inputStream = inputStream;
-	}
+  public void setResourceArray(Resource[] resourceArray) {
+    this.resourceArray = resourceArray;
+  }
 
-	public Resource[] getResourceArray() {
-		return resourceArray;
-	}
+  public Map<String, Resource> getResourceMap() {
+    return resourceMap;
+  }
 
-	public void setResourceArray(Resource[] resourceArray) {
-		this.resourceArray = resourceArray;
-	}
+  public void setResourceMap(Map<String, Resource> resourceMap) {
+    this.resourceMap = resourceMap;
+  }
 
-	public Map<String, Resource> getResourceMap() {
-		return resourceMap;
-	}
+  public Map<String, Resource[]> getResourceArrayMap() {
+    return resourceArrayMap;
+  }
 
-	public void setResourceMap(Map<String, Resource> resourceMap) {
-		this.resourceMap = resourceMap;
-	}
-
-	public Map<String, Resource[]> getResourceArrayMap() {
-		return resourceArrayMap;
-	}
-
-	public void setResourceArrayMap(Map<String, Resource[]> resourceArrayMap) {
-		this.resourceArrayMap = resourceArrayMap;
-	}
+  public void setResourceArrayMap(Map<String, Resource[]> resourceArrayMap) {
+    this.resourceArrayMap = resourceArrayMap;
+  }
 
 }

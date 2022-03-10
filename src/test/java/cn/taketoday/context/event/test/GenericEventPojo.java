@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.event.test;
 
-
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ResolvableTypeProvider;
 
@@ -29,29 +28,31 @@ import cn.taketoday.core.ResolvableTypeProvider;
  * @author Stephane Nicoll
  */
 public class GenericEventPojo<T> implements ResolvableTypeProvider {
-	private final T value;
+  private final T value;
 
-	public GenericEventPojo(T value) {
-		this.value = value;
-	}
+  public GenericEventPojo(T value) {
+    this.value = value;
+  }
 
-	@Override
-	public ResolvableType getResolvableType() {
-		return ResolvableType.fromClassWithGenerics(getClass(), ResolvableType.fromInstance(this.value));
-	}
+  @Override
+  public ResolvableType getResolvableType() {
+    return ResolvableType.fromClassWithGenerics(getClass(), ResolvableType.fromInstance(this.value));
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
 
-		GenericEventPojo<?> that = (GenericEventPojo<?>) o;
+    GenericEventPojo<?> that = (GenericEventPojo<?>) o;
 
-		return this.value.equals(that.value);
-	}
+    return this.value.equals(that.value);
+  }
 
-	@Override
-	public int hashCode() {
-		return this.value.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return this.value.hashCode();
+  }
 }

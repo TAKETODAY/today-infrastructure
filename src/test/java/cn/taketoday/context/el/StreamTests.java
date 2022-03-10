@@ -79,14 +79,11 @@ class StreamTests {
   /**
    * Test a collection query that returns an array, list or Iterable.
    *
-   * @param name
-   *         of the test
-   * @param query
-   *         The EL query string
-   * @param expected
-   *         The expected result of the array, list or Iterable. The array
-   *         element should equal the elements in the array, list or Iterable,
-   *         when enumerated.
+   * @param name of the test
+   * @param query The EL query string
+   * @param expected The expected result of the array, list or Iterable. The array
+   * element should equal the elements in the array, list or Iterable,
+   * when enumerated.
    */
 
   void testStream(String name, String query, String[] expected) {
@@ -168,9 +165,9 @@ class StreamTests {
     testStream("sorted", "['2', '4', '6', '5', '3', '1'].stream().sorted((s, t)->s.compareTo(t)).toList()", exp0);
     testStream("sorted", "[1, 3, 5, 2, 4, 6].stream().sorted((i,j)->j.compareTo(i)).toList()", exp1);
     testStream("sorted",
-               "['xyz', 'yz', 'z', 'abc', 'aaa', 'q'].stream().sorted"
-                       + "((s,t)->(s.length()== t.length()? s.compareTo(t): s.length() - t.length())).toList()",
-               exp2);
+            "['xyz', 'yz', 'z', 'abc', 'aaa', 'q'].stream().sorted"
+                    + "((s,t)->(s.length()== t.length()? s.compareTo(t): s.length() - t.length())).toList()",
+            exp2);
     elp.eval("comparing = map->(x,y)->map(x).compareTo(map(y))");
     testStream("sorted", "products.stream().sorted(" + "(x,y)->x.name.compareTo(y.name)).toList()", exp5);
     testStream("sorted", "products.stream().sorted(" + "comparing(p->p.name)).toList()", exp5);
@@ -185,9 +182,9 @@ class StreamTests {
   @Test
   void testForEach() {
     testStream("forEach",
-               "lst = []; products.stream().forEach(p->lst.add(p.name)); lst", exp8);
+            "lst = []; products.stream().forEach(p->lst.add(p.name)); lst", exp8);
     testStream("peek",
-               "lst = []; [1,2,3,4].stream().peek(i->lst.add(i)).toList()", exp11);
+            "lst = []; [1,2,3,4].stream().peek(i->lst.add(i)).toList()", exp11);
     testStream("peek2", "lst", exp11);
   }
 
@@ -198,11 +195,11 @@ class StreamTests {
   @Test
   void testFlapMap() {
     testStream("flatMap",
-               "customers.stream().filter(c->c.country=='USA')\n" + "                  .flatMap(c->c.orders.stream()).toList()",
-               exp7);
+            "customers.stream().filter(c->c.country=='USA')\n" + "                  .flatMap(c->c.orders.stream()).toList()",
+            exp7);
     testStream("flatMap String",
-               "['the', 'quick', 'brown', 'fox']" + ".stream().flatMap(s->s.toCharArray().stream()).toList()",
-               exp9);
+            "['the', 'quick', 'brown', 'fox']" + ".stream().flatMap(s->s.toCharArray().stream()).toList()",
+            exp9);
   }
 
   static String exp10[] = { "0", "1", "2" };

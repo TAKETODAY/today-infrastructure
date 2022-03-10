@@ -79,7 +79,7 @@ public class NashornScriptTemplateTests {
   }
 
   private MockHttpServletResponse render(String viewUrl, Map<String, Object> model,
-                                         Class<?> configuration) throws Exception {
+          Class<?> configuration) throws Exception {
 
     ScriptTemplateView view = createViewWithUrl(viewUrl, configuration);
     MockHttpServletResponse response = new MockHttpServletResponse();

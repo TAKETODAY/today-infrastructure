@@ -32,6 +32,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Scope {
 
-	String value() default "singleton";
+  String value() default "singleton";
 
 }

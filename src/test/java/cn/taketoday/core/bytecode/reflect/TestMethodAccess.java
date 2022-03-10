@@ -95,9 +95,9 @@ public class TestMethodAccess {
 
     Method m1 = MemberSwitchBean.class.getMethod("foo", Integer.TYPE, String.class);
     assertEquals(6, fc.getMethod(m1).invoke(bean,
-                                            new Object[]
-                                                    { 0, "" }),
-                 "fc.getMethod(m1).invoke(bean, new Object[]{ new Integer(0), \"\" })");
+                    new Object[]
+                            { 0, "" }),
+            "fc.getMethod(m1).invoke(bean, new Object[]{ new Integer(0), \"\" })");
 
     // TODO: should null be allowed here?
     Method m2 = MemberSwitchBean.class.getDeclaredMethod("pkg", (Class[]) null);

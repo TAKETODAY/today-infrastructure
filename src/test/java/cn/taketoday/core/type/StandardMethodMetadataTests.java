@@ -27,9 +27,9 @@ package cn.taketoday.core.type;
  */
 class StandardMethodMetadataTests extends AbstractMethodMetadataTests {
 
-	@Override
-	protected AnnotationMetadata get(Class<?> source) {
-		return AnnotationMetadata.introspect(source);
-	}
+  @Override
+  protected AnnotationMetadata get(Class<?> source) {
+    return AnnotationMetadata.introspect(source);
+  }
 
 }

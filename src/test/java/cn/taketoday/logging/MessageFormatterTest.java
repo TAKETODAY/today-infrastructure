@@ -19,8 +19,6 @@
  */
 package cn.taketoday.logging;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import static cn.taketoday.logging.MessageFormatter.format;
@@ -30,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author TODAY <br>
- *         2019-12-06 23:12
+ * 2019-12-06 23:12
  */
 public class MessageFormatterTest {
 
@@ -70,7 +68,7 @@ public class MessageFormatterTest {
     };
     final String retArray = "s: [TEST], d: [123.124], f: [123.123], i: [123], l: [123], b: [123], c: [c], b: [true], s: [123], null, [123, c]";
     final String formatArray = format("s: [{}], d: {}, f: {}, i: {}, l: {}, b: {}, c: {}, b: {}, s: {}, {}, {}",
-                                      paramsArray);
+            paramsArray);
 
     System.err.println(formatArray);
     assertEquals(formatArray, retArray);

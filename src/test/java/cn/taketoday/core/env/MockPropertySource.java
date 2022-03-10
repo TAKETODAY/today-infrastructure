@@ -61,8 +61,7 @@ public class MockPropertySource extends PropertiesPropertySource {
    * Create a new {@code MockPropertySource} with the given name that will
    * maintain its own internal {@link Properties} instance.
    *
-   * @param name
-   *         the {@linkplain #getName() name} of the property source
+   * @param name the {@linkplain #getName() name} of the property source
    */
   public MockPropertySource(String name) {
     this(name, new Properties());
@@ -72,8 +71,7 @@ public class MockPropertySource extends PropertiesPropertySource {
    * Create a new {@code MockPropertySource} named {@value #MOCK_PROPERTIES_PROPERTY_SOURCE_NAME}
    * and backed by the given {@link Properties} object.
    *
-   * @param properties
-   *         the properties to use
+   * @param properties the properties to use
    */
   public MockPropertySource(Properties properties) {
     this(MOCK_PROPERTIES_PROPERTY_SOURCE_NAME, properties);
@@ -83,10 +81,8 @@ public class MockPropertySource extends PropertiesPropertySource {
    * Create a new {@code MockPropertySource} with the given name and backed by the given
    * {@link Properties} object.
    *
-   * @param name
-   *         the {@linkplain #getName() name} of the property source
-   * @param properties
-   *         the properties to use
+   * @param name the {@linkplain #getName() name} of the property source
+   * @param properties the properties to use
    */
   public MockPropertySource(String name, Properties properties) {
     super(name, properties);

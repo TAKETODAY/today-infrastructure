@@ -29,36 +29,36 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for {@link LimitedDataBufferList}.
+ *
  * @author Rossen Stoyanchev
  * @since 4.0
  */
 public class LimitedDataBufferListTests {
 
-	@Test
-	void limitEnforced() {
-		LimitedDataBufferList list = new LimitedDataBufferList(5);
+  @Test
+  void limitEnforced() {
+    LimitedDataBufferList list = new LimitedDataBufferList(5);
 
-		assertThatThrownBy(() -> list.add(toDataBuffer("123456"))).isInstanceOf(DataBufferLimitException.class);
-		assertThat(list).isEmpty();
-	}
+    assertThatThrownBy(() -> list.add(toDataBuffer("123456"))).isInstanceOf(DataBufferLimitException.class);
+    assertThat(list).isEmpty();
+  }
 
-	@Test
-	void limitIgnored() {
-		new LimitedDataBufferList(-1).add(toDataBuffer("123456"));
-	}
+  @Test
+  void limitIgnored() {
+    new LimitedDataBufferList(-1).add(toDataBuffer("123456"));
+  }
 
-	@Test
-	void clearResetsCount() {
-		LimitedDataBufferList list = new LimitedDataBufferList(5);
-		list.add(toDataBuffer("12345"));
-		list.clear();
-		list.add(toDataBuffer("12345"));
-	}
+  @Test
+  void clearResetsCount() {
+    LimitedDataBufferList list = new LimitedDataBufferList(5);
+    list.add(toDataBuffer("12345"));
+    list.clear();
+    list.add(toDataBuffer("12345"));
+  }
 
-
-	private static DataBuffer toDataBuffer(String value) {
-		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-		return DefaultDataBufferFactory.sharedInstance.wrap(bytes);
-	}
+  private static DataBuffer toDataBuffer(String value) {
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    return DefaultDataBufferFactory.sharedInstance.wrap(bytes);
+  }
 
 }

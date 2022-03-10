@@ -50,7 +50,6 @@ class ReactiveAdapterRegistryTests {
 
   private final ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
 
-
   @Test
   void getAdapterForReactiveSubType() {
     ReactiveAdapter adapter1 = getAdapter(Flux.class);
@@ -67,13 +66,11 @@ class ReactiveAdapterRegistryTests {
     assertThat(adapter3).isNotSameAs(adapter1);
   }
 
-
   private ReactiveAdapter getAdapter(Class<?> reactiveType) {
     ReactiveAdapter adapter = this.registry.getAdapter(reactiveType);
     assertThat(adapter).isNotNull();
     return adapter;
   }
-
 
   private static class ExtendedFlux<T> extends Flux<T> {
 
@@ -82,7 +79,6 @@ class ReactiveAdapterRegistryTests {
       throw new UnsupportedOperationException();
     }
   }
-
 
   @Nested
   class Reactor {
@@ -134,7 +130,6 @@ class ReactiveAdapterRegistryTests {
       assertThat(((Mono<Integer>) target).block(ONE_SECOND)).isEqualTo(Integer.valueOf(1));
     }
   }
-
 
   @Nested
   class RxJava3 {
@@ -217,7 +212,6 @@ class ReactiveAdapterRegistryTests {
       ((Mono<Void>) target).block(ONE_SECOND);
     }
   }
-
 
   @Nested
   class Mutiny {

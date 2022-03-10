@@ -29,72 +29,72 @@ package cn.taketoday.contextsupport.testfixture.cache.beans;
  */
 public interface CacheableService<T> {
 
-	T cache(Object arg1);
+  T cache(Object arg1);
 
-	T cacheNull(Object arg1);
+  T cacheNull(Object arg1);
 
-	T cacheSync(Object arg1);
+  T cacheSync(Object arg1);
 
-	T cacheSyncNull(Object arg1);
+  T cacheSyncNull(Object arg1);
 
-	void evict(Object arg1, Object arg2);
+  void evict(Object arg1, Object arg2);
 
-	void evictWithException(Object arg1);
+  void evictWithException(Object arg1);
 
-	void evictEarly(Object arg1);
+  void evictEarly(Object arg1);
 
-	void evictAll(Object arg1);
+  void evictAll(Object arg1);
 
-	void evictAllEarly(Object arg1);
+  void evictAllEarly(Object arg1);
 
-	T conditional(int field);
+  T conditional(int field);
 
-	T conditionalSync(int field);
+  T conditionalSync(int field);
 
-	T unless(int arg);
+  T unless(int arg);
 
-	T key(Object arg1, Object arg2);
+  T key(Object arg1, Object arg2);
 
-	T varArgsKey(Object... args);
+  T varArgsKey(Object... args);
 
-	T name(Object arg1);
+  T name(Object arg1);
 
-	T nullValue(Object arg1);
+  T nullValue(Object arg1);
 
-	T update(Object arg1);
+  T update(Object arg1);
 
-	T conditionalUpdate(Object arg2);
+  T conditionalUpdate(Object arg2);
 
-	Number nullInvocations();
+  Number nullInvocations();
 
-	T rootVars(Object arg1);
+  T rootVars(Object arg1);
 
-	T customKeyGenerator(Object arg1);
+  T customKeyGenerator(Object arg1);
 
-	T unknownCustomKeyGenerator(Object arg1);
+  T unknownCustomKeyGenerator(Object arg1);
 
-	T customCacheManager(Object arg1);
+  T customCacheManager(Object arg1);
 
-	T unknownCustomCacheManager(Object arg1);
+  T unknownCustomCacheManager(Object arg1);
 
-	T throwChecked(Object arg1) throws Exception;
+  T throwChecked(Object arg1) throws Exception;
 
-	T throwUnchecked(Object arg1);
+  T throwUnchecked(Object arg1);
 
-	T throwCheckedSync(Object arg1) throws Exception;
+  T throwCheckedSync(Object arg1) throws Exception;
 
-	T throwUncheckedSync(Object arg1);
+  T throwUncheckedSync(Object arg1);
 
-	T multiCache(Object arg1);
+  T multiCache(Object arg1);
 
-	T multiEvict(Object arg1);
+  T multiEvict(Object arg1);
 
-	T multiCacheAndEvict(Object arg1);
+  T multiCacheAndEvict(Object arg1);
 
-	T multiConditionalCacheAndEvict(Object arg1);
+  T multiConditionalCacheAndEvict(Object arg1);
 
-	T multiUpdate(Object arg1);
+  T multiUpdate(Object arg1);
 
-	TestEntity putRefersToResult(TestEntity arg1);
+  TestEntity putRefersToResult(TestEntity arg1);
 
 }

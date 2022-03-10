@@ -49,11 +49,11 @@ class NettyByteBufEncoderTests extends AbstractEncoderTests<NettyByteBufEncoder>
   @Test
   public void canEncode() {
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(ByteBuf.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isFalse();
+            MimeTypeUtils.TEXT_PLAIN)).isFalse();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(ByteBuf.class),
-                                      MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // gh-20024
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();

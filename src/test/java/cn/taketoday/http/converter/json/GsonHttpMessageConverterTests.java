@@ -175,7 +175,7 @@ public class GsonHttpMessageConverterTests {
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes("UTF-8"));
     inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
     assertThatExceptionOfType(HttpMessageNotReadableException.class).isThrownBy(() ->
-                                                                                        this.converter.read(MyBean.class, inputMessage));
+            this.converter.read(MyBean.class, inputMessage));
   }
 
   @Test

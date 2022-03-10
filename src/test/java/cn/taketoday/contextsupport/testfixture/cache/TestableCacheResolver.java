@@ -34,13 +34,13 @@ import static org.mockito.Mockito.mock;
  */
 public class TestableCacheResolver implements CacheResolver {
 
-	@Override
-	public <K, V> Cache<K, V> resolveCache(CacheInvocationContext<? extends Annotation> cacheInvocationContext) {
-		String cacheName = cacheInvocationContext.getCacheName();
-		@SuppressWarnings("unchecked")
-		Cache<K, V> mock = mock(Cache.class);
-		given(mock.getName()).willReturn(cacheName);
-		return mock;
-	}
+  @Override
+  public <K, V> Cache<K, V> resolveCache(CacheInvocationContext<? extends Annotation> cacheInvocationContext) {
+    String cacheName = cacheInvocationContext.getCacheName();
+    @SuppressWarnings("unchecked")
+    Cache<K, V> mock = mock(Cache.class);
+    given(mock.getName()).willReturn(cacheName);
+    return mock;
+  }
 
 }

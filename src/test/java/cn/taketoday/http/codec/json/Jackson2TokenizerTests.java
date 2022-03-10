@@ -149,10 +149,10 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
     // SPR-15803: nested array
     testTokenize(
             singletonList("[" +
-                                  "{\"id\":\"0\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}," +
-                                  "{\"id\":\"1\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}," +
-                                  "{\"id\":\"2\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}" +
-                                  "]"),
+                    "{\"id\":\"0\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}," +
+                    "{\"id\":\"1\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}," +
+                    "{\"id\":\"2\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}" +
+                    "]"),
             asList(
                     "{\"id\":\"0\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}",
                     "{\"id\":\"1\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}",
@@ -302,7 +302,7 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
     DataBuffer buffer = stringBuffer("{\"id\":1,\"name\":");
     Flux<DataBuffer> source = Flux.just(buffer).concatWith(Flux.error(new RuntimeException()));
     Flux<TokenBuffer> result = Jackson2Tokenizer.tokenize(source, this.jsonFactory, this.objectMapper, true,
-                                                          false, -1);
+            false, -1);
 
     StepVerifier.create(result)
             .expectError(RuntimeException.class)
@@ -313,7 +313,7 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
   public void jsonEOFExceptionIsWrappedAsDecodingError() {
     Flux<DataBuffer> source = Flux.just(stringBuffer("{\"status\": \"noClosingQuote}"));
     Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(source, this.jsonFactory, this.objectMapper, false,
-                                                          false, -1);
+            false, -1);
 
     StepVerifier.create(tokens)
             .expectError(DecodingException.class)

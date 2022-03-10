@@ -43,150 +43,148 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@code SimpleAnnotationMetadata} does not.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see AnnotationMetadataTests
+ * @since 4.0
  */
 class InheritedAnnotationsAnnotationMetadataTests {
 
-	private final AnnotationMetadata standardMetadata = AnnotationMetadata.introspect(AnnotatedSubclass.class);
+  private final AnnotationMetadata standardMetadata = AnnotationMetadata.introspect(AnnotatedSubclass.class);
 
-	private final AnnotationMetadata asmMetadata;
+  private final AnnotationMetadata asmMetadata;
 
+  InheritedAnnotationsAnnotationMetadataTests() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(AnnotatedSubclass.class.getName());
+    this.asmMetadata = metadataReader.getAnnotationMetadata();
+  }
 
-	InheritedAnnotationsAnnotationMetadataTests() throws Exception {
-		MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-		MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(AnnotatedSubclass.class.getName());
-		this.asmMetadata = metadataReader.getAnnotationMetadata();
-	}
+  @Test
+  void getAnnotationTypes() {
+    assertThat(standardMetadata.getAnnotationTypes()).containsExactlyInAnyOrder(
+            NamedAnnotation3.class.getName(),
+            InheritedComposedAnnotation.class.getName());
 
-	@Test
-	void getAnnotationTypes() {
-		assertThat(standardMetadata.getAnnotationTypes()).containsExactlyInAnyOrder(
-			NamedAnnotation3.class.getName(),
-			InheritedComposedAnnotation.class.getName());
+    assertThat(asmMetadata.getAnnotationTypes()).containsExactly(
+            NamedAnnotation3.class.getName());
+  }
 
-		assertThat(asmMetadata.getAnnotationTypes()).containsExactly(
-			NamedAnnotation3.class.getName());
-	}
+  @Test
+  void hasAnnotation() {
+    assertThat(standardMetadata.hasAnnotation(InheritedComposedAnnotation.class.getName())).isTrue();
+    assertThat(standardMetadata.hasAnnotation(NamedAnnotation3.class.getName())).isTrue();
 
-	@Test
-	void hasAnnotation() {
-		assertThat(standardMetadata.hasAnnotation(InheritedComposedAnnotation.class.getName())).isTrue();
-		assertThat(standardMetadata.hasAnnotation(NamedAnnotation3.class.getName())).isTrue();
+    // true because @NamedAnnotation3 is also directly present
+    assertThat(asmMetadata.hasAnnotation(NamedAnnotation3.class.getName())).isTrue();
 
-		// true because @NamedAnnotation3 is also directly present
-		assertThat(asmMetadata.hasAnnotation(NamedAnnotation3.class.getName())).isTrue();
+    assertThat(asmMetadata.hasAnnotation(InheritedComposedAnnotation.class.getName())).isFalse();
+  }
 
-		assertThat(asmMetadata.hasAnnotation(InheritedComposedAnnotation.class.getName())).isFalse();
-	}
+  @Test
+  void getMetaAnnotationTypes() {
+    Set<String> metaAnnotationTypes;
 
-	@Test
-	void getMetaAnnotationTypes() {
-		Set<String> metaAnnotationTypes;
+    metaAnnotationTypes = standardMetadata.getMetaAnnotationTypes(InheritedComposedAnnotation.class.getName());
+    assertThat(metaAnnotationTypes).containsExactlyInAnyOrder(
+            MetaAnnotation.class.getName(),
+            NamedAnnotation1.class.getName(),
+            NamedAnnotation2.class.getName(),
+            NamedAnnotation3.class.getName());
 
-		metaAnnotationTypes = standardMetadata.getMetaAnnotationTypes(InheritedComposedAnnotation.class.getName());
-		assertThat(metaAnnotationTypes).containsExactlyInAnyOrder(
-			MetaAnnotation.class.getName(),
-			NamedAnnotation1.class.getName(),
-			NamedAnnotation2.class.getName(),
-			NamedAnnotation3.class.getName());
+    metaAnnotationTypes = asmMetadata.getMetaAnnotationTypes(InheritedComposedAnnotation.class.getName());
+    assertThat(metaAnnotationTypes).isEmpty();
+  }
 
-		metaAnnotationTypes = asmMetadata.getMetaAnnotationTypes(InheritedComposedAnnotation.class.getName());
-		assertThat(metaAnnotationTypes).isEmpty();
-	}
+  @Test
+  void hasMetaAnnotation() {
+    assertThat(standardMetadata.hasMetaAnnotation(NamedAnnotation1.class.getName())).isTrue();
+    assertThat(standardMetadata.hasMetaAnnotation(NamedAnnotation2.class.getName())).isTrue();
+    assertThat(standardMetadata.hasMetaAnnotation(NamedAnnotation3.class.getName())).isTrue();
+    assertThat(standardMetadata.hasMetaAnnotation(MetaAnnotation.class.getName())).isTrue();
 
-	@Test
-	void hasMetaAnnotation() {
-		assertThat(standardMetadata.hasMetaAnnotation(NamedAnnotation1.class.getName())).isTrue();
-		assertThat(standardMetadata.hasMetaAnnotation(NamedAnnotation2.class.getName())).isTrue();
-		assertThat(standardMetadata.hasMetaAnnotation(NamedAnnotation3.class.getName())).isTrue();
-		assertThat(standardMetadata.hasMetaAnnotation(MetaAnnotation.class.getName())).isTrue();
+    assertThat(asmMetadata.hasMetaAnnotation(NamedAnnotation1.class.getName())).isFalse();
+    assertThat(asmMetadata.hasMetaAnnotation(NamedAnnotation2.class.getName())).isFalse();
+    assertThat(asmMetadata.hasMetaAnnotation(NamedAnnotation3.class.getName())).isFalse();
+    assertThat(asmMetadata.hasMetaAnnotation(MetaAnnotation.class.getName())).isFalse();
+  }
 
-		assertThat(asmMetadata.hasMetaAnnotation(NamedAnnotation1.class.getName())).isFalse();
-		assertThat(asmMetadata.hasMetaAnnotation(NamedAnnotation2.class.getName())).isFalse();
-		assertThat(asmMetadata.hasMetaAnnotation(NamedAnnotation3.class.getName())).isFalse();
-		assertThat(asmMetadata.hasMetaAnnotation(MetaAnnotation.class.getName())).isFalse();
-	}
+  @Test
+  void isAnnotated() {
+    assertThat(standardMetadata.isAnnotated(InheritedComposedAnnotation.class.getName())).isTrue();
+    assertThat(standardMetadata.isAnnotated(NamedAnnotation1.class.getName())).isTrue();
+    assertThat(standardMetadata.isAnnotated(NamedAnnotation2.class.getName())).isTrue();
+    assertThat(standardMetadata.isAnnotated(NamedAnnotation3.class.getName())).isTrue();
+    assertThat(standardMetadata.isAnnotated(MetaAnnotation.class.getName())).isTrue();
 
-	@Test
-	void isAnnotated() {
-		assertThat(standardMetadata.isAnnotated(InheritedComposedAnnotation.class.getName())).isTrue();
-		assertThat(standardMetadata.isAnnotated(NamedAnnotation1.class.getName())).isTrue();
-		assertThat(standardMetadata.isAnnotated(NamedAnnotation2.class.getName())).isTrue();
-		assertThat(standardMetadata.isAnnotated(NamedAnnotation3.class.getName())).isTrue();
-		assertThat(standardMetadata.isAnnotated(MetaAnnotation.class.getName())).isTrue();
+    // true because @NamedAnnotation3 is also directly present
+    assertThat(asmMetadata.isAnnotated(NamedAnnotation3.class.getName())).isTrue();
 
-		// true because @NamedAnnotation3 is also directly present
-		assertThat(asmMetadata.isAnnotated(NamedAnnotation3.class.getName())).isTrue();
+    assertThat(asmMetadata.isAnnotated(InheritedComposedAnnotation.class.getName())).isFalse();
+    assertThat(asmMetadata.isAnnotated(NamedAnnotation1.class.getName())).isFalse();
+    assertThat(asmMetadata.isAnnotated(NamedAnnotation2.class.getName())).isFalse();
+    assertThat(asmMetadata.isAnnotated(MetaAnnotation.class.getName())).isFalse();
+  }
 
-		assertThat(asmMetadata.isAnnotated(InheritedComposedAnnotation.class.getName())).isFalse();
-		assertThat(asmMetadata.isAnnotated(NamedAnnotation1.class.getName())).isFalse();
-		assertThat(asmMetadata.isAnnotated(NamedAnnotation2.class.getName())).isFalse();
-		assertThat(asmMetadata.isAnnotated(MetaAnnotation.class.getName())).isFalse();
-	}
+  @Test
+  void getAnnotationAttributes() {
+    Map<String, Object> annotationAttributes;
 
-	@Test
-	void getAnnotationAttributes() {
-		Map<String, Object> annotationAttributes;
+    annotationAttributes = standardMetadata.getAnnotationAttributes(NamedAnnotation1.class.getName());
+    assertThat(annotationAttributes.get("name")).isEqualTo("name 1");
 
-		annotationAttributes = standardMetadata.getAnnotationAttributes(NamedAnnotation1.class.getName());
-		assertThat(annotationAttributes.get("name")).isEqualTo("name 1");
+    annotationAttributes = asmMetadata.getAnnotationAttributes(NamedAnnotation1.class.getName());
+    assertThat(annotationAttributes).isNull();
+  }
 
-		annotationAttributes = asmMetadata.getAnnotationAttributes(NamedAnnotation1.class.getName());
-		assertThat(annotationAttributes).isNull();
-	}
+  @Test
+  void getAllAnnotationAttributes() {
+    MultiValueMap<String, Object> annotationAttributes;
 
-	@Test
-	void getAllAnnotationAttributes() {
-		MultiValueMap<String, Object> annotationAttributes;
+    annotationAttributes = standardMetadata.getAllAnnotationAttributes(NamedAnnotation3.class.getName());
+    assertThat(annotationAttributes).containsKey("name");
+    assertThat(annotationAttributes.get("name")).containsExactlyInAnyOrder("name 3", "local");
 
-		annotationAttributes = standardMetadata.getAllAnnotationAttributes(NamedAnnotation3.class.getName());
-		assertThat(annotationAttributes).containsKey("name");
-		assertThat(annotationAttributes.get("name")).containsExactlyInAnyOrder("name 3", "local");
+    annotationAttributes = asmMetadata.getAllAnnotationAttributes(NamedAnnotation1.class.getName());
+    assertThat(annotationAttributes).isNull();
+  }
 
-		annotationAttributes = asmMetadata.getAllAnnotationAttributes(NamedAnnotation1.class.getName());
-		assertThat(annotationAttributes).isNull();
-	}
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.ANNOTATION_TYPE)
+  @interface MetaAnnotation {
+  }
 
+  @MetaAnnotation
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface NamedAnnotation1 {
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.ANNOTATION_TYPE)
-	@interface MetaAnnotation {
-	}
+    String name() default "";
+  }
 
-	@MetaAnnotation
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface NamedAnnotation1 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface NamedAnnotation2 {
 
-		String name() default "";
-	}
+    String name() default "";
+  }
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface NamedAnnotation2 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface NamedAnnotation3 {
 
-		String name() default "";
-	}
+    String name() default "";
+  }
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface NamedAnnotation3 {
+  @Retention(RetentionPolicy.RUNTIME)
+  @NamedAnnotation1(name = "name 1")
+  @NamedAnnotation2(name = "name 2")
+  @NamedAnnotation3(name = "name 3")
+  @Inherited
+  @interface InheritedComposedAnnotation {
+  }
 
-		String name() default "";
-	}
+  @InheritedComposedAnnotation
+  private static class AnnotatedClass {
+  }
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@NamedAnnotation1(name = "name 1")
-	@NamedAnnotation2(name = "name 2")
-	@NamedAnnotation3(name = "name 3")
-	@Inherited
-	@interface InheritedComposedAnnotation {
-	}
-
-	@InheritedComposedAnnotation
-	private static class AnnotatedClass {
-	}
-
-	@NamedAnnotation3(name = "local")
-	private static class AnnotatedSubclass extends AnnotatedClass {
-	}
+  @NamedAnnotation3(name = "local")
+  private static class AnnotatedSubclass extends AnnotatedClass {
+  }
 
 }

@@ -26,9 +26,9 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class ExampleConfiguration {
 
-	@Bean
-	public String example() {
-		return "test";
-	}
+  @Bean
+  public String example() {
+    return "test";
+  }
 
 }

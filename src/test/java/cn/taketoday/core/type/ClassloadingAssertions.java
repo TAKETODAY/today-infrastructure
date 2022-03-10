@@ -33,16 +33,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 abstract class ClassloadingAssertions {
 
-	private static boolean isClassLoaded(String className) {
-		ClassLoader cl = ClassUtils.getDefaultClassLoader();
-		Method findLoadedClassMethod = ReflectionUtils.findMethod(cl.getClass(), "findLoadedClass", String.class);
-		ReflectionUtils.makeAccessible(findLoadedClassMethod);
-		Class<?> loadedClass = (Class<?>) ReflectionUtils.invokeMethod(findLoadedClassMethod, cl, className);
-		return loadedClass != null;
-	}
+  private static boolean isClassLoaded(String className) {
+    ClassLoader cl = ClassUtils.getDefaultClassLoader();
+    Method findLoadedClassMethod = ReflectionUtils.findMethod(cl.getClass(), "findLoadedClass", String.class);
+    ReflectionUtils.makeAccessible(findLoadedClassMethod);
+    Class<?> loadedClass = (Class<?>) ReflectionUtils.invokeMethod(findLoadedClassMethod, cl, className);
+    return loadedClass != null;
+  }
 
-	public static void assertClassNotLoaded(String className) {
-		assertThat(isClassLoaded(className)).as("Class [" + className + "] should not have been loaded").isFalse();
-	}
+  public static void assertClassNotLoaded(String className) {
+    assertThat(isClassLoaded(className)).as("Class [" + className + "] should not have been loaded").isFalse();
+  }
 
 }

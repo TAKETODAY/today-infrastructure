@@ -19,7 +19,6 @@
  */
 package cn.taketoday.core.reflect;
 
-
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -104,7 +103,6 @@ public class TestHandlerInvoker {
     }
 
   }
-
 
 //  private void privateMethod() {
 //    System.out.println("privateMethod");

@@ -187,7 +187,7 @@ public class StoredProcedureTests {
 
       @Override
       public Map<String, Object> call(CallableStatementCreator csc,
-                                      List<SqlParameter> declaredParameters) throws DataAccessException {
+              List<SqlParameter> declaredParameters) throws DataAccessException {
         calls++;
         return super.call(csc, declaredParameters);
       }

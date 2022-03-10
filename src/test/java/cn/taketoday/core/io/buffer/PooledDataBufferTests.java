@@ -35,69 +35,69 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class PooledDataBufferTests {
 
-	@Nested
-	class UnpooledByteBufAllocatorWithPreferDirectTrueTests implements PooledDataBufferTestingTrait {
+  @Nested
+  class UnpooledByteBufAllocatorWithPreferDirectTrueTests implements PooledDataBufferTestingTrait {
 
-		@Override
-		public DataBufferFactory createDataBufferFactory() {
-			return new NettyDataBufferFactory(new UnpooledByteBufAllocator(true));
-		}
-	}
+    @Override
+    public DataBufferFactory createDataBufferFactory() {
+      return new NettyDataBufferFactory(new UnpooledByteBufAllocator(true));
+    }
+  }
 
-	@Nested
-	class UnpooledByteBufAllocatorWithPreferDirectFalseTests implements PooledDataBufferTestingTrait {
+  @Nested
+  class UnpooledByteBufAllocatorWithPreferDirectFalseTests implements PooledDataBufferTestingTrait {
 
-		@Override
-		public DataBufferFactory createDataBufferFactory() {
-			return new NettyDataBufferFactory(new UnpooledByteBufAllocator(true));
-		}
-	}
+    @Override
+    public DataBufferFactory createDataBufferFactory() {
+      return new NettyDataBufferFactory(new UnpooledByteBufAllocator(true));
+    }
+  }
 
-	@Nested
-	class PooledByteBufAllocatorWithPreferDirectTrueTests implements PooledDataBufferTestingTrait {
+  @Nested
+  class PooledByteBufAllocatorWithPreferDirectTrueTests implements PooledDataBufferTestingTrait {
 
-		@Override
-		public DataBufferFactory createDataBufferFactory() {
-			return new NettyDataBufferFactory(new PooledByteBufAllocator(true));
-		}
-	}
+    @Override
+    public DataBufferFactory createDataBufferFactory() {
+      return new NettyDataBufferFactory(new PooledByteBufAllocator(true));
+    }
+  }
 
-	@Nested
-	class PooledByteBufAllocatorWithPreferDirectFalseTests implements PooledDataBufferTestingTrait {
+  @Nested
+  class PooledByteBufAllocatorWithPreferDirectFalseTests implements PooledDataBufferTestingTrait {
 
-		@Override
-		public DataBufferFactory createDataBufferFactory() {
-			return new NettyDataBufferFactory(new PooledByteBufAllocator(true));
-		}
-	}
+    @Override
+    public DataBufferFactory createDataBufferFactory() {
+      return new NettyDataBufferFactory(new PooledByteBufAllocator(true));
+    }
+  }
 
-	interface PooledDataBufferTestingTrait {
+  interface PooledDataBufferTestingTrait {
 
-		DataBufferFactory createDataBufferFactory();
+    DataBufferFactory createDataBufferFactory();
 
-		default PooledDataBuffer createDataBuffer(int capacity) {
-			return (PooledDataBuffer) createDataBufferFactory().allocateBuffer(capacity);
-		}
+    default PooledDataBuffer createDataBuffer(int capacity) {
+      return (PooledDataBuffer) createDataBufferFactory().allocateBuffer(capacity);
+    }
 
-		@Test
-		default void retainAndRelease() {
-			PooledDataBuffer buffer = createDataBuffer(1);
-			buffer.write((byte) 'a');
+    @Test
+    default void retainAndRelease() {
+      PooledDataBuffer buffer = createDataBuffer(1);
+      buffer.write((byte) 'a');
 
-			buffer.retain();
-			assertThat(buffer.release()).isFalse();
-			assertThat(buffer.release()).isTrue();
-		}
+      buffer.retain();
+      assertThat(buffer.release()).isFalse();
+      assertThat(buffer.release()).isTrue();
+    }
 
-		@Test
-		default void tooManyReleases() {
-			PooledDataBuffer buffer = createDataBuffer(1);
-			buffer.write((byte) 'a');
+    @Test
+    default void tooManyReleases() {
+      PooledDataBuffer buffer = createDataBuffer(1);
+      buffer.write((byte) 'a');
 
-			buffer.release();
-			assertThatIllegalStateException().isThrownBy(buffer::release);
-		}
+      buffer.release();
+      assertThatIllegalStateException().isThrownBy(buffer::release);
+    }
 
-	}
+  }
 
 }

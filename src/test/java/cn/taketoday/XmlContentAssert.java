@@ -49,7 +49,7 @@ public class XmlContentAssert extends AbstractAssert<XmlContentAssert, Object> {
   }
 
   public XmlContentAssert isSimilarTo(String control,
-                                      DifferenceEvaluator differenceEvaluator) {
+          DifferenceEvaluator differenceEvaluator) {
     XmlAssert.assertThat(super.actual).and(control).withDifferenceEvaluator(
             differenceEvaluator).areSimilar();
     return this;

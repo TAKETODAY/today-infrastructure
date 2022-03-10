@@ -32,5 +32,5 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @interface NonPublicAnnotation {
 
-	int value() default -1;
+  int value() default -1;
 }

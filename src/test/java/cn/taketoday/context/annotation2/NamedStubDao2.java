@@ -27,8 +27,8 @@ import cn.taketoday.lang.Repository;
 @Repository("myNamedDao")
 public class NamedStubDao2 {
 
-	public String find(int id) {
-		return "bar";
-	}
+  public String find(int id) {
+    return "bar";
+  }
 
 }

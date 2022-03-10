@@ -29,9 +29,9 @@ import cn.taketoday.core.env.StandardEnvironment;
  */
 class ApplicationEnvironmentTests extends AbstractApplicationEnvironmentTests {
 
-	@Override
-	protected StandardEnvironment createEnvironment() {
-		return new ApplicationEnvironment();
-	}
+  @Override
+  protected StandardEnvironment createEnvironment() {
+    return new ApplicationEnvironment();
+  }
 
 }

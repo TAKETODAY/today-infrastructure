@@ -187,7 +187,7 @@ class JsonObjectDeserializerTests {
 
     @Override
     protected T deserializeObject(JsonParser jsonParser, DeserializationContext context, ObjectCodec codec,
-                                  JsonNode tree) {
+            JsonNode tree) {
       return null;
     }
 

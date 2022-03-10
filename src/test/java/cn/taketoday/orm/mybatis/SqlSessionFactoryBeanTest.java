@@ -508,7 +508,7 @@ class SqlSessionFactoryBeanTest {
   }
 
   private void assertConfig(SqlSessionFactory factory, String environment,
-                            Class<? extends TransactionFactory> transactionFactoryClass) {
+          Class<? extends TransactionFactory> transactionFactoryClass) {
     assertThat(factory.getConfiguration().getEnvironment().getId()).isEqualTo(environment);
     assertThat(factory.getConfiguration().getEnvironment().getDataSource()).isSameAs(dataSource);
     assertThat(factory.getConfiguration().getEnvironment().getTransactionFactory().getClass())

@@ -39,7 +39,7 @@ public class TestMixin {
   @Test
   public void testSimple() throws Exception {
     Object obj = Mixin.create(new Class[] { DI1.class, DI2.class },
-                              new Object[] { new D1(), new D2() });
+            new Object[] { new D1(), new D2() });
     assertEquals("D1", ((DI1) obj).herby());
     assertEquals("D2", ((DI2) obj).derby());
   }
@@ -49,10 +49,10 @@ public class TestMixin {
     Object obj = Mixin.create(new Object[] { new D1(), new D2() });
     Object obj2 = Mixin.create(new Object[] { new D1(), new D2() });
     assertEquals(obj.getClass(),
-                 obj2.getClass(), "Mixin.create should use exactly the same class when called with same parameters");
+            obj2.getClass(), "Mixin.create should use exactly the same class when called with same parameters");
     Object obj3 = Mixin.create(new Object[] { new D1(), new D4() });
     assertNotSame(obj.getClass(),
-                  obj3.getClass(), "Mixin.create should use different classes for different parameters");
+            obj3.getClass(), "Mixin.create should use different classes for different parameters");
     assertEquals("D1", ((DI1) obj).herby());
     assertEquals("D2", ((DI2) obj).derby());
   }
@@ -64,7 +64,8 @@ public class TestMixin {
     assertEquals("D4", ((DI2) obj).derby());
   }
 
-  @Test public void testNonOverride() throws Exception {
+  @Test
+  public void testNonOverride() throws Exception {
     Object obj = Mixin.create(new Object[] { new D4(), new D1() });
     assertTrue(((DI1) obj).herby().equals("D4"));
     assertTrue(((DI2) obj).derby().equals("D4"));

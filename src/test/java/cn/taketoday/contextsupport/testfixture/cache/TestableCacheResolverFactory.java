@@ -32,14 +32,14 @@ import javax.cache.annotation.CacheResult;
  */
 public class TestableCacheResolverFactory implements CacheResolverFactory {
 
-	@Override
-	public CacheResolver getCacheResolver(CacheMethodDetails<? extends Annotation> cacheMethodDetails) {
-		return new TestableCacheResolver();
-	}
+  @Override
+  public CacheResolver getCacheResolver(CacheMethodDetails<? extends Annotation> cacheMethodDetails) {
+    return new TestableCacheResolver();
+  }
 
-	@Override
-	public CacheResolver getExceptionCacheResolver(CacheMethodDetails<CacheResult> cacheMethodDetails) {
-		return new TestableCacheResolver();
-	}
+  @Override
+  public CacheResolver getExceptionCacheResolver(CacheMethodDetails<CacheResult> cacheMethodDetails) {
+    return new TestableCacheResolver();
+  }
 
 }

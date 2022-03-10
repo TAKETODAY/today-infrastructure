@@ -48,11 +48,11 @@ class ByteBufferEncoderTests extends AbstractEncoderTests<ByteBufferEncoder> {
   @Test
   public void canEncode() {
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(ByteBuffer.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isFalse();
+            MimeTypeUtils.TEXT_PLAIN)).isFalse();
     assertThat(this.encoder.canEncode(ResolvableType.fromClass(ByteBuffer.class),
-                                      MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // SPR-15464
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();

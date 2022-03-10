@@ -46,178 +46,178 @@ import cn.taketoday.contextsupport.testfixture.jcache.JCacheableService;
 @CacheDefaults(cacheName = "default")
 public class AnnotatedJCacheableService implements JCacheableService<Long> {
 
-	private final AtomicLong counter = new AtomicLong();
+  private final AtomicLong counter = new AtomicLong();
 
-	private final AtomicLong exceptionCounter = new AtomicLong();
+  private final AtomicLong exceptionCounter = new AtomicLong();
 
-	private final Cache defaultCache;
+  private final Cache defaultCache;
 
-	public AnnotatedJCacheableService(Cache defaultCache) {
-		this.defaultCache = defaultCache;
-	}
+  public AnnotatedJCacheableService(Cache defaultCache) {
+    this.defaultCache = defaultCache;
+  }
 
-	@Override
-	@CacheResult
-	public Long cache(String id) {
-		return counter.getAndIncrement();
-	}
+  @Override
+  @CacheResult
+  public Long cache(String id) {
+    return counter.getAndIncrement();
+  }
 
-	@Override
-	@CacheResult
-	public Long cacheNull(String id) {
-		return null;
-	}
+  @Override
+  @CacheResult
+  public Long cacheNull(String id) {
+    return null;
+  }
 
-	@Override
-	@CacheResult(exceptionCacheName = "exception", nonCachedExceptions = NullPointerException.class)
-	public Long cacheWithException(@CacheKey String id, boolean matchFilter) {
-		throwException(matchFilter);
-		return 0L; // Never reached
-	}
+  @Override
+  @CacheResult(exceptionCacheName = "exception", nonCachedExceptions = NullPointerException.class)
+  public Long cacheWithException(@CacheKey String id, boolean matchFilter) {
+    throwException(matchFilter);
+    return 0L; // Never reached
+  }
 
-	@Override
-	@CacheResult(exceptionCacheName = "exception", nonCachedExceptions = NullPointerException.class)
-	public Long cacheWithCheckedException(@CacheKey String id, boolean matchFilter) throws IOException {
-		throwCheckedException(matchFilter);
-		return 0L; // Never reached
-	}
+  @Override
+  @CacheResult(exceptionCacheName = "exception", nonCachedExceptions = NullPointerException.class)
+  public Long cacheWithCheckedException(@CacheKey String id, boolean matchFilter) throws IOException {
+    throwCheckedException(matchFilter);
+    return 0L; // Never reached
+  }
 
-	@Override
-	@CacheResult(skipGet = true)
-	public Long cacheAlwaysInvoke(String id) {
-		return counter.getAndIncrement();
-	}
+  @Override
+  @CacheResult(skipGet = true)
+  public Long cacheAlwaysInvoke(String id) {
+    return counter.getAndIncrement();
+  }
 
-	@Override
-	@CacheResult
-	public Long cacheWithPartialKey(@CacheKey String id, boolean notUsed) {
-		return counter.getAndIncrement();
-	}
+  @Override
+  @CacheResult
+  public Long cacheWithPartialKey(@CacheKey String id, boolean notUsed) {
+    return counter.getAndIncrement();
+  }
 
-	@Override
-	@CacheResult(cacheResolverFactory = TestableCacheResolverFactory.class)
-	public Long cacheWithCustomCacheResolver(String id) {
-		return counter.getAndIncrement();
-	}
+  @Override
+  @CacheResult(cacheResolverFactory = TestableCacheResolverFactory.class)
+  public Long cacheWithCustomCacheResolver(String id) {
+    return counter.getAndIncrement();
+  }
 
-	@Override
-	@CacheResult(cacheKeyGenerator = TestableCacheKeyGenerator.class)
-	public Long cacheWithCustomKeyGenerator(String id, String anotherId) {
-		return counter.getAndIncrement();
-	}
+  @Override
+  @CacheResult(cacheKeyGenerator = TestableCacheKeyGenerator.class)
+  public Long cacheWithCustomKeyGenerator(String id, String anotherId) {
+    return counter.getAndIncrement();
+  }
 
-	@Override
-	@CachePut
-	public void put(String id, @CacheValue Object value) {
-	}
+  @Override
+  @CachePut
+  public void put(String id, @CacheValue Object value) {
+  }
 
-	@Override
-	@CachePut(cacheFor = UnsupportedOperationException.class)
-	public void putWithException(@CacheKey String id, @CacheValue Object value, boolean matchFilter) {
-		throwException(matchFilter);
-	}
+  @Override
+  @CachePut(cacheFor = UnsupportedOperationException.class)
+  public void putWithException(@CacheKey String id, @CacheValue Object value, boolean matchFilter) {
+    throwException(matchFilter);
+  }
 
-	@Override
-	@CachePut(afterInvocation = false)
-	public void earlyPut(String id, @CacheValue Object value) {
-		Object key = SimpleKeyGenerator.generateKey(id);
-		Cache.ValueWrapper valueWrapper = defaultCache.get(key);
-		if (valueWrapper == null) {
-			throw new AssertionError("Excepted value to be put in cache with key " + key);
-		}
-		Object actual = valueWrapper.get();
-		if (value != actual) { // instance check on purpose
-			throw new AssertionError("Wrong value set in cache with key " + key + ". " +
-					"Expected=" + value + ", but got=" + actual);
-		}
-	}
+  @Override
+  @CachePut(afterInvocation = false)
+  public void earlyPut(String id, @CacheValue Object value) {
+    Object key = SimpleKeyGenerator.generateKey(id);
+    Cache.ValueWrapper valueWrapper = defaultCache.get(key);
+    if (valueWrapper == null) {
+      throw new AssertionError("Excepted value to be put in cache with key " + key);
+    }
+    Object actual = valueWrapper.get();
+    if (value != actual) { // instance check on purpose
+      throw new AssertionError("Wrong value set in cache with key " + key + ". " +
+              "Expected=" + value + ", but got=" + actual);
+    }
+  }
 
-	@Override
-	@CachePut(afterInvocation = false)
-	public void earlyPutWithException(@CacheKey String id, @CacheValue Object value, boolean matchFilter) {
-		throwException(matchFilter);
-	}
+  @Override
+  @CachePut(afterInvocation = false)
+  public void earlyPutWithException(@CacheKey String id, @CacheValue Object value, boolean matchFilter) {
+    throwException(matchFilter);
+  }
 
-	@Override
-	@CacheRemove
-	public void remove(String id) {
-	}
+  @Override
+  @CacheRemove
+  public void remove(String id) {
+  }
 
-	@Override
-	@CacheRemove(noEvictFor = NullPointerException.class)
-	public void removeWithException(@CacheKey String id, boolean matchFilter) {
-		throwException(matchFilter);
-	}
+  @Override
+  @CacheRemove(noEvictFor = NullPointerException.class)
+  public void removeWithException(@CacheKey String id, boolean matchFilter) {
+    throwException(matchFilter);
+  }
 
-	@Override
-	@CacheRemove(afterInvocation = false)
-	public void earlyRemove(String id) {
-		Object key = SimpleKeyGenerator.generateKey(id);
-		Cache.ValueWrapper valueWrapper = defaultCache.get(key);
-		if (valueWrapper != null) {
-			throw new AssertionError("Value with key " + key + " expected to be already remove from cache");
-		}
-	}
+  @Override
+  @CacheRemove(afterInvocation = false)
+  public void earlyRemove(String id) {
+    Object key = SimpleKeyGenerator.generateKey(id);
+    Cache.ValueWrapper valueWrapper = defaultCache.get(key);
+    if (valueWrapper != null) {
+      throw new AssertionError("Value with key " + key + " expected to be already remove from cache");
+    }
+  }
 
-	@Override
-	@CacheRemove(afterInvocation = false, evictFor = UnsupportedOperationException.class)
-	public void earlyRemoveWithException(@CacheKey String id, boolean matchFilter) {
-		throwException(matchFilter);
-	}
+  @Override
+  @CacheRemove(afterInvocation = false, evictFor = UnsupportedOperationException.class)
+  public void earlyRemoveWithException(@CacheKey String id, boolean matchFilter) {
+    throwException(matchFilter);
+  }
 
-	@Override
-	@CacheRemoveAll
-	public void removeAll() {
-	}
+  @Override
+  @CacheRemoveAll
+  public void removeAll() {
+  }
 
-	@Override
-	@CacheRemoveAll(noEvictFor = NullPointerException.class)
-	public void removeAllWithException(boolean matchFilter) {
-		throwException(matchFilter);
-	}
+  @Override
+  @CacheRemoveAll(noEvictFor = NullPointerException.class)
+  public void removeAllWithException(boolean matchFilter) {
+    throwException(matchFilter);
+  }
 
-	@Override
-	@CacheRemoveAll(afterInvocation = false)
-	public void earlyRemoveAll() {
-		ConcurrentHashMap<?, ?> nativeCache = (ConcurrentHashMap<?, ?>) defaultCache.getNativeCache();
-		if (!nativeCache.isEmpty()) {
-			throw new AssertionError("Cache was expected to be empty");
-		}
-	}
+  @Override
+  @CacheRemoveAll(afterInvocation = false)
+  public void earlyRemoveAll() {
+    ConcurrentHashMap<?, ?> nativeCache = (ConcurrentHashMap<?, ?>) defaultCache.getNativeCache();
+    if (!nativeCache.isEmpty()) {
+      throw new AssertionError("Cache was expected to be empty");
+    }
+  }
 
-	@Override
-	@CacheRemoveAll(afterInvocation = false, evictFor = UnsupportedOperationException.class)
-	public void earlyRemoveAllWithException(boolean matchFilter) {
-		throwException(matchFilter);
-	}
+  @Override
+  @CacheRemoveAll(afterInvocation = false, evictFor = UnsupportedOperationException.class)
+  public void earlyRemoveAllWithException(boolean matchFilter) {
+    throwException(matchFilter);
+  }
 
-	@Deprecated
-	public void noAnnotation() {
-	}
+  @Deprecated
+  public void noAnnotation() {
+  }
 
-	@Override
-	public long exceptionInvocations() {
-		return exceptionCounter.get();
-	}
+  @Override
+  public long exceptionInvocations() {
+    return exceptionCounter.get();
+  }
 
-	private void throwException(boolean matchFilter) {
-		long count = exceptionCounter.getAndIncrement();
-		if (matchFilter) {
-			throw new UnsupportedOperationException("Expected exception (" + count + ")");
-		}
-		else {
-			throw new NullPointerException("Expected exception (" + count + ")");
-		}
-	}
+  private void throwException(boolean matchFilter) {
+    long count = exceptionCounter.getAndIncrement();
+    if (matchFilter) {
+      throw new UnsupportedOperationException("Expected exception (" + count + ")");
+    }
+    else {
+      throw new NullPointerException("Expected exception (" + count + ")");
+    }
+  }
 
-	private void throwCheckedException(boolean matchFilter) throws IOException {
-		long count = exceptionCounter.getAndIncrement();
-		if (matchFilter) {
-			throw new IOException("Expected exception (" + count + ")");
-		}
-		else {
-			throw new NullPointerException("Expected exception (" + count + ")");
-		}
-	}
+  private void throwCheckedException(boolean matchFilter) throws IOException {
+    long count = exceptionCounter.getAndIncrement();
+    if (matchFilter) {
+      throw new IOException("Expected exception (" + count + ")");
+    }
+    else {
+      throw new NullPointerException("Expected exception (" + count + ")");
+    }
+  }
 
 }

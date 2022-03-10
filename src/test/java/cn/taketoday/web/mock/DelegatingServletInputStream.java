@@ -46,8 +46,7 @@ public class DelegatingServletInputStream extends ServletInputStream {
   /**
    * Create a DelegatingServletInputStream for the given source stream.
    *
-   * @param sourceStream
-   *         the source stream (never {@code null})
+   * @param sourceStream the source stream (never {@code null})
    */
   public DelegatingServletInputStream(InputStream sourceStream) {
     Assert.notNull(sourceStream, "Source InputStream must not be null");

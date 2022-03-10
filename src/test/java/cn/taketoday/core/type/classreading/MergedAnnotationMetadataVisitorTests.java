@@ -133,8 +133,8 @@ class MergedAnnotationMetadataVisitorTests {
       @Override
       public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
         return MergedAnnotationReadingVisitor.get(getClass().getClassLoader(),
-                                                  null, descriptor, visible,
-                                                  annotation -> MergedAnnotationMetadataVisitorTests.this.annotation = annotation);
+                null, descriptor, visible,
+                annotation -> MergedAnnotationMetadataVisitorTests.this.annotation = annotation);
       }
 
     };
@@ -152,7 +152,8 @@ class MergedAnnotationMetadataVisitorTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface SimpleTypesAnnotation {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface SimpleTypesAnnotation {
 
     String stringValue();
 
@@ -184,7 +185,8 @@ class MergedAnnotationMetadataVisitorTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface SimpleArrayTypesAnnotation {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface SimpleArrayTypesAnnotation {
 
     String[] stringValue();
 
@@ -212,7 +214,8 @@ class MergedAnnotationMetadataVisitorTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface EnumAnnotation {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface EnumAnnotation {
 
     ExampleEnum enumValue();
 
@@ -230,7 +233,8 @@ class MergedAnnotationMetadataVisitorTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface AnnotationAnnotation {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface AnnotationAnnotation {
 
     NestedAnnotation annotationValue();
 
@@ -238,7 +242,8 @@ class MergedAnnotationMetadataVisitorTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface NestedAnnotation {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface NestedAnnotation {
 
     String value() default "";
 
@@ -249,7 +254,8 @@ class MergedAnnotationMetadataVisitorTests {
 
   }
 
-  @Retention(RetentionPolicy.RUNTIME) @interface ClassAnnotation {
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ClassAnnotation {
 
     Class<?> classValue();
 

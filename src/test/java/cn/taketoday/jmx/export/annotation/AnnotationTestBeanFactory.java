@@ -28,25 +28,25 @@ import cn.taketoday.jmx.IJmxTestBean;
  */
 public class AnnotationTestBeanFactory implements FactoryBean<FactoryCreatedAnnotationTestBean> {
 
-	private final FactoryCreatedAnnotationTestBean instance = new FactoryCreatedAnnotationTestBean();
+  private final FactoryCreatedAnnotationTestBean instance = new FactoryCreatedAnnotationTestBean();
 
-	public AnnotationTestBeanFactory() {
-		this.instance.setName("FACTORY");
-	}
+  public AnnotationTestBeanFactory() {
+    this.instance.setName("FACTORY");
+  }
 
-	@Override
-	public FactoryCreatedAnnotationTestBean getObject() throws Exception {
-		return this.instance;
-	}
+  @Override
+  public FactoryCreatedAnnotationTestBean getObject() throws Exception {
+    return this.instance;
+  }
 
-	@Override
-	public Class<? extends IJmxTestBean> getObjectType() {
-		return FactoryCreatedAnnotationTestBean.class;
-	}
+  @Override
+  public Class<? extends IJmxTestBean> getObjectType() {
+    return FactoryCreatedAnnotationTestBean.class;
+  }
 
-	@Override
-	public boolean isSingleton() {
-		return true;
-	}
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 
 }

@@ -39,7 +39,6 @@ public class EventCollector {
 
   private final MultiValueMap<String, Object> content = MultiValueMap.fromLinkedHashMap();
 
-
   /**
    * Register an event for the specified listener.
    */

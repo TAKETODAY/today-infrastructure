@@ -88,7 +88,7 @@ class FastByteArrayOutputStreamTests {
   void close() {
     this.os.close();
     assertThatIOException().isThrownBy(() ->
-                                               this.os.write(this.helloBytes));
+            this.os.write(this.helloBytes));
   }
 
   @Test
@@ -112,7 +112,7 @@ class FastByteArrayOutputStreamTests {
   void failResize() throws Exception {
     this.os.write(this.helloBytes);
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            this.os.resize(5));
+            this.os.resize(5));
   }
 
   @Test

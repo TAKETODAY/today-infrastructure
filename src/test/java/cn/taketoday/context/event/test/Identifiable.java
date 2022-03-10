@@ -27,9 +27,9 @@ package cn.taketoday.context.event.test;
  */
 public interface Identifiable {
 
-	/**
-	 * Return a unique global id used to identify this instance.
-	 */
-	String getId();
+  /**
+   * Return a unique global id used to identify this instance.
+   */
+  String getId();
 
 }

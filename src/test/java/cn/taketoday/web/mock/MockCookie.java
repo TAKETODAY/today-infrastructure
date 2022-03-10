@@ -47,11 +47,8 @@ public class MockCookie extends Cookie {
   /**
    * Construct a new {@link MockCookie} with the supplied name and value.
    *
-   * @param name
-   *         the name
-   * @param value
-   *         the value
-   *
+   * @param name the name
+   * @param value the value
    * @see Cookie#Cookie(String, String)
    */
   public MockCookie(String name, String value) {
@@ -71,7 +68,6 @@ public class MockCookie extends Cookie {
    * Get the "Expires" attribute for this cookie.
    *
    * @return the "Expires" attribute for this cookie, or {@code null} if not set
-   *
    * @since 4.0
    */
 
@@ -104,9 +100,7 @@ public class MockCookie extends Cookie {
   /**
    * Factory method that parses the value of the supplied "Set-Cookie" header.
    *
-   * @param setCookieHeader
-   *         the "Set-Cookie" value; never {@code null} or empty
-   *
+   * @param setCookieHeader the "Set-Cookie" value; never {@code null} or empty
    * @return the created cookie
    */
   public static MockCookie parse(String setCookieHeader) {
@@ -131,7 +125,7 @@ public class MockCookie extends Cookie {
       else if (startsWithIgnoreCase(attribute, "Expires")) {
         try {
           cookie.setExpires(ZonedDateTime.parse(extractAttributeValue(attribute, setCookieHeader),
-                                                DateTimeFormatter.RFC_1123_DATE_TIME));
+                  DateTimeFormatter.RFC_1123_DATE_TIME));
         }
         catch (DateTimeException ex) {
           // ignore invalid date formats
@@ -156,7 +150,7 @@ public class MockCookie extends Cookie {
   private static String extractAttributeValue(String attribute, String header) {
     String[] nameAndValue = attribute.split("=");
     Assert.isTrue(nameAndValue.length == 2,
-                  () -> "No value in attribute '" + nameAndValue[0] + "' for Set-Cookie header '" + header + "'");
+            () -> "No value in attribute '" + nameAndValue[0] + "' for Set-Cookie header '" + header + "'");
     return nameAndValue[1];
   }
 
@@ -164,11 +158,8 @@ public class MockCookie extends Cookie {
    * Test if the given {@code String} starts with the specified prefix,
    * ignoring upper/lower case.
    *
-   * @param str
-   *         the {@code String} to check
-   * @param prefix
-   *         the prefix to look for
-   *
+   * @param str the {@code String} to check
+   * @param prefix the prefix to look for
    * @see java.lang.String#startsWith
    */
   public static boolean startsWithIgnoreCase(String str, String prefix) {

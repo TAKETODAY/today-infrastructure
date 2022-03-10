@@ -47,13 +47,11 @@ import io.netty.buffer.PooledByteBufAllocator;
 public class LeakAwareDataBufferFactory implements DataBufferFactory {
   private static final Logger logger = LoggerFactory.getLogger(LeakAwareDataBufferFactory.class);
 
-
   private final DataBufferFactory delegate;
 
   private final List<LeakAwareDataBuffer> created = new ArrayList<>();
 
   private final AtomicBoolean trackCreated = new AtomicBoolean(true);
-
 
   /**
    * Creates a new {@code LeakAwareDataBufferFactory} by wrapping a
@@ -72,7 +70,6 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
     Assert.notNull(delegate, "Delegate must not be null");
     this.delegate = delegate;
   }
-
 
   /**
    * Checks whether all of the data buffers allocated by this factory have also been released.

@@ -38,13 +38,10 @@ public class LinqTest {
   /**
    * Test a Ling query that returns a Map
    *
-   * @param name
-   *         of the test
-   * @param query
-   *         The EL query string
-   * @param expected
-   *         The expected result of the Map. The element of the array should
-   *         equals a entry in the Map.
+   * @param name of the test
+   * @param query The EL query string
+   * @param expected The expected result of the Map. The element of the array should
+   * equals a entry in the Map.
    */
   void testMap(String name, String query, String[] expected) {
     p("=== Test " + name + "===");
@@ -70,13 +67,10 @@ public class LinqTest {
   /**
    * Test a Linq query that returns an Iterable.
    *
-   * @param name
-   *         of the test
-   * @param query
-   *         The EL query string
-   * @param expected
-   *         The expected result of the Iterable. The array element should
-   *         equal the Iterable element, when enumerated.
+   * @param name of the test
+   * @param query The EL query string
+   * @param expected The expected result of the Iterable. The array element should
+   * equal the Iterable element, when enumerated.
    */
   void testIterable(String name, String query, String[] expected) {
     p("=== Testing " + name + " ===");
@@ -117,8 +111,8 @@ public class LinqTest {
   @Test
   public void testSelect2() {
     testIterable("select 2",
-                 " products.where(p->p.unitPrice >= 10).\n" + "          select(p->[p.name,p.unitPrice])",
-                 exp3);
+            " products.where(p->p.unitPrice >= 10).\n" + "          select(p->[p.name,p.unitPrice])",
+            exp3);
   }
 
   static String[] exp4 = { "0", "3", "4", "5" };
@@ -126,9 +120,9 @@ public class LinqTest {
   @Test
   public void testSelect3() {
     testIterable("select 3",
-                 " products.select((p,i)->{'product':p, 'index':i}).\n" + "          where(p->p.product.unitPrice >= 10).\n"
-                         + "          select(p->p.index)",
-                 exp4);
+            " products.select((p,i)->{'product':p, 'index':i}).\n" + "          where(p->p.product.unitPrice >= 10).\n"
+                    + "          select(p->p.index)",
+            exp4);
   }
 
   static String[] exp5 = { "Order: 10, 100, 2/18/2010, 20.8", "Order: 11, 100, 5/3/2011, 34.5", "Order: 12, 100, 8/2/2011, 210.75", "Order: 13, 101, 1/15/2011, 50.23", "Order: 14, 101, 1/3/2012, 126.77" };
@@ -136,8 +130,8 @@ public class LinqTest {
   @Test
   public void testSelectMany() {
     testIterable("selectMany",
-                 " customers.where(c->c.country == 'USA').\n" + "           selectMany(c->c.orders)",
-                 exp5);
+            " customers.where(c->c.country == 'USA').\n" + "           selectMany(c->c.orders)",
+            exp5);
   }
 
   static String[] exp6 = { "[John Doe, 11]", "[John Doe, 12]", "[Mary Lane, 13]" };
@@ -145,20 +139,20 @@ public class LinqTest {
   @Test
   public void testSelectMany2() {
     testIterable("selectMany 2",
-                 " customers.where(c->c.country == 'USA').\n" + "           selectMany(c->c.orders, (c,o)->{'o':o,'c':c}).\n"
-                         + "           where(co->co.o.orderDate.year == 2011).\n" + "           select(co->[co.c.name, co.o.orderID])",
-                 exp6);
+            " customers.where(c->c.country == 'USA').\n" + "           selectMany(c->c.orders, (c,o)->{'o':o,'c':c}).\n"
+                    + "           where(co->co.o.orderDate.year == 2011).\n" + "           select(co->[co.c.name, co.o.orderID])",
+            exp6);
   }
 
   @Test
   public void testSelectMany2a() {
     testIterable("selectMany 2a",
-                 " customers.where(c->c.country == 'USA').\n" + "           selectMany(c->c.orders).\n"
-                         + "           where(o->o.orderDate.year == 2011).\n"
-                         + "           select(o-> [customers.where(c->c.customerID==o.customerID).\n"
-                         + "                                 select(c->c.name).\n" + "                                 single(),\n"
-                         + "                       o.orderID])",
-                 exp6);
+            " customers.where(c->c.country == 'USA').\n" + "           selectMany(c->c.orders).\n"
+                    + "           where(o->o.orderDate.year == 2011).\n"
+                    + "           select(o-> [customers.where(c->c.customerID==o.customerID).\n"
+                    + "                                 select(c->c.name).\n" + "                                 single(),\n"
+                    + "                       o.orderID])",
+            exp6);
   }
 
   static String[] exp7 = { "Product: 200, Eagle, book, 12.5, 100", "Product: 205, iSee, book, 12.5, 150", "Product: 203, History of Golf, book, 11.0, 30" };
@@ -166,8 +160,8 @@ public class LinqTest {
   @Test
   public void testTake() {
     testIterable("take",
-                 " products.orderByDescending(p->p.unitPrice).\n" + "          take(3)",
-                 exp7);
+            " products.orderByDescending(p->p.unitPrice).\n" + "          take(3)",
+            exp7);
   }
 
   static String[] exp8 = { "[John Doe, 2/18/2010, 20.8]", "[John Doe, 5/3/2011, 34.5]", "[John Doe, 8/2/2011, 210.75]", "[Mary Lane, 1/15/2011, 50.23]", "[Mary Lane, 1/3/2012, 126.77]", "[Charlie Yeh, 4/15/2011, 101.2]" };
@@ -175,9 +169,9 @@ public class LinqTest {
   @Test
   public void testJoin() {
     testIterable("join",
-                 " customers.join(orders, c->c.customerID, o->o.customerID,\n"
-                         + "                (c,o)->[c.name, o.orderDate, o.total])",
-                 exp8);
+            " customers.join(orders, c->c.customerID, o->o.customerID,\n"
+                    + "                (c,o)->[c.name, o.orderDate, o.total])",
+            exp8);
   }
 
   static String[] exp9 = { "[John Doe, 266.05]", "[Mary Lane, 177.0]", "[Charlie Yeh, 101.2]" };
@@ -185,16 +179,16 @@ public class LinqTest {
   @Test
   public void testGroupJoin() {
     testIterable("groupJoin",
-                 " customers.groupJoin(orders, c->c.customerID, o->o.customerID,\n"
-                         + "                     (c,os)->[c.name, os.sum(o->o.total)])",
-                 exp9);
+            " customers.groupJoin(orders, c->c.customerID, o->o.customerID,\n"
+                    + "                     (c,os)->[c.name, os.sum(o->o.total)])",
+            exp9);
   }
 
   @Test
   public void testGroupJoin2() {
     testIterable("groupJoinNot",
-                 " customers.select(c->[c.name, c.orders.sum(o->o.total)])",
-                 exp9);
+            " customers.select(c->[c.name, c.orders.sum(o->o.total)])",
+            exp9);
   }
 
   static String[] exp10 = { "Product: 200, Eagle, book, 12.5, 100", "Product: 205, iSee, book, 12.5, 150", "Product: 203, History of Golf, book, 11.0, 30", "Product: 202, Greatest Hits, cd, 6.5, 200", "Product: 204, Toy Story, dvd, 10.0, 1000", "Product: 201, Coming Home, dvd, 8.0, 50" };
@@ -202,9 +196,9 @@ public class LinqTest {
   @Test
   public void testOrderBy() {
     testIterable("orderBy",
-                 " products.orderBy(p->p.category).\n" + "          thenByDescending(p->p.unitPrice).\n"
-                         + "          thenBy(p->p.name)",
-                 exp10);
+            " products.orderBy(p->p.category).\n" + "          thenByDescending(p->p.unitPrice).\n"
+                    + "          thenBy(p->p.name)",
+            exp10);
   }
 
   static String[] exp11 = { "Product: 201, Coming Home, dvd, 8.0, 50", "Product: 200, Eagle, book, 12.5, 100", "Product: 202, Greatest Hits, cd, 6.5, 200", "Product: 203, History of Golf, book, 11.0, 30", "Product: 205, iSee, book, 12.5, 150", "Product: 204, Toy Story, dvd, 10.0, 1000" };
@@ -212,8 +206,8 @@ public class LinqTest {
   @Test
   public void testOrderBy2() {
     testIterable("orderBy 2",
-                 " products.orderBy(p->p.name,\n" + "                  T(java.lang.String).CASE_INSENSITIVE_ORDER)",
-                 exp11);
+            " products.orderBy(p->p.name,\n" + "                  T(java.lang.String).CASE_INSENSITIVE_ORDER)",
+            exp11);
   }
 
   static String[] exp12 = { "11=Order: 11, 100, 5/3/2011, 34.5", "12=Order: 12, 100, 8/2/2011, 210.75", "13=Order: 13, 101, 1/15/2011, 50.23", "15=Order: 15, 102, 4/15/2011, 101.2" };
@@ -238,8 +232,8 @@ public class LinqTest {
   @Test
   public void testGroupBy() {
     testIterable("groupBy",
-                 " products.groupBy(p->p.category, p->p.name) ",
-                 exp13);
+            " products.groupBy(p->p.category, p->p.name) ",
+            exp13);
   }
 
   static String[] exp14 = { "book=book: [Eagle, History of Golf, iSee]", "dvd=dvd: [Coming Home, Toy Story]", "cd=cd: [Greatest Hits]" };
@@ -256,8 +250,8 @@ public class LinqTest {
   @Test
   public void testMin() {
     testIterable("min",
-                 "products.groupBy(p->p.category).\n" + "         select(g->[g.key, g.min(p->p.unitPrice)])",
-                 exp15);
+            "products.groupBy(p->p.category).\n" + "         select(g->[g.key, g.min(p->p.unitPrice)])",
+            exp15);
   }
 
   static String[] exp16 = { "[book, History of Golf]", "[dvd, Coming Home]", "[cd, Greatest Hits]" };
@@ -265,47 +259,47 @@ public class LinqTest {
   @Test
   public void testAggregate() {
     testIterable("aggregate",
-                 "products.groupBy(p->p.category).\n" + "         select(g->[g.key,\n" + "                    g.select(p->p.name).\n"
-                         + "                      aggregate((s,t)->t.length()>s.length()?t:s)])",
-                 exp16);
+            "products.groupBy(p->p.category).\n" + "         select(g->[g.key,\n" + "                    g.select(p->p.name).\n"
+                    + "                      aggregate((s,t)->t.length()>s.length()?t:s)])",
+            exp16);
   }
 
   @Test
   public void testDistinct() {
     testIterable("distinct",
-                 " ['a', 'b', 'b', 'c'].distinct()",
-                 new String[]
-                         { "a", "b", "c" });
+            " ['a', 'b', 'b', 'c'].distinct()",
+            new String[]
+                    { "a", "b", "c" });
   }
 
   @Test
   public void testUnion() {
     testIterable("union",
-                 "['a', 'b', 'b', 'c'].union(['b', 'c', 'd'])",
-                 new String[]
-                         { "a", "b", "c", "d" });
+            "['a', 'b', 'b', 'c'].union(['b', 'c', 'd'])",
+            new String[]
+                    { "a", "b", "c", "d" });
   }
 
   @Test
   public void testIntersect() {
     testIterable("intersect",
-                 "['a', 'b', 'b', 'c'].intersect(['b', 'c', 'd'])",
-                 new String[]
-                         { "b", "c" });
+            "['a', 'b', 'b', 'c'].intersect(['b', 'c', 'd'])",
+            new String[]
+                    { "b", "c" });
   }
 
   @Test
   public void testExcept() {
     testIterable("except",
-                 "['x', 'b', 'a', 'b', 'c'].except(['b', 'c', 'd'])",
-                 new String[]
-                         { "x", "a" });
+            "['x', 'b', 'a', 'b', 'c'].except(['b', 'c', 'd'])",
+            new String[]
+                    { "x", "a" });
   }
 
   @Test
   public void testForEach() {
     testIterable("forEach",
-                 "lst = []; products.forEach(p->lst.add(p.name)); lst", exp2);
+            "lst = []; products.forEach(p->lst.add(p.name)); lst", exp2);
     /*
      * Since println is overloaded, this can be problem.
      * elp.eval("products.forEach((p,idx)->System.out.println(" +
@@ -316,25 +310,25 @@ public class LinqTest {
   @Test
   public void testGen() {
     testIterable("collections:range", "collections:range(10, 5)()",
-                 new String[]
-                         { "10", "11", "12", "13", "14" });
+            new String[]
+                    { "10", "11", "12", "13", "14" });
     System.out.println(elp.eval("collections:range(0,5).select(x->x*x).toList()"));
     testIterable("collections:repeat", "collections:repeat(\"xyz\", 3)",
-                 new String[]
-                         { "xyz", "xyz", "xyz" });
+            new String[]
+                    { "xyz", "xyz", "xyz" });
   }
 
   @Test
   public void testMisc() {
     testIterable("concat", "['a','b'].concat(['x','y','z'])",
-                 new String[]
-                         { "a", "b", "x", "y", "z" });
+            new String[]
+                    { "a", "b", "x", "y", "z" });
     testIterable("defaultIfEmpty", "['a', 'b'].defaultIfEmpty()",
-                 new String[]
-                         { "a", "b" });
+            new String[]
+                    { "a", "b" });
     testIterable("defaultIfEmpty", "[].defaultIfEmpty('zz')",
-                 new String[]
-                         { "zz" });
+            new String[]
+                    { "zz" });
     Object ret = elp.eval("[].defaultIfEmpty()");
     int i = 0;
     for (Object o : (Iterable) ret) {

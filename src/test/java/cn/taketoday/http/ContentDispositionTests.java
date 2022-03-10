@@ -20,8 +20,6 @@
 
 package cn.taketoday.http;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -48,51 +46,51 @@ public class ContentDispositionTests {
   public void parse() {
     assertThat(parse("form-data; name=\"foo\"; filename=\"foo.txt\";"))
             .isEqualTo(ContentDisposition.formData()
-                               .name("foo")
-                               .filename("foo.txt")
-                               .build());
+                    .name("foo")
+                    .filename("foo.txt")
+                    .build());
   }
 
   @Test
   public void parseFilenameUnquoted() {
     assertThat(parse("form-data; filename=unquoted"))
             .isEqualTo(ContentDisposition.formData()
-                               .filename("unquoted")
-                               .build());
+                    .filename("unquoted")
+                    .build());
   }
 
   @Test  // SPR-16091
   public void parseFilenameWithSemicolon() {
     assertThat(parse("attachment; filename=\"filename with ; semicolon.txt\""))
             .isEqualTo(ContentDisposition.attachment()
-                               .filename("filename with ; semicolon.txt")
-                               .build());
+                    .filename("filename with ; semicolon.txt")
+                    .build());
   }
 
   @Test
   public void parseEncodedFilename() {
     assertThat(parse("form-data; name=\"name\"; filename*=UTF-8''%E4%B8%AD%E6%96%87.txt"))
             .isEqualTo(ContentDisposition.formData()
-                               .name("name")
-                               .filename("中文.txt", StandardCharsets.UTF_8)
-                               .build());
+                    .name("name")
+                    .filename("中文.txt", StandardCharsets.UTF_8)
+                    .build());
   }
 
   @Test // gh-24112
   public void parseEncodedFilenameWithPaddedCharset() {
     assertThat(parse("attachment; filename*= UTF-8''some-file.zip"))
             .isEqualTo(ContentDisposition.attachment()
-                               .filename("some-file.zip", StandardCharsets.UTF_8)
-                               .build());
+                    .filename("some-file.zip", StandardCharsets.UTF_8)
+                    .build());
   }
 
   @Test
   public void parseEncodedFilenameWithoutCharset() {
     assertThat(parse("form-data; name=\"name\"; filename*=test.txt"))
             .isEqualTo(ContentDisposition.formData()
-                               .name("name")
-                               .filename("test.txt")
-                               .build());
+                    .name("name")
+                    .filename("test.txt")
+                    .build());
   }
 
   @Test
@@ -119,16 +117,16 @@ public class ContentDispositionTests {
                     .isEqualTo(ContentDisposition.formData().name("file").filename(filename).build());
 
     tester.accept("Escaped quotes should be ignored",
-                  "\\\"The Twilight Zone\\\".txt");
+            "\\\"The Twilight Zone\\\".txt");
 
     tester.accept("Escaped quotes preceded by escaped backslashes should be ignored",
-                  "\\\\\\\"The Twilight Zone\\\\\\\".txt");
+            "\\\\\\\"The Twilight Zone\\\\\\\".txt");
 
     tester.accept("Escaped backslashes should not suppress quote",
-                  "The Twilight Zone \\\\");
+            "The Twilight Zone \\\\");
 
     tester.accept("Escaped backslashes should not suppress quote",
-                  "The Twilight Zone \\\\\\\\");
+            "The Twilight Zone \\\\\\\\");
   }
 
   @Test
@@ -136,9 +134,9 @@ public class ContentDispositionTests {
   public void parseWithExtraSemicolons() {
     assertThat(parse("form-data; name=\"foo\";; ; filename=\"foo.txt\";"))
             .isEqualTo(ContentDisposition.formData()
-                               .name("foo")
-                               .filename("foo.txt")
-                               .build());
+                    .name("foo")
+                    .filename("foo.txt")
+                    .build());
   }
 
   @Test
@@ -148,8 +146,8 @@ public class ContentDispositionTests {
 
     assertThat(
             parse("attachment; " +
-                          "modification-date=\"-1\"; " +
-                          "read-date=\"" + readTime.format(formatter) + "\"")).isEqualTo(
+                    "modification-date=\"-1\"; " +
+                    "read-date=\"" + readTime.format(formatter) + "\"")).isEqualTo(
             ContentDisposition.attachment()
                     .build());
   }

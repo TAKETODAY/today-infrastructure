@@ -104,6 +104,6 @@ public class Jackson2CborEncoderTests extends AbstractLeakCheckingTests {
     Flux<Pojo> input = Flux.just(pojo1, pojo2, pojo3);
     ResolvableType type = ResolvableType.fromClass(Pojo.class);
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-                                                                                      encoder.encode(input, this.bufferFactory, type, CBOR_MIME_TYPE, null));
+            encoder.encode(input, this.bufferFactory, type, CBOR_MIME_TYPE, null));
   }
 }

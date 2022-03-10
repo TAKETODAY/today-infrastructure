@@ -117,16 +117,16 @@ class MapperScannerConfigurerTest {
 
     assertThat(Stream.of(applicationContext.getBeanDefinitionNames()).filter(x -> x.startsWith("scopedTarget")))
             .hasSize(1);
-    assertThat(applicationContext.getBeanDefinition("mapperInterface").getPropertyValues().get("mapperInterface"))
+    assertThat(applicationContext.getBeanDefinition("mapperInterface").getPropertyValues().getPropertyValue("mapperInterface"))
             .isEqualTo(MapperInterface.class);
-    assertThat(applicationContext.getBeanDefinition("mapperSubinterface").getPropertyValues().get("mapperInterface"))
+    assertThat(applicationContext.getBeanDefinition("mapperSubinterface").getPropertyValues().getPropertyValue("mapperInterface"))
             .isEqualTo(MapperSubinterface.class);
-    assertThat(applicationContext.getBeanDefinition("mapperChildInterface").getPropertyValues().get("mapperInterface"))
+    assertThat(applicationContext.getBeanDefinition("mapperChildInterface").getPropertyValues().getPropertyValue("mapperInterface"))
             .isEqualTo(MapperChildInterface.class);
-    assertThat(applicationContext.getBeanDefinition("annotatedMapper").getPropertyValues().get("mapperInterface"))
+    assertThat(applicationContext.getBeanDefinition("annotatedMapper").getPropertyValues().getPropertyValue("mapperInterface"))
             .isEqualTo(AnnotatedMapper.class);
     assertThat(applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper").getPropertyValues()
-            .get("mapperInterface")).isEqualTo(ScopedProxyMapper.class);
+            .getPropertyValue("mapperInterface")).isEqualTo(ScopedProxyMapper.class);
   }
 
   @Test

@@ -229,7 +229,7 @@ public class MappingJackson2HttpMessageConverterTests {
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes("UTF-8"));
     inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
     assertThatExceptionOfType(HttpMessageNotReadableException.class).isThrownBy(() ->
-                                                                                        converter.read(MyBean.class, inputMessage));
+            converter.read(MyBean.class, inputMessage));
   }
 
   @Test
@@ -434,7 +434,7 @@ public class MappingJackson2HttpMessageConverterTests {
 
     MappingJacksonValue jacksonValue = new MappingJacksonValue(bean);
     FilterProvider filters = new SimpleFilterProvider().addFilter("myJacksonFilter",
-                                                                  SimpleBeanPropertyFilter.serializeAllExcept("property2"));
+            SimpleBeanPropertyFilter.serializeAllExcept("property2"));
     jacksonValue.setFilters(filters);
     this.converter.writeInternal(jacksonValue, null, outputMessage);
 

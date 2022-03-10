@@ -364,8 +364,7 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_basicTryFinally() throws AnalyzerException {
@@ -427,8 +426,7 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_ifElseInFinally() throws AnalyzerException {
@@ -496,8 +494,7 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_simpleNestedFinally() throws AnalyzerException {
@@ -599,8 +596,7 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_subroutineWithNoRet() throws AnalyzerException {
@@ -654,8 +650,7 @@ public class AnalyzerTest extends AsmTest {
    *   return
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_subroutineWithNoRet2() throws AnalyzerException {
@@ -743,8 +738,7 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_implicitExit() throws AnalyzerException {
@@ -816,8 +810,7 @@ public class AnalyzerTest extends AsmTest {
    * <p>This example is from the paper, "Subroutine Inlining and Bytecode Abstraction to Simplify
    * Static and Dynamic Analysis" by Cyrille Artho and Armin Biere.
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_implicitExitToAnotherSubroutine() throws AnalyzerException {
@@ -915,8 +908,7 @@ public class AnalyzerTest extends AsmTest {
    *
    * <p>This would not normally be produced by a java compiler.
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_interleavedCode() throws AnalyzerException {
@@ -984,8 +976,7 @@ public class AnalyzerTest extends AsmTest {
    * }
    * </pre>
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_implicitExitInTryCatch() throws AnalyzerException {
@@ -1054,8 +1045,7 @@ public class AnalyzerTest extends AsmTest {
   /**
    * Tests that Analyzer works correctly on classes with many labels.
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_manyLabels() throws AnalyzerException {
@@ -1079,8 +1069,7 @@ public class AnalyzerTest extends AsmTest {
    * Tests an example coming from distilled down version of
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
    *
-   * @throws AnalyzerException
-   *         if the test fails
+   * @throws AnalyzerException if the test fails
    */
   @Test
   public void testAnalyze_glassFish2CorbaClientDelegateImplExample() throws AnalyzerException {

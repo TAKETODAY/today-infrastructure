@@ -37,57 +37,57 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class AnnotationLazyInitMBeanTests {
 
-	@Test
-	void lazyNaming() throws Exception {
-		try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/lazyNaming.xml")) {
-			MBeanServer server = (MBeanServer) ctx.getBean("server");
-			ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
-			assertThat(server.getObjectInstance(oname)).isNotNull();
-			String name = (String) server.getAttribute(oname, "Name");
-			assertThat(name).as("Invalid name returned").isEqualTo("TEST");
-		}
-	}
+  @Test
+  void lazyNaming() throws Exception {
+    try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/lazyNaming.xml")) {
+      MBeanServer server = (MBeanServer) ctx.getBean("server");
+      ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
+      assertThat(server.getObjectInstance(oname)).isNotNull();
+      String name = (String) server.getAttribute(oname, "Name");
+      assertThat(name).as("Invalid name returned").isEqualTo("TEST");
+    }
+  }
 
-	@Test
-	void lazyAssembling() throws Exception {
-		System.setProperty("domain", "bean");
-		try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/lazyAssembling.xml")) {
-			MBeanServer server = (MBeanServer) ctx.getBean("server");
+  @Test
+  void lazyAssembling() throws Exception {
+    System.setProperty("domain", "bean");
+    try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/lazyAssembling.xml")) {
+      MBeanServer server = (MBeanServer) ctx.getBean("server");
 
-			ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
-			assertThat(server.getObjectInstance(oname)).isNotNull();
-			String name = (String) server.getAttribute(oname, "Name");
-			assertThat(name).as("Invalid name returned").isEqualTo("TEST");
+      ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
+      assertThat(server.getObjectInstance(oname)).isNotNull();
+      String name = (String) server.getAttribute(oname, "Name");
+      assertThat(name).as("Invalid name returned").isEqualTo("TEST");
 
-			oname = ObjectNameManager.getInstance("bean:name=testBean5");
-			assertThat(server.getObjectInstance(oname)).isNotNull();
-			name = (String) server.getAttribute(oname, "Name");
-			assertThat(name).as("Invalid name returned").isEqualTo("FACTORY");
+      oname = ObjectNameManager.getInstance("bean:name=testBean5");
+      assertThat(server.getObjectInstance(oname)).isNotNull();
+      name = (String) server.getAttribute(oname, "Name");
+      assertThat(name).as("Invalid name returned").isEqualTo("FACTORY");
 
-			oname = ObjectNameManager.getInstance("spring:mbean=true");
-			assertThat(server.getObjectInstance(oname)).isNotNull();
-			name = (String) server.getAttribute(oname, "Name");
-			assertThat(name).as("Invalid name returned").isEqualTo("Rob Harrop");
+      oname = ObjectNameManager.getInstance("spring:mbean=true");
+      assertThat(server.getObjectInstance(oname)).isNotNull();
+      name = (String) server.getAttribute(oname, "Name");
+      assertThat(name).as("Invalid name returned").isEqualTo("Rob Harrop");
 
-			oname = ObjectNameManager.getInstance("spring:mbean=another");
-			assertThat(server.getObjectInstance(oname)).isNotNull();
-			name = (String) server.getAttribute(oname, "Name");
-			assertThat(name).as("Invalid name returned").isEqualTo("Juergen Hoeller");
-		}
-		finally {
-			System.clearProperty("domain");
-		}
-	}
+      oname = ObjectNameManager.getInstance("spring:mbean=another");
+      assertThat(server.getObjectInstance(oname)).isNotNull();
+      name = (String) server.getAttribute(oname, "Name");
+      assertThat(name).as("Invalid name returned").isEqualTo("Juergen Hoeller");
+    }
+    finally {
+      System.clearProperty("domain");
+    }
+  }
 
-	@Test
-	void componentScan() throws Exception {
-		try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/componentScan.xml")) {
-			MBeanServer server = (MBeanServer) ctx.getBean("server");
-			ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
-			assertThat(server.getObjectInstance(oname)).isNotNull();
-			String name = (String) server.getAttribute(oname, "Name");
-			assertThat(name).isNull();
-		}
-	}
+  @Test
+  void componentScan() throws Exception {
+    try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/componentScan.xml")) {
+      MBeanServer server = (MBeanServer) ctx.getBean("server");
+      ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
+      assertThat(server.getObjectInstance(oname)).isNotNull();
+      String name = (String) server.getAttribute(oname, "Name");
+      assertThat(name).isNull();
+    }
+  }
 
 }

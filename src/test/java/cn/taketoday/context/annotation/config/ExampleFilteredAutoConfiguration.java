@@ -26,9 +26,9 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class ExampleFilteredAutoConfiguration {
 
-	@Bean
-	public String anotherExample() {
-		return "fail";
-	}
+  @Bean
+  public String anotherExample() {
+    return "fail";
+  }
 
 }

@@ -31,40 +31,42 @@ import cn.taketoday.context.event.ApplicationEvent;
 @SuppressWarnings("serial")
 public abstract class IdentifiableApplicationEvent extends ApplicationEvent implements Identifiable {
 
-	private final String id;
+  private final String id;
 
-	protected IdentifiableApplicationEvent(Object source, String id) {
-		super(source);
-		this.id = id;
-	}
+  protected IdentifiableApplicationEvent(Object source, String id) {
+    super(source);
+    this.id = id;
+  }
 
-	protected IdentifiableApplicationEvent(Object source) {
-		this(source, UUID.randomUUID().toString());
-	}
+  protected IdentifiableApplicationEvent(Object source) {
+    this(source, UUID.randomUUID().toString());
+  }
 
-	protected IdentifiableApplicationEvent() {
-		this(new Object());
-	}
+  protected IdentifiableApplicationEvent() {
+    this(new Object());
+  }
 
-	@Override
-	public String getId() {
-		return this.id;
-	}
+  @Override
+  public String getId() {
+    return this.id;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
 
-		IdentifiableApplicationEvent that = (IdentifiableApplicationEvent) o;
+    IdentifiableApplicationEvent that = (IdentifiableApplicationEvent) o;
 
-		return this.id.equals(that.id);
+    return this.id.equals(that.id);
 
-	}
+  }
 
-	@Override
-	public int hashCode() {
-		return this.id.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return this.id.hashCode();
+  }
 
 }

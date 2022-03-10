@@ -89,10 +89,10 @@ public class TestBeanMap {
     BeanMap map = BeanMap.create(bean);
     BeanMap map2 = BeanMap.create(bean);
     assertEquals(map.getClass(),
-                 map2.getClass(), "BeanMap.create should use exactly the same bean class when called multiple times");
+            map2.getClass(), "BeanMap.create should use exactly the same bean class when called multiple times");
     BeanMap map3 = BeanMap.create(new TestBean2());
     assertNotSame(map.getClass(),
-                  map3.getClass(), "BeanMap.create should use different classes for different beans");
+            map3.getClass(), "BeanMap.create should use different classes for different beans");
     assertEquals(6, map.size());
     assertNull(map.get("foo"));
     map.put("foo", "FOO");
@@ -223,7 +223,7 @@ public class TestBeanMap {
   public void perform(ClassLoader loader) throws Throwable {
     // tested in enhancer test unit
   }
-  
+
   public void testFailOnMemoryLeak() throws Throwable { }
 
 }

@@ -190,8 +190,8 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
    */
   @SuppressWarnings("unchecked")
   protected <T> void testDecode(Publisher<DataBuffer> input, ResolvableType outputType,
-                                Consumer<StepVerifier.FirstStep<T>> stepConsumer,
-                                @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+          Consumer<StepVerifier.FirstStep<T>> stepConsumer,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Flux<T> result = (Flux<T>) this.decoder.decode(input, outputType, mimeType, hints);
     StepVerifier.FirstStep<T> step = StepVerifier.create(result);

@@ -38,90 +38,89 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class TransactionalOperatorTests {
 
-	ReactiveTestTransactionManager tm = new ReactiveTestTransactionManager(false, true);
+  ReactiveTestTransactionManager tm = new ReactiveTestTransactionManager(false, true);
 
+  @Test
+  public void commitWithMono() {
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Mono.just(true).as(operator::transactional)
+            .as(StepVerifier::create)
+            .expectNext(true)
+            .verifyComplete();
+    assertThat(tm.commit).isTrue();
+    assertThat(tm.rollback).isFalse();
+  }
 
-	@Test
-	public void commitWithMono() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Mono.just(true).as(operator::transactional)
-				.as(StepVerifier::create)
-				.expectNext(true)
-				.verifyComplete();
-		assertThat(tm.commit).isTrue();
-		assertThat(tm.rollback).isFalse();
-	}
+  @Test
+  public void monoSubscriptionNotCancelled() {
+    AtomicBoolean cancelled = new AtomicBoolean();
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Mono.just(true).doOnCancel(() -> cancelled.set(true)).as(operator::transactional)
+            .as(StepVerifier::create)
+            .expectNext(true)
+            .verifyComplete();
+    assertThat(tm.commit).isTrue();
+    assertThat(tm.rollback).isFalse();
+    assertThat(cancelled).isFalse();
+  }
 
-	@Test
-	public void monoSubscriptionNotCancelled() {
-		AtomicBoolean cancelled = new AtomicBoolean();
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Mono.just(true).doOnCancel(() -> cancelled.set(true)).as(operator::transactional)
-				.as(StepVerifier::create)
-				.expectNext(true)
-				.verifyComplete();
-		assertThat(tm.commit).isTrue();
-		assertThat(tm.rollback).isFalse();
-		assertThat(cancelled).isFalse();
-	}
+  @Test
+  public void cancellationPropagatedToMono() {
+    AtomicBoolean cancelled = new AtomicBoolean();
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Mono.create(sink -> sink.onCancel(() -> cancelled.set(true))).as(operator::transactional)
+            .as(StepVerifier::create)
+            .thenAwait()
+            .thenCancel()
+            .verify();
+    assertThat(tm.commit).isFalse();
+    assertThat(tm.rollback).isTrue();
+    assertThat(cancelled).isTrue();
+  }
 
-	@Test
-	public void cancellationPropagatedToMono() {
-		AtomicBoolean cancelled = new AtomicBoolean();
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Mono.create(sink -> sink.onCancel(() -> cancelled.set(true))).as(operator::transactional)
-				.as(StepVerifier::create)
-				.thenAwait()
-				.thenCancel()
-				.verify();
-		assertThat(tm.commit).isFalse();
-		assertThat(tm.rollback).isTrue();
-		assertThat(cancelled).isTrue();
-	}
+  @Test
+  public void cancellationPropagatedToFlux() {
+    AtomicBoolean cancelled = new AtomicBoolean();
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Flux.create(sink -> sink.onCancel(() -> cancelled.set(true))).as(operator::transactional)
+            .as(StepVerifier::create)
+            .thenAwait()
+            .thenCancel()
+            .verify();
+    assertThat(tm.commit).isFalse();
+    assertThat(tm.rollback).isTrue();
+    assertThat(cancelled).isTrue();
+  }
 
-	@Test
-	public void cancellationPropagatedToFlux() {
-		AtomicBoolean cancelled = new AtomicBoolean();
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Flux.create(sink -> sink.onCancel(() -> cancelled.set(true))).as(operator::transactional)
-				.as(StepVerifier::create)
-				.thenAwait()
-				.thenCancel()
-				.verify();
-		assertThat(tm.commit).isFalse();
-		assertThat(tm.rollback).isTrue();
-		assertThat(cancelled).isTrue();
-	}
+  @Test
+  public void rollbackWithMono() {
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Mono.error(new IllegalStateException()).as(operator::transactional)
+            .as(StepVerifier::create)
+            .verifyError(IllegalStateException.class);
+    assertThat(tm.commit).isFalse();
+    assertThat(tm.rollback).isTrue();
+  }
 
-	@Test
-	public void rollbackWithMono() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Mono.error(new IllegalStateException()).as(operator::transactional)
-				.as(StepVerifier::create)
-				.verifyError(IllegalStateException.class);
-		assertThat(tm.commit).isFalse();
-		assertThat(tm.rollback).isTrue();
-	}
+  @Test
+  public void commitWithFlux() {
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Flux.just(1, 2, 3, 4).as(operator::transactional)
+            .as(StepVerifier::create)
+            .expectNextCount(4)
+            .verifyComplete();
+    assertThat(tm.commit).isTrue();
+    assertThat(tm.rollback).isFalse();
+  }
 
-	@Test
-	public void commitWithFlux() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Flux.just(1, 2, 3, 4).as(operator::transactional)
-				.as(StepVerifier::create)
-				.expectNextCount(4)
-				.verifyComplete();
-		assertThat(tm.commit).isTrue();
-		assertThat(tm.rollback).isFalse();
-	}
-
-	@Test
-	public void rollbackWithFlux() {
-		TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
-		Flux.error(new IllegalStateException()).as(operator::transactional)
-				.as(StepVerifier::create)
-				.verifyError(IllegalStateException.class);
-		assertThat(tm.commit).isFalse();
-		assertThat(tm.rollback).isTrue();
-	}
+  @Test
+  public void rollbackWithFlux() {
+    TransactionalOperator operator = TransactionalOperator.create(tm, new DefaultTransactionDefinition());
+    Flux.error(new IllegalStateException()).as(operator::transactional)
+            .as(StepVerifier::create)
+            .verifyError(IllegalStateException.class);
+    assertThat(tm.commit).isFalse();
+    assertThat(tm.rollback).isTrue();
+  }
 
 }

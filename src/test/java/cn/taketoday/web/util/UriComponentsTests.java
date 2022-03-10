@@ -158,19 +158,19 @@ public class UriComponentsTests {
   @Test
   public void expandEncoded() {
     assertThatIllegalStateException().isThrownBy(() ->
-                                                         UriComponentsBuilder.fromPath("/{foo}").build().encode().expand("bar"));
+            UriComponentsBuilder.fromPath("/{foo}").build().encode().expand("bar"));
   }
 
   @Test
   public void invalidCharacters() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            UriComponentsBuilder.fromPath("/{foo}").build(true));
+            UriComponentsBuilder.fromPath("/{foo}").build(true));
   }
 
   @Test
   public void invalidEncodedSequence() {
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            UriComponentsBuilder.fromPath("/fo%2o").build(true));
+            UriComponentsBuilder.fromPath("/fo%2o").build(true));
   }
 
   @Test

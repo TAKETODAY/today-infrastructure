@@ -109,7 +109,7 @@ public class UriTemplateTests {
     uriVariables.put("bar", "1");
     UriTemplate template = new UriTemplate("/hotels/{hotel}/bookings/{booking}");
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            template.expand(uriVariables));
+            template.expand(uriVariables));
   }
 
   @Test

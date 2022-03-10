@@ -91,7 +91,7 @@ abstract class AbstractMockWebServerTests {
   }
 
   private MockResponse postRequest(RecordedRequest request, String expectedRequestContent,
-                                   String location, String contentType, byte[] responseBody) {
+          String location, String contentType, byte[] responseBody) {
 
     assertThat(request.getHeaders().values(CONTENT_LENGTH).size()).isEqualTo(1);
     assertThat(Integer.parseInt(request.getHeader(CONTENT_LENGTH))).as("Invalid request content-length").isGreaterThan(0);
@@ -164,7 +164,7 @@ abstract class AbstractMockWebServerTests {
   }
 
   private void assertPart(Buffer buffer, String disposition, String boundary, String name,
-                          String contentType, String value) throws EOFException {
+          String contentType, String value) throws EOFException {
 
     assertThat(buffer.readUtf8Line()).contains("--" + boundary);
     String line = buffer.readUtf8Line();
@@ -177,7 +177,7 @@ abstract class AbstractMockWebServerTests {
   }
 
   private void assertFilePart(Buffer buffer, String disposition, String boundary, String name,
-                              String filename, String contentType) throws EOFException {
+          String filename, String contentType) throws EOFException {
 
     assertThat(buffer.readUtf8Line()).contains("--" + boundary);
     String line = buffer.readUtf8Line();
@@ -197,7 +197,7 @@ abstract class AbstractMockWebServerTests {
   }
 
   private MockResponse patchRequest(RecordedRequest request, String expectedRequestContent,
-                                    String contentType, byte[] responseBody) {
+          String contentType, byte[] responseBody) {
 
     assertThat(request.getMethod()).isEqualTo("PATCH");
     assertThat(Integer.parseInt(request.getHeader(CONTENT_LENGTH))).as("Invalid request content-length").isGreaterThan(0);

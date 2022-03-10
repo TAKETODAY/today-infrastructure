@@ -48,112 +48,111 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 public class CacheSyncFailureTests {
 
-	private ConfigurableApplicationContext context;
+  private ConfigurableApplicationContext context;
 
-	private SimpleService simpleService;
+  private SimpleService simpleService;
 
-	@BeforeEach
-	public void setUp() {
-		this.context = new AnnotationConfigApplicationContext(Config.class);
-		this.simpleService = this.context.getBean(SimpleService.class);
-	}
+  @BeforeEach
+  public void setUp() {
+    this.context = new AnnotationConfigApplicationContext(Config.class);
+    this.simpleService = this.context.getBean(SimpleService.class);
+  }
 
-	@AfterEach
-	public void closeContext() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
+  @AfterEach
+  public void closeContext() {
+    if (this.context != null) {
+      this.context.close();
+    }
+  }
 
-	@Test
-	public void unlessSync() {
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.simpleService.unlessSync("key"))
-			.withMessageContaining("@Cacheable(sync=true) does not support unless attribute");
-	}
+  @Test
+  public void unlessSync() {
+    assertThatIllegalStateException().isThrownBy(() ->
+                    this.simpleService.unlessSync("key"))
+            .withMessageContaining("@Cacheable(sync=true) does not support unless attribute");
+  }
 
-	@Test
-	public void severalCachesSync() {
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.simpleService.severalCachesSync("key"))
-			.withMessageContaining("@Cacheable(sync=true) only allows a single cache");
-	}
+  @Test
+  public void severalCachesSync() {
+    assertThatIllegalStateException().isThrownBy(() ->
+                    this.simpleService.severalCachesSync("key"))
+            .withMessageContaining("@Cacheable(sync=true) only allows a single cache");
+  }
 
-	@Test
-	public void severalCachesWithResolvedSync() {
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.simpleService.severalCachesWithResolvedSync("key"))
-			.withMessageContaining("@Cacheable(sync=true) only allows a single cache");
-	}
+  @Test
+  public void severalCachesWithResolvedSync() {
+    assertThatIllegalStateException().isThrownBy(() ->
+                    this.simpleService.severalCachesWithResolvedSync("key"))
+            .withMessageContaining("@Cacheable(sync=true) only allows a single cache");
+  }
 
-	@Test
-	public void syncWithAnotherOperation() {
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.simpleService.syncWithAnotherOperation("key"))
-			.withMessageContaining("@Cacheable(sync=true) cannot be combined with other cache operations");
-	}
+  @Test
+  public void syncWithAnotherOperation() {
+    assertThatIllegalStateException().isThrownBy(() ->
+                    this.simpleService.syncWithAnotherOperation("key"))
+            .withMessageContaining("@Cacheable(sync=true) cannot be combined with other cache operations");
+  }
 
-	@Test
-	public void syncWithTwoGetOperations() {
-		assertThatIllegalStateException().isThrownBy(() ->
-				this.simpleService.syncWithTwoGetOperations("key"))
-			.withMessageContaining("Only one @Cacheable(sync=true) entry is allowed");
-	}
+  @Test
+  public void syncWithTwoGetOperations() {
+    assertThatIllegalStateException().isThrownBy(() ->
+                    this.simpleService.syncWithTwoGetOperations("key"))
+            .withMessageContaining("Only one @Cacheable(sync=true) entry is allowed");
+  }
 
+  static class SimpleService {
 
-	static class SimpleService {
+    private final AtomicLong counter = new AtomicLong();
 
-		private final AtomicLong counter = new AtomicLong();
+    @Cacheable(cacheNames = "testCache", sync = true, unless = "#result > 10")
+    public Object unlessSync(Object arg1) {
+      return this.counter.getAndIncrement();
+    }
 
-		@Cacheable(cacheNames = "testCache", sync = true, unless = "#result > 10")
-		public Object unlessSync(Object arg1) {
-			return this.counter.getAndIncrement();
-		}
+    @Cacheable(cacheNames = { "testCache", "anotherTestCache" }, sync = true)
+    public Object severalCachesSync(Object arg1) {
+      return this.counter.getAndIncrement();
+    }
 
-		@Cacheable(cacheNames = {"testCache", "anotherTestCache"}, sync = true)
-		public Object severalCachesSync(Object arg1) {
-			return this.counter.getAndIncrement();
-		}
+    @Cacheable(cacheResolver = "testCacheResolver", sync = true)
+    public Object severalCachesWithResolvedSync(Object arg1) {
+      return this.counter.getAndIncrement();
+    }
 
-		@Cacheable(cacheResolver = "testCacheResolver", sync = true)
-		public Object severalCachesWithResolvedSync(Object arg1) {
-			return this.counter.getAndIncrement();
-		}
+    @Cacheable(cacheNames = "testCache", sync = true)
+    @CacheEvict(cacheNames = "anotherTestCache", key = "#arg1")
+    public Object syncWithAnotherOperation(Object arg1) {
+      return this.counter.getAndIncrement();
+    }
 
-		@Cacheable(cacheNames = "testCache", sync = true)
-		@CacheEvict(cacheNames = "anotherTestCache", key = "#arg1")
-		public Object syncWithAnotherOperation(Object arg1) {
-			return this.counter.getAndIncrement();
-		}
+    @Caching(cacheable = {
+            @Cacheable(cacheNames = "testCache", sync = true),
+            @Cacheable(cacheNames = "anotherTestCache", sync = true)
+    })
+    public Object syncWithTwoGetOperations(Object arg1) {
+      return this.counter.getAndIncrement();
+    }
+  }
 
-		@Caching(cacheable = {
-				@Cacheable(cacheNames = "testCache", sync = true),
-				@Cacheable(cacheNames = "anotherTestCache", sync = true)
-		})
-		public Object syncWithTwoGetOperations(Object arg1) {
-			return this.counter.getAndIncrement();
-		}
-	}
+  @Configuration
+  @EnableCaching
+  static class Config implements CachingConfigurer {
 
-	@Configuration
-	@EnableCaching
-	static class Config implements CachingConfigurer {
+    @Override
+    @Bean
+    public CacheManager cacheManager() {
+      return CacheTestUtils.createSimpleCacheManager("testCache", "anotherTestCache");
+    }
 
-		@Override
-		@Bean
-		public CacheManager cacheManager() {
-			return CacheTestUtils.createSimpleCacheManager("testCache", "anotherTestCache");
-		}
+    @Bean
+    public CacheResolver testCacheResolver() {
+      return new NamedCacheResolver(cacheManager(), "testCache", "anotherTestCache");
+    }
 
-		@Bean
-		public CacheResolver testCacheResolver() {
-			return new NamedCacheResolver(cacheManager(), "testCache", "anotherTestCache");
-		}
-
-		@Bean
-		public SimpleService simpleService() {
-			return new SimpleService();
-		}
-	}
+    @Bean
+    public SimpleService simpleService() {
+      return new SimpleService();
+    }
+  }
 
 }

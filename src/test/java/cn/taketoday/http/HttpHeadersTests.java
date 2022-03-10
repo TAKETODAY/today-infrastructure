@@ -20,8 +20,6 @@
 
 package cn.taketoday.http;
 
-
-
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
@@ -109,7 +107,7 @@ public class HttpHeadersTests {
     headers.add("Accept", "text/html,text/pdf");
     headers.add("Accept", "text/plain,text/csv");
     List<MediaType> expected = Arrays.asList(new MediaType("text", "html"), new MediaType("text", "pdf"),
-                                             new MediaType("text", "plain"), new MediaType("text", "csv"));
+            new MediaType("text", "plain"), new MediaType("text", "csv"));
     assertThat(headers.getAccept()).as("Invalid Accept header").isEqualTo(expected);
   }
 
@@ -539,7 +537,7 @@ public class HttpHeadersTests {
     headers.add(HttpHeaders.DATE, "Sat, 18 Dec 2010 10:20:00 GMT");
     assertThat(headers.getFirstZonedDateTime(HttpHeaders.DATE).isEqual(date)).isTrue();
     assertThat(headers.get(HttpHeaders.DATE)).isEqualTo(Arrays.asList("Fri, 02 Jun 2017 02:22:00 GMT",
-                                                                      "Sat, 18 Dec 2010 10:20:00 GMT"));
+            "Sat, 18 Dec 2010 10:20:00 GMT"));
 
     // obsolete RFC 850 format
     headers.clear();

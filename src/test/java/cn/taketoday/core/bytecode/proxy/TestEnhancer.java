@@ -97,10 +97,10 @@ public class TestEnhancer {
       private static final long serialVersionUID = 1L;
 
       public Object afterReturn(Object obj, Method method,
-                                Object[] args,
-                                boolean invokedSuper,
-                                Object retValFromSuper,
-                                Throwable e) {
+              Object[] args,
+              boolean invokedSuper,
+              Object retValFromSuper,
+              Throwable e) {
 
         int mod = method.getModifiers();
 
@@ -507,7 +507,7 @@ public class TestEnhancer {
   public void testAround() throws Throwable {
     AroundDemo demo = (AroundDemo) Enhancer.create(AroundDemo.class, null, new MethodInterceptor() {
       public Object intercept(Object obj, Method method, Object[] args,
-                              MethodProxy proxy) throws Throwable {
+              MethodProxy proxy) throws Throwable {
         if (method.getName().equals("getFirstName")) {
           return "Christopher";
         }
@@ -837,9 +837,9 @@ public class TestEnhancer {
     boolean called;
 
     public Object intercept(Object obj,
-                            Method method,
-                            Object[] args,
-                            MethodProxy proxy) throws Throwable {
+            Method method,
+            Object[] args,
+            MethodProxy proxy) throws Throwable {
       if (method.equals(EQUALS_METHOD)) {
         return proxy.invoke(this, args);
       }
@@ -883,9 +883,9 @@ public class TestEnhancer {
     e.setSuperclass(ExceptionThrower.class);
     e.setCallback(new MethodInterceptor() {
       public Object intercept(Object obj,
-                              Method method,
-                              Object[] args,
-                              MethodProxy proxy) throws Throwable {
+              Method method,
+              Object[] args,
+              MethodProxy proxy) throws Throwable {
         switch ((Integer) args[0]) {
           case 1:
             throw new MyThrowable();

@@ -44,8 +44,7 @@ public class DelegatingServletOutputStream extends ServletOutputStream {
   /**
    * Create a DelegatingServletOutputStream for the given target stream.
    *
-   * @param targetStream
-   *         the target stream (never {@code null})
+   * @param targetStream the target stream (never {@code null})
    */
   public DelegatingServletOutputStream(OutputStream targetStream) {
     Assert.notNull(targetStream, "Target OutputStream must not be null");

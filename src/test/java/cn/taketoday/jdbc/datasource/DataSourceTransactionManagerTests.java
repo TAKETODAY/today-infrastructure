@@ -447,7 +447,7 @@ public class DataSourceTransactionManagerTests {
 
     Assertions.setMaxStackTraceElementsDisplayed(1000);
 
-  assertThatExceptionOfType(IllegalTransactionStateException.class).isThrownBy(() -> {
+    assertThatExceptionOfType(IllegalTransactionStateException.class).isThrownBy(() -> {
       final TransactionTemplate tt = new TransactionTemplate(tm);
       tt.setReadOnly(true);
       final TransactionTemplate tt2 = new TransactionTemplate(tm);

@@ -1348,7 +1348,7 @@ class MergedAnnotationsTests {
   }
 
   private void testRepeatables(SearchStrategy searchStrategy, Class<?> element,
-                               String[] expectedValuesJava, String[] expectedValuesSpring) {
+          String[] expectedValuesJava, String[] expectedValuesSpring) {
 
     testJavaRepeatables(searchStrategy, element, expectedValuesJava);
     testExplicitRepeatables(searchStrategy, element, expectedValuesSpring);

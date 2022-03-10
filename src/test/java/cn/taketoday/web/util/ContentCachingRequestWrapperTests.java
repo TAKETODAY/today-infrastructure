@@ -77,7 +77,7 @@ public class ContentCachingRequestWrapperTests {
     };
 
     assertThatIllegalStateException().isThrownBy(() ->
-                                                         FileCopyUtils.copyToByteArray(wrapper.getInputStream()))
+                    FileCopyUtils.copyToByteArray(wrapper.getInputStream()))
             .withMessage("3");
   }
 

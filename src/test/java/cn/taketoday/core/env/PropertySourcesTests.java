@@ -106,7 +106,7 @@ class PropertySourcesTests {
 
     String bogusPS = "bogus";
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            sources.addAfter(bogusPS, new MockPropertySource("h")))
+                    sources.addAfter(bogusPS, new MockPropertySource("h")))
             .withMessageContaining("does not exist");
 
     sources.addFirst(new MockPropertySource("a"));
@@ -124,15 +124,15 @@ class PropertySourcesTests {
     sources.replace("a-replaced", new MockPropertySource("a"));
 
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            sources.replace(bogusPS, new MockPropertySource("bogus-replaced")))
+                    sources.replace(bogusPS, new MockPropertySource("bogus-replaced")))
             .withMessageContaining("does not exist");
 
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            sources.addBefore("b", new MockPropertySource("b")))
+                    sources.addBefore("b", new MockPropertySource("b")))
             .withMessageContaining("cannot be added relative to itself");
 
     assertThatIllegalArgumentException().isThrownBy(() ->
-                                                            sources.addAfter("b", new MockPropertySource("b")))
+                    sources.addAfter("b", new MockPropertySource("b")))
             .withMessageContaining("cannot be added relative to itself");
   }
 

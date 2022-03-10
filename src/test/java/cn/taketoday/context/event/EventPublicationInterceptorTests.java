@@ -40,108 +40,106 @@ import static org.mockito.Mockito.mock;
  */
 class EventPublicationInterceptorTests {
 
-	private final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
+  private final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
 
-	@Test
-	public void testWithNoApplicationEventClassSupplied() {
-		EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-		interceptor.setApplicationEventPublisher(this.publisher);
-		assertThatIllegalArgumentException().isThrownBy(
-						interceptor::afterPropertiesSet);
-	}
+  @Test
+  public void testWithNoApplicationEventClassSupplied() {
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventPublisher(this.publisher);
+    assertThatIllegalArgumentException().isThrownBy(
+            interceptor::afterPropertiesSet);
+  }
 
-	@Test
-	public void testWithNonApplicationEventClassSupplied() {
-		EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-		interceptor.setApplicationEventPublisher(this.publisher);
-		assertThatIllegalArgumentException().isThrownBy(() -> {
-			interceptor.setApplicationEventClass(getClass());
-			interceptor.afterPropertiesSet();
-		});
-	}
+  @Test
+  public void testWithNonApplicationEventClassSupplied() {
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventPublisher(this.publisher);
+    assertThatIllegalArgumentException().isThrownBy(() -> {
+      interceptor.setApplicationEventClass(getClass());
+      interceptor.afterPropertiesSet();
+    });
+  }
 
-	@Test
-	public void testWithAbstractStraightApplicationEventClassSupplied() {
-		EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-		interceptor.setApplicationEventPublisher(this.publisher);
-		assertThatIllegalArgumentException().isThrownBy(() -> {
-			interceptor.setApplicationEventClass(ApplicationEvent.class);
-			interceptor.afterPropertiesSet();
-		});
-	}
+  @Test
+  public void testWithAbstractStraightApplicationEventClassSupplied() {
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventPublisher(this.publisher);
+    assertThatIllegalArgumentException().isThrownBy(() -> {
+      interceptor.setApplicationEventClass(ApplicationEvent.class);
+      interceptor.afterPropertiesSet();
+    });
+  }
 
-	@Test
-	public void testWithApplicationEventClassThatDoesntExposeAValidCtor() {
-		EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
-		interceptor.setApplicationEventPublisher(this.publisher);
-		assertThatIllegalArgumentException().isThrownBy(() -> {
-			interceptor.setApplicationEventClass(TestEventWithNoValidOneArgObjectCtor.class);
-			interceptor.afterPropertiesSet();
-		});
-	}
+  @Test
+  public void testWithApplicationEventClassThatDoesntExposeAValidCtor() {
+    EventPublicationInterceptor interceptor = new EventPublicationInterceptor();
+    interceptor.setApplicationEventPublisher(this.publisher);
+    assertThatIllegalArgumentException().isThrownBy(() -> {
+      interceptor.setApplicationEventClass(TestEventWithNoValidOneArgObjectCtor.class);
+      interceptor.afterPropertiesSet();
+    });
+  }
 
-	@Test
-	public void testExpectedBehavior() {
-		TestBean target = new TestBean();
-		final TestApplicationListener listener = new TestApplicationListener();
+  @Test
+  public void testExpectedBehavior() {
+    TestBean target = new TestBean();
+    final TestApplicationListener listener = new TestApplicationListener();
 
-		class TestContext extends GenericApplicationContext {
-			@Override
-			protected void onRefresh() throws BeansException {
-				addApplicationListener(listener);
-			}
-		}
+    class TestContext extends GenericApplicationContext {
+      @Override
+      protected void onRefresh() throws BeansException {
+        addApplicationListener(listener);
+      }
+    }
 
-		GenericApplicationContext ctx = new TestContext();
-		PropertyValues pvs = new PropertyValues();
-		pvs.add("applicationEventClass", TestEvent.class.getName());
-		// should automatically receive applicationEventPublisher reference
-		ctx.registerSingleton("publisher", EventPublicationInterceptor.class, pvs);
-		ctx.registerSingleton("otherListener", FactoryBeanTestListener.class);
-		ctx.refresh();
+    GenericApplicationContext ctx = new TestContext();
+    PropertyValues pvs = new PropertyValues();
+    pvs.add("applicationEventClass", TestEvent.class.getName());
+    // should automatically receive applicationEventPublisher reference
+    ctx.registerSingleton("publisher", EventPublicationInterceptor.class, pvs);
+    ctx.registerSingleton("otherListener", FactoryBeanTestListener.class);
+    ctx.refresh();
 
-		EventPublicationInterceptor interceptor =
-						(EventPublicationInterceptor) ctx.getBean("publisher");
-		ProxyFactory factory = new ProxyFactory(target);
-		factory.addAdvice(0, interceptor);
+    EventPublicationInterceptor interceptor =
+            (EventPublicationInterceptor) ctx.getBean("publisher");
+    ProxyFactory factory = new ProxyFactory(target);
+    factory.addAdvice(0, interceptor);
 
-		ITestBean testBean = (ITestBean) factory.getProxy();
+    ITestBean testBean = (ITestBean) factory.getProxy();
 
-		// invoke any method on the advised proxy to see if the interceptor has been invoked
-		testBean.getAge();
+    // invoke any method on the advised proxy to see if the interceptor has been invoked
+    testBean.getAge();
 
-		// two events: ContextRefreshedEvent and TestEvent
-		assertThat(listener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
-		TestApplicationListener otherListener = (TestApplicationListener) ctx.getBean("&otherListener");
-		assertThat(otherListener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
-	}
+    // two events: ContextRefreshedEvent and TestEvent
+    assertThat(listener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
+    TestApplicationListener otherListener = (TestApplicationListener) ctx.getBean("&otherListener");
+    assertThat(otherListener.getEventCount() == 2).as("Interceptor must have published 2 events").isTrue();
+  }
 
+  @SuppressWarnings("serial")
+  public static final class TestEventWithNoValidOneArgObjectCtor extends ApplicationEvent {
 
-	@SuppressWarnings("serial")
-	public static final class TestEventWithNoValidOneArgObjectCtor extends ApplicationEvent {
+    public TestEventWithNoValidOneArgObjectCtor() {
+      super("");
+    }
+  }
 
-		public TestEventWithNoValidOneArgObjectCtor() {
-			super("");
-		}
-	}
+  public static class FactoryBeanTestListener extends TestApplicationListener implements FactoryBean<Object> {
 
+    @Override
+    public Object getObject() {
+      return "test";
+    }
 
-	public static class FactoryBeanTestListener extends TestApplicationListener implements FactoryBean<Object> {
+    @Override
+    public Class<String> getObjectType() {
+      return String.class;
+    }
 
-		@Override
-		public Object getObject() {
-			return "test";
-		}
-
-		@Override
-		public Class<String> getObjectType() {
-			return String.class;
-		}
-
-		@Override
-		public boolean isSingleton() {
-			return true;
-		}
-	}
+    @Override
+    public boolean isSingleton() {
+      return true;
+    }
+  }
 
 }

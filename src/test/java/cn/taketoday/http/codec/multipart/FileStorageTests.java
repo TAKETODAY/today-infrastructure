@@ -38,50 +38,50 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FileStorageTests {
 
-	@Test
-	void fromPath() throws IOException {
-		Path path = Files.createTempFile("spring", "test");
-		FileStorage storage = FileStorage.fromPath(path);
+  @Test
+  void fromPath() throws IOException {
+    Path path = Files.createTempFile("spring", "test");
+    FileStorage storage = FileStorage.fromPath(path);
 
-		Mono<Path> directory = storage.directory();
-		StepVerifier.create(directory)
-				.expectNext(path)
-				.verifyComplete();
-	}
+    Mono<Path> directory = storage.directory();
+    StepVerifier.create(directory)
+            .expectNext(path)
+            .verifyComplete();
+  }
 
-	@Test
-	void tempDirectory() {
-		FileStorage storage = FileStorage.tempDirectory(Schedulers::boundedElastic);
+  @Test
+  void tempDirectory() {
+    FileStorage storage = FileStorage.tempDirectory(Schedulers::boundedElastic);
 
-		Mono<Path> directory = storage.directory();
-		StepVerifier.create(directory)
-				.consumeNextWith(path -> {
-					assertThat(path).exists();
-					StepVerifier.create(directory)
-							.expectNext(path)
-							.verifyComplete();
-				})
-				.verifyComplete();
-	}
+    Mono<Path> directory = storage.directory();
+    StepVerifier.create(directory)
+            .consumeNextWith(path -> {
+              assertThat(path).exists();
+              StepVerifier.create(directory)
+                      .expectNext(path)
+                      .verifyComplete();
+            })
+            .verifyComplete();
+  }
 
-	@Test
-	void tempDirectoryDeleted() {
-		FileStorage storage = FileStorage.tempDirectory(Schedulers::boundedElastic);
+  @Test
+  void tempDirectoryDeleted() {
+    FileStorage storage = FileStorage.tempDirectory(Schedulers::boundedElastic);
 
-		Mono<Path> directory = storage.directory();
-		StepVerifier.create(directory)
-				.consumeNextWith(path1 -> {
-					try {
-						Files.delete(path1);
-						StepVerifier.create(directory)
-								.consumeNextWith(path2 -> assertThat(path2).isNotEqualTo(path1))
-								.verifyComplete();
-					}
-					catch (IOException ex) {
-						throw new UncheckedIOException(ex);
-					}
-				})
-				.verifyComplete();
-	}
+    Mono<Path> directory = storage.directory();
+    StepVerifier.create(directory)
+            .consumeNextWith(path1 -> {
+              try {
+                Files.delete(path1);
+                StepVerifier.create(directory)
+                        .consumeNextWith(path2 -> assertThat(path2).isNotEqualTo(path1))
+                        .verifyComplete();
+              }
+              catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+              }
+            })
+            .verifyComplete();
+  }
 
 }

@@ -383,7 +383,7 @@ public final class Msg extends
   @java.lang.Override
   public Builder toBuilder() {
     return this == DEFAULT_INSTANCE
-            ? new Builder() : new Builder().mergeFrom(this);
+           ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
@@ -796,7 +796,7 @@ public final class Msg extends
       }
       else {
         return blah_ == null ?
-                cn.taketoday.protobuf.SecondMsg.getDefaultInstance() : blah_;
+               cn.taketoday.protobuf.SecondMsg.getDefaultInstance() : blah_;
       }
     }
 
@@ -828,7 +828,6 @@ public final class Msg extends
             final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.mergeUnknownFields(unknownFields);
     }
-
 
     // @@protoc_insertion_point(builder_scope:Msg)
   }

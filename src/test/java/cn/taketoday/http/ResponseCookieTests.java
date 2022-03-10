@@ -45,8 +45,8 @@ public class ResponseCookieTests {
             .build();
 
     assertThat(cookie.toString()).isEqualTo("id=1fWa; Path=/path; Domain=abc; " +
-                                                    "Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; " +
-                                                    "Secure; HttpOnly; SameSite=None");
+            "Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; " +
+            "Secure; HttpOnly; SameSite=None");
   }
 
   @Test

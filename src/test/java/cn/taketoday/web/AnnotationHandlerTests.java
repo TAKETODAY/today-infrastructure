@@ -71,8 +71,6 @@ public class AnnotationHandlerTests extends Base implements WebMvcConfiguration 
     Object defaultHandler = registry.getDefaultHandler();
     assertNull(defaultHandler);
 
-
-
     ViewController viewController = registry.getViewController("/view/controller/null");
     assertNotNull(viewController);
     assertNull(viewController.getStatus());

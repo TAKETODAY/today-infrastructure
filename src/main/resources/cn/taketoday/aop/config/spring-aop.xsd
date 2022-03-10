@@ -12,7 +12,7 @@
 
   <xsd:annotation>
     <xsd:documentation>
-      <![CDATA[ Defines the configuration elements for the Spring Framework's AOP support. ]]>
+      <![CDATA[ Defines the configuration elements for the Framework's AOP support. ]]>
     </xsd:documentation>
   </xsd:annotation>
 
@@ -85,7 +85,7 @@
           <xsd:annotation>
             <xsd:documentation><![CDATA[
 	Indicates that only @AspectJ beans with names matched by the (regex)
-	pattern will be considered as defining aspects to use for Spring autoproxying.
+	pattern will be considered as defining aspects to use for autoproxying.
 						]]></xsd:documentation>
           </xsd:annotation>
         </xsd:element>

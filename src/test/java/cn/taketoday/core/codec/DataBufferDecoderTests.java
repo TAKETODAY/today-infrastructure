@@ -50,11 +50,11 @@ class DataBufferDecoderTests extends AbstractDecoderTests<DataBufferDecoder> {
   @Test
   public void canDecode() {
     assertThat(this.decoder.canDecode(ResolvableType.fromClass(DataBuffer.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.decoder.canDecode(ResolvableType.fromClass(Integer.class),
-                                      MimeTypeUtils.TEXT_PLAIN)).isFalse();
+            MimeTypeUtils.TEXT_PLAIN)).isFalse();
     assertThat(this.decoder.canDecode(ResolvableType.fromClass(DataBuffer.class),
-                                      MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            MimeTypeUtils.APPLICATION_JSON)).isTrue();
   }
 
   @Override

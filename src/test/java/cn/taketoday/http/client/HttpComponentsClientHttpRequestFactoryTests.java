@@ -81,7 +81,7 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
   public void defaultSettingsOfHttpClientMergedOnExecutorCustomization() throws Exception {
     RequestConfig defaultConfig = RequestConfig.custom().setConnectTimeout(1234).build();
     CloseableHttpClient client = mock(CloseableHttpClient.class,
-                                      withSettings().extraInterfaces(Configurable.class));
+            withSettings().extraInterfaces(Configurable.class));
     Configurable configurable = (Configurable) client;
     given(configurable.getConfig()).willReturn(defaultConfig);
 
@@ -101,7 +101,7 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
     RequestConfig defaultConfig = RequestConfig.custom()
             .setConnectTimeout(1234).setConnectionRequestTimeout(6789).build();
     CloseableHttpClient client = mock(CloseableHttpClient.class,
-                                      withSettings().extraInterfaces(Configurable.class));
+            withSettings().extraInterfaces(Configurable.class));
     Configurable configurable = (Configurable) client;
     given(configurable.getConfig()).willReturn(defaultConfig);
 
@@ -119,7 +119,7 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
     RequestConfig defaultConfig = RequestConfig.custom()
             .setSocketTimeout(1234).build();
     final CloseableHttpClient client = mock(CloseableHttpClient.class,
-                                            withSettings().extraInterfaces(Configurable.class));
+            withSettings().extraInterfaces(Configurable.class));
     Configurable configurable = (Configurable) client;
     given(configurable.getConfig()).willReturn(defaultConfig);
 

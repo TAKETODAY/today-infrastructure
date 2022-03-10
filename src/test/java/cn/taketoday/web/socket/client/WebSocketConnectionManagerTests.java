@@ -47,7 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class WebSocketConnectionManagerTests {
 
-
   @Test
   public void openConnection() throws Exception {
     List<String> subprotocols = Arrays.asList("abc");
@@ -84,7 +83,6 @@ public class WebSocketConnectionManagerTests {
     assertThat(client.isRunning()).isFalse();
   }
 
-
   private static class TestLifecycleWebSocketClient implements WebSocketClient, Lifecycle {
 
     private boolean running;
@@ -94,7 +92,6 @@ public class WebSocketConnectionManagerTests {
     private HttpHeaders headers;
 
     private URI uri;
-
 
     public TestLifecycleWebSocketClient(boolean running) {
       this.running = running;

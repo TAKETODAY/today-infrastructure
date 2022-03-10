@@ -1121,37 +1121,29 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     // find oon factory-method then find on class
 
-    BeanDefinition definition = getBeanDefinition(beanName);
-    if (definition instanceof AnnotatedBeanDefinition annotated) {
-      // find on factory method
-      MethodMetadata methodMetadata = annotated.getFactoryMethodMetadata();
-      MergedAnnotation<A> annotation;
-      if (methodMetadata != null) {
-        annotation = methodMetadata.getAnnotation(annotationType);
+    boolean containsBeanDefinition = containsBeanDefinition(beanName);
+    if (containsBeanDefinition) {
+      BeanDefinition definition = getBeanDefinition(beanName);
+      if (definition instanceof AnnotatedBeanDefinition annotated) {
+        // find on factory method
+        MethodMetadata methodMetadata = annotated.getFactoryMethodMetadata();
+        if (methodMetadata != null) {
+          return methodMetadata.getAnnotation(annotationType);
+        }
+        return annotated.getMetadata().getAnnotation(annotationType);
       }
       else {
-        annotation = annotated.getMetadata().getAnnotation(annotationType);
-      }
-      if (annotation.isPresent()) {
-        return annotation;
-      }
-    }
-    else if (definition != null) {
-      String factoryMethodName = definition.getFactoryMethodName();
-      if (factoryMethodName != null) {
-        RootBeanDefinition merged = getMergedBeanDefinition(beanName, definition);
-        Class<?> factoryClass = getFactoryClass(beanName, merged);
-        Method factoryMethod = getFactoryMethod(merged, factoryClass, factoryMethodName);
-        if (factoryMethod != null) {
-          MergedAnnotation<A> annotation =
-                  MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
+        String factoryMethodName = definition.getFactoryMethodName();
+        if (factoryMethodName != null) {
+          RootBeanDefinition merged = getMergedBeanDefinition(beanName, definition);
+          Class<?> factoryClass = getFactoryClass(beanName, merged);
+          Method factoryMethod = getFactoryMethod(merged, factoryClass, factoryMethodName);
+          if (factoryMethod != null) {
+            return MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
           }
         }
       }
     }
-
     // find it on class
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
     if (beanType != null) {
@@ -1161,16 +1153,23 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         return annotation;
       }
     }
-
-    // Check raw bean class, e.g. in case of a proxy.
-    if (definition instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
-      Class<?> beanClass = abd.getBeanClass();
-      if (beanClass != beanType) {
-        MergedAnnotation<A> annotation =
-                MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
-        if (annotation.isPresent()) {
-          return annotation;
+    if (containsBeanDefinition) {
+      RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
+      // Check raw bean class, e.g. in case of a proxy.
+      if (merged.hasBeanClass()) {
+        Class<?> beanClass = merged.getBeanClass();
+        if (beanClass != beanType) {
+          MergedAnnotation<A> annotation =
+                  MergedAnnotations.from(beanClass, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
+          }
         }
+      }
+      // Check annotations declared on factory method, if any.
+      Method factoryMethod = merged.getResolvedFactoryMethod();
+      if (factoryMethod != null) {
+        return MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
       }
     }
     // missing

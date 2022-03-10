@@ -51,7 +51,7 @@ public class BeanNamePointcutAtAspectTests {
   @BeforeEach
   public void setup() {
     ClassPathXmlApplicationContext ctx =
-            new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+            new ClassPathXmlApplicationContext("BeanNamePointcutAtAspectTests.xml", getClass());
 
     counterAspect = (CounterAspect) ctx.getBean("counterAspect");
     testBean1 = (ITestBean) ctx.getBean("testBean1");

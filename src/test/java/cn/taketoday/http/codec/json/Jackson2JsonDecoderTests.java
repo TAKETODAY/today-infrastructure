@@ -89,11 +89,11 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     assertThat(decoder.canDecode(ResolvableType.fromClass(String.class), null)).isFalse();
     assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), APPLICATION_XML)).isFalse();
     assertThat(this.decoder.canDecode(ResolvableType.fromClass(Pojo.class),
-                                      new MediaType("application", "json", StandardCharsets.UTF_8))).isTrue();
+            new MediaType("application", "json", StandardCharsets.UTF_8))).isTrue();
     assertThat(this.decoder.canDecode(ResolvableType.fromClass(Pojo.class),
-                                      new MediaType("application", "json", StandardCharsets.US_ASCII))).isTrue();
+            new MediaType("application", "json", StandardCharsets.US_ASCII))).isTrue();
     assertThat(this.decoder.canDecode(ResolvableType.fromClass(Pojo.class),
-                                      new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isTrue();
+            new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isTrue();
   }
 
   @Test
@@ -132,7 +132,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     Jackson2JsonDecoder decoder = new Jackson2JsonDecoder(new ObjectMapper(), textJavascript);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-                                                                                      decoder.getMimeTypes().add(new MimeType("text", "ecmascript")));
+            decoder.getMimeTypes().add(new MimeType("text", "ecmascript")));
   }
 
   @Override
@@ -214,7 +214,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @Test // gh-22042
   public void decodeWithNullLiteral() {
     Flux<Object> result = this.decoder.decode(Flux.concat(stringBuffer("null")),
-                                              ResolvableType.fromType(Pojo.class), MediaType.APPLICATION_JSON, Collections.emptyMap());
+            ResolvableType.fromType(Pojo.class), MediaType.APPLICATION_JSON, Collections.emptyMap());
 
     StepVerifier.create(result).expectComplete().verify();
   }
@@ -254,10 +254,10 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
-                       .assertNext(value -> assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
-                       .verifyComplete(),
-               MediaType.parseMediaType("application/json; charset=utf-16"),
-               null);
+                    .assertNext(value -> assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
+                    .verifyComplete(),
+            MediaType.parseMediaType("application/json; charset=utf-16"),
+            null);
   }
 
   @Test
@@ -267,10 +267,10 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
-                       .assertNext(o -> assertThat((Map<String, String>) o).containsEntry("føø", "bår"))
-                       .verifyComplete(),
-               MediaType.parseMediaType("application/json; charset=iso-8859-1"),
-               null);
+                    .assertNext(o -> assertThat((Map<String, String>) o).containsEntry("føø", "bår"))
+                    .verifyComplete(),
+            MediaType.parseMediaType("application/json; charset=iso-8859-1"),
+            null);
   }
 
   @Test
@@ -280,10 +280,10 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
 
     testDecodeToMono(input, type, step -> step
-                             .assertNext(value -> assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
-                             .verifyComplete(),
-                     MediaType.parseMediaType("application/json; charset=utf-16"),
-                     null);
+                    .assertNext(value -> assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
+                    .verifyComplete(),
+            MediaType.parseMediaType("application/json; charset=utf-16"),
+            null);
   }
 
   @Test
@@ -293,10 +293,10 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
-                       .assertNext(value -> assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
-                       .verifyComplete(),
-               MediaType.parseMediaType("application/json; charset=us-ascii"),
-               null);
+                    .assertNext(value -> assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
+                    .verifyComplete(),
+            MediaType.parseMediaType("application/json; charset=us-ascii"),
+            null);
   }
 
   private Mono<DataBuffer> stringBuffer(String value) {

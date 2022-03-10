@@ -66,8 +66,8 @@ public class TestInterceptor implements MethodInterceptor, Serializable {
   }
 
   public Object afterReturn(Object obj, Method method, Object[] args,
-                            boolean invokedSuper, Object retValFromSuper,
-                            Throwable e) throws Throwable {
+          boolean invokedSuper, Object retValFromSuper,
+          Throwable e) throws Throwable {
     if (e != null)
       throw e.fillInStackTrace();
     return retValFromSuper;

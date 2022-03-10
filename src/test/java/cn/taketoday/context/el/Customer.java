@@ -53,7 +53,7 @@ public class Customer {
   List<Order> orders;
 
   public Customer(int customerID, String name, String address, String city,
-                  String country, String phone) {
+          String country, String phone) {
     this.customerID = customerID;
     this.name = name;
     this.address = address;

@@ -309,12 +309,14 @@ class BridgeMethodResolverTests {
     assertThat(bridgedMethod.getName()).isEqualTo("findBy");
   }
 
-  @Test  // SPR-16103
+  @Test
+    // SPR-16103
   void testClassHierarchy() throws Exception {
     doTestHierarchyResolution(FooClass.class);
   }
 
-  @Test  // SPR-16103
+  @Test
+    // SPR-16103
   void testInterfaceHierarchy() throws Exception {
     doTestHierarchyResolution(FooInterface.class);
   }
@@ -776,7 +778,7 @@ class BridgeMethodResolverTests {
   @SuppressWarnings({ "serial", "unchecked" })
   public static class MessageBroadcasterImpl extends GenericEventBroadcasterImpl<MessageEvent>
           implements Serializable,  // implement an unrelated interface first (SPR-16288)
-                     MessageBroadcaster {
+          MessageBroadcaster {
 
     public MessageBroadcasterImpl() {
       super(NewMessageEvent.class);
@@ -867,8 +869,7 @@ class BridgeMethodResolverTests {
           implements ConvenientGenericRepository<T, ID> {
 
     /**
-     * @param c
-     *         Mandatory. The domain class this repository is responsible for.
+     * @param c Mandatory. The domain class this repository is responsible for.
      */
     // Since it is impossible to determine the actual type of a type
     // parameter (!), we resort to requiring the caller to provide the
@@ -957,7 +958,7 @@ class BridgeMethodResolverTests {
   }
 
   public static class YourHomer<T extends AbstractBounded<T>, L extends T> extends
-                                                                           MyHomer<T, L> {
+          MyHomer<T, L> {
 
     @Override
     public void foo(L t) {
@@ -1251,12 +1252,14 @@ class BridgeMethodResolverTests {
 
   public interface EntityInterface<T extends BaseEntity> extends BaseInterface<T> {
 
-    @Override <S extends T> S test(S T);
+    @Override
+    <S extends T> S test(S T);
   }
 
   public interface FooInterface extends EntityInterface<FooEntity> {
 
-    @Override <S extends FooEntity> S test(S T);
+    @Override
+    <S extends FooEntity> S test(S T);
   }
 
 }

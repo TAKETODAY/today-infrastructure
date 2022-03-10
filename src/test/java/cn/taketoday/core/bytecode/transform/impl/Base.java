@@ -12,8 +12,7 @@ public class Base {
   }
 
   /**
-   * @param baseTest
-   *         The baseTest to set.
+   * @param baseTest The baseTest to set.
    */
   public void setBaseTest(String baseTest) {
     this.baseTest = baseTest;

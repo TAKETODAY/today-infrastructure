@@ -255,7 +255,7 @@ class SettableListenableFutureTests {
   @Test
   void getWithTimeoutThrowsTimeoutException() throws ExecutionException, InterruptedException {
     assertThatExceptionOfType(TimeoutException.class).isThrownBy(() ->
-                                                                         settableListenableFuture.get(1L, TimeUnit.MILLISECONDS));
+            settableListenableFuture.get(1L, TimeUnit.MILLISECONDS));
   }
 
   @Test
@@ -340,7 +340,7 @@ class SettableListenableFutureTests {
     settableListenableFuture.cancel(true);
 
     assertThatExceptionOfType(CancellationException.class).isThrownBy(() ->
-                                                                              settableListenableFuture.get());
+            settableListenableFuture.get());
 
     assertThat(settableListenableFuture.isCancelled()).isTrue();
     assertThat(settableListenableFuture.isDone()).isTrue();
