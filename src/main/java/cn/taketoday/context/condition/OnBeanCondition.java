@@ -347,7 +347,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       return beanFactory.getBeanDefinition(beanName);
     }
     if (considerHierarchy && beanFactory.getParentBeanFactory() instanceof ConfigurableBeanFactory configurable) {
-      return findBeanDefinition(configurable, beanName, considerHierarchy);
+      return findBeanDefinition(configurable, beanName, true);
     }
     return null;
   }

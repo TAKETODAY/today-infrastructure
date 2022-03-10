@@ -23,7 +23,6 @@ package cn.taketoday.aop.framework.autoproxy;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.framework.Advised;
-import cn.taketoday.aop.mixin.LockedException;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
 import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
@@ -34,6 +33,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.core.testfixture.TimeStamped;
 import test.aop.Lockable;
+import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

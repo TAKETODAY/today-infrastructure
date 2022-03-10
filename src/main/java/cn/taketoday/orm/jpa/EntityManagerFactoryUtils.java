@@ -116,11 +116,11 @@ public abstract class EntityManagerFactoryUtils {
       }
       // No matching persistence unit found - simply take the EntityManagerFactory
       // with the persistence unit name as bean name (by convention).
-      return BeanFactoryUtils.requiredBean(beanFactory, unitName, EntityManagerFactory.class);
+      return beanFactory.getBean(unitName, EntityManagerFactory.class);
     }
     else {
       // Find unique EntityManagerFactory bean in the context, falling back to parent contexts.
-      return BeanFactoryUtils.requiredBean(beanFactory, EntityManagerFactory.class);
+      return beanFactory.getBean(EntityManagerFactory.class);
     }
   }
 

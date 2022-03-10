@@ -39,19 +39,18 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ApplicationListener;
@@ -318,23 +317,21 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
 
   private <T> T resolveSchedulerBean(BeanFactory beanFactory, Class<T> schedulerType, boolean byName) {
     if (byName) {
-      T scheduler = BeanFactoryUtils.requiredBean(
-              beanFactory, DEFAULT_TASK_SCHEDULER_BEAN_NAME, schedulerType);
-      if (this.beanName != null && this.beanFactory instanceof ConfigurableBeanFactory) {
-        ((ConfigurableBeanFactory) this.beanFactory).registerDependentBean(
-                DEFAULT_TASK_SCHEDULER_BEAN_NAME, this.beanName);
+      T scheduler = beanFactory.getBean(DEFAULT_TASK_SCHEDULER_BEAN_NAME, schedulerType);
+      if (beanName != null && beanFactory instanceof ConfigurableBeanFactory cbf) {
+        cbf.registerDependentBean(DEFAULT_TASK_SCHEDULER_BEAN_NAME, beanName);
       }
       return scheduler;
     }
-    else if (beanFactory instanceof AutowireCapableBeanFactory) {
-      NamedBeanHolder<T> holder = ((AutowireCapableBeanFactory) beanFactory).resolveNamedBean(schedulerType);
-      if (this.beanName != null && beanFactory instanceof ConfigurableBeanFactory) {
-        ((ConfigurableBeanFactory) beanFactory).registerDependentBean(holder.getBeanName(), this.beanName);
+    else if (beanFactory instanceof AutowireCapableBeanFactory abf) {
+      NamedBeanHolder<T> holder = abf.resolveNamedBean(schedulerType);
+      if (beanName != null && beanFactory instanceof ConfigurableBeanFactory cbf) {
+        cbf.registerDependentBean(holder.getBeanName(), beanName);
       }
       return holder.getBeanInstance();
     }
     else {
-      return BeanFactoryUtils.requiredBean(beanFactory, schedulerType);
+      return beanFactory.getBean(schedulerType);
     }
   }
 

@@ -22,7 +22,8 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.aop.scope.ScopedObject;
+import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -30,7 +31,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation4.DependencyBean;
 import cn.taketoday.context.annotation4.FactoryMethodComponent;
 import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +46,7 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
 
   @Test
   public void testSingletonScopedFactoryMethod() {
-    StandardApplicationContext context = new StandardApplicationContext();
+    GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
 
     context.getBeanFactory().registerScope("request", new SimpleMapScope());
@@ -54,12 +55,10 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
     context.registerBeanDefinition("clientBean", new RootBeanDefinition(QualifiedClientBean.class));
     context.refresh();
 
-    FactoryMethodComponent fmc = BeanFactoryUtils.requiredBean(
-            context, "factoryMethodComponent", FactoryMethodComponent.class);
-
+    FactoryMethodComponent fmc = context.getBean("factoryMethodComponent", FactoryMethodComponent.class);
     assertThat(fmc.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)).isFalse();
 
-    TestBean tb = (TestBean) BeanFactoryUtils.requiredBean(context, "publicInstance"); //2
+    TestBean tb = (TestBean) context.getBean("publicInstance"); //2
     assertThat(tb.getName()).isEqualTo("publicInstance");
     TestBean tb2 = (TestBean) context.getBean("publicInstance"); //2
     assertThat(tb2.getName()).isEqualTo("publicInstance");
@@ -81,9 +80,9 @@ public class ClassPathFactoryBeanDefinitionScannerTests {
     assertThat(tb).isNotSameAs(tb2);
 
     Object bean = context.getBean("requestScopedInstance"); //5
-//    assertThat(AopUtils.isCglibProxy(bean)).isTrue();
-//    boolean condition = bean instanceof ScopedObject;
-//    assertThat(condition).isTrue();
+    assertThat(AopUtils.isCglibProxy(bean)).isTrue();
+    boolean condition = bean instanceof ScopedObject;
+    assertThat(condition).isTrue();
 
     QualifiedClientBean clientBean = context.getBean("clientBean", QualifiedClientBean.class);
     assertThat(clientBean.testBean).isSameAs(context.getBean("publicInstance"));

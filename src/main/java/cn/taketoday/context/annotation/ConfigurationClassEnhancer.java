@@ -27,12 +27,13 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import cn.taketoday.aop.framework.StandardProxy;
+import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.InstantiationStrategy;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -291,10 +292,14 @@ class ConfigurationClassEnhancer {
       // is the same as that of referring to a FactoryBean within XML. See SPR-6602.
       if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName)
               && factoryContainsBean(beanFactory, beanName)) {
-        Object factoryBean = BeanFactoryUtils.requiredBean(
-                beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName);
-        // It is a candidate FactoryBean - go ahead with enhancement
-        return enhanceFactoryBean(factoryBean, beanMethod.getReturnType(), beanFactory, beanName);
+        Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+        if (factoryBean instanceof ScopedProxyFactoryBean) {
+          // Scoped proxy factory beans are a special case and should not be further proxied
+        }
+        else {
+          // It is a candidate FactoryBean - go ahead with enhancement
+          return enhanceFactoryBean(factoryBean, beanMethod.getReturnType(), beanFactory, beanName);
+        }
       }
 
       // fix circular bean creation
@@ -358,11 +363,13 @@ class ConfigurationClassEnhancer {
                             "for type [%s] but overridden by non-compatible bean instance of type [%s].",
                     beanMethod.getDeclaringClass().getSimpleName(), beanMethod.getName(),
                     beanMethod.getReturnType().getName(), beanInstance.getClass().getName());
-            BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-            if (beanDefinition == null) {
-              throw new IllegalStateException(msg);
+            try {
+              BeanDefinition beanDefinition = beanFactory.getMergedBeanDefinition(beanName);
+              msg += " Overriding bean of same name declared in: " + beanDefinition.getResourceDescription();
             }
-            msg += " Overriding bean of same name declared in: " + beanDefinition.getResourceDescription();
+            catch (NoSuchBeanDefinitionException ex) {
+              // Ignore - simply no detailed message then.
+            }
             throw new IllegalStateException(msg);
           }
         }

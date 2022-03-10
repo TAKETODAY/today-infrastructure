@@ -22,10 +22,9 @@ package cn.taketoday.jdbc.datasource.lookup;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -77,7 +76,7 @@ public class BeanFactoryDataSourceLookup implements DataSourceLookup, BeanFactor
   public DataSource getDataSource(String dataSourceName) throws DataSourceLookupFailureException {
     Assert.state(this.beanFactory != null, "BeanFactory is required");
     try {
-      return BeanFactoryUtils.requiredBean(beanFactory, dataSourceName, DataSource.class);
+      return beanFactory.getBean(dataSourceName, DataSource.class);
     }
     catch (BeansException ex) {
       throw new DataSourceLookupFailureException(

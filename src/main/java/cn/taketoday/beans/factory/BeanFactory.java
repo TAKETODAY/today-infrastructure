@@ -31,7 +31,9 @@ import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.support.ChildBeanDefinition;
 import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
@@ -153,10 +155,10 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
    *
    * @param name the name of the bean to retrieve
-   * @return Bet bean instance, returns null if it doesn't exist.
+   * @return bean instance, returns null if its return from a factory-method
    * @throws BeansException Exception occurred when getting a named bean
+   * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
    */
-  @Nullable
   Object getBean(String name) throws BeansException;
 
   /**
@@ -167,13 +169,13 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @param name the name of the bean to retrieve
    * @param args arguments to use when creating a bean instance using explicit arguments
    * (only applied when creating a new instance as opposed to retrieving an existing one)
-   * @return an instance of the bean, returns null if it doesn't exist.
+   * @return an instance of the bean, returns null if its return from a factory-method
    * @throws BeanDefinitionStoreException if arguments have been given but
    * the affected bean isn't a prototype
    * @throws BeansException if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
    * @since 4.0
    */
-  @Nullable
   Object getBean(String name, Object... args) throws BeansException;
 
   /**
@@ -187,11 +189,11 @@ public interface BeanFactory extends DependencyInjectorProvider {
    *
    * @param name the name of the bean to retrieve
    * @param requiredType type the bean must match; can be an interface or superclass
-   * @return an instance of the bean, returns null if it doesn't exist.
+   * @return an instance of the bean,returns null if its return from a factory-method
    * @throws BeanNotOfRequiredTypeException if the bean is not of the required type
    * @throws BeansException if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
    */
-  @Nullable
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
   /**
@@ -398,22 +400,25 @@ public interface BeanFactory extends DependencyInjectorProvider {
   boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException;
 
   /**
-   * Return the registered BeanDefinition for the specified bean, allowing access
-   * to its property values and constructor argument value (which can be
-   * modified during bean factory post-processing).
-   * <p>A returned BeanDefinition object should not be a copy but the original
-   * definition object as registered in the factory. This means that it should
-   * be castable to a more specific implementation type, if necessary.
-   * <p><b>NOTE:</b> This method does <i>not</i> consider ancestor factories.
-   * It is only meant for accessing local bean definitions of this factory.
+   * Return the bean definition for the given bean name.
+   * Subclasses should normally implement caching, as this method is invoked
+   * by this class every time bean definition metadata is needed.
+   * <p>Depending on the nature of the concrete bean factory implementation,
+   * this operation might be expensive (for example, because of directory lookups
+   * in external registries). However, for listable bean factories, this usually
+   * just amounts to a local hash lookup: The operation is therefore part of the
+   * public interface there. The same implementation can serve for both this
+   * template method and the public interface method in that case.
    *
-   * @param beanName the name of the bean
-   * @return the registered BeanDefinition
-   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
-   * defined in this factory
-   * @since 4.0
+   * @param beanName the name of the bean to find a definition for
+   * @return the BeanDefinition for this prototype name (never {@code null})
+   * @throws NoSuchBeanDefinitionException if the bean definition cannot be resolved
+   * @throws BeansException in case of errors
+   * @see RootBeanDefinition
+   * @see ChildBeanDefinition
+   * @see ConfigurableBeanFactory#getBeanDefinition
    */
-  BeanDefinition getBeanDefinition(String beanName);
+  BeanDefinition getBeanDefinition(String beanName) throws BeansException;
 
   //---------------------------------------------------------------------
   // Listing Get operations for type-lookup
@@ -427,13 +432,12 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
    *
    * @param requiredType type the bean must match; can be an interface or superclass
-   * @return an instance of the single bean matching the required type, returns null
-   * if it doesn't exist.
+   * @return an instance of the single bean matching the required type
    * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
    * @throws BeansException if the bean could not be created
+   * @throws NoSuchBeanDefinitionException if no bean of the given type was found
    * @since 3.0
    */
-  @Nullable
   <T> T getBean(Class<T> requiredType) throws BeansException;
 
   /**
@@ -448,13 +452,13 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @param requiredType type the bean must match; can be an interface or superclass
    * @param args arguments to use when creating a bean instance using explicit arguments
    * (only applied when creating a new instance as opposed to retrieving an existing one)
-   * @return an instance of the bean, returns null if it doesn't exist.
+   * @return an instance of the bean, returns null if its return from a factory-method.
    * @throws BeanDefinitionStoreException if arguments have been given but
    * the affected bean isn't a prototype
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
    * @throws BeansException if the bean could not be created
    * @since 4.0
    */
-  @Nullable
   <T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
 
   /**

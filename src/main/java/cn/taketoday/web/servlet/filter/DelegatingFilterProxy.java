@@ -22,7 +22,6 @@ package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -338,7 +337,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
   protected Filter initDelegate(WebApplicationContext wac) throws ServletException {
     String targetBeanName = getTargetBeanName();
     Assert.state(targetBeanName != null, "No target bean name set");
-    Filter delegate = BeanFactoryUtils.requiredBean(wac, targetBeanName, Filter.class);
+    Filter delegate = wac.getBean(targetBeanName, Filter.class);
     if (isTargetFilterLifecycle()) {
       delegate.init(getFilterConfig());
     }

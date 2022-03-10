@@ -1554,7 +1554,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         // declaration without instantiating the containing bean at all.
 
         Class<?> factoryBeanClass;
-        BeanDefinition factoryBeanDefinition = obtainLocalBeanDefinition(factoryBeanName);
+        BeanDefinition factoryBeanDefinition = getBeanDefinition(factoryBeanName);
         if (factoryBeanDefinition instanceof AbstractBeanDefinition &&
                 ((AbstractBeanDefinition) factoryBeanDefinition).hasBeanClass()) {
           factoryBeanClass = ((AbstractBeanDefinition) factoryBeanDefinition).getBeanClass();
@@ -1762,8 +1762,6 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     log.debug("The singleton objects are initialized.");
   }
-
-  protected abstract BeanDefinition getBeanDefinition(Class<?> beanClass);
 
   /**
    * Set the instantiation strategy to use for creating bean instances.

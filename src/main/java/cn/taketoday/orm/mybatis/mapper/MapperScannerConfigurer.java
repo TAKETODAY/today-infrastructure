@@ -27,7 +27,6 @@ import java.util.Map;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -363,7 +362,7 @@ public class MapperScannerConfigurer
             PropertyResourceConfigurer.class, false, false);
 
     if (!prcs.isEmpty()) {
-      BeanDefinition mapperScannerBean = BeanFactoryUtils.requiredDefinition(applicationContext.getBeanFactory(), beanName);
+      BeanDefinition mapperScannerBean = applicationContext.getBeanFactory().getBeanDefinition(beanName);
 
       // PropertyResourceConfigurer does not expose any methods to explicitly perform
       // property placeholder substitution. Instead, create a BeanFactory that just

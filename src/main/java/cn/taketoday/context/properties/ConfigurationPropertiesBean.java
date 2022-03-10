@@ -29,10 +29,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
@@ -179,7 +178,7 @@ public final class ConfigurationPropertiesBean {
       String beanName = beanNames.next();
       if (isConfigurationPropertiesBean(beanFactory, beanName)) {
         try {
-          Object bean = BeanFactoryUtils.requiredBean(beanFactory, beanName);
+          Object bean = beanFactory.getBean(beanName);
           ConfigurationPropertiesBean propertiesBean = get(applicationContext, bean, beanName);
           propertiesBeans.put(beanName, propertiesBean);
         }

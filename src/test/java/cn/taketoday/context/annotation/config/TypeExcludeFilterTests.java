@@ -23,13 +23,12 @@ package cn.taketoday.context.annotation.config;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FilterType;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -40,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class TypeExcludeFilterTests {
 
-  private StandardApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   @AfterEach
   void cleanUp() {
@@ -51,16 +50,14 @@ class TypeExcludeFilterTests {
 
   @Test
   void loadsTypeExcludeFilters() {
-    this.context = new StandardApplicationContext();
+    this.context = new AnnotationConfigApplicationContext();
     this.context.getBeanFactory().registerSingleton("filter1", new WithoutMatchOverrideFilter());
     this.context.getBeanFactory().registerSingleton("filter2", new SampleTypeExcludeFilter());
     this.context.register(Config.class);
     this.context.refresh();
     assertThat(this.context.getBean(ExampleComponent.class)).isNotNull();
-    assertThat(this.context.getBean(ExampleFilteredComponent.class)).isNull();
-
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-            .isThrownBy(() -> BeanFactoryUtils.requiredBean(context, ExampleFilteredComponent.class));
+            .isThrownBy(() -> this.context.getBean(ExampleFilteredComponent.class));
   }
 
   @Configuration(proxyBeanMethods = false)

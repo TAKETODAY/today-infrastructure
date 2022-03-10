@@ -22,12 +22,9 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.support.StandardApplicationContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -37,32 +34,32 @@ public class ImportVersusDirectRegistrationTests {
 
   @Test
   public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredDirectly() {
-    try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
+    try (AnnotationConfigApplicationContext directRegistration = new AnnotationConfigApplicationContext()) {
       directRegistration.register(AccidentalLiteConfiguration.class);
       directRegistration.refresh();
-      Thing bean = directRegistration.getBean(Thing.class);
-      assertThat(bean).isNull();
+      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+              directRegistration.getBean(Thing.class));
     }
   }
 
   @Test
   public void thingIsNotAvailableWhenOuterConfigurationIsRegisteredWithClassName() {
-    try (StandardApplicationContext directRegistration = new StandardApplicationContext()) {
+    try (AnnotationConfigApplicationContext directRegistration = new AnnotationConfigApplicationContext()) {
       directRegistration.registerBeanDefinition("config",
               new RootBeanDefinition(AccidentalLiteConfiguration.class.getName()));
       directRegistration.refresh();
-
-      assertThat(directRegistration.getBean(Thing.class)).isNull();
+      assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
+              directRegistration.getBean(Thing.class));
     }
   }
 
   @Test
   public void thingIsNotAvailableWhenOuterConfigurationIsImported() {
-    try (StandardApplicationContext viaImport = new StandardApplicationContext()) {
+    try (AnnotationConfigApplicationContext viaImport = new AnnotationConfigApplicationContext()) {
       viaImport.register(Importer.class);
       viaImport.refresh();
       assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-              BeanFactoryUtils.requiredBean(viaImport, Thing.class));
+              viaImport.getBean(Thing.class));
     }
   }
 

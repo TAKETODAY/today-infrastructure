@@ -34,7 +34,6 @@ import javax.naming.NamingException;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
@@ -169,12 +168,12 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
     return new ObjectProvider<>() {
       @Override
       public T get() throws BeansException {
-        return BeanFactoryUtils.requiredBean(SimpleJndiBeanFactory.this, requiredType);
+        return getBean(requiredType);
       }
 
       @Override
       public T get(Object... args) throws BeansException {
-        return BeanFactoryUtils.requiredBean(SimpleJndiBeanFactory.this, requiredType, args);
+        return getBean(requiredType, args);
       }
 
       @Override

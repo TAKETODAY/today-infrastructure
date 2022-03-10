@@ -29,7 +29,6 @@ import java.io.Serializable;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
-import cn.taketoday.aop.mixin.LockMixinAdvisor;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
@@ -39,6 +38,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import test.mixin.LockMixinAdvisor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

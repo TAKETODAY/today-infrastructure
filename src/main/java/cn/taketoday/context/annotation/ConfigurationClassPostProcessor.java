@@ -33,7 +33,6 @@ import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
@@ -389,8 +388,7 @@ public class ConfigurationClassPostProcessor
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
       if (bean instanceof ImportAware importAware) {
-        ImportRegistry registry = BeanFactoryUtils.requiredBean(
-                beanFactory, IMPORT_REGISTRY_BEAN_NAME, ImportRegistry.class);
+        ImportRegistry registry = beanFactory.getBean(IMPORT_REGISTRY_BEAN_NAME, ImportRegistry.class);
         AnnotationMetadata importingClass = registry.getImportingClassFor(ClassUtils.getUserClass(bean).getName());
         if (importingClass != null) {
           importAware.setImportMetadata(importingClass);

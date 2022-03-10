@@ -23,7 +23,6 @@ package cn.taketoday.web.socket;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -69,7 +68,7 @@ public class WebSocketHandlerRegistry
     if (annotationHandlerBuilder == null) {
       annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
     }
-    AnnotationHandlerFactory factory = BeanFactoryUtils.requiredBean(context, AnnotationHandlerFactory.class);
+    AnnotationHandlerFactory factory = context.getBean(AnnotationHandlerFactory.class);
 
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     String[] definitionNames = context.getBeanDefinitionNames();

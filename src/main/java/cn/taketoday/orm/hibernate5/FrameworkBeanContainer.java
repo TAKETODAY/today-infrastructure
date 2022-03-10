@@ -27,9 +27,8 @@ import org.hibernate.resource.beans.spi.BeanInstanceProducer;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -149,7 +148,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
                 this.beanFactory::destroyBean);
       }
       else {
-        return new FrameworkContainedBean<>(BeanFactoryUtils.requiredBean(beanFactory, beanType));
+        return new FrameworkContainedBean<>(beanFactory.getBean(beanType));
       }
     }
     catch (BeansException ex) {
@@ -183,7 +182,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
         return new FrameworkContainedBean<>(bean, beanInstance -> beanFactory.destroyBean(name, beanInstance));
       }
       else {
-        return new FrameworkContainedBean<>(BeanFactoryUtils.requiredBean(beanFactory, name, beanType));
+        return new FrameworkContainedBean<>(beanFactory.getBean(name, beanType));
       }
     }
     catch (BeansException ex) {

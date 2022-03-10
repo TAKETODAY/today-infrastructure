@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
@@ -227,7 +226,7 @@ class ConfigurationPropertiesBinder {
   }
 
   static ConfigurationPropertiesBinder get(BeanFactory beanFactory) {
-    return BeanFactoryUtils.requiredBean(beanFactory, BEAN_NAME, ConfigurationPropertiesBinder.class);
+    return beanFactory.getBean(BEAN_NAME, ConfigurationPropertiesBinder.class);
   }
 
   /**

@@ -23,7 +23,6 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,9 +48,6 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.ThrowsAdvice;
 import cn.taketoday.aop.interceptor.DebugInterceptor;
 import cn.taketoday.aop.interceptor.ExposeInvocationInterceptor;
-import cn.taketoday.aop.mixin.LockMixin;
-import cn.taketoday.aop.mixin.LockMixinAdvisor;
-import cn.taketoday.aop.mixin.LockedException;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
@@ -77,7 +73,10 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.testfixture.TimeStamped;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
-import test.aop.Lockable;
+import test.mixin.LockMixin;
+import test.mixin.LockMixinAdvisor;
+import test.mixin.Lockable;
+import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -568,7 +567,7 @@ public abstract class AbstractAopProxyTests {
     itb.setAge(newAge);
     assertThat(itb.getAge()).isEqualTo(newAge);
 
-    Lockable lockable = (Lockable) itb;
+    test.mixin.Lockable lockable = (Lockable) itb;
     assertThat(lockable.locked()).isFalse();
     lockable.lock();
 
@@ -717,7 +716,7 @@ public abstract class AbstractAopProxyTests {
     @SuppressWarnings("serial")
     class MyDi extends DelegatingIntroductionInterceptor implements TimeStamped {
       /**
-       * @see cn.taketoday.core.testfixture.TimeStamped#getTimeStamp()
+       * @see TimeStamped#getTimeStamp()
        */
       @Override
       public long getTimeStamp() {
@@ -1163,7 +1162,7 @@ public abstract class AbstractAopProxyTests {
 
       @Override
       public Object getTarget() throws Exception {
-        Assertions.assertThat(AopContext.currentProxy()).isEqualTo(proxy);
+        assertThat(AopContext.currentProxy()).isEqualTo(proxy);
         return target;
       }
 
@@ -1555,16 +1554,17 @@ public abstract class AbstractAopProxyTests {
       setPointcut(new DynamicMethodMatcherPointcut() {
 
         @Override
+        public boolean matches(MethodInvocation invocation) {
+          return invocation.getArguments()[0] == null;
+        }
+
+        @Override
         public boolean matches(Method m, @Nullable Class<?> targetClass) {
           return m.getName().startsWith("set") &&
                   m.getParameterCount() == 1 &&
                   m.getParameterTypes()[0].equals(String.class);
         }
 
-        @Override
-        public boolean matches(MethodInvocation invocation) {
-          return invocation.getArguments()[0] == null;
-        }
       });
     }
   }
@@ -1597,7 +1597,6 @@ public abstract class AbstractAopProxyTests {
     public TestDynamicPointcutForSettersOnly(MethodInterceptor mi, final String pattern) {
       super(mi);
       setPointcut(new DynamicMethodMatcherPointcut() {
-
         @Override
         public boolean matches(MethodInvocation invocation) {
           boolean run = invocation.getMethod().getName().contains(pattern);
@@ -1806,6 +1805,16 @@ public abstract class AbstractAopProxyTests {
   public static class CountingMultiAdvice extends MethodCounter implements MethodBeforeAdvice,
           AfterReturningAdvice, ThrowsAdvice {
 
+    @Override
+    public void before(MethodInvocation invocation) throws Throwable {
+      count(invocation.getMethod());
+    }
+
+    @Override
+    public void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable {
+      count(invocation.getMethod());
+    }
+
     public void afterThrowing(IOException ex) throws Throwable {
       count(IOException.class.getName());
     }
@@ -1814,15 +1823,6 @@ public abstract class AbstractAopProxyTests {
       count(UncheckedException.class.getName());
     }
 
-    @Override
-    public void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable {
-      count(invocation.getMethod());
-    }
-
-    @Override
-    public void before(MethodInvocation invocation) throws Throwable {
-      count(invocation.getMethod());
-    }
   }
 
   @SuppressWarnings("serial")
@@ -1886,7 +1886,7 @@ public abstract class AbstractAopProxyTests {
     }
 
     /**
-     * @see cn.taketoday.aop.TargetSource#releaseTarget(Object)
+     * @see cn.taketoday.aop.TargetSource#releaseTarget(java.lang.Object)
      */
     @Override
     public void releaseTarget(Object pTarget) throws Exception {

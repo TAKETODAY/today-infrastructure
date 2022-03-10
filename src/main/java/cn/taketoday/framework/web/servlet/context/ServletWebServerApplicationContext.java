@@ -29,9 +29,8 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -223,9 +222,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
       throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to multiple "
               + "ServletWebServerFactory beans : " + StringUtils.collectionToCommaDelimitedString(beanNames));
     }
-
-    return BeanFactoryUtils.requiredBean(
-            beanFactory, CollectionUtils.firstElement(beanNames), ServletWebServerFactory.class);
+    return beanFactory.getBean(CollectionUtils.firstElement(beanNames), ServletWebServerFactory.class);
   }
 
   /**

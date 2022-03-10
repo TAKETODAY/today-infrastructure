@@ -273,15 +273,15 @@ public abstract class AbstractBeanFactory
         markBeanAsCreated(beanName);
       }
       try {
-        RootBeanDefinition mergedDefinition = getMergedLocalBeanDefinition(beanName);
-        checkMergedBeanDefinition(mergedDefinition, beanName, args);
+        RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
+        checkMergedBeanDefinition(merged, beanName, args);
 
         // Guarantee initialization of beans that the current bean depends on.
-        String[] dependsOn = mergedDefinition.getDependsOn();
+        String[] dependsOn = merged.getDependsOn();
         if (dependsOn != null) {
           for (String dep : dependsOn) {
             if (isDependent(beanName, dep)) {
-              throw new BeanCreationException(mergedDefinition.getResourceDescription(), beanName,
+              throw new BeanCreationException(merged.getResourceDescription(), beanName,
                       "Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
             }
             registerDependentBean(dep, beanName);
@@ -289,17 +289,17 @@ public abstract class AbstractBeanFactory
               getBean(dep);
             }
             catch (NoSuchBeanDefinitionException ex) {
-              throw new BeanCreationException(mergedDefinition.getResourceDescription(), beanName,
+              throw new BeanCreationException(merged.getResourceDescription(), beanName,
                       "'" + beanName + "' depends on missing bean '" + dep + "'", ex);
             }
           }
         }
 
         // 4. Create bean instance.
-        if (mergedDefinition.isSingleton()) {
+        if (merged.isSingleton()) {
           beanInstance = getSingleton(beanName, () -> {
             try {
-              Object bean = createBean(beanName, mergedDefinition, args);
+              Object bean = createBean(beanName, merged, args);
               // cache value
               return Objects.requireNonNullElse(bean, NullValue.INSTANCE);
             }
@@ -316,11 +316,11 @@ public abstract class AbstractBeanFactory
             return null;
           }
         }
-        else if (mergedDefinition.isPrototype()) {
+        else if (merged.isPrototype()) {
           // It's a prototype -> just create a new instance.
           try {
             beforePrototypeCreation(beanName);
-            beanInstance = createBean(beanName, mergedDefinition, args);
+            beanInstance = createBean(beanName, merged, args);
           }
           finally {
             afterPrototypeCreation(beanName);
@@ -328,7 +328,7 @@ public abstract class AbstractBeanFactory
         }
         else {
           // other scope
-          String scopeName = mergedDefinition.getScope();
+          String scopeName = merged.getScope();
           if (StringUtils.isEmpty(scopeName)) {
             throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
           }
@@ -342,7 +342,7 @@ public abstract class AbstractBeanFactory
             beanInstance = scope.get(beanName, () -> {
               beforePrototypeCreation(beanName);
               try {
-                return createBean(beanName, mergedDefinition, args);
+                return createBean(beanName, merged, args);
               }
               finally {
                 afterPrototypeCreation(beanName);
@@ -357,7 +357,7 @@ public abstract class AbstractBeanFactory
         if (beanInstance == null) {
           return null;
         }
-        beanInstance = handleFactoryBean(name, beanName, mergedDefinition, beanInstance);
+        beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
       }
       catch (BeansException e) {
         cleanupAfterBeanCreationFailure(beanName);
@@ -747,20 +747,6 @@ public abstract class AbstractBeanFactory
     else {
       return false;
     }
-  }
-
-  /**
-   * @throws NoSuchBeanDefinitionException bean-definition not found
-   */
-  public BeanDefinition obtainLocalBeanDefinition(String name) {
-    BeanDefinition def = getBeanDefinition(name);
-    if (def == null) {
-      if (log.isTraceEnabled()) {
-        log.trace("No bean named '{}' found in {}", name, this);
-      }
-      throw new NoSuchBeanDefinitionException(name);
-    }
-    return def;
   }
 
   @Override
@@ -1980,7 +1966,7 @@ public abstract class AbstractBeanFactory
     if (mbd != null && !mbd.stale) {
       return mbd;
     }
-    return getMergedBeanDefinition(beanName, obtainLocalBeanDefinition(beanName));
+    return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
   }
 
   /**

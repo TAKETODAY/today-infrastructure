@@ -103,11 +103,9 @@ public class ConfigurationPropertiesBindingPostProcessor
   }
 
   private boolean hasBoundValueObject(String beanName) {
-    BeanDefinition definition = registry.getBeanDefinition(beanName);
-    if (definition != null) {
-      return BindMethod.VALUE_OBJECT.equals(definition.getAttribute(BindMethod.class.getName()));
-    }
-    return false;
+    return registry.containsBeanDefinition(beanName) && BindMethod.VALUE_OBJECT.equals(
+            registry.getBeanDefinition(beanName).getAttribute(BindMethod.class.getName())
+    );
   }
 
   /**

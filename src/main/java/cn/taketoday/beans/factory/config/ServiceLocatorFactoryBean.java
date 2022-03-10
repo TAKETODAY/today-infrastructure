@@ -29,7 +29,6 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -373,11 +372,11 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
         Assert.state(beanFactory != null, "No BeanFactory available");
         if (StringUtils.isNotEmpty(beanName)) {
           // Service locator for a specific bean name
-          return BeanFactoryUtils.requiredBean(beanFactory, beanName, serviceLocatorMethodReturnType);
+          return beanFactory.getBean(beanName, serviceLocatorMethodReturnType);
         }
         else {
           // Service locator for a bean type
-          return BeanFactoryUtils.requiredBean(beanFactory, serviceLocatorMethodReturnType);
+          return beanFactory.getBean(serviceLocatorMethodReturnType);
         }
       }
       catch (BeansException ex) {

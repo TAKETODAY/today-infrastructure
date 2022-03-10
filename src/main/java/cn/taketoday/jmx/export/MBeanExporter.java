@@ -51,7 +51,6 @@ import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
@@ -573,13 +572,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @see BeanDefinition#isLazyInit
    */
   protected boolean isBeanDefinitionLazyInit(BeanFactory beanFactory, String beanName) {
-    if (beanFactory instanceof ConfigurableBeanFactory) {
-      BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-      if (beanDefinition != null) {
-        return beanDefinition.isLazyInit();
-      }
-    }
-    return false;
+    return beanFactory.containsBeanDefinition(beanName) && beanFactory.getBeanDefinition(beanName).isLazyInit();
   }
 
   /**
@@ -616,7 +609,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
           return objectName;
         }
         else {
-          Object bean = BeanFactoryUtils.requiredBean(beanFactory, beanName);
+          Object bean = beanFactory.getBean(beanName);
           ObjectName objectName = registerBeanInstance(bean, beanKey);
           replaceNotificationListenerBeanNameKeysIfNecessary(beanName, objectName);
           return objectName;
@@ -946,13 +939,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * Return whether the specified bean definition should be considered as abstract.
    */
   private boolean isBeanDefinitionAbstract(BeanFactory beanFactory, String beanName) {
-    if (beanFactory instanceof ConfigurableBeanFactory) {
-      BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-      if (beanDefinition != null) {
-        return beanDefinition.isAbstract();
-      }
-    }
-    return false;
+    return beanFactory.containsBeanDefinition(beanName) && beanFactory.getBeanDefinition(beanName).isAbstract();
   }
 
   //---------------------------------------------------------------------

@@ -45,7 +45,6 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -699,7 +698,7 @@ public abstract class AbstractEntityManagerFactoryBean implements FactoryBean<En
 
     @Serial
     private Object readResolve() {
-      return BeanFactoryUtils.requiredBean(beanFactory, lookupName, AbstractEntityManagerFactoryBean.class);
+      return beanFactory.getBean(lookupName, AbstractEntityManagerFactoryBean.class);
     }
   }
 

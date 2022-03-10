@@ -36,7 +36,6 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -241,15 +240,14 @@ public class ScriptFactoryPostProcessor
     }
 
     Assert.state(this.beanFactory != null, "No BeanFactory set");
-    BeanDefinition bd = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
+    BeanDefinition bd = beanFactory.getMergedBeanDefinition(beanName);
 
     try {
       String scriptFactoryBeanName = SCRIPT_FACTORY_NAME_PREFIX + beanName;
       String scriptedObjectBeanName = SCRIPTED_OBJECT_NAME_PREFIX + beanName;
       prepareScriptBeans(bd, scriptFactoryBeanName, scriptedObjectBeanName);
 
-      ScriptFactory scriptFactory = BeanFactoryUtils.requiredBean(
-              scriptBeanFactory, scriptFactoryBeanName, ScriptFactory.class);
+      ScriptFactory scriptFactory = scriptBeanFactory.getBean(scriptFactoryBeanName, ScriptFactory.class);
       ScriptSource scriptSource = getScriptSource(scriptFactoryBeanName, scriptFactory.getScriptSourceLocator());
       Class<?>[] interfaces = scriptFactory.getScriptInterfaces();
 
@@ -262,7 +260,7 @@ public class ScriptFactoryPostProcessor
       }
       else {
         if (bd.isSingleton()) {
-          return BeanFactoryUtils.requiredBean(scriptBeanFactory, scriptedObjectBeanName).getClass();
+          return scriptBeanFactory.getBean(scriptedObjectBeanName).getClass();
         }
       }
     }
@@ -290,13 +288,13 @@ public class ScriptFactoryPostProcessor
       return null;
     }
     Assert.state(this.beanFactory != null, "No BeanFactory set");
-    BeanDefinition bd = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
+    BeanDefinition bd = beanFactory.getMergedBeanDefinition(beanName);
 
     String scriptFactoryBeanName = SCRIPT_FACTORY_NAME_PREFIX + beanName;
     String scriptedObjectBeanName = SCRIPTED_OBJECT_NAME_PREFIX + beanName;
     prepareScriptBeans(bd, scriptFactoryBeanName, scriptedObjectBeanName);
 
-    ScriptFactory scriptFactory = BeanFactoryUtils.requiredBean(scriptBeanFactory, scriptFactoryBeanName, ScriptFactory.class);
+    ScriptFactory scriptFactory = scriptBeanFactory.getBean(scriptFactoryBeanName, ScriptFactory.class);
     ScriptSource scriptSource = getScriptSource(scriptFactoryBeanName, scriptFactory.getScriptSourceLocator());
     boolean isFactoryBean = false;
     try {
@@ -351,8 +349,7 @@ public class ScriptFactoryPostProcessor
         scriptBeanFactory.registerBeanDefinition(
                 scriptFactoryBeanName, createScriptFactoryBeanDefinition(bd));
 
-        ScriptFactory scriptFactory = BeanFactoryUtils.requiredBean(
-                scriptBeanFactory, scriptFactoryBeanName, ScriptFactory.class);
+        ScriptFactory scriptFactory = scriptBeanFactory.getBean(scriptFactoryBeanName, ScriptFactory.class);
 
         ScriptSource scriptSource =
                 getScriptSource(scriptFactoryBeanName, scriptFactory.getScriptSourceLocator());

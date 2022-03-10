@@ -26,13 +26,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FilterType;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -45,7 +43,7 @@ class AutoConfigurationExcludeFilterTests {
 
   private static final Class<?> FILTERED = ExampleFilteredAutoConfiguration.class;
 
-  private StandardApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   @AfterEach
   void cleanUp() {
@@ -56,16 +54,16 @@ class AutoConfigurationExcludeFilterTests {
 
   @Test
   void filterExcludeAutoConfiguration() {
-    this.context = new StandardApplicationContext(Config.class);
+    this.context = new AnnotationConfigApplicationContext(Config.class);
     assertThat(this.context.getBeansOfType(String.class)).hasSize(1);
     assertThat(this.context.getBean(String.class)).isEqualTo("test");
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
-            .isThrownBy(() -> BeanFactoryUtils.requiredBean(context, FILTERED));
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> this.context.getBean(FILTERED));
   }
 
   @Configuration(proxyBeanMethods = false)
   @ComponentScan(basePackageClasses = ExampleConfiguration.class,
-                 excludeFilters = @Filter(type = FilterType.CUSTOM, classes = TestAutoConfigurationExcludeFilter.class))
+                 excludeFilters = @ComponentScan.Filter(type = FilterType.CUSTOM,
+                                                        classes = TestAutoConfigurationExcludeFilter.class))
   static class Config {
 
   }

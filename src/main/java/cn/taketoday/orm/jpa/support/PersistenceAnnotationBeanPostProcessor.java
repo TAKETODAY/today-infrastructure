@@ -38,7 +38,6 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -562,7 +561,7 @@ public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwar
     }
     else {
       // Plain variant: just find a default bean
-      return BeanFactoryUtils.requiredBean(beanFactory, EntityManagerFactory.class);
+      return beanFactory.getBean(EntityManagerFactory.class);
     }
   }
 

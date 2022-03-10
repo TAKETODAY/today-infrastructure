@@ -93,9 +93,9 @@ public abstract class AutoConfigurationPackages {
    * @param packageNames the package names to set
    */
   public static void register(BeanDefinitionRegistry registry, String... packageNames) {
-    BeanDefinition definition = registry.getBeanDefinition(BEAN_NAME);
-    if (definition instanceof BasePackagesBeanDefinition basePackagesDef) {
-      basePackagesDef.addBasePackages(packageNames);
+    if (registry.containsBeanDefinition(BEAN_NAME)) {
+      BasePackagesBeanDefinition beanDefinition = (BasePackagesBeanDefinition) registry.getBeanDefinition(BEAN_NAME);
+      beanDefinition.addBasePackages(packageNames);
     }
     else {
       registry.registerBeanDefinition(BEAN_NAME, new BasePackagesBeanDefinition(packageNames));

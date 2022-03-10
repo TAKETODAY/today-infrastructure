@@ -45,7 +45,6 @@ import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
@@ -397,7 +396,7 @@ final class ConstructorResolver {
         throw new BeanDefinitionStoreException(merged.getResourceDescription(),
                 "factory-bean reference points back to the same bean definition");
       }
-      factoryBean = BeanFactoryUtils.requiredBean(beanFactory, factoryBeanName);
+      factoryBean = beanFactory.getBean(factoryBeanName);
       if (merged.isSingleton() && beanFactory.containsSingleton(beanName)) {
         throw new ImplicitlyAppearedSingletonException();
       }

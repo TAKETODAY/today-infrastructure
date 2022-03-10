@@ -22,7 +22,6 @@ package cn.taketoday.aop.scope;
 
 import java.io.Serializable;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
 
@@ -61,7 +60,7 @@ public class DefaultScopedObject implements ScopedObject, Serializable {
 
   @Override
   public Object getTargetObject() {
-    return BeanFactoryUtils.requiredBean(this.beanFactory, this.targetBeanName);
+    return beanFactory.getBean(targetBeanName);
   }
 
   @Override

@@ -529,7 +529,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return bd;
   }
 
-  @Override
   public BeanDefinition getBeanDefinition(Class<?> requiredType) {
     Set<String> candidateNames = getBeanNamesForType(requiredType, true, false);
     int size = candidateNames.size();

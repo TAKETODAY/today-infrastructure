@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -457,8 +456,7 @@ public abstract class BeanFactoryUtils {
    * @throws BeansException if the bean could not be created
    * @see #beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    */
-  public static <T> T beanOfTypeIncludingAncestors(
-          BeanFactory factory, Class<T> type,
+  public static <T> T beanOfTypeIncludingAncestors(BeanFactory factory, Class<T> type,
           boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
     Map<String, T> beansOfType = beansOfTypeIncludingAncestors(
             factory, type, includeNonSingletons, allowEagerInit);
@@ -561,138 +559,6 @@ public abstract class BeanFactoryUtils {
     else {
       throw new NoSuchBeanDefinitionException(type);
     }
-  }
-
-  /**
-   * Return an instance, which may be shared or independent, of the specified bean.
-   * <p>This method allows a BeanFactory to be used as a replacement for the
-   * Singleton or Prototype design pattern. Callers may retain references to
-   * returned objects in the case of Singleton beans.
-   * <p>Translates aliases back to the corresponding canonical bean name.
-   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
-   *
-   * @param name the name of the bean to retrieve
-   * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
-   * @throws BeansException Exception occurred when getting a named bean
-   * @throws NullPointerException factory is {@code null}
-   * @see BeanFactory#getBean(String)
-   */
-  public static Object requiredBean(BeanFactory factory, String name) throws BeansException {
-    Object bean = factory.getBean(name);
-    if (bean == null) {
-      throw new NoSuchBeanDefinitionException(name);
-    }
-    return bean;
-  }
-
-  /**
-   * Return an instance, which may be shared or independent, of the specified bean.
-   * <p>This method allows a BeanFactory to be used as a replacement for the
-   * Singleton or Prototype design pattern. Callers may retain references to
-   * returned objects in the case of Singleton beans.
-   * <p>Translates aliases back to the corresponding canonical bean name.
-   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
-   *
-   * @param name the name of the bean to retrieve
-   * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
-   * @throws NullPointerException factory is {@code null}
-   * @throws BeansException Exception occurred when getting a named bean
-   * @see BeanFactory#getBean(String, Class)
-   */
-  public static <T> T requiredBean(BeanFactory factory, String name, Class<T> type) throws BeansException {
-    T bean = factory.getBean(name, type);
-    if (bean == null) {
-      throw new NoSuchBeanDefinitionException(name);
-    }
-    return bean;
-  }
-
-  /**
-   * Return the bean instance that uniquely matches the given object type, if any.
-   * <p>This method goes into {@link BeanFactory} by-type lookup territory
-   * but may also be translated into a conventional by-name lookup based on the name
-   * of the given type. For more extensive retrieval operations across sets of beans,
-   * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
-   *
-   * @param type type the bean must match; can be an interface or superclass
-   * @return an instance of the single bean matching the required type
-   * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
-   * @throws BeansException if the bean could not be created
-   * @throws NullPointerException factory is {@code null}
-   * @see BeanFactory#getBean(Class)
-   */
-  public static <T> T requiredBean(BeanFactory factory, Class<T> type) throws BeansException {
-    T bean = factory.getBean(type);
-    if (bean == null) {
-      throw new NoSuchBeanDefinitionException(type);
-    }
-    return bean;
-  }
-
-  /**
-   * Return an instance, which may be shared or independent, of the specified bean.
-   * <p>Allows for specifying explicit constructor arguments / factory method arguments,
-   * overriding the specified default arguments (if any) in the bean definition.
-   * <p>This method goes into {@link BeanFactory} by-type lookup territory
-   * but may also be translated into a conventional by-name lookup based on the name
-   * of the given type. For more extensive retrieval operations across sets of beans,
-   * use {@link BeanFactory} and/or {@link BeanFactoryUtils}.
-   *
-   * @param requiredType type the bean must match; can be an interface or superclass
-   * @param args arguments to use when creating a bean instance using explicit arguments
-   * (only applied when creating a new instance as opposed to retrieving an existing one)
-   * @return an instance of the bean, returns null if it doesn't exist.
-   * @throws BeanDefinitionStoreException if arguments have been given but
-   * the affected bean isn't a prototype
-   * @throws BeansException if the bean could not be created
-   */
-  public static <T> T requiredBean(BeanFactory factory, Class<T> requiredType, Object... args) throws BeansException {
-    T bean = factory.getBean(requiredType, args);
-    if (bean == null) {
-      throw new NoSuchBeanDefinitionException(requiredType);
-    }
-    return bean;
-  }
-
-  /**
-   * @throws NoSuchBeanDefinitionException bean-definition not found
-   * @see BeanFactory#getBeanDefinition(String)
-   */
-  public static BeanDefinition requiredDefinition(BeanFactory factory, String beanName) {
-    BeanDefinition def = factory.getBeanDefinition(beanName);
-    if (def == null) {
-      throw new NoSuchBeanDefinitionException(beanName);
-    }
-    return def;
-  }
-
-  /**
-   * Return a BeanDefinition for the given bean name, Considers
-   * bean definitions in ancestor factories as well.
-   *
-   * @param beanName the name of the bean to retrieve the definition for
-   * @return a BeanDefinition for the given bean
-   */
-  @Nullable
-  public static BeanDefinition definitionIncludingAncestors(BeanFactory factory, String beanName) {
-    if (factory instanceof HierarchicalBeanFactory hierarchical) {
-      BeanFactory parentBeanFactory = hierarchical.getParentBeanFactory();
-      if (parentBeanFactory != null) {
-        BeanDefinition definition = definitionIncludingAncestors(parentBeanFactory, beanName);
-        if (definition != null) {
-          return definition;
-        }
-      }
-    }
-    return factory.getBeanDefinition(beanName);
-  }
-
-  public static BeanDefinition requiredDefinitionIncludingAncestors(BeanFactory factory, String beanName) {
-    BeanDefinition definition = definitionIncludingAncestors(factory, beanName);
-    if (definition == null) {
-      throw new NoSuchBeanDefinitionException(beanName);
-    }
-    return definition;
   }
 
 }

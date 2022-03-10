@@ -35,7 +35,6 @@ import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInterceptor;
 import cn.taketoday.aop.interceptor.DebugInterceptor;
-import cn.taketoday.aop.mixin.LockedException;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
@@ -61,6 +60,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.testfixture.TimeStamped;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import test.aop.Lockable;
+import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

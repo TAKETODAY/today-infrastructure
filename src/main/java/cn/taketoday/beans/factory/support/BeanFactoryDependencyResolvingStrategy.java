@@ -24,11 +24,10 @@ import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -91,10 +90,10 @@ public class BeanFactoryDependencyResolvingStrategy
       catch (BeansException ex) {
         if (beanName != null) {
           String resourceDescription = null;
-          BeanDefinition beanDefinition = factory.getBeanDefinition(beanName);
-          if (beanDefinition != null) {
-            resourceDescription = beanDefinition.getResourceDescription();
+          if (factory.containsBeanDefinition(beanName)) {
+            resourceDescription = factory.getBeanDefinition(beanName).getResourceDescription();
           }
+
           if (descriptor.isProperty()) {
             throw new UnsatisfiedDependencyException(
                     resourceDescription, beanName, descriptor.getDependencyName(), ex);

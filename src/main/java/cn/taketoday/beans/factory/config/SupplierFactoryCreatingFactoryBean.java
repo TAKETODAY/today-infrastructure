@@ -23,11 +23,8 @@ import java.io.Serializable;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.config.ServiceLocatorFactoryBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -142,7 +139,7 @@ public class SupplierFactoryCreatingFactoryBean extends AbstractFactoryBean<Supp
 
     @Override
     public Object get() throws BeansException {
-      return BeanFactoryUtils.requiredBean(beanFactory, targetBeanName);
+      return beanFactory.getBean(targetBeanName);
     }
   }
 

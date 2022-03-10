@@ -32,13 +32,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
@@ -1035,14 +1035,12 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  @Nullable
   public <T> T getBean(Class<T> requiredType) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType);
   }
 
   @Override
-  @Nullable
   public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(requiredType, args);
@@ -1067,7 +1065,6 @@ public abstract class AbstractApplicationContext
     return getBeanFactory().findAnnotationOnBean(beanName, annotationType);
   }
 
-  @Nullable
   @Override
   public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
           String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)

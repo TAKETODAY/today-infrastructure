@@ -23,7 +23,6 @@ package cn.taketoday.framework.diagnostics.analyzer;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -76,7 +75,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
 
   private void buildMessage(StringBuilder message, String beanName) {
     try {
-      BeanDefinition definition = BeanFactoryUtils.requiredDefinition(beanFactory, beanName);
+      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
       message.append(getDefinitionDescription(beanName, definition));
     }
     catch (NoSuchBeanDefinitionException ex) {
