@@ -1796,16 +1796,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * on the original bean.
    */
   private boolean isSelfReference(@Nullable String beanName, @Nullable String candidateName) {
-    if (beanName != null && candidateName != null) {
-      if (beanName.equals(candidateName)) {
-        return true;
-      }
-      BeanDefinition definition = getBeanDefinition(candidateName);
-      if (definition != null) {
-        return beanName.equals(definition.getFactoryBeanName());
-      }
-    }
-    return false;
+    return (beanName != null && candidateName != null &&
+            (beanName.equals(candidateName) || (containsBeanDefinition(candidateName)
+                    && beanName.equals(getMergedLocalBeanDefinition(candidateName).getFactoryBeanName()))));
   }
 
   /**
