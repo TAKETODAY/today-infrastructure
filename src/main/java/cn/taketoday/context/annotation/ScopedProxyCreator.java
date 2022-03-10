@@ -21,10 +21,8 @@
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.aop.scope.ScopedProxyUtils;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
 
 /**
  * Delegate factory class used to just introduce an AOP framework dependency
@@ -39,12 +37,6 @@ final class ScopedProxyCreator {
 
   public static BeanDefinitionHolder createScopedProxy(
           BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry, boolean proxyTargetClass) {
-
-    return ScopedProxyUtils.createScopedProxy(definitionHolder, registry, proxyTargetClass);
-  }
-
-  public static RootBeanDefinition createScopedProxy(
-          BeanDefinition definitionHolder, BeanDefinitionRegistry registry, boolean proxyTargetClass) {
 
     return ScopedProxyUtils.createScopedProxy(definitionHolder, registry, proxyTargetClass);
   }

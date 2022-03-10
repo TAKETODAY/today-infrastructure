@@ -35,6 +35,7 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -241,12 +242,10 @@ class ConfigurationClassBeanDefinitionReader {
     // Replace the original bean definition with the target one, if necessary
     BeanDefinition beanDefToRegister;
     if (proxyMode != ScopedProxyMode.NO) {
-
-      RootBeanDefinition proxyDef = ScopedProxyCreator.createScopedProxy(beanDef, bootstrapContext.getRegistry(),
-              proxyMode == ScopedProxyMode.TARGET_CLASS);
-
+      BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(
+              new BeanDefinitionHolder(beanDef, beanName), bootstrapContext.getRegistry(), proxyMode == ScopedProxyMode.TARGET_CLASS);
       beanDefToRegister = new ConfigurationClassBeanDefinition(
-              proxyDef, configClass, metadata, beanName);
+              (RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, metadata, beanName);
     }
     else {
       beanDefToRegister = beanDef;
