@@ -138,19 +138,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   void setClassLoader(ClassLoader classLoader);
 
   /**
-   * Set this context can refresh again
-   * <p>
-   * default is false
-   * </p>
-   *
-   * @see cn.taketoday.context.ApplicationContext.State#STARTED
-   * @see cn.taketoday.context.ApplicationContext.State#STARTING
-   * @see cn.taketoday.context.ApplicationContext.State#CLOSING
-   * @since 4.0
-   */
-  void setRefreshable(boolean refreshable);
-
-  /**
    * Load or refresh the persistent representation of the configuration, which
    * might be from Java-based configuration or some other format.
    * <p>As this is a startup method, it should destroy already created singletons
@@ -178,6 +165,17 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
   void registerShutdownHook();
 
   /**
+   * Close this application context, releasing all resources and locks that the
+   * implementation might hold. This includes destroying all cached singleton beans.
+   * <p>Note: Does <i>not</i> invoke {@code close} on a parent context;
+   * parent contexts have their own, independent lifecycle.
+   * <p>This method can be called multiple times without side effects: Subsequent
+   * {@code close} calls on an already closed context will be ignored.
+   */
+  @Override
+  void close();
+
+  /**
    * Add a new ApplicationListener that will be notified on context events
    * such as context refresh and context shutdown.
    * <p>Note that any ApplicationListener registered here will be applied
@@ -200,9 +198,6 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
    * @see #close()
    * @see #getBeanFactory()
    */
-  default boolean isActive() {
-    State state = getState();
-    return state == State.STARTING || state == State.STARTED;
-  }
+  boolean isActive();
 
 }

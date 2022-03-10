@@ -177,14 +177,7 @@ public abstract class AbstractApplicationContext
   private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
 
   /** @since 4.0 */
-  @Experimental
-  private boolean refreshable;
-
-  /** @since 4.0 */
   private ExpressionEvaluator expressionEvaluator;
-
-  /** Flag that indicates whether this context has been closed already. @since 4.0 */
-  private final AtomicBoolean closed = new AtomicBoolean();
 
   /** Reference to the JVM shutdown hook, if registered. */
   @Nullable
@@ -216,6 +209,15 @@ public abstract class AbstractApplicationContext
   @Nullable
   @Experimental
   private BootstrapContext bootstrapContext;
+
+  /** Flag that indicates whether this context is currently active. */
+  private final AtomicBoolean active = new AtomicBoolean();
+
+  /** Flag that indicates whether this context has been closed already. @since 4.0 */
+  private final AtomicBoolean closed = new AtomicBoolean();
+
+  /** Synchronization monitor for the "refresh" and "destroy". */
+  private final Object startupShutdownMonitor = new Object();
 
   /**
    * Create a new AbstractApplicationContext with no parent.
@@ -486,34 +488,14 @@ public abstract class AbstractApplicationContext
     }
   }
 
-  /**
-   * Register a shutdown hook {@linkplain Thread#getName() named}
-   * {@code ContextShutdownHook} with the JVM runtime, closing this
-   * context on JVM shutdown unless it has already been closed at that time.
-   * <p>Delegates to {@code doClose()} for the actual closing procedure.
-   *
-   * @see Runtime#addShutdownHook
-   * @see ConfigurableApplicationContext#SHUTDOWN_HOOK_THREAD_NAME
-   * @see #close()
-   * @see #doClose()
-   */
-  @Override
-  public void registerShutdownHook() {
-    if (this.shutdownHook == null) {
-      // No shutdown hook registered yet.
-      this.shutdownHook = new Thread(this::close, SHUTDOWN_HOOK_THREAD_NAME);
-      Runtime.getRuntime().addShutdownHook(this.shutdownHook);
-    }
-  }
-
   //---------------------------------------------------------------------
   // Implementation of ApplicationContext interface
   //---------------------------------------------------------------------
 
   @Override
   public void refresh() throws IllegalStateException {
-    synchronized(this) {
-      assertRefreshable();
+    synchronized(this.startupShutdownMonitor) {
+
       // Prepare this context for refreshing.
       prepareRefresh();
 
@@ -556,24 +538,23 @@ public abstract class AbstractApplicationContext
         // Finish refresh
         finishRefresh();
       }
-      catch (Exception ex) {
+
+      catch (BeansException ex) {
         log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
                 ex.toString());
 
+        // Destroy already created singletons to avoid dangling resources.
+        destroyBeans();
+
+        // Reset 'active' flag.
         cancelRefresh(ex);
         applyState(State.FAILED);
-        throw new ApplicationContextException("context refresh failed, cause: " + ex.getMessage(), ex);
+        // Propagate exception to caller.
+        throw ex;
       }
       finally {
         resetCommonCaches();
       }
-    }
-  }
-
-  private void assertRefreshable() {
-    if (!refreshable &&
-            (state == State.STARTED || state == State.STARTING || state == State.CLOSING)) {
-      throw new IllegalStateException("this context not supports refresh again");
     }
   }
 
@@ -583,6 +564,7 @@ public abstract class AbstractApplicationContext
   protected void prepareRefresh() {
     this.startupDate = System.currentTimeMillis();
     this.closed.set(false);
+    this.active.set(true);
     applyState(State.STARTING);
     ApplicationContextHolder.register(this); // @since 4.0
 
@@ -809,27 +791,7 @@ public abstract class AbstractApplicationContext
    * @param ex the exception that led to the cancellation
    */
   protected void cancelRefresh(Exception ex) {
-    close();
-  }
-
-  @Override
-  public void close() {
-    synchronized(this) {
-      applyState(State.CLOSING);
-      doClose();
-      // If we registered a JVM shutdown hook, we don't need it anymore now:
-      // We've already explicitly closed the context.
-      if (this.shutdownHook != null) {
-        try {
-          Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
-        }
-        catch (IllegalStateException ex) {
-          // ignore - VM is already shutting down
-        }
-      }
-      applyState(State.CLOSED);
-      ApplicationContextHolder.remove(this);
-    }
+    this.active.set(false);
   }
 
   /**
@@ -844,7 +806,7 @@ public abstract class AbstractApplicationContext
    */
   protected void doClose() {
     // Check whether an actual close attempt is necessary...
-    if (this.closed.compareAndSet(false, true)) {
+    if (this.active.get() && this.closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
@@ -855,6 +817,7 @@ public abstract class AbstractApplicationContext
       catch (Throwable ex) {
         log.warn("Exception thrown from ApplicationListener handling ContextClosedEvent", ex);
       }
+
       // Stop all Lifecycle beans, to avoid delays during individual destruction.
       if (this.lifecycleProcessor != null) {
         try {
@@ -879,21 +842,64 @@ public abstract class AbstractApplicationContext
         this.applicationListeners.addAll(this.earlyApplicationListeners);
       }
 
+      // Switch to inactive.
+      this.active.set(false);
     }
   }
 
   /**
-   * Template method which can be overridden to add context-specific shutdown work.
-   * The default implementation is empty.
-   * <p>Called at the end of {@link #doClose}'s shutdown procedure, after
-   * this context's BeanFactory has been closed. If custom shutdown logic
-   * needs to execute while the BeanFactory is still active, override
-   * the {@link #destroyBeans()} method instead.
+   * Register a shutdown hook {@linkplain Thread#getName() named}
+   * {@code ContextShutdownHook} with the JVM runtime, closing this
+   * context on JVM shutdown unless it has already been closed at that time.
+   * <p>Delegates to {@code doClose()} for the actual closing procedure.
    *
-   * @since 4.0
+   * @see Runtime#addShutdownHook
+   * @see ConfigurableApplicationContext#SHUTDOWN_HOOK_THREAD_NAME
+   * @see #close()
+   * @see #doClose()
    */
-  protected void onClose() {
-    // For subclasses: do nothing by default.
+  @Override
+  public void registerShutdownHook() {
+    if (this.shutdownHook == null) {
+      // No shutdown hook registered yet.
+      this.shutdownHook = new Thread(SHUTDOWN_HOOK_THREAD_NAME) {
+        @Override
+        public void run() {
+          synchronized(startupShutdownMonitor) {
+            doClose();
+          }
+        }
+      };
+      Runtime.getRuntime().addShutdownHook(this.shutdownHook);
+    }
+  }
+
+  /**
+   * Close this application context, destroying all beans in its bean factory.
+   * <p>Delegates to {@code doClose()} for the actual closing procedure.
+   * Also removes a JVM shutdown hook, if registered, as it's not needed anymore.
+   *
+   * @see #doClose()
+   * @see #registerShutdownHook()
+   */
+  @Override
+  public void close() {
+    synchronized(this.startupShutdownMonitor) {
+      applyState(State.CLOSING);
+      doClose();
+      // If we registered a JVM shutdown hook, we don't need it anymore now:
+      // We've already explicitly closed the context.
+      if (this.shutdownHook != null) {
+        try {
+          Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
+        }
+        catch (IllegalStateException ex) {
+          // ignore - VM is already shutting down
+        }
+      }
+      applyState(State.CLOSED);
+      ApplicationContextHolder.remove(this);
+    }
   }
 
   /**
@@ -911,6 +917,25 @@ public abstract class AbstractApplicationContext
    */
   protected void destroyBeans() {
     getBeanFactory().destroySingletons();
+  }
+
+  /**
+   * Template method which can be overridden to add context-specific shutdown work.
+   * The default implementation is empty.
+   * <p>Called at the end of {@link #doClose}'s shutdown procedure, after
+   * this context's BeanFactory has been closed. If custom shutdown logic
+   * needs to execute while the BeanFactory is still active, override
+   * the {@link #destroyBeans()} method instead.
+   *
+   * @since 4.0
+   */
+  protected void onClose() {
+    // For subclasses: do nothing by default.
+  }
+
+  @Override
+  public boolean isActive() {
+    return this.active.get();
   }
 
   @Override
@@ -995,12 +1020,6 @@ public abstract class AbstractApplicationContext
     factoryPostProcessors.add(postProcessor);
   }
 
-  @Override
-  @Experimental
-  public void setRefreshable(boolean refreshable) {
-    this.refreshable = refreshable;
-  }
-
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
@@ -1012,7 +1031,7 @@ public abstract class AbstractApplicationContext
    * on an active context, i.e. in particular all bean accessor methods.
    */
   protected void assertBeanFactoryActive() {
-    if (!refreshable && !isActive()) {
+    if (!this.active.get()) {
       if (this.closed.get()) {
         throw new IllegalStateException(getDisplayName() + " has been closed already");
       }
