@@ -29,10 +29,10 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BeanDefinitionRegistrar;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -355,7 +355,7 @@ public class HandlerMethodRegistry
     int i = 0;
     HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
 
-    BeanDefinitionRegistrar registrar = obtainApplicationContext().unwrap(BeanDefinitionRegistrar.class);
+    GenericApplicationContext registrar = obtainApplicationContext().unwrap(GenericApplicationContext.class);
     for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
       if (!registry.containsBeanDefinition(interceptor, true)) {
         try {

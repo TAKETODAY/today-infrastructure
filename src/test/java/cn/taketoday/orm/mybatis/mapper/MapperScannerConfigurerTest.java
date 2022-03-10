@@ -40,7 +40,7 @@ import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.lang.Component;
@@ -132,7 +132,7 @@ class MapperScannerConfigurerTest {
   @Test
   void testNameGenerator() {
     GenericBeanDefinition definition = new GenericBeanDefinition();
-    definition.setBeanClass(BeanNamePopulator0.class);
+    definition.setBeanClass(BeanNameGenerator0.class);
     applicationContext.registerBeanDefinition("beanNameGenerator", definition);
 
     applicationContext.getBeanDefinition("mapperScanner").getPropertyValues().add("nameGenerator",
@@ -426,10 +426,10 @@ class MapperScannerConfigurerTest {
     }
   }
 
-  public static class BeanNamePopulator0 implements BeanNamePopulator {
+  public static class BeanNameGenerator0 implements BeanNameGenerator {
 
     @Override
-    public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
       definition.setBeanName(definition.getBeanClassName());
       return definition.getBeanClassName();
     }

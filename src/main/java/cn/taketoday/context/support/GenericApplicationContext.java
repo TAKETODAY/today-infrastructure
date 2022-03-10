@@ -29,18 +29,14 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.config.Scope;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -48,9 +44,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Generic ApplicationContext implementation that holds a single internal
@@ -98,7 +92,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public class GenericApplicationContext
-        extends AbstractApplicationContext implements BeanDefinitionRegistry, BeanDefinitionRegistrar {
+        extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
   @Nullable
   private ResourceLoader resourceLoader;
@@ -359,7 +353,7 @@ public class GenericApplicationContext
   }
 
   //---------------------------------------------------------------------
-  // Implementation of BeanDefinitionRegistrar Interface
+  // Convenient methods for registering individual beans
   //---------------------------------------------------------------------
 
   /**
@@ -368,7 +362,6 @@ public class GenericApplicationContext
    * @param name bean name (must not be null)
    * @param obj bean instance (must not be null)
    */
-  @Override
   public void registerSingleton(String name, Object obj) {
     getBeanFactory().registerSingleton(name, obj);
   }
@@ -421,49 +414,22 @@ public class GenericApplicationContext
     getBeanFactory().registerBeanDefinition(name, bd);
   }
 
-  @Override
   public void registerSingleton(Object obj) {
     getBeanFactory().registerSingleton(obj);
   }
 
   /**
-   * Register a bean with the given type and instance supplier
+   * Register a bean from the given bean class, optionally providing explicit
+   * constructor arguments for consideration in the autowiring process.
    *
-   * @param clazz bean class
-   * @param supplier bean instance supplier
-   * @param prototype register as prototype?
-   * @param ignoreAnnotation ignore {@link Component} scanning
-   * @throws BeanDefinitionStoreException If can't store a bean
-   * @since 4.0
+   * @param beanClass the class of the bean
+   * @param constructorArgs custom argument values to be fed into Spring's
+   * constructor resolution algorithm, resolving either all arguments or just
+   * specific ones, with the rest to be resolved through regular autowiring
+   * (may be {@code null} or empty)
    */
-  public <T> void registerBean(Class<T> clazz, @Nullable Supplier<T> supplier,
-          boolean prototype, boolean ignoreAnnotation) throws BeanDefinitionStoreException {
-
-    RootBeanDefinition definition = new RootBeanDefinition(clazz);
-    if (prototype) {
-      definition.setScope(Scope.PROTOTYPE);
-    }
-
-    definition.setBeanName(BeanDefinitionBuilder.defaultBeanName(clazz));
-    definition.setInstanceSupplier(supplier);
-
-    registerBeanDefinition(definition);
-  }
-
-  /**
-   * Register a bean with the given bean name and instance supplier
-   *
-   * <p>
-   * register as singleton or prototype defined in your supplier
-   * </p>
-   *
-   * @param name bean name
-   * @param supplier bean instance supplier
-   * @throws BeanDefinitionStoreException If can't store a bean
-   * @since 4.0
-   */
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    beanFactory.registerBean(name, supplier);
+  public <T> void registerBean(Class<T> beanClass, Object... constructorArgs) {
+    registerBean(null, beanClass, constructorArgs);
   }
 
   /**
@@ -472,20 +438,67 @@ public class GenericApplicationContext
    *
    * @param beanName the name of the bean (may be {@code null})
    * @param beanClass the class of the bean
-   * @param constructorArgs custom argument values to be fed into constructor
-   * resolution algorithm, resolving either all arguments or just
+   * @param constructorArgs custom argument values to be fed into Spring's
+   * constructor resolution algorithm, resolving either all arguments or just
    * specific ones, with the rest to be resolved through regular autowiring
    * (may be {@code null} or empty)
    */
-  @Override
-  public <T> void registerBean(
-          @Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
+  public <T> void registerBean(@Nullable String beanName, Class<T> beanClass, Object... constructorArgs) {
     registerBean(beanName, beanClass, (Supplier<T>) null,
             bd -> {
               for (Object arg : constructorArgs) {
                 bd.getConstructorArgumentValues().addGenericArgumentValue(arg);
               }
             });
+  }
+
+  /**
+   * Register a bean from the given bean class, optionally customizing its
+   * bean definition metadata (typically declared as a lambda expression).
+   *
+   * @param beanClass the class of the bean (resolving a public constructor
+   * to be autowired, possibly simply the default constructor)
+   * @param customizers one or more callbacks for customizing the factory's
+   * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+   * @see #registerBean(String, Class, Supplier, BeanDefinitionCustomizer...)
+   */
+  public final <T> void registerBean(Class<T> beanClass, BeanDefinitionCustomizer... customizers) {
+    registerBean(null, beanClass, null, customizers);
+  }
+
+  /**
+   * Register a bean from the given bean class, optionally customizing its
+   * bean definition metadata (typically declared as a lambda expression).
+   *
+   * @param beanName the name of the bean (may be {@code null})
+   * @param beanClass the class of the bean (resolving a public constructor
+   * to be autowired, possibly simply the default constructor)
+   * @param customizers one or more callbacks for customizing the factory's
+   * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+   * @see #registerBean(String, Class, Supplier, BeanDefinitionCustomizer...)
+   */
+  public final <T> void registerBean(
+          @Nullable String beanName, Class<T> beanClass, BeanDefinitionCustomizer... customizers) {
+
+    registerBean(beanName, beanClass, null, customizers);
+  }
+
+  /**
+   * Register a bean from the given bean class, using the given supplier for
+   * obtaining a new instance (typically declared as a lambda expression or
+   * method reference), optionally customizing its bean definition metadata
+   * (again typically declared as a lambda expression).
+   *
+   * @param beanClass the class of the bean
+   * @param supplier a callback for creating an instance of the bean
+   * @param customizers one or more callbacks for customizing the factory's
+   * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+   * @see #registerBean(String, Class, Supplier, BeanDefinitionCustomizer...)
+   */
+  public final <T> void registerBean(
+          Class<T> beanClass, Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
+
+    registerBean(null, beanClass, supplier, customizers);
   }
 
   /**
@@ -503,7 +516,6 @@ public class GenericApplicationContext
    * @param customizers one or more callbacks for customizing the factory's
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
    */
-  @Override
   public <T> void registerBean(
           @Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
@@ -512,13 +524,12 @@ public class GenericApplicationContext
     if (supplier != null) {
       beanDefinition.setInstanceSupplier(supplier);
     }
-    if (ObjectUtils.isNotEmpty(customizers)) {
-      for (BeanDefinitionCustomizer customizer : customizers) {
-        customizer.customize(beanDefinition);
-      }
+
+    for (BeanDefinitionCustomizer customizer : customizers) {
+      customizer.customize(beanDefinition);
     }
-    String nameToUse = beanName != null ? beanName : BeanDefinitionBuilder.defaultBeanName(beanClass);
-    beanDefinition.setBeanName(nameToUse);
+
+    String nameToUse = beanName != null ? beanName : beanClass.getName();
     registerBeanDefinition(nameToUse, beanDefinition);
   }
 

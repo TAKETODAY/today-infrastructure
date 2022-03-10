@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
@@ -110,11 +110,11 @@ public @interface MapperScan {
   Class<?>[] basePackageClasses() default {};
 
   /**
-   * The {@link BeanNamePopulator} class to be used for naming detected components within the Framework container.
+   * The {@link BeanNameGenerator} class to be used for naming detected components within the Framework container.
    *
-   * @return the class of {@link BeanNamePopulator}
+   * @return the class of {@link BeanNameGenerator}
    */
-  Class<? extends BeanNamePopulator> namePopulator() default BeanNamePopulator.class;
+  Class<? extends BeanNameGenerator> namePopulator() default BeanNameGenerator.class;
 
   /**
    * This property specifies the annotation that the scanner will search for.

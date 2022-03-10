@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Constant;
@@ -187,7 +187,7 @@ public abstract class AbstractServletWebServer
           log.info("Multiple: [{}] Overriding its bean definition",
                   ServletSecurityElement.class.getName());
         }
-        context.unwrap(BeanDefinitionRegistrar.class)
+        context.unwrapFactory(SingletonBeanRegistry.class)
                 .registerSingleton(new ServletSecurityElement(servletSecurity));
       }
     }

@@ -28,7 +28,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.support.DefaultBeanNamePopulator;
+import cn.taketoday.beans.factory.support.DefaultBeanNameGenerator;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation6.ComponentForScanning;
@@ -108,7 +108,7 @@ class StandardApplicationContextTests {
   /**
    * Tests that Configuration classes are registered according to convention
    *
-   * @see DefaultBeanNamePopulator#populateName
+   * @see DefaultBeanNameGenerator#generateBeanName
    */
   @Test
   void defaultConfigClassBeanNameIsGeneratedProperly() {

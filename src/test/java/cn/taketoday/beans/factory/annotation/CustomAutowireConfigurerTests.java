@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -70,14 +70,14 @@ public class CustomAutowireConfigurerTests {
   public static class CustomResolver implements AutowireCandidateResolver {
 
     @Override
-    public boolean isAutowireCandidate(BeanDefinition bdHolder, DependencyDescriptor descriptor) {
-      if (!bdHolder.isAutowireCandidate()) {
+    public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
+      if (!bdHolder.getBeanDefinition().isAutowireCandidate()) {
         return false;
       }
       if (!bdHolder.getBeanName().matches("[a-z-]+")) {
         return false;
       }
-      if (bdHolder.getAttribute("priority").equals("1")) {
+      if (bdHolder.getBeanDefinition().getAttribute("priority").equals("1")) {
         return true;
       }
       return false;

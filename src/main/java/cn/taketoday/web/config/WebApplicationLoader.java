@@ -22,8 +22,8 @@ package cn.taketoday.web.config;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BeanDefinitionRegistrar;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
@@ -34,6 +34,8 @@ import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -46,8 +48,6 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.validation.Validator;
 import cn.taketoday.web.validation.WebValidator;
 
@@ -343,8 +343,6 @@ public class WebApplicationLoader
     }
     if (registry == null) {
       WebApplicationContext context = obtainApplicationContext();
-      context.unwrap(BeanDefinitionRegistrar.class)
-              .registerBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
       registry = context.getBean(ViewControllerHandlerRegistry.DEFAULT_BEAN_NAME, ViewControllerHandlerRegistry.class);
     }
     registry.configure(webMvcConfigLocation);
@@ -375,7 +373,7 @@ public class WebApplicationLoader
       if (dispatcherHandler == null) {
         dispatcherHandler = createDispatcher(context);
         Assert.state(dispatcherHandler != null, "DispatcherHandler must not be null, sub class must create its instance");
-        context.unwrap(BeanDefinitionRegistrar.class)
+        context.unwrapFactory(SingletonBeanRegistry.class)
                 .registerSingleton(DispatcherHandler.BEAN_NAME, dispatcherHandler);
       }
       this.dispatcher = dispatcherHandler;

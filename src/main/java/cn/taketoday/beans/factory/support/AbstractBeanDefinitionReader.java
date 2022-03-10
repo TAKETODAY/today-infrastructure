@@ -65,7 +65,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
   private Environment environment;
 
-  private BeanNamePopulator beanNameGenerator = DefaultBeanNamePopulator.INSTANCE;
+  private BeanNameGenerator beanNameGenerator = DefaultBeanNameGenerator.INSTANCE;
 
   /**
    * Create a new BeanDefinitionReader for the given bean factory.
@@ -169,14 +169,14 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
   /**
    * Set the BeanNameGenerator to use for anonymous beans
    * (without explicit bean name specified).
-   * <p>Default is a {@link DefaultBeanNamePopulator}.
+   * <p>Default is a {@link DefaultBeanNameGenerator}.
    */
-  public void setBeanNameGenerator(@Nullable BeanNamePopulator beanNameGenerator) {
-    this.beanNameGenerator = (beanNameGenerator != null ? beanNameGenerator : DefaultBeanNamePopulator.INSTANCE);
+  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
+    this.beanNameGenerator = (beanNameGenerator != null ? beanNameGenerator : DefaultBeanNameGenerator.INSTANCE);
   }
 
   @Override
-  public BeanNamePopulator getBeanNamePopulator() {
+  public BeanNameGenerator getBeanNamePopulator() {
     return this.beanNameGenerator;
   }
 

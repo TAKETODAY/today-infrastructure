@@ -35,7 +35,7 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.PropertyResourceConfigurer;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -120,7 +120,7 @@ public class MapperScannerConfigurer
 
   private boolean processPropertyPlaceHolders;
 
-  private BeanNamePopulator namePopulator;
+  private BeanNameGenerator namePopulator;
 
   private String defaultScope;
 
@@ -275,20 +275,20 @@ public class MapperScannerConfigurer
   }
 
   /**
-   * Gets BeanNamePopulator to be used while running the scanner.
+   * Gets BeanNameGenerator to be used while running the scanner.
    *
-   * @return the BeanNamePopulator that has been configured
+   * @return the BeanNameGenerator that has been configured
    */
-  public BeanNamePopulator getNamePopulator() {
+  public BeanNameGenerator getNamePopulator() {
     return namePopulator;
   }
 
   /**
-   * Sets BeanNamePopulator to be used while running the scanner.
+   * Sets BeanNameGenerator to be used while running the scanner.
    *
-   * @param namePopulator the BeanNamePopulator to set
+   * @param namePopulator the BeanNameGenerator to set
    */
-  public void setNamePopulator(BeanNamePopulator namePopulator) {
+  public void setNamePopulator(BeanNameGenerator namePopulator) {
     this.namePopulator = namePopulator;
   }
 
@@ -338,7 +338,7 @@ public class MapperScannerConfigurer
     scanner.setSqlSessionFactoryBeanName(this.sqlSessionFactoryBeanName);
     scanner.setSqlSessionTemplateBeanName(this.sqlSessionTemplateBeanName);
     scanner.getScanner().setResourceLoader(this.applicationContext);
-    scanner.getScanner().setBeanNamePopulator(this.namePopulator);
+    scanner.getScanner().setBeanNameGenerator(this.namePopulator);
     scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
 
     if (StringUtils.hasText(lazyInitialization)) {

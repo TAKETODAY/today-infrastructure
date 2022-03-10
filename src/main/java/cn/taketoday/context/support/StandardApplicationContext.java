@@ -21,23 +21,21 @@ package cn.taketoday.context.support;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
-import cn.taketoday.context.annotation.AnnotationBeanNamePopulator;
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNamePopulator;
+import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -136,7 +134,7 @@ public class StandardApplicationContext
   @Override
   public void register(Class<?>... components) {
     Assert.notEmpty(components, "At least one component class must be specified");
-    reader.registerBean(components);
+    reader.register(components);
   }
 
   /**
@@ -155,26 +153,26 @@ public class StandardApplicationContext
   }
 
   /**
-   * Provide a custom {@link BeanNamePopulator} for use with {@link AnnotatedBeanDefinitionReader}
+   * Provide a custom {@link BeanNameGenerator} for use with {@link AnnotatedBeanDefinitionReader}
    * and/or {@link BootstrapContext}, if any.
-   * <p>Default is {@link AnnotationBeanNamePopulator}.
+   * <p>Default is {@link AnnotationBeanNameGenerator}.
    * <p>Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
-   * @see AnnotationBeanNamePopulator
-   * @see FullyQualifiedAnnotationBeanNamePopulator
-   * @see BootstrapContext#setBeanNamePopulator(BeanNamePopulator)
-   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator(BeanNamePopulator)
+   * @see AnnotationBeanNameGenerator
+   * @see FullyQualifiedAnnotationBeanNameGenerator
+   * @see BootstrapContext#setBeanNameGenerator(BeanNameGenerator)
+   * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator(BeanNameGenerator)
    */
-  public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
-    Assert.notNull(beanNamePopulator, "BeanNamePopulator is required");
+  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+    Assert.notNull(beanNameGenerator, "BeanNameGenerator is required");
 
-    reader.setBeanNamePopulator(beanNamePopulator);
-    scanner.setBeanNamePopulator(beanNamePopulator);
-    obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
+    reader.setBeanNameGenerator(beanNameGenerator);
+    scanner.setBeanNameGenerator(beanNameGenerator);
+    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
 
     getBeanFactory().registerSingleton(
-            AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);
+            AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
   }
 
   /**
@@ -206,23 +204,7 @@ public class StandardApplicationContext
   @Override
   public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-    reader.registerBean(beanName, beanClass, supplier, customizers);
-  }
-
-  @Override
-  public <T> void registerBean(
-          Class<T> clazz, @Nullable Supplier<T> supplier, boolean prototype, boolean ignoreAnnotation) throws BeanDefinitionStoreException {
-    if (ignoreAnnotation) {
-      super.registerBean(clazz, supplier, prototype, true);
-    }
-    else {
-      if (prototype) {
-        reader.registerBean(null, clazz, supplier, definition -> definition.setScope(Scope.PROTOTYPE));
-      }
-      else {
-        reader.registerBean((String) null, clazz, supplier);
-      }
-    }
+    reader.registerBean(beanClass, beanName, supplier, customizers);
   }
 
 }

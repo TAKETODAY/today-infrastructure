@@ -20,15 +20,15 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.support.DefaultBeanNamePopulator;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.DefaultBeanNameGenerator;
 import cn.taketoday.lang.Assert;
 
 /**
  * An extension of {@code AnnotationBeanNamePopulator} that uses the fully qualified
  * class name as the default bean name if an explicit bean name is not supplied via
  * a supported type-level annotation such as {@code @Component} (see
- * {@link AnnotationBeanNamePopulator} for details on supported annotations).
+ * {@link AnnotationBeanNameGenerator} for details on supported annotations).
  *
  * <p>Favor this bean naming strategy over {@code AnnotationBeanNamePopulator} if
  * you run into naming conflicts due to multiple autodetected components having the
@@ -42,19 +42,19 @@ import cn.taketoday.lang.Assert;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DefaultBeanNamePopulator
- * @see AnnotationBeanNamePopulator
+ * @see DefaultBeanNameGenerator
+ * @see AnnotationBeanNameGenerator
  * @see ConfigurationClassPostProcessor#IMPORT_BEAN_NAME_GENERATOR
  * @since 4.0
  */
-public class FullyQualifiedAnnotationBeanNamePopulator extends AnnotationBeanNamePopulator {
+public class FullyQualifiedAnnotationBeanNameGenerator extends AnnotationBeanNameGenerator {
 
   /**
    * A convenient constant for a default {@code FullyQualifiedAnnotationBeanNamePopulator}
    * instance, as used for configuration-level import purposes.
    */
-  public static final FullyQualifiedAnnotationBeanNamePopulator INSTANCE =
-          new FullyQualifiedAnnotationBeanNamePopulator();
+  public static final FullyQualifiedAnnotationBeanNameGenerator INSTANCE =
+          new FullyQualifiedAnnotationBeanNameGenerator();
 
   @Override
   protected String buildDefaultBeanName(BeanDefinition definition) {

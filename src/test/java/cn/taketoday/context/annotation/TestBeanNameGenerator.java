@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,28 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.support;
+package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 
 /**
- * Default implementation of the {@link BeanNamePopulator} interface, delegating to
- * {@link BeanDefinitionReaderUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.
- *
- * @author Juergen Hoeller
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/12/7 22:33
+ * @author Mark Fisher
  */
-public class DefaultBeanNamePopulator implements BeanNamePopulator {
-
-  /**
-   * A convenient constant for a default {@code DefaultBeanNamePopulator} instance
-   */
-  public static final DefaultBeanNamePopulator INSTANCE = new DefaultBeanNamePopulator();
+public class TestBeanNameGenerator extends AnnotationBeanNameGenerator {
 
   @Override
-  public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    return BeanDefinitionReaderUtils.generateBeanName(definition, registry);
+  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    String beanName = super.generateBeanName(definition, registry);
+    return "testing." + beanName;
   }
 
 }

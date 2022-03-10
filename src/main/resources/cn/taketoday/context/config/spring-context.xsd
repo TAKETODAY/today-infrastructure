@@ -292,7 +292,7 @@
           <xsd:appinfo>
             <tool:annotation>
               <tool:expected-type type="java.lang.Class" />
-              <tool:assignable-to type="cn.taketoday.beans.factory.support.BeanNamePopulator" />
+              <tool:assignable-to type="cn.taketoday.beans.factory.support.nameGenerator" />
             </tool:annotation>
           </xsd:appinfo>
         </xsd:annotation>

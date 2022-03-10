@@ -45,7 +45,7 @@ import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.BootstrapContextAware;
 import cn.taketoday.context.aware.ImportAware;
@@ -88,8 +88,8 @@ public class ConfigurationClassPostProcessor
   private static final String IMPORT_REGISTRY_BEAN_NAME =
           ConfigurationClassPostProcessor.class.getName() + ".importRegistry";
 
-  public static final AnnotationBeanNamePopulator IMPORT_BEAN_NAME_GENERATOR =
-          FullyQualifiedAnnotationBeanNamePopulator.INSTANCE;
+  public static final AnnotationBeanNameGenerator IMPORT_BEAN_NAME_GENERATOR =
+          FullyQualifiedAnnotationBeanNameGenerator.INSTANCE;
 
   @Nullable
   private BootstrapContext bootstrapContext;
@@ -104,7 +104,7 @@ public class ConfigurationClassPostProcessor
   private boolean localBeanNamePopulatorSet = false;
 
   /* Using fully qualified class names as default bean names by default. */
-  private BeanNamePopulator importBeanNamePopulator = IMPORT_BEAN_NAME_GENERATOR;
+  private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
 
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
@@ -142,9 +142,9 @@ public class ConfigurationClassPostProcessor
   }
 
   /**
-   * Set the {@link BeanNamePopulator} to be used when triggering component scanning
+   * Set the {@link BeanNameGenerator} to be used when triggering component scanning
    * from {@link Configuration} classes and when registering {@link Import}'ed
-   * configuration classes. The default is a standard {@link AnnotationBeanNamePopulator}
+   * configuration classes. The default is a standard {@link AnnotationBeanNameGenerator}
    * for scanned components (compatible with the default in {@link ClassPathBeanDefinitionScanner})
    * and a variant thereof for imported configuration classes (using unique fully-qualified
    * class names instead of standard component overriding).
@@ -154,14 +154,14 @@ public class ConfigurationClassPostProcessor
    * application contexts or the {@code <context:annotation-config>} element. Any bean name
    * generator specified against the application context will take precedence over any set here.
    *
-   * @see StandardApplicationContext#setBeanNamePopulator(BeanNamePopulator)
+   * @see StandardApplicationContext#setBeanNameGenerator(BeanNameGenerator)
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
-  public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
-    Assert.notNull(beanNamePopulator, "BeanNamePopulator must not be null");
+  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+    Assert.notNull(beanNameGenerator, "BeanNameGenerator must not be null");
     this.localBeanNamePopulatorSet = true;
-    obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
-    this.importBeanNamePopulator = beanNamePopulator;
+    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
+    this.importBeanNameGenerator = beanNameGenerator;
   }
 
   @Override
@@ -251,10 +251,10 @@ public class ConfigurationClassPostProcessor
     if (registry instanceof SingletonBeanRegistry) {
       sbr = (SingletonBeanRegistry) registry;
       if (!this.localBeanNamePopulatorSet) {
-        BeanNamePopulator populator = (BeanNamePopulator) sbr.getSingleton(
+        BeanNameGenerator populator = (BeanNameGenerator) sbr.getSingleton(
                 AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
         if (populator != null) {
-          this.importBeanNamePopulator = populator;
+          this.importBeanNameGenerator = populator;
         }
       }
     }
@@ -274,7 +274,7 @@ public class ConfigurationClassPostProcessor
       // Read the model and create bean definitions based on its content
       if (reader == null) {
         this.reader = new ConfigurationClassBeanDefinitionReader(
-                bootstrapContext, importBeanNamePopulator, parser.getImportRegistry());
+                bootstrapContext, importBeanNameGenerator, parser.getImportRegistry());
       }
       reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);

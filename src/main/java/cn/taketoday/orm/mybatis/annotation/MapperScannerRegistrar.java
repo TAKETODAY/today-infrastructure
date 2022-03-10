@@ -27,7 +27,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -81,8 +81,8 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
       builder.addPropertyValue("markerInterface", markerInterface);
     }
 
-    Class<? extends BeanNamePopulator> generatorClass = mapperScan.getClass("namePopulator");
-    if (!BeanNamePopulator.class.equals(generatorClass)) {
+    Class<? extends BeanNameGenerator> generatorClass = mapperScan.getClass("namePopulator");
+    if (!BeanNameGenerator.class.equals(generatorClass)) {
       builder.addPropertyValue("namePopulator", BeanUtils.newInstance(generatorClass));
     }
 

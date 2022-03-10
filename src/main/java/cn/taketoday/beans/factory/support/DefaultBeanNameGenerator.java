@@ -23,28 +23,23 @@ package cn.taketoday.beans.factory.support;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
- * Strategy interface for generating bean names for bean definitions.
- * <p>
- * Like Spring's BeanNamePopulator
- * </p>
+ * Default implementation of the {@link BeanNameGenerator} interface, delegating to
+ * {@link BeanDefinitionReaderUtils#generateBeanName(BeanDefinition, BeanDefinitionRegistry)}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2021/12/7 22:33
  */
-public interface BeanNamePopulator {
+public class DefaultBeanNameGenerator implements BeanNameGenerator {
 
   /**
-   * Generate a bean name for the given bean definition.
-   * <p>
-   * populate bean name and its aliases
-   * </p>
-   *
-   * @param definition the bean definition to generate a name for
-   * @param registry the bean definition registry that the given definition
-   * is supposed to be registered with
-   * @return the generated bean name
+   * A convenient constant for a default {@code DefaultBeanNamePopulator} instance
    */
-  String populateName(BeanDefinition definition, BeanDefinitionRegistry registry);
+  public static final DefaultBeanNameGenerator INSTANCE = new DefaultBeanNameGenerator();
+
+  @Override
+  public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    return BeanDefinitionReaderUtils.generateBeanName(definition, registry);
+  }
 
 }

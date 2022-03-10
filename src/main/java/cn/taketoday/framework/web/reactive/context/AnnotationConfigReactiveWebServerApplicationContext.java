@@ -25,10 +25,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
@@ -135,24 +136,24 @@ public class AnnotationConfigReactiveWebServerApplicationContext extends Reactiv
   }
 
   /**
-   * Provide a custom {@link BeanNamePopulator} for use with
+   * Provide a custom {@link BeanNameGenerator} for use with
    * {@link AnnotatedBeanDefinitionReader} and/or
    * {@link ClassPathBeanDefinitionScanner}, if any.
    * <p>
    * Default is
-   * {@link cn.taketoday.context.annotation.AnnotationBeanNamePopulator}.
+   * {@link AnnotationBeanNameGenerator}.
    * <p>
    * Any call to this method must occur prior to calls to {@link #register(Class...)}
    * and/or {@link #scan(String...)}.
    *
-   * @param beanNamePopulator the bean name generator
-   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator
-   * @see ClassPathBeanDefinitionScanner#setBeanNamePopulator
+   * @param beanNameGenerator the bean name generator
+   * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator
+   * @see ClassPathBeanDefinitionScanner#setBeanNameGenerator
    */
-  public void setBeanNamePopulator(BeanNamePopulator beanNamePopulator) {
-    this.reader.setBeanNamePopulator(beanNamePopulator);
-    this.scanner.setBeanNamePopulator(beanNamePopulator);
-    getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNamePopulator);
+  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+    this.reader.setBeanNameGenerator(beanNameGenerator);
+    this.scanner.setBeanNameGenerator(beanNameGenerator);
+    getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
   }
 
   /**

@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.parsing.CompositeComponentDefinition;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.xml.BeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.beans.factory.xml.XmlReaderContext;
@@ -165,10 +165,10 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
   protected void parseBeanNameGenerator(Element element, ClassPathBeanDefinitionScanner scanner) {
     if (element.hasAttribute(NAME_GENERATOR_ATTRIBUTE)) {
-      BeanNamePopulator beanNamePopulator = instantiateUserDefinedStrategy(
-              element.getAttribute(NAME_GENERATOR_ATTRIBUTE), BeanNamePopulator.class,
+      BeanNameGenerator beanNameGenerator = instantiateUserDefinedStrategy(
+              element.getAttribute(NAME_GENERATOR_ATTRIBUTE), BeanNameGenerator.class,
               scanner.getResourceLoader().getClassLoader());
-      scanner.setBeanNamePopulator(beanNamePopulator);
+      scanner.setBeanNameGenerator(beanNameGenerator);
     }
   }
 

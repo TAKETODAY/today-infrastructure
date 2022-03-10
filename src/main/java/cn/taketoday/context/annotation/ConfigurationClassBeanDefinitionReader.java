@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
@@ -73,7 +73,7 @@ class ConfigurationClassBeanDefinitionReader {
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
 
   private final ImportRegistry importRegistry;
-  private final BeanNamePopulator importBeanNamePopulator;
+  private final BeanNameGenerator importBeanNameGenerator;
   private final BootstrapContext bootstrapContext;
 
   /**
@@ -82,11 +82,11 @@ class ConfigurationClassBeanDefinitionReader {
    */
   ConfigurationClassBeanDefinitionReader(
           BootstrapContext bootstrapContext,
-          BeanNamePopulator beanNamePopulator, ImportRegistry importRegistry) {
+          BeanNameGenerator beanNameGenerator, ImportRegistry importRegistry) {
 
     this.bootstrapContext = bootstrapContext;
     this.importRegistry = importRegistry;
-    this.importBeanNamePopulator = beanNamePopulator;
+    this.importBeanNameGenerator = beanNameGenerator;
   }
 
   /**
@@ -135,7 +135,7 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
 
-    String configBeanName = importBeanNamePopulator.populateName(configBeanDef, bootstrapContext.getRegistry());
+    String configBeanName = importBeanNameGenerator.generateBeanName(configBeanDef, bootstrapContext.getRegistry());
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 

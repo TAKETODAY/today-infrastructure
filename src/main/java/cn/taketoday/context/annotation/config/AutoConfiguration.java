@@ -26,6 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
@@ -76,7 +77,7 @@ public @interface AutoConfiguration {
    * will take precedence.
    *
    * @return the explicit component name, if any (or empty String otherwise)
-   * @see cn.taketoday.context.annotation.AnnotationBeanNamePopulator
+   * @see AnnotationBeanNameGenerator
    */
   @AliasFor(annotation = Configuration.class)
   String value() default "";

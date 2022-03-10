@@ -411,7 +411,7 @@ public class ClassPathBeanDefinitionScannerTests {
   public void testCustomBeanNameGenerator() {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
-    scanner.setBeanNamePopulator(new TestBeanNamePopulator());
+    scanner.setBeanNameGenerator(new TestBeanNameGenerator());
     int beanCount = scanner.scan(BASE_PACKAGE);
 
     assertThat(beanCount).isGreaterThanOrEqualTo(12);
@@ -456,7 +456,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("myBf", new RootBeanDefinition(StandardBeanFactory.class));
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
-    scanner.setBeanNamePopulator(new TestBeanNamePopulator());
+    scanner.setBeanNameGenerator(new TestBeanNameGenerator());
     int beanCount = scanner.scan(BASE_PACKAGE);
     assertThat(beanCount).isGreaterThanOrEqualTo(9);
     context.refresh();
@@ -486,7 +486,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
-    scanner.setBeanNamePopulator(new TestBeanNamePopulator());
+    scanner.setBeanNameGenerator(new TestBeanNameGenerator());
     int beanCount = scanner.scan(BASE_PACKAGE);
     assertThat(beanCount).isGreaterThanOrEqualTo(7);
     context.refresh();
@@ -505,7 +505,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(true);
-    scanner.setBeanNamePopulator(new TestBeanNamePopulator());
+    scanner.setBeanNameGenerator(new TestBeanNameGenerator());
     scanner.setAutowireCandidatePatterns("*FooDao");
     scanner.scan(BASE_PACKAGE);
     context.refresh();
@@ -520,7 +520,7 @@ public class ClassPathBeanDefinitionScannerTests {
     GenericApplicationContext context = new GenericApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(true);
-    scanner.setBeanNamePopulator(new TestBeanNamePopulator());
+    scanner.setBeanNameGenerator(new TestBeanNameGenerator());
     scanner.setAutowireCandidatePatterns("*NoSuchDao");
     scanner.scan(BASE_PACKAGE);
     context.refresh();
@@ -529,11 +529,11 @@ public class ClassPathBeanDefinitionScannerTests {
             .satisfies(ex -> assertThat(ex.getMostSpecificCause()).isInstanceOf(NoSuchBeanDefinitionException.class));
   }
 
-  private static class TestBeanNamePopulator extends AnnotationBeanNamePopulator {
+  private static class TestBeanNameGenerator extends AnnotationBeanNameGenerator {
 
     @Override
-    public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-      String beanName = super.populateName(definition, registry);
+    public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+      String beanName = super.generateBeanName(definition, registry);
       String impl = beanName.replace("Impl", "");
       definition.setBeanName(impl);
       return impl;

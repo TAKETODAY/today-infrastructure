@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,20 +18,30 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation;
+package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 
 /**
- * @author Mark Fisher
+ * Strategy interface for generating bean names for bean definitions.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class TestBeanNamePopulator extends AnnotationBeanNamePopulator {
+public interface BeanNameGenerator {
 
-  @Override
-  public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    String beanName = super.populateName(definition, registry);
-    return "testing." + beanName;
-  }
+  /**
+   * Generate a bean name for the given bean definition.
+   * <p>
+   * populate bean name and its aliases
+   * </p>
+   *
+   * @param definition the bean definition to generate a name for
+   * @param registry the bean definition registry that the given definition
+   * is supposed to be registered with
+   * @return the generated bean name
+   */
+  String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry);
 
 }

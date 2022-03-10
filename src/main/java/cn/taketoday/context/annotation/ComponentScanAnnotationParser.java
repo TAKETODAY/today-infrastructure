@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -61,10 +61,10 @@ class ComponentScanAnnotationParser {
             loadingContext.getEnvironment()
     );
 
-    Class<? extends BeanNamePopulator> generatorClass = componentScan.getClass("namePopulator");
+    Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("namePopulator");
 
-    boolean useInheritedPopulator = BeanNamePopulator.class == generatorClass;
-    scanner.setBeanNamePopulator(
+    boolean useInheritedPopulator = BeanNameGenerator.class == generatorClass;
+    scanner.setBeanNameGenerator(
             useInheritedPopulator ? loadingContext.getBeanNamePopulator()
                                   : BeanUtils.newInstance(generatorClass));
 

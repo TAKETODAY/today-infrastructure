@@ -22,7 +22,9 @@ package cn.taketoday.context.annotation;
 
 import java.util.function.Consumer;
 
+import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
@@ -36,6 +38,10 @@ import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -62,7 +68,7 @@ public abstract class AnnotationConfigUtils {
           "cn.taketoday.context.annotation.internalConfigurationAnnotationProcessor";
 
   /**
-   * The bean name of the internally managed BeanNamePopulator for use when processing
+   * The bean name of the internally managed BeanNameGenerator for use when processing
    * {@link Configuration} classes. Set by {@link StandardApplicationContext}
    * and {@code AnnotationConfigWebApplicationContext} during bootstrap in order to make
    * any custom name generation strategy available to the underlying
@@ -216,7 +222,7 @@ public abstract class AnnotationConfigUtils {
   }
 
   public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) {
-    AnnotatedBeanDefinitionReader.applyAnnotationMetadata(abd);
+    applyAnnotationMetadata(abd);
   }
 
   static BeanDefinitionHolder applyScopedProxyMode(
@@ -229,4 +235,57 @@ public abstract class AnnotationConfigUtils {
     boolean proxyTargetClass = scopedProxyMode.equals(ScopedProxyMode.TARGET_CLASS);
     return ScopedProxyCreator.createScopedProxy(definition, registry, proxyTargetClass);
   }
+
+  public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition) {
+    MergedAnnotations annotations;
+    MethodMetadata factoryMethodMetadata = definition.getFactoryMethodMetadata();
+    if (factoryMethodMetadata != null) {
+      annotations = factoryMethodMetadata.getAnnotations();
+    }
+    else {
+      AnnotationMetadata metadata = definition.getMetadata();
+      annotations = metadata.getAnnotations();
+    }
+    applyAnnotationMetadata(annotations, definition);
+  }
+
+  public static void applyAnnotationMetadata(MergedAnnotations annotations, BeanDefinition definition) {
+    if (annotations.isPresent(Primary.class)) {
+      definition.setPrimary(true);
+    }
+
+    MergedAnnotation<Lazy> lazyMergedAnnotation = annotations.get(Lazy.class);
+    if (lazyMergedAnnotation.isPresent()) {
+      definition.setLazyInit(lazyMergedAnnotation.getBooleanValue());
+    }
+    else if (definition instanceof AnnotatedBeanDefinition annotated) {
+      AnnotationMetadata metadata = annotated.getMetadata();
+      lazyMergedAnnotation = metadata.getAnnotation(Lazy.class);
+
+      if (lazyMergedAnnotation.isPresent()) {
+        definition.setLazyInit(lazyMergedAnnotation.getBooleanValue());
+      }
+    }
+
+    MergedAnnotation<Role> roleMergedAnnotation = annotations.get(Role.class);
+    if (roleMergedAnnotation.isPresent()) {
+      definition.setRole(roleMergedAnnotation.getIntValue());
+    }
+
+    MergedAnnotation<DependsOn> dependsOn = annotations.get(DependsOn.class);
+    if (dependsOn.isPresent()) {
+      definition.setDependsOn(dependsOn.getStringValueArray());
+    }
+
+    MergedAnnotation<Description> description = annotations.get(Description.class);
+    if (description.isPresent()) {
+      definition.setDescription(description.getStringValue());
+    }
+
+    // DisableDependencyInjection
+    if (annotations.isPresent(DisableDependencyInjection.class)) {
+      definition.setEnableDependencyInjection(false);
+    }
+  }
+
 }

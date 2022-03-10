@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
 import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.Getter;
@@ -91,7 +92,8 @@ class ELFieldTests {
       processor.setPropertiesLocation("info.properties");
       processor.postProcessEnvironment();
 
-      applicationContext.registerSingleton(user);
+      applicationContext.unwrapFactory(SingletonBeanRegistry.class)
+              .registerSingleton(user);
       applicationContext.register(ELFieldTests.class);
       applicationContext.refresh();
 

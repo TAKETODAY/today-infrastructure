@@ -33,7 +33,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.context.loader.BeanDefinitionRegistrar;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
@@ -285,7 +285,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
       else {
         Class<?> beanClass = ClassUtils.resolveClassName(className, classLoader);
         if ((controllerBean = context.getBean(name, beanClass)) == null) {
-          context.unwrap(BeanDefinitionRegistrar.class)
+          context.unwrap(GenericApplicationContext.class)
                   .registerBean(name, beanClass);
           controllerBean = context.getBean(name, beanClass);
         }
@@ -294,7 +294,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
     else if (StringUtils.isNotEmpty(className)) {
       Class<?> beanClass = ClassUtils.load(className);
       if ((controllerBean = context.getBean(beanClass)) == null) {
-        context.unwrap(BeanDefinitionRegistrar.class)
+        context.unwrap(GenericApplicationContext.class)
                 .registerBean(beanClass);
         controllerBean = context.getBean(beanClass);
       }

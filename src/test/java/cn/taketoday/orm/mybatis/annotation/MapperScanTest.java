@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -440,7 +440,7 @@ class MapperScanTest {
 
   @Configuration
   @MapperScan(basePackages = "cn.taketoday.orm.mybatis.mapper",
-              namePopulator = MapperScanTest.BeanNamePopulator0.class)
+              namePopulator = BeanNameGenerator0.class)
   public static class AppConfigWithNameGenerator {
   }
 
@@ -492,10 +492,10 @@ class MapperScanTest {
 
   }
 
-  public static class BeanNamePopulator0 implements BeanNamePopulator {
+  public static class BeanNameGenerator0 implements BeanNameGenerator {
 
     @Override
-    public String populateName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+    public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
       definition.setBeanName(definition.getBeanClassName());
       return definition.getBeanClassName();
     }

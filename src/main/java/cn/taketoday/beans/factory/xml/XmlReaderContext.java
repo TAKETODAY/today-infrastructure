@@ -32,6 +32,7 @@ import cn.taketoday.beans.factory.parsing.ReaderEventListener;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -137,10 +138,10 @@ public class XmlReaderContext extends ReaderContext {
    * Call the bean name generator for the given bean definition.
    *
    * @see XmlBeanDefinitionReader#getBeanNamePopulator()
-   * @see cn.taketoday.beans.factory.support.BeanNamePopulator
+   * @see BeanNameGenerator
    */
   public String generateBeanName(BeanDefinition beanDefinition) {
-    return this.reader.getBeanNamePopulator().populateName(beanDefinition, getRegistry());
+    return this.reader.getBeanNamePopulator().generateBeanName(beanDefinition, getRegistry());
   }
 
   /**
@@ -148,7 +149,7 @@ public class XmlReaderContext extends ReaderContext {
    * and register the bean definition under the generated name.
    *
    * @see XmlBeanDefinitionReader#getBeanNamePopulator()
-   * @see cn.taketoday.beans.factory.support.BeanNamePopulator#populateName
+   * @see BeanNameGenerator#generateBeanName
    * @see BeanDefinitionRegistry#registerBeanDefinition
    */
   public String registerWithGeneratedName(BeanDefinition beanDefinition) {

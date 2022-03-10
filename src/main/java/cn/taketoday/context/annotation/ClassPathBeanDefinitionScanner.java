@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
@@ -80,7 +80,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   @Nullable
   private String[] autowireCandidatePatterns;
 
-  private BeanNamePopulator beanNamePopulator = AnnotationBeanNamePopulator.INSTANCE;
+  private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
@@ -216,12 +216,12 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   }
 
   /**
-   * Set the BeanNamePopulator to use for detected bean classes.
-   * <p>Default is a {@link AnnotationBeanNamePopulator}.
+   * Set the BeanNameGenerator to use for detected bean classes.
+   * <p>Default is a {@link AnnotationBeanNameGenerator}.
    */
-  public void setBeanNamePopulator(@Nullable BeanNamePopulator beanNamePopulator) {
-    this.beanNamePopulator =
-            beanNamePopulator != null ? beanNamePopulator : AnnotationBeanNamePopulator.INSTANCE;
+  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
+    this.beanNameGenerator =
+            beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE;
   }
 
   /**
@@ -296,7 +296,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
           candidate.setScope(scopeMetadata.getScopeName());
           AnnotationConfigUtils.processCommonDefinitionAnnotations(candidate);
 
-          String beanName = beanNamePopulator.populateName(candidate, registry);
+          String beanName = beanNameGenerator.generateBeanName(candidate, registry);
           postProcessBeanDefinition(candidate, beanName);
 
           if (checkCandidate(beanName, candidate)) {
@@ -345,7 +345,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
           candidate.setResource(metadataReader.getResource());
           ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
           candidate.setScope(scopeMetadata.getScopeName());
-          String beanName = beanNamePopulator.populateName(candidate, registry);
+          String beanName = beanNameGenerator.generateBeanName(candidate, registry);
 
           postProcessBeanDefinition(candidate, beanName);
           AnnotationConfigUtils.processCommonDefinitionAnnotations(candidate);

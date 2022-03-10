@@ -82,10 +82,10 @@ public interface BeanDefinitionReader {
   ClassLoader getBeanClassLoader();
 
   /**
-   * Return the {@link BeanNamePopulator} to use for anonymous beans
+   * Return the {@link BeanNameGenerator} to use for anonymous beans
    * (without explicit bean name specified).
    */
-  BeanNamePopulator getBeanNamePopulator();
+  BeanNameGenerator getBeanNamePopulator();
 
   /**
    * Load bean definitions from the specified resource.

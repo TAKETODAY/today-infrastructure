@@ -25,10 +25,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.loader.BootstrapContext;
@@ -94,7 +95,7 @@ public class AnnotationConfigWebApplicationContext
         extends AbstractRefreshableWebApplicationContext implements AnnotationConfigRegistry {
 
   @Nullable
-  private BeanNamePopulator beanNamePopulator;
+  private BeanNameGenerator beanNameGenerator;
 
   @Nullable
   private ScopeMetadataResolver scopeMetadataResolver;
@@ -104,26 +105,26 @@ public class AnnotationConfigWebApplicationContext
   private final Set<String> basePackages = new LinkedHashSet<>();
 
   /**
-   * Set a custom {@link BeanNamePopulator} for use with {@link AnnotatedBeanDefinitionReader}
+   * Set a custom {@link BeanNameGenerator} for use with {@link AnnotatedBeanDefinitionReader}
    * and/or {@link ClassPathBeanDefinitionScanner}.
-   * <p>Default is {@link cn.taketoday.context.annotation.AnnotationBeanNamePopulator}.
+   * <p>Default is {@link AnnotationBeanNameGenerator}.
    *
-   * @see AnnotatedBeanDefinitionReader#setBeanNamePopulator(BeanNamePopulator)
-   * @see ClassPathBeanDefinitionScanner#setBeanNamePopulator(BeanNamePopulator)
-   * @see BootstrapContext#setBeanNamePopulator(BeanNamePopulator)
+   * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator(BeanNameGenerator)
+   * @see ClassPathBeanDefinitionScanner#setBeanNameGenerator(BeanNameGenerator)
+   * @see BootstrapContext#setBeanNameGenerator(BeanNameGenerator)
    */
-  public void setBeanNamePopulator(@Nullable BeanNamePopulator beanNamePopulator) {
-    this.beanNamePopulator = beanNamePopulator;
-    obtainBootstrapContext().setBeanNamePopulator(beanNamePopulator);
+  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
+    this.beanNameGenerator = beanNameGenerator;
+    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
   }
 
   /**
-   * Return the custom {@link BeanNamePopulator} for use with {@link AnnotatedBeanDefinitionReader}
+   * Return the custom {@link BeanNameGenerator} for use with {@link AnnotatedBeanDefinitionReader}
    * and/or {@link ClassPathBeanDefinitionScanner}, if any.
    */
   @Nullable
-  protected BeanNamePopulator getBeanNamePopulator() {
-    return this.beanNamePopulator;
+  protected BeanNameGenerator getBeanNamePopulator() {
+    return this.beanNameGenerator;
   }
 
   /**
@@ -210,10 +211,10 @@ public class AnnotationConfigWebApplicationContext
     AnnotatedBeanDefinitionReader reader = getAnnotatedBeanDefinitionReader(beanFactory);
     ClassPathBeanDefinitionScanner scanner = getClassPathBeanDefinitionScanner(beanFactory);
 
-    BeanNamePopulator namePopulator = getBeanNamePopulator();
+    BeanNameGenerator namePopulator = getBeanNamePopulator();
     if (namePopulator != null) {
-      reader.setBeanNamePopulator(namePopulator);
-      scanner.setBeanNamePopulator(namePopulator);
+      reader.setBeanNameGenerator(namePopulator);
+      scanner.setBeanNameGenerator(namePopulator);
       beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, namePopulator);
     }
 
@@ -264,7 +265,7 @@ public class AnnotationConfigWebApplicationContext
   /**
    * Build an {@link AnnotatedBeanDefinitionReader} for the given bean factory.
    * <p>This should be pre-configured with the {@code Environment} (if desired)
-   * but not with a {@code BeanNamePopulator} or {@code ScopeMetadataResolver} yet.
+   * but not with a {@code BeanNameGenerator} or {@code ScopeMetadataResolver} yet.
    *
    * @param beanFactory the bean factory to load bean definitions into
    * @see #getEnvironment()
@@ -278,7 +279,7 @@ public class AnnotationConfigWebApplicationContext
   /**
    * Build a {@link ClassPathBeanDefinitionScanner} for the given bean factory.
    * <p>This should be pre-configured with the {@code Environment} (if desired)
-   * but not with a {@code BeanNamePopulator} or {@code ScopeMetadataResolver} yet.
+   * but not with a {@code BeanNameGenerator} or {@code ScopeMetadataResolver} yet.
    *
    * @param beanFactory the bean factory to load bean definitions into
    * @see #getEnvironment()

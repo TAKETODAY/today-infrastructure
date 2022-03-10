@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.support.BeanNamePopulator;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
@@ -92,18 +92,18 @@ public @interface ComponentScan {
   Class<?>[] basePackageClasses() default {};
 
   /**
-   * The {@link BeanNamePopulator} class to be used for naming detected components
+   * The {@link BeanNameGenerator} class to be used for naming detected components
    * within the IoC.
-   * <p>The default value of the {@link BeanNamePopulator} interface itself indicates
+   * <p>The default value of the {@link BeanNameGenerator} interface itself indicates
    * that the scanner used to process this {@code @ComponentScan} annotation should
    * use its inherited bean name generator, e.g. the default
-   * {@link AnnotationBeanNamePopulator} or any custom instance supplied to the
+   * {@link AnnotationBeanNameGenerator} or any custom instance supplied to the
    * application context at bootstrap time.
    *
-   * @see AnnotationBeanNamePopulator
-   * @see FullyQualifiedAnnotationBeanNamePopulator
+   * @see AnnotationBeanNameGenerator
+   * @see FullyQualifiedAnnotationBeanNameGenerator
    */
-  Class<? extends BeanNamePopulator> namePopulator() default BeanNamePopulator.class;
+  Class<? extends BeanNameGenerator> namePopulator() default BeanNameGenerator.class;
 
   /**
    * The {@link ScopeMetadataResolver} to be used for resolving the scope of detected components.
