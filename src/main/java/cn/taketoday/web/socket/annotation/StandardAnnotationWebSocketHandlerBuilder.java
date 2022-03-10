@@ -22,14 +22,14 @@ package cn.taketoday.web.socket.annotation;
 
 import java.util.Arrays;
 
-import jakarta.websocket.server.ServerEndpoint;
-import jakarta.websocket.server.ServerEndpointConfig;
-
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
+import jakarta.websocket.server.ServerEndpoint;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
  * @author TODAY 2021/5/12 23:39
@@ -48,22 +48,22 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
 
   @Override
   public WebSocketHandler build(
-          BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
+          String beanName, BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
     StandardAnnotationWebSocketDispatcher socketDispatcher
             = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
 
-    ServerEndpoint serverEndpoint = context.findSynthesizedAnnotation(definition.getBeanName(), ServerEndpoint.class);
-    if (serverEndpoint != null) {
+    MergedAnnotation<ServerEndpoint> serverEndpoint = context.findAnnotationOnBean(beanName, ServerEndpoint.class);
+    if (serverEndpoint.isPresent()) {
       ServerEndpointConfig.Configurator configuratorObject = null;
-      Class<? extends ServerEndpointConfig.Configurator> configurator = serverEndpoint.configurator();
+      Class<? extends ServerEndpointConfig.Configurator> configurator = serverEndpoint.getClass("configurator");
       if (!configurator.equals(ServerEndpointConfig.Configurator.class)) {
         configuratorObject = BeanUtils.newInstance(configurator);
       }
       ServerEndpointConfig endpointConfig = ServerEndpointConfig.Builder
-              .create(StandardEndpoint.class, serverEndpoint.value())
-              .decoders(Arrays.asList(serverEndpoint.decoders()))
-              .encoders(Arrays.asList(serverEndpoint.encoders()))
-              .subprotocols(Arrays.asList(serverEndpoint.subprotocols()))
+              .create(StandardEndpoint.class, serverEndpoint.getStringValue())
+              .decoders(Arrays.asList(serverEndpoint.getClassArray("decoders")))
+              .encoders(Arrays.asList(serverEndpoint.getClassArray("encoders")))
+              .subprotocols(Arrays.asList(serverEndpoint.getStringArray("subprotocols")))
               .configurator(configuratorObject)
               .build();
 

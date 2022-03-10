@@ -534,9 +534,7 @@ public class ClassPathBeanDefinitionScannerTests {
     @Override
     public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
       String beanName = super.generateBeanName(definition, registry);
-      String impl = beanName.replace("Impl", "");
-      definition.setBeanName(impl);
-      return impl;
+      return beanName.replace("Impl", "");
     }
   }
 

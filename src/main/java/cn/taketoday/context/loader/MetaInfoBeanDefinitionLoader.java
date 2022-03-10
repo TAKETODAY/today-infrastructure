@@ -78,9 +78,8 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
 
         AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(annotationMetadata);
         definition.setResource(metadataReader.getResource());
-        definition.setBeanName(context.populateName(definition));
 
-        context.registerBeanDefinition(definition);
+        context.registerBeanDefinition(context.generateBeanName(definition), definition);
       }
     }
 

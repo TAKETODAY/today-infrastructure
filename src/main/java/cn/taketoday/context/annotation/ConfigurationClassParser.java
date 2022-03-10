@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
@@ -69,6 +70,7 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
@@ -137,17 +139,18 @@ class ConfigurationClassParser {
     this.componentScanParser = new ComponentScanAnnotationParser(bootstrapContext);
   }
 
-  public void parse(Set<BeanDefinition> configCandidates) {
-    for (BeanDefinition definition : configCandidates) {
+  public void parse(Set<BeanDefinitionHolder> configCandidates) {
+    for (BeanDefinitionHolder holder : configCandidates) {
+      BeanDefinition bd = holder.getBeanDefinition();
       try {
-        if (definition instanceof AnnotatedBeanDefinition) {
-          parse(((AnnotatedBeanDefinition) definition).getMetadata(), definition.getBeanName());
+        if (bd instanceof AnnotatedBeanDefinition) {
+          parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
         }
-        else if (definition instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
-          parse(((AbstractBeanDefinition) definition).getBeanClass(), definition.getBeanName());
+        else if (bd instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) bd).hasBeanClass()) {
+          parse(((AbstractBeanDefinition) bd).getBeanClass(), holder.getBeanName());
         }
         else {
-          parse(definition.getBeanClassName(), definition.getBeanName());
+          parse(bd.getBeanClassName(), holder.getBeanName());
         }
       }
       catch (BeanDefinitionStoreException ex) {
@@ -155,7 +158,7 @@ class ConfigurationClassParser {
       }
       catch (Throwable ex) {
         throw new BeanDefinitionStoreException(
-                "Failed to parse configuration class [" + definition.getBeanClassName() + "]", ex);
+                "Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
       }
     }
 
@@ -264,12 +267,17 @@ class ConfigurationClassParser {
             && bootstrapContext.passCondition(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
       for (MergedAnnotation<ComponentScan> componentScan : componentScans) {
         // The config class is annotated with @ComponentScan -> perform the scan immediately
-        Set<BeanDefinition> scannedBeanDefinitions =
+        Set<BeanDefinitionHolder> scannedBeanDefinitions =
                 componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+        MetadataReaderFactory metadataReaderFactory = bootstrapContext.getMetadataReaderFactory();
         // Check the set of scanned definitions for any further config classes and parse recursively if needed
-        for (BeanDefinition definition : scannedBeanDefinitions) {
-          if (ConfigurationClassUtils.checkConfigurationClassCandidate(definition, bootstrapContext)) {
-            parse(definition.getBeanClassName(), definition.getBeanName());
+        for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
+          BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
+          if (bdCand == null) {
+            bdCand = holder.getBeanDefinition();
+          }
+          if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, metadataReaderFactory)) {
+            parse(bdCand.getBeanClassName(), holder.getBeanName());
           }
         }
       }

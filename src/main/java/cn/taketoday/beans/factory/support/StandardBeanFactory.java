@@ -435,15 +435,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public void registerBeanDefinition(BeanDefinition def) {
-    registerBeanDefinition(def.getBeanName(), def);
-  }
-
-  @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
-    if (def.getBeanName() == null) {
-      def.setBeanName(beanName);
-    }
+    Assert.hasText(beanName, "Bean name must not be empty");
+    Assert.notNull(def, "BeanDefinition is required");
 
     if (def instanceof AbstractBeanDefinition abd) {
       try {
@@ -503,12 +497,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       beanDefinitionMap.put(beanName, def);
       beanDefinitionNames.add(beanName);
       this.frozenBeanDefinitionNames = null;
-    }
-
-    if (def.hasAliases()) {
-      for (String alias : def.getAliases()) {
-        registerAlias(beanName, alias);
-      }
     }
 
     if (existBeanDef != null || containsSingleton(beanName)) {

@@ -199,7 +199,7 @@ final class ConstructorResolver {
       else {
         ConstructorArgumentValues cargs = merged.getConstructorArgumentValues();
         resolvedValues = new ConstructorArgumentValues();
-        minNrOfArgs = resolveConstructorArguments(merged, wrapper, cargs, resolvedValues);
+        minNrOfArgs = resolveConstructorArguments(beanName, merged, wrapper, cargs, resolvedValues);
       }
 
       AutowireUtils.sortConstructors(candidates);
@@ -230,7 +230,7 @@ final class ConstructorResolver {
                 paramNames = pnd.getParameterNames(candidate);
               }
             }
-            argsHolder = createArgumentArray(merged, resolvedValues, paramTypes, paramNames,
+            argsHolder = createArgumentArray(beanName, merged, resolvedValues, paramTypes, paramNames,
                     getUserDeclaredConstructor(candidate), wrapper, autowiring, candidates.length == 1);
           }
           catch (UnsatisfiedDependencyException ex) {
@@ -496,7 +496,7 @@ final class ConstructorResolver {
         if (merged.hasConstructorArgumentValues()) {
           ConstructorArgumentValues cargs = merged.getConstructorArgumentValues();
           resolvedValues = new ConstructorArgumentValues();
-          minNrOfArgs = resolveConstructorArguments(merged, wrapper, cargs, resolvedValues);
+          minNrOfArgs = resolveConstructorArguments(beanName, merged, wrapper, cargs, resolvedValues);
         }
         else {
           minNrOfArgs = 0;
@@ -527,7 +527,7 @@ final class ConstructorResolver {
               if (pnd != null) {
                 paramNames = pnd.getParameterNames(candidate);
               }
-              argsHolder = createArgumentArray(merged, resolvedValues,
+              argsHolder = createArgumentArray(beanName, merged, resolvedValues,
                       paramTypes, paramNames, candidate, wrapper, autowiring, candidates.size() == 1);
             }
             catch (UnsatisfiedDependencyException ex) {
@@ -648,13 +648,13 @@ final class ConstructorResolver {
    * This may involve looking up other beans.
    * <p>This method is also used for handling invocations of static factory methods.
    */
-  private int resolveConstructorArguments(BeanDefinition merged, BeanWrapper bw,
+  private int resolveConstructorArguments(String beanName, BeanDefinition merged, BeanWrapper bw,
           ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
 
     TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
     TypeConverter converter = (customConverter != null ? customConverter : bw);
 
-    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, merged, converter);
+    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, beanName, merged, converter);
     int minNrOfArgs = cargs.getArgumentCount();
     for (Map.Entry<Integer, ValueHolder> entry : cargs.getIndexedArgumentValues().entrySet()) {
       int index = entry.getKey();
@@ -700,15 +700,13 @@ final class ConstructorResolver {
    * Create an array of arguments to invoke a constructor or factory method,
    * given the resolved constructor argument values.
    */
-  private ArgumentsHolder createArgumentArray(BeanDefinition definition,
+  private ArgumentsHolder createArgumentArray(String beanName, BeanDefinition definition,
           @Nullable ConstructorArgumentValues resolvedValues, Class<?>[] paramTypes,
           @Nullable String[] paramNames, Executable executable, BeanWrapper wrapper,
           boolean autowiring, boolean fallback) throws UnsatisfiedDependencyException {
 
     TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
     TypeConverter converter = customConverter != null ? customConverter : wrapper;
-
-    String beanName = definition.getBeanName();
 
     ArgumentsHolder args = new ArgumentsHolder(paramTypes.length);
     HashSet<ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
@@ -818,7 +816,7 @@ final class ConstructorResolver {
     TypeConverter converter = customConverter != null ? customConverter : bw;
 
     BeanDefinitionValueResolver valueResolver =
-            new BeanDefinitionValueResolver(beanFactory, mbd, converter);
+            new BeanDefinitionValueResolver(beanFactory, beanName, mbd, converter);
     Class<?>[] paramTypes = executable.getParameterTypes();
 
     Object[] resolvedArgs = new Object[argsToResolve.length];

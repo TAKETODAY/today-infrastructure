@@ -73,11 +73,11 @@ public class WebSocketHandlerRegistry
 
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     String[] definitionNames = context.getBeanDefinitionNames();
-    for (String definitionName : definitionNames) {
-      BeanDefinition merged = beanFactory.getMergedBeanDefinition(definitionName);
+    for (String beanName : definitionNames) {
+      BeanDefinition merged = beanFactory.getMergedBeanDefinition(beanName);
       if (!merged.isAbstract() && merged instanceof RootBeanDefinition root) {
-        if (isEndpoint(context, root)) {
-          registerEndpoint(root, context, factory);
+        if (isEndpoint(context, root, beanName)) {
+          registerEndpoint(beanName, root, context, factory);
         }
       }
     }
@@ -86,26 +86,27 @@ public class WebSocketHandlerRegistry
   /**
    * Create a handler bean instance
    *
+   * @param beanName bean name
    * @param beanFactory {@link ConfigurableBeanFactory}
    * @return Returns a handler bean of target beanClass
    */
-  protected BeanSupplier<Object> createHandler(BeanDefinition def, BeanFactory beanFactory) {
-    return BeanSupplier.from(beanFactory, def);
+  protected BeanSupplier<Object> createHandler(String beanName, BeanFactory beanFactory) {
+    return BeanSupplier.from(beanFactory, beanName);
   }
 
-  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
-    return context.findSynthesizedAnnotation(
-            definition.getBeanName(), EndpointMapping.class) != null;
+  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition, String beanName) {
+    return context.findAnnotationOnBean(
+            beanName, EndpointMapping.class).isPresent();
   }
 
   protected void registerEndpoint(
-          RootBeanDefinition definition, WebApplicationContext context,
+          String beanName, RootBeanDefinition definition, WebApplicationContext context,
           AnnotationHandlerFactory factory) {
-    BeanSupplier<Object> handlerBean = createHandler(definition, context);
+    BeanSupplier<Object> handlerBean = createHandler(beanName, context);
 
     Class<?> endpointClass = definition.getBeanClass();
 
-    String[] path = getPath(definition, context);
+    String[] path = getPath(beanName, definition, context);
 
     Method[] declaredMethods = endpointClass.getDeclaredMethods();
 
@@ -141,16 +142,13 @@ public class WebSocketHandlerRegistry
       boolean containsPathVariable = HandlerMethodRegistry.containsPathVariable(pattern);
       WebSocketHandlerDelegate annotationHandler = new WebSocketHandlerDelegate(
               pathPattern, containsPathVariable, onOpen, onClose, onError, onMessage, afterHandshake);
-      WebSocketHandler handler = handlerBuilder.build(definition, context, annotationHandler);
+      WebSocketHandler handler = handlerBuilder.build(beanName, definition, context, annotationHandler);
       registerHandler(pattern, handler);
     }
   }
 
-  protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
-    EndpointMapping endpointMapping = context.findSynthesizedAnnotation(
-            definition.getBeanName(), EndpointMapping.class);
-
-    return endpointMapping.value();
+  protected String[] getPath(String beanName, BeanDefinition definition, WebApplicationContext context) {
+    return context.findAnnotationOnBean(beanName, EndpointMapping.class).getStringValueArray();
   }
 
   protected boolean isOnMessageHandler(Method declaredMethod, BeanDefinition definition) {

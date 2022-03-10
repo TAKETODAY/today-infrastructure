@@ -1005,7 +1005,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (converter == null) {
       converter = beanWrapper;
     }
-    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, definition, converter);
+    var valueResolver = new BeanDefinitionValueResolver(this, beanName, definition, converter);
 
     // Create a deep copy, resolving any references for values.
     List<PropertyValue> deepCopy = new ArrayList<>(original.size());
@@ -1408,7 +1408,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
       String factoryBeanName = merged.getFactoryBeanName();
       if (factoryBeanName != null) {
-        if (factoryBeanName.equals(merged.getBeanName())) {
+        if (factoryBeanName.equals(beanName)) {
           throw new BeanDefinitionStoreException(merged.getResourceDescription(),
                   "factory-bean reference points back to the same bean merged");
         }
@@ -1581,7 +1581,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // If we're allowed, we can create the factory bean and call getObjectType() early
     if (allowInit) {
-      FactoryBean<?> factoryBean = getFactoryBeanForTypeCheck(merged);
+      FactoryBean<?> factoryBean = getFactoryBeanForTypeCheck(beanName, merged);
       if (factoryBean != null) {
         // Try to obtain the FactoryBean's object type from this early stage of the instance.
         Class<?> type = getTypeForFactoryBean(factoryBean);
@@ -1630,8 +1630,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   @Nullable
-  private FactoryBean<?> getFactoryBeanForTypeCheck(RootBeanDefinition def) {
-    String beanName = def.getBeanName();
+  private FactoryBean<?> getFactoryBeanForTypeCheck(String beanName, RootBeanDefinition def) {
     if (def.isSingleton()) {
       synchronized(getSingletonMutex()) {
         Object instance = factoryBeanInstanceCache.get(beanName);

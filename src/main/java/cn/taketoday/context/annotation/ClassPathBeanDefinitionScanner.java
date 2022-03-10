@@ -282,45 +282,6 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param basePackages the packages to check for annotated classes
    * @return set of beans registered if any for tooling registration purposes (never {@code null})
    */
-  @Deprecated
-  public Set<BeanDefinition> scanning(String... basePackages) {
-    Assert.notEmpty(basePackages, "At least one base package must be specified");
-    LinkedHashSet<BeanDefinition> beanDefinitions = new LinkedHashSet<>();
-    for (String basePackage : basePackages) {
-      try {
-        scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
-          ScannedGenericBeanDefinition candidate = new ScannedGenericBeanDefinition(metadataReader);
-          candidate.setSource(metadataReader.getResource());
-
-          ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
-          candidate.setScope(scopeMetadata.getScopeName());
-          AnnotationConfigUtils.processCommonDefinitionAnnotations(candidate);
-
-          String beanName = beanNameGenerator.generateBeanName(candidate, registry);
-          postProcessBeanDefinition(candidate, beanName);
-
-          if (checkCandidate(beanName, candidate)) {
-            beanDefinitions.add(candidate);
-            registerBeanDefinition(candidate, registry);
-          }
-        });
-      }
-      catch (IOException ex) {
-        throw new BeanDefinitionStoreException("I/O failure during classpath scanning", ex);
-      }
-    }
-    return beanDefinitions;
-  }
-
-  /**
-   * Perform a scan within the specified base packages,
-   * returning the registered bean definitions.
-   * <p>This method does <i>not</i> register an annotation config processor
-   * but rather leaves this up to the caller.
-   *
-   * @param basePackages the packages to check for annotated classes
-   * @return set of beans registered if any for tooling registration purposes (never {@code null})
-   */
   public Set<BeanDefinitionHolder> doScan(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
     LinkedHashSet<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
@@ -378,18 +339,6 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
     if (autowireCandidatePatterns != null) {
       beanDefinition.setAutowireCandidate(StringUtils.simpleMatch(autowireCandidatePatterns, beanName));
     }
-  }
-
-  /**
-   * Register the specified bean with the given registry.
-   * <p>Can be overridden in subclasses, e.g. to adapt the registration
-   * process or to register further bean definitions for each scanned bean.
-   *
-   * @param definition the bean definition plus bean name for the bean
-   * @param registry the BeanDefinitionRegistry to register the bean with
-   */
-  protected void registerBeanDefinition(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    registry.registerBeanDefinition(definition);
   }
 
   /**

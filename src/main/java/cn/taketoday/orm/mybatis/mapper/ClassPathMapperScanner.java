@@ -206,7 +206,7 @@ public class ClassPathMapperScanner {
 
     String beanClassName = definition.getBeanClassName();
     log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
-            definition.getBeanName(), beanClassName);
+            holder.getBeanName(), beanClassName);
 
     // the mapper interface is the original class of the bean
     // but, the actual class of the bean is MapperFactoryBean
@@ -247,7 +247,7 @@ public class ClassPathMapperScanner {
     }
 
     if (!explicitFactoryUsed) {
-      log.debug("Enabling autowire by type for MapperFactoryBean with name '{}'.", definition.getBeanName());
+      log.debug("Enabling autowire by type for MapperFactoryBean with name '{}'.", holder.getBeanName());
       definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
     }
 

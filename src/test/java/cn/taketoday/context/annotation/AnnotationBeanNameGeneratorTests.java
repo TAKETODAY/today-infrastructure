@@ -35,7 +35,7 @@ import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Service;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.Controller;
-import example.scannable.CustomStereotype;
+import example.scannable.DefaultNamedComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -102,7 +102,7 @@ class AnnotationBeanNameGeneratorTests {
     BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
     AnnotatedBeanDefinition bd = new AnnotatedGenericBeanDefinition(ComponentFromNonStringMeta.class);
     String beanName = this.beanNameGenerator.generateBeanName(bd, registry);
-    assertThat(beanName).isEqualTo("componentFromNonStringMeta");
+    assertThat(beanName).isEqualTo("annotationBeanNameGeneratorTests.ComponentFromNonStringMeta");
   }
 
   @Test
@@ -129,7 +129,8 @@ class AnnotationBeanNameGeneratorTests {
   public void generateBeanNameFromComposedControllerAnnotationWithStringValue() {
     // SPR-11360
     BeanDefinitionRegistry registry = new DefaultBeanDefinitionRegistry();
-    AnnotatedBeanDefinition bd = new AnnotatedGenericBeanDefinition(ComposedControllerAnnotationWithStringValue.class);
+    AnnotatedBeanDefinition bd = new AnnotatedGenericBeanDefinition(
+            ComposedControllerAnnotationWithStringValue.class);
     String beanName = this.beanNameGenerator.generateBeanName(bd, registry);
     assertThat(beanName).isEqualTo("restController");
   }
@@ -162,9 +163,6 @@ class AnnotationBeanNameGeneratorTests {
   private static class ComponentFromNonStringMeta {
   }
 
-  /**
-   *
-   */
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   @Controller
@@ -183,11 +181,6 @@ class AnnotationBeanNameGeneratorTests {
 
   @TestRestController("restController")
   public static class ComposedControllerAnnotationWithStringValue {
-  }
-
-  @CustomStereotype
-  static class DefaultNamedComponent {
-
   }
 
 }

@@ -164,21 +164,6 @@ public abstract class BeanDefinitionReaderUtils {
    * @throws BeanDefinitionStoreException if registration failed
    */
   public static void registerBeanDefinition(
-          BeanDefinition definitionHolder, BeanDefinitionRegistry registry)
-          throws BeanDefinitionStoreException {
-
-    // Register bean definition under primary name.
-    registry.registerBeanDefinition(definitionHolder);
-  }
-
-  /**
-   * Register the given bean definition with the given bean factory.
-   *
-   * @param definitionHolder the bean definition including name and aliases
-   * @param registry the bean factory to register with
-   * @throws BeanDefinitionStoreException if registration failed
-   */
-  public static void registerBeanDefinition(
           BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) throws BeanDefinitionStoreException {
 
     // Register bean definition under primary name.

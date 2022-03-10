@@ -228,11 +228,10 @@ class AutowireCapableBeanFactoryTests {
       beanFactory.addBeanPostProcessor(new PostProcessor());
 
       BeanDefinition defaults = BeanDefinitionBuilder.genericBeanDefinition(AutowireTestBean.class).getBeanDefinition();
-      defaults.setBeanName(beanName);
 
       AutowireTestBean autowireTestBean = new AutowireTestBean();
       defaults.setInitMethodName("init");
-      beanFactory.registerBeanDefinition(defaults);
+      beanFactory.registerBeanDefinition(beanName, defaults);
       beanFactory.initializeBean(autowireTestBean, beanName); // no bean definition
 
       assertThat(autowireTestBean.name).isEqualTo(beanName);

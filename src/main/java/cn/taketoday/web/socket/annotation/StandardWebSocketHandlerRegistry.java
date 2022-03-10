@@ -22,11 +22,11 @@ package cn.taketoday.web.socket.annotation;
 
 import java.lang.reflect.Method;
 
-import jakarta.websocket.server.ServerEndpoint;
-
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import jakarta.websocket.server.ServerEndpoint;
 
 /**
  * jakarta.websocket.*
@@ -67,18 +67,17 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
   }
 
   @Override
-  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition) {
-    return super.isEndpoint(context, definition) || context.findSynthesizedAnnotation(
-            definition.getBeanName(), ServerEndpoint.class) != null;
+  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition, String beanName) {
+    return super.isEndpoint(context, definition, beanName) || context.findSynthesizedAnnotation(
+            beanName, ServerEndpoint.class) != null;
   }
 
   @Override
-  protected String[] getPath(BeanDefinition definition, WebApplicationContext context) {
-    ServerEndpoint annotationOnBean = context.findSynthesizedAnnotation(
-            definition.getBeanName(), ServerEndpoint.class);
-    if (annotationOnBean != null) {
-      return new String[] { annotationOnBean.value() };
+  protected String[] getPath(String beanName, BeanDefinition definition, WebApplicationContext context) {
+    MergedAnnotation<ServerEndpoint> serverEndpoint = context.findAnnotationOnBean(beanName, ServerEndpoint.class);
+    if (serverEndpoint.isPresent()) {
+      return serverEndpoint.getStringValueArray();
     }
-    return super.getPath(definition, context);
+    return super.getPath(beanName, definition, context);
   }
 }

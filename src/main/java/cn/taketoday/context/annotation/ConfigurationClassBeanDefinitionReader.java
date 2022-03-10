@@ -22,9 +22,7 @@ package cn.taketoday.context.annotation;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +34,7 @@ import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -44,17 +43,20 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.loader.ScopeMetadata;
+import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
+import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -72,6 +74,7 @@ import cn.taketoday.util.StringUtils;
  */
 class ConfigurationClassBeanDefinitionReader {
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
+  private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
   private final ImportRegistry importRegistry;
   private final BeanNameGenerator importBeanNameGenerator;
@@ -136,11 +139,15 @@ class ConfigurationClassBeanDefinitionReader {
     AnnotationMetadata metadata = configClass.getMetadata();
     AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
 
+    ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
+    configBeanDef.setScope(scopeMetadata.getScopeName());
     String configBeanName = importBeanNameGenerator.generateBeanName(configBeanDef, bootstrapContext.getRegistry());
-
     AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
 
-    bootstrapContext.registerBeanDefinition(configBeanName, configBeanDef);
+    BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
+    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(
+            scopeMetadata, definitionHolder, bootstrapContext.getRegistry());
+    bootstrapContext.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
     configClass.setBeanName(configBeanName);
 
     if (logger.isTraceEnabled()) {
@@ -170,8 +177,13 @@ class ConfigurationClassBeanDefinitionReader {
     Assert.state(component.isPresent(), "No @Component annotation attributes");
 
     // Consider name and any aliases
-    List<String> names = new ArrayList<>(Arrays.asList(component.getStringArray("name")));
-    String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
+    ArrayList<String> names = CollectionUtils.newArrayList(component.getStringArray("name"));
+    String beanName = !names.isEmpty() ? names.remove(0) : methodName;
+
+    // Register aliases even when overridden
+    for (String alias : names) {
+      bootstrapContext.registerAlias(beanName, alias);
+    }
 
     // Has this effectively been overridden before (e.g. via XML)?
     if (isOverriddenByExistingDefinition(componentMethod, beanName)) {
@@ -192,10 +204,6 @@ class ConfigurationClassBeanDefinitionReader {
             DisableAllDependencyInjection.class.getName());
     boolean enableDependencyInjection = isEnableDependencyInjection(annotations, disableDependencyInjectionAll);
 
-    beanDef.setBeanName(beanName);
-    if (!names.isEmpty()) {
-      beanDef.setAliases(names.toArray(Constant.EMPTY_STRING_ARRAY));
-    }
     beanDef.setEnableDependencyInjection(enableDependencyInjection);
 
     if (metadata.isStatic()) {
@@ -213,7 +221,11 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setFactoryBeanName(configClass.getBeanName());
       beanDef.setUniqueFactoryMethodName(methodName);
     }
+    if (metadata instanceof StandardMethodMetadata sam) {
+      beanDef.setResolvedFactoryMethod(sam.getIntrospectedMethod());
+    }
 
+    beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
     AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef);
 
     if (!component.getBoolean("autowireCandidate")) {
@@ -257,7 +269,7 @@ class ConfigurationClassBeanDefinitionReader {
               annotationMetadata.getClassName(), beanName);
     }
 
-    bootstrapContext.registerBeanDefinition(beanDefToRegister);
+    bootstrapContext.registerBeanDefinition(beanName, beanDefToRegister);
   }
 
   private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableDependencyInjectionAll) {

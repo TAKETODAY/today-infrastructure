@@ -80,8 +80,6 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
             aliases = StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(name));
           }
         }
-        definition.setBeanName(id);
-        definition.setAliases(aliases);
         BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, id, aliases);
         registerBeanDefinition(holder, parserContext.getRegistry());
         if (shouldFireEvents()) {
@@ -141,7 +139,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
    *
    * @param definition the bean definition to be registered
    * @param registry the registry that the bean is to be registered with
-   * @see BeanDefinitionReaderUtils#registerBeanDefinition(BeanDefinition, BeanDefinitionRegistry)
+   * @see BeanDefinitionReaderUtils#registerBeanDefinition(BeanDefinitionHolder, BeanDefinitionRegistry)
    */
   protected void registerBeanDefinition(BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
     BeanDefinitionReaderUtils.registerBeanDefinition(definition, registry);

@@ -38,6 +38,7 @@ import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
@@ -55,6 +56,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
@@ -218,10 +220,10 @@ public class ConfigurationClassPostProcessor
    * {@link Configuration} classes.
    */
   public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
-    ArrayList<BeanDefinition> configCandidates = new ArrayList<>();
+    ArrayList<BeanDefinitionHolder> configCandidates = new ArrayList<>();
     String[] candidateNames = registry.getBeanDefinitionNames();
     BootstrapContext bootstrapContext = obtainBootstrapContext();
-
+    MetadataReaderFactory metadataReaderFactory = bootstrapContext.getMetadataReaderFactory();
     for (String beanName : candidateNames) {
       BeanDefinition beanDef = registry.getBeanDefinition(beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
@@ -229,8 +231,8 @@ public class ConfigurationClassPostProcessor
           log.debug("Bean definition has already been processed as a configuration class: {}", beanDef);
         }
       }
-      else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, bootstrapContext)) {
-        configCandidates.add(beanDef);
+      else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, metadataReaderFactory)) {
+        configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
       }
     }
 
@@ -241,8 +243,8 @@ public class ConfigurationClassPostProcessor
 
     // Sort by previously determined @Order value, if applicable
     configCandidates.sort((bd1, bd2) -> {
-      int i1 = ConfigurationClassUtils.getOrder(bd1);
-      int i2 = ConfigurationClassUtils.getOrder(bd2);
+      int i1 = ConfigurationClassUtils.getOrder(bd1.getBeanDefinition());
+      int i2 = ConfigurationClassUtils.getOrder(bd2.getBeanDefinition());
       return Integer.compare(i1, i2);
     });
 
@@ -262,7 +264,7 @@ public class ConfigurationClassPostProcessor
     // Parse each @Configuration class
     var parser = new ConfigurationClassParser(bootstrapContext);
 
-    LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>(configCandidates);
+    LinkedHashSet<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
     HashSet<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
     do {
       parser.parse(candidates);
@@ -290,9 +292,9 @@ public class ConfigurationClassPostProcessor
         for (String candidateName : newCandidateNames) {
           if (!oldCandidateNames.contains(candidateName)) {
             BeanDefinition bd = registry.getBeanDefinition(candidateName);
-            if (bd != null && ConfigurationClassUtils.checkConfigurationClassCandidate(bd, bootstrapContext)
+            if (bd != null && ConfigurationClassUtils.checkConfigurationClassCandidate(bd, metadataReaderFactory)
                     && !alreadyParsedClasses.contains(bd.getBeanClassName())) {
-              candidates.add(bd);
+              candidates.add(new BeanDefinitionHolder(bd, candidateName));
             }
           }
         }

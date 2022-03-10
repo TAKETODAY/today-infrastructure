@@ -215,10 +215,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private Resource resource;
 
-  private String beanName;
-
-  private String[] aliases;
-
   /** enable DI @since 4.0 */
   private boolean enableDependencyInjection = true;
 
@@ -393,29 +389,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setEnforceDestroyMethod(false);
   }
 
-  public void setBeanName(String beanName) {
-    this.beanName = beanName;
-  }
-
-  public String getBeanName() {
-    return beanName;
-  }
-
-  @Override
-  public void setAliases(String[] aliases) {
-    this.aliases = aliases;
-  }
-
-  @Override
-  public String[] getAliases() {
-    return aliases;
-  }
-
-  @Override
-  public boolean hasAliases() {
-    return ObjectUtils.isNotEmpty(getAliases());
-  }
-
   /** @since 4.0 */
   @Override
   public void setEnableDependencyInjection(boolean enableDependencyInjection) {
@@ -496,7 +469,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @see #resolveBeanClass(ClassLoader)
    */
   public boolean hasBeanClass() {
-    return (this.beanClass instanceof Class);
+    return beanClass instanceof Class;
   }
 
   /**
@@ -1314,13 +1287,11 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
             && this.lenientConstructorResolution == that.lenientConstructorResolution
             && this.enforceDestroyMethod == that.enforceDestroyMethod
             && Objects.equals(this.scope, that.scope)
-            && Objects.equals(this.beanName, that.beanName)
             && Objects.equals(this.methodOverrides, that.methodOverrides)
             && Objects.equals(this.factoryBeanName, that.factoryBeanName)
             && Objects.equals(this.factoryMethodName, that.factoryMethodName)
             && Objects.equals(this.qualifiers, that.qualifiers)
             && Objects.equals(getBeanClassName(), that.getBeanClassName())
-            && Arrays.equals(this.aliases, that.aliases)
             && Arrays.equals(this.initMethodNames, that.initMethodNames)
             && Arrays.equals(this.destroyMethodNames, that.destroyMethodNames)
             && Arrays.equals(this.dependsOn, that.dependsOn)
@@ -1364,8 +1335,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   public String toString() {
     StringBuilder sb = new StringBuilder("class [");
     sb.append(getBeanClassName()).append(']');
-    sb.append("; name=").append(this.beanName);
-    sb.append("; aliases=").append(this.aliases);
     sb.append("; scope=").append(this.scope);
     sb.append("; abstract=").append(this.abstractFlag);
     sb.append("; lazyInit=").append(this.lazyInit);
@@ -1378,7 +1347,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     sb.append("; initMethodNames=").append(this.initMethodNames);
     sb.append("; destroyMethodNames=").append(this.destroyMethodNames);
     if (this.resource != null) {
-      sb.append("; defined in ").append(resource);
+      sb.append("; defined in ").append(this.resource);
     }
     return sb.toString();
   }

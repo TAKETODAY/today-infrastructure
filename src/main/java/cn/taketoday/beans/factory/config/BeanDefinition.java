@@ -23,12 +23,10 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * A BeanDefinition describes a bean instance, which has property values,
@@ -82,47 +80,6 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
    * used when registering beans that are completely part of the internal workings
    */
   int ROLE_INFRASTRUCTURE = 2;
-
-  // naming
-
-  @Deprecated
-  String getBeanName();
-
-  @Deprecated
-  void setBeanName(String id);
-
-  /**
-   * @since 4.0
-   */
-  @Deprecated
-  String[] getAliases();
-
-  /**
-   * @since 4.0
-   */
-  @Deprecated
-  void setAliases(String... aliases);
-
-  /**
-   * @since 4.0
-   */
-  @Deprecated
-  default boolean hasAliases() {
-    return ObjectUtils.isNotEmpty(getAliases());
-  }
-
-  /**
-   * Determine whether the given candidate name matches the bean name
-   * or the aliases stored in this bean definition.
-   */
-  @Deprecated
-  default boolean matchesName(@Nullable String candidateName) {
-    return candidateName != null && (
-            candidateName.equals(getBeanName())
-                    || candidateName.equals(BeanFactoryUtils.transformedBeanName(getBeanName()))
-                    || ObjectUtils.containsElement(getAliases(), candidateName)
-    );
-  }
 
   // Modifiable attributes
 

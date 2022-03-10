@@ -73,17 +73,20 @@ class BeanDefinitionValueResolver {
   private final TypeConverter typeConverter;
 
   /**
-   * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition.
+   * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition,
+   * using the given {@link TypeConverter}.
    *
    * @param beanFactory the BeanFactory to resolve against
+   * @param beanName the name of the bean that we work on
    * @param beanDefinition the BeanDefinition of the bean that we work on
    * @param typeConverter the TypeConverter to use for resolving TypedStringValues
    */
-  public BeanDefinitionValueResolver(
-          AbstractAutowireCapableBeanFactory beanFactory, BeanDefinition beanDefinition, TypeConverter typeConverter) {
+  public BeanDefinitionValueResolver(AbstractAutowireCapableBeanFactory beanFactory, String beanName,
+          BeanDefinition beanDefinition, TypeConverter typeConverter) {
+
     this.beanFactory = beanFactory;
+    this.beanName = beanName;
     this.beanDefinition = beanDefinition;
-    this.beanName = beanDefinition.getBeanName();
     this.typeConverter = typeConverter;
   }
 
@@ -142,14 +145,10 @@ class BeanDefinitionValueResolver {
         return resolveInnerBean(argName, bdHolder.getBeanName(), bdHolder.getBeanDefinition());
       }
       else if (value instanceof BeanDefinition bd) {
-        String name = bd.getBeanName();
-        if (!StringUtils.hasText(name)) {
-          // Resolve plain BeanDefinition, without contained name: use dummy name.
-          String innerBeanName = "(inner bean)" + BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR +
-                  ObjectUtils.getIdentityHexString(bd);
-          bd.setBeanName(innerBeanName);
-        }
-        return resolveInnerBean(argName, bd.getBeanName(), bd);
+        // Resolve plain BeanDefinition, without contained name: use dummy name.
+        String innerBeanName = "(inner bean)" + BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR +
+                ObjectUtils.getIdentityHexString(bd);
+        return resolveInnerBean(argName, innerBeanName, bd);
       }
       else if (value instanceof ManagedArray managedArray) {
         // May need to resolve contained runtime references.

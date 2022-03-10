@@ -92,11 +92,11 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * (potentially DestructionBeanPostProcessor), if any
    */
   public DisposableBeanAdapter(
-          Object bean, RootBeanDefinition beanDefinition,
+          String beanName, Object bean, RootBeanDefinition beanDefinition,
           @Nullable List<DestructionAwareBeanPostProcessor> postProcessors) {
     Assert.notNull(bean, "Disposable bean must not be null");
     this.bean = bean;
-    this.beanName = beanDefinition.getBeanName();
+    this.beanName = beanName;
     this.nonPublicAccessAllowed = beanDefinition.isNonPublicAccessAllowed();
     this.invokeDisposableBean = bean instanceof DisposableBean
             && !beanDefinition.hasAnyExternallyManagedDestroyMethod(DESTROY_METHOD_NAME);
@@ -405,36 +405,6 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
       return filteredPostProcessors;
     }
     return null;
-  }
-
-  /**
-   * Destroy bean instance
-   *
-   * @param obj Bean instance
-   */
-  public static void destroyBean(Object obj) {
-    destroyBean(obj, null);
-  }
-
-  /**
-   * Destroy bean instance
-   *
-   * @param obj Bean instance
-   */
-  public static void destroyBean(Object obj, RootBeanDefinition def) {
-    destroyBean(obj, def, null);
-  }
-
-  /**
-   * Destroy bean instance
-   *
-   * @param obj Bean instance
-   */
-  public static void destroyBean(
-          Object obj, RootBeanDefinition def, List<DestructionAwareBeanPostProcessor> postProcessors) {
-    Assert.notNull(obj, "bean instance must not be null");
-    new DisposableBeanAdapter(obj, def, postProcessors)
-            .destroy();
   }
 
   @Nullable

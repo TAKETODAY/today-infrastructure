@@ -496,7 +496,6 @@ class MapperScanTest {
 
     @Override
     public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-      definition.setBeanName(definition.getBeanClassName());
       return definition.getBeanClassName();
     }
 

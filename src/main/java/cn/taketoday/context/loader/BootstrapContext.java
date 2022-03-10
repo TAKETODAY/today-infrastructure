@@ -26,16 +26,16 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanNameGenerator;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
+import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
-import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.DefaultBeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.context.ApplicationContext;
@@ -157,7 +157,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
    * @param definition the bean definition to generate a name for
    * @return the generated bean name
    */
-  public String populateName(BeanDefinition definition) {
+  public String generateBeanName(BeanDefinition definition) {
     return beanNameGenerator.generateBeanName(definition, registry);
   }
 
@@ -184,10 +184,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   public void registerAlias(String beanName, String alias) {
     registry.registerAlias(beanName, alias);
-  }
-
-  public void registerBeanDefinition(BeanDefinition definition) {
-    registerBeanDefinition(definition.getBeanName(), definition);
   }
 
   public boolean containsBeanDefinition(Class<?> beanClass) {

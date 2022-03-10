@@ -1481,7 +1481,7 @@ public class BeanDefinitionParserDelegate {
   }
 
   @Nullable
-  private BeanDefinition parseNestedCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
+  private BeanDefinitionHolder parseNestedCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
     BeanDefinition innerDefinition = parseCustomElement(ele, containingBd);
     if (innerDefinition == null) {
       error("Incorrect usage of element '" + ele.getNodeName() + "' in a nested manner. " +
@@ -1493,8 +1493,7 @@ public class BeanDefinitionParserDelegate {
     if (log.isTraceEnabled()) {
       log.trace("Using generated bean name [{}] for nested custom element '{}'", id, ele.getNodeName());
     }
-    innerDefinition.setBeanName(id);
-    return innerDefinition;
+    return new BeanDefinitionHolder(innerDefinition, id);
   }
 
   /**

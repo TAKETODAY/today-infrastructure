@@ -671,7 +671,7 @@ public abstract class AbstractBeanFactory
         // Register a DisposableBean implementation that performs all destruction
         // work for the given bean: DestructionAwareBeanPostProcessors,
         // DisposableBean interface, custom destroy method.
-        registerDisposableBean(beanName, new DisposableBeanAdapter(
+        registerDisposableBean(beanName, new DisposableBeanAdapter(beanName,
                 bean, mbd, DisposableBeanAdapter.filter(bean, postProcessors().destruction)));
       }
       else {
@@ -681,7 +681,7 @@ public abstract class AbstractBeanFactory
           throw new IllegalStateException("No Scope registered for scope name '" + mbd.getScope() + "'");
         }
         scope.registerDestructionCallback(
-                beanName, new DisposableBeanAdapter(bean, mbd,
+                beanName, new DisposableBeanAdapter(beanName, bean, mbd,
                         DisposableBeanAdapter.filter(bean, postProcessors().destruction)));
       }
     }
@@ -943,7 +943,7 @@ public abstract class AbstractBeanFactory
       if (factoryClass == null) {
         throw new IllegalStateException(
                 "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
-                        definition.getBeanName() + "' not found in this factory: " + this);
+                        beanName + "' not found in this factory: " + this);
       }
     }
     return factoryClass;
@@ -1165,19 +1165,21 @@ public abstract class AbstractBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public void destroyBean(String name, Object beanInstance) {
-    destroyBean(beanInstance, getMergedLocalBeanDefinition(name));
+  public void destroyBean(String beanName, Object beanInstance) {
+    destroyBean(beanName, beanInstance, getMergedLocalBeanDefinition(beanName));
   }
 
   /**
-   * Destroy a bean with bean instance and bean definition
+   * Destroy the given bean instance (usually a prototype instance
+   * obtained from this factory) according to the given bean definition.
    *
-   * @param beanInstance Bean instance
-   * @param def Bean definition
+   * @param beanName the name of the bean definition
+   * @param bean the bean instance to destroy
+   * @param mbd the merged bean definition
    */
-  public void destroyBean(Object beanInstance, RootBeanDefinition def) {
-    new DisposableBeanAdapter(beanInstance, def, postProcessors().destruction)
-            .destroy();
+  protected void destroyBean(String beanName, Object bean, RootBeanDefinition mbd) {
+    new DisposableBeanAdapter(
+            beanName, bean, mbd, postProcessors().destruction).destroy();
   }
 
   // Scope
@@ -1212,18 +1214,18 @@ public abstract class AbstractBeanFactory
 
   @Override
   public void destroyScopedBean(String beanName) {
-    RootBeanDefinition def = getMergedLocalBeanDefinition(beanName);
-    if (def.isSingleton() || def.isPrototype()) {
+    RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
+    if (merged.isSingleton() || merged.isPrototype()) {
       throw new IllegalArgumentException(
               "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");
     }
-    Scope scope = scopes.get(def.getScope());
+    Scope scope = scopes.get(merged.getScope());
     if (scope == null) {
-      throw new IllegalStateException("No Scope SPI registered for scope name '" + def.getScope() + "'");
+      throw new IllegalStateException("No Scope SPI registered for scope name '" + merged.getScope() + "'");
     }
     Object bean = scope.remove(beanName);
     if (bean != null) {
-      destroyBean(bean, def);
+      destroyBean(beanName, bean, merged);
     }
   }
 

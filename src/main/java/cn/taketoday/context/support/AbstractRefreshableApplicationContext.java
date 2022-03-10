@@ -249,11 +249,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   }
 
   @Override
-  public void registerBeanDefinition(BeanDefinition def) {
-    getBeanFactory().registerBeanDefinition(def);
-  }
-
-  @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
     getBeanFactory().registerBeanDefinition(beanName, def);
   }

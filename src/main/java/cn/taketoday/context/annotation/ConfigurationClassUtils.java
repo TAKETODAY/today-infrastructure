@@ -30,11 +30,10 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.event.EventListenerFactory;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.Conventions;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
@@ -66,11 +65,6 @@ abstract class ConfigurationClassUtils {
   private static final Set<String> candidateIndicators = Set.of(
           Import.class.getName(), Component.class.getName(), ComponentScan.class.getName(), ImportResource.class.getName()
   );
-
-  public static boolean checkConfigurationClassCandidate(
-          BeanDefinition beanDef, BootstrapContext loadingContext) {
-    return checkConfigurationClassCandidate(beanDef, loadingContext.getMetadataReaderFactory());
-  }
 
   /**
    * Check whether the given bean definition is a candidate for a configuration class

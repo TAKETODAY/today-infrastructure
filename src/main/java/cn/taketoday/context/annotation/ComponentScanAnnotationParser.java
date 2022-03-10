@@ -25,9 +25,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
 import cn.taketoday.context.loader.BootstrapContext;
@@ -49,23 +49,23 @@ import cn.taketoday.util.StringUtils;
  */
 class ComponentScanAnnotationParser {
 
-  private final BootstrapContext loadingContext;
+  private final BootstrapContext context;
 
-  public ComponentScanAnnotationParser(BootstrapContext loadingContext) {
-    this.loadingContext = loadingContext;
+  public ComponentScanAnnotationParser(BootstrapContext bootstrapContext) {
+    this.context = bootstrapContext;
   }
 
-  public Set<BeanDefinition> parse(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
+  public Set<BeanDefinitionHolder> parse(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(
-            loadingContext.getRegistry(), componentScan.getBoolean("useDefaultFilters"),
-            loadingContext.getEnvironment()
+            context.getRegistry(), componentScan.getBoolean("useDefaultFilters"),
+            context.getEnvironment()
     );
 
     Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("namePopulator");
 
     boolean useInheritedPopulator = BeanNameGenerator.class == generatorClass;
     scanner.setBeanNameGenerator(
-            useInheritedPopulator ? loadingContext.getBeanNamePopulator()
+            useInheritedPopulator ? context.getBeanNamePopulator()
                                   : BeanUtils.newInstance(generatorClass));
 
     Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");
@@ -75,16 +75,14 @@ class ComponentScanAnnotationParser {
 
     scanner.setResourcePattern(componentScan.getString("resourcePattern"));
 
-    for (MergedAnnotation<Filter> includeFilter
-            : componentScan.getAnnotationArray("includeFilters", Filter.class)) {
-      List<TypeFilter> typeFilters = TypeFilterUtils.createTypeFiltersFor(includeFilter, loadingContext);
+    for (var includeFilter : componentScan.getAnnotationArray("includeFilters", Filter.class)) {
+      List<TypeFilter> typeFilters = TypeFilterUtils.createTypeFiltersFor(includeFilter, context);
       for (TypeFilter typeFilter : typeFilters) {
         scanner.addIncludeFilter(typeFilter);
       }
     }
-    for (MergedAnnotation<Filter> excludeFilter
-            : componentScan.getAnnotationArray("excludeFilters", Filter.class)) {
-      List<TypeFilter> typeFilters = TypeFilterUtils.createTypeFiltersFor(excludeFilter, loadingContext);
+    for (var excludeFilter : componentScan.getAnnotationArray("excludeFilters", Filter.class)) {
+      List<TypeFilter> typeFilters = TypeFilterUtils.createTypeFiltersFor(excludeFilter, context);
       for (TypeFilter typeFilter : typeFilters) {
         scanner.addExcludeFilter(typeFilter);
       }
@@ -99,7 +97,7 @@ class ComponentScanAnnotationParser {
     String[] basePackagesArray = componentScan.getStringArray("basePackages");
     for (String pkg : basePackagesArray) {
       String[] tokenized = StringUtils.tokenizeToStringArray(
-              loadingContext.evaluateExpression(pkg),
+              context.evaluateExpression(pkg),
               ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS
       );
       Collections.addAll(basePackages, tokenized);
@@ -118,7 +116,7 @@ class ComponentScanAnnotationParser {
       }
     });
 
-    return scanner.scanning(StringUtils.toStringArray(basePackages));
+    return scanner.doScan(StringUtils.toStringArray(basePackages));
   }
 
 }

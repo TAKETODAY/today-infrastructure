@@ -94,7 +94,7 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   }
 
   public WebSocketHandler build(
-          BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
+          String beanName, BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
     return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 

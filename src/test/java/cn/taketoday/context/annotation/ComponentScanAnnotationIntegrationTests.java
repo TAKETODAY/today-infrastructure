@@ -404,9 +404,7 @@ class MyBeanNameGenerator extends AnnotationBeanNameGenerator {
 
   @Override
   public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
-    String s = "custom_" + super.generateBeanName(definition, registry);
-    definition.setBeanName(s);
-    return s;
+    return "custom_" + super.generateBeanName(definition, registry);
   }
 }
 

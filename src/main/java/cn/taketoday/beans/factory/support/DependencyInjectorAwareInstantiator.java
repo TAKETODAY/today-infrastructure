@@ -138,11 +138,10 @@ public class DependencyInjectorAwareInstantiator {
           else if (beanFactory instanceof BeanDefinitionRegistry registry) {
             RootBeanDefinition definition = new RootBeanDefinition(DependencyInjectorAwareInstantiator.class);
             definition.setSynthetic(true);
-            definition.setBeanName(BEAN_NAME);
             definition.setEnableDependencyInjection(false);
             definition.setInstanceSupplier(SingletonSupplier.valueOf(instantiator));
 
-            registry.registerBeanDefinition(definition);
+            registry.registerBeanDefinition(BEAN_NAME, definition);
           }
         }
       }

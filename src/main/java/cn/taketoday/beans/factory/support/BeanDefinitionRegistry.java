@@ -61,16 +61,6 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
   void registerBeanDefinition(String name, BeanDefinition def);
 
   /**
-   * Register {@link BeanDefinition} with {@link BeanDefinition#getBeanName()}
-   *
-   * @param def Target {@link BeanDefinition}
-   * @since 2.1.6
-   */
-  default void registerBeanDefinition(BeanDefinition def) {
-    registerBeanDefinition(def.getBeanName(), def);
-  }
-
-  /**
    * Remove the BeanDefinition for the given name.
    *
    * @param beanName The name of the bean instance to register
