@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.fail;
  * because they compare relative performance of interpreted vs compiled.
  *
  * @author Andy Clement
- * @since 4.1
+ * @since 4.0
  */
 @Disabled
 public class SpelCompilationPerformanceTests extends AbstractExpressionTests {

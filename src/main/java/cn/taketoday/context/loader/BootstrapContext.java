@@ -25,6 +25,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;

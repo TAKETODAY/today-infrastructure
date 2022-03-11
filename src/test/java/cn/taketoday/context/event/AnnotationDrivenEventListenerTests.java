@@ -65,7 +65,6 @@ import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.util.concurrent.SettableListenableFuture;
 import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor;
-import freemarker.template.utility.ObjectFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;

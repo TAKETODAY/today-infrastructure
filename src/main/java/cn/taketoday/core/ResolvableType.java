@@ -47,6 +47,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -949,7 +950,7 @@ public class ResolvableType implements Serializable {
     }
     if (this.variableResolver != otherType.variableResolver &&
             (this.variableResolver == null || otherType.variableResolver == null ||
-                    !Objects.equals(this.variableResolver.getSource(), otherType.variableResolver.getSource()))) {
+                    !ObjectUtils.nullSafeEquals(this.variableResolver.getSource(), otherType.variableResolver.getSource()))) {
       return false;
     }
     return Objects.equals(this.componentType, otherType.componentType);

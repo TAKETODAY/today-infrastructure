@@ -23,6 +23,7 @@ package cn.taketoday.cache.redisson;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.redisson.api.RedissonClient;
@@ -54,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/11 11:19
  */
+@Disabled
 class RedissonCacheTests {
 
   public static class SampleObject implements Serializable {

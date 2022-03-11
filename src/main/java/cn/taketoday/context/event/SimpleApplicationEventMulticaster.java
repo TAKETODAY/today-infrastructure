@@ -58,6 +58,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
   @Nullable
   private ErrorHandler errorHandler;
+
   @Nullable
   private volatile Logger lazyLogger;
 
@@ -147,7 +148,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     }
   }
 
-  private ResolvableType resolveDefaultEventType(Object event) {
+  private ResolvableType resolveDefaultEventType(ApplicationEvent event) {
     return ResolvableType.fromInstance(event);
   }
 
@@ -157,7 +158,23 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
    * @param listener the ApplicationListener to invoke
    * @param event the current event to propagate
    */
-  protected void invokeListener(ApplicationListener<ApplicationEvent> listener, ApplicationEvent event) {
+  protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
+    ErrorHandler errorHandler = getErrorHandler();
+    if (errorHandler != null) {
+      try {
+        doInvokeListener(listener, event);
+      }
+      catch (Throwable err) {
+        errorHandler.handleError(err);
+      }
+    }
+    else {
+      doInvokeListener(listener, event);
+    }
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
     try {
       listener.onApplicationEvent(event);
     }

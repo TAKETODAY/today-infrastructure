@@ -183,14 +183,8 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
       }
       char ch = expressionString.charAt(pos);
       switch (ch) {
-        case '{':
-        case '[':
-        case '(':
-          stack.push(new Bracket(ch, pos));
-          break;
-        case '}':
-        case ']':
-        case ')':
+        case '{', '[', '(' -> stack.push(new Bracket(ch, pos));
+        case '}', ']', ')' -> {
           if (stack.isEmpty()) {
             throw new ParseException(expressionString, pos, "Found closing '" + ch +
                     "' at position " + pos + " without an opening '" +
@@ -202,9 +196,8 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
                     "' at position " + pos + " but most recent opening is '" + p.bracket +
                     "' at position " + p.pos);
           }
-          break;
-        case '\'':
-        case '"':
+        }
+        case '\'', '"' -> {
           // jump to the end of the literal
           int endLiteral = expressionString.indexOf(ch, pos + 1);
           if (endLiteral == -1) {
@@ -212,7 +205,7 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
                     "Found non terminating string literal starting at position " + pos);
           }
           pos = endLiteral;
-          break;
+        }
       }
       pos++;
     }
