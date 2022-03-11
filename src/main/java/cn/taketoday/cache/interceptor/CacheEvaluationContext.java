@@ -22,19 +22,33 @@ package cn.taketoday.cache.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Set;
 
 import cn.taketoday.context.expression.MethodBasedEvaluationContext;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * Cache specific evaluation context that adds a method parameters as SpEL
+ * variables, in a lazy manner. The lazy nature eliminates unneeded
+ * parsing of classes byte code for parameter discovery.
+ *
+ * <p>Also define a set of "unavailable variables" (i.e. variables that should
+ * lead to an exception right the way when they are accessed). This can be useful
+ * to verify a condition does not match even when not all potential variables
+ * are present.
+ *
+ * <p>To limit the creation of objects, an ugly constructor is used
+ * (rather then a dedicated 'closure'-like class for deferred execution).
+ *
+ * @author Costin Leau
+ * @author Stephane Nicoll
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/26 00:00
  */
 final class CacheEvaluationContext extends MethodBasedEvaluationContext {
 
-  private final Set<String> unavailableVariables = new HashSet<>(1);
+  private final HashSet<String> unavailableVariables = new HashSet<>(1);
 
   public CacheEvaluationContext(
           Object rootObject, Method method, Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {

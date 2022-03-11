@@ -29,6 +29,18 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
+ * A method-based {@link StandardExpressionContext} that
+ * provides explicit support for method-based invocations.
+ *
+ * <p>Expose the actual method arguments using the following aliases:
+ * <ol>
+ * <li>pX where X is the index of the argument (p0 for the first argument)</li>
+ * <li>aX where X is the index of the argument (a1 for the second argument)</li>
+ * <li>the name of the parameter as discovered by a configurable {@link ParameterNameDiscoverer}</li>
+ * </ol>
+ *
+ * @author Stephane Nicoll
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/25 17:39
  */

@@ -25,10 +25,10 @@ import java.util.Collections;
 
 import javax.cache.annotation.CacheInvocationContext;
 
+import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.interceptor.CacheOperationInvocationContext;
 import cn.taketoday.cache.interceptor.CacheResolver;
 import cn.taketoday.cache.jcache.JCacheCache;
-import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Assert;
 
 /**

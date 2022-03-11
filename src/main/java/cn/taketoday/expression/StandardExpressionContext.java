@@ -137,7 +137,7 @@ public class StandardExpressionContext extends ExpressionContext implements Bean
   @Override
   public ExpressionResolver getResolver() {
     if (expressionResolver == null) {
-      ExpressionResolverComposite resolver = new ExpressionResolverComposite(9);
+      ExpressionResolverComposite resolver = new ExpressionResolverComposite(10);
       this.customResolvers = new ExpressionResolverComposite();
       resolver.add(customResolvers);
       resolver.add(new BeanNameExpressionResolver(this));

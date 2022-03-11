@@ -23,11 +23,11 @@ package cn.taketoday.cache.jcache.interceptor;
 import java.util.Collection;
 import java.util.Collections;
 
+import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.AbstractCacheResolver;
 import cn.taketoday.cache.interceptor.BasicOperation;
 import cn.taketoday.cache.interceptor.CacheOperationInvocationContext;
 import cn.taketoday.cache.interceptor.CacheResolver;
-import cn.taketoday.cache.CacheManager;
 
 /**
  * A simple {@link CacheResolver} that resolves the exception cache

@@ -20,12 +20,6 @@
 
 package cn.taketoday.cache.annotation;
 
-import cn.taketoday.cache.interceptor.AbstractFallbackCacheOperationSource;
-import cn.taketoday.cache.interceptor.CacheOperation;
-import cn.taketoday.cache.interceptor.CacheOperationSource;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Assert;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,6 +28,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import cn.taketoday.cache.interceptor.AbstractFallbackCacheOperationSource;
+import cn.taketoday.cache.interceptor.CacheOperation;
+import cn.taketoday.cache.interceptor.CacheOperationSource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Implementation of the {@link CacheOperationSource
@@ -52,154 +52,156 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperationSource implements Serializable {
 
-	private final boolean publicMethodsOnly;
+  private final boolean publicMethodsOnly;
 
-	private final Set<CacheAnnotationParser> annotationParsers;
+  private final Set<CacheAnnotationParser> annotationParsers;
 
+  /**
+   * Create a default AnnotationCacheOperationSource, supporting public methods
+   * that carry the {@code Cacheable} and {@code CacheEvict} annotations.
+   */
+  public AnnotationCacheOperationSource() {
+    this(true);
+  }
 
-	/**
-	 * Create a default AnnotationCacheOperationSource, supporting public methods
-	 * that carry the {@code Cacheable} and {@code CacheEvict} annotations.
-	 */
-	public AnnotationCacheOperationSource() {
-		this(true);
-	}
+  /**
+   * Create a default {@code AnnotationCacheOperationSource}, supporting public methods
+   * that carry the {@code Cacheable} and {@code CacheEvict} annotations.
+   *
+   * @param publicMethodsOnly whether to support only annotated public methods
+   * typically for use with proxy-based AOP), or protected/private methods as well
+   * (typically used with AspectJ class weaving)
+   */
+  public AnnotationCacheOperationSource(boolean publicMethodsOnly) {
+    this.publicMethodsOnly = publicMethodsOnly;
+    this.annotationParsers = Collections.singleton(new FrameworkCacheAnnotationParser());
+  }
 
-	/**
-	 * Create a default {@code AnnotationCacheOperationSource}, supporting public methods
-	 * that carry the {@code Cacheable} and {@code CacheEvict} annotations.
-	 * @param publicMethodsOnly whether to support only annotated public methods
-	 * typically for use with proxy-based AOP), or protected/private methods as well
-	 * (typically used with AspectJ class weaving)
-	 */
-	public AnnotationCacheOperationSource(boolean publicMethodsOnly) {
-		this.publicMethodsOnly = publicMethodsOnly;
-		this.annotationParsers = Collections.singleton(new FrameworkCacheAnnotationParser());
-	}
+  /**
+   * Create a custom AnnotationCacheOperationSource.
+   *
+   * @param annotationParser the CacheAnnotationParser to use
+   */
+  public AnnotationCacheOperationSource(CacheAnnotationParser annotationParser) {
+    this.publicMethodsOnly = true;
+    Assert.notNull(annotationParser, "CacheAnnotationParser must not be null");
+    this.annotationParsers = Collections.singleton(annotationParser);
+  }
 
-	/**
-	 * Create a custom AnnotationCacheOperationSource.
-	 * @param annotationParser the CacheAnnotationParser to use
-	 */
-	public AnnotationCacheOperationSource(CacheAnnotationParser annotationParser) {
-		this.publicMethodsOnly = true;
-		Assert.notNull(annotationParser, "CacheAnnotationParser must not be null");
-		this.annotationParsers = Collections.singleton(annotationParser);
-	}
+  /**
+   * Create a custom AnnotationCacheOperationSource.
+   *
+   * @param annotationParsers the CacheAnnotationParser to use
+   */
+  public AnnotationCacheOperationSource(CacheAnnotationParser... annotationParsers) {
+    this.publicMethodsOnly = true;
+    Assert.notEmpty(annotationParsers, "At least one CacheAnnotationParser needs to be specified");
+    this.annotationParsers = new LinkedHashSet<>(Arrays.asList(annotationParsers));
+  }
 
-	/**
-	 * Create a custom AnnotationCacheOperationSource.
-	 * @param annotationParsers the CacheAnnotationParser to use
-	 */
-	public AnnotationCacheOperationSource(CacheAnnotationParser... annotationParsers) {
-		this.publicMethodsOnly = true;
-		Assert.notEmpty(annotationParsers, "At least one CacheAnnotationParser needs to be specified");
-		this.annotationParsers = new LinkedHashSet<>(Arrays.asList(annotationParsers));
-	}
+  /**
+   * Create a custom AnnotationCacheOperationSource.
+   *
+   * @param annotationParsers the CacheAnnotationParser to use
+   */
+  public AnnotationCacheOperationSource(Set<CacheAnnotationParser> annotationParsers) {
+    this.publicMethodsOnly = true;
+    Assert.notEmpty(annotationParsers, "At least one CacheAnnotationParser needs to be specified");
+    this.annotationParsers = annotationParsers;
+  }
 
-	/**
-	 * Create a custom AnnotationCacheOperationSource.
-	 * @param annotationParsers the CacheAnnotationParser to use
-	 */
-	public AnnotationCacheOperationSource(Set<CacheAnnotationParser> annotationParsers) {
-		this.publicMethodsOnly = true;
-		Assert.notEmpty(annotationParsers, "At least one CacheAnnotationParser needs to be specified");
-		this.annotationParsers = annotationParsers;
-	}
+  @Override
+  public boolean isCandidateClass(Class<?> targetClass) {
+    for (CacheAnnotationParser parser : this.annotationParsers) {
+      if (parser.isCandidateClass(targetClass)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
+  @Override
+  @Nullable
+  protected Collection<CacheOperation> findCacheOperations(Class<?> clazz) {
+    return determineCacheOperations(parser -> parser.parseCacheAnnotations(clazz));
+  }
 
-	@Override
-	public boolean isCandidateClass(Class<?> targetClass) {
-		for (CacheAnnotationParser parser : this.annotationParsers) {
-			if (parser.isCandidateClass(targetClass)) {
-				return true;
-			}
-		}
-		return false;
-	}
+  @Override
+  @Nullable
+  protected Collection<CacheOperation> findCacheOperations(Method method) {
+    return determineCacheOperations(parser -> parser.parseCacheAnnotations(method));
+  }
 
-	@Override
-	@Nullable
-	protected Collection<CacheOperation> findCacheOperations(Class<?> clazz) {
-		return determineCacheOperations(parser -> parser.parseCacheAnnotations(clazz));
-	}
+  /**
+   * Determine the cache operation(s) for the given {@link CacheOperationProvider}.
+   * <p>This implementation delegates to configured
+   * {@link CacheAnnotationParser CacheAnnotationParsers}
+   * for parsing known annotations into Framework's metadata attribute class.
+   * <p>Can be overridden to support custom annotations that carry caching metadata.
+   *
+   * @param provider the cache operation provider to use
+   * @return the configured caching operations, or {@code null} if none found
+   */
+  @Nullable
+  protected Collection<CacheOperation> determineCacheOperations(CacheOperationProvider provider) {
+    Collection<CacheOperation> ops = null;
+    for (CacheAnnotationParser parser : this.annotationParsers) {
+      Collection<CacheOperation> annOps = provider.getCacheOperations(parser);
+      if (annOps != null) {
+        if (ops == null) {
+          ops = annOps;
+        }
+        else {
+          Collection<CacheOperation> combined = new ArrayList<>(ops.size() + annOps.size());
+          combined.addAll(ops);
+          combined.addAll(annOps);
+          ops = combined;
+        }
+      }
+    }
+    return ops;
+  }
 
-	@Override
-	@Nullable
-	protected Collection<CacheOperation> findCacheOperations(Method method) {
-		return determineCacheOperations(parser -> parser.parseCacheAnnotations(method));
-	}
+  /**
+   * By default, only public methods can be made cacheable.
+   */
+  @Override
+  protected boolean allowPublicMethodsOnly() {
+    return this.publicMethodsOnly;
+  }
 
-	/**
-	 * Determine the cache operation(s) for the given {@link CacheOperationProvider}.
-	 * <p>This implementation delegates to configured
-	 * {@link CacheAnnotationParser CacheAnnotationParsers}
-	 * for parsing known annotations into Framework's metadata attribute class.
-	 * <p>Can be overridden to support custom annotations that carry caching metadata.
-	 * @param provider the cache operation provider to use
-	 * @return the configured caching operations, or {@code null} if none found
-	 */
-	@Nullable
-	protected Collection<CacheOperation> determineCacheOperations(CacheOperationProvider provider) {
-		Collection<CacheOperation> ops = null;
-		for (CacheAnnotationParser parser : this.annotationParsers) {
-			Collection<CacheOperation> annOps = provider.getCacheOperations(parser);
-			if (annOps != null) {
-				if (ops == null) {
-					ops = annOps;
-				}
-				else {
-					Collection<CacheOperation> combined = new ArrayList<>(ops.size() + annOps.size());
-					combined.addAll(ops);
-					combined.addAll(annOps);
-					ops = combined;
-				}
-			}
-		}
-		return ops;
-	}
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof AnnotationCacheOperationSource otherCos)) {
+      return false;
+    }
+    return (this.annotationParsers.equals(otherCos.annotationParsers) &&
+            this.publicMethodsOnly == otherCos.publicMethodsOnly);
+  }
 
-	/**
-	 * By default, only public methods can be made cacheable.
-	 */
-	@Override
-	protected boolean allowPublicMethodsOnly() {
-		return this.publicMethodsOnly;
-	}
+  @Override
+  public int hashCode() {
+    return this.annotationParsers.hashCode();
+  }
 
+  /**
+   * Callback interface providing {@link CacheOperation} instance(s) based on
+   * a given {@link CacheAnnotationParser}.
+   */
+  @FunctionalInterface
+  protected interface CacheOperationProvider {
 
-	@Override
-	public boolean equals(@Nullable Object other) {
-		if (this == other) {
-			return true;
-		}
-		if (!(other instanceof AnnotationCacheOperationSource otherCos)) {
-			return false;
-		}
-		return (this.annotationParsers.equals(otherCos.annotationParsers) &&
-				this.publicMethodsOnly == otherCos.publicMethodsOnly);
-	}
-
-	@Override
-	public int hashCode() {
-		return this.annotationParsers.hashCode();
-	}
-
-
-	/**
-	 * Callback interface providing {@link CacheOperation} instance(s) based on
-	 * a given {@link CacheAnnotationParser}.
-	 */
-	@FunctionalInterface
-	protected interface CacheOperationProvider {
-
-		/**
-		 * Return the {@link CacheOperation} instance(s) provided by the specified parser.
-		 * @param parser the parser to use
-		 * @return the cache operations, or {@code null} if none found
-		 */
-		@Nullable
-		Collection<CacheOperation> getCacheOperations(CacheAnnotationParser parser);
-	}
+    /**
+     * Return the {@link CacheOperation} instance(s) provided by the specified parser.
+     *
+     * @param parser the parser to use
+     * @return the cache operations, or {@code null} if none found
+     */
+    @Nullable
+    Collection<CacheOperation> getCacheOperations(CacheAnnotationParser parser);
+  }
 
 }

@@ -98,7 +98,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
   }
 
   private void registerCacheAspect(Element element, ParserContext parserContext) {
-    SpringCachingConfigurer.registerCacheAspect(element, parserContext);
+    FrameworkCachingConfigurer.registerCacheAspect(element, parserContext);
     if (jsr107Present && jcacheImplPresent) {
       JCacheCachingConfigurer.registerCacheAspect(element, parserContext);
     }
@@ -106,7 +106,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
 
   private void registerCacheAdvisor(Element element, ParserContext parserContext) {
     AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
-    SpringCachingConfigurer.registerCacheAdvisor(element, parserContext);
+    FrameworkCachingConfigurer.registerCacheAdvisor(element, parserContext);
     if (jsr107Present && jcacheImplPresent) {
       JCacheCachingConfigurer.registerCacheAdvisor(element, parserContext);
     }
@@ -139,7 +139,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
   /**
    * Configure the necessary infrastructure to support the Framework's caching annotations.
    */
-  private static class SpringCachingConfigurer {
+  private static class FrameworkCachingConfigurer {
 
     private static void registerCacheAdvisor(Element element, ParserContext parserContext) {
       if (!parserContext.getRegistry().containsBeanDefinition(CacheManagementConfigUtils.CACHE_ADVISOR_BEAN_NAME)) {

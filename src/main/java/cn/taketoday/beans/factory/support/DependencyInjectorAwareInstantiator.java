@@ -26,6 +26,7 @@ import java.util.function.Function;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -139,9 +140,13 @@ public class DependencyInjectorAwareInstantiator {
             RootBeanDefinition definition = new RootBeanDefinition(DependencyInjectorAwareInstantiator.class);
             definition.setSynthetic(true);
             definition.setEnableDependencyInjection(false);
+            definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             definition.setInstanceSupplier(SingletonSupplier.valueOf(instantiator));
 
             registry.registerBeanDefinition(BEAN_NAME, definition);
+          }
+          else {
+            throw new IllegalArgumentException("beanFactory is not a SingletonBeanRegistry nor BeanDefinitionRegistry");
           }
         }
       }

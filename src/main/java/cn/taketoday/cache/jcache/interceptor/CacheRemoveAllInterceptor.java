@@ -22,10 +22,10 @@ package cn.taketoday.cache.jcache.interceptor;
 
 import javax.cache.annotation.CacheRemoveAll;
 
+import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.interceptor.CacheErrorHandler;
 import cn.taketoday.cache.interceptor.CacheOperationInvocationContext;
 import cn.taketoday.cache.interceptor.CacheOperationInvoker;
-import cn.taketoday.cache.Cache;
 
 /**
  * Intercept methods annotated with {@link CacheRemoveAll}.

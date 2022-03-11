@@ -299,7 +299,6 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     this.beanFactory = beanFactory;
   }
 
-  @NonNull
   public ExpressionProcessor obtainProcessor() {
     if (expressionProcessor == null) {
       ExpressionProcessor processor = null;
@@ -334,6 +333,8 @@ public class ExpressionEvaluator implements PlaceholderResolver {
       StandardExpressionContext elContext = new StandardExpressionContext(exprFactory);
       elContext.setVariable(ExpressionEvaluator.ENV, variablesResolver); // @since 2.1.6
       elContext.addResolver(new BeanNameExpressionResolver(beanFactory));
+      elContext.addResolver(new EnvironmentExpressionResolver());
+      elContext.addResolver(new StandardTypeConverter());
 
       ExpressionManager elManager = new ExpressionManager(elContext, exprFactory);
       ExpressionProcessor elProcessor = new ExpressionProcessor(elManager);

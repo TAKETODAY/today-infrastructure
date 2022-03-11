@@ -229,9 +229,6 @@ public class ListExpressionResolver extends ExpressionResolver {
       catch (IndexOutOfBoundsException ex) {
         throw new PropertyNotFoundException();
       }
-      catch (ClassCastException | NullPointerException | IllegalArgumentException ex) {
-        throw ex;
-      }
     }
   }
 

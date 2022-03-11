@@ -23,13 +23,12 @@ import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 
-import java.lang.reflect.Constructor;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import cn.taketoday.cache.support.SimpleValueWrapper;
 import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.support.SimpleValueWrapper;
 import cn.taketoday.lang.NullValue;
 
 /**
@@ -210,16 +209,7 @@ public class RedissonCache implements Cache {
       value = valueLoader.call();
     }
     catch (Exception ex) {
-      RuntimeException exception;
-      try {
-        Class<?> c = Class.forName("cn.taketoday.cache.Cache$ValueRetrievalException");
-        Constructor<?> constructor = c.getConstructor(Object.class, Callable.class, Throwable.class);
-        exception = (RuntimeException) constructor.newInstance(key, valueLoader, ex);
-      }
-      catch (Exception e) {
-        throw new IllegalStateException(e);
-      }
-      throw exception;
+      throw new ValueRetrievalException(key, valueLoader, ex);
     }
     put(key, value);
     return value;

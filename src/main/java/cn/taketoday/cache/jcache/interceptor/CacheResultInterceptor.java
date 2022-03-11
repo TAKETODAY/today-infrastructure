@@ -22,11 +22,11 @@ package cn.taketoday.cache.jcache.interceptor;
 
 import javax.cache.annotation.CacheResult;
 
+import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.interceptor.CacheErrorHandler;
 import cn.taketoday.cache.interceptor.CacheOperationInvocationContext;
 import cn.taketoday.cache.interceptor.CacheOperationInvoker;
 import cn.taketoday.cache.interceptor.CacheResolver;
-import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionTypeFilter;
