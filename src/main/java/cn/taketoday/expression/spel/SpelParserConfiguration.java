@@ -36,14 +36,14 @@ import cn.taketoday.lang.TodayStrategies;
 public class SpelParserConfiguration {
 
   /** System property to configure the default compiler mode for SpEL expression parsers: {@value}. */
-  public static final String SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spring.expression.compiler.mode";
+  public static final String SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spel.compiler.mode";
 
   private static final SpelCompilerMode defaultCompilerMode;
 
   static {
     String compilerMode = TodayStrategies.getProperty(SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
-    defaultCompilerMode = (compilerMode != null ?
-                           SpelCompilerMode.valueOf(compilerMode.toUpperCase()) : SpelCompilerMode.OFF);
+    defaultCompilerMode = compilerMode != null
+                          ? SpelCompilerMode.valueOf(compilerMode.toUpperCase()) : SpelCompilerMode.OFF;
   }
 
   private final SpelCompilerMode compilerMode;

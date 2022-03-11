@@ -29,8 +29,8 @@ import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.support.BooleanTypedValue;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * The operator 'instanceof' checks if an object is of the class specified in the right
@@ -65,12 +65,11 @@ public class OperatorInstanceof extends Operator {
     Object leftValue = left.getValue();
     Object rightValue = right.getValue();
     BooleanTypedValue result;
-    if (!(rightValue instanceof Class)) {
+    if (!(rightValue instanceof Class<?> rightClass)) {
       throw new SpelEvaluationException(getRightOperand().getStartPosition(),
               SpelMessage.INSTANCEOF_OPERATOR_NEEDS_CLASS_OPERAND,
               (rightValue == null ? "null" : rightValue.getClass().getName()));
     }
-    Class<?> rightClass = (Class<?>) rightValue;
     if (leftValue == null) {
       result = BooleanTypedValue.FALSE;  // null is not an instanceof anything
     }

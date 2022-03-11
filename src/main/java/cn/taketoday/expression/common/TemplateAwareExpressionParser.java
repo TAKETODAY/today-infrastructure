@@ -150,9 +150,9 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
         return false;
       }
     }
-		// the expressionString ran out before the suffix could entirely be found
-		return suffixPosition == suffix.length();
-	}
+    // the expressionString ran out before the suffix could entirely be found
+    return suffixPosition == suffix.length();
+  }
 
   /**
    * Copes with nesting, for example '${...${...}}' where the correct end for the first

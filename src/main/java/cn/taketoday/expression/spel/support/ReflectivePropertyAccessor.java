@@ -565,10 +565,9 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    * and the type descriptor for the value returned by the reflective call.
    */
   private static class InvokerPair {
+    public final Member member;
 
-    final Member member;
-
-    final TypeDescriptor typeDescriptor;
+    public final TypeDescriptor typeDescriptor;
 
     public InvokerPair(Member member, TypeDescriptor typeDescriptor) {
       this.member = member;
@@ -578,11 +577,11 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
   private static final class PropertyCacheKey implements Comparable<PropertyCacheKey> {
 
-    private final Class<?> clazz;
+    public final Class<?> clazz;
 
-    private final String property;
+    public final String property;
 
-    private final boolean targetIsClass;
+    public final boolean targetIsClass;
 
     public PropertyCacheKey(Class<?> clazz, String name, boolean targetIsClass) {
       this.clazz = clazz;

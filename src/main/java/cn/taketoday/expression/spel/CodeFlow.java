@@ -70,7 +70,7 @@ public class CodeFlow implements Opcodes {
    * will be called after the main evaluation function has finished being generated.
    */
   @Nullable
-  private List<FieldAdder> fieldAdders;
+  private ArrayList<FieldAdder> fieldAdders;
 
   /**
    * As SpEL ast nodes are called to generate code for the main evaluation method
@@ -79,7 +79,7 @@ public class CodeFlow implements Opcodes {
    * has finished being generated.
    */
   @Nullable
-  private List<ClinitAdder> clinitAdders;
+  private ArrayList<ClinitAdder> clinitAdders;
 
   /**
    * When code generation requires holding a value in a class level field, this
@@ -103,7 +103,7 @@ public class CodeFlow implements Opcodes {
     this.className = className;
     this.classWriter = classWriter;
     this.compilationScopes = new ArrayDeque<>();
-    this.compilationScopes.add(new ArrayList<String>());
+    this.compilationScopes.add(new ArrayList<>());
   }
 
   /**
@@ -121,7 +121,6 @@ public class CodeFlow implements Opcodes {
    * the compiled expression method).
    *
    * @param mv the visitor into which the load instruction should be inserted
-   * @since 4.0
    */
   public void loadEvaluationContext(MethodVisitor mv) {
     mv.visitVarInsn(ALOAD, 2);
@@ -249,56 +248,55 @@ public class CodeFlow implements Opcodes {
       return;
     }
     switch (ch) {
-      case 'Z':
+      case 'Z' -> {
         if (!stackDescriptor.equals("Ljava/lang/Boolean")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
-        break;
-      case 'B':
+      }
+      case 'B' -> {
         if (!stackDescriptor.equals("Ljava/lang/Byte")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B", false);
-        break;
-      case 'C':
+      }
+      case 'C' -> {
         if (!stackDescriptor.equals("Ljava/lang/Character")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C", false);
-        break;
-      case 'D':
+      }
+      case 'D' -> {
         if (!stackDescriptor.equals("Ljava/lang/Double")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
-        break;
-      case 'F':
+      }
+      case 'F' -> {
         if (!stackDescriptor.equals("Ljava/lang/Float")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
-        break;
-      case 'I':
+      }
+      case 'I' -> {
         if (!stackDescriptor.equals("Ljava/lang/Integer")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
-        break;
-      case 'J':
+      }
+      case 'J' -> {
         if (!stackDescriptor.equals("Ljava/lang/Long")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
-        break;
-      case 'S':
+      }
+      case 'S' -> {
         if (!stackDescriptor.equals("Ljava/lang/Short")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S", false);
-        break;
-      default:
-        throw new IllegalArgumentException("Unboxing should not be attempted for descriptor '" + ch + "'");
+      }
+      default -> throw new IllegalArgumentException("Unboxing should not be attempted for descriptor '" + ch + "'");
     }
   }
 
@@ -317,33 +315,32 @@ public class CodeFlow implements Opcodes {
     }
 
     switch (targetDescriptor) {
-      case 'D':
+      case 'D' -> {
         if (stackDescriptor.equals("Ljava/lang/Object")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Number");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Number", "doubleValue", "()D", false);
-        break;
-      case 'F':
+      }
+      case 'F' -> {
         if (stackDescriptor.equals("Ljava/lang/Object")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Number");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Number", "floatValue", "()F", false);
-        break;
-      case 'J':
+      }
+      case 'J' -> {
         if (stackDescriptor.equals("Ljava/lang/Object")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Number");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Number", "longValue", "()J", false);
-        break;
-      case 'I':
+      }
+      case 'I' -> {
         if (stackDescriptor.equals("Ljava/lang/Object")) {
           mv.visitTypeInsn(CHECKCAST, "java/lang/Number");
         }
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Number", "intValue", "()I", false);
-        break;
+      }
       // does not handle Z, B, C, S
-      default:
-        throw new IllegalArgumentException("Unboxing should not be attempted for descriptor '" + targetDescriptor + "'");
+      default -> throw new IllegalArgumentException("Unboxing should not be attempted for descriptor '" + targetDescriptor + "'");
     }
   }
 
@@ -594,37 +591,31 @@ public class CodeFlow implements Opcodes {
       return true;
     }
     if (desc1.length() == 1) {
-      if (desc1.equals("Z")) {
-        return desc2.equals("Ljava/lang/Boolean");
-      }
-      else if (desc1.equals("D")) {
-        return desc2.equals("Ljava/lang/Double");
-      }
-      else if (desc1.equals("F")) {
-        return desc2.equals("Ljava/lang/Float");
-      }
-      else if (desc1.equals("I")) {
-        return desc2.equals("Ljava/lang/Integer");
-      }
-      else if (desc1.equals("J")) {
-        return desc2.equals("Ljava/lang/Long");
+      switch (desc1) {
+        case "Z":
+          return desc2.equals("Ljava/lang/Boolean");
+        case "D":
+          return desc2.equals("Ljava/lang/Double");
+        case "F":
+          return desc2.equals("Ljava/lang/Float");
+        case "I":
+          return desc2.equals("Ljava/lang/Integer");
+        case "J":
+          return desc2.equals("Ljava/lang/Long");
       }
     }
     else if (desc2.length() == 1) {
-      if (desc2.equals("Z")) {
-        return desc1.equals("Ljava/lang/Boolean");
-      }
-      else if (desc2.equals("D")) {
-        return desc1.equals("Ljava/lang/Double");
-      }
-      else if (desc2.equals("F")) {
-        return desc1.equals("Ljava/lang/Float");
-      }
-      else if (desc2.equals("I")) {
-        return desc1.equals("Ljava/lang/Integer");
-      }
-      else if (desc2.equals("J")) {
-        return desc1.equals("Ljava/lang/Long");
+      switch (desc2) {
+        case "Z":
+          return desc1.equals("Ljava/lang/Boolean");
+        case "D":
+          return desc1.equals("Ljava/lang/Double");
+        case "F":
+          return desc1.equals("Ljava/lang/Float");
+        case "I":
+          return desc1.equals("Ljava/lang/Integer");
+        case "J":
+          return desc1.equals("Ljava/lang/Long");
       }
     }
     return false;
@@ -665,7 +656,7 @@ public class CodeFlow implements Opcodes {
     }
     if (descriptor.startsWith("Ljava/lang/")) {
       String name = descriptor.substring("Ljava/lang/".length());
-			return name.equals("Double") || name.equals("Float") || name.equals("Integer") || name.equals("Long");
+      return name.equals("Double") || name.equals("Float") || name.equals("Integer") || name.equals("Long");
     }
     return false;
   }
@@ -815,17 +806,15 @@ public class CodeFlow implements Opcodes {
         case 3:
           return "I";
         case 4:
-          if (name.equals("byte")) {
-            return "B";
-          }
-          else if (name.equals("char")) {
-            return "C";
-          }
-          else if (name.equals("long")) {
-            return "J";
-          }
-          else if (name.equals("void")) {
-            return "V";
+          switch (name) {
+            case "byte":
+              return "B";
+            case "char":
+              return "C";
+            case "long":
+              return "J";
+            case "void":
+              return "V";
           }
           break;
         case 5:
@@ -933,33 +922,16 @@ public class CodeFlow implements Opcodes {
   public static void insertArrayStore(MethodVisitor mv, String arrayElementType) {
     if (arrayElementType.length() == 1) {
       switch (arrayElementType.charAt(0)) {
-        case 'I':
-          mv.visitInsn(IASTORE);
-          break;
-        case 'J':
-          mv.visitInsn(LASTORE);
-          break;
-        case 'F':
-          mv.visitInsn(FASTORE);
-          break;
-        case 'D':
-          mv.visitInsn(DASTORE);
-          break;
-        case 'B':
-          mv.visitInsn(BASTORE);
-          break;
-        case 'C':
-          mv.visitInsn(CASTORE);
-          break;
-        case 'S':
-          mv.visitInsn(SASTORE);
-          break;
-        case 'Z':
-          mv.visitInsn(BASTORE);
-          break;
-        default:
-          throw new IllegalArgumentException(
-                  "Unexpected arraytype " + arrayElementType.charAt(0));
+        case 'I' -> mv.visitInsn(IASTORE);
+        case 'J' -> mv.visitInsn(LASTORE);
+        case 'F' -> mv.visitInsn(FASTORE);
+        case 'D' -> mv.visitInsn(DASTORE);
+        case 'B' -> mv.visitInsn(BASTORE);
+        case 'C' -> mv.visitInsn(CASTORE);
+        case 'S' -> mv.visitInsn(SASTORE);
+        case 'Z' -> mv.visitInsn(BASTORE);
+        default -> throw new IllegalArgumentException(
+                "Unexpected arraytype " + arrayElementType.charAt(0));
       }
     }
     else {
@@ -974,26 +946,17 @@ public class CodeFlow implements Opcodes {
    * @return the T tag to use for NEWARRAY
    */
   public static int arrayCodeFor(String arraytype) {
-    switch (arraytype.charAt(0)) {
-      case 'I':
-        return T_INT;
-      case 'J':
-        return T_LONG;
-      case 'F':
-        return T_FLOAT;
-      case 'D':
-        return T_DOUBLE;
-      case 'B':
-        return T_BYTE;
-      case 'C':
-        return T_CHAR;
-      case 'S':
-        return T_SHORT;
-      case 'Z':
-        return T_BOOLEAN;
-      default:
-        throw new IllegalArgumentException("Unexpected arraytype " + arraytype.charAt(0));
-    }
+    return switch (arraytype.charAt(0)) {
+      case 'I' -> T_INT;
+      case 'J' -> T_LONG;
+      case 'F' -> T_FLOAT;
+      case 'D' -> T_DOUBLE;
+      case 'B' -> T_BYTE;
+      case 'C' -> T_CHAR;
+      case 'S' -> T_SHORT;
+      case 'Z' -> T_BOOLEAN;
+      default -> throw new IllegalArgumentException("Unexpected arraytype " + arraytype.charAt(0));
+    };
   }
 
   /**
@@ -1064,26 +1027,17 @@ public class CodeFlow implements Opcodes {
   }
 
   public static String toBoxedDescriptor(String primitiveDescriptor) {
-    switch (primitiveDescriptor.charAt(0)) {
-      case 'I':
-        return "Ljava/lang/Integer";
-      case 'J':
-        return "Ljava/lang/Long";
-      case 'F':
-        return "Ljava/lang/Float";
-      case 'D':
-        return "Ljava/lang/Double";
-      case 'B':
-        return "Ljava/lang/Byte";
-      case 'C':
-        return "Ljava/lang/Character";
-      case 'S':
-        return "Ljava/lang/Short";
-      case 'Z':
-        return "Ljava/lang/Boolean";
-      default:
-        throw new IllegalArgumentException("Unexpected non primitive descriptor " + primitiveDescriptor);
-    }
+    return switch (primitiveDescriptor.charAt(0)) {
+      case 'I' -> "Ljava/lang/Integer";
+      case 'J' -> "Ljava/lang/Long";
+      case 'F' -> "Ljava/lang/Float";
+      case 'D' -> "Ljava/lang/Double";
+      case 'B' -> "Ljava/lang/Byte";
+      case 'C' -> "Ljava/lang/Character";
+      case 'S' -> "Ljava/lang/Short";
+      case 'Z' -> "Ljava/lang/Boolean";
+      default -> throw new IllegalArgumentException("Unexpected non primitive descriptor " + primitiveDescriptor);
+    };
   }
 
   /**

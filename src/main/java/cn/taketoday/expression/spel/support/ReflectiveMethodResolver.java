@@ -271,7 +271,6 @@ public class ReflectiveMethodResolver implements MethodResolver {
    * declared elsewhere.
    *
    * @param type the class for which to return the methods
-   * @since 4.0
    */
   protected Method[] getMethods(Class<?> type) {
     return type.getMethods();
@@ -285,7 +284,6 @@ public class ReflectiveMethodResolver implements MethodResolver {
    *
    * @param method the Method to evaluate
    * @param targetClass the concrete target class that is being introspected
-   * @since 4.0
    */
   protected boolean isCandidateForInvocation(Method method, Class<?> targetClass) {
     return true;

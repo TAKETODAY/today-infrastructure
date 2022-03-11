@@ -72,8 +72,7 @@ public class Projection extends SpelNodeImpl {
     // has two fields 'key' and 'value' that refer to the map entries key
     // and value, and they can be referenced in the operation
     // eg. {'a':'y','b':'n'}.![value=='y'?key:null]" == ['a', null]
-    if (operand instanceof Map) {
-      Map<?, ?> mapData = (Map<?, ?>) operand;
+    if (operand instanceof Map<?, ?> mapData) {
       List<Object> result = new ArrayList<>();
       for (Map.Entry<?, ?> entry : mapData.entrySet()) {
         try {
@@ -90,16 +89,16 @@ public class Projection extends SpelNodeImpl {
     }
 
     if (operand instanceof Iterable || operandIsArray) {
-      Iterable<?> data = (operand instanceof Iterable ?
-                          (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand)));
+      Iterable<?> data = operand instanceof Iterable ?
+                         (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand));
 
-      List<Object> result = new ArrayList<>();
+      ArrayList<Object> result = new ArrayList<>();
       Class<?> arrayElementType = null;
       for (Object element : data) {
         try {
           state.pushActiveContextObject(new TypedValue(element));
           state.enterScope("index", result.size());
-          Object value = this.children[0].getValueInternal(state).getValue();
+          Object value = children[0].getValueInternal(state).getValue();
           if (value != null && operandIsArray) {
             arrayElementType = determineCommonType(arrayElementType, value.getClass());
           }

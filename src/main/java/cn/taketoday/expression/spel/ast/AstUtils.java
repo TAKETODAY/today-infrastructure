@@ -50,8 +50,8 @@ public abstract class AstUtils {
   public static List<PropertyAccessor> getPropertyAccessorsToTry(
           @Nullable Class<?> targetType, List<PropertyAccessor> propertyAccessors) {
 
-    List<PropertyAccessor> specificAccessors = new ArrayList<>();
-    List<PropertyAccessor> generalAccessors = new ArrayList<>();
+    ArrayList<PropertyAccessor> specificAccessors = new ArrayList<>();
+    ArrayList<PropertyAccessor> generalAccessors = new ArrayList<>();
     for (PropertyAccessor resolver : propertyAccessors) {
       Class<?>[] targets = resolver.getSpecificTargetClasses();
       if (targets == null) {  // generic resolver that says it can be used for any type
@@ -71,7 +71,7 @@ public abstract class AstUtils {
         }
       }
     }
-    List<PropertyAccessor> resolvers = new ArrayList<>(specificAccessors.size() + generalAccessors.size());
+    ArrayList<PropertyAccessor> resolvers = new ArrayList<>(specificAccessors.size() + generalAccessors.size());
     resolvers.addAll(specificAccessors);
     resolvers.addAll(generalAccessors);
     return resolvers;

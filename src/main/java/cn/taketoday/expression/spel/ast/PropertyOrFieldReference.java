@@ -40,8 +40,8 @@ import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.support.ReflectivePropertyAccessor;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -105,21 +105,22 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
     TypedValue result = readProperty(contextObject, evalContext, this.name);
 
     // Dynamically create the objects if the user has requested that optional behavior
-    if (result.getValue() == null && isAutoGrowNullReferences &&
-            nextChildIs(Indexer.class, PropertyOrFieldReference.class)) {
+    if (isAutoGrowNullReferences
+            && result.getValue() == null
+            && nextChildIs(Indexer.class, PropertyOrFieldReference.class)) {
       TypeDescriptor resultDescriptor = result.getTypeDescriptor();
       Assert.state(resultDescriptor != null, "No result type");
       // Create a new collection or map ready for the indexer
       if (List.class == resultDescriptor.getType()) {
         if (isWritableProperty(this.name, contextObject, evalContext)) {
-          List<?> newList = new ArrayList<>();
+          ArrayList<?> newList = new ArrayList<>();
           writeProperty(contextObject, evalContext, this.name, newList);
           result = readProperty(contextObject, evalContext, this.name);
         }
       }
       else if (Map.class == resultDescriptor.getType()) {
         if (isWritableProperty(this.name, contextObject, evalContext)) {
-          Map<?, ?> newMap = new HashMap<>();
+          HashMap<?, ?> newMap = new HashMap<>();
           writeProperty(contextObject, evalContext, this.name, newMap);
           result = readProperty(contextObject, evalContext, this.name);
         }
@@ -305,8 +306,8 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
 
     Class<?> targetType = (contextObject != null ? contextObject.getClass() : null);
 
-    List<PropertyAccessor> specificAccessors = new ArrayList<>();
-    List<PropertyAccessor> generalAccessors = new ArrayList<>();
+    ArrayList<PropertyAccessor> specificAccessors = new ArrayList<>();
+    ArrayList<PropertyAccessor> generalAccessors = new ArrayList<>();
     for (PropertyAccessor resolver : propertyAccessors) {
       Class<?>[] targets = resolver.getSpecificTargetClasses();
       if (targets == null) {
@@ -325,7 +326,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
         }
       }
     }
-    List<PropertyAccessor> resolvers = new ArrayList<>(specificAccessors);
+    ArrayList<PropertyAccessor> resolvers = new ArrayList<>(specificAccessors);
     generalAccessors.removeAll(specificAccessors);
     resolvers.addAll(generalAccessors);
     return resolvers;

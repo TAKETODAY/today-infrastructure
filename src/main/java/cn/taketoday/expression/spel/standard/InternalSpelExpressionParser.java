@@ -77,8 +77,8 @@ import cn.taketoday.expression.spel.ast.StringLiteral;
 import cn.taketoday.expression.spel.ast.Ternary;
 import cn.taketoday.expression.spel.ast.TypeReference;
 import cn.taketoday.expression.spel.ast.VariableReference;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -89,7 +89,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @since 4.0
  */
-class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
+final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
   private static final Pattern VALID_QUALIFIED_ID_PATTERN = Pattern.compile("[\\p{L}\\p{N}_$]+");
 
@@ -750,7 +750,7 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
       return true;
     }
     String value = node.stringValue();
-    return (StringUtils.hasLength(value) && VALID_QUALIFIED_ID_PATTERN.matcher(value).matches());
+    return StringUtils.isNotEmpty(value) && VALID_QUALIFIED_ID_PATTERN.matcher(value).matches();
   }
 
   // This is complicated due to the support for dollars in identifiers.
@@ -948,9 +948,9 @@ class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
       // Might be one of the textual forms of the operators (e.g. NE for != ) -
       // in which case we can treat it as an identifier. The list is represented here:
       // Tokenizer.alternativeOperatorNames and those ones are in order in the TokenKind enum.
-			// if t.data were null, we'd know it wasn't the textual form, it was the symbol form
-			return t.kind.ordinal() >= TokenKind.DIV.ordinal() && t.kind.ordinal() <= TokenKind.NOT.ordinal() &&
-							t.data != null;
+      // if t.data were null, we'd know it wasn't the textual form, it was the symbol form
+      return t.kind.ordinal() >= TokenKind.DIV.ordinal() && t.kind.ordinal() <= TokenKind.NOT.ordinal() &&
+              t.data != null;
     }
     return false;
   }

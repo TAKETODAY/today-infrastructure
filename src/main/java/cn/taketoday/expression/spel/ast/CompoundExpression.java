@@ -49,18 +49,19 @@ public class CompoundExpression extends SpelNodeImpl {
 
   @Override
   protected ValueRef getValueRef(ExpressionState state) throws EvaluationException {
+    SpelNodeImpl[] children = this.children;
     if (getChildCount() == 1) {
-      return this.children[0].getValueRef(state);
+      return children[0].getValueRef(state);
     }
 
-    SpelNodeImpl nextNode = this.children[0];
+    SpelNodeImpl nextNode = children[0];
     try {
       TypedValue result = nextNode.getValueInternal(state);
       int cc = getChildCount();
       for (int i = 1; i < cc - 1; i++) {
         try {
           state.pushActiveContextObject(result);
-          nextNode = this.children[i];
+          nextNode = children[i];
           result = nextNode.getValueInternal(state);
         }
         finally {
@@ -69,7 +70,7 @@ public class CompoundExpression extends SpelNodeImpl {
       }
       try {
         state.pushActiveContextObject(result);
-        nextNode = this.children[cc - 1];
+        nextNode = children[cc - 1];
         return nextNode.getValueRef(state);
       }
       finally {

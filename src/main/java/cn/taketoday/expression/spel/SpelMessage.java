@@ -284,7 +284,6 @@ public enum SpelMessage {
    *
    * @param inserts the inserts to put into the formatted message
    * @return a formatted message
-   * @since 4.0
    */
   public String formatMessage(Object... inserts) {
     StringBuilder formattedMessage = new StringBuilder();
@@ -300,6 +299,8 @@ public enum SpelMessage {
   /**
    * Message kinds.
    */
-  public enum Kind {INFO, WARNING, ERROR}
+  public enum Kind {
+    INFO, WARNING, ERROR
+  }
 
 }

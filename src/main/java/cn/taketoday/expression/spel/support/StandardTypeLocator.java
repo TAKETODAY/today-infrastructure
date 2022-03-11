@@ -45,7 +45,7 @@ public class StandardTypeLocator implements TypeLocator {
   @Nullable
   private final ClassLoader classLoader;
 
-  private final List<String> knownPackagePrefixes = new ArrayList<>(1);
+  private final ArrayList<String> knownPackagePrefixes = new ArrayList<>(1);
 
   /**
    * Create a StandardTypeLocator for the default ClassLoader

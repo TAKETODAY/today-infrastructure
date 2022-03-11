@@ -45,8 +45,8 @@ import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.support.ReflectiveMethodExecutor;
 import cn.taketoday.expression.spel.support.ReflectiveMethodResolver;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -291,8 +291,8 @@ public class MethodReference extends SpelNodeImpl {
       return false;
     }
     Class<?> clazz = executor.getMethod().getDeclaringClass();
-		return Modifier.isPublic(clazz.getModifiers()) || executor.getPublicDeclaringClass() != null;
-	}
+    return Modifier.isPublic(clazz.getModifiers()) || executor.getPublicDeclaringClass() != null;
+  }
 
   @Override
   public void generateCode(MethodVisitor mv, CodeFlow cf) {

@@ -31,8 +31,8 @@ import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelNode;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Represent a list in an expression, e.g. '{1,2,3}'
@@ -73,9 +73,9 @@ public class InlineList extends SpelNodeImpl {
       }
     }
     if (isConstant) {
-      List<Object> constantList = new ArrayList<>();
-      int childcount = getChildCount();
-      for (int c = 0; c < childcount; c++) {
+      ArrayList<Object> constantList = new ArrayList<>();
+      int childCount = getChildCount();
+      for (int c = 0; c < childCount; c++) {
         SpelNode child = getChild(c);
         if (child instanceof Literal literal) {
           constantList.add(literal.getLiteralValue().getValue());
@@ -95,7 +95,7 @@ public class InlineList extends SpelNodeImpl {
     }
     else {
       int childCount = getChildCount();
-      List<Object> returnValue = new ArrayList<>(childCount);
+      ArrayList<Object> returnValue = new ArrayList<>(childCount);
       for (int c = 0; c < childCount; c++) {
         returnValue.add(getChild(c).getValue(expressionState));
       }
@@ -124,8 +124,8 @@ public class InlineList extends SpelNodeImpl {
   @SuppressWarnings("unchecked")
   @Nullable
   public List<Object> getConstantValue() {
-    Assert.state(this.constant != null, "No constant");
-    return (List<Object>) this.constant.getValue();
+    Assert.state(constant != null, "No constant");
+    return (List<Object>) constant.getValue();
   }
 
   @Override

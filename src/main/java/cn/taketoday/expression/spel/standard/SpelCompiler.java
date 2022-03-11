@@ -20,12 +20,8 @@
 
 package cn.taketoday.expression.spel.standard;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.core.bytecode.ClassWriter;
@@ -37,6 +33,8 @@ import cn.taketoday.expression.spel.CompiledExpression;
 import cn.taketoday.expression.spel.SpelParserConfiguration;
 import cn.taketoday.expression.spel.ast.SpelNodeImpl;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
@@ -74,11 +72,12 @@ public final class SpelCompiler implements Opcodes {
 
   private static final int CLASSES_DEFINED_LIMIT = 100;
 
-  private static final Log logger = LogFactory.getLog(SpelCompiler.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpelCompiler.class);
 
   // A compiler is created for each classloader, it manages a child class loader of that
   // classloader and the child is used to load the compiled expressions.
-  private static final Map<ClassLoader, SpelCompiler> compilers = new ConcurrentReferenceHashMap<>();
+  private static final ConcurrentReferenceHashMap<ClassLoader, SpelCompiler>
+          compilers = new ConcurrentReferenceHashMap<>();
 
   // The child ClassLoader used to load the compiled expression classes
   private volatile ChildClassLoader childClassLoader;
@@ -104,7 +103,7 @@ public final class SpelCompiler implements Opcodes {
   public CompiledExpression compile(SpelNodeImpl expression) {
     if (expression.isCompilable()) {
       if (logger.isDebugEnabled()) {
-        logger.debug("SpEL: compiling " + expression.toStringAST());
+        logger.debug("SpEL: compiling {}", expression.toStringAST());
       }
       Class<? extends CompiledExpression> clazz = createExpressionClass(expression);
       if (clazz != null) {
@@ -119,7 +118,7 @@ public final class SpelCompiler implements Opcodes {
     }
 
     if (logger.isDebugEnabled()) {
-      logger.debug("SpEL: unable to compile " + expression.toStringAST());
+      logger.debug("SpEL: unable to compile {}", expression.toStringAST());
     }
     return null;
   }
@@ -140,15 +139,15 @@ public final class SpelCompiler implements Opcodes {
   private Class<? extends CompiledExpression> createExpressionClass(SpelNodeImpl expressionToCompile) {
     // Create class outline 'spel/ExNNN extends cn.taketoday.expression.spel.CompiledExpression'
     String className = "spel/Ex" + getNextSuffix();
-    String evaluationContextClass = "org/springframework/expression/EvaluationContext";
+    String evaluationContextClass = "cn/taketoday/expression/EvaluationContext";
     ClassWriter cw = new ExpressionClassWriter();
-    cw.visit(V1_8, ACC_PUBLIC, className, null, "org/springframework/expression/spel/CompiledExpression", null);
+    cw.visit(V1_8, ACC_PUBLIC, className, null, "cn/taketoday/expression/spel/CompiledExpression", null);
 
     // Create default constructor
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, "org/springframework/expression/spel/CompiledExpression",
+    mv.visitMethodInsn(INVOKESPECIAL, "cn/taketoday/expression/spel/CompiledExpression",
             "<init>", "()V", false);
     mv.visitInsn(RETURN);
     mv.visitMaxs(1, 1);
@@ -157,7 +156,7 @@ public final class SpelCompiler implements Opcodes {
     // Create getValue() method
     mv = cw.visitMethod(ACC_PUBLIC, "getValue",
             "(Ljava/lang/Object;L" + evaluationContextClass + ";)Ljava/lang/Object;", null,
-            new String[] { "org/springframework/expression/EvaluationException" });
+            new String[] { "cn/taketoday/expression/EvaluationException" });
     mv.visitCode();
 
     CodeFlow cf = new CodeFlow(className, cw);
@@ -168,8 +167,8 @@ public final class SpelCompiler implements Opcodes {
     }
     catch (IllegalStateException ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug(expressionToCompile.getClass().getSimpleName() +
-                ".generateCode opted out of compilation: " + ex.getMessage());
+        logger.debug("{}.generateCode opted out of compilation: {}",
+                expressionToCompile.getClass().getSimpleName(), ex.getMessage());
       }
       return null;
     }
@@ -231,7 +230,7 @@ public final class SpelCompiler implements Opcodes {
    * @return a corresponding SpelCompiler instance
    */
   public static SpelCompiler getCompiler(@Nullable ClassLoader classLoader) {
-    ClassLoader clToUse = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
+    ClassLoader clToUse = classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader();
     // Quick check for existing compiler without lock contention
     SpelCompiler compiler = compilers.get(clToUse);
     if (compiler == null) {

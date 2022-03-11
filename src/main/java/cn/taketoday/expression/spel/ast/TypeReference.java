@@ -28,8 +28,8 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Represents a reference to a type, for example
@@ -89,9 +89,7 @@ public class TypeReference extends SpelNodeImpl {
   public String toStringAST() {
     StringBuilder sb = new StringBuilder("T(");
     sb.append(getChild(0).toStringAST());
-    for (int d = 0; d < this.dimensions; d++) {
-      sb.append("[]");
-    }
+    sb.append("[]".repeat(Math.max(0, this.dimensions)));
     sb.append(')');
     return sb.toString();
   }
@@ -104,35 +102,36 @@ public class TypeReference extends SpelNodeImpl {
   @Override
   public void generateCode(MethodVisitor mv, CodeFlow cf) {
     // TODO Future optimization - if followed by a static method call, skip generating code here
-    Assert.state(this.type != null, "No type available");
-    if (this.type.isPrimitive()) {
-      if (this.type == Boolean.TYPE) {
+    Class<?> type = this.type;
+    Assert.state(type != null, "No type available");
+    if (type.isPrimitive()) {
+      if (type == Boolean.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Byte.TYPE) {
+      else if (type == Byte.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Byte", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Character.TYPE) {
+      else if (type == Character.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Character", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Double.TYPE) {
+      else if (type == Double.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Double", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Float.TYPE) {
+      else if (type == Float.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Float", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Integer.TYPE) {
+      else if (type == Integer.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Integer", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Long.TYPE) {
+      else if (type == Long.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Long", "TYPE", "Ljava/lang/Class;");
       }
-      else if (this.type == Short.TYPE) {
+      else if (type == Short.TYPE) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Short", "TYPE", "Ljava/lang/Class;");
       }
     }
     else {
-      mv.visitLdcInsn(Type.getType(this.type));
+      mv.visitLdcInsn(Type.fromClass(this.type));
     }
     cf.pushDescriptor(this.exitTypeDescriptor);
   }

@@ -151,16 +151,11 @@ public abstract class Operator extends SpelNodeImpl {
     mv.visitInsn(POP);  // stack: <nothing>
     // load 0 or 1 depending on comparison instruction
     switch (compInstruction1) {
-      case IFGE: // OpLT
-      case IFLE: // OpGT
-        mv.visitInsn(ICONST_0);  // false - null is not < or > null
-        break;
-      case IFGT: // OpLE
-      case IFLT: // OpGE
-        mv.visitInsn(ICONST_1);  // true - null is <= or >= null
-        break;
-      default:
-        throw new IllegalStateException("Unsupported: " + compInstruction1);
+      case IFGE, IFLE -> // OpLT OpGT
+              mv.visitInsn(ICONST_0);  // false - null is not < or > null
+      case IFGT, IFLT -> // OpLE OpGE
+              mv.visitInsn(ICONST_1);  // true - null is <= or >= null
+      default -> throw new IllegalStateException("Unsupported: " + compInstruction1);
     }
     mv.visitJumpInsn(GOTO, endOfIf);
     mv.visitLabel(leftNotNullRightIsNull);  // stack: right
@@ -168,16 +163,11 @@ public abstract class Operator extends SpelNodeImpl {
     mv.visitInsn(POP);  // stack: <nothing>
     // load 0 or 1 depending on comparison instruction
     switch (compInstruction1) {
-      case IFGE: // OpLT
-      case IFGT: // OpLE
-        mv.visitInsn(ICONST_0);  // false - something is not < or <= null
-        break;
-      case IFLE: // OpGT
-      case IFLT: // OpGE
-        mv.visitInsn(ICONST_1);  // true - something is > or >= null
-        break;
-      default:
-        throw new IllegalStateException("Unsupported: " + compInstruction1);
+      case IFGE, IFGT -> // OpLT OpLE
+              mv.visitInsn(ICONST_0);  // false - something is not < or <= null
+      case IFLE, IFLT -> // OpGT OpGE
+              mv.visitInsn(ICONST_1);  // true - something is > or >= null
+      default -> throw new IllegalStateException("Unsupported: " + compInstruction1);
     }
     mv.visitJumpInsn(GOTO, endOfIf);
 
@@ -190,16 +180,11 @@ public abstract class Operator extends SpelNodeImpl {
     // here: RIGHT!=null LEFT==null
     mv.visitInsn(POP2);  // stack: <nothing>
     switch (compInstruction1) {
-      case IFGE: // OpLT
-      case IFGT: // OpLE
-        mv.visitInsn(ICONST_1);  // true - null is < or <= something
-        break;
-      case IFLE: // OpGT
-      case IFLT: // OpGE
-        mv.visitInsn(ICONST_0);  // false - null is not > or >= something
-        break;
-      default:
-        throw new IllegalStateException("Unsupported: " + compInstruction1);
+      case IFGE, IFGT -> // OpLT OpLE
+              mv.visitInsn(ICONST_1);  // true - null is < or <= something
+      case IFLE, IFLT -> // OpGT OpGE
+              mv.visitInsn(ICONST_0);  // false - null is not > or >= something
+      default -> throw new IllegalStateException("Unsupported: " + compInstruction1);
     }
     mv.visitJumpInsn(GOTO, endOfIf);
     mv.visitLabel(neitherRightNorLeftAreNull);  // stack: right/left
