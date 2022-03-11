@@ -154,7 +154,7 @@ public class ExpressionEvaluatorTests {
 
   private static class AnnotatedClass {
 
-    @Caching(cacheable = { @Cacheable(value = "test", key = "#a"), @Cacheable(value = "test", key = "#b") })
+    @Caching(cacheable = { @Cacheable(value = "test", key = "a"), @Cacheable(value = "test", key = "b") })
     public void multipleCaching(Object a, Object b) {
     }
   }

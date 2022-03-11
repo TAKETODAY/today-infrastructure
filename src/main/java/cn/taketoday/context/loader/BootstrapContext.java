@@ -510,11 +510,11 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     if (beanFactory instanceof ApplicationContext context) {
       return context;
     }
-    ApplicationContext context = beanFactory.getBean(ApplicationContext.class);
-    if (context != null) {
-      return context;
+    try {
+      return beanFactory.getBean(ApplicationContext.class);
     }
-    throw new IllegalArgumentException("Expect a ApplicationContext");
+    catch (NoSuchBeanDefinitionException ignored) { }
+    return null;
   }
 
   @Nullable

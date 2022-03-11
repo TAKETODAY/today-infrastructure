@@ -104,6 +104,15 @@ public abstract class ExpressionContext {
   /** @since 3.0.4 */
   private ConversionService conversionService;
 
+  private boolean returnEmptyWhenPropertyNotResolved;
+
+  /**
+   * @since 4.0
+   */
+  public void setReturnEmptyWhenPropertyNotResolved(boolean returnEmptyWhenPropertyNotResolved) {
+    this.returnEmptyWhenPropertyNotResolved = returnEmptyWhenPropertyNotResolved;
+  }
+
   /**
    * Called to indicate that a <code>ELResolver</code> has successfully resolved a
    * given (base, property) pair. Use {@link #setPropertyResolved(Object, Object)}
@@ -427,6 +436,9 @@ public abstract class ExpressionContext {
    */
   public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) throws ExpressionException {
     if (base == null) {
+      if (returnEmptyWhenPropertyNotResolved) {
+        return null;
+      }
       throw new PropertyNotFoundException(
               "ExpressionResolver cannot handle a null base Object with identifier '" + property + "'");
     }

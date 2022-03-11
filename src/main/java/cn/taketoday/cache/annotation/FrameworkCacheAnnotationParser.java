@@ -98,22 +98,26 @@ public class FrameworkCacheAnnotationParser implements CacheAnnotationParser, Se
   private Collection<CacheOperation> parseCacheAnnotations(
           DefaultCacheConfig cachingConfig, AnnotatedElement ae, boolean localOnly) {
 
-    Collection<? extends Annotation> anns = (localOnly ?
-                                             AnnotatedElementUtils.getAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS) :
-                                             AnnotatedElementUtils.findAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS));
+    Collection<? extends Annotation> anns =
+            localOnly ? AnnotatedElementUtils.getAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS)
+                      : AnnotatedElementUtils.findAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS);
     if (anns.isEmpty()) {
       return null;
     }
 
-    final Collection<CacheOperation> ops = new ArrayList<>(1);
-    anns.stream().filter(ann -> ann instanceof Cacheable).forEach(
-            ann -> ops.add(parseCacheableAnnotation(ae, cachingConfig, (Cacheable) ann)));
-    anns.stream().filter(ann -> ann instanceof CacheEvict).forEach(
-            ann -> ops.add(parseEvictAnnotation(ae, cachingConfig, (CacheEvict) ann)));
-    anns.stream().filter(ann -> ann instanceof CachePut).forEach(
-            ann -> ops.add(parsePutAnnotation(ae, cachingConfig, (CachePut) ann)));
-    anns.stream().filter(ann -> ann instanceof Caching).forEach(
-            ann -> parseCachingAnnotation(ae, cachingConfig, (Caching) ann, ops));
+    ArrayList<CacheOperation> ops = new ArrayList<>(1);
+    anns.stream()
+            .filter(ann -> ann instanceof Cacheable)
+            .forEach(ann -> ops.add(parseCacheableAnnotation(ae, cachingConfig, (Cacheable) ann)));
+    anns.stream()
+            .filter(ann -> ann instanceof CacheEvict)
+            .forEach(ann -> ops.add(parseEvictAnnotation(ae, cachingConfig, (CacheEvict) ann)));
+    anns.stream()
+            .filter(ann -> ann instanceof CachePut)
+            .forEach(ann -> ops.add(parsePutAnnotation(ae, cachingConfig, (CachePut) ann)));
+    anns.stream()
+            .filter(ann -> ann instanceof Caching)
+            .forEach(ann -> parseCachingAnnotation(ae, cachingConfig, (Caching) ann, ops));
     return ops;
   }
 

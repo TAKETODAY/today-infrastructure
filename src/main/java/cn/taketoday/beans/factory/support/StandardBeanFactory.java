@@ -622,9 +622,14 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    return resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
+    Object resolved = resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
+    if (resolved == null) {
+      throw new NoSuchBeanDefinitionException(requiredType);
+    }
+    return (T) resolved;
   }
 
   @Nullable
@@ -662,8 +667,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     if (size > 1) {
       LinkedHashSet<String> autowireCandidates = new LinkedHashSet<>(size);
       for (String beanName : candidateNames) {
-        BeanDefinition beanDefinition = getBeanDefinition(beanName);
-        if (beanDefinition == null || beanDefinition.isAutowireCandidate()) {
+        if (!containsBeanDefinition(beanName) || getBeanDefinition(beanName).isAutowireCandidate()) {
           autowireCandidates.add(beanName);
         }
       }

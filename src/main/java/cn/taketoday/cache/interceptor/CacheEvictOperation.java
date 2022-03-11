@@ -35,8 +35,6 @@ public class CacheEvictOperation extends CacheOperation {
 
   /**
    * Create a new {@link CacheEvictOperation} instance from the given builder.
-   *
-   * @since 4.0
    */
   public CacheEvictOperation(Builder b) {
     super(b);
@@ -54,8 +52,6 @@ public class CacheEvictOperation extends CacheOperation {
 
   /**
    * A builder that can be used to create a {@link CacheEvictOperation}.
-   *
-   * @since 4.0
    */
   public static class Builder extends CacheOperation.Builder {
 

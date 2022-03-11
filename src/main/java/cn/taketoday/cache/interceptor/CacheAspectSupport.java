@@ -84,7 +84,7 @@ import cn.taketoday.util.SupplierUtils;
 public abstract class CacheAspectSupport extends AbstractCacheInvoker
         implements BeanFactoryAware, InitializingBean, SmartInitializingSingleton {
 
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(CacheAspectSupport.class);
 
   private final Map<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
 
@@ -106,8 +106,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   /**
    * Configure this aspect with the given error handler, key generator and cache resolver/manager
    * suppliers, applying the corresponding default if a supplier is not resolvable.
-   *
-   * @since 4.0
    */
   public void configure(
           @Nullable Supplier<CacheErrorHandler> errorHandler, @Nullable Supplier<KeyGenerator> keyGenerator,
@@ -200,8 +198,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   /**
    * Set the containing {@link BeanFactory} for {@link CacheManager} and other
    * service lookups.
-   *
-   * @since 4.0
    */
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
@@ -446,28 +442,28 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     InvocationAwareResult invocationResult = new InvocationAwareResult();
     Object result = cache.get(key, () -> {
       invocationResult.invoked = true;
-      if (logger.isTraceEnabled()) {
-        logger.trace("No cache entry for key '" + key + "' in cache " + cache.getName());
+      if (log.isTraceEnabled()) {
+        log.trace("No cache entry for key '{}' in cache {}", key, cache.getName());
       }
       return unwrapReturnValue(invokeOperation(invoker));
     });
-    if (!invocationResult.invoked && logger.isTraceEnabled()) {
-      logger.trace("Cache entry for key '" + key + "' found in cache '" + cache.getName() + "'");
+    if (!invocationResult.invoked && log.isTraceEnabled()) {
+      log.trace("Cache entry for key '{}' found in cache '{}'", key, cache.getName());
     }
     return result;
   }
 
   @Nullable
-  private Object wrapCacheValue(Method method, @Nullable Object cacheValue) {
-    if (method.getReturnType() == Optional.class &&
-            (cacheValue == null || cacheValue.getClass() != Optional.class)) {
+  private static Object wrapCacheValue(Method method, @Nullable Object cacheValue) {
+    if (method.getReturnType() == Optional.class
+            && (cacheValue == null || cacheValue.getClass() != Optional.class)) {
       return Optional.ofNullable(cacheValue);
     }
     return cacheValue;
   }
 
   @Nullable
-  private Object unwrapReturnValue(@Nullable Object returnValue) {
+  private static Object unwrapReturnValue(@Nullable Object returnValue) {
     return ObjectUtils.unwrapOptional(returnValue);
   }
 
@@ -519,10 +515,10 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     }
   }
 
-  private void logInvalidating(CacheOperationContext context, CacheEvictOperation operation, @Nullable Object key) {
-    if (logger.isTraceEnabled()) {
-      logger.trace("Invalidating " + (key != null ? "cache key [" + key + "]" : "entire cache") +
-              " for operation " + operation + " on method " + context.metadata.method);
+  private static void logInvalidating(CacheOperationContext context, CacheEvictOperation operation, @Nullable Object key) {
+    if (log.isTraceEnabled()) {
+      log.trace("Invalidating {} for operation {} on method {}",
+              (key != null ? "cache key [" + key + "]" : "entire cache"), operation, context.metadata.method);
     }
   }
 
@@ -544,8 +540,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           return cached;
         }
         else {
-          if (logger.isTraceEnabled()) {
-            logger.trace("No cache entry for key '" + key + "' in cache(s) " + context.getCacheNames());
+          if (log.isTraceEnabled()) {
+            log.trace("No cache entry for key '{}' in cache(s) {}", key, context.getCacheNames());
           }
         }
       }
@@ -577,8 +573,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     for (Cache cache : context.getCaches()) {
       Cache.ValueWrapper wrapper = doGet(cache, key);
       if (wrapper != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Cache entry for key '" + key + "' found in cache '" + cache.getName() + "'");
+        if (log.isTraceEnabled()) {
+          log.trace("Cache entry for key '{}' found in cache '{}'", key, cache.getName());
         }
         return wrapper;
       }
@@ -588,9 +584,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
   private boolean isConditionPassing(CacheOperationContext context, @Nullable Object result) {
     boolean passing = context.isConditionPassing(result);
-    if (!passing && logger.isTraceEnabled()) {
-      logger.trace("Cache condition failed on method " + context.metadata.method +
-              " for operation " + context.metadata.operation);
+    if (!passing && log.isTraceEnabled()) {
+      log.trace("Cache condition failed on method {} for operation {}", context.metadata.method, context.metadata.operation);
     }
     return passing;
   }
@@ -601,8 +596,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       throw new IllegalArgumentException("Null key returned for cache operation (maybe you are " +
               "using named params on classes without debug info?) " + context.metadata.operation);
     }
-    if (logger.isTraceEnabled()) {
-      logger.trace("Computed cache key '" + key + "' for operation " + context.metadata.operation);
+    if (log.isTraceEnabled()) {
+      log.trace("Computed cache key '{}' for operation {]", key, context.metadata.operation);
     }
     return key;
   }
@@ -674,20 +669,19 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * which makes it a good candidate for caching.
    */
   protected static class CacheOperationMetadata {
+    public final CacheOperation operation;
 
-    private final CacheOperation operation;
+    public final Method method;
 
-    private final Method method;
+    public final Class<?> targetClass;
 
-    private final Class<?> targetClass;
+    public final Method targetMethod;
 
-    private final Method targetMethod;
+    public final AnnotatedElementKey methodKey;
 
-    private final AnnotatedElementKey methodKey;
+    public final KeyGenerator keyGenerator;
 
-    private final KeyGenerator keyGenerator;
-
-    private final CacheResolver cacheResolver;
+    public final CacheResolver cacheResolver;
 
     public CacheOperationMetadata(CacheOperation operation, Method method, Class<?> targetClass,
             KeyGenerator keyGenerator, CacheResolver cacheResolver) {
@@ -695,8 +689,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       this.operation = operation;
       this.method = BridgeMethodResolver.findBridgedMethod(method);
       this.targetClass = targetClass;
-      this.targetMethod = (!Proxy.isProxyClass(targetClass) ?
-                           AopUtils.getMostSpecificMethod(method, targetClass) : this.method);
+      this.targetMethod = !Proxy.isProxyClass(targetClass) ?
+                          AopUtils.getMostSpecificMethod(method, targetClass) : this.method;
       this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
       this.keyGenerator = keyGenerator;
       this.cacheResolver = cacheResolver;
@@ -708,18 +702,18 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    */
   protected class CacheOperationContext implements CacheOperationInvocationContext<CacheOperation> {
 
-    private final CacheOperationMetadata metadata;
+    public final CacheOperationMetadata metadata;
 
-    private final Object[] args;
+    public final Object[] args;
 
-    private final Object target;
+    public final Object target;
 
-    private final Collection<? extends Cache> caches;
+    public final Collection<? extends Cache> caches;
 
-    private final Collection<String> cacheNames;
+    public final Collection<String> cacheNames;
 
     @Nullable
-    private Boolean conditionPassing;
+    public Boolean conditionPassing;
 
     public CacheOperationContext(CacheOperationMetadata metadata, Object[] args, Object target) {
       this.metadata = metadata;
@@ -762,10 +756,10 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     protected boolean isConditionPassing(@Nullable Object result) {
       if (this.conditionPassing == null) {
-        if (StringUtils.hasText(this.metadata.operation.getCondition())) {
+        if (metadata.operation.hasConditionString()) {
           CacheEvaluationContext evaluationContext = createEvaluationContext(result);
-          this.conditionPassing = evaluator.condition(this.metadata.operation.getCondition(),
-                  this.metadata.methodKey, evaluationContext);
+          this.conditionPassing = evaluator.condition(metadata.operation.getCondition(),
+                  metadata.methodKey, evaluationContext);
         }
         else {
           this.conditionPassing = true;
@@ -775,12 +769,15 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     }
 
     protected boolean canPutToCache(@Nullable Object value) {
-      String unless = "";
+      String unless;
       if (this.metadata.operation instanceof CacheableOperation) {
         unless = ((CacheableOperation) this.metadata.operation).getUnless();
       }
       else if (this.metadata.operation instanceof CachePutOperation) {
         unless = ((CachePutOperation) this.metadata.operation).getUnless();
+      }
+      else {
+        return true;
       }
       if (StringUtils.hasText(unless)) {
         CacheEvaluationContext evaluationContext = createEvaluationContext(value);
@@ -794,9 +791,9 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
      */
     @Nullable
     protected Object generateKey(@Nullable Object result) {
-      if (StringUtils.hasText(this.metadata.operation.getKey())) {
+      if (metadata.operation.hasKeyString()) {
         CacheEvaluationContext evaluationContext = createEvaluationContext(result);
-        return evaluator.key(this.metadata.operation.getKey(), this.metadata.methodKey, evaluationContext);
+        return evaluator.key(metadata.operation.getKey(), this.metadata.methodKey, evaluationContext);
       }
       return this.metadata.keyGenerator.generate(this.target, this.metadata.method, this.args);
     }
@@ -891,7 +888,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    */
   private static class InvocationAwareResult {
 
-    boolean invoked;
+    public boolean invoked;
 
   }
 

@@ -22,6 +22,7 @@ package cn.taketoday.cache.interceptor;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -79,6 +80,7 @@ public class SimpleKey implements Serializable {
     return getClass().getSimpleName() + " [" + StringUtils.arrayToCommaDelimitedString(this.params) + "]";
   }
 
+  @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     ois.defaultReadObject();
     // Re-calculate hashCode field on deserialization

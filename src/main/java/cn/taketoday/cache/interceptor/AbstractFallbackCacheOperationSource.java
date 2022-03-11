@@ -92,21 +92,21 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
     }
 
     Object cacheKey = getCacheKey(method, targetClass);
-    Collection<CacheOperation> cached = this.attributeCache.get(cacheKey);
+    Collection<CacheOperation> cached = attributeCache.get(cacheKey);
 
     if (cached != null) {
-      return (cached != NULL_CACHING_ATTRIBUTE ? cached : null);
+      return cached != NULL_CACHING_ATTRIBUTE ? cached : null;
     }
     else {
       Collection<CacheOperation> cacheOps = computeCacheOperations(method, targetClass);
       if (cacheOps != null) {
         if (logger.isTraceEnabled()) {
-          logger.trace("Adding cacheable method '" + method.getName() + "' with attribute: " + cacheOps);
+          logger.trace("Adding cacheable method '{}' with attribute: {}", method.getName(), cacheOps);
         }
-        this.attributeCache.put(cacheKey, cacheOps);
+        attributeCache.put(cacheKey, cacheOps);
       }
       else {
-        this.attributeCache.put(cacheKey, NULL_CACHING_ATTRIBUTE);
+        attributeCache.put(cacheKey, NULL_CACHING_ATTRIBUTE);
       }
       return cacheOps;
     }

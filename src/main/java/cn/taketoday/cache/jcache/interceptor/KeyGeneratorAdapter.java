@@ -23,7 +23,6 @@ package cn.taketoday.cache.jcache.interceptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.cache.annotation.CacheInvocationParameter;
 import javax.cache.annotation.CacheKeyGenerator;
@@ -104,7 +103,7 @@ class KeyGeneratorAdapter implements KeyGenerator {
   }
 
   private static Object doGenerate(KeyGenerator keyGenerator, CacheKeyInvocationContext<?> context) {
-    List<Object> parameters = new ArrayList<>();
+    ArrayList<Object> parameters = new ArrayList<>();
     for (CacheInvocationParameter param : context.getKeyParameters()) {
       Object value = param.getValue();
       if (param.getParameterPosition() == context.getAllParameters().length - 1 &&

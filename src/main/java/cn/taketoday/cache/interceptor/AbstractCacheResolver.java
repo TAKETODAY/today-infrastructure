@@ -87,7 +87,7 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
     if (cacheNames == null) {
       return Collections.emptyList();
     }
-    Collection<Cache> result = new ArrayList<>(cacheNames.size());
+    ArrayList<Cache> result = new ArrayList<>(cacheNames.size());
     for (String cacheName : cacheNames) {
       Cache cache = getCacheManager().getCache(cacheName);
       if (cache == null) {

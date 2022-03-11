@@ -182,7 +182,7 @@ public class DefaultJCacheOperationSource extends AnnotationJCacheOperationSourc
     }
     catch (NoSuchBeanDefinitionException ex) {
       if (logger.isDebugEnabled()) {
-        logger.debug("No bean of type [" + type.getName() + "] found in application context", ex);
+        logger.debug("No bean of type [{}] found in application context", type.getName(), ex);
       }
       return BeanUtils.newInstance(type);
     }

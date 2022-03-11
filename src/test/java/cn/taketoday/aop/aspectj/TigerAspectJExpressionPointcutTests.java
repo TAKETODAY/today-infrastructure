@@ -225,8 +225,8 @@ public class TigerAspectJExpressionPointcutTests {
     Method takesNoAnnotatedParameters = ProcessesSpringAnnotatedParameters.class.getMethod("takesNoAnnotatedParameters", TestBean.class, BeanA.class);
 
     DefaultMethodInvocation invocation = new DefaultMethodInvocation(
-            null, takesNoAnnotatedParameters, ProcessesSpringAnnotatedParameters.class,
-            new Object[] { new TestBean(), new BeanA() }
+            null, new ProcessesSpringAnnotatedParameters(), takesNoAnnotatedParameters, ProcessesSpringAnnotatedParameters.class,
+            new Object[] { new TestBean(), new BeanA() }, null
     );
 
     assertThat(takesSpringAnnotatedArgument2.matches(invocation)).isFalse();

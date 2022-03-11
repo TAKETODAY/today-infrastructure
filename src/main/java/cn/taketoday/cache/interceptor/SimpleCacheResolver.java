@@ -65,7 +65,6 @@ public class SimpleCacheResolver extends AbstractCacheResolver {
    *
    * @param cacheManager the CacheManager (potentially {@code null})
    * @return the SimpleCacheResolver ({@code null} if the CacheManager was {@code null})
-   * @since 4.0
    */
   @Nullable
   static SimpleCacheResolver of(@Nullable CacheManager cacheManager) {

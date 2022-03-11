@@ -49,8 +49,11 @@ public abstract class CachedExpressionEvaluator {
    * @param expression the expression to parse
    */
   protected ValueExpression getExpression(
-          Map<ExpressionKey, ValueExpression> cache,
-          Object elementKey, String expression) {
+          Map<ExpressionKey, ValueExpression> cache, Object elementKey, String expression) {
+
+    if (!expression.startsWith("#{") && !expression.endsWith("}")) {
+      expression = "#{" + expression + "}";
+    }
 
     ExpressionKey expressionKey = createKey(elementKey, expression);
     ValueExpression expr = cache.get(expressionKey);

@@ -26,6 +26,7 @@ import java.util.Set;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Base class for cache operations.
@@ -53,6 +54,9 @@ public abstract class CacheOperation implements BasicOperation {
 
   private final String toString;
 
+  private final boolean hasKeyString;
+  private final boolean hasConditionString;
+
   /**
    * Create a new {@link CacheOperation} instance from the given builder.
    */
@@ -64,6 +68,8 @@ public abstract class CacheOperation implements BasicOperation {
     this.cacheManager = b.cacheManager;
     this.cacheResolver = b.cacheResolver;
     this.condition = b.condition;
+    this.hasKeyString = StringUtils.hasText(b.key);
+    this.hasConditionString = StringUtils.hasText(b.condition);
     this.toString = b.getOperationDescription().toString();
   }
 
@@ -94,6 +100,14 @@ public abstract class CacheOperation implements BasicOperation {
 
   public String getCondition() {
     return this.condition;
+  }
+
+  public boolean hasKeyString() {
+    return hasKeyString;
+  }
+
+  public boolean hasConditionString() {
+    return hasConditionString;
   }
 
   /**

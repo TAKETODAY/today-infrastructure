@@ -49,7 +49,6 @@ public interface CacheOperationSource {
    * @return {@code false} if the class is known to have no cache operation
    * metadata at class or method level; {@code true} otherwise. The default
    * implementation returns {@code true}, leading to regular introspection.
-   * @since 4.0
    */
   default boolean isCandidateClass(Class<?> targetClass) {
     return true;
