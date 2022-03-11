@@ -113,6 +113,10 @@ public abstract class ExpressionContext {
     this.returnEmptyWhenPropertyNotResolved = returnEmptyWhenPropertyNotResolved;
   }
 
+  public boolean isReturnEmptyWhenPropertyNotResolved() {
+    return returnEmptyWhenPropertyNotResolved;
+  }
+
   /**
    * Called to indicate that a <code>ELResolver</code> has successfully resolved a
    * given (base, property) pair. Use {@link #setPropertyResolved(Object, Object)}
@@ -436,7 +440,7 @@ public abstract class ExpressionContext {
    */
   public Object handlePropertyNotResolved(Object base, Object property, EvaluationContext ctx) throws ExpressionException {
     if (base == null) {
-      if (returnEmptyWhenPropertyNotResolved) {
+      if (isReturnEmptyWhenPropertyNotResolved()) {
         return null;
       }
       throw new PropertyNotFoundException(

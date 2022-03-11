@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -86,7 +85,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
   private static final Logger log = LoggerFactory.getLogger(CacheAspectSupport.class);
 
-  private final Map<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
+  private final ConcurrentHashMap<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
 
   private final CacheOperationExpressionEvaluator evaluator = new CacheOperationExpressionEvaluator();
 

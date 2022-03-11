@@ -121,7 +121,7 @@ public final class AstIdentifier extends SimpleNode {
           return ctx.getResolver().getValue(ctx, c, image);
         }
       }
-      ctx.handlePropertyNotResolved(null, image, ctx);
+      ret = ctx.handlePropertyNotResolved(null, image, ctx);
     }
     return ret;
   }

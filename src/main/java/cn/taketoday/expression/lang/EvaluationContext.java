@@ -124,4 +124,14 @@ public final class EvaluationContext extends ExpressionContext {
     return this.elContext.getImportHandler();
   }
 
+  @Override
+  public void setReturnEmptyWhenPropertyNotResolved(boolean returnEmptyWhenPropertyNotResolved) {
+    elContext.setReturnEmptyWhenPropertyNotResolved(returnEmptyWhenPropertyNotResolved);
+  }
+
+  @Override
+  public boolean isReturnEmptyWhenPropertyNotResolved() {
+    return elContext.isReturnEmptyWhenPropertyNotResolved();
+  }
+
 }

@@ -113,6 +113,7 @@ public class ExpressionEvaluatorTests {
   @Test
   public void withoutReturnValue() {
     CacheEvaluationContext context = createEvaluationContext(CacheOperationExpressionEvaluator.NO_RESULT);
+    context.setReturnEmptyWhenPropertyNotResolved(true);
     Object value = ExpressionProcessor.getSharedInstance().getValue("#{result}", context, Object.class);
     assertThat(value).isNull();
   }
