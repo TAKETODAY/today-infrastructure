@@ -31,13 +31,7 @@ import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.PropertiesPropertyResolver;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.expression.BeanNameExpressionResolver;
-import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.ExpressionManager;
-import cn.taketoday.expression.ExpressionProcessor;
-import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -98,10 +92,6 @@ public class ExpressionEvaluator implements PlaceholderResolver {
     this.variablesResolver = environmentCapable.getEnvironment();
   }
 
-  public ExpressionEvaluator(EnvironmentCapable capable, ExpressionProcessor expressionProcessor) {
-    this(capable);
-    this.expressionProcessor = expressionProcessor;
-  }
 
   public Object evaluate(String expression) {
     return obtainProcessor().eval(expression);

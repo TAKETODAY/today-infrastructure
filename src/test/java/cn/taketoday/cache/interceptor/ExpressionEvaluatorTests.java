@@ -36,7 +36,7 @@ import cn.taketoday.cache.annotation.Caching;
 import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.context.support.StaticApplicationContext;
-import cn.taketoday.expression.ExpressionProcessor;
+import cn.taketoday.expression0.ExpressionProcessor;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

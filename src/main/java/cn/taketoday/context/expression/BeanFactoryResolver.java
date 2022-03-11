@@ -19,38 +19,43 @@
  */
 package cn.taketoday.context.expression;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.expression.BeanNameResolver;
+import cn.taketoday.expression.AccessException;
+import cn.taketoday.expression.BeanResolver;
+import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.lang.Assert;
 
 /**
- * @author TODAY <br>
- * 2019-02-23 10:36
+ * EL bean resolver that operates against a Spring
+ * {@link BeanFactory}.
+ *
+ * @author Juergen Hoeller
+ * @author TODAY
+ * @since 2019-02-23 10:36
  */
-public class BeanFactoryResolver implements BeanNameResolver {
+public class BeanFactoryResolver implements BeanResolver {
+
   private final BeanFactory beanFactory;
 
+  /**
+   * Create a new {@link BeanFactoryResolver} for the given factory.
+   *
+   * @param beanFactory the {@link BeanFactory} to resolve bean names against
+   */
   public BeanFactoryResolver(BeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "BeanFactory must not be null");
     this.beanFactory = beanFactory;
   }
 
-  public BeanFactoryResolver(AbstractApplicationContext beanFactory) {
-    this(beanFactory.getBeanFactory());
-  }
-
   @Override
-  public boolean isReadOnly(String beanName) {
-    return true;
-  }
-
-  @Override
-  public boolean isNameResolved(String beanName) {
-    return beanFactory.containsBean(beanName);
-  }
-
-  @Override
-  public Object getBean(String beanName) {
-    return beanFactory.getBean(beanName);
+  public Object resolve(EvaluationContext context, String beanName) throws AccessException {
+    try {
+      return this.beanFactory.getBean(beanName);
+    }
+    catch (BeansException ex) {
+      throw new AccessException("Could not resolve bean reference against BeanFactory", ex);
+    }
   }
 
 }

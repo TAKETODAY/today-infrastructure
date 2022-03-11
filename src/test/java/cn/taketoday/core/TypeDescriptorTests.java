@@ -412,7 +412,7 @@ public class TypeDescriptorTests {
   }
 
   @Test
-  public void forObject() {
+  public void fromObject() {
     TypeDescriptor desc = TypeDescriptor.fromObject("3");
     assertThat(desc.getType()).isEqualTo(String.class);
   }

@@ -20,14 +20,24 @@
 
 package cn.taketoday.context.expression;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanExpressionException;
 import cn.taketoday.beans.factory.config.BeanExpressionContext;
 import cn.taketoday.beans.factory.config.BeanExpressionResolver;
-import cn.taketoday.expression.BeanNameExpressionResolver;
-import cn.taketoday.expression.BeanNameResolver;
-import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardExpressionContext;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.expression.Expression;
+import cn.taketoday.expression.ExpressionParser;
+import cn.taketoday.expression.ParserContext;
+import cn.taketoday.expression.spel.SpelParserConfiguration;
+import cn.taketoday.expression.spel.standard.SpelExpressionParser;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
+import cn.taketoday.expression.spel.support.StandardTypeConverter;
+import cn.taketoday.expression.spel.support.StandardTypeLocator;
+import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -46,38 +56,128 @@ import cn.taketoday.util.StringUtils;
  */
 public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 
-  private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
+  /** Default expression prefix: "#{". */
+  public static final String DEFAULT_EXPRESSION_PREFIX = "#{";
 
-  @Nullable
+  /** Default expression suffix: "}". */
+  public static final String DEFAULT_EXPRESSION_SUFFIX = "}";
+
+  private String expressionPrefix = DEFAULT_EXPRESSION_PREFIX;
+
+  private String expressionSuffix = DEFAULT_EXPRESSION_SUFFIX;
+
+  private ExpressionParser expressionParser;
+
+  private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>(256);
+
+  private final Map<BeanExpressionContext, StandardEvaluationContext> evaluationCache = new ConcurrentHashMap<>(8);
+
+  private final ParserContext beanExpressionParserContext = new ParserContext() {
+    @Override
+    public boolean isTemplate() {
+      return true;
+    }
+
+    @Override
+    public String getExpressionPrefix() {
+      return expressionPrefix;
+    }
+
+    @Override
+    public String getExpressionSuffix() {
+      return expressionSuffix;
+    }
+  };
+
+  /**
+   * Create a new {@code StandardBeanExpressionResolver} with default settings.
+   */
+  public StandardBeanExpressionResolver() {
+    this.expressionParser = new SpelExpressionParser();
+  }
+
+  /**
+   * Create a new {@code StandardBeanExpressionResolver} with the given bean class loader,
+   * using it as the basis for expression compilation.
+   *
+   * @param beanClassLoader the factory's bean class loader
+   */
+  public StandardBeanExpressionResolver(@Nullable ClassLoader beanClassLoader) {
+    this.expressionParser = new SpelExpressionParser(new SpelParserConfiguration(null, beanClassLoader));
+  }
+
+  /**
+   * Set the prefix that an expression string starts with.
+   * The default is "#{".
+   *
+   * @see #DEFAULT_EXPRESSION_PREFIX
+   */
+  public void setExpressionPrefix(String expressionPrefix) {
+    Assert.hasText(expressionPrefix, "Expression prefix must not be empty");
+    this.expressionPrefix = expressionPrefix;
+  }
+
+  /**
+   * Set the suffix that an expression string ends with.
+   * The default is "}".
+   *
+   * @see #DEFAULT_EXPRESSION_SUFFIX
+   */
+  public void setExpressionSuffix(String expressionSuffix) {
+    Assert.hasText(expressionSuffix, "Expression suffix must not be empty");
+    this.expressionSuffix = expressionSuffix;
+  }
+
+  /**
+   * Specify the EL parser to use for expression parsing.
+   * <p>Default is a {@link SpelExpressionParser},
+   * compatible with standard Unified EL style expression syntax.
+   */
+  public void setExpressionParser(ExpressionParser expressionParser) {
+    Assert.notNull(expressionParser, "ExpressionParser must not be null");
+    this.expressionParser = expressionParser;
+  }
+
   @Override
+  @Nullable
   public Object evaluate(@Nullable String value, BeanExpressionContext evalContext) throws BeansException {
     if (StringUtils.isEmpty(value)) {
       return value;
     }
-    if (!value.startsWith("#{") || !value.endsWith("}")) {
-      return value;
-    }
     try {
-      StandardExpressionContext context = new StandardExpressionContext();
-      context.addResolver(new BeanNameExpressionResolver(new BeanNameResolver() {
-        @Override
-        public boolean isNameResolved(String beanName) {
-          return evalContext.containsObject(beanName);
-        }
-
-        @Override
-        public Object getBean(String beanName) {
-          return evalContext.getObject(beanName);
-        }
-      }));
-      context.addResolver(new EnvironmentExpressionResolver());
-      context.addResolver(new StandardTypeConverter());
-
-      return expressionFactory.createValueExpression(context, value, Object.class).getValue(context);
+      Expression expr = this.expressionCache.get(value);
+      if (expr == null) {
+        expr = this.expressionParser.parseExpression(value, this.beanExpressionParserContext);
+        this.expressionCache.put(value, expr);
+      }
+      StandardEvaluationContext sec = this.evaluationCache.get(evalContext);
+      if (sec == null) {
+        sec = new StandardEvaluationContext(evalContext);
+        sec.addPropertyAccessor(new BeanExpressionContextAccessor());
+        sec.addPropertyAccessor(new BeanFactoryAccessor());
+        sec.addPropertyAccessor(new MapAccessor());
+        sec.addPropertyAccessor(new EnvironmentAccessor());
+        sec.setBeanResolver(new BeanFactoryResolver(evalContext.getBeanFactory()));
+        sec.setTypeLocator(new StandardTypeLocator(evalContext.getBeanFactory().getBeanClassLoader()));
+        sec.setTypeConverter(new StandardTypeConverter(() -> {
+          ConversionService cs = evalContext.getBeanFactory().getConversionService();
+          return cs != null ? cs : ApplicationConversionService.getSharedInstance();
+        }));
+        customizeEvaluationContext(sec);
+        this.evaluationCache.put(evalContext, sec);
+      }
+      return expr.getValue(sec);
     }
     catch (Throwable ex) {
-      throw new BeanExpressionException("Expression '" + value + "' parsing failed", ex);
+      throw new BeanExpressionException("Expression parsing failed", ex);
     }
+  }
+
+  /**
+   * Template method for customizing the expression evaluation context.
+   * <p>The default implementation is empty.
+   */
+  protected void customizeEvaluationContext(StandardEvaluationContext evalContext) {
   }
 
 }

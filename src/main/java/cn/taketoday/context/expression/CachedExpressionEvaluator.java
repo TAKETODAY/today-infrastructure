@@ -24,8 +24,8 @@ import java.util.Map;
 
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.expression.ValueExpression;
-import cn.taketoday.expression.lang.ExpressionBuilder;
+import cn.taketoday.expression.Expression;
+import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -38,22 +38,52 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0 2021/12/25 16:59
  */
 public abstract class CachedExpressionEvaluator {
-  protected final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+
+  private final SpelExpressionParser parser;
+
+  private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   /**
-   * Return the {@link ValueExpression} for the specified EL value
+   * Create a new instance with the specified {@link SpelExpressionParser}.
+   */
+  protected CachedExpressionEvaluator(SpelExpressionParser parser) {
+    Assert.notNull(parser, "SpelExpressionParser must not be null");
+    this.parser = parser;
+  }
+
+  /**
+   * Create a new instance with a default {@link SpelExpressionParser}.
+   */
+  protected CachedExpressionEvaluator() {
+    this(new SpelExpressionParser());
+  }
+
+  /**
+   * Return the {@link SpelExpressionParser} to use.
+   */
+  protected SpelExpressionParser getParser() {
+    return this.parser;
+  }
+
+  /**
+   * Return a shared parameter name discoverer which caches data internally.
+   */
+  protected ParameterNameDiscoverer getParameterNameDiscoverer() {
+    return this.parameterNameDiscoverer;
+  }
+
+  /**
+   * Return the {@link Expression} for the specified SpEL value
    * <p>{@link #parseExpression(String) Parse the expression} if it hasn't been already.
    *
    * @param cache the cache to use
    * @param elementKey the element on which the expression is defined
    * @param expression the expression to parse
    */
-  protected ValueExpression getExpression(
-          Map<ExpressionKey, ValueExpression> cache,
-          Object elementKey, String expression) {
-
+  protected Expression getExpression(
+          Map<ExpressionKey, Expression> cache, AnnotatedElementKey elementKey, String expression) {
     ExpressionKey expressionKey = createKey(elementKey, expression);
-    ValueExpression expr = cache.get(expressionKey);
+    Expression expr = cache.get(expressionKey);
     if (expr == null) {
       expr = parseExpression(expression);
       cache.put(expressionKey, expr);
@@ -66,16 +96,12 @@ public abstract class CachedExpressionEvaluator {
    *
    * @param expression the expression to parse
    */
-  private ValueExpression parseExpression(String expression) {
-    return new ExpressionBuilder(expression, null, null).build(null);// FIXME ctxFn
+  protected Expression parseExpression(String expression) {
+    return getParser().parseExpression(expression);
   }
 
-  private ExpressionKey createKey(Object elementKey, String expression) {
+  private ExpressionKey createKey(AnnotatedElementKey elementKey, String expression) {
     return new ExpressionKey(elementKey, expression);
-  }
-
-  public ParameterNameDiscoverer getParameterNameDiscoverer() {
-    return parameterNameDiscoverer;
   }
 
   /**
@@ -83,13 +109,14 @@ public abstract class CachedExpressionEvaluator {
    */
   protected static class ExpressionKey implements Comparable<ExpressionKey> {
 
-    private final Object elementKey;
+    private final AnnotatedElementKey element;
+
     private final String expression;
 
-    protected ExpressionKey(Object elementKey, String expression) {
-      Assert.notNull(elementKey, "AnnotatedElementKey must not be null");
+    protected ExpressionKey(AnnotatedElementKey element, String expression) {
+      Assert.notNull(element, "AnnotatedElementKey must not be null");
       Assert.notNull(expression, "Expression must not be null");
-      this.elementKey = elementKey;
+      this.element = element;
       this.expression = expression;
     }
 
@@ -101,23 +128,23 @@ public abstract class CachedExpressionEvaluator {
       if (!(other instanceof ExpressionKey otherKey)) {
         return false;
       }
-      return (this.elementKey.equals(otherKey.elementKey) &&
+      return (this.element.equals(otherKey.element) &&
               ObjectUtils.nullSafeEquals(this.expression, otherKey.expression));
     }
 
     @Override
     public int hashCode() {
-      return this.elementKey.hashCode() * 29 + this.expression.hashCode();
+      return this.element.hashCode() * 29 + this.expression.hashCode();
     }
 
     @Override
     public String toString() {
-      return this.elementKey + " with expression \"" + this.expression + "\"";
+      return this.element + " with expression \"" + this.expression + "\"";
     }
 
     @Override
     public int compareTo(ExpressionKey other) {
-      int result = this.elementKey.toString().compareTo(other.elementKey.toString());
+      int result = this.element.toString().compareTo(other.element.toString());
       if (result == 0) {
         result = this.expression.compareTo(other.expression);
       }

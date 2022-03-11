@@ -23,11 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.factory.config.AbstractFactoryBean;
-import cn.taketoday.beans.factory.config.ListFactoryBean;
-import cn.taketoday.beans.factory.config.MapFactoryBean;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -98,9 +95,9 @@ public class SetFactoryBean extends AbstractFactoryBean<Set<Object>> {
       valueType = ResolvableType.fromClass(this.targetSetClass).asCollection().resolveGeneric();
     }
     if (valueType != null) {
-      ConversionService conversionService = getConversionService();
+      TypeConverter converter = getBeanTypeConverter();
       for (Object elem : this.sourceSet) {
-        result.add(convertIfNecessary(conversionService, elem, valueType));
+        result.add(converter.convertIfNecessary(elem, valueType));
       }
     }
     else {

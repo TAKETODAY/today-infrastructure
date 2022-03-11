@@ -1,132 +1,292 @@
 /*
- * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright 2004 The Apache Software Foundation
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
 
-import java.io.Serializable;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Base class for the expression subclasses {@link ValueExpression} and
- * {@link MethodExpression}, implementing characteristics common to both.
+ * An expression capable of evaluating itself against context objects.
+ * Encapsulates the details of a previously parsed expression string.
+ * Provides a common abstraction for expression evaluation.
  *
- * <p>
- * All expressions must implement the <code>equals()</code> and
- * <code>hashCode()</code> methods so that two expressions can be compared for
- * equality. They are redefined abstract in this class to force their
- * implementation in subclasses.
- * </p>
- *
- * <p>
- * All expressions must also be <code>Serializable</code> so that they can be
- * saved and restored.
- * </p>
- *
- * <p>
- * <code>Expression</code>s are also designed to be immutable so that only one
- * instance needs to be created for any given expression String /
- * {@link FunctionMapper}. This allows a container to pre-create expressions and
- * not have to re-parse them each time they are evaluated.
- * </p>
- *
- * @since JSP 2.1
+ * @author Keith Donald
+ * @author Andy Clement
+ * @author Juergen Hoeller
+ * @since 4.0
  */
-@SuppressWarnings("serial")
-public abstract class Expression implements Serializable {
-  // Debugging
+public interface Expression {
 
   /**
-   * Returns the original String used to create this <code>Expression</code>,
-   * unmodified.
+   * Return the original string used to create this expression (unmodified).
    *
-   * <p>
-   * This is used for debugging purposes but also for the purposes of comparison
-   * (e.g. to ensure the expression in a configuration file has not changed).
-   * </p>
-   *
-   * <p>
-   * This method does not provide sufficient information to re-create an
-   * expression. Two different expressions can have exactly the same expression
-   * string but different function mappings. Serialization should be used to save
-   * and restore the state of an <code>Expression</code>.
-   * </p>
-   *
-   * @return The original expression String.
+   * @return the original expression string
    */
-  public abstract String getExpressionString();
-
-  // Comparison
+  String getExpressionString();
 
   /**
-   * Determines whether the specified object is equal to this
-   * <code>Expression</code>.
+   * Evaluate this expression in the default standard context.
    *
-   * <p>
-   * The result is <code>true</code> if and only if the argument is not
-   * <code>null</code>, is an <code>Expression</code> object that is the of the
-   * same type (<code>ValueExpression</code> or <code>MethodExpression</code>),
-   * and has an identical parsed representation.
-   * </p>
-   *
-   * <p>
-   * Note that two expressions can be equal if their expression Strings are
-   * different. For example, <code>${fn1:foo()}</code> and
-   * <code>${fn2:foo()}</code> are equal if their corresponding
-   * <code>FunctionMapper</code>s mapped <code>fn1:foo</code> and
-   * <code>fn2:foo</code> to the same method.
-   * </p>
-   *
-   * @param obj the <code>Object</code> to test for equality.
-   * @return <code>true</code> if <code>obj</code> equals this
-   * <code>Expression</code>; <code>false</code> otherwise.
-   * @see java.util.Hashtable
-   * @see java.lang.Object#equals(java.lang.Object)
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
    */
-  public abstract boolean equals(Object obj);
+  @Nullable
+  Object getValue() throws EvaluationException;
 
   /**
-   * Returns the hash code for this <code>Expression</code>.
+   * Evaluate the expression in the default context. If the result
+   * of the evaluation does not match (and cannot be converted to)
+   * the expected result type then an exception will be returned.
    *
-   * <p>
-   * See the note in the {@link #equals} method on how two expressions can be
-   * equal if their expression Strings are different. Recall that if two objects
-   * are equal according to the <code>equals(Object)</code> method, then calling
-   * the <code>hashCode</code> method on each of the two objects must produce the
-   * same integer result. Implementations must take special note and implement
-   * <code>hashCode</code> correctly.
-   * </p>
-   *
-   * @return The hash code for this <code>Expression</code>.
-   * @see #equals
-   * @see java.util.Hashtable
-   * @see java.lang.Object#hashCode()
+   * @param desiredResultType the class the caller would like the result to be
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
    */
-  public abstract int hashCode();
+  @Nullable
+  <T> T getValue(@Nullable Class<T> desiredResultType) throws EvaluationException;
 
   /**
-   * Returns whether this expression was created from only literal text.
+   * Evaluate this expression against the specified root object.
    *
-   * <p>
-   * This method must return <code>true</code> if and only if the expression
-   * string this expression was created from contained no unescaped EL delimeters
-   * (<code>${...}</code> or <code>#{...}</code>).
-   * </p>
-   *
-   * @return <code>true</code> if this expression was created from only literal
-   * text; <code>false</code> otherwise.
+   * @param rootObject the root object against which to evaluate the expression
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
    */
-  public abstract boolean isLiteralText();
+  @Nullable
+  Object getValue(@Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Evaluate the expression in the default context against the specified root
+   * object. If the result of the evaluation does not match (and cannot be
+   * converted to) the expected result type then an exception will be returned.
+   *
+   * @param rootObject the root object against which to evaluate the expression
+   * @param desiredResultType the class the caller would like the result to be
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  @Nullable
+  <T> T getValue(@Nullable Object rootObject, @Nullable Class<T> desiredResultType) throws EvaluationException;
+
+  /**
+   * Evaluate this expression in the provided context and return the result
+   * of evaluation.
+   *
+   * @param context the context in which to evaluate the expression
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  @Nullable
+  Object getValue(EvaluationContext context) throws EvaluationException;
+
+  /**
+   * Evaluate this expression in the provided context and return the result
+   * of evaluation, but use the supplied root context as an override for any
+   * default root object specified in the context.
+   *
+   * @param context the context in which to evaluate the expression
+   * @param rootObject the root object against which to evaluate the expression
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  @Nullable
+  Object getValue(EvaluationContext context, @Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Evaluate the expression in a specified context which can resolve references
+   * to properties, methods, types, etc. The type of the evaluation result is
+   * expected to be of a particular class and an exception will be thrown if it
+   * is not and cannot be converted to that type.
+   *
+   * @param context the context in which to evaluate the expression
+   * @param desiredResultType the class the caller would like the result to be
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  @Nullable
+  <T> T getValue(EvaluationContext context, @Nullable Class<T> desiredResultType) throws EvaluationException;
+
+  /**
+   * Evaluate the expression in a specified context which can resolve references
+   * to properties, methods, types, etc. The type of the evaluation result is
+   * expected to be of a particular class and an exception will be thrown if it
+   * is not and cannot be converted to that type. The supplied root object
+   * overrides any default specified on the supplied context.
+   *
+   * @param context the context in which to evaluate the expression
+   * @param rootObject the root object against which to evaluate the expression
+   * @param desiredResultType the class the caller would like the result to be
+   * @return the evaluation result
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  @Nullable
+  <T> T getValue(EvaluationContext context, @Nullable Object rootObject, @Nullable Class<T> desiredResultType)
+          throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to a {@link #setValue}
+   * method using the default context.
+   *
+   * @return the most general type of value that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  Class<?> getValueType() throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to the
+   * {@link #setValue(Object, Object)} method using the default context.
+   *
+   * @param rootObject the root object against which to evaluate the expression
+   * @return the most general type of value that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  Class<?> getValueType(@Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to the
+   * {@link #setValue(EvaluationContext, Object)} method for the given context.
+   *
+   * @param context the context in which to evaluate the expression
+   * @return the most general type of value that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  Class<?> getValueType(EvaluationContext context) throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to the
+   * {@link #setValue(EvaluationContext, Object, Object)} method for the given
+   * context. The supplied root object overrides any specified in the context.
+   *
+   * @param context the context in which to evaluate the expression
+   * @param rootObject the root object against which to evaluate the expression
+   * @return the most general type of value that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  Class<?> getValueType(EvaluationContext context, @Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to a {@link #setValue}
+   * method using the default context.
+   *
+   * @return a type descriptor for values that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  TypeDescriptor getValueTypeDescriptor() throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to the
+   * {@link #setValue(Object, Object)} method using the default context.
+   *
+   * @param rootObject the root object against which to evaluate the expression
+   * @return a type descriptor for values that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  TypeDescriptor getValueTypeDescriptor(@Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to the
+   * {@link #setValue(EvaluationContext, Object)} method for the given context.
+   *
+   * @param context the context in which to evaluate the expression
+   * @return a type descriptor for values that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  TypeDescriptor getValueTypeDescriptor(EvaluationContext context) throws EvaluationException;
+
+  /**
+   * Return the most general type that can be passed to the
+   * {@link #setValue(EvaluationContext, Object, Object)} method for the given
+   * context. The supplied root object overrides any specified in the context.
+   *
+   * @param context the context in which to evaluate the expression
+   * @param rootObject the root object against which to evaluate the expression
+   * @return a type descriptor for values that can be set on this context
+   * @throws EvaluationException if there is a problem determining the type
+   */
+  @Nullable
+  TypeDescriptor getValueTypeDescriptor(EvaluationContext context, @Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Determine if an expression can be written to, i.e. setValue() can be called.
+   *
+   * @param rootObject the root object against which to evaluate the expression
+   * @return {@code true} if the expression is writable; {@code false} otherwise
+   * @throws EvaluationException if there is a problem determining if it is writable
+   */
+  boolean isWritable(@Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Determine if an expression can be written to, i.e. setValue() can be called.
+   *
+   * @param context the context in which the expression should be checked
+   * @return {@code true} if the expression is writable; {@code false} otherwise
+   * @throws EvaluationException if there is a problem determining if it is writable
+   */
+  boolean isWritable(EvaluationContext context) throws EvaluationException;
+
+  /**
+   * Determine if an expression can be written to, i.e. setValue() can be called.
+   * The supplied root object overrides any specified in the context.
+   *
+   * @param context the context in which the expression should be checked
+   * @param rootObject the root object against which to evaluate the expression
+   * @return {@code true} if the expression is writable; {@code false} otherwise
+   * @throws EvaluationException if there is a problem determining if it is writable
+   */
+  boolean isWritable(EvaluationContext context, @Nullable Object rootObject) throws EvaluationException;
+
+  /**
+   * Set this expression in the provided context to the value provided.
+   *
+   * @param rootObject the root object against which to evaluate the expression
+   * @param value the new value
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  void setValue(@Nullable Object rootObject, @Nullable Object value) throws EvaluationException;
+
+  /**
+   * Set this expression in the provided context to the value provided.
+   *
+   * @param context the context in which to set the value of the expression
+   * @param value the new value
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  void setValue(EvaluationContext context, @Nullable Object value) throws EvaluationException;
+
+  /**
+   * Set this expression in the provided context to the value provided.
+   * The supplied root object overrides any specified in the context.
+   *
+   * @param context the context in which to set the value of the expression
+   * @param rootObject the root object against which to evaluate the expression
+   * @param value the new value
+   * @throws EvaluationException if there is a problem during evaluation
+   */
+  void setValue(EvaluationContext context, @Nullable Object rootObject, @Nullable Object value) throws EvaluationException;
+
 }

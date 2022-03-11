@@ -50,7 +50,6 @@ class CrossOriginConfiguration {
   public HandlerCorsCustomizer handlerCorsCustomizer(CorsProcessor corsProcessor, ApplicationContext context) {
     HandlerCorsCustomizer customizer = new HandlerCorsCustomizer(corsProcessor);
     ExpressionEvaluator expressionEvaluator = context.getExpressionEvaluator();
-    customizer.setExpressionEvaluator(expressionEvaluator);
     return customizer;
   }
 

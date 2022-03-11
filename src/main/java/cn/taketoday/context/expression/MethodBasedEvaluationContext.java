@@ -24,12 +24,13 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.expression.StandardExpressionContext;
+import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * A method-based {@link StandardExpressionContext} that
+ * A method-based {@link EvaluationContext} that
  * provides explicit support for method-based invocations.
  *
  * <p>Expose the actual method arguments using the following aliases:
@@ -44,44 +45,36 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/25 17:39
  */
-public class MethodBasedEvaluationContext extends StandardExpressionContext {
+public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 
   private final Method method;
+
   private final Object[] arguments;
-  private boolean argumentsLoaded = false;
+
   private final ParameterNameDiscoverer parameterNameDiscoverer;
 
-  public MethodBasedEvaluationContext(
-          Object rootObject, Method method, Object[] arguments,
+  private boolean argumentsLoaded = false;
+
+  public MethodBasedEvaluationContext(Object rootObject, Method method, Object[] arguments,
           ParameterNameDiscoverer parameterNameDiscoverer) {
+
+    super(rootObject);
     this.method = method;
     this.arguments = arguments;
     this.parameterNameDiscoverer = parameterNameDiscoverer;
-    addResolver(new RootObjectExpressionResolver(rootObject, true));
-  }
-
-  @Override
-  public boolean isNameResolved(String beanName) {
-    boolean nameResolved = super.isNameResolved(beanName);
-    if (!nameResolved && !argumentsLoaded) {
-      lazyLoadArguments();
-      this.argumentsLoaded = true;
-      nameResolved = super.isNameResolved(beanName);
-    }
-    return nameResolved;
   }
 
   @Override
   @Nullable
-  public Object getBean(String name) {
-    if (isNameResolved(name)) {
-      return super.getBean(name);
+  public Object lookupVariable(String name) {
+    Object variable = super.lookupVariable(name);
+    if (variable != null) {
+      return variable;
     }
-    Object variable = null;
     if (!this.argumentsLoaded) {
       lazyLoadArguments();
       this.argumentsLoaded = true;
-      variable = super.getBean(name);
+      variable = super.lookupVariable(name);
     }
     return variable;
   }
@@ -97,7 +90,7 @@ public class MethodBasedEvaluationContext extends StandardExpressionContext {
 
     // Expose indexed variables as well as parameter names (if discoverable)
     String[] paramNames = this.parameterNameDiscoverer.getParameterNames(this.method);
-    int paramCount = paramNames != null ? paramNames.length : this.method.getParameterCount();
+    int paramCount = (paramNames != null ? paramNames.length : this.method.getParameterCount());
     int argsCount = this.arguments.length;
 
     for (int i = 0; i < paramCount; i++) {

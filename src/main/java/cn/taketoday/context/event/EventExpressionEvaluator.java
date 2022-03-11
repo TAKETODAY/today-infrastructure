@@ -29,54 +29,37 @@ import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.context.expression.CachedExpressionEvaluator;
 import cn.taketoday.context.expression.MethodBasedEvaluationContext;
-import cn.taketoday.expression.BeanNameExpressionResolver;
-import cn.taketoday.expression.StandardExpressionContext;
-import cn.taketoday.expression.ValueExpression;
+import cn.taketoday.expression.Expression;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/12/25 17:31
+ * Utility class for handling SpEL expression parsing for application events.
+ * <p>Meant to be used as a reusable, thread-safe component.
+ *
+ * @author Stephane Nicoll
+ * @see CachedExpressionEvaluator
+ * @since 4.2
  */
 class EventExpressionEvaluator extends CachedExpressionEvaluator {
 
-  private final Map<ExpressionKey, ValueExpression> conditionCache = new ConcurrentHashMap<>(64);
+  private final Map<ExpressionKey, Expression> conditionCache = new ConcurrentHashMap<>(64);
 
   /**
    * Determine if the condition defined by the specified expression evaluates
    * to {@code true}.
    */
-  public boolean condition(
-          String conditionExpression, Object event, Method targetMethod,
+  public boolean condition(String conditionExpression, ApplicationEvent event, Method targetMethod,
           AnnotatedElementKey methodKey, Object[] args, @Nullable BeanFactory beanFactory) {
 
-    EventRootObject eventRootObject = new EventRootObject(event, args);
-    StandardExpressionContext evaluationContext = new MethodBasedEvaluationContext(
-            eventRootObject, targetMethod, args, parameterNameDiscoverer);
-
+    EventExpressionRootObject root = new EventExpressionRootObject(event, args);
+    MethodBasedEvaluationContext evaluationContext = new MethodBasedEvaluationContext(
+            root, targetMethod, args, getParameterNameDiscoverer());
     if (beanFactory != null) {
-      evaluationContext.addResolver(
-              new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
+      evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
     }
 
-    if (!conditionExpression.startsWith("#{") && !conditionExpression.endsWith("}")) {
-      conditionExpression = "#{" + conditionExpression + "}";
-    }
-
-    return Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression)
-            .getValue(evaluationContext));
-  }
-
-  record EventRootObject(Object event, Object[] args) {
-
-    public Object getEvent() {
-      return event;
-    }
-
-    public Object[] getArgs() {
-      return args;
-    }
+    return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
+            evaluationContext, Boolean.class)));
   }
 
 }
-
