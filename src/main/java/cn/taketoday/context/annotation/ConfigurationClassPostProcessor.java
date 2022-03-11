@@ -102,7 +102,7 @@ public class ConfigurationClassPostProcessor
   @Nullable
   private ConfigurationClassBeanDefinitionReader reader;
 
-  private boolean localBeanNamePopulatorSet = false;
+  private boolean localBeanNameGeneratorSet = false;
 
   /* Using fully qualified class names as default bean names by default. */
   private BeanNameGenerator importBeanNameGenerator = IMPORT_BEAN_NAME_GENERATOR;
@@ -160,7 +160,7 @@ public class ConfigurationClassPostProcessor
    */
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
     Assert.notNull(beanNameGenerator, "BeanNameGenerator must not be null");
-    this.localBeanNamePopulatorSet = true;
+    this.localBeanNameGeneratorSet = true;
     obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
     this.importBeanNameGenerator = beanNameGenerator;
   }
@@ -251,7 +251,7 @@ public class ConfigurationClassPostProcessor
     SingletonBeanRegistry sbr = null;
     if (registry instanceof SingletonBeanRegistry) {
       sbr = (SingletonBeanRegistry) registry;
-      if (!this.localBeanNamePopulatorSet) {
+      if (!this.localBeanNameGeneratorSet) {
         BeanNameGenerator populator = (BeanNameGenerator) sbr.getSingleton(
                 AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
         if (populator != null) {

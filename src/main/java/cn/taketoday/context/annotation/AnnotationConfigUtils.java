@@ -75,7 +75,7 @@ public abstract class AnnotationConfigUtils {
    * {@link ConfigurationClassPostProcessor}.
    */
   public static final String CONFIGURATION_BEAN_NAME_GENERATOR =
-          "cn.taketoday.context.annotation.internalConfigurationBeanNamePopulator";
+          "cn.taketoday.context.annotation.internalConfigurationBeanNameGenerator";
 
   /**
    * The bean name of the internally managed JSR-250 annotation processor.

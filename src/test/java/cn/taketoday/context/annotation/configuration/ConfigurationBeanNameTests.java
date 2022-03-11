@@ -65,7 +65,7 @@ public class ConfigurationBeanNameTests {
   }
 
   @Test
-  public void registerOuterConfig_withBeanNamePopulator() {
+  public void registerOuterConfig_withBeanNameGenerator() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.setBeanNameGenerator(new AnnotationBeanNameGenerator() {
       @Override

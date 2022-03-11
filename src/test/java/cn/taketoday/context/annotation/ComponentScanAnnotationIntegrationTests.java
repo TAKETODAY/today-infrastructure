@@ -179,9 +179,9 @@ public class ComponentScanAnnotationIntegrationTests {
   }
 
   @Test
-  public void withCustomBeanNamePopulator() {
+  public void withCustomBeanNameGenerator() {
     StandardApplicationContext ctx = new StandardApplicationContext();
-    ctx.register(ComponentScanWithBeanNamePopulator.class);
+    ctx.register(ComponentScanWithBeanNameGenerator.class);
     ctx.refresh();
     assertThat(ctx.containsBean("custom_fooServiceImpl")).isTrue();
     assertThat(ctx.containsBean("fooServiceImpl")).isFalse();
@@ -397,7 +397,7 @@ class ComponentScanWithNoPackagesConfig {
 
 @Configuration
 @ComponentScan(basePackages = "example.scannable", namePopulator = MyBeanNameGenerator.class)
-class ComponentScanWithBeanNamePopulator {
+class ComponentScanWithBeanNameGenerator {
 }
 
 class MyBeanNameGenerator extends AnnotationBeanNameGenerator {

@@ -176,7 +176,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
   }
 
   @Override
-  public BeanNameGenerator getBeanNamePopulator() {
+  public BeanNameGenerator getBeanNameGenerator() {
     return this.beanNameGenerator;
   }
 

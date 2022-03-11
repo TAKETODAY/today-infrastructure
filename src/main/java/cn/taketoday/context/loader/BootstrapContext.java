@@ -399,7 +399,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     this.beanNameGenerator = beanNameGenerator != null ? beanNameGenerator : AnnotationBeanNameGenerator.INSTANCE;
   }
 
-  public BeanNameGenerator getBeanNamePopulator() {
+  public BeanNameGenerator getBeanNameGenerator() {
     return beanNameGenerator;
   }
 

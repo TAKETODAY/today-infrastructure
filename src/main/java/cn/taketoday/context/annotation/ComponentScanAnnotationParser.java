@@ -65,7 +65,7 @@ class ComponentScanAnnotationParser {
 
     boolean useInheritedPopulator = BeanNameGenerator.class == generatorClass;
     scanner.setBeanNameGenerator(
-            useInheritedPopulator ? context.getBeanNamePopulator()
+            useInheritedPopulator ? context.getBeanNameGenerator()
                                   : BeanUtils.newInstance(generatorClass));
 
     Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");

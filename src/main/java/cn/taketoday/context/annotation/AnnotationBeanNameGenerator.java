@@ -69,7 +69,7 @@ import cn.taketoday.util.StringUtils;
 public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
   /**
-   * A convenient constant for a default {@code AnnotationBeanNamePopulator} instance,
+   * A convenient constant for a default {@code AnnotationBeanNameGenerator} instance,
    * as used for component scanning purposes.
    */
   public static final AnnotationBeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();

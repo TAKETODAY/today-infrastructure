@@ -123,7 +123,7 @@ public class AnnotationConfigWebApplicationContext
    * and/or {@link ClassPathBeanDefinitionScanner}, if any.
    */
   @Nullable
-  protected BeanNameGenerator getBeanNamePopulator() {
+  protected BeanNameGenerator getBeanNameGenerator() {
     return this.beanNameGenerator;
   }
 
@@ -211,7 +211,7 @@ public class AnnotationConfigWebApplicationContext
     AnnotatedBeanDefinitionReader reader = getAnnotatedBeanDefinitionReader(beanFactory);
     ClassPathBeanDefinitionScanner scanner = getClassPathBeanDefinitionScanner(beanFactory);
 
-    BeanNameGenerator namePopulator = getBeanNamePopulator();
+    BeanNameGenerator namePopulator = getBeanNameGenerator();
     if (namePopulator != null) {
       reader.setBeanNameGenerator(namePopulator);
       scanner.setBeanNameGenerator(namePopulator);
@@ -269,7 +269,7 @@ public class AnnotationConfigWebApplicationContext
    *
    * @param beanFactory the bean factory to load bean definitions into
    * @see #getEnvironment()
-   * @see #getBeanNamePopulator()
+   * @see #getBeanNameGenerator()
    * @see #getScopeMetadataResolver()
    */
   protected AnnotatedBeanDefinitionReader getAnnotatedBeanDefinitionReader(StandardBeanFactory beanFactory) {
@@ -283,7 +283,7 @@ public class AnnotationConfigWebApplicationContext
    *
    * @param beanFactory the bean factory to load bean definitions into
    * @see #getEnvironment()
-   * @see #getBeanNamePopulator()
+   * @see #getBeanNameGenerator()
    * @see #getScopeMetadataResolver()
    */
   protected ClassPathBeanDefinitionScanner getClassPathBeanDefinitionScanner(StandardBeanFactory beanFactory) {

@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 public class DefaultBeanNameGenerator implements BeanNameGenerator {
 
   /**
-   * A convenient constant for a default {@code DefaultBeanNamePopulator} instance
+   * A convenient constant for a default {@code DefaultBeanNameGenerator} instance
    */
   public static final DefaultBeanNameGenerator INSTANCE = new DefaultBeanNameGenerator();
 
