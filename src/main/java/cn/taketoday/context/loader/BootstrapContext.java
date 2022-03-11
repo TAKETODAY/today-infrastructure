@@ -21,8 +21,6 @@
 package cn.taketoday.context.loader;
 
 import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -45,6 +43,7 @@ import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultPropertySourceFactory;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -58,10 +57,8 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Experimental;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Startup(Refresh) Context
@@ -74,6 +71,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
   private final BeanDefinitionRegistry registry;
+
+  @Nullable
   private final ApplicationContext applicationContext;
 
   private ConditionEvaluator conditionEvaluator;
@@ -91,41 +90,71 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
+  @Nullable
+  private Environment environment;
+
+  private BeanFactory beanFactory;
+
   public BootstrapContext(ApplicationContext context) {
     this(new SimpleBeanDefinitionRegistry(), context);
   }
 
-  public BootstrapContext(BeanDefinitionRegistry registry, ApplicationContext context) {
-    Assert.notNull(context, "ApplicationContext is required");
-    Assert.notNull(registry, "registry is required");
-    this.registry = registry;
-    this.resourceLoader = context;
-    this.applicationContext = context;
+  public BootstrapContext(BeanDefinitionRegistry registry, @Nullable ApplicationContext context) {
+    this(registry, null, context);
   }
 
   public BootstrapContext(
           BeanDefinitionRegistry registry,
-          @Nullable ConditionEvaluator conditionEvaluator, @NonNull ApplicationContext context) {
+          @Nullable ConditionEvaluator conditionEvaluator, @Nullable ApplicationContext context) {
+    Assert.notNull(registry, "registry is required");
     this.registry = registry;
     this.resourceLoader = context;
     this.applicationContext = context;
     this.conditionEvaluator = conditionEvaluator;
+    if (context == null) {
+      // context is null detect beanFactory
+      if (registry instanceof BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+      }
+      else {
+        throw new IllegalArgumentException("'registry' expect a BeanFactory when No ApplicationContext available");
+      }
+    }
   }
 
   public BeanDefinitionRegistry getRegistry() {
     return registry;
   }
 
+  @Nullable
   public ApplicationContext getApplicationContext() {
     return applicationContext;
   }
 
   public Environment getEnvironment() {
+    if (applicationContext == null) {
+      if (environment == null) {
+        environment = new StandardEnvironment();
+      }
+      return environment;
+    }
     return applicationContext.getEnvironment();
   }
 
+  /**
+   * Set environment when applicationContext is {@code null}
+   *
+   * @param environment Environment
+   */
+  public void setEnvironment(@Nullable Environment environment) {
+    this.environment = environment;
+  }
+
   public BeanFactory getBeanFactory() {
-    return applicationContext.getBeanFactory();
+    if (applicationContext != null) {
+      return applicationContext.getBeanFactory();
+    }
+    return beanFactory;
   }
 
   /**
@@ -133,9 +162,11 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
    *
    * @throws IllegalArgumentException not a requiredType
    */
-  @NonNull
   public <T> T unwrapFactory(Class<T> requiredType) {
-    return applicationContext.unwrapFactory(requiredType);
+    if (applicationContext != null) {
+      return applicationContext.unwrapFactory(requiredType);
+    }
+    return beanFactory.unwrap(requiredType);
   }
 
   /**
@@ -143,8 +174,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
    *
    * @throws IllegalArgumentException not a requiredType
    */
-  @NonNull
   public <T> T unwrapContext(Class<T> requiredType) {
+    Assert.state(applicationContext != null, "No ApplicationContext available");
     return applicationContext.unwrap(requiredType);
   }
 
@@ -161,10 +192,14 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     return beanNameGenerator.generateBeanName(definition, registry);
   }
 
-  @NonNull
   public ConditionEvaluator getConditionEvaluator() {
     if (conditionEvaluator == null) {
-      this.conditionEvaluator = new ConditionEvaluator(applicationContext, registry);
+      if (applicationContext != null) {
+        this.conditionEvaluator = new ConditionEvaluator(applicationContext, registry);
+      }
+      else {
+        this.conditionEvaluator = new ConditionEvaluator(getEnvironment(), null, registry);
+      }
     }
     return conditionEvaluator;
   }
@@ -206,18 +241,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     return registry.getBeanDefinition(beanName);
   }
 
-  public boolean passCondition(AnnotatedElement annotated) {
-    if (annotated instanceof Class) {
-      return getConditionEvaluator().passCondition((Class<?>) annotated);
-    }
-    else if (annotated instanceof Method) {
-      return getConditionEvaluator().passCondition((Method) annotated);
-    }
-    else {
-      throw new IllegalArgumentException("AnnotatedElement must be Method or Class");
-    }
-  }
-
   public boolean passCondition(AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
     return getConditionEvaluator().passCondition(metadata, phase);
   }
@@ -234,7 +257,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   // BeanFactoryAwareBeanInstantiator
   //---------------------------------------------------------------------
 
-  private DependencyInjectorAwareInstantiator instantiator() {
+  public DependencyInjectorAwareInstantiator getInstantiator() {
     if (instantiator == null) {
       this.instantiator = DependencyInjectorAwareInstantiator.from(applicationContext);
     }
@@ -242,7 +265,11 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   }
 
   public <T> T instantiate(Class<T> beanClass) {
-    return instantiator().instantiate(beanClass);
+    return getInstantiator().instantiate(beanClass);
+  }
+
+  public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
+    return getInstantiator().instantiate(beanClass, providedArgs);
   }
 
   //---------------------------------------------------------------------
@@ -265,7 +292,12 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   public PatternResourceLoader getResourceLoader() {
     if (this.resourceLoader == null) {
-      this.resourceLoader = applicationContext;
+      if (applicationContext != null) {
+        this.resourceLoader = applicationContext;
+      }
+      else {
+        this.resourceLoader = new PathMatchingPatternResourceLoader();
+      }
       // try to bind ResourceLoader to MetadataReaderFactory
       if (this.metadataReaderFactory == null) {
         this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
@@ -292,8 +324,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     if (this.metadataReaderFactory == null) {
       // try to bind ResourceLoader to MetadataReaderFactory
       if (this.resourceLoader == null) {
-        this.resourceLoader = applicationContext;
-        this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
+        getResourceLoader();
       }
       else {
         ResourceLoader resourceLoader;
@@ -309,30 +340,23 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     return this.metadataReaderFactory;
   }
 
-  @NonNull
-  public AnnotationMetadata getAnnotationMetadata(String className) {
+  public AnnotationMetadata getAnnotationMetadata(String className) throws IOException {
     return getMetadataReader(className).getAnnotationMetadata();
   }
 
-  @NonNull
-  public MetadataReader getMetadataReader(String className) {
-    try {
-      MetadataReaderFactory metadataFactory = getMetadataReaderFactory();
-      return metadataFactory.getMetadataReader(className);
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
+  public MetadataReader getMetadataReader(String className) throws IOException {
+    MetadataReaderFactory metadataFactory = getMetadataReaderFactory();
+    return metadataFactory.getMetadataReader(className);
   }
 
   /**
    * Clear the local metadata cache, if any, removing all cached class metadata.
    */
   public void clearCache() {
-    if (metadataReaderFactory instanceof CachingMetadataReaderFactory) {
+    if (metadataReaderFactory instanceof CachingMetadataReaderFactory cmef) {
       // Clear cache in externally provided MetadataReaderFactory; this is a no-op
       // for a shared cache since it'll be cleared by the ApplicationContext.
-      ((CachingMetadataReaderFactory) metadataReaderFactory).clearCache();
+      cmef.clearCache();
     }
   }
 
@@ -343,7 +367,13 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   }
 
   public <T> T evaluateExpression(String expression, Class<T> requiredType) {
-    ExpressionEvaluator expressionEvaluator = applicationContext.getExpressionEvaluator();
+    ExpressionEvaluator expressionEvaluator;
+    if (applicationContext != null) {
+      expressionEvaluator = applicationContext.getExpressionEvaluator();
+    }
+    else {
+      expressionEvaluator = ExpressionEvaluator.getSharedInstance();
+    }
     return expressionEvaluator.evaluate(expression, requiredType);
   }
 
@@ -371,8 +401,30 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     return scopeMetadataResolver;
   }
 
+  /**
+   * Get the name of the scope.
+   *
+   * @see #resolveScopeMetadata(BeanDefinition)
+   */
   public String resolveScopeName(BeanDefinition definition) {
-    return getScopeMetadataResolver().resolveScopeMetadata(definition).getScopeName();
+    return resolveScopeMetadata(definition).getScopeName();
+  }
+
+  /**
+   * Resolve the {@link ScopeMetadata} appropriate to the supplied
+   * bean {@code definition}.
+   * <p>Implementations can of course use any strategy they like to
+   * determine the scope metadata, but some implementations that
+   * immediately to mind might be to use source level annotations
+   * present on {@link BeanDefinition#getBeanClassName() the class} of the
+   * supplied {@code definition}, or to use metadata present in the
+   * {@link BeanDefinition#getAttributeNames()} of the supplied {@code definition}.
+   *
+   * @param definition the target bean definition
+   * @return the relevant scope metadata; never {@code null}
+   */
+  public ScopeMetadata resolveScopeMetadata(BeanDefinition definition) {
+    return getScopeMetadataResolver().resolveScopeMetadata(definition);
   }
 
   /**
@@ -432,13 +484,13 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   // this method mainly for internal use
   public static BootstrapContext from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
-    BootstrapContext context = getContext(beanFactory);
+    BootstrapContext context = findContext(beanFactory);
     if (context == null) {
       synchronized(beanFactory) {
-        context = getContext(beanFactory);
+        context = findContext(beanFactory);
         if (context == null) {
           context = new BootstrapContext(deduceRegistry(beanFactory), deduceContext(beanFactory));
-          context.unwrapFactory(SingletonBeanRegistry.class)
+          beanFactory.unwrap(SingletonBeanRegistry.class)
                   .registerSingleton(BEAN_NAME, context);
         }
       }
@@ -465,7 +517,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   }
 
   @Nullable
-  private static BootstrapContext getContext(BeanFactory beanFactory) {
+  private static BootstrapContext findContext(BeanFactory beanFactory) {
     if (beanFactory instanceof ConfigurableBeanFactory configurable) {
       if (configurable.containsLocalBean(BEAN_NAME)) {
         return configurable.getBean(BEAN_NAME, BootstrapContext.class);
