@@ -24,10 +24,11 @@ import java.io.IOException;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.HierarchicalBeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
 import cn.taketoday.beans.factory.parsing.Problem;
@@ -518,13 +519,16 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   @Nullable
   private static BootstrapContext findContext(BeanFactory beanFactory) {
-    if (beanFactory instanceof ConfigurableBeanFactory configurable) {
-      if (configurable.containsLocalBean(BEAN_NAME)) {
-        return configurable.getBean(BEAN_NAME, BootstrapContext.class);
+    if (beanFactory instanceof HierarchicalBeanFactory hbc) {
+      if (hbc.containsLocalBean(BEAN_NAME)) {
+        return hbc.getBean(BEAN_NAME, BootstrapContext.class);
       }
     }
     else {
-      return beanFactory.getBean(BEAN_NAME, BootstrapContext.class);
+      try {
+        return beanFactory.getBean(BEAN_NAME, BootstrapContext.class);
+      }
+      catch (NoSuchBeanDefinitionException ignored) { }
     }
     return null;
   }
