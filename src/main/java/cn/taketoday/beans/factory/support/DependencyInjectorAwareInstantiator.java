@@ -26,8 +26,9 @@ import java.util.function.Function;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.HierarchicalBeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.beans.support.BeanInstantiatorFactory;
@@ -127,10 +128,10 @@ public class DependencyInjectorAwareInstantiator {
 
   public static DependencyInjectorAwareInstantiator from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
-    DependencyInjectorAwareInstantiator instantiator = getInstantiator(beanFactory);
+    DependencyInjectorAwareInstantiator instantiator = find(beanFactory);
     if (instantiator == null) {
       synchronized(beanFactory) {
-        instantiator = getInstantiator(beanFactory);
+        instantiator = find(beanFactory);
         if (instantiator == null) {
           instantiator = new DependencyInjectorAwareInstantiator(beanFactory);
           if (beanFactory instanceof SingletonBeanRegistry singletonBeanRegistry) {
@@ -155,14 +156,17 @@ public class DependencyInjectorAwareInstantiator {
   }
 
   @Nullable
-  private static DependencyInjectorAwareInstantiator getInstantiator(BeanFactory beanFactory) {
-    if (beanFactory instanceof ConfigurableBeanFactory configurable) {
+  private static DependencyInjectorAwareInstantiator find(BeanFactory beanFactory) {
+    if (beanFactory instanceof HierarchicalBeanFactory configurable) {
       if (configurable.containsLocalBean(BEAN_NAME)) {
         return configurable.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
       }
     }
     else {
-      return beanFactory.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+      try {
+        return beanFactory.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+      }
+      catch (NoSuchBeanDefinitionException ignored) { }
     }
     return null;
   }
