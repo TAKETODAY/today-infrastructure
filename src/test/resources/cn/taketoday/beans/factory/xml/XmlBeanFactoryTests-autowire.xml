@@ -40,15 +40,15 @@
 
 	<bean id="parentAppCtx" class="cn.taketoday.context.support.ClassPathXmlApplicationContext">
 		<constructor-arg>
-			<value>/org/springframework/beans/factory/xml/XmlBeanFactoryTests-collections.xml</value>
+			<value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-collections.xml</value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="childAppCtx" class="cn.taketoday.context.support.ClassPathXmlApplicationContext">
 		<constructor-arg>
 			<list>
-				<value>/org/springframework/beans/factory/xml/XmlBeanFactoryTests-constructorArg.xml</value>
-				<value>/org/springframework/beans/factory/xml/XmlBeanFactoryTests-initializers.xml</value>
+				<value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-constructorArg.xml</value>
+				<value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-initializers.xml</value>
 			</list>
 		</constructor-arg>
 		<constructor-arg><ref bean="parentAppCtx"/></constructor-arg>

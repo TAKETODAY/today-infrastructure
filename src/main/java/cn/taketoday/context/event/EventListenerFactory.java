@@ -22,6 +22,8 @@ package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.ApplicationListener;
+
 /**
  * Strategy interface for creating {@link ApplicationListener} for methods
  * annotated with {@link EventListener}.

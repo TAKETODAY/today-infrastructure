@@ -53,7 +53,7 @@ import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.MethodIntrospector;

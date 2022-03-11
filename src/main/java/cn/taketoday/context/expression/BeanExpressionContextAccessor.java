@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * EL property accessor that knows how to traverse the beans and contextual objects
- * of a Spring {@link BeanExpressionContext}.
+ * of a {@link BeanExpressionContext}.
  *
  * @author Juergen Hoeller
  * @author Andy Clement

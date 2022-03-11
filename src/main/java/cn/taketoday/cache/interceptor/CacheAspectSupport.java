@@ -45,6 +45,7 @@ import cn.taketoday.cache.CacheManager;
 import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -762,9 +763,9 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     protected boolean isConditionPassing(@Nullable Object result) {
       if (this.conditionPassing == null) {
-        if (StringUtils.hasText(this.metadata.operation.getCondition())) {
-          CacheEvaluationContext evaluationContext = createEvaluationContext(result);
-          this.conditionPassing = evaluator.condition(this.metadata.operation.getCondition(),
+        if (StringUtils.hasText(metadata.operation.getCondition())) {
+          EvaluationContext evaluationContext = createEvaluationContext(result);
+          this.conditionPassing = evaluator.condition(metadata.operation.getCondition(),
                   this.metadata.methodKey, evaluationContext);
         }
         else {
@@ -783,7 +784,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         unless = ((CachePutOperation) this.metadata.operation).getUnless();
       }
       if (StringUtils.hasText(unless)) {
-        CacheEvaluationContext evaluationContext = createEvaluationContext(value);
+        EvaluationContext evaluationContext = createEvaluationContext(value);
         return !evaluator.unless(unless, this.metadata.methodKey, evaluationContext);
       }
       return true;
@@ -795,13 +796,13 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     @Nullable
     protected Object generateKey(@Nullable Object result) {
       if (StringUtils.hasText(this.metadata.operation.getKey())) {
-        CacheEvaluationContext evaluationContext = createEvaluationContext(result);
+        EvaluationContext evaluationContext = createEvaluationContext(result);
         return evaluator.key(this.metadata.operation.getKey(), this.metadata.methodKey, evaluationContext);
       }
       return this.metadata.keyGenerator.generate(this.target, this.metadata.method, this.args);
     }
 
-    private CacheEvaluationContext createEvaluationContext(@Nullable Object result) {
+    private EvaluationContext createEvaluationContext(@Nullable Object result) {
       return evaluator.createEvaluationContext(this.caches, this.metadata.method, this.args,
               this.target, this.metadata.targetClass, this.metadata.targetMethod, result, beanFactory);
     }

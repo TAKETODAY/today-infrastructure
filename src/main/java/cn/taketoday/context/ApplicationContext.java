@@ -17,14 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.context;
 
 import java.io.Closeable;
 
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
-import cn.taketoday.context.event.ApplicationEventPublisher;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.ApplicationEventPublisherAware;
+import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
@@ -32,8 +35,38 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2018-06-23 16:39:36
+ * Central interface to provide configuration for an application.
+ * This is read-only while the application is running, but may be
+ * reloaded if the implementation supports this.
+ *
+ * <p>An ApplicationContext provides:
+ * <ul>
+ * <li>Bean factory methods for accessing application components.
+ * Inherited from {@link cn.taketoday.beans.factory.BeanFactory}.
+ * <li>The ability to load file resources in a generic fashion.
+ * Inherited from the {@link cn.taketoday.core.io.ResourceLoader} interface.
+ * <li>The ability to publish events to registered listeners.
+ * Inherited from the {@link ApplicationEventPublisher} interface.
+ * <li>The ability to resolve messages, supporting internationalization.
+ * Inherited from the {@link MessageSource} interface.
+ * <li>Inheritance from a parent context. Definitions in a descendant context
+ * will always take priority. This means, for example, that a single parent
+ * context can be used by an entire web application, while each servlet has
+ * its own child context that is independent of that of any other servlet.
+ * </ul>
+ *
+ * <p>In addition to standard {@link cn.taketoday.beans.factory.BeanFactory}
+ * lifecycle capabilities, ApplicationContext implementations detect and invoke
+ * {@link ApplicationContextAware} beans as well as {@link ResourceLoaderAware},
+ * {@link ApplicationEventPublisherAware} and {@link MessageSourceAware} beans.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author TODAY
+ * @see ConfigurableApplicationContext
+ * @see cn.taketoday.beans.factory.BeanFactory
+ * @see cn.taketoday.core.io.ResourceLoader
+ * @since 2018-06-23 16:39:36
  */
 public interface ApplicationContext extends Closeable, HierarchicalBeanFactory, MessageSource,
         ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {

@@ -22,6 +22,7 @@ package cn.taketoday.transaction.event;
 
 import java.util.List;
 
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 
 /**
@@ -32,7 +33,8 @@ import cn.taketoday.transaction.support.TransactionSynchronization;
  * @author Juergen Hoeller
  * @since 4.0
  */
-class TransactionalApplicationListenerSynchronization<E> implements TransactionSynchronization {
+class TransactionalApplicationListenerSynchronization<E extends ApplicationEvent>
+        implements TransactionSynchronization {
 
   private final E event;
 

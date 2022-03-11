@@ -23,6 +23,8 @@ package cn.taketoday.context.event;
 import java.util.Map;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
@@ -39,7 +41,7 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
  * @since 4.0
  */
 @SuppressWarnings("rawtypes")
-public class GenericApplicationListenerAdapter implements GenericApplicationListener<Object> {
+public class GenericApplicationListenerAdapter implements GenericApplicationListener {
 
   private static final Map<Class<?>, ResolvableType> eventTypeCache = new ConcurrentReferenceHashMap<>();
 
@@ -61,7 +63,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 
   @Override
   @SuppressWarnings("unchecked")
-  public void onApplicationEvent(Object event) {
+  public void onApplicationEvent(ApplicationEvent event) {
     this.delegate.onApplicationEvent(event);
   }
 
@@ -69,11 +71,11 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
   @SuppressWarnings("unchecked")
   public boolean supportsEventType(ResolvableType eventType) {
     if (this.delegate instanceof GenericApplicationListener) {
-      return ((GenericApplicationListener<?>) this.delegate).supportsEventType(eventType);
+      return ((GenericApplicationListener) this.delegate).supportsEventType(eventType);
     }
     else if (this.delegate instanceof SmartApplicationListener) {
       Class<? extends ApplicationEvent> eventClass = (Class<? extends ApplicationEvent>) eventType.resolve();
-      return eventClass != null && ((SmartApplicationListener<?>) this.delegate).supportsEventType(eventClass);
+      return eventClass != null && ((SmartApplicationListener) this.delegate).supportsEventType(eventClass);
     }
     else {
       return this.declaredEventType == null || this.declaredEventType.isAssignableFrom(eventType);
@@ -83,7 +85,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
   @Override
   public boolean supportsSourceType(@Nullable Class<?> sourceType) {
     return !(this.delegate instanceof SmartApplicationListener)
-            || ((SmartApplicationListener<?>) this.delegate).supportsSourceType(sourceType);
+            || ((SmartApplicationListener) this.delegate).supportsSourceType(sourceType);
   }
 
   @Override
@@ -93,8 +95,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
 
   @Override
   public String getListenerId() {
-    return this.delegate instanceof SmartApplicationListener
-           ? ((SmartApplicationListener<?>) this.delegate).getListenerId() : "";
+    return this.delegate instanceof SmartApplicationListener smart ? smart.getListenerId() : "";
   }
 
   @Nullable

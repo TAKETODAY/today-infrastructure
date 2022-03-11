@@ -22,7 +22,9 @@ package cn.taketoday.transaction.event;
 
 import java.util.function.Consumer;
 
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -50,7 +52,8 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @see #forPayload
  * @since 4.0
  */
-public interface TransactionalApplicationListener<E> extends ApplicationListener<E>, Ordered {
+public interface TransactionalApplicationListener<E extends ApplicationEvent>
+        extends ApplicationListener<E>, Ordered {
 
   /**
    * Return the execution order within transaction synchronizations.
@@ -95,7 +98,7 @@ public interface TransactionalApplicationListener<E> extends ApplicationListener
 
   /**
    * Immediately process the given {@link Object}. In contrast to
-   * {@link #onApplicationEvent(Object)}, a call to this method will
+   * {@link #onApplicationEvent(ApplicationEvent)}, a call to this method will
    * directly process the given event without deferring it to the associated
    * {@link #getTransactionPhase() transaction phase}.
    *
@@ -110,9 +113,10 @@ public interface TransactionalApplicationListener<E> extends ApplicationListener
    * @param consumer the event payload consumer
    * @param <T> the type of the event payload
    * @return a corresponding {@code TransactionalApplicationListener} instance
+   * @see PayloadApplicationEvent#getPayload()
    * @see TransactionalApplicationListenerAdapter
    */
-  static <T> TransactionalApplicationListener<T> forPayload(Consumer<T> consumer) {
+  static <T> TransactionalApplicationListener<PayloadApplicationEvent<T>> forPayload(Consumer<T> consumer) {
     return forPayload(TransactionPhase.AFTER_COMMIT, consumer);
   }
 
@@ -123,12 +127,14 @@ public interface TransactionalApplicationListener<E> extends ApplicationListener
    * @param consumer the event payload consumer
    * @param <T> the type of the event payload
    * @return a corresponding {@code TransactionalApplicationListener} instance
+   * @see PayloadApplicationEvent#getPayload()
    * @see TransactionalApplicationListenerAdapter
    */
-  static <T> TransactionalApplicationListener<T> forPayload(
+  static <T> TransactionalApplicationListener<PayloadApplicationEvent<T>> forPayload(
           TransactionPhase phase, Consumer<T> consumer) {
-    TransactionalApplicationListenerAdapter<T> listener
-            = new TransactionalApplicationListenerAdapter<>(consumer::accept);
+
+    TransactionalApplicationListenerAdapter<PayloadApplicationEvent<T>> listener =
+            new TransactionalApplicationListenerAdapter<>(event -> consumer.accept(event.getPayload()));
     listener.setTransactionPhase(phase);
     return listener;
   }
@@ -147,7 +153,7 @@ public interface TransactionalApplicationListener<E> extends ApplicationListener
      *
      * @param event the event that transaction synchronization is about to process
      */
-    default void preProcessEvent(Object event) { }
+    default void preProcessEvent(ApplicationEvent event) { }
 
     /**
      * Called after a transactional event listener invocation.
@@ -155,7 +161,7 @@ public interface TransactionalApplicationListener<E> extends ApplicationListener
      * @param event the event that transaction synchronization finished processing
      * @param ex an exception that occurred during listener invocation, if any
      */
-    default void postProcessEvent(Object event, @Nullable Throwable ex) { }
+    default void postProcessEvent(ApplicationEvent event, @Nullable Throwable ex) { }
   }
 
 }

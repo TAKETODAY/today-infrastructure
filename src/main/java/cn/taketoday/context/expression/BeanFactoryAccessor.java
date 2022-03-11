@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * EL property accessor that knows how to traverse the beans of a
- * Spring {@link cn.taketoday.beans.factory.BeanFactory}.
+ * {@link cn.taketoday.beans.factory.BeanFactory}.
  *
  * @author Juergen Hoeller
  * @author Andy Clement

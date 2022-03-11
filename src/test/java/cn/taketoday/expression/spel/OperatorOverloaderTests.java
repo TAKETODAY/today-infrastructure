@@ -28,6 +28,8 @@ import cn.taketoday.expression.OperatorOverloader;
 import cn.taketoday.expression.spel.standard.SpelExpression;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Test providing operator support
  *

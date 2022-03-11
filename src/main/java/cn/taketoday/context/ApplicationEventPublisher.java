@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,9 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.event;
+package cn.taketoday.context;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
 
 /**
@@ -30,7 +29,7 @@ import cn.taketoday.context.aware.ApplicationEventPublisherAware;
  * @author TODAY
  * @see ApplicationContext
  * @see ApplicationEventPublisherAware
- * @see cn.taketoday.context.event.ApplicationEvent
+ * @see ApplicationEvent
  * @see cn.taketoday.context.event.ApplicationEventMulticaster
  * @see cn.taketoday.context.event.EventPublicationInterceptor
  * @since 2018-09-09 21:26
@@ -47,6 +46,7 @@ public interface ApplicationEventPublisher {
    * execution for longer-running and potentially blocking operations.
    *
    * @param event the event to publish
+   * @see ApplicationEvent
    */
   void publishEvent(Object event);
 

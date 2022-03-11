@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Stephane Nicoll
  * @see CachedExpressionEvaluator
- * @since 4.2
+ * @since 4.0
  */
 class EventExpressionEvaluator extends CachedExpressionEvaluator {
 
@@ -48,7 +48,7 @@ class EventExpressionEvaluator extends CachedExpressionEvaluator {
    * Determine if the condition defined by the specified expression evaluates
    * to {@code true}.
    */
-  public boolean condition(String conditionExpression, ApplicationEvent event, Method targetMethod,
+  public boolean condition(String conditionExpression, Object event, Method targetMethod,
           AnnotatedElementKey methodKey, Object[] args, @Nullable BeanFactory beanFactory) {
 
     EventExpressionRootObject root = new EventExpressionRootObject(event, args);

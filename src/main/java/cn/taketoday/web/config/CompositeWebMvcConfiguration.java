@@ -33,7 +33,6 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.validation.WebValidator;
 
 /**
  * @author TODAY <br>
@@ -132,13 +131,6 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.extendExceptionHandlers(handlers);
-    }
-  }
-
-  @Override
-  public void configureValidators(WebValidator validator) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureValidators(validator);
     }
   }
 

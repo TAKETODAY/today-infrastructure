@@ -17,20 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ProtocolResolver;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * SPI interface to be implemented by most if not all application contexts.
+ * Provides facilities to configure an application context in addition
+ * to the application context client methods in the
+ * {@link cn.taketoday.context.ApplicationContext} interface.
+ *
+ * <p>Configuration and lifecycle methods are encapsulated here to avoid
+ * making them obvious to ApplicationContext client code. The present
+ * methods should only be used by startup and shutdown code.
+ *
+ * @author Juergen Hoeller
+ * @author Chris Beams
+ * @author Sam Brannen
  * @author TODAY 2018-11-14 21:16
  */
-public interface ConfigurableApplicationContext extends ApplicationContext {
+public interface ConfigurableApplicationContext extends ApplicationContext, Lifecycle {
 
   /**
    * Any number of these characters are considered delimiters between

@@ -29,16 +29,16 @@ package cn.taketoday.context.event;
  */
 class EventExpressionRootObject {
 
-  private final ApplicationEvent event;
+  private final Object event;
 
   private final Object[] args;
 
-  public EventExpressionRootObject(ApplicationEvent event, Object[] args) {
+  public EventExpressionRootObject(Object event, Object[] args) {
     this.event = event;
     this.args = args;
   }
 
-  public ApplicationEvent getEvent() {
+  public Object getEvent() {
     return this.event;
   }
 

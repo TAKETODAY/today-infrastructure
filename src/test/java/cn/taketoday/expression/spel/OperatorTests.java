@@ -28,6 +28,8 @@ import java.math.BigInteger;
 import cn.taketoday.expression.spel.ast.Operator;
 import cn.taketoday.expression.spel.standard.SpelExpression;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Tests the evaluation of expressions using relational operators.
  *

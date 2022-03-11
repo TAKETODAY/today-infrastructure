@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework;
 
-import cn.taketoday.context.event.ApplicationEvent;
+import cn.taketoday.context.ApplicationEvent;
 
 /**
  * Event fired when an application exit code has been determined from an

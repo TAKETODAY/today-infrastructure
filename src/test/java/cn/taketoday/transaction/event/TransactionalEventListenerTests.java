@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,24 +34,22 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.EnableAspectAutoProxy;
-import cn.taketoday.context.event.ApplicationEventPublisher;
-import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Component;
-import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.Propagation;
 import cn.taketoday.transaction.annotation.Transactional;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 
 import static cn.taketoday.transaction.event.TransactionPhase.AFTER_COMMIT;
 import static cn.taketoday.transaction.event.TransactionPhase.AFTER_COMPLETION;
@@ -90,8 +88,8 @@ public class TransactionalEventListenerTests {
       getEventCollector().assertEvents(EventCollector.IMMEDIATELY, "test");
       getEventCollector().assertTotalEventsCount(1);
       return null;
-    });
 
+    });
     getEventCollector().assertEvents(EventCollector.IMMEDIATELY, "test");
     getEventCollector().assertTotalEventsCount(1);
   }
@@ -132,8 +130,8 @@ public class TransactionalEventListenerTests {
       getEventCollector().assertNoEventReceived();
       status.setRollbackOnly();
       return null;
-    });
 
+    });
     getEventCollector().assertEvents(EventCollector.AFTER_COMPLETION, "test");
     getEventCollector().assertTotalEventsCount(1); // After rollback not invoked
   }
@@ -283,8 +281,7 @@ public class TransactionalEventListenerTests {
   @Test
   public void transactionDemarcationWithRequiredPropagation() {
     load(BeforeCommitTestListener.class, AfterCompletionTestListener.class);
-    TestBean bean = getContext().getBean(TestBean.class);
-    bean.required();
+    getContext().getBean(TestBean.class).required();
     getEventCollector().assertTotalEventsCount(2);
   }
 
@@ -351,14 +348,12 @@ public class TransactionalEventListenerTests {
   }
 
   private void doLoad(Class<?>... classes) {
-    this.context = new StandardApplicationContext(classes);
+    this.context = new AnnotationConfigApplicationContext(classes);
     this.eventCollector = this.context.getBean(EventCollector.class);
     this.transactionTemplate = this.context.getBean(TransactionTemplate.class);
   }
 
   @Configuration
-  @EnableMethodEventDriven
-  @EnableAspectAutoProxy
   @EnableTransactionManagement
   static class BasicConfiguration {
 
@@ -478,7 +473,7 @@ public class TransactionalEventListenerTests {
   @Component
   static class ImmediateTestListener extends BaseTransactionalTestListener {
 
-    @EventListener(condition = "!'SKIP'.equals(data)")
+    @EventListener(condition = "!'SKIP'.equals(#data)")
     public void handleImmediately(String data) {
       handleEvent(EventCollector.IMMEDIATELY, data);
     }
@@ -512,13 +507,12 @@ public class TransactionalEventListenerTests {
   static interface TransactionalComponentTestListenerInterface {
 
     // Cannot use #data in condition due to dynamic proxy.
-    @TransactionalEventListener(condition = "!'SKIP'.equals(p0)")
+    @TransactionalEventListener(condition = "!'SKIP'.equals(#p0)")
     void handleAfterCommit(String data);
   }
 
-  static class TransactionalComponentTestListener
-          extends BaseTransactionalTestListener
-          implements TransactionalComponentTestListenerInterface {
+  static class TransactionalComponentTestListener extends BaseTransactionalTestListener implements
+          TransactionalComponentTestListenerInterface {
 
     @Override
     public void handleAfterCommit(String data) {
@@ -560,7 +554,7 @@ public class TransactionalEventListenerTests {
     }
   }
 
-  @TransactionalEventListener(phase = AFTER_COMMIT, condition = "!'SKIP'.equals(p0)")
+  @TransactionalEventListener(phase = AFTER_COMMIT, condition = "!'SKIP'.equals(#p0)")
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @interface AfterCommitEventListener {

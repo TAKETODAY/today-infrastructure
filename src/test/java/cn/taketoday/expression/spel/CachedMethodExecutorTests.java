@@ -28,6 +28,8 @@ import cn.taketoday.expression.spel.ast.MethodReference;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Test for caching in {@link MethodReference} (SPR-10657).
  *

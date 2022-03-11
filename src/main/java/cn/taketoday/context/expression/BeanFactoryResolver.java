@@ -27,8 +27,7 @@ import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.lang.Assert;
 
 /**
- * EL bean resolver that operates against a Spring
- * {@link BeanFactory}.
+ * EL bean resolver that operates against a {@link BeanFactory}.
  *
  * @author Juergen Hoeller
  * @author TODAY

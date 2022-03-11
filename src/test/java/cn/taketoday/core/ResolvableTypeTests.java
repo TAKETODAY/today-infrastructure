@@ -1136,7 +1136,7 @@ public class ResolvableTypeTests {
   }
 
   @Test
-  void forClassWithGenerics() throws Exception {
+  void fromClassWithGenerics() throws Exception {
     ResolvableType elementType = ResolvableType.fromClassWithGenerics(Map.class, Integer.class, String.class);
     ResolvableType listType = ResolvableType.fromClassWithGenerics(List.class, elementType);
     assertThat(listType.toString()).isEqualTo("java.util.List<java.util.Map<java.lang.Integer, java.lang.String>>");

@@ -22,7 +22,7 @@ package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationListener;
 
 /**
  * Callback interface triggered at the end of the singleton pre-instantiation phase

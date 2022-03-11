@@ -23,6 +23,9 @@ package cn.taketoday.context.event;
 import java.util.function.Predicate;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 
@@ -118,12 +121,12 @@ public interface ApplicationEventMulticaster {
 
   /**
    * Multicast the given application event to appropriate listeners.
-   * <p>Consider using {@link #multicastEvent(Object, ResolvableType)}
+   * <p>Consider using {@link #multicastEvent(ApplicationEvent, ResolvableType)}
    * if possible as it provides better support for generics-based events.
    *
    * @param event the event to multicast
    */
-  void multicastEvent(Object event);
+  void multicastEvent(ApplicationEvent event);
 
   /**
    * Multicast the given application event to appropriate listeners.
@@ -133,6 +136,6 @@ public interface ApplicationEventMulticaster {
    * @param event the event to multicast
    * @param eventType the type of event (can be {@code null})
    */
-  void multicastEvent(Object event, @Nullable ResolvableType eventType);
+  void multicastEvent(ApplicationEvent event, @Nullable ResolvableType eventType);
 
 }

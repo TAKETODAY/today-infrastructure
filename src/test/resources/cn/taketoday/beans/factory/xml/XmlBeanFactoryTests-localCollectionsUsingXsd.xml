@@ -10,7 +10,7 @@
 	<util:map id="map"/>
 	<util:list id="list"/>
 	<util:set id="set"/>
-	<util:properties id="properties" location="org/springframework/beans/factory/xml/test.properties"/>
+	<util:properties id="properties" location="cn/taketoday/beans/factory/xml/test.properties"/>
 
 	<bean id="bean" class="cn.taketoday.beans.testfixture.beans.TestBean">
 		<property name="someMap">

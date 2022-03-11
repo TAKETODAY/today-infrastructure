@@ -29,6 +29,8 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypeComparator;
 import cn.taketoday.expression.spel.support.StandardTypeComparator;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit tests for type comparison
  *

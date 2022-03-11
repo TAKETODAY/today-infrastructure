@@ -1,22 +1,19 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright 2002-2019 the original author or authors.
  *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package cn.taketoday.context.event;
 
 import org.junit.jupiter.api.Test;
@@ -27,18 +24,21 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.event.test.TestEvent;
-import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.StaticApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2021/12/3 15:48
+ * @author Dmitriy Kopylenko
+ * @author Juergen Hoeller
+ * @author Rick Evans
  */
-class EventPublicationInterceptorTests {
+public class EventPublicationInterceptorTests {
 
   private final ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
 
@@ -85,14 +85,14 @@ class EventPublicationInterceptorTests {
     TestBean target = new TestBean();
     final TestApplicationListener listener = new TestApplicationListener();
 
-    class TestContext extends GenericApplicationContext {
+    class TestContext extends StaticApplicationContext {
       @Override
       protected void onRefresh() throws BeansException {
         addApplicationListener(listener);
       }
     }
 
-    GenericApplicationContext ctx = new TestContext();
+    StaticApplicationContext ctx = new TestContext();
     PropertyValues pvs = new PropertyValues();
     pvs.add("applicationEventClass", TestEvent.class.getName());
     // should automatically receive applicationEventPublisher reference

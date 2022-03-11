@@ -23,6 +23,7 @@ package cn.taketoday.transaction.event;
 import java.lang.reflect.Method;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.event.GenericApplicationListener;
@@ -51,7 +52,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @since 4.0
  */
 public class TransactionalApplicationListenerMethodAdapter
-        extends ApplicationListenerMethodAdapter implements TransactionalApplicationListener<Object> {
+        extends ApplicationListenerMethodAdapter implements TransactionalApplicationListener<ApplicationEvent> {
 
   private static final Logger log = LoggerFactory.getLogger(TransactionalApplicationListenerMethodAdapter.class);
 
@@ -89,12 +90,12 @@ public class TransactionalApplicationListenerMethodAdapter
   }
 
   @Override
-  public void processEvent(Object event) {
+  public void processEvent(ApplicationEvent event) {
     super.onApplicationEvent(event);
   }
 
   @Override
-  public void onApplicationEvent(Object event) {
+  public void onApplicationEvent(ApplicationEvent event) {
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
     if (info.isSynchronizationActive() && info.isActualTransactionActive()) {
       info.registerSynchronization(

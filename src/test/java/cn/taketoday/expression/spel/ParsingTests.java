@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.expression.spel.standard.SpelExpression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Parse some expressions and check we get the AST we expect. Rather than inspecting each node in the AST, we ask it to
  * write itself to a string form and check that is as expected.

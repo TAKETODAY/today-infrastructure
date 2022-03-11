@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
@@ -75,7 +76,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   public void invokesCompletionCallbackOnSuccess() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "defaultPhase", String.class);
     CapturingSynchronizationCallback callback = new CapturingSynchronizationCallback();
-    Object event = new Object();
+    PayloadApplicationEvent<Object> event = new PayloadApplicationEvent<>(this, new Object());
 
     TransactionalApplicationListenerMethodAdapter adapter = createTestInstance(m);
     adapter.addCallback(callback);
@@ -92,7 +93,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   public void invokesExceptionHandlerOnException() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "throwing", String.class);
     CapturingSynchronizationCallback callback = new CapturingSynchronizationCallback();
-    String event = "event";
+    PayloadApplicationEvent<String> event = new PayloadApplicationEvent<>(this, "event");
 
     TransactionalApplicationListenerMethodAdapter adapter = createTestInstance(m);
     adapter.addCallback(callback);
@@ -113,7 +114,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   public void usesAnnotatedIdentifier() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "identified", String.class);
     CapturingSynchronizationCallback callback = new CapturingSynchronizationCallback();
-    String event = "event";
+    PayloadApplicationEvent<String> event = new PayloadApplicationEvent<>(this, "event");
 
     TransactionalApplicationListenerMethodAdapter adapter = createTestInstance(m);
     adapter.addCallback(callback);
@@ -148,7 +149,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   private static ResolvableType createGenericEventType(Class<?> payloadType) {
-    return ResolvableType.fromClass(payloadType);
+    return ResolvableType.fromClassWithGenerics(PayloadApplicationEvent.class, payloadType);
   }
 
   private static void runInTransaction(Runnable runnable) {

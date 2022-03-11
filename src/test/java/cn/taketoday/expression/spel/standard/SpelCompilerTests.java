@@ -31,6 +31,7 @@ import cn.taketoday.expression.spel.SpelCompilerMode;
 import cn.taketoday.expression.spel.SpelParserConfiguration;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.BOOLEAN;
 
 /**
@@ -38,7 +39,6 @@ import static org.assertj.core.api.InstanceOfAssertFactories.BOOLEAN;
  *
  * @author Sam Brannen
  * @author Andy Clement
- * @since 5.1.14
  */
 class SpelCompilerTests {
 

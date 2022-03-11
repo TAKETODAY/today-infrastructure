@@ -54,7 +54,7 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.Person;
 import cn.taketoday.beans.testfixture.beans.SideEffectBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.testfixture.beans.TestApplicationListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.testfixture.TimeStamped;

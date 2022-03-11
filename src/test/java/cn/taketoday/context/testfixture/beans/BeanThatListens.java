@@ -22,8 +22,8 @@ package cn.taketoday.context.testfixture.beans;
 
 import java.util.Map;
 
-import cn.taketoday.context.event.ApplicationEvent;
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
 
 /**
  * A stub {@link ApplicationListener}.

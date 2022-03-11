@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Read-only EL property accessor that knows how to retrieve keys
- * of a Spring {@link Environment} instance.
+ * of a {@link Environment} instance.
  *
  * @author Chris Beams
  * @since 4.0

@@ -429,9 +429,10 @@ class ConfigurationClassParser {
             factoryClass == PropertySourceFactory.class
             ? bootstrapContext.getPropertySourceFactory() : bootstrapContext.instantiate(factoryClass);
 
+    Environment environment = bootstrapContext.getEnvironment();
     for (String location : locations) {
       try {
-        String resolvedLocation = bootstrapContext.evaluateExpression(location);
+        String resolvedLocation = environment.resolveRequiredPlaceholders(location);
         Resource resource = bootstrapContext.getResource(resolvedLocation);
         addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
       }

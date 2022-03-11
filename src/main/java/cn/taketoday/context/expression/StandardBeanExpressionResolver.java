@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.expression;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeansException;
@@ -52,6 +51,9 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanExpressionContext#getBeanFactory()
+ * @see ExpressionParser
+ * @see SpelExpressionParser
+ * @see StandardEvaluationContext
  * @since 4.0 2021/12/25 15:01
  */
 public class StandardBeanExpressionResolver implements BeanExpressionResolver {
@@ -68,9 +70,9 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 
   private ExpressionParser expressionParser;
 
-  private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<String, Expression> expressionCache = new ConcurrentHashMap<>(256);
 
-  private final Map<BeanExpressionContext, StandardEvaluationContext> evaluationCache = new ConcurrentHashMap<>(8);
+  private final ConcurrentHashMap<BeanExpressionContext, StandardEvaluationContext> evaluationCache = new ConcurrentHashMap<>(8);
 
   private final ParserContext beanExpressionParserContext = new ParserContext() {
     @Override
@@ -145,12 +147,12 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
       return value;
     }
     try {
-      Expression expr = this.expressionCache.get(value);
+      Expression expr = expressionCache.get(value);
       if (expr == null) {
-        expr = this.expressionParser.parseExpression(value, this.beanExpressionParserContext);
-        this.expressionCache.put(value, expr);
+        expr = expressionParser.parseExpression(value, this.beanExpressionParserContext);
+        expressionCache.put(value, expr);
       }
-      StandardEvaluationContext sec = this.evaluationCache.get(evalContext);
+      StandardEvaluationContext sec = evaluationCache.get(evalContext);
       if (sec == null) {
         sec = new StandardEvaluationContext(evalContext);
         sec.addPropertyAccessor(new BeanExpressionContextAccessor());
@@ -164,7 +166,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
           return cs != null ? cs : ApplicationConversionService.getSharedInstance();
         }));
         customizeEvaluationContext(sec);
-        this.evaluationCache.put(evalContext, sec);
+        evaluationCache.put(evalContext, sec);
       }
       return expr.getValue(sec);
     }
@@ -178,6 +180,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
    * <p>The default implementation is empty.
    */
   protected void customizeEvaluationContext(StandardEvaluationContext evalContext) {
+
   }
 
 }

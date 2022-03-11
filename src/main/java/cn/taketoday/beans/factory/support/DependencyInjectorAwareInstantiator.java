@@ -26,8 +26,7 @@ import java.util.function.Function;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.HierarchicalBeanFactory;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -157,18 +156,7 @@ public class DependencyInjectorAwareInstantiator {
 
   @Nullable
   private static DependencyInjectorAwareInstantiator find(BeanFactory beanFactory) {
-    if (beanFactory instanceof HierarchicalBeanFactory configurable) {
-      if (configurable.containsLocalBean(BEAN_NAME)) {
-        return configurable.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
-      }
-    }
-    else {
-      try {
-        return beanFactory.getBean(BEAN_NAME, DependencyInjectorAwareInstantiator.class);
-      }
-      catch (NoSuchBeanDefinitionException ignored) { }
-    }
-    return null;
+    return BeanFactoryUtils.find(beanFactory, BEAN_NAME, DependencyInjectorAwareInstantiator.class);
   }
 
   /**

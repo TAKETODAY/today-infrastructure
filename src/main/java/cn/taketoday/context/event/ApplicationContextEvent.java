@@ -21,6 +21,7 @@ package cn.taketoday.context.event;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationEvent;
 
 /**
  * Base class for events raised for an {@code ApplicationContext}.

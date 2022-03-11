@@ -35,10 +35,10 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.properties.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.Formatter;
@@ -100,7 +100,6 @@ import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -355,9 +354,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
         }
         else {
           // add default
-          DefaultTemplateViewResolver viewResolver = new DefaultTemplateViewResolver();
-          viewResolver.setResourceLoader(applicationContext);
-          viewResolvers.add(viewResolver);
+          configureDefaultViewResolvers(viewResolvers);
         }
       }
     }
@@ -382,6 +379,15 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     }
 
     return composite;
+  }
+
+  /**
+   * Override this method to configure view resolution.
+   *
+   * @see ViewResolverRegistry
+   */
+  protected void configureDefaultViewResolvers(List<ViewResolver> viewResolvers) {
+
   }
 
   /**
@@ -517,7 +523,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * </ul>
    */
   protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-
     ExceptionHandlerAnnotationExceptionHandler handler = createExceptionHandlerAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {

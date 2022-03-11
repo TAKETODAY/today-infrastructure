@@ -23,10 +23,14 @@ package cn.taketoday.context.event;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ErrorHandler;
-import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Simple implementation of the {@link ApplicationEventMulticaster} interface.
@@ -54,6 +58,8 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
   @Nullable
   private ErrorHandler errorHandler;
+  @Nullable
+  private volatile Logger lazyLogger;
 
   /**
    * Create a new SimpleApplicationEventMulticaster.
@@ -119,23 +125,23 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
   }
 
   @Override
-  public void multicastEvent(Object event) {
+  public void multicastEvent(ApplicationEvent event) {
     multicastEvent(event, resolveDefaultEventType(event));
   }
 
   @Override
-  public void multicastEvent(final Object event, @Nullable ResolvableType eventType) {
+  public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
     if (eventType == null) {
       eventType = resolveDefaultEventType(event);
     }
     Executor executor = getTaskExecutor();
     if (executor != null) {
-      for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
+      for (ApplicationListener<ApplicationEvent> listener : getApplicationListeners(event, eventType)) {
         executor.execute(() -> invokeListener(listener, event));
       }
     }
     else {
-      for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
+      for (ApplicationListener<ApplicationEvent> listener : getApplicationListeners(event, eventType)) {
         invokeListener(listener, event);
       }
     }
@@ -151,20 +157,49 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
    * @param listener the ApplicationListener to invoke
    * @param event the current event to propagate
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected void invokeListener(ApplicationListener listener, Object event) {
+  protected void invokeListener(ApplicationListener<ApplicationEvent> listener, ApplicationEvent event) {
     try {
       listener.onApplicationEvent(event);
     }
-    catch (Throwable ex) {
-      ErrorHandler errorHandler = getErrorHandler();
-      if (errorHandler != null) {
-        errorHandler.handleError(ex);
+    catch (ClassCastException ex) {
+      String msg = ex.getMessage();
+      if (msg == null || matchesClassCastMessage(msg, event.getClass())
+              || (
+              event instanceof PayloadApplicationEvent pae
+                      && matchesClassCastMessage(msg, pae.getPayload().getClass()))
+      ) {
+        // Possibly a lambda-defined listener which we could not resolve the generic event type for
+        // -> let's suppress the exception.
+        Logger loggerToUse = this.lazyLogger;
+        if (loggerToUse == null) {
+          loggerToUse = LoggerFactory.getLogger(getClass());
+          this.lazyLogger = loggerToUse;
+        }
+        if (loggerToUse.isTraceEnabled()) {
+          loggerToUse.trace("Non-matching event type for listener: {}", listener, ex);
+        }
       }
       else {
-        throw ExceptionUtils.sneakyThrow(ex);
+        throw ex;
       }
     }
   }
 
+  private boolean matchesClassCastMessage(String classCastMessage, Class<?> eventClass) {
+    // On Java 8, the message starts with the class name: "java.lang.String cannot be cast..."
+    if (classCastMessage.startsWith(eventClass.getName())) {
+      return true;
+    }
+    // On Java 11, the message starts with "class ..." a.k.a. Class.toString()
+    if (classCastMessage.startsWith(eventClass.toString())) {
+      return true;
+    }
+    // On Java 9, the message used to contain the module name: "java.base/java.lang.String cannot be cast..."
+    int moduleSeparatorIndex = classCastMessage.indexOf('/');
+    if (moduleSeparatorIndex != -1 && classCastMessage.startsWith(eventClass.getName(), moduleSeparatorIndex + 1)) {
+      return true;
+    }
+    // Assuming an unrelated class cast failure...
+    return false;
+  }
 }

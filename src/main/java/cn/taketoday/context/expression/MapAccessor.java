@@ -18,7 +18,6 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-
 package cn.taketoday.context.expression;
 
 import java.util.Map;
@@ -38,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Andy Clement
- * @since 3.0
+ * @since 4.0
  */
 public class MapAccessor implements CompilablePropertyAccessor {
 

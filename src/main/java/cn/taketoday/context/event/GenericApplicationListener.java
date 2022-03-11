@@ -20,6 +20,8 @@
 
 package cn.taketoday.context.event;
 
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.ResolvableType;
 
 /**
@@ -38,7 +40,7 @@ import cn.taketoday.core.ResolvableType;
  * @see GenericApplicationListenerAdapter
  * @since 4.0
  */
-public interface GenericApplicationListener<E> extends SmartApplicationListener<E> {
+public interface GenericApplicationListener extends SmartApplicationListener {
 
   /**
    * Overrides {@link SmartApplicationListener#supportsEventType(Class)} with

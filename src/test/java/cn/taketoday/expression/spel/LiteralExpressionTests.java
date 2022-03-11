@@ -27,6 +27,7 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.common.LiteralExpression;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
