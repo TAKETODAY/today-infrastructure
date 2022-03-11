@@ -48,8 +48,6 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.validation.Validator;
-import cn.taketoday.web.validation.WebValidator;
 
 /**
  * @author TODAY 2019-07-10 23:12
@@ -76,9 +74,6 @@ public class WebApplicationLoader
     configureHandlerAdapter(context, mvcConfiguration);
     configureParameterResolving(context, mvcConfiguration);
     configureHandlerRegistry(context, mvcConfiguration);
-
-    // @since 3.0
-    configureValidators(context, mvcConfiguration);
 
     // check all Components
     checkFrameworkComponents(context);
@@ -272,20 +267,6 @@ public class WebApplicationLoader
     mvcConfiguration.configureParameterResolving(registry, customizedStrategies); // user configure
 
     registry.getCustomizedStrategies().add(customizedStrategies);
-  }
-
-  /**
-   * configure {@link Validator}s
-   *
-   * @since 3.0
-   */
-  protected void configureValidators(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    WebValidator webValidator = context.getBean(WebValidator.class);
-    if (webValidator != null) {
-      log.info("Enable Bean Validation using web validator: {}", webValidator);
-      // user Manual config
-      mvcConfiguration.configureValidators(webValidator);
-    }
   }
 
   //

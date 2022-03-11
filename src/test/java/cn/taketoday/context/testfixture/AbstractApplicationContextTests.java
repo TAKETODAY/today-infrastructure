@@ -36,7 +36,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.NoSuchMessageException;
-import cn.taketoday.context.event.ApplicationEvent;
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.testfixture.beans.ACATester;
 import cn.taketoday.context.testfixture.beans.BeanThatListens;
 import cn.taketoday.context.testfixture.beans.TestApplicationListener;

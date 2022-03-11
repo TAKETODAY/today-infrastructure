@@ -35,9 +35,9 @@ import java.util.concurrent.CompletionStage;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.context.expression.AnnotatedElementKey;
-import cn.taketoday.core.ConfigurationException;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
@@ -45,6 +45,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -60,7 +61,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @author TODAY 2021/11/5 11:51
  * @since 4.0
  */
-public class ApplicationListenerMethodAdapter implements GenericApplicationListener<Object>, Ordered {
+public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered {
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
   private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
@@ -72,6 +73,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   private ApplicationContext context;
   private EventExpressionEvaluator evaluator;
 
+  @Nullable
   private DependencyInjector dependencyInjector;
 
   @Nullable
@@ -142,7 +144,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
     Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
     if (parameterTypes.length == 0) {
-      throw new ConfigurationException("cannot determine event type on method: " + declaredMethod);
+      throw new IllegalStateException("cannot determine event type on method: " + declaredMethod);
     }
     else if (parameterTypes.length == 1) {
       return Collections.singletonList(ResolvableType.forParameter(declaredMethod, 0));
@@ -198,6 +200,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       if (declaredEventType.isAssignableFrom(eventType)) {
         return true;
       }
+      if (PayloadApplicationEvent.class.isAssignableFrom(eventType.toClass())) {
+        ResolvableType payloadType = eventType.as(PayloadApplicationEvent.class).getGeneric();
+        if (declaredEventType.isAssignableFrom(payloadType)) {
+          return true;
+        }
+      }
     }
     return eventType.hasUnresolvableGenerics();
   }
@@ -212,7 +220,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * matches and handling a non-null result, if any.
    */
   @Override
-  public void onApplicationEvent(Object event) { // any event type
+  public void onApplicationEvent(ApplicationEvent event) { // any event type
     Object[] parameter = resolveArguments(dependencyInjector, event);
     if (shouldInvoke(event, parameter)) {
       if (methodInvoker == null) {
@@ -233,23 +241,64 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       return false;
     }
     if (condition != null) {
-      return evaluator.condition(
-              condition, event, targetMethod, methodKey, args, context);
+      return this.evaluator.condition(
+              condition, event, this.targetMethod, this.methodKey, args, context);
     }
     return true;
   }
 
   @Nullable
-  private Object[] resolveArguments(DependencyInjector resolver, Object event) {
+  private Object[] resolveArguments(@Nullable DependencyInjector resolver, ApplicationEvent event) {
+    ResolvableType declaredEventType = getResolvableType(event);
+    if (declaredEventType == null) {
+      return null;
+    }
     if (targetMethod.getParameterCount() == 0) {
       return Constant.EMPTY_OBJECT_ARRAY;
     }
+
+    Object providedEvent = null;
+    Class<?> declaredEventClass = declaredEventType.toClass();
+    if (!ApplicationEvent.class.isAssignableFrom(declaredEventClass)
+            && event instanceof PayloadApplicationEvent) {
+      Object payload = ((PayloadApplicationEvent<?>) event).getPayload();
+      if (declaredEventClass.isInstance(payload)) {
+        providedEvent = payload;
+      }
+    }
+
+    if (providedEvent == null) {
+      providedEvent = event;
+    }
+
     if (resolver != null) {
-      return resolver.resolveArguments(targetMethod, event);
+      return resolver.resolveArguments(targetMethod, providedEvent);
     }
 
     if (supportsEventType(ResolvableType.fromInstance(event))) {
-      return new Object[] { event };
+      return new Object[] { providedEvent };
+    }
+    return null;
+  }
+
+  @Nullable
+  private ResolvableType getResolvableType(ApplicationEvent event) {
+    ResolvableType payloadType = null;
+    if (event instanceof PayloadApplicationEvent<?> payloadEvent) {
+      ResolvableType eventType = payloadEvent.getResolvableType();
+      if (eventType != null) {
+        payloadType = eventType.as(PayloadApplicationEvent.class).getGeneric();
+      }
+    }
+    for (ResolvableType declaredEventType : this.declaredEventTypes) {
+      Class<?> eventClass = declaredEventType.toClass();
+      if (!ApplicationEvent.class.isAssignableFrom(eventClass) &&
+              payloadType != null && declaredEventType.isAssignableFrom(payloadType)) {
+        return declaredEventType;
+      }
+      if (eventClass.isInstance(event)) {
+        return declaredEventType;
+      }
     }
     return null;
   }
@@ -271,7 +320,6 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * <p>The default implementation builds a method name with parameter types.
    *
    * @see #getListenerId()
-   * @since 4.0
    */
   protected String getDefaultListenerId() {
     Method method = getTargetMethod();

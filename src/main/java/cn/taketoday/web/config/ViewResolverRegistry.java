@@ -44,7 +44,6 @@ import cn.taketoday.web.view.groovy.GroovyMarkupConfigurer;
 import cn.taketoday.web.view.groovy.GroovyMarkupViewResolver;
 import cn.taketoday.web.view.script.ScriptTemplateConfigurer;
 import cn.taketoday.web.view.script.ScriptTemplateViewResolver;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 
 /**
  * Assist with the configuration of a chain of
@@ -136,30 +135,6 @@ public class ViewResolverRegistry {
       }
     }
     return contentNegotiatingResolver;
-  }
-
-  /**
-   * Register framework expression language view resolver using a default view name
-   * prefix of "classpath:templates/" and a default suffix of ".html".
-   * <p>When this method is invoked more than once, each call will register a
-   * new ViewResolver instance.
-   */
-  public UrlBasedViewResolverRegistration defaults() {
-    return defaults("classpath:templates/", ".html");
-  }
-
-  /**
-   * Register framework expression language supports view resolver with the
-   * specified prefix and suffix.
-   * <p>When this method is invoked more than once, each call will register a
-   * new ViewResolver instance.
-   */
-  public UrlBasedViewResolverRegistration defaults(String prefix, String suffix) {
-    DefaultTemplateViewResolver resolver = new DefaultTemplateViewResolver();
-    resolver.setPrefix(prefix);
-    resolver.setSuffix(suffix);
-    viewResolvers.add(resolver);
-    return new UrlBasedViewResolverRegistration(resolver);
   }
 
   /**

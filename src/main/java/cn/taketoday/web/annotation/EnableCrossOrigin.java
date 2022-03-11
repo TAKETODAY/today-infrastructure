@@ -28,7 +28,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.web.cors.CorsProcessor;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.registry.HandlerCorsCustomizer;
@@ -48,10 +47,7 @@ class CrossOriginConfiguration {
 
   @MissingBean
   public HandlerCorsCustomizer handlerCorsCustomizer(CorsProcessor corsProcessor, ApplicationContext context) {
-    HandlerCorsCustomizer customizer = new HandlerCorsCustomizer(corsProcessor);
-    ExpressionEvaluator expressionEvaluator = context.getExpressionEvaluator();
-    customizer.setExpressionEvaluator(expressionEvaluator);
-    return customizer;
+    return new HandlerCorsCustomizer(corsProcessor);
   }
 
   @MissingBean

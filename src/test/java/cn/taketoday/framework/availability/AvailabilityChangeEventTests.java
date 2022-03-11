@@ -24,7 +24,7 @@ import org.mockito.ArgumentCaptor;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.event.ApplicationEvent;
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.ResolvableType;

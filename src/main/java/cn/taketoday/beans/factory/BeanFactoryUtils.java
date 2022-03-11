@@ -561,4 +561,20 @@ public abstract class BeanFactoryUtils {
     }
   }
 
+  @Nullable
+  public static <T> T find(BeanFactory beanFactory, String beanName, Class<T> requiredType) {
+    if (beanFactory instanceof HierarchicalBeanFactory hbc) {
+      if (hbc.containsLocalBean(beanName)) {
+        return hbc.getBean(beanName, requiredType);
+      }
+    }
+    else {
+      try {
+        return beanFactory.getBean(beanName, requiredType);
+      }
+      catch (NoSuchBeanDefinitionException ignored) { }
+    }
+    return null;
+  }
+
 }

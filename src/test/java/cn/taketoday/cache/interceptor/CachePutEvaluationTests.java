@@ -141,7 +141,7 @@ public class CachePutEvaluationTests {
      * the value with a different key. This forces the method to be executed every time.
      */
     @Cacheable
-    @CachePut(key = "#result + 100", condition = "#result != null")
+    @CachePut(key = "#{result + 100}", condition = "#{result != null}")
     public Long getAndPut(long id) {
       return this.counter.getAndIncrement();
     }

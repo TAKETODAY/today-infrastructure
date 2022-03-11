@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.expression.ExpressionEvaluator;
-import cn.taketoday.context.expression.ExpressionInfo;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
@@ -78,10 +77,6 @@ public class ParameterResolvingRegistry
    */
   @Nullable
   private MultipartConfiguration multipartConfig;
-  /**
-   * @since 3.0.1
-   */
-  private ExpressionEvaluator expressionEvaluator;
 
   /**
    * @since 4.0
@@ -222,20 +217,16 @@ public class ParameterResolvingRegistry
     // --------------------------------------------
 
     ApplicationContext context = obtainApplicationContext();
-    ExpressionEvaluator expressionEvaluator = getExpressionEvaluator();
-    if (expressionEvaluator == null) {
-      expressionEvaluator = context.getExpressionEvaluator();
-    }
+    ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
 
-    strategies.add(new RequestAttributeParameterResolver(),
-            new ValueParameterResolver(expressionEvaluator),
+    strategies.add(new RequestAttributeParameterResolver(beanFactory),
+            new ValueParameterResolver(beanFactory),
             new AutowiredParameterResolver(context)
     );
 
     // For cookies
     // ------------------------------------------
 
-    ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     CookieParameterResolver.register(strategies, beanFactory);
 
     // For multipart
@@ -378,14 +369,6 @@ public class ParameterResolvingRegistry
     return multipartConfig;
   }
 
-  public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
-    this.expressionEvaluator = expressionEvaluator;
-  }
-
-  public ExpressionEvaluator getExpressionEvaluator() {
-    return expressionEvaluator;
-  }
-
   /**
    * Add one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
    *
@@ -487,29 +470,42 @@ public class ParameterResolvingRegistry
 
   // AnnotationParameterResolver
 
-  static final class ValueParameterResolver extends AnnotationParameterResolver<Value> {
-    final ExpressionEvaluator expressionEvaluator;
+  static final class ValueParameterResolver implements ParameterResolvingStrategy {
+    private final ExpressionEvaluator expressionEvaluator;
 
-    ValueParameterResolver(ExpressionEvaluator expressionEvaluator) {
-      super(Value.class);
-      this.expressionEvaluator = expressionEvaluator;
+    ValueParameterResolver(ConfigurableBeanFactory beanFactory) {
+      this.expressionEvaluator = ExpressionEvaluator.from(beanFactory);
     }
 
     @Override
-    protected Object resolveInternal(Value target, RequestContext context, ResolvableMethodParameter parameter) {
-      ExpressionInfo expressionInfo = new ExpressionInfo(target);
-      return expressionEvaluator.evaluate(expressionInfo, parameter.getParameterType());
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.hasParameterAnnotation(Value.class);
     }
+
+    @Nullable
+    @Override
+    public Object resolveParameter(
+            RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+      Value parameterAnnotation = resolvable.getParameterAnnotation(Value.class);
+      return expressionEvaluator.evaluate(parameterAnnotation.value(), resolvable.getParameterType());
+    }
+
   }
 
-  static final class RequestAttributeParameterResolver extends AnnotationParameterResolver<RequestAttribute> {
-    RequestAttributeParameterResolver() {
-      super(RequestAttribute.class);
+  static final class RequestAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
+    RequestAttributeParameterResolver(ConfigurableBeanFactory beanFactory) {
+      super(beanFactory);
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return context.getAttribute(resolvable.getName());
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.hasParameterAnnotation(RequestAttribute.class);
+    }
+
+    @Nullable
+    @Override
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+      return context.getAttribute(name);
     }
   }
 

@@ -38,7 +38,6 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.validation.WebValidator;
 import cn.taketoday.web.view.View;
 
 /**
@@ -157,14 +156,6 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
-
-  /**
-   * Configure {@link WebValidator}
-   *
-   * @param validator list of validators
-   * @since 3.0
-   */
-  default void configureValidators(WebValidator validator) { }
 
   /**
    * Configure content negotiation options.

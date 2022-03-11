@@ -22,7 +22,7 @@ package cn.taketoday.transaction.event;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.event.EventListenerFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;

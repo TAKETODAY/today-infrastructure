@@ -20,6 +20,8 @@
 
 package cn.taketoday.context.event;
 
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
 
@@ -35,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  * @see GenericApplicationListenerAdapter
  * @since 4.0
  */
-public interface SmartApplicationListener<T> extends ApplicationListener<T>, Ordered {
+public interface SmartApplicationListener extends ApplicationListener<ApplicationEvent>, Ordered {
 
   /**
    * Determine whether this listener actually supports the given event type.

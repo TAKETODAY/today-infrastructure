@@ -22,8 +22,8 @@ package cn.taketoday.beans.factory.config;
 import java.util.Map;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
@@ -98,10 +98,10 @@ public class MapFactoryBean extends AbstractFactoryBean<Map<Object, Object>> {
       valueType = mapType.resolveGeneric(1);
     }
     if (keyType != null || valueType != null) {
-      ConversionService conversionService = getConversionService();
+      TypeConverter converter = getBeanTypeConverter();
       for (Map.Entry<?, ?> entry : this.sourceMap.entrySet()) {
-        Object convertedKey = convertIfNecessary(conversionService, entry.getKey(), keyType);
-        Object convertedValue = convertIfNecessary(conversionService, entry.getValue(), valueType);
+        Object convertedKey = converter.convertIfNecessary(entry.getKey(), keyType);
+        Object convertedValue = converter.convertIfNecessary(entry.getValue(), valueType);
         result.put(convertedKey, convertedValue);
       }
     }

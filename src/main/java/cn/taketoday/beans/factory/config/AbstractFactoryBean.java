@@ -26,6 +26,8 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.SimpleTypeConverter;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -33,12 +35,7 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.FactoryBeanNotInitializedException;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -216,47 +213,22 @@ public abstract class AbstractFactoryBean<T>
   protected void destroyInstance(T instance) throws Exception { }
 
   /**
-   * Obtain a bean ConversionService from the BeanFactory that this bean
-   * runs in. This is typically a fresh instance for each call.
-   * <p>Falls back to a DefaultConversionService when not running in a BeanFactory.
+   * Obtain a bean type converter from the BeanFactory that this bean
+   * runs in. This is typically a fresh instance for each call,
+   * since TypeConverters are usually <i>not</i> thread-safe.
+   * <p>Falls back to a SimpleTypeConverter when not running in a BeanFactory.
    *
-   * @see ConfigurableBeanFactory#getConversionService()
+   * @see ConfigurableBeanFactory#getTypeConverter()
+   * @see SimpleTypeConverter
    */
-  protected ConversionService getConversionService() {
+  protected TypeConverter getBeanTypeConverter() {
     BeanFactory beanFactory = getBeanFactory();
     if (beanFactory instanceof ConfigurableBeanFactory) {
-      return ((ConfigurableBeanFactory) beanFactory).getConversionService();
+      return ((ConfigurableBeanFactory) beanFactory).getTypeConverter();
     }
     else {
-      return DefaultConversionService.getSharedInstance();
+      return new SimpleTypeConverter();
     }
-  }
-
-  /**
-   * Convert the value to the required type (if necessary from a String).
-   *
-   * @param value the value to convert
-   * @param requiredType the type we must convert to
-   * (or {@code null} if not known, for example in case of a collection element)
-   * @return the new value, possibly the result of type conversion
-   * @throws cn.taketoday.core.conversion.ConversionException if type conversion failed
-   * @see java.beans.PropertyEditor#setAsText(String)
-   * @see java.beans.PropertyEditor#getValue()
-   * @see ConversionService
-   * @see Converter
-   */
-  @Nullable
-  protected <E> E convertIfNecessary(@Nullable Object value, @Nullable Class<E> requiredType) {
-    return convertIfNecessary(getConversionService(), value, requiredType);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Nullable
-  protected <E> E convertIfNecessary(ConversionService conversionService, @Nullable Object value, @Nullable Class<E> requiredType) {
-    if (value != null && requiredType != null && !requiredType.isInstance(value)) {
-      return conversionService.convert(value, requiredType);
-    }
-    return (E) value;
   }
 
   /**

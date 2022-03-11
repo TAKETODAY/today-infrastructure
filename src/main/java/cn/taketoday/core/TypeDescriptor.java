@@ -639,7 +639,7 @@ public class TypeDescriptor implements Serializable {
    * </pre>
    *
    * @param elementDescriptor the {@link TypeDescriptor} of the array element or {@code null}
-   * @return an array {@link TypeDescriptor} or {@code null} if {@code elementTypeDescriptor} is {@code null}
+   * @return an array {@link TypeDescriptor} or {@code null} if {@code elementDescriptor} is {@code null}
    */
   public static TypeDescriptor array(TypeDescriptor elementDescriptor) {
     if (elementDescriptor == null) {

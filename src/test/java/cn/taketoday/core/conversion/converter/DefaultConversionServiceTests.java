@@ -65,7 +65,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * Unit tests for {@link DefaultConversionService}.
  *
  * <p>In this package for enforcing accessibility checks to non-public classes outside
- * of the {@code cn.taketoday.core.convert.support} implementation package.
+ * of the {@code cn.taketoday.core.conversion.support} implementation package.
  * Only in such a scenario, {@code setAccessible(true)} is actually necessary.
  *
  * @author Keith Donald

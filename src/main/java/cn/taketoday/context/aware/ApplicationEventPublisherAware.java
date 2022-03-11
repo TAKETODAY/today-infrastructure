@@ -21,7 +21,7 @@
 package cn.taketoday.context.aware;
 
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.context.event.ApplicationEventPublisher;
+import cn.taketoday.context.ApplicationEventPublisher;
 
 /**
  * Interface to be implemented by any object that wishes to be notified

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -95,9 +95,9 @@ public class ListFactoryBean extends AbstractFactoryBean<List<Object>> {
       valueType = ResolvableType.fromClass(this.targetListClass).asCollection().resolveGeneric();
     }
     if (valueType != null) {
-      ConversionService conversionService = getConversionService();
+      TypeConverter converter = getBeanTypeConverter();
       for (Object elem : this.sourceList) {
-        result.add(convertIfNecessary(conversionService, elem, valueType));
+        result.add(converter.convertIfNecessary(elem, valueType));
       }
     }
     else {

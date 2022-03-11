@@ -271,6 +271,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void setStatus(int status, String message) {
     response.setStatus(status, message);
   }

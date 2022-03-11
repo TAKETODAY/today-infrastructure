@@ -45,23 +45,23 @@ import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.HierarchicalMessageSource;
-import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.LifecycleProcessor;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.MessageSourceAware;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
+import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.ApplicationEventPublisherAware;
 import cn.taketoday.context.aware.BootstrapContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
-import cn.taketoday.context.event.ApplicationEventPublisher;
-import cn.taketoday.context.event.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
@@ -122,7 +122,7 @@ import cn.taketoday.util.StringUtils;
  */
 @SuppressWarnings({ "unchecked" })
 public abstract class AbstractApplicationContext
-        extends DefaultResourceLoader implements ConfigurableApplicationContext, Lifecycle {
+        extends DefaultResourceLoader implements ConfigurableApplicationContext {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
@@ -200,7 +200,7 @@ public abstract class AbstractApplicationContext
 
   /** ApplicationEvents published before the multicaster setup. @since 4.0 */
   @Nullable
-  private Set<Object> earlyApplicationEvents;
+  private Set<ApplicationEvent> earlyApplicationEvents;
 
   /** MessageSource we delegate our implementation of this interface to. @since 4.0 */
   @Nullable
@@ -394,8 +394,7 @@ public abstract class AbstractApplicationContext
   @Override
   public ExpressionEvaluator getExpressionEvaluator() {
     if (expressionEvaluator == null) {
-      expressionEvaluator = new ExpressionEvaluator(this);
-      expressionEvaluator.setBeanFactory(getBeanFactory());
+      expressionEvaluator = new ExpressionEvaluator(getBeanFactory());
     }
     return expressionEvaluator;
   }
@@ -637,8 +636,6 @@ public abstract class AbstractApplicationContext
     if (!beanFactory.containsLocalBean(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME)) {
       beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
     }
-
-    ExpressionEvaluator.register(beanFactory, getEnvironment());
   }
 
   /**
@@ -1400,14 +1397,25 @@ public abstract class AbstractApplicationContext
    * @since 4.0
    */
   protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
-    Assert.notNull(event, "Event must not be null");
+    Assert.notNull(event, "Event is required");
+    // Decorate event as an ApplicationEvent if necessary
 
-    // Multicast right now if possible - or lazily once the multicaster is initialized
-    if (this.earlyApplicationEvents != null) {
-      this.earlyApplicationEvents.add(event);
+    ApplicationEvent applicationEvent;
+    if (event instanceof ApplicationEvent) {
+      applicationEvent = (ApplicationEvent) event;
     }
     else {
-      getApplicationEventMulticaster().multicastEvent(event, eventType);
+      applicationEvent = new PayloadApplicationEvent<>(this, event, eventType);
+      if (eventType == null) {
+        eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
+      }
+    }
+    // Multicast right now if possible - or lazily once the multicaster is initialized
+    if (earlyApplicationEvents != null) {
+      earlyApplicationEvents.add(applicationEvent);
+    }
+    else {
+      getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
     }
 
     // Publish event via parent context as well...
@@ -1426,24 +1434,25 @@ public abstract class AbstractApplicationContext
     log.debug("Registering application-listeners");
 
     // Register statically specified listeners first.
+    ApplicationEventMulticaster eventMulticaster = getApplicationEventMulticaster();
     for (ApplicationListener<?> listener : getApplicationListeners()) {
-      getApplicationEventMulticaster().addApplicationListener(listener);
+      eventMulticaster.addApplicationListener(listener);
     }
 
     // Do not initialize FactoryBeans here: We need to leave all regular beans
     // uninitialized to let post-processors apply to them!
     Set<String> listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
     for (String listenerBeanName : listenerBeanNames) {
-      getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
+      eventMulticaster.addApplicationListenerBean(listenerBeanName);
     }
 
     log.debug("Publish early application events");
     // Publish early application events now that we finally have a multicaster...
-    Set<Object> earlyEventsToProcess = this.earlyApplicationEvents;
+    Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
     this.earlyApplicationEvents = null;
     if (CollectionUtils.isNotEmpty(earlyEventsToProcess)) {
-      for (Object earlyEvent : earlyEventsToProcess) {
-        getApplicationEventMulticaster().multicastEvent(earlyEvent);
+      for (ApplicationEvent earlyEvent : earlyEventsToProcess) {
+        eventMulticaster.multicastEvent(earlyEvent);
       }
     }
   }

@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 import cn.taketoday.web.view.ViewReturnValueHandler;
-import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
+import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -187,7 +187,7 @@ class ReturnValueHandlerManagerTests {
   @Test
   void registerDefaultHandlers() {
     ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
-    manager.setViewReturnValueHandler(new ViewReturnValueHandler(new DefaultTemplateViewResolver()));
+    manager.setViewReturnValueHandler(new ViewReturnValueHandler(new FreeMarkerViewResolver()));
     manager.registerDefaultHandlers();
 
     assertThat(manager.contains(ModelAndViewReturnValueHandler.class)).isTrue();
@@ -234,7 +234,7 @@ class ReturnValueHandlerManagerTests {
   @Test
   void viewResolver() {
     ReturnValueHandlerManager manager = new ReturnValueHandlerManager();
-    DefaultTemplateViewResolver webViewResolver = new DefaultTemplateViewResolver();
+    FreeMarkerViewResolver webViewResolver = new FreeMarkerViewResolver();
     manager.setViewResolver(webViewResolver);
 
     manager.registerDefaultHandlers();

@@ -1,102 +1,66 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
- * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common Development
- * and Distribution License("CDDL") (collectively, the "License").  You
- * may not use this file except in compliance with the License.  You can
- * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
- * language governing permissions and limitations under the License.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * When distributing the software, include this License Header Notice in each
- * file and include the License file at packager/legal/LICENSE.txt.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * GPL Classpath Exception:
- * Oracle designates this particular file as subject to the "Classpath"
- * exception as provided by Oracle in the GPL Version 2 section of the License
- * file that accompanied this code.
- *
- * Modifications:
- * If applicable, add the following below the License Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyright [year] [name of copyright owner]"
- *
- * Contributor(s):
- * If you wish your version of this file to be governed by only the CDDL or
- * only the GPL Version 2, indicate your decision by adding "[Contributor]
- * elects to include this software in this distribution under the [CDDL or GPL
- * Version 2] license."  If you don't indicate a single choice of license, a
- * recipient has the option to distribute your version of this file under
- * either the CDDL, the GPL Version 2 or to extend the choice of license to
- * its licensees as provided above.  However, if you add GPL Version 2 code
- * and therefore, elected the GPL Version 2 license, then the option applies
- * only if the new code is made subject to such option by the copyright
- * holder.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
 
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.lang.Nullable;
+
 /**
- * A convenient class for writing an ELResolver to do custom type conversions.
+ * A type converter can convert values between different types encountered during
+ * expression evaluation. This is an SPI for the expression parser; see
+ * {@link cn.taketoday.core.conversion.ConversionService} for the primary
+ * user API to Spring's conversion facilities.
  *
- * <p>
- * For example, to convert a String to an instance of MyDate, one can write
- * <blockquote>
- *
- * <pre>
- *     ELProcessor elp = new ELProcessor();
- *     elp.getELManager().addELResolver(new TypeConverter() {
- *         Object convertToType(ELContext context, Object obj, Class<?> type) {
- *             if ((obj instanceof String) && type == MyDate.class) {
- *                 context.setPropertyResolved(obj, type);
- *                 return (obj == null)? null: new MyDate(obj.toString());
- *             }
- *             return null;
- *         }
- *      };
- * </pre>
- *
- * </blockquote>
- *
- * @since EL 3.0
+ * @author Andy Clement
+ * @author Juergen Hoeller
+ * @since 4.0
  */
-public abstract class TypeConverter extends ExpressionResolver {
-
-  @Override
-  public Object getValue(ExpressionContext context, Object base, Object property) {
-    return null;
-  }
-
-  @Override
-  public Class<?> getType(ExpressionContext context, Object base, Object property) {
-    return null;
-  }
-
-  @Override
-  public void setValue(ExpressionContext context, Object base, Object property, Object value) { }
-
-  @Override
-  public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-    return false;
-  }
+public interface TypeConverter {
 
   /**
-   * Converts an object to a specific type.
+   * Return {@code true} if the type converter can convert the specified type
+   * to the desired target type.
    *
-   * <p>
-   * An <code>ELException</code> is thrown if an error occurs during the
-   * conversion.
-   * </p>
-   *
-   * @param context The context of this evaluation.
-   * @param obj The object to convert.
-   * @param targetType The target type for the conversion.
-   * @throws ExpressionException thrown if errors occur.
+   * @param sourceType a type descriptor that describes the source type
+   * @param targetType a type descriptor that describes the requested result type
+   * @return {@code true} if that conversion can be performed
    */
-  @Override
-  public abstract Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);
+  boolean canConvert(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType);
+
+  /**
+   * Convert (or coerce) a value from one type to another, for example from a
+   * {@code boolean} to a {@code String}.
+   * <p>The {@link TypeDescriptor} parameters enable support for typed collections:
+   * A caller may prefer a {@code List<Integer>}, for example, rather than
+   * simply any {@code List}.
+   *
+   * @param value the value to be converted
+   * @param sourceType a type descriptor that supplies extra information about the
+   * source object
+   * @param targetType a type descriptor that supplies extra information about the
+   * requested result type
+   * @return the converted value
+   * @throws EvaluationException if conversion failed or is not possible to begin with
+   */
+  @Nullable
+  Object convertValue(@Nullable Object value, @Nullable TypeDescriptor sourceType, TypeDescriptor targetType);
+
 }

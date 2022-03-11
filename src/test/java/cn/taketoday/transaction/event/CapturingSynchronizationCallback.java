@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.transaction.event;
 
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -29,21 +30,21 @@ import cn.taketoday.lang.Nullable;
 class CapturingSynchronizationCallback implements TransactionalApplicationListener.SynchronizationCallback {
 
   @Nullable
-  Object preEvent;
+  ApplicationEvent preEvent;
 
   @Nullable
-  Object postEvent;
+  ApplicationEvent postEvent;
 
   @Nullable
   Throwable ex;
 
   @Override
-  public void preProcessEvent(Object event) {
+  public void preProcessEvent(ApplicationEvent event) {
     this.preEvent = event;
   }
 
   @Override
-  public void postProcessEvent(Object event, @Nullable Throwable ex) {
+  public void postProcessEvent(ApplicationEvent event, @Nullable Throwable ex) {
     this.postEvent = event;
     this.ex = ex;
   }

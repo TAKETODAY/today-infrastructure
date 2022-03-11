@@ -20,8 +20,10 @@
 
 package cn.taketoday.beans.factory.config;
 
+import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * {@link StringValueResolver} adapter for resolving placeholders and
@@ -40,26 +42,16 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2021/12/7 11:24
  */
 public class EmbeddedValueResolver implements StringValueResolver {
-
-  private final BeanExpressionContext exprContext;
-
-  @Nullable
-  private final BeanExpressionResolver exprResolver;
+  private final ExpressionEvaluator expressionEvaluator;
 
   public EmbeddedValueResolver(ConfigurableBeanFactory beanFactory) {
-    this.exprContext = new BeanExpressionContext(beanFactory, null);
-    this.exprResolver = beanFactory.getBeanExpressionResolver();
+    this.expressionEvaluator = ExpressionEvaluator.from(beanFactory);
   }
 
   @Override
   @Nullable
   public String resolveStringValue(String strVal) {
-    String value = exprContext.getBeanFactory().resolveEmbeddedValue(strVal);
-    if (exprResolver != null && value != null) {
-      Object evaluated = this.exprResolver.evaluate(value, this.exprContext);
-      value = evaluated != null ? evaluated.toString() : null;
-    }
-    return value;
+    return ObjectUtils.toString(expressionEvaluator.evaluate(strVal));
   }
 
   /**

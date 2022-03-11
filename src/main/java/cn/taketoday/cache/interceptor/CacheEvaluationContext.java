@@ -50,8 +50,9 @@ final class CacheEvaluationContext extends MethodBasedEvaluationContext {
 
   private final HashSet<String> unavailableVariables = new HashSet<>(1);
 
-  public CacheEvaluationContext(
-          Object rootObject, Method method, Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
+  CacheEvaluationContext(Object rootObject, Method method, Object[] arguments,
+          ParameterNameDiscoverer parameterNameDiscoverer) {
+
     super(rootObject, method, arguments, parameterNameDiscoverer);
   }
 
@@ -69,13 +70,13 @@ final class CacheEvaluationContext extends MethodBasedEvaluationContext {
   /**
    * Load the param information only when needed.
    */
-  @Nullable
   @Override
-  public Object getBean(String name) {
+  @Nullable
+  public Object lookupVariable(String name) {
     if (this.unavailableVariables.contains(name)) {
       throw new VariableNotAvailableException(name);
     }
-    return super.getBean(name);
+    return super.lookupVariable(name);
   }
 
 }

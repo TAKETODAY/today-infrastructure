@@ -5,10 +5,10 @@
 
 	<bean id="resource1" class="cn.taketoday.tests.sample.beans.ResourceTestBean">
 		<property name="resource">
-			<value>classpath:org/springframework/beans/factory/xml/test.properties</value>
+			<value>classpath:cn/taketoday/beans/factory/xml/test.properties</value>
 		</property>
 		<property name="inputStream">
-			<value>classpath:org/springframework/beans/factory/xml/test.properties</value>
+			<value>classpath:cn/taketoday/beans/factory/xml/test.properties</value>
 		</property>
 	</bean>
 

@@ -1027,4 +1027,15 @@ public abstract class ObjectUtils {
     return stringJoiner.toString();
   }
 
+  /**
+   * Return a String from none-null object's {@code toString}.
+   *
+   * @param obj the object to build a String representation for
+   * @return a String representation of {@code obj}
+   */
+  @Nullable
+  public static String toString(@Nullable Object obj) {
+    return obj == null ? null : obj.toString();
+  }
+
 }

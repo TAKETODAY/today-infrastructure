@@ -19,16 +19,16 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.context.expression.ExpressionEvaluator;
+import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.StringValueResolver;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsProcessor;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
-import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -37,11 +37,10 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
  * @author TODAY 2020/12/10 23:37
  * @since 3.0
  */
-public class HandlerCorsCustomizer implements AnnotationHandlerMethodCustomizer {
+public class HandlerCorsCustomizer implements AnnotationHandlerMethodCustomizer, EmbeddedValueResolverAware {
   private CorsProcessor processor;
 
-  @Nullable
-  private ExpressionEvaluator expressionEvaluator;
+  private StringValueResolver resolver;
 
   public HandlerCorsCustomizer() {
     this(new DefaultCorsProcessor());
@@ -139,19 +138,14 @@ public class HandlerCorsCustomizer implements AnnotationHandlerMethodCustomizer 
   }
 
   protected String resolveExpressionValue(String value) {
-    if (expressionEvaluator != null) {
-      return expressionEvaluator.evaluate(value, String.class);
+    if (resolver != null) {
+      return resolver.resolveStringValue(value);
     }
     return value;
   }
 
-  public void setExpressionEvaluator(@Nullable ExpressionEvaluator expressionEvaluator) {
-    this.expressionEvaluator = expressionEvaluator;
+  @Override
+  public void setEmbeddedValueResolver(StringValueResolver resolver) {
+    this.resolver = resolver;
   }
-
-  @Nullable
-  public ExpressionEvaluator getExpressionEvaluator() {
-    return expressionEvaluator;
-  }
-
 }

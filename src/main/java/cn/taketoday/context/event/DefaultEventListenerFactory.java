@@ -22,6 +22,7 @@ package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.Ordered;
 
 /**

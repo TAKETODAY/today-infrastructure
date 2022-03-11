@@ -22,7 +22,8 @@ package cn.taketoday.transaction.event;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import cn.taketoday.context.event.ApplicationListener;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.transaction.support.SynchronizationInfo;
@@ -41,7 +42,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @see TransactionalApplicationListenerMethodAdapter
  * @since 4.0
  */
-public class TransactionalApplicationListenerAdapter<E>
+public class TransactionalApplicationListenerAdapter<E extends ApplicationEvent>
         implements TransactionalApplicationListener<E>, Ordered {
 
   private String listenerId = "";

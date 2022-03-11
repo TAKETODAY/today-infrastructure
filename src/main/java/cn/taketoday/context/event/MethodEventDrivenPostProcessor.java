@@ -35,6 +35,7 @@ import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;

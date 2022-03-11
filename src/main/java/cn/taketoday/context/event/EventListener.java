@@ -27,6 +27,8 @@ import java.lang.annotation.Target;
 import java.util.function.Predicate;
 
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.annotation.AliasFor;
 
@@ -65,7 +67,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * AsyncUncaughtExceptionHandler} for more details.</li>
  * <li>Asynchronous event listener methods cannot publish a subsequent event by returning a
  * value. If you need to publish another event as the result of the processing, inject an
- * {@link cn.taketoday.context.event.ApplicationEventPublisher ApplicationEventPublisher}
+ * {@link ApplicationEventPublisher ApplicationEventPublisher}
  * to publish the event manually.</li>
  * </ul>
  *

@@ -28,10 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.context.expression.AnnotatedElementKey;
+import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.context.expression.CachedExpressionEvaluator;
-import cn.taketoday.expression.BeanNameExpressionResolver;
-import cn.taketoday.expression.ValueExpression;
-import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.Expression;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -64,11 +64,11 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
    */
   public static final String RESULT_VARIABLE = "result";
 
-  private final Map<ExpressionKey, ValueExpression> keyCache = new ConcurrentHashMap<>(64);
+  private final Map<ExpressionKey, Expression> keyCache = new ConcurrentHashMap<>(64);
 
-  private final Map<ExpressionKey, ValueExpression> conditionCache = new ConcurrentHashMap<>(64);
+  private final Map<ExpressionKey, Expression> conditionCache = new ConcurrentHashMap<>(64);
 
-  private final Map<ExpressionKey, ValueExpression> unlessCache = new ConcurrentHashMap<>(64);
+  private final Map<ExpressionKey, Expression> unlessCache = new ConcurrentHashMap<>(64);
 
   /**
    * Create an {@link EvaluationContext}.
@@ -82,38 +82,37 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
    * {@link #NO_RESULT} if there is no return at this time
    * @return the evaluation context
    */
-  public CacheEvaluationContext createEvaluationContext(Collection<? extends Cache> caches,
+  public EvaluationContext createEvaluationContext(Collection<? extends Cache> caches,
           Method method, Object[] args, Object target, Class<?> targetClass, Method targetMethod,
           @Nullable Object result, @Nullable BeanFactory beanFactory) {
 
     CacheExpressionRootObject rootObject = new CacheExpressionRootObject(
             caches, method, args, target, targetClass);
-
-    CacheEvaluationContext context = new CacheEvaluationContext(
+    CacheEvaluationContext evaluationContext = new CacheEvaluationContext(
             rootObject, targetMethod, args, getParameterNameDiscoverer());
     if (result == RESULT_UNAVAILABLE) {
-      context.addUnavailableVariable(RESULT_VARIABLE);
+      evaluationContext.addUnavailableVariable(RESULT_VARIABLE);
     }
     else if (result != NO_RESULT) {
-      context.setVariable(RESULT_VARIABLE, result);
+      evaluationContext.setVariable(RESULT_VARIABLE, result);
     }
     if (beanFactory != null) {
-      context.addResolver(new BeanNameExpressionResolver(beanFactory));
+      evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
     }
-    return context;
+    return evaluationContext;
   }
 
   @Nullable
-  public Object key(String keyExpression, AnnotatedElementKey methodKey, CacheEvaluationContext evalContext) {
+  public Object key(String keyExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
     return getExpression(this.keyCache, methodKey, keyExpression).getValue(evalContext);
   }
 
-  public boolean condition(String conditionExpression, AnnotatedElementKey methodKey, CacheEvaluationContext evalContext) {
+  public boolean condition(String conditionExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
     return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
             evalContext, Boolean.class)));
   }
 
-  public boolean unless(String unlessExpression, AnnotatedElementKey methodKey, CacheEvaluationContext evalContext) {
+  public boolean unless(String unlessExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
     return (Boolean.TRUE.equals(getExpression(this.unlessCache, methodKey, unlessExpression).getValue(
             evalContext, Boolean.class)));
   }
