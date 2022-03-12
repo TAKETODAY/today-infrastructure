@@ -143,7 +143,7 @@ final class ConstructorResolver {
     else {
       Object[] argsToResolve = null;
       synchronized(merged.constructorArgumentLock) {
-        constructorToUse = (Constructor<?>) merged.executable;
+        constructorToUse = (Constructor<?>) merged.resolvedConstructorOrFactoryMethod;
         if (constructorToUse != null && merged.constructorArgumentsResolved) {
           // Found a cached constructor...
           argsToUse = merged.resolvedConstructorArguments;
@@ -178,7 +178,7 @@ final class ConstructorResolver {
         Constructor<?> uniqueCandidate = candidates[0];
         if (uniqueCandidate.getParameterCount() == 0) {
           synchronized(merged.constructorArgumentLock) {
-            merged.executable = uniqueCandidate;
+            merged.resolvedConstructorOrFactoryMethod = uniqueCandidate;
             merged.constructorArgumentsResolved = true;
             merged.resolvedConstructorArguments = EMPTY_ARGS;
           }
@@ -425,7 +425,7 @@ final class ConstructorResolver {
     else {
       Object[] argsToResolve = null;
       synchronized(merged.constructorArgumentLock) {
-        factoryMethodToUse = (Method) merged.executable;
+        factoryMethodToUse = (Method) merged.resolvedConstructorOrFactoryMethod;
         if (factoryMethodToUse != null && merged.constructorArgumentsResolved) {
           // Found a cached factory method...
           argsToUse = merged.resolvedConstructorArguments;
@@ -468,7 +468,7 @@ final class ConstructorResolver {
         if (uniqueCandidate.getParameterCount() == 0) {
           merged.factoryMethodToIntrospect = uniqueCandidate;
           synchronized(merged.constructorArgumentLock) {
-            merged.executable = uniqueCandidate;
+            merged.resolvedConstructorOrFactoryMethod = uniqueCandidate;
             merged.constructorArgumentsResolved = true;
             merged.resolvedConstructorArguments = EMPTY_ARGS;
           }
@@ -962,7 +962,7 @@ final class ConstructorResolver {
 
     public void storeCache(RootBeanDefinition mbd, Executable constructorOrFactoryMethod) {
       synchronized(mbd.constructorArgumentLock) {
-        mbd.executable = constructorOrFactoryMethod;
+        mbd.resolvedConstructorOrFactoryMethod = constructorOrFactoryMethod;
         mbd.constructorArgumentsResolved = true;
         if (resolveNecessary) {
           mbd.preparedConstructorArguments = preparedArguments;

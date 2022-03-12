@@ -22,7 +22,6 @@ package cn.taketoday.web.registry.annotation;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.annotation.GET;
@@ -97,7 +96,6 @@ public class RequestPathMappingHandlerMethodRegistryApp {
 
   @Configuration
   @EnableTomcatHandling
-  @EnableMethodEventDriven
   static class AppConfig {
 
   }

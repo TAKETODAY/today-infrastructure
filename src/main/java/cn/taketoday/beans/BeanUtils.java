@@ -215,18 +215,11 @@ public abstract class BeanUtils {
       }
     }
 
-    // Several constructors -> let's try to take the default constructor
-    try {
-      return beanClass.getDeclaredConstructor();
-    }
-    catch (NoSuchMethodException ex) {
-      // Giving up...
-    }
-
-    for (final Constructor<?> constructor : ctors) {
+    // iterate all constructors
+    for (Constructor<?> constructor : ctors) {
       if (constructor.getParameterCount() == 0 // default constructor
               || constructor.isAnnotationPresent(Autowired)) {
-        return (Constructor<T>) ReflectionUtils.makeAccessible(constructor);
+        return (Constructor<T>) constructor;
       }
     }
     return null;

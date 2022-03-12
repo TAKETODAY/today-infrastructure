@@ -38,6 +38,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.context.expression.AnnotatedElementKey;
+import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
@@ -47,6 +48,7 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -57,6 +59,18 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
 
 /**
+ * {@link GenericApplicationListener} adapter that delegates the processing of
+ * an event to an {@link EventListener} annotated method.
+ *
+ * <p>Delegates to {@link #onApplicationEvent(ApplicationEvent)} to give subclasses
+ * a chance to deviate from the default. Unwraps the content of a
+ * {@link PayloadApplicationEvent} if necessary to allow a method declaration
+ * to define any arbitrary event type. If a condition is defined, it is
+ * evaluated prior to invoking the underlying method.
+ *
+ * @author Stephane Nicoll
+ * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author TODAY 2021/11/5 11:51
  * @since 4.0
  */
@@ -64,7 +78,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
   private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", MethodEventDrivenPostProcessor.class.getClassLoader());
+          "org.reactivestreams.Publisher", ApplicationListenerMethodAdapter.class.getClassLoader());
+
+  private final Method method;
 
   private final Method targetMethod;
 
@@ -94,16 +110,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    */
   public ApplicationListenerMethodAdapter(String beanName, Class<?> targetClass, Method method) {
     this.beanName = beanName;
-    this.targetMethod = !Proxy.isProxyClass(targetClass)
-                        ? AopUtils.getMostSpecificMethod(method, targetClass) : method;
+    this.method = BridgeMethodResolver.findBridgedMethod(method);
+    this.targetMethod = Proxy.isProxyClass(targetClass)
+                        ? this.method : AopUtils.getMostSpecificMethod(method, targetClass);
     this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
 
     MergedAnnotations annotations = MergedAnnotations.from(targetMethod, SearchStrategy.TYPE_HIERARCHY);
-
-    MergedAnnotation<Order> order = annotations.get(Order.class);
-    this.order = order.getValue(Integer.class)
-            .orElse(Ordered.LOWEST_PRECEDENCE);
-
     MergedAnnotation<EventListener> annotation = annotations.get(EventListener.class);
     this.declaredEventTypes = resolveDeclaredEventTypes(method, annotation);
 
@@ -115,6 +127,11 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       String id = annotation.getString("id");
       this.listenerId = !id.isEmpty() ? id : null;
     }
+
+    MergedAnnotation<Order> order = annotations.get(Order.class);
+    this.order = order.getValue(Integer.class)
+            .orElse(Ordered.LOWEST_PRECEDENCE);
+
   }
 
   protected void init(ApplicationContext context, @Nullable EventExpressionEvaluator evaluator) {
@@ -241,12 +258,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     if (declaredEventType == null) {
       return null;
     }
-    if (this.targetMethod.getParameterCount() == 0) {
-      return new Object[0];
+    if (method.getParameterCount() == 0) {
+      return Constant.EMPTY_OBJECT_ARRAY;
     }
     Class<?> declaredEventClass = declaredEventType.toClass();
-    if (!ApplicationEvent.class.isAssignableFrom(declaredEventClass) &&
-            event instanceof PayloadApplicationEvent) {
+    if (!ApplicationEvent.class.isAssignableFrom(declaredEventClass)
+            && event instanceof PayloadApplicationEvent) {
       Object payload = ((PayloadApplicationEvent<?>) event).getPayload();
       if (declaredEventClass.isInstance(payload)) {
         return new Object[] { payload };
@@ -287,12 +304,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     if (bean == null) {
       return null;
     }
-    ReflectionUtils.makeAccessible(this.targetMethod);
+    ReflectionUtils.makeAccessible(method);
     try {
-      return this.targetMethod.invoke(bean, args);
+      return method.invoke(bean, args);
     }
     catch (IllegalArgumentException ex) {
-      assertTargetBean(this.targetMethod, bean, args);
+      assertTargetBean(method, bean, args);
       throw new IllegalStateException(getInvocationErrorMessage(bean, ex.getMessage(), args), ex);
     }
     catch (IllegalAccessException ex) {

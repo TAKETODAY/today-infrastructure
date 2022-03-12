@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
+import cn.taketoday.aop.scope.ScopedObject;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanInitializationException;
@@ -61,7 +62,7 @@ import cn.taketoday.util.CollectionUtils;
  * @see EventListenerFactory
  * @see DefaultEventListenerFactory
  */
-public class MethodEventDrivenPostProcessor
+public class EventListenerMethodProcessor
         implements BeanFactoryPostProcessor, SmartInitializingSingleton {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -76,7 +77,7 @@ public class MethodEventDrivenPostProcessor
 
   private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
-  public MethodEventDrivenPostProcessor(ConfigurableApplicationContext context) {
+  public EventListenerMethodProcessor(ConfigurableApplicationContext context) {
     Assert.notNull(context, "ApplicationContext must not be null");
     this.context = context;
   }
@@ -111,6 +112,21 @@ public class MethodEventDrivenPostProcessor
         }
       }
       if (type != null) {
+        if (ScopedObject.class.isAssignableFrom(type)) {
+          try {
+            Class<?> targetClass = AutoProxyUtils.determineTargetClass(
+                    beanFactory, ScopedProxyUtils.getTargetBeanName(beanName));
+            if (targetClass != null) {
+              type = targetClass;
+            }
+          }
+          catch (Throwable ex) {
+            // An invalid scoped proxy arrangement - let's ignore it.
+            if (logger.isDebugEnabled()) {
+              logger.debug("Could not resolve target bean for scoped proxy '{}'", beanName, ex);
+            }
+          }
+        }
         try {
           process(beanName, type);
         }
@@ -140,21 +156,22 @@ public class MethodEventDrivenPostProcessor
       if (CollectionUtils.isEmpty(annotatedMethods)) {
         nonAnnotatedClasses.add(targetType);
         if (logger.isTraceEnabled()) {
-          logger.trace("No @EventListener annotations found on bean class: " + targetType.getName());
+          logger.trace("No @EventListener annotations found on bean class: {}", targetType.getName());
         }
       }
       else {
         // Non-empty set of methods
+        ConfigurableApplicationContext context = this.context;
+        Assert.state(context != null, "No ApplicationContext set");
         List<EventListenerFactory> factories = this.eventListenerFactories;
         Assert.state(factories != null, "EventListenerFactory List not initialized");
         for (Method method : annotatedMethods) {
           for (EventListenerFactory factory : factories) {
             if (factory.supportsMethod(method)) {
-              Method methodToUse = AopUtils.selectInvocableMethod(method, beanFactory.getType(beanName));
-              ApplicationListener<?> listener =
-                      factory.createApplicationListener(beanName, targetType, methodToUse);
-              if (listener instanceof ApplicationListenerMethodAdapter) {
-                ((ApplicationListenerMethodAdapter) listener).init(context, evaluator);
+              Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
+              var listener = factory.createApplicationListener(beanName, targetType, methodToUse);
+              if (listener instanceof ApplicationListenerMethodAdapter adapter) {
+                adapter.init(context, evaluator);
               }
               context.addApplicationListener(listener);
               break;

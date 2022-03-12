@@ -173,16 +173,15 @@ class AnnotationDrivenEventListenerTests {
 
   @Test
   void methodSignatureNoEvent() {
-    @SuppressWarnings("resource")
-    AnnotationConfigApplicationContext failingContext =
-            new AnnotationConfigApplicationContext();
-    failingContext.register(BasicConfiguration.class,
-            InvalidMethodSignatureEventListener.class);
+    var failingContext = new AnnotationConfigApplicationContext();
+    failingContext.register(BasicConfiguration.class, InvalidMethodSignatureEventListener.class);
 
-    assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(() ->
-                    failingContext.refresh())
-            .withMessageContaining(InvalidMethodSignatureEventListener.class.getName())
-            .withMessageContaining("cannotBeCalled");
+    assertThatExceptionOfType(BeanInitializationException.class)
+            .isThrownBy(failingContext::refresh)
+            .withMessageContaining("Failed to process @EventListener annotation")
+            .havingRootCause()
+            .withMessageContaining("cannotBeCalled")
+            .withMessageContaining(InvalidMethodSignatureEventListener.class.getName());
   }
 
   @Test
@@ -976,24 +975,28 @@ class AnnotationDrivenEventListenerTests {
   @Validated
   static class ConditionalEventListener extends TestEventListener implements ConditionalEventInterface {
 
+    // language=SpEL
     @EventListener(condition = "'OK'.equals(#root.event.msg)")
     @Override
     public void handle(TestEvent event) {
       super.handle(event);
     }
 
+    // language=SpEL
     @EventListener(condition = "#payload.startsWith('OK')")
     @Override
     public void handleString(String payload) {
       super.handleString(payload);
     }
 
+    // language=SpEL
     @ConditionalEvent("#root.event.timestamp > #p0")
     @Override
     public void handleTimestamp(Long timestamp) {
       collectEvent(timestamp);
     }
 
+    // language=SpEL
     @ConditionalEvent("@conditionEvaluator.valid(#p0)")
     @Override
     public void handleRatio(Double ratio) {

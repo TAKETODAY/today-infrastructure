@@ -71,7 +71,11 @@ public class InstantiationStrategy {
    */
   public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) throws BeansException {
     // Don't override the class with CGLIB if no overrides.
-    if (!bd.hasMethodOverrides()) {
+    if (bd.hasMethodOverrides()) {
+      // Must generate CGLIB subclass.
+      return instantiateWithMethodInjection(bd, beanName, owner);
+    }
+    else {
       Constructor<?> constructorToUse;
       synchronized(bd.constructorArgumentLock) {
         constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
@@ -90,10 +94,6 @@ public class InstantiationStrategy {
         }
       }
       return BeanUtils.newInstance(constructorToUse, null);
-    }
-    else {
-      // Must generate CGLIB subclass.
-      return instantiateWithMethodInjection(bd, beanName, owner);
     }
   }
 
@@ -121,13 +121,13 @@ public class InstantiationStrategy {
    * @return a bean instance for this bean definition
    * @throws BeansException if the instantiation attempt failed
    */
-  public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
-          Constructor<?> ctor, Object... args) throws BeansException {
-    if (!bd.hasMethodOverrides()) {
-      return BeanUtils.newInstance(ctor, args);
+  public Object instantiate(RootBeanDefinition bd, @Nullable String beanName,
+          BeanFactory owner, Constructor<?> ctor, Object... args) throws BeansException {
+    if (bd.hasMethodOverrides()) {
+      return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
     }
     else {
-      return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
+      return BeanUtils.newInstance(ctor, args);
     }
   }
 
@@ -137,8 +137,8 @@ public class InstantiationStrategy {
    * the Method Injection specified in the given RootBeanDefinition.
    * Instantiation should use the given constructor and parameters.
    */
-  protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName,
-          BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
+  protected Object instantiateWithMethodInjection(RootBeanDefinition bd,
+          @Nullable String beanName, BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
 
     throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
   }

@@ -120,9 +120,6 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   /** Package-visible field that indicates MergedBeanDefinitionPostProcessor having been applied. */
   boolean postProcessed = false;
 
-  // cache for fast access
-  Executable executable;
-
   Method[] initMethodArray;
 
   /** Package-visible field that indicates a before-instantiation post-processor having kicked in. */

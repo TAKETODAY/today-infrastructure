@@ -714,7 +714,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     boolean autowireNecessary = false;
     if (args == null) {
       synchronized(merged.constructorArgumentLock) {
-        if (merged.executable != null) {
+        if (merged.resolvedConstructorOrFactoryMethod != null) {
           resolved = true;
           autowireNecessary = merged.constructorArgumentsResolved;
         }
@@ -797,11 +797,21 @@ public abstract class AbstractAutowireCapableBeanFactory
           @Nullable Class<?> beanClass, String beanName) throws BeansException {
 
     if (beanClass != null) {
-      for (SmartInstantiationAwareBeanPostProcessor bp : postProcessors().smartInstantiation) {
-        Constructor<?>[] ctors = bp.determineCandidateConstructors(beanClass, beanName);
-        if (ctors != null) {
-          return ctors;
+      var smartInstantiation = postProcessors().smartInstantiation;
+      if (!smartInstantiation.isEmpty()) {
+        for (SmartInstantiationAwareBeanPostProcessor bp : smartInstantiation) {
+          var ctors = bp.determineCandidateConstructors(beanClass, beanName);
+          if (ctors != null) {
+            return ctors;
+          }
         }
+      }
+      else {
+        Constructor<?> selected = BeanUtils.getConstructor(beanClass);
+        if (selected != null && selected.getParameterCount() > 0) {
+          return new Constructor[] { selected };
+        }
+        // fallback to default constructor
       }
     }
     return null;

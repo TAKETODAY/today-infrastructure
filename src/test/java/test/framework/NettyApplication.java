@@ -25,10 +25,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.ApplicationEventPublisher;
-import cn.taketoday.context.event.EnableMethodEventDriven;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -139,7 +138,6 @@ public class NettyApplication {
   @Configuration
   @EnableWebSocket
   @EnableNettyHandling
-  @EnableMethodEventDriven
   static class AppConfig implements WebSocketConfiguration {
 
     @Override

@@ -215,7 +215,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private Resource resource;
 
-  /** enable DI @since 4.0 */
+  /** enable DI */
   private boolean enableDependencyInjection = true;
 
   /**
@@ -389,13 +389,11 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setEnforceDestroyMethod(false);
   }
 
-  /** @since 4.0 */
   @Override
   public void setEnableDependencyInjection(boolean enableDependencyInjection) {
     this.enableDependencyInjection = enableDependencyInjection;
   }
 
-  /** @since 4.0 */
   @Override
   public boolean isEnableDependencyInjection() {
     return enableDependencyInjection;
@@ -585,7 +583,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public boolean isLazyInit() {
-    return (this.lazyInit != null && this.lazyInit.booleanValue());
+    return lazyInit != null && this.lazyInit;
   }
 
   /**
@@ -593,7 +591,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * eagerly instantiated on startup. Only applicable to a singleton bean.
    *
    * @return the lazy-init flag if explicitly set, or {@code null} otherwise
-   * @since 4.0
    */
   @Nullable
   public Boolean getLazyInit() {
@@ -787,7 +784,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    *
    * @see #setConstructorArgumentValues(ConstructorArgumentValues)
    * @see #setPropertyValues(PropertyValues)
-   * @since 4.0
    */
   public void setInstanceSupplier(@Nullable Supplier<?> instanceSupplier) {
     this.instanceSupplier = instanceSupplier;
@@ -795,8 +791,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   /**
    * Return a callback for creating an instance of the bean, if any.
-   *
-   * @since 4.0
    */
   @Nullable
   public Supplier<?> getInstanceSupplier() {
@@ -931,8 +925,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   /**
    * Return if there are property values defined for this bean.
-   *
-   * @since 4.0
    */
   @Override
   public boolean hasPropertyValues() {
@@ -957,8 +949,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   /**
    * Return if there are method overrides defined for this bean.
-   *
-   * @since 4.0
    */
   public boolean hasMethodOverrides() {
     return !this.methodOverrides.isEmpty();
@@ -969,7 +959,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * <p>The default is {@code null} in which case there are no initializer methods.
    *
    * @see #setInitMethodName
-   * @since 6.0
    */
   public void setInitMethodNames(@Nullable String... initMethodNames) {
     this.initMethodNames = initMethodNames;
@@ -977,8 +966,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   /**
    * Return the names of the initializer methods.
-   *
-   * @since 6.0
    */
   @Nullable
   public String[] getInitMethodNames() {
@@ -1033,7 +1020,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * <p>The default is {@code null} in which case there are no destroy methods.
    *
    * @see #setDestroyMethodName
-   * @since 6.0
    */
   public void setDestroyMethodNames(@Nullable String... destroyMethodNames) {
     this.destroyMethodNames = destroyMethodNames;
@@ -1041,8 +1027,6 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   /**
    * Return the names of the destroy methods.
-   *
-   * @since 6.0
    */
   @Nullable
   public String[] getDestroyMethodNames() {
@@ -1066,7 +1050,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   @Nullable
   public String getDestroyMethodName() {
-    return (!ObjectUtils.isEmpty(this.destroyMethodNames) ? this.destroyMethodNames[0] : null);
+    return ObjectUtils.isNotEmpty(destroyMethodNames) ? destroyMethodNames[0] : null;
   }
 
   /**

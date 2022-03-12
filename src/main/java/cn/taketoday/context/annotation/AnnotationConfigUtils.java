@@ -34,6 +34,8 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
+import cn.taketoday.context.event.DefaultEventListenerFactory;
+import cn.taketoday.context.event.EventListenerMethodProcessor;
 import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
@@ -195,11 +197,22 @@ public abstract class AnnotationConfigUtils {
       registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME, consumer);
     }
 
+    if (!registry.containsBeanDefinition(EVENT_LISTENER_PROCESSOR_BEAN_NAME)) {
+      RootBeanDefinition def = new RootBeanDefinition(EventListenerMethodProcessor.class);
+      registerPostProcessor(registry, def, EVENT_LISTENER_PROCESSOR_BEAN_NAME, consumer);
+    }
+
+    if (!registry.containsBeanDefinition(EVENT_LISTENER_FACTORY_BEAN_NAME)) {
+      RootBeanDefinition def = new RootBeanDefinition(DefaultEventListenerFactory.class);
+      registerPostProcessor(registry, def, EVENT_LISTENER_FACTORY_BEAN_NAME, consumer);
+    }
   }
 
   private static void registerPostProcessor(
-          BeanDefinitionRegistry registry, BeanDefinition definition,
+          BeanDefinitionRegistry registry, RootBeanDefinition definition,
           String beanName, @Nullable Consumer<BeanDefinitionHolder> consumer) {
+
+    definition.setEnableDependencyInjection(false);
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     registry.registerBeanDefinition(beanName, definition);
 
