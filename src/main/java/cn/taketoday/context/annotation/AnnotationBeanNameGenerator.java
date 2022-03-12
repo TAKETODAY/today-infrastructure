@@ -21,20 +21,26 @@
 package cn.taketoday.context.annotation;
 
 import java.beans.Introspector;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanNameHolder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -103,20 +109,22 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
     Set<String> types = amd.getAnnotationTypes();
     String beanName = null;
     for (String type : types) {
-      AnnotationAttributes attributes = AnnotationAttributes.fromMetadata(amd, type);
-      if (attributes != null) {
+      MergedAnnotation<Annotation> annotation = amd.getAnnotation(type);
+      if (annotation.isPresent()) {
         Set<String> metaTypes = this.metaAnnotationTypesCache.computeIfAbsent(type, key -> {
           Set<String> result = amd.getMetaAnnotationTypes(key);
           return result.isEmpty() ? Collections.emptySet() : result;
         });
-        if (isStereotypeWithNameValue(type, metaTypes, attributes)) {
-          Object value = attributes.get("value");
-          if (value instanceof String strVal) {
+        if (isStereotype(type, metaTypes)) {
+          BeanNameHolder beanNameHolder = getBeanNameHolder(annotation);
+          if (beanNameHolder != null) {
+            String strVal = beanNameHolder.getBeanName();
             if (StringUtils.isNotEmpty(strVal)) {
               if (beanName != null && !strVal.equals(beanName)) {
                 throw new IllegalStateException("Stereotype annotations suggest inconsistent " +
                         "component names: '" + beanName + "' versus '" + strVal + "'");
               }
+              annotatedDef.setAttribute(BeanNameHolder.AttributeName, beanNameHolder);
               beanName = strVal;
             }
           }
@@ -126,24 +134,48 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
     return beanName;
   }
 
+  private BeanNameHolder getBeanNameHolder(MergedAnnotation<?> annotation) {
+    Optional<Object> value = annotation.getValue(MergedAnnotation.VALUE);
+    if (value.isPresent()) {
+      Object attribute = value.get();
+      if (attribute instanceof String beanName) {
+        return new BeanNameHolder(beanName, null);
+      }
+      else if (attribute instanceof String[] nameArray && ObjectUtils.isNotEmpty(nameArray)) {
+        String beanName = nameArray[0];
+        String[] aliasesArray = null;
+        if (nameArray.length > 1) {
+          ArrayList<String> aliases = new ArrayList<>();
+          for (int i = 1; i < nameArray.length; i++) {
+            if (StringUtils.hasText(nameArray[i])) {
+              aliases.add(nameArray[i]);
+            }
+          }
+          if (!aliases.isEmpty()) {
+            aliasesArray = aliases.toArray(Constant.EMPTY_STRING_ARRAY);
+          }
+        }
+
+        return new BeanNameHolder(beanName, aliasesArray);
+      }
+    }
+
+    return null;
+  }
+
   /**
    * Check whether the given annotation is a stereotype that is allowed
    * to suggest a component name through its annotation {@code value()}.
    *
    * @param annotationType the name of the annotation class to check
    * @param metaAnnotationTypes the names of meta-annotations on the given annotation
-   * @param attributes the map of attributes for the given annotation
    * @return whether the annotation qualifies as a stereotype with component name
    */
-  protected boolean isStereotypeWithNameValue(String annotationType,
-          Set<String> metaAnnotationTypes, @Nullable Map<String, Object> attributes) {
-
-    boolean isStereotype = annotationType.equals(COMPONENT_ANNOTATION_CLASSNAME) ||
-            metaAnnotationTypes.contains(COMPONENT_ANNOTATION_CLASSNAME) ||
-            annotationType.equals("jakarta.annotation.ManagedBean") ||
-            annotationType.equals("jakarta.inject.Named");
-
-    return (isStereotype && attributes != null && attributes.containsKey("value"));
+  protected boolean isStereotype(String annotationType, Set<String> metaAnnotationTypes) {
+    return annotationType.equals(COMPONENT_ANNOTATION_CLASSNAME)
+            || metaAnnotationTypes.contains(COMPONENT_ANNOTATION_CLASSNAME)
+            || annotationType.equals("jakarta.annotation.ManagedBean")
+            || annotationType.equals("jakarta.inject.Named");
   }
 
   /**

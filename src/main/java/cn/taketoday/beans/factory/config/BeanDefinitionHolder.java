@@ -20,11 +20,11 @@
 
 package cn.taketoday.beans.factory.config;
 
+import java.util.Arrays;
+
 import cn.taketoday.beans.BeanMetadataAttributeAccessor;
 import cn.taketoday.beans.BeanMetadataElement;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -44,15 +44,9 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.beans.factory.support.ChildBeanDefinition
  * @since 4.0 2022/3/9 9:03
  */
-@Experimental
-public class BeanDefinitionHolder implements BeanMetadataElement {
+public class BeanDefinitionHolder extends BeanNameHolder implements BeanMetadataElement {
 
   private final BeanDefinition beanDefinition;
-
-  private final String beanName;
-
-  @Nullable
-  private final String[] aliases;
 
   /**
    * Create a new BeanDefinitionHolder.
@@ -72,11 +66,9 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
    * @param aliases alias names for the bean, or {@code null} if none
    */
   public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName, @Nullable String[] aliases) {
-    Assert.notNull(beanDefinition, "BeanDefinition must not be null");
-    Assert.notNull(beanName, "Bean name must not be null");
+    super(beanName, computeAliases(beanDefinition, aliases));
+    Assert.notNull(beanDefinition, "BeanDefinition is required");
     this.beanDefinition = beanDefinition;
-    this.beanName = beanName;
-    this.aliases = aliases;
   }
 
   /**
@@ -85,13 +77,24 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
    * <p>Note: The wrapped BeanDefinition reference is taken as-is;
    * it is {@code not} deeply copied.
    *
-   * @param beanDefinitionHolder the BeanDefinitionHolder to copy
+   * @param holder the BeanDefinitionHolder to copy
+   * @throws NullPointerException if holder is null
    */
-  public BeanDefinitionHolder(BeanDefinitionHolder beanDefinitionHolder) {
-    Assert.notNull(beanDefinitionHolder, "BeanDefinitionHolder must not be null");
-    this.beanDefinition = beanDefinitionHolder.getBeanDefinition();
-    this.beanName = beanDefinitionHolder.getBeanName();
-    this.aliases = beanDefinitionHolder.getAliases();
+  public BeanDefinitionHolder(BeanDefinitionHolder holder) {
+    super(holder.getBeanName(), holder.getAliases());
+    this.beanDefinition = holder.getBeanDefinition();
+  }
+
+  /**
+   * Create a new BeanDefinitionHolder.
+   *
+   * @param beanDefinition the BeanDefinition to wrap
+   * @param holder the BeanNameHolder to copy
+   * @throws NullPointerException if holder is null
+   */
+  public BeanDefinitionHolder(BeanDefinition beanDefinition, BeanNameHolder holder) {
+    super(holder.getBeanName(), holder.getAliases());
+    this.beanDefinition = beanDefinition;
   }
 
   /**
@@ -99,23 +102,6 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
    */
   public BeanDefinition getBeanDefinition() {
     return this.beanDefinition;
-  }
-
-  /**
-   * Return the primary name of the bean, as specified for the bean definition.
-   */
-  public String getBeanName() {
-    return this.beanName;
-  }
-
-  /**
-   * Return the alias names for the bean, as specified directly for the bean definition.
-   *
-   * @return the array of alias names, or {@code null} if none
-   */
-  @Nullable
-  public String[] getAliases() {
-    return this.aliases;
   }
 
   /**
@@ -136,26 +122,16 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
   }
 
   /**
-   * Determine whether the given candidate name matches the bean name
-   * or the aliases stored in this bean definition.
-   */
-  public boolean matchesName(@Nullable String candidateName) {
-    return candidateName != null && (candidateName.equals(this.beanName) ||
-            candidateName.equals(BeanFactoryUtils.transformedBeanName(this.beanName)) ||
-            ObjectUtils.containsElement(this.aliases, candidateName));
-  }
-
-  /**
    * Return a friendly, short description for the bean, stating name and aliases.
    *
    * @see #getBeanName()
    * @see #getAliases()
    */
   public String getShortDescription() {
-    if (this.aliases == null) {
-      return "Bean definition with name '" + this.beanName + "'";
+    if (aliases == null) {
+      return "Bean definition with name '" + beanName + "'";
     }
-    return "Bean definition with name '" + this.beanName + "' and aliases [" + StringUtils.arrayToCommaDelimitedString(this.aliases) + ']';
+    return "Bean definition with name '" + beanName + "' and aliases [" + StringUtils.arrayToCommaDelimitedString(this.aliases) + ']';
   }
 
   /**
@@ -166,7 +142,7 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
    * @see #getBeanDefinition()
    */
   public String getLongDescription() {
-    return getShortDescription() + ": " + this.beanDefinition;
+    return getShortDescription() + ": " + beanDefinition;
   }
 
   /**
@@ -189,9 +165,9 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
     if (!(other instanceof BeanDefinitionHolder otherHolder)) {
       return false;
     }
-    return this.beanDefinition.equals(otherHolder.beanDefinition) &&
-            this.beanName.equals(otherHolder.beanName) &&
-            ObjectUtils.nullSafeEquals(this.aliases, otherHolder.aliases);
+    return beanName.equals(otherHolder.beanName)
+            && Arrays.equals(aliases, otherHolder.aliases)
+            && beanDefinition.equals(otherHolder.beanDefinition);
   }
 
   @Override
@@ -200,6 +176,18 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
     hashCode = 29 * hashCode + this.beanName.hashCode();
     hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.aliases);
     return hashCode;
+  }
+
+  @Nullable
+  static String[] computeAliases(BeanDefinition beanDefinition, @Nullable String[] aliases) {
+    if (ObjectUtils.isNotEmpty(aliases)) {
+      return aliases;
+    }
+    BeanNameHolder beanNameHolder = BeanNameHolder.find(beanDefinition);
+    if (beanNameHolder != null) {
+      return beanNameHolder.getAliases();
+    }
+    return null;
   }
 
 }

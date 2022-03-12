@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
-import cn.taketoday.core.Conventions;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
@@ -39,8 +38,6 @@ import cn.taketoday.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
-  @Experimental
-  String ANNOTATION = Conventions.getQualifiedAttributeName(Component.class, "annotation");
 
   /**
    * Alias for {@link #name}.

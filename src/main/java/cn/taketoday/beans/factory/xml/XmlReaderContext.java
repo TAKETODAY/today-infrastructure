@@ -26,11 +26,11 @@ import org.xml.sax.InputSource;
 import java.io.StringReader;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.parsing.ReaderContext;
 import cn.taketoday.beans.factory.parsing.ReaderEventListener;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.core.env.Environment;
