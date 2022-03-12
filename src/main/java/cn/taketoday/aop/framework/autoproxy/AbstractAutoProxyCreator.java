@@ -130,7 +130,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * to prevent the configuration from becoming frozen too early.
    */
   private boolean freezeProxy = false;
-  private transient TargetSourceCreator[] targetSourceCreators;
+  private transient TargetSourceCreator[] customTargetSourceCreators;
 
   /** Default is no common interceptors. */
   private String[] interceptorNames = new String[0];
@@ -155,12 +155,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * <p>{@code TargetSourceCreators} can only be invoked if this post processor is used
    * in a {@link BeanFactory} and its {@link BeanFactoryAware} callback is triggered.
    *
-   * @param targetSourceCreators the list of {@code TargetSourceCreators}.
+   * @param customTargetSourceCreators the list of {@code TargetSourceCreators}.
    * Ordering is significant: The {@code TargetSource} returned from the first matching
    * {@code TargetSourceCreator} (that is, the first that returns non-null) will be used.
    */
-  public void setTargetSourceCreators(TargetSourceCreator... targetSourceCreators) {
-    this.targetSourceCreators = targetSourceCreators;
+  public void setCustomTargetSourceCreators(TargetSourceCreator... customTargetSourceCreators) {
+    this.customTargetSourceCreators = customTargetSourceCreators;
   }
 
   /**
@@ -255,8 +255,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
 
   protected TargetSource getCustomTargetSource(Class<?> beanClass, String beanName) {
     // We can't create fancy target sources for directly registered singletons.
-    if (this.targetSourceCreators != null) {
-      for (TargetSourceCreator creator : this.targetSourceCreators) {
+    if (this.customTargetSourceCreators != null) {
+      for (TargetSourceCreator creator : this.customTargetSourceCreators) {
         TargetSource source = creator.getTargetSource(beanClass, beanName);
         if (source != null) {
           // Found a matching TargetSource.

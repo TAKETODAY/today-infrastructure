@@ -130,7 +130,7 @@ class AutoProxyLazyInitTests {
     BeanNameAutoProxyCreator lazyInitAutoProxyCreator() {
       BeanNameAutoProxyCreator autoProxyCreator = new BeanNameAutoProxyCreator();
       autoProxyCreator.setBeanNames("*");
-      autoProxyCreator.setTargetSourceCreators(lazyInitTargetSourceCreator());
+      autoProxyCreator.setCustomTargetSourceCreators(lazyInitTargetSourceCreator());
       return autoProxyCreator;
     }
 
@@ -153,7 +153,7 @@ class AutoProxyLazyInitTests {
     BeanNameAutoProxyCreator lazyInitAutoProxyCreator() {
       BeanNameAutoProxyCreator autoProxyCreator = new BeanNameAutoProxyCreator();
       autoProxyCreator.setBeanNames("*");
-      autoProxyCreator.setTargetSourceCreators(lazyInitTargetSourceCreator());
+      autoProxyCreator.setCustomTargetSourceCreators(lazyInitTargetSourceCreator());
       return autoProxyCreator;
     }
 
@@ -180,7 +180,7 @@ class AutoProxyLazyInitTests {
     BeanNameAutoProxyCreator lazyInitAutoProxyCreator() {
       BeanNameAutoProxyCreator autoProxyCreator = new BeanNameAutoProxyCreator();
       autoProxyCreator.setBeanNames("*");
-      autoProxyCreator.setTargetSourceCreators(lazyInitTargetSourceCreator());
+      autoProxyCreator.setCustomTargetSourceCreators(lazyInitTargetSourceCreator());
       return autoProxyCreator;
     }
 
@@ -203,7 +203,7 @@ class AutoProxyLazyInitTests {
     BeanNameAutoProxyCreator lazyInitAutoProxyCreator() {
       BeanNameAutoProxyCreator autoProxyCreator = new BeanNameAutoProxyCreator();
       autoProxyCreator.setBeanNames("*");
-      autoProxyCreator.setTargetSourceCreators(lazyInitTargetSourceCreator());
+      autoProxyCreator.setCustomTargetSourceCreators(lazyInitTargetSourceCreator());
       return autoProxyCreator;
     }
 
