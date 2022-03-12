@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
+import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.annotation.CachingConfigurer;
 import cn.taketoday.cache.annotation.EnableCaching;
@@ -175,6 +176,7 @@ public class EnableCachingIntegrationTests {
     Object getWithCondition(Object key);
   }
 
+  @CacheConfig(cacheNames = "testCache")
   static class FooServiceImpl implements FooService {
 
     private final AtomicLong counter = new AtomicLong();

@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
+import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.annotation.CachingConfigurer;
@@ -124,6 +125,7 @@ public class CachePutEvaluationTests {
 
   }
 
+  @CacheConfig(cacheNames = "test")
   public static class SimpleService {
     private AtomicLong counter = new AtomicLong();
 

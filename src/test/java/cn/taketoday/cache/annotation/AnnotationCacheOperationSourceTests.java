@@ -386,6 +386,9 @@ public class AnnotationCacheOperationSourceTests {
     }
   }
 
+  @CacheConfig(cacheNames = "classCacheName",
+               keyGenerator = "classKeyGenerator",
+               cacheManager = "classCacheManager", cacheResolver = "classCacheResolver")
   private static class AnnotatedClassWithFullDefault {
 
     @Cacheable("custom")
@@ -413,6 +416,9 @@ public class AnnotationCacheOperationSourceTests {
     }
   }
 
+  @CacheConfig(cacheNames = "classCacheName",
+               keyGenerator = "classKeyGenerator",
+               cacheManager = "classCacheManager")
   private static class AnnotatedClassWithSomeDefault {
 
     @Cacheable(cacheManager = "custom")
@@ -429,7 +435,7 @@ public class AnnotationCacheOperationSourceTests {
   }
 
   @CacheConfigFoo
-  // multiple sources
+  @CacheConfig(cacheNames = "myCache")  // multiple sources
   private static class MultipleCacheConfig {
 
     @Cacheable
@@ -437,6 +443,7 @@ public class AnnotationCacheOperationSourceTests {
     }
   }
 
+  @CacheConfig(cacheNames = "myCache")
   private interface CacheConfigIfc {
 
     @Cacheable
@@ -496,6 +503,9 @@ public class AnnotationCacheOperationSourceTests {
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
+  @CacheConfig(keyGenerator = "classKeyGenerator",
+               cacheManager = "classCacheManager",
+               cacheResolver = "classCacheResolver")
   public @interface CacheConfigFoo {
   }
 
