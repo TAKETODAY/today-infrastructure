@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
  * example, in Web MVC.
  *
  * <p>A common use case is to inject values using
- * <code>#{systemProperties.myProp}</code> style EL (Java Unified Expression Language)
+ * <code>#{systemProperties.myProp}</code> style EL (SpEL)
  * expressions. Alternatively, values may be injected using
  * <code>${my.app.myProp}</code> style property placeholders.
  *

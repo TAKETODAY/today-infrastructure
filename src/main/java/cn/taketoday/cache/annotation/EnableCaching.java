@@ -26,12 +26,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
-import cn.taketoday.context.annotation.AdviceMode;
-import cn.taketoday.context.annotation.Import;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.CacheInterceptor;
 import cn.taketoday.cache.interceptor.KeyGenerator;
+import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
+import cn.taketoday.context.annotation.AdviceMode;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.Ordered;
 
 /**

@@ -20,11 +20,12 @@
 
 package cn.taketoday.cache.annotation;
 
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.cache.interceptor.BeanFactoryCacheOperationSourceAdvisor;
-import cn.taketoday.cache.interceptor.CacheOperationSource;
 import cn.taketoday.cache.config.CacheManagementConfigUtils;
+import cn.taketoday.cache.interceptor.BeanFactoryCacheOperationSourceAdvisor;
 import cn.taketoday.cache.interceptor.CacheInterceptor;
+import cn.taketoday.cache.interceptor.CacheOperationSource;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
@@ -35,42 +36,43 @@ import cn.taketoday.context.annotation.Role;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @since 4.0
  * @see EnableCaching
  * @see CachingConfigurationSelector
+ * @since 4.0
  */
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProxyCachingConfiguration extends AbstractCachingConfiguration {
 
-	@Bean(name = CacheManagementConfigUtils.CACHE_ADVISOR_BEAN_NAME)
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public BeanFactoryCacheOperationSourceAdvisor cacheAdvisor(
-			CacheOperationSource cacheOperationSource, CacheInterceptor cacheInterceptor) {
+  @Bean(name = CacheManagementConfigUtils.CACHE_ADVISOR_BEAN_NAME)
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public BeanFactoryCacheOperationSourceAdvisor cacheAdvisor(
+          CacheOperationSource cacheOperationSource, CacheInterceptor cacheInterceptor) {
 
-		BeanFactoryCacheOperationSourceAdvisor advisor = new BeanFactoryCacheOperationSourceAdvisor();
-		advisor.setCacheOperationSource(cacheOperationSource);
-		advisor.setAdvice(cacheInterceptor);
-		if (this.enableCaching != null) {
-			advisor.setOrder(this.enableCaching.<Integer>getNumber("order"));
-		}
-		return advisor;
-	}
+    BeanFactoryCacheOperationSourceAdvisor advisor = new BeanFactoryCacheOperationSourceAdvisor();
+    advisor.setCacheOperationSource(cacheOperationSource);
+    advisor.setAdvice(cacheInterceptor);
+    if (this.enableCaching != null) {
+      advisor.setOrder(this.enableCaching.<Integer>getNumber("order"));
+    }
+    return advisor;
+  }
 
-	@Bean
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public CacheOperationSource cacheOperationSource() {
-		// Accept protected @Cacheable etc methods on CGLIB proxies, as of 6.0.
-		return new AnnotationCacheOperationSource(false);
-	}
+  @Bean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public CacheOperationSource cacheOperationSource() {
+    // Accept protected @Cacheable etc methods on CGLIB proxies, as of 6.0.
+    return new AnnotationCacheOperationSource(false);
+  }
 
-	@Bean
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {
-		CacheInterceptor interceptor = new CacheInterceptor();
-		interceptor.configure(this.errorHandler, this.keyGenerator, this.cacheResolver, this.cacheManager);
-		interceptor.setCacheOperationSource(cacheOperationSource);
-		return interceptor;
-	}
+  @Bean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {
+    CacheInterceptor interceptor = new CacheInterceptor();
+    interceptor.configure(this.errorHandler, this.keyGenerator, this.cacheResolver, this.cacheManager);
+    interceptor.setCacheOperationSource(cacheOperationSource);
+    return interceptor;
+  }
 
 }

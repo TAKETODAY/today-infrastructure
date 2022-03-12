@@ -20,13 +20,6 @@
 
 package cn.taketoday.cache.annotation;
 
-import cn.taketoday.cache.interceptor.CacheResolver;
-import cn.taketoday.cache.interceptor.SimpleCacheResolver;
-import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CacheManager;
-import cn.taketoday.cache.interceptor.KeyGenerator;
-import cn.taketoday.core.annotation.AliasFor;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -34,6 +27,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.Callable;
+
+import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.CacheManager;
+import cn.taketoday.cache.interceptor.CacheResolver;
+import cn.taketoday.cache.interceptor.KeyGenerator;
+import cn.taketoday.cache.interceptor.SimpleCacheResolver;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * Annotation indicating that the result of invoking a method (or all methods
@@ -60,134 +60,140 @@ import java.util.concurrent.Callable;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Sam Brannen
- * @since 4.0
  * @see CacheConfig
+ * @since 4.0
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface Cacheable {
 
-	/**
-	 * Alias for {@link #cacheNames}.
-	 */
-	@AliasFor("cacheNames")
-	String[] value() default {};
+  /**
+   * Alias for {@link #cacheNames}.
+   */
+  @AliasFor("cacheNames")
+  String[] value() default {};
 
-	/**
-	 * Names of the caches in which method invocation results are stored.
-	 * <p>Names may be used to determine the target cache (or caches), matching
-	 * the qualifier value or bean name of a specific bean definition.
-	 * @since 4.0
-	 * @see #value
-	 * @see CacheConfig#cacheNames
-	 */
-	@AliasFor("value")
-	String[] cacheNames() default {};
+  /**
+   * Names of the caches in which method invocation results are stored.
+   * <p>Names may be used to determine the target cache (or caches), matching
+   * the qualifier value or bean name of a specific bean definition.
+   *
+   * @see #value
+   * @see CacheConfig#cacheNames
+   * @since 4.0
+   */
+  @AliasFor("value")
+  String[] cacheNames() default {};
 
-	/**
-	 * Java Unified Expression Language (EL) expression for computing the key dynamically.
-	 * <p>Default is {@code ""}, meaning all method parameters are considered as a key,
-	 * unless a custom {@link #keyGenerator} has been configured.
-	 * <p>The EL expression evaluates against a dedicated context that provides the
-	 * following meta-data:
-	 * <ul>
-	 * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
-	 * references to the {@link java.lang.reflect.Method method}, target object, and
-	 * affected cache(s) respectively.</li>
-	 * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
-	 * ({@code #root.targetClass}) are also available.
-	 * <li>Method arguments can be accessed by index. For instance the second argument
-	 * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
-	 * can also be accessed by name if that information is available.</li>
-	 * </ul>
-	 */
-	String key() default "";
+  /**
+   * Expression Language (SpEL) expression for computing the key dynamically.
+   * <p>Default is {@code ""}, meaning all method parameters are considered as a key,
+   * unless a custom {@link #keyGenerator} has been configured.
+   * <p>The EL expression evaluates against a dedicated context that provides the
+   * following meta-data:
+   * <ul>
+   * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
+   * references to the {@link java.lang.reflect.Method method}, target object, and
+   * affected cache(s) respectively.</li>
+   * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
+   * ({@code #root.targetClass}) are also available.
+   * <li>Method arguments can be accessed by index. For instance the second argument
+   * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
+   * can also be accessed by name if that information is available.</li>
+   * </ul>
+   */
+  String key() default "";
 
-	/**
-	 * The bean name of the custom {@link KeyGenerator}
-	 * to use.
-	 * <p>Mutually exclusive with the {@link #key} attribute.
-	 * @see CacheConfig#keyGenerator
-	 */
-	String keyGenerator() default "";
+  /**
+   * The bean name of the custom {@link KeyGenerator}
+   * to use.
+   * <p>Mutually exclusive with the {@link #key} attribute.
+   *
+   * @see CacheConfig#keyGenerator
+   */
+  String keyGenerator() default "";
 
-	/**
-	 * The bean name of the custom {@link CacheManager} to use to
-	 * create a default {@link CacheResolver} if none
-	 * is set already.
-	 * <p>Mutually exclusive with the {@link #cacheResolver}  attribute.
-	 * @see SimpleCacheResolver
-	 * @see CacheConfig#cacheManager
-	 */
-	String cacheManager() default "";
+  /**
+   * The bean name of the custom {@link CacheManager} to use to
+   * create a default {@link CacheResolver} if none
+   * is set already.
+   * <p>Mutually exclusive with the {@link #cacheResolver}  attribute.
+   *
+   * @see SimpleCacheResolver
+   * @see CacheConfig#cacheManager
+   */
+  String cacheManager() default "";
 
-	/**
-	 * The bean name of the custom {@link CacheResolver}
-	 * to use.
-	 * @see CacheConfig#cacheResolver
-	 */
-	String cacheResolver() default "";
+  /**
+   * The bean name of the custom {@link CacheResolver}
+   * to use.
+   *
+   * @see CacheConfig#cacheResolver
+   */
+  String cacheResolver() default "";
 
-	/**
-	 * Java Unified Expression Language (EL) expression used for making the method
-	 * caching conditional.
-	 * <p>Default is {@code ""}, meaning the method result is always cached.
-	 * <p>The EL expression evaluates against a dedicated context that provides the
-	 * following meta-data:
-	 * <ul>
-	 * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
-	 * references to the {@link java.lang.reflect.Method method}, target object, and
-	 * affected cache(s) respectively.</li>
-	 * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
-	 * ({@code #root.targetClass}) are also available.
-	 * <li>Method arguments can be accessed by index. For instance the second argument
-	 * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
-	 * can also be accessed by name if that information is available.</li>
-	 * </ul>
-	 */
-	String condition() default "";
+  /**
+   * Expression Language (SpEL) expression used for making the method
+   * caching conditional.
+   * <p>Default is {@code ""}, meaning the method result is always cached.
+   * <p>The EL expression evaluates against a dedicated context that provides the
+   * following meta-data:
+   * <ul>
+   * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
+   * references to the {@link java.lang.reflect.Method method}, target object, and
+   * affected cache(s) respectively.</li>
+   * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
+   * ({@code #root.targetClass}) are also available.
+   * <li>Method arguments can be accessed by index. For instance the second argument
+   * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
+   * can also be accessed by name if that information is available.</li>
+   * </ul>
+   */
+  String condition() default "";
 
-	/**
-	 * Java Unified Expression Language (EL) expression used to veto method caching.
-	 * <p>Unlike {@link #condition}, this expression is evaluated after the method
-	 * has been called and can therefore refer to the {@code result}.
-	 * <p>Default is {@code ""}, meaning that caching is never vetoed.
-	 * <p>The EL expression evaluates against a dedicated context that provides the
-	 * following meta-data:
-	 * <ul>
-	 * <li>{@code #result} for a reference to the result of the method invocation. For
-	 * supported wrappers such as {@code Optional}, {@code #result} refers to the actual
-	 * object, not the wrapper</li>
-	 * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
-	 * references to the {@link java.lang.reflect.Method method}, target object, and
-	 * affected cache(s) respectively.</li>
-	 * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
-	 * ({@code #root.targetClass}) are also available.
-	 * <li>Method arguments can be accessed by index. For instance the second argument
-	 * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
-	 * can also be accessed by name if that information is available.</li>
-	 * </ul>
-	 * @since 4.0
-	 */
-	String unless() default "";
+  /**
+   * Expression Language (SpEL) expression used to veto method caching.
+   * <p>Unlike {@link #condition}, this expression is evaluated after the method
+   * has been called and can therefore refer to the {@code result}.
+   * <p>Default is {@code ""}, meaning that caching is never vetoed.
+   * <p>The EL expression evaluates against a dedicated context that provides the
+   * following meta-data:
+   * <ul>
+   * <li>{@code #result} for a reference to the result of the method invocation. For
+   * supported wrappers such as {@code Optional}, {@code #result} refers to the actual
+   * object, not the wrapper</li>
+   * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
+   * references to the {@link java.lang.reflect.Method method}, target object, and
+   * affected cache(s) respectively.</li>
+   * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
+   * ({@code #root.targetClass}) are also available.
+   * <li>Method arguments can be accessed by index. For instance the second argument
+   * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
+   * can also be accessed by name if that information is available.</li>
+   * </ul>
+   *
+   * @since 4.0
+   */
+  String unless() default "";
 
-	/**
-	 * Synchronize the invocation of the underlying method if several threads are
-	 * attempting to load a value for the same key. The synchronization leads to
-	 * a couple of limitations:
-	 * <ol>
-	 * <li>{@link #unless()} is not supported</li>
-	 * <li>Only one cache may be specified</li>
-	 * <li>No other cache-related operation can be combined</li>
-	 * </ol>
-	 * This is effectively a hint and the actual cache provider that you are
-	 * using may not support it in a synchronized fashion. Check your provider
-	 * documentation for more details on the actual semantics.
-	 * @since 4.0
-	 * @see Cache#get(Object, Callable)
-	 */
-	boolean sync() default false;
+  /**
+   * Synchronize the invocation of the underlying method if several threads are
+   * attempting to load a value for the same key. The synchronization leads to
+   * a couple of limitations:
+   * <ol>
+   * <li>{@link #unless()} is not supported</li>
+   * <li>Only one cache may be specified</li>
+   * <li>No other cache-related operation can be combined</li>
+   * </ol>
+   * This is effectively a hint and the actual cache provider that you are
+   * using may not support it in a synchronized fashion. Check your provider
+   * documentation for more details on the actual semantics.
+   *
+   * @see Cache#get(Object, Callable)
+   * @since 4.0
+   */
+  boolean sync() default false;
 
 }

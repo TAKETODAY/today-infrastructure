@@ -130,6 +130,7 @@ public class CachePutEvaluationTests {
     /**
      * Represent a mutual exclusion use case. The boolean flag exclude one of the two operation.
      */
+    // language=SpEL
     @Cacheable(condition = "#p1", key = "#p0")
     @CachePut(condition = "!#p1", key = "#p0")
     public Long getOrPut(Object id, boolean flag) {
@@ -140,8 +141,8 @@ public class CachePutEvaluationTests {
      * Represent an invalid use case. If the result of the operation is non null, then we put
      * the value with a different key. This forces the method to be executed every time.
      */
-    @Cacheable
-    @CachePut(key = "#{result + 100}", condition = "#{result != null}")
+    @Cacheable // language=SpEL
+    @CachePut(key = "#result + 100", condition = "#result != null")
     public Long getAndPut(long id) {
       return this.counter.getAndIncrement();
     }

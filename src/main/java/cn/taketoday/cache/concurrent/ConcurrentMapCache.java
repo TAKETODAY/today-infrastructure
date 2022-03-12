@@ -23,8 +23,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import cn.taketoday.cache.support.AbstractValueAdaptingCache;
 import cn.taketoday.cache.Cache;
+import cn.taketoday.cache.support.AbstractValueAdaptingCache;
 import cn.taketoday.cache.support.SimpleCacheManager;
 import cn.taketoday.core.serializer.support.SerializationDelegate;
 import cn.taketoday.lang.Assert;

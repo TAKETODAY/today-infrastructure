@@ -20,11 +20,11 @@
 
 package cn.taketoday.cache.annotation;
 
-import cn.taketoday.cache.interceptor.CacheOperation;
-import cn.taketoday.lang.Nullable;
-
 import java.lang.reflect.Method;
 import java.util.Collection;
+
+import cn.taketoday.cache.interceptor.CacheOperation;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy interface for parsing known caching annotation types.
@@ -35,52 +35,55 @@ import java.util.Collection;
  * @author Costin Leau
  * @author Stephane Nicoll
  * @author Juergen Hoeller
- * @since 4.0
  * @see AnnotationCacheOperationSource
  * @see FrameworkCacheAnnotationParser
+ * @since 4.0
  */
 public interface CacheAnnotationParser {
 
-	/**
-	 * Determine whether the given class is a candidate for cache operations
-	 * in the annotation format of this {@code CacheAnnotationParser}.
-	 * <p>If this method returns {@code false}, the methods on the given class
-	 * will not get traversed for {@code #parseCacheAnnotations} introspection.
-	 * Returning {@code false} is therefore an optimization for non-affected
-	 * classes, whereas {@code true} simply means that the class needs to get
-	 * fully introspected for each method on the given class individually.
-	 * @param targetClass the class to introspect
-	 * @return {@code false} if the class is known to have no cache operation
-	 * annotations at class or method level; {@code true} otherwise. The default
-	 * implementation returns {@code true}, leading to regular introspection.
-	 * @since 4.0
-	 */
-	default boolean isCandidateClass(Class<?> targetClass) {
-		return true;
-	}
+  /**
+   * Determine whether the given class is a candidate for cache operations
+   * in the annotation format of this {@code CacheAnnotationParser}.
+   * <p>If this method returns {@code false}, the methods on the given class
+   * will not get traversed for {@code #parseCacheAnnotations} introspection.
+   * Returning {@code false} is therefore an optimization for non-affected
+   * classes, whereas {@code true} simply means that the class needs to get
+   * fully introspected for each method on the given class individually.
+   *
+   * @param targetClass the class to introspect
+   * @return {@code false} if the class is known to have no cache operation
+   * annotations at class or method level; {@code true} otherwise. The default
+   * implementation returns {@code true}, leading to regular introspection.
+   * @since 4.0
+   */
+  default boolean isCandidateClass(Class<?> targetClass) {
+    return true;
+  }
 
-	/**
-	 * Parse the cache definition for the given class,
-	 * based on an annotation type understood by this parser.
-	 * <p>This essentially parses a known cache annotation into Framework's metadata
-	 * attribute class. Returns {@code null} if the class is not cacheable.
-	 * @param type the annotated class
-	 * @return the configured caching operation, or {@code null} if none found
-	 * @see AnnotationCacheOperationSource#findCacheOperations(Class)
-	 */
-	@Nullable
-	Collection<CacheOperation> parseCacheAnnotations(Class<?> type);
+  /**
+   * Parse the cache definition for the given class,
+   * based on an annotation type understood by this parser.
+   * <p>This essentially parses a known cache annotation into Framework's metadata
+   * attribute class. Returns {@code null} if the class is not cacheable.
+   *
+   * @param type the annotated class
+   * @return the configured caching operation, or {@code null} if none found
+   * @see AnnotationCacheOperationSource#findCacheOperations(Class)
+   */
+  @Nullable
+  Collection<CacheOperation> parseCacheAnnotations(Class<?> type);
 
-	/**
-	 * Parse the cache definition for the given method,
-	 * based on an annotation type understood by this parser.
-	 * <p>This essentially parses a known cache annotation into Framework's metadata
-	 * attribute class. Returns {@code null} if the method is not cacheable.
-	 * @param method the annotated method
-	 * @return the configured caching operation, or {@code null} if none found
-	 * @see AnnotationCacheOperationSource#findCacheOperations(Method)
-	 */
-	@Nullable
-	Collection<CacheOperation> parseCacheAnnotations(Method method);
+  /**
+   * Parse the cache definition for the given method,
+   * based on an annotation type understood by this parser.
+   * <p>This essentially parses a known cache annotation into Framework's metadata
+   * attribute class. Returns {@code null} if the method is not cacheable.
+   *
+   * @param method the annotated method
+   * @return the configured caching operation, or {@code null} if none found
+   * @see AnnotationCacheOperationSource#findCacheOperations(Method)
+   */
+  @Nullable
+  Collection<CacheOperation> parseCacheAnnotations(Method method);
 
 }

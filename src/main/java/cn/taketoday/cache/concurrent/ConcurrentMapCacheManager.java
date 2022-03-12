@@ -28,10 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.cache.support.CaffeineCacheManager;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.jcache.JCacheCacheManager;
+import cn.taketoday.cache.support.CaffeineCacheManager;
 import cn.taketoday.core.serializer.support.SerializationDelegate;
 import cn.taketoday.lang.Nullable;
 
@@ -68,8 +68,7 @@ public class ConcurrentMapCacheManager implements CacheManager, BeanClassLoaderA
    * Construct a dynamic ConcurrentMapCacheManager,
    * lazily creating cache instances as they are being requested.
    */
-  public ConcurrentMapCacheManager() {
-  }
+  public ConcurrentMapCacheManager() { }
 
   /**
    * Construct a static ConcurrentMapCacheManager,

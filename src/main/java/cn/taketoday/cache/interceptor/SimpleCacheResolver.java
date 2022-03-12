@@ -43,8 +43,7 @@ public class SimpleCacheResolver extends AbstractCacheResolver {
    *
    * @see #setCacheManager
    */
-  public SimpleCacheResolver() {
-  }
+  public SimpleCacheResolver() { }
 
   /**
    * Construct a new {@code SimpleCacheResolver} for the given {@link CacheManager}.

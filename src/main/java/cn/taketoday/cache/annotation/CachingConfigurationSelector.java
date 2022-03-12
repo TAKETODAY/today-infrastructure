@@ -20,14 +20,14 @@
 
 package cn.taketoday.cache.annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AdviceModeImportSelector;
 import cn.taketoday.context.annotation.AutoProxyRegistrar;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Selects which implementation of {@link AbstractCachingConfiguration} should
@@ -38,71 +38,69 @@ import java.util.List;
  *
  * @author Chris Beams
  * @author Stephane Nicoll
- * @since 4.0
  * @see EnableCaching
  * @see ProxyCachingConfiguration
+ * @since 4.0
  */
 public class CachingConfigurationSelector extends AdviceModeImportSelector<EnableCaching> {
 
-	private static final String PROXY_JCACHE_CONFIGURATION_CLASS =
-			"cn.taketoday.cache.jcache.config.ProxyJCacheConfiguration";
+  private static final String PROXY_JCACHE_CONFIGURATION_CLASS =
+          "cn.taketoday.cache.jcache.config.ProxyJCacheConfiguration";
 
-	private static final String CACHE_ASPECT_CONFIGURATION_CLASS_NAME =
-			"cn.taketoday.cache.aspectj.AspectJCachingConfiguration";
+  private static final String CACHE_ASPECT_CONFIGURATION_CLASS_NAME =
+          "cn.taketoday.cache.aspectj.AspectJCachingConfiguration";
 
-	private static final String JCACHE_ASPECT_CONFIGURATION_CLASS_NAME =
-			"cn.taketoday.cache.aspectj.AspectJJCacheConfiguration";
+  private static final String JCACHE_ASPECT_CONFIGURATION_CLASS_NAME =
+          "cn.taketoday.cache.aspectj.AspectJJCacheConfiguration";
 
+  private static final boolean jsr107Present;
 
-	private static final boolean jsr107Present;
+  private static final boolean jcacheImplPresent;
 
-	private static final boolean jcacheImplPresent;
+  static {
+    ClassLoader classLoader = CachingConfigurationSelector.class.getClassLoader();
+    jsr107Present = ClassUtils.isPresent("javax.cache.Cache", classLoader);
+    jcacheImplPresent = ClassUtils.isPresent(PROXY_JCACHE_CONFIGURATION_CLASS, classLoader);
+  }
 
-	static {
-		ClassLoader classLoader = CachingConfigurationSelector.class.getClassLoader();
-		jsr107Present = ClassUtils.isPresent("javax.cache.Cache", classLoader);
-		jcacheImplPresent = ClassUtils.isPresent(PROXY_JCACHE_CONFIGURATION_CLASS, classLoader);
-	}
+  /**
+   * Returns {@link ProxyCachingConfiguration} or {@code AspectJCachingConfiguration}
+   * for {@code PROXY} and {@code ASPECTJ} values of {@link EnableCaching#mode()},
+   * respectively. Potentially includes corresponding JCache configuration as well.
+   */
+  @Override
+  public String[] selectImports(AdviceMode adviceMode) {
+    return switch (adviceMode) {
+      case PROXY -> getProxyImports();
+      case ASPECTJ -> getAspectJImports();
+    };
+  }
 
+  /**
+   * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#PROXY}.
+   * <p>Take care of adding the necessary JSR-107 import if it is available.
+   */
+  private String[] getProxyImports() {
+    List<String> result = new ArrayList<>(3);
+    result.add(AutoProxyRegistrar.class.getName());
+    result.add(ProxyCachingConfiguration.class.getName());
+    if (jsr107Present && jcacheImplPresent) {
+      result.add(PROXY_JCACHE_CONFIGURATION_CLASS);
+    }
+    return StringUtils.toStringArray(result);
+  }
 
-	/**
-	 * Returns {@link ProxyCachingConfiguration} or {@code AspectJCachingConfiguration}
-	 * for {@code PROXY} and {@code ASPECTJ} values of {@link EnableCaching#mode()},
-	 * respectively. Potentially includes corresponding JCache configuration as well.
-	 */
-	@Override
-	public String[] selectImports(AdviceMode adviceMode) {
-		return switch (adviceMode) {
-			case PROXY -> getProxyImports();
-			case ASPECTJ -> getAspectJImports();
-		};
-	}
-
-	/**
-	 * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#PROXY}.
-	 * <p>Take care of adding the necessary JSR-107 import if it is available.
-	 */
-	private String[] getProxyImports() {
-		List<String> result = new ArrayList<>(3);
-		result.add(AutoProxyRegistrar.class.getName());
-		result.add(ProxyCachingConfiguration.class.getName());
-		if (jsr107Present && jcacheImplPresent) {
-			result.add(PROXY_JCACHE_CONFIGURATION_CLASS);
-		}
-		return StringUtils.toStringArray(result);
-	}
-
-	/**
-	 * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#ASPECTJ}.
-	 * <p>Take care of adding the necessary JSR-107 import if it is available.
-	 */
-	private String[] getAspectJImports() {
-		List<String> result = new ArrayList<>(2);
-		result.add(CACHE_ASPECT_CONFIGURATION_CLASS_NAME);
-		if (jsr107Present && jcacheImplPresent) {
-			result.add(JCACHE_ASPECT_CONFIGURATION_CLASS_NAME);
-		}
-		return StringUtils.toStringArray(result);
-	}
+  /**
+   * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#ASPECTJ}.
+   * <p>Take care of adding the necessary JSR-107 import if it is available.
+   */
+  private String[] getAspectJImports() {
+    List<String> result = new ArrayList<>(2);
+    result.add(CACHE_ASPECT_CONFIGURATION_CLASS_NAME);
+    if (jsr107Present && jcacheImplPresent) {
+      result.add(JCACHE_ASPECT_CONFIGURATION_CLASS_NAME);
+    }
+    return StringUtils.toStringArray(result);
+  }
 
 }

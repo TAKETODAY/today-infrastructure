@@ -22,6 +22,7 @@ package cn.taketoday.cache.config;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.cache.CacheManager;
@@ -48,6 +49,7 @@ import cn.taketoday.contextsupport.testfixture.cache.beans.CacheableService;
 import cn.taketoday.contextsupport.testfixture.cache.beans.DefaultCacheableService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Integration tests for {@code @EnableCaching} and its related
@@ -107,12 +109,11 @@ public class EnableCachingTests extends AbstractCacheAnnotationTests {
   public void multipleCachingConfigurers() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(MultiCacheManagerConfigurer.class, EnableCachingConfig.class);
-    try {
-      ctx.refresh();
-    }
-    catch (IllegalStateException ex) {
-      assertThat(ex.getMessage().contains("implementations of CachingConfigurer")).isTrue();
-    }
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(ctx::refresh)
+            .havingRootCause()
+            .withMessageContaining("implementations of CachingConfigurer");
   }
 
   @Test

@@ -37,16 +37,16 @@ import java.lang.annotation.Target;
  * @author Chris Beams
  * @since 4.0
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface Caching {
 
-	Cacheable[] cacheable() default {};
+  Cacheable[] cacheable() default {};
 
-	CachePut[] put() default {};
+  CachePut[] put() default {};
 
-	CacheEvict[] evict() default {};
+  CacheEvict[] evict() default {};
 
 }

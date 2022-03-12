@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
+import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.annotation.CachingConfigurer;
 import cn.taketoday.cache.annotation.EnableCaching;
@@ -135,15 +136,15 @@ public class CacheResolverCustomizationTests {
   @Test
   public void noCacheResolved() {
     Method method = ReflectionUtils.findMethod(SimpleService.class, "noCacheResolved", Object.class);
-    assertThatIllegalStateException().isThrownBy(() ->
-                    this.simpleService.noCacheResolved(new Object()))
+    assertThatIllegalStateException()
+            .isThrownBy(() -> simpleService.noCacheResolved(new Object()))
             .withMessageContaining(method.toString());
   }
 
   @Test
   public void unknownCacheResolver() {
-    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-                    this.simpleService.unknownCacheResolver(new Object()))
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> simpleService.unknownCacheResolver(new Object()))
             .satisfies(ex -> assertThat(ex.getBeanName()).isEqualTo("unknownCacheResolver"));
   }
 
@@ -196,6 +197,7 @@ public class CacheResolverCustomizationTests {
     }
   }
 
+  @CacheConfig(cacheNames = "default")
   static class SimpleService {
 
     private final AtomicLong counter = new AtomicLong();

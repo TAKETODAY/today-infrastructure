@@ -46,7 +46,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 public @interface ConditionalOnExpression {
 
   /**
-   * The Java Unified Expression Language expression to evaluate. Expression
+   * The Expression Language expression to evaluate. Expression
    * should return {@code true} if the condition passes or {@code false} if it
    * fails.
    *

@@ -108,8 +108,10 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * suppliers, applying the corresponding default if a supplier is not resolvable.
    */
   public void configure(
-          @Nullable Supplier<CacheErrorHandler> errorHandler, @Nullable Supplier<KeyGenerator> keyGenerator,
-          @Nullable Supplier<CacheResolver> cacheResolver, @Nullable Supplier<CacheManager> cacheManager) {
+          @Nullable Supplier<CacheErrorHandler> errorHandler,
+          @Nullable Supplier<KeyGenerator> keyGenerator,
+          @Nullable Supplier<CacheResolver> cacheResolver,
+          @Nullable Supplier<CacheManager> cacheManager) {
 
     this.errorHandler = new SingletonSupplier<>(errorHandler, SimpleCacheErrorHandler::new);
     this.keyGenerator = new SingletonSupplier<>(keyGenerator, SimpleKeyGenerator::new);
@@ -342,7 +344,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       CacheOperationSource cacheOperationSource = getCacheOperationSource();
       if (cacheOperationSource != null) {
         Collection<CacheOperation> operations = cacheOperationSource.getCacheOperations(method, targetClass);
-        if (!CollectionUtils.isEmpty(operations)) {
+        if (CollectionUtils.isNotEmpty(operations)) {
           return execute(invoker, method,
                   new CacheOperationContexts(operations, method, args, target, targetClass));
         }

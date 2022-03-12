@@ -20,6 +20,7 @@
 
 package cn.taketoday.cache.jcache.config;
 
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.cache.annotation.CachingConfigurationSelector;
 import cn.taketoday.cache.annotation.EnableCaching;
@@ -43,6 +44,7 @@ import cn.taketoday.context.annotation.Role;
  * @see CachingConfigurationSelector
  * @since 4.0
  */
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProxyJCacheConfiguration extends AbstractJCacheConfiguration {

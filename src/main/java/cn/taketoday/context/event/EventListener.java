@@ -103,7 +103,7 @@ public @interface EventListener {
   Class<?>[] event() default {};
 
   /**
-   * Expression Language (EL) expression used for making the event
+   * Expression Language (SpEL) expression used for making the event
    * handling conditional.
    * <p>The event will be handled if the expression evaluates to boolean
    * {@code true} or one of the following strings: {@code "true"}, {@code "on"},

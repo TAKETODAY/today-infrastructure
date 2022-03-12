@@ -26,10 +26,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.CacheResolver;
 import cn.taketoday.cache.interceptor.KeyGenerator;
 import cn.taketoday.cache.interceptor.SimpleCacheResolver;
-import cn.taketoday.cache.CacheManager;
 
 /**
  * {@code @CacheConfig} provides a mechanism for sharing common cache-related

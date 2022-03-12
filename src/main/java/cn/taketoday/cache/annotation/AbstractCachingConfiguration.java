@@ -23,13 +23,12 @@ package cn.taketoday.cache.annotation;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.CacheErrorHandler;
 import cn.taketoday.cache.interceptor.CacheResolver;
-import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.KeyGenerator;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.aware.ImportAware;
@@ -80,7 +79,7 @@ public abstract class AbstractCachingConfiguration implements ImportAware {
   @Autowired
   void setConfigurers(ObjectProvider<CachingConfigurer> configurers) {
     Supplier<CachingConfigurer> configurer = () -> {
-      List<CachingConfigurer> candidates = configurers.stream().collect(Collectors.toList());
+      List<CachingConfigurer> candidates = configurers.stream().toList();
       if (CollectionUtils.isEmpty(candidates)) {
         return null;
       }

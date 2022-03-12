@@ -88,8 +88,9 @@ public abstract class AbstractCacheResolver implements CacheResolver, Initializi
       return Collections.emptyList();
     }
     ArrayList<Cache> result = new ArrayList<>(cacheNames.size());
+    CacheManager cacheManager = getCacheManager();
     for (String cacheName : cacheNames) {
-      Cache cache = getCacheManager().getCache(cacheName);
+      Cache cache = cacheManager.getCache(cacheName);
       if (cache == null) {
         throw new IllegalArgumentException("Cannot find cache named '" +
                 cacheName + "' for " + context.getOperation());

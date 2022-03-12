@@ -492,7 +492,7 @@ public abstract class AbstractApplicationContext
   //---------------------------------------------------------------------
 
   @Override
-  public void refresh() throws IllegalStateException {
+  public void refresh() throws BeansException, IllegalStateException {
     synchronized(this.startupShutdownMonitor) {
 
       // Prepare this context for refreshing.
@@ -539,6 +539,8 @@ public abstract class AbstractApplicationContext
       }
 
       catch (BeansException ex) {
+        applyState(State.FAILED);
+
         log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
                 ex.toString());
 
@@ -547,7 +549,6 @@ public abstract class AbstractApplicationContext
 
         // Reset 'active' flag.
         cancelRefresh(ex);
-        applyState(State.FAILED);
         // Propagate exception to caller.
         throw ex;
       }

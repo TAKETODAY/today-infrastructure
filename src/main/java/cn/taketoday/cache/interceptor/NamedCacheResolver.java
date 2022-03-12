@@ -20,12 +20,11 @@
 
 package cn.taketoday.cache.interceptor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * A {@link CacheResolver} that forces the resolution to a configurable
@@ -39,12 +38,11 @@ public class NamedCacheResolver extends AbstractCacheResolver {
   @Nullable
   private Collection<String> cacheNames;
 
-  public NamedCacheResolver() {
-  }
+  public NamedCacheResolver() { }
 
   public NamedCacheResolver(CacheManager cacheManager, String... cacheNames) {
     super(cacheManager);
-    this.cacheNames = new ArrayList<>(Arrays.asList(cacheNames));
+    this.cacheNames = CollectionUtils.newArrayList(cacheNames);
   }
 
   /**

@@ -64,7 +64,7 @@ class CacheResolverAdapter implements CacheResolver {
     if (!(context instanceof CacheInvocationContext<?> cacheInvocationContext)) {
       throw new IllegalStateException("Unexpected context " + context);
     }
-    javax.cache.Cache<Object, Object> cache = this.target.resolveCache(cacheInvocationContext);
+    javax.cache.Cache<Object, Object> cache = target.resolveCache(cacheInvocationContext);
     if (cache == null) {
       throw new IllegalStateException("Could not resolve cache for " + context + " using " + this.target);
     }
