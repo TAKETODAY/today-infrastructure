@@ -943,14 +943,19 @@ public class ResolvableType implements Serializable {
     if (!Objects.equals(this.type, otherType.type)) {
       return false;
     }
-    if (this.typeProvider != otherType.typeProvider &&
-            (this.typeProvider == null || otherType.typeProvider == null ||
-                    !Objects.equals(this.typeProvider.getType(), otherType.typeProvider.getType()))) {
+    if (typeProvider != otherType.typeProvider
+            && (
+            typeProvider == null
+                    || otherType.typeProvider == null
+                    || !Objects.equals(this.typeProvider.getType(), otherType.typeProvider.getType())
+    )) {
       return false;
     }
-    if (this.variableResolver != otherType.variableResolver &&
-            (this.variableResolver == null || otherType.variableResolver == null ||
-                    !ObjectUtils.nullSafeEquals(this.variableResolver.getSource(), otherType.variableResolver.getSource()))) {
+    if (variableResolver != otherType.variableResolver
+            && (variableResolver == null
+            || otherType.variableResolver == null
+            || !ObjectUtils.nullSafeEquals(variableResolver.getSource(), otherType.variableResolver.getSource())
+    )) {
       return false;
     }
     return Objects.equals(this.componentType, otherType.componentType);
@@ -967,7 +972,7 @@ public class ResolvableType implements Serializable {
       hashCode = 31 * hashCode + Objects.hashCode(this.typeProvider.getType());
     }
     if (this.variableResolver != null) {
-      hashCode = 31 * hashCode + Objects.hashCode(this.variableResolver.getSource());
+      hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.variableResolver.getSource());
     }
     if (this.componentType != null) {
       hashCode = 31 * hashCode + Objects.hashCode(this.componentType);
@@ -1507,8 +1512,8 @@ public class ResolvableType implements Serializable {
    * @param variableResolver the variable resolver or {@code null}
    * @return a {@link ResolvableType} for the specified {@link Type} and {@link VariableResolver}
    */
-  public static ResolvableType valueOf(
-          @Nullable Type type, @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
+  public static ResolvableType valueOf(@Nullable Type type,
+          @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
 
     if (type == null && typeProvider != null) {
       type = SerializableTypeWrapper.fromTypeProvider(typeProvider);
@@ -1561,6 +1566,7 @@ public class ResolvableType implements Serializable {
      * @param variable the variable to resolve
      * @return the resolved variable, or {@code null} if not found
      */
+    @Nullable
     ResolvableType resolveVariable(TypeVariable<?> variable);
   }
 
@@ -1571,6 +1577,7 @@ public class ResolvableType implements Serializable {
       this.source = resolvableType;
     }
 
+    @Nullable
     @Override
     public ResolvableType resolveVariable(TypeVariable<?> variable) {
       return this.source.resolveVariable(variable);

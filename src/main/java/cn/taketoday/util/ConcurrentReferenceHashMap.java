@@ -575,7 +575,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      *
      * @param allowResize if resizing is permitted
      */
-    protected final void restructureIfNecessary(boolean allowResize) {
+    private void restructureIfNecessary(boolean allowResize) {
       int currCount = this.count.get();
       boolean needsResize = allowResize && (currCount > 0 && currCount >= this.resizeThreshold);
       Reference<K, V> ref = this.referenceManager.pollForPurge();

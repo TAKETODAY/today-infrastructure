@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -43,7 +42,6 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Abstract implementation of the {@link ApplicationEventMulticaster} interface,
@@ -71,7 +69,7 @@ public abstract class AbstractApplicationEventMulticaster
 
   private final ListenerRetriever retriever = new ListenerRetriever();
 
-  final Map<ListenerCacheKey, CachedListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
+  final ConcurrentHashMap<ListenerCacheKey, CachedListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
   @Nullable
   private ClassLoader beanClassLoader;
@@ -301,12 +299,11 @@ public abstract class AbstractApplicationEventMulticaster
     if (retriever != null) {
       if (filteredListenerBeans.isEmpty()) {
         retriever.applicationListeners = new LinkedHashSet<>(allListeners);
-        retriever.applicationListenerBeans = filteredListenerBeans;
       }
       else {
         retriever.applicationListeners = filteredListeners;
-        retriever.applicationListenerBeans = filteredListenerBeans;
       }
+      retriever.applicationListenerBeans = filteredListenerBeans;
     }
     return allListeners;
   }
@@ -391,52 +388,25 @@ public abstract class AbstractApplicationEventMulticaster
   /**
    * Cache key for ListenerRetrievers, based on event type and source type.
    */
-  private static final class ListenerCacheKey implements Comparable<ListenerCacheKey> {
+  private record ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) implements Comparable<ListenerCacheKey> {
 
-    private final ResolvableType eventType;
-
-    @Nullable
-    private final Class<?> sourceType;
-
-    public ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) {
+    private ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) {
       Assert.notNull(eventType, "Event type must not be null");
       this.eventType = eventType;
       this.sourceType = sourceType;
     }
 
     @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (!(other instanceof ListenerCacheKey otherKey)) {
-        return false;
-      }
-      return (this.eventType.equals(otherKey.eventType) &&
-              ObjectUtils.nullSafeEquals(this.sourceType, otherKey.sourceType));
-    }
-
-    @Override
-    public int hashCode() {
-      return this.eventType.hashCode() * 29 + ObjectUtils.nullSafeHashCode(this.sourceType);
-    }
-
-    @Override
-    public String toString() {
-      return "ListenerCacheKey [eventType = " + this.eventType + ", sourceType = " + this.sourceType + "]";
-    }
-
-    @Override
     public int compareTo(ListenerCacheKey other) {
-      int result = this.eventType.toString().compareTo(other.eventType.toString());
+      int result = eventType.toString().compareTo(other.eventType.toString());
       if (result == 0) {
-        if (this.sourceType == null) {
+        if (sourceType == null) {
           return (other.sourceType == null ? 0 : -1);
         }
         if (other.sourceType == null) {
           return 1;
         }
-        result = this.sourceType.getName().compareTo(other.sourceType.getName());
+        result = sourceType.getName().compareTo(other.sourceType.getName());
       }
       return result;
     }
