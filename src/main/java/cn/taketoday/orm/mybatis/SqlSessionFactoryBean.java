@@ -46,8 +46,8 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.loader.ClassPathScanningComponentProvider;
 import cn.taketoday.context.loader.MetadataReaderConsumer;

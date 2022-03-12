@@ -21,6 +21,7 @@
 package test.mixin;
 
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
+import test.aop.Lockable;
 
 /**
  * Advisor for use with a LockMixin. Applies to all classes.
@@ -30,8 +31,8 @@ import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 @SuppressWarnings("serial")
 public class LockMixinAdvisor extends DefaultIntroductionAdvisor {
 
-	public LockMixinAdvisor() {
-		super(new LockMixin(), Lockable.class);
-	}
+  public LockMixinAdvisor() {
+    super(new LockMixin(), Lockable.class);
+  }
 
 }

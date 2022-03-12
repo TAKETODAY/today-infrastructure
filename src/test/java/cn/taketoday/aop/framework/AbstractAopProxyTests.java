@@ -73,9 +73,9 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.testfixture.TimeStamped;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
+import test.aop.Lockable;
 import test.mixin.LockMixin;
 import test.mixin.LockMixinAdvisor;
-import test.mixin.Lockable;
 import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -567,7 +567,7 @@ public abstract class AbstractAopProxyTests {
     itb.setAge(newAge);
     assertThat(itb.getAge()).isEqualTo(newAge);
 
-    test.mixin.Lockable lockable = (Lockable) itb;
+    Lockable lockable = (Lockable) itb;
     assertThat(lockable.locked()).isFalse();
     lockable.lock();
 
