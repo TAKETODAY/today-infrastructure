@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.support.AbstractPointcutAdvisor;
-import cn.taketoday.aop.support.AnnotationMatchingPointcut;
+import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.ComposablePointcut;
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.beans.factory.BeanFactory;

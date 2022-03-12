@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.support.AbstractPointcutAdvisor;
-import cn.taketoday.aop.support.AnnotationMatchingPointcut;
+import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.dao.support.PersistenceExceptionTranslationInterceptor;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;

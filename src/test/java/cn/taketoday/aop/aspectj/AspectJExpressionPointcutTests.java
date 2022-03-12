@@ -204,10 +204,10 @@ public class AspectJExpressionPointcutTests {
     //assertDoesNotMatchStringClass(classFilter);
 
     DefaultMethodInvocation invocation = new DefaultMethodInvocation(
-            null, setSomeNumber, TestBean.class, new Object[] { 12D });
+            null, new TestBean(), setSomeNumber, TestBean.class, new Object[] { 12D }, null);
 
     DefaultMethodInvocation invocation1 = new DefaultMethodInvocation(
-            null, setSomeNumber, TestBean.class, new Object[] { 11 });
+            null, new TestBean(), setSomeNumber, TestBean.class, new Object[] { 11 }, null);
 
     assertThat(methodMatcher.matches(invocation)).as("Should match with setSomeNumber with Double input").isTrue();
     assertThat(methodMatcher.matches(invocation1)).as("Should not match setSomeNumber with Integer input").isFalse();

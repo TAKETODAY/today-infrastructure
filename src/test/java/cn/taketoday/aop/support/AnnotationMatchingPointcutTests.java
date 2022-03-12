@@ -24,6 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.MethodMatcher;
 import cn.taketoday.aop.Pointcut;
+import cn.taketoday.aop.support.annotation.AnnotationClassFilter;
+import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
+import cn.taketoday.aop.support.annotation.AnnotationMethodMatcher;
 import jakarta.inject.Qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;

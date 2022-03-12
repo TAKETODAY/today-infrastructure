@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
-import cn.taketoday.aop.support.AnnotationMatchingPointcut;
+import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
