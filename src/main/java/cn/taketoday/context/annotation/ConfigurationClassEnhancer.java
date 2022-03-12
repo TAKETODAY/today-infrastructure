@@ -283,6 +283,14 @@ class ConfigurationClassEnhancer {
       ConfigurableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);
       String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod);
 
+      // Determine whether this bean is a scoped-proxy
+      if (BeanAnnotationHelper.isScopedProxy(beanMethod)) {
+        String scopedBeanName = ScopedProxyCreator.getTargetBeanName(beanName);
+        if (beanFactory.isCurrentlyInCreation(scopedBeanName)) {
+          beanName = scopedBeanName;
+        }
+      }
+
       // To handle the case of an inter-bean method reference, we must explicitly check the
       // container for already cached instances.
 
@@ -323,8 +331,7 @@ class ConfigurationClassEnhancer {
       return resolveBeanReference(beanMethod, beanMethodArgs, beanFactory, beanName);
     }
 
-    private Object resolveBeanReference(
-            Method beanMethod, Object[] beanMethodArgs,
+    private Object resolveBeanReference(Method beanMethod, Object[] beanMethodArgs,
             ConfigurableBeanFactory beanFactory, String beanName) {
 
       // The user (i.e. not the factory) is requesting this bean through a call to
@@ -348,9 +355,10 @@ class ConfigurationClassEnhancer {
             }
           }
         }
-        Object beanInstance = useArgs ? beanFactory.getBean(beanName, beanMethodArgs) : beanFactory.getBean(beanName);
+        Object beanInstance = useArgs ? beanFactory.getBean(beanName, beanMethodArgs)
+                                      : beanFactory.getBean(beanName);
         if (!ClassUtils.isAssignableValue(beanMethod.getReturnType(), beanInstance)) {
-          if (beanInstance == null) {
+          if (beanInstance == null) { // maybe null from factory-method
             if (log.isDebugEnabled()) {
               log.debug(String.format("@Component method %s.%s called as bean reference " +
                               "for type [%s] returned null bean; resolving to null value.",
@@ -441,8 +449,7 @@ class ConfigurationClassEnhancer {
      * instance directly. If a FactoryBean instance is fetched through the container via &-dereferencing,
      * it will not be proxied. This too is aligned with the way XML configuration works.
      */
-    private Object enhanceFactoryBean(
-            Object factoryBean, Class<?> exposedType,
+    private Object enhanceFactoryBean(Object factoryBean, Class<?> exposedType,
             ConfigurableBeanFactory beanFactory, String beanName) {
 
       try {

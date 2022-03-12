@@ -21,7 +21,6 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -37,7 +36,11 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
  */
 abstract class BeanAnnotationHelper {
 
-  private static final Map<Method, String> beanNameCache = new ConcurrentReferenceHashMap<>();
+  private static final ConcurrentReferenceHashMap<Method, String> beanNameCache
+          = new ConcurrentReferenceHashMap<>();
+
+  private static final ConcurrentReferenceHashMap<Method, Boolean> scopedProxyCache
+          = new ConcurrentReferenceHashMap<>();
 
   public static boolean isBeanAnnotated(Method method) {
     return AnnotatedElementUtils.hasAnnotation(method, Component.class);
@@ -60,6 +63,17 @@ abstract class BeanAnnotationHelper {
       beanNameCache.put(beanMethod, beanName);
     }
     return beanName;
+  }
+
+  public static boolean isScopedProxy(Method beanMethod) {
+    Boolean scopedProxy = scopedProxyCache.get(beanMethod);
+    if (scopedProxy == null) {
+      AnnotationAttributes scope =
+              AnnotatedElementUtils.findMergedAnnotationAttributes(beanMethod, Scope.class, false, false);
+      scopedProxy = (scope != null && scope.getEnum("proxyMode") != ScopedProxyMode.NO);
+      scopedProxyCache.put(beanMethod, scopedProxy);
+    }
+    return scopedProxy;
   }
 
 }

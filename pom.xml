@@ -405,14 +405,8 @@
     <dependency>
       <groupId>org.redisson</groupId>
       <artifactId>redisson</artifactId>
-      <version>3.16.4</version>
+      <version>3.16.8</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.cache</groupId>
-          <artifactId>cache-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -432,10 +426,16 @@
     <dependency>
       <groupId>org.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>3.4.0</version>
+      <version>3.9.9</version>
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <version>1.1.1</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>com.jamonapi</groupId>
@@ -803,12 +803,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>javax.cache</groupId>
-      <artifactId>cache-api</artifactId>
-      <version>1.1.1</version>
-      <scope>provided</scope>
-    </dependency>
 
     <!--
         ======================================================
