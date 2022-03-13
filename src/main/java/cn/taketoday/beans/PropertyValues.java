@@ -22,11 +22,13 @@ package cn.taketoday.beans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -53,6 +55,9 @@ public class PropertyValues implements Iterable<PropertyValue> {
   private ArrayList<PropertyValue> propertyValues;
 
   private volatile boolean converted;
+
+  @Nullable
+  private Set<String> processedProperties;
 
   /**
    * Creates a new empty PropertyValues object.
@@ -197,7 +202,8 @@ public class PropertyValues implements Iterable<PropertyValue> {
    * @return whether there is a property value for this property
    */
   public boolean contains(String propertyName) {
-    return propertyValues != null && getPropertyValue(propertyName) != null;
+    return (propertyValues != null && getPropertyValue(propertyName) != null)
+            || (processedProperties != null && processedProperties.contains(propertyName));
   }
 
   /**
@@ -465,6 +471,31 @@ public class PropertyValues implements Iterable<PropertyValue> {
    */
   public boolean isConverted() {
     return this.converted;
+  }
+
+  /**
+   * Register the specified property as "processed" in the sense
+   * of some processor calling the corresponding setter method
+   * outside of the PropertyValue(s) mechanism.
+   * <p>This will lead to {@code true} being returned from
+   * a {@link #contains} call for the specified property.
+   *
+   * @param propertyName the name of the property.
+   */
+  public void registerProcessedProperty(String propertyName) {
+    if (processedProperties == null) {
+      this.processedProperties = new HashSet<>(4);
+    }
+    processedProperties.add(propertyName);
+  }
+
+  /**
+   * Clear the "processed" registration of the given property, if any.
+   */
+  public void clearProcessedProperty(String propertyName) {
+    if (processedProperties != null) {
+      processedProperties.remove(propertyName);
+    }
   }
 
   @Override
