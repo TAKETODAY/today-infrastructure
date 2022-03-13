@@ -37,6 +37,6 @@ import cn.taketoday.lang.Service;
 @Scope("prototype")
 public @interface CustomStereotype {
 
-  String value() default "thoreau";
+  String[] value() default "thoreau";
 
 }

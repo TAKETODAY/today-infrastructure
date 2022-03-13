@@ -40,6 +40,7 @@ import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -303,7 +304,10 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
       try {
         scanCandidateComponents(basePackage, (metadataReader, factory) -> {
           ScannedGenericBeanDefinition candidate = new ScannedGenericBeanDefinition(metadataReader);
-          candidate.setResource(metadataReader.getResource());
+          Resource resource = metadataReader.getResource();
+          candidate.setSource(resource);
+          candidate.setResource(resource);
+
           ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(candidate);
           candidate.setScope(scopeMetadata.getScopeName());
           String beanName = beanNameGenerator.generateBeanName(candidate, registry);
