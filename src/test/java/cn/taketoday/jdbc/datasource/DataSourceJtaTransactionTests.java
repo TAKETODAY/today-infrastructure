@@ -706,8 +706,8 @@ public class DataSourceJtaTransactionTests {
       targetDataSources.put("ISOLATION_REPEATABLE_READ", "ds2");
       dsToUse.setDefaultTargetDataSource("ds1");
       StandardBeanFactory beanFactory = new StandardBeanFactory();
-      beanFactory.registerBean("ds1", () -> dataSource1);
-      beanFactory.registerBean("ds2", () -> dataSource2);
+      beanFactory.registerSingleton("ds1", dataSource1);
+      beanFactory.registerSingleton("ds2", dataSource2);
       dsToUse.setDataSourceLookup(new BeanFactoryDataSourceLookup(beanFactory));
     }
     else {

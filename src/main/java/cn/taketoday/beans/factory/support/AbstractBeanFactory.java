@@ -129,10 +129,6 @@ public abstract class AbstractBeanFactory
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   /** @since 4.0 */
-  @Nullable // lazy load
-  private ConcurrentHashMap<String, Supplier<?>> beanSupplier;
-
-  /** @since 4.0 */
   private DependencyInjector dependencyInjector;
 
   /** Parent bean factory, for bean inheritance support. @since 4.0 */
@@ -236,14 +232,7 @@ public abstract class AbstractBeanFactory
       }
 
       if (!containsBeanDefinition(beanName)) {
-        // 2. definition not exist in this factory
-        if (beanSupplier != null) {
-          Supplier<?> supplier = beanSupplier.get(beanName);
-          if (supplier != null && args == null) {
-            return (T) supplier.get();
-          }
-        }
-        // 3. Check if bean definition not exists in this factory.
+        // 2. Check if bean definition not exists in this factory.
         BeanFactory parentBeanFactory = getParentBeanFactory();
         if (parentBeanFactory != null) {
           // Not found -> check parent.
@@ -264,9 +253,7 @@ public abstract class AbstractBeanFactory
             return (T) parentBeanFactory.getBean(nameToLookup);
           }
         }
-
-        // don't throw exception
-        return null;
+        // no such bean
       }
 
       if (!typeCheckOnly) {
@@ -295,7 +282,7 @@ public abstract class AbstractBeanFactory
           }
         }
 
-        // 4. Create bean instance.
+        // 3. Create bean instance.
         if (merged.isSingleton()) {
           beanInstance = getSingleton(beanName, () -> {
             try {
@@ -1290,10 +1277,6 @@ public abstract class AbstractBeanFactory
       this.typeConverter = beanFactory.typeConverter;
       this.customEditors.putAll(beanFactory.customEditors);
       this.propertyEditorRegistrars.addAll(beanFactory.propertyEditorRegistrars);
-
-      if (beanFactory.beanSupplier != null) {
-        beanSupplier().putAll(beanFactory.beanSupplier);
-      }
     }
     else {
       String[] otherScopeNames = otherFactory.getRegisteredScopeNames();
@@ -1304,26 +1287,6 @@ public abstract class AbstractBeanFactory
   }
 
   // beanSupplier
-
-  public <T> void registerBean(String name, Supplier<T> supplier) throws BeanDefinitionStoreException {
-    Assert.notNull(name, "bean-name must not be null");
-    Assert.notNull(supplier, "bean-instance-supplier must not be null");
-    beanSupplier().put(name, supplier);
-  }
-
-  protected ConcurrentHashMap<String, Supplier<?>> beanSupplier() {
-    ConcurrentHashMap<String, Supplier<?>> suppliers = getBeanSupplier();
-    if (suppliers == null) {
-      suppliers = new ConcurrentHashMap<>();
-      this.beanSupplier = suppliers;
-    }
-    return suppliers;
-  }
-
-  @Nullable
-  public ConcurrentHashMap<String, Supplier<?>> getBeanSupplier() {
-    return beanSupplier;
-  }
 
   @Override
   public String toString() {

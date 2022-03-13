@@ -1018,7 +1018,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     var valueResolver = new BeanDefinitionValueResolver(this, beanName, definition, converter);
 
     // Create a deep copy, resolving any references for values.
-    List<PropertyValue> deepCopy = new ArrayList<>(original.size());
+    ArrayList<PropertyValue> deepCopy = new ArrayList<>(original.size());
     boolean resolveNecessary = false;
     for (PropertyValue pv : original) {
       if (pv.isConverted()) {

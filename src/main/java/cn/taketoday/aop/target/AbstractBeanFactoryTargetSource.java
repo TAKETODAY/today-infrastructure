@@ -70,7 +70,7 @@ public abstract class AbstractBeanFactoryTargetSource
    * BeanFactory that owns this TargetSource. We need to hold onto this reference
    * so that we can create new prototype instances as necessary.
    */
-  private transient BeanFactory beanFactory;
+  private BeanFactory beanFactory;
 
   /**
    * Set the name of the target bean in the factory.

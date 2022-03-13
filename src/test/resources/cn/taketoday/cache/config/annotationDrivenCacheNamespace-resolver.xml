@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:cache="http://www.springframework.org/schema/cache"
-	   xmlns:p="http://www.springframework.org/schema/p"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-       		http://www.springframework.org/schema/cache https://www.springframework.org/schema/cache/spring-cache.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   https://www.springframework.org/schema/beans/spring-beans.xsd
+       		http://www.springframework.org/schema/cache
+       		https://www.springframework.org/schema/cache/spring-cache.xsd">
 
-	<cache:annotation-driven cache-resolver="cacheResolver"/>
+  <cache:annotation-driven cache-resolver="cacheResolver" />
 
-	<bean id="cacheResolver" class="cn.taketoday.cache.interceptor.SimpleCacheResolver">
-		<property name="cacheManager">
-			<bean class="cn.taketoday.cache.support.SimpleCacheManager">
-				<property name="caches">
-					<set>
-						<bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean"
-							  p:name="testCache"/>
-					</set>
-				</property>
-			</bean>
-		</property>
-	</bean>
+  <bean id="cacheResolver" class="cn.taketoday.cache.interceptor.SimpleCacheResolver">
+    <property name="cacheManager">
+      <bean class="cn.taketoday.cache.support.SimpleCacheManager">
+        <property name="caches">
+          <set>
+            <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean"
+                p:name="testCache" />
+          </set>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
 </beans>

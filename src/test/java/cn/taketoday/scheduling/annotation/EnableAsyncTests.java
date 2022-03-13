@@ -40,21 +40,22 @@ import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Singleton;
 import cn.taketoday.scheduling.concurrent.CustomizableThreadFactory;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
@@ -73,7 +74,7 @@ public class EnableAsyncTests {
 
   @Test
   public void proxyingOccurs() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfig.class);
     ctx.refresh();
 
@@ -85,7 +86,7 @@ public class EnableAsyncTests {
 
   @Test
   public void proxyingOccursWithMockitoStub() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfigWithMockito.class, AsyncBeanUser.class);
     ctx.refresh();
 
@@ -96,33 +97,29 @@ public class EnableAsyncTests {
     ctx.close();
   }
 
-/*
- @Test
+  @Test
   public void properExceptionForExistingProxyDependencyMismatch() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfig.class, AsyncBeanWithInterface.class, AsyncBeanUser.class);
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-            .isThrownBy(ctx::refresh)
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(
+                    ctx::refresh)
             .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
     ctx.close();
   }
-*/
 
-/*
   @Test
   public void properExceptionForResolvedProxyDependencyMismatch() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfig.class, AsyncBeanUser.class, AsyncBeanWithInterface.class);
     assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(
                     ctx::refresh)
             .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
     ctx.close();
   }
-*/
 
   @Test
   public void withAsyncBeanWithExecutorQualifiedByName() throws ExecutionException, InterruptedException {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncWithExecutorQualifiedByNameConfig.class);
     ctx.refresh();
 
@@ -145,7 +142,7 @@ public class EnableAsyncTests {
     System.setProperty("my.app.myExecutor", "myExecutor2");
 
     Class<?> configClass = AsyncWithExecutorQualifiedByExpressionConfig.class;
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(configClass)) {
+    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
       AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder asyncBean =
               context.getBean(AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder.class);
 
@@ -163,7 +160,7 @@ public class EnableAsyncTests {
 
   @Test
   public void asyncProcessorIsOrderedLowestPrecedenceByDefault() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfig.class);
     ctx.refresh();
 
@@ -175,7 +172,7 @@ public class EnableAsyncTests {
 
   @Test
   public void orderAttributeIsPropagated() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(OrderedAsyncConfig.class);
     ctx.refresh();
 
@@ -187,7 +184,7 @@ public class EnableAsyncTests {
 
   @Test
   public void customAsyncAnnotationIsPropagated() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomAsyncAnnotationConfig.class, CustomAsyncBean.class);
     ctx.refresh();
 
@@ -211,16 +208,16 @@ public class EnableAsyncTests {
   @Test
   public void aspectModeAspectJAttemptsToRegisterAsyncAspect() {
     @SuppressWarnings("resource")
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AspectJAsyncAnnotationConfig.class);
-    assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(
+    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
             ctx::refresh);
   }
 
   @Test
   public void customExecutorBean() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomExecutorBean.class);
     ctx.refresh();
     AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
@@ -238,7 +235,7 @@ public class EnableAsyncTests {
   @Test
   public void customExecutorConfig() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomExecutorConfig.class);
     ctx.refresh();
     AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
@@ -256,7 +253,7 @@ public class EnableAsyncTests {
   @Test
   public void customExecutorConfigWithThrowsException() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomExecutorConfig.class);
     ctx.refresh();
     AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
@@ -277,7 +274,7 @@ public class EnableAsyncTests {
   @Test
   public void customExecutorBeanConfig() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomExecutorBeanConfig.class, ExecutorPostProcessor.class);
     ctx.refresh();
     AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
@@ -295,7 +292,7 @@ public class EnableAsyncTests {
   @Test
   public void customExecutorBeanConfigWithThrowsException() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomExecutorBeanConfig.class, ExecutorPostProcessor.class);
     ctx.refresh();
     AsyncBean asyncBean = ctx.getBean(AsyncBean.class);
@@ -316,7 +313,7 @@ public class EnableAsyncTests {
   @Test  // SPR-14949
   public void findOnInterfaceWithInterfaceProxy() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext(Spr14949ConfigA.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14949ConfigA.class);
     AsyncInterface asyncBean = ctx.getBean(AsyncInterface.class);
     // Act
     asyncBean.work();
@@ -332,7 +329,7 @@ public class EnableAsyncTests {
   @Test  // SPR-14949
   public void findOnInterfaceWithCglibProxy() {
     // Arrange
-    StandardApplicationContext ctx = new StandardApplicationContext(Spr14949ConfigB.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14949ConfigB.class);
     AsyncInterface asyncBean = ctx.getBean(AsyncInterface.class);
     // Act
     asyncBean.work();
@@ -348,9 +345,9 @@ public class EnableAsyncTests {
   @Test
   @SuppressWarnings("resource")
   public void exceptionThrownWithBeanNotOfRequiredTypeRootCause() {
-    assertThatExceptionOfType(Throwable.class)
-            .isThrownBy(() -> new StandardApplicationContext(JdkProxyConfiguration.class))
-            .withCauseInstanceOf(UnsatisfiedDependencyException.class);
+    assertThatExceptionOfType(Throwable.class).isThrownBy(() ->
+                    new AnnotationConfigApplicationContext(JdkProxyConfiguration.class))
+            .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
   }
 
   static class AsyncBeanWithExecutorQualifiedByName {
@@ -449,7 +446,7 @@ public class EnableAsyncTests {
   @EnableAsync(order = Ordered.HIGHEST_PRECEDENCE)
   static class OrderedAsyncConfig {
 
-    @Singleton
+    @Bean
     public AsyncBean asyncBean() {
       return new AsyncBean();
     }
@@ -459,7 +456,7 @@ public class EnableAsyncTests {
   @EnableAsync(mode = AdviceMode.ASPECTJ)
   static class AspectJAsyncAnnotationConfig {
 
-    @Singleton
+    @Bean
     public AsyncBean asyncBean() {
       return new AsyncBean();
     }
@@ -469,7 +466,7 @@ public class EnableAsyncTests {
   @EnableAsync
   static class AsyncConfig {
 
-    @Singleton
+    @Bean
     public AsyncBean asyncBean() {
       return new AsyncBean();
     }
@@ -479,7 +476,7 @@ public class EnableAsyncTests {
   @EnableAsync
   static class AsyncConfigWithMockito {
 
-    @Singleton
+    @Bean
     @Lazy
     public AsyncBean asyncBean() {
       return Mockito.mock(AsyncBean.class);
@@ -490,17 +487,17 @@ public class EnableAsyncTests {
   @EnableAsync
   static class AsyncWithExecutorQualifiedByNameConfig {
 
-    @Singleton
+    @Bean
     public AsyncBeanWithExecutorQualifiedByName asyncBean() {
       return new AsyncBeanWithExecutorQualifiedByName();
     }
 
-    @Singleton
+    @Bean
     public Executor e1() {
       return new ThreadPoolTaskExecutor();
     }
 
-    @Singleton
+    @Bean
     @Qualifier("e2")
     public Executor otherExecutor() {
       return new ThreadPoolTaskExecutor();
@@ -509,14 +506,35 @@ public class EnableAsyncTests {
 
   @Configuration
   @EnableAsync
+  static class AsyncWithExecutorQualifiedByExpressionConfig {
+
+    @Bean
+    public AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder asyncBean() {
+      return new AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder();
+    }
+
+    @Bean
+    public Executor myExecutor1() {
+      return new ThreadPoolTaskExecutor();
+    }
+
+    @Bean
+    @Qualifier("myExecutor")
+    public Executor myExecutor2() {
+      return new ThreadPoolTaskExecutor();
+    }
+  }
+
+  @Configuration
+  @EnableAsync
   static class CustomExecutorBean {
 
-    @Singleton
+    @Bean
     public AsyncBean asyncBean() {
       return new AsyncBean();
     }
 
-    @Singleton
+    @Bean
     public Executor taskExecutor() {
       return Executors.newSingleThreadExecutor(new CustomizableThreadFactory("Custom-"));
     }
@@ -526,7 +544,7 @@ public class EnableAsyncTests {
   @EnableAsync
   static class CustomExecutorConfig implements AsyncConfigurer {
 
-    @Singleton
+    @Bean
     public AsyncBean asyncBean() {
       return new AsyncBean();
     }
@@ -544,7 +562,7 @@ public class EnableAsyncTests {
       return exceptionHandler();
     }
 
-    @Singleton
+    @Bean
     public AsyncUncaughtExceptionHandler exceptionHandler() {
       return new TestableAsyncUncaughtExceptionHandler();
     }
@@ -554,7 +572,7 @@ public class EnableAsyncTests {
   @EnableAsync
   static class CustomExecutorBeanConfig implements AsyncConfigurer {
 
-    @Singleton
+    @Bean
     public AsyncBean asyncBean() {
       return new AsyncBean();
     }
@@ -564,7 +582,7 @@ public class EnableAsyncTests {
       return executor();
     }
 
-    @Singleton
+    @Bean
     public ThreadPoolTaskExecutor executor() {
       ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
       executor.setThreadNamePrefix("Custom-");
@@ -577,7 +595,7 @@ public class EnableAsyncTests {
       return exceptionHandler();
     }
 
-    @Singleton
+    @Bean
     public AsyncUncaughtExceptionHandler exceptionHandler() {
       return new TestableAsyncUncaughtExceptionHandler();
     }
@@ -622,7 +640,7 @@ public class EnableAsyncTests {
   @EnableAsync
   static class Spr14949ConfigA implements AsyncConfigurer {
 
-    @Singleton
+    @Bean
     public AsyncInterface asyncBean() {
       return new AsyncService();
     }
@@ -645,7 +663,7 @@ public class EnableAsyncTests {
   @EnableAsync(proxyTargetClass = true)
   static class Spr14949ConfigB implements AsyncConfigurer {
 
-    @Singleton
+    @Bean
     public AsyncInterface asyncBean() {
       return new AsyncService();
     }
@@ -669,7 +687,7 @@ public class EnableAsyncTests {
   @Import(UserConfiguration.class)
   static class JdkProxyConfiguration {
 
-    @Singleton
+    @Bean
     public AsyncBeanWithInterface asyncBean() {
       return new AsyncBeanWithInterface();
     }
@@ -678,30 +696,9 @@ public class EnableAsyncTests {
   @Configuration
   static class UserConfiguration {
 
-    @Singleton
+    @Bean
     public AsyncBeanUser user(AsyncBeanWithInterface bean) {
       return new AsyncBeanUser(bean);
-    }
-  }
-
-  @Configuration
-  @EnableAsync
-  static class AsyncWithExecutorQualifiedByExpressionConfig {
-
-    @Bean
-    public AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder asyncBean() {
-      return new AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder();
-    }
-
-    @Bean
-    public Executor myExecutor1() {
-      return new ThreadPoolTaskExecutor();
-    }
-
-    @Bean
-    @Qualifier("myExecutor")
-    public Executor myExecutor2() {
-      return new ThreadPoolTaskExecutor();
     }
   }
 

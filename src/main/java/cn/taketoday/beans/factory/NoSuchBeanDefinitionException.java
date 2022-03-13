@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory;
 
 import java.io.Serial;
@@ -27,8 +28,18 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2018-07-3 20:24:18
+ * Exception thrown when a {@code BeanFactory} is asked for a bean instance for which it
+ * cannot find a definition. This may point to a non-existing bean, a non-unique bean,
+ * or a manually registered singleton instance without an associated bean definition.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Stephane Nicoll
+ * @author TODAY
+ * @see BeanFactory#getBean(String)
+ * @see BeanFactory#getBean(Class)
+ * @see NoUniqueBeanDefinitionException
+ * @since 2018-07-3 20:24:18
  */
 public class NoSuchBeanDefinitionException extends BeansException {
 
@@ -46,7 +57,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    *
    * @param name the name of the missing bean
    */
-  public NoSuchBeanDefinitionException(@NonNull String name) {
+  public NoSuchBeanDefinitionException(String name) {
     super("No bean named '" + name + "' available");
     this.beanName = name;
     this.resolvableType = null;
@@ -58,7 +69,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
     this.resolvableType = null;
   }
 
-  public NoSuchBeanDefinitionException(@NonNull String name, Class<?> targetClass) {
+  public NoSuchBeanDefinitionException(String name, Class<?> targetClass) {
     super("No qualifying bean of type '" + targetClass + "' and named '" + name + "' available");
     this.beanName = name;
     this.resolvableType = ResolvableType.fromClass(targetClass);
@@ -71,7 +82,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @param message detailed message describing the problem
    * @since 4.0
    */
-  public NoSuchBeanDefinitionException(@NonNull String name, String message) {
+  public NoSuchBeanDefinitionException(String name, String message) {
     super("No bean named '" + name + "' available: " + message);
     this.beanName = name;
     this.resolvableType = null;

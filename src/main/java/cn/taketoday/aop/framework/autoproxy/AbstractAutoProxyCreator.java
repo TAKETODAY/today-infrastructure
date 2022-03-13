@@ -28,7 +28,6 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -57,6 +56,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -130,6 +130,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * to prevent the configuration from becoming frozen too early.
    */
   private boolean freezeProxy = false;
+  @Nullable
   private transient TargetSourceCreator[] customTargetSourceCreators;
 
   /** Default is no common interceptors. */
@@ -253,6 +254,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
     return null;
   }
 
+  @Nullable
   protected TargetSource getCustomTargetSource(Class<?> beanClass, String beanName) {
     // We can't create fancy target sources for directly registered singletons.
     if (this.customTargetSourceCreators != null) {
@@ -302,6 +304,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see #getAdvicesAndAdvisorsForBean
    */
   @Override
+  @Nullable
   public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
     if (bean != null) {
       Object cacheKey = getCacheKey(bean.getClass(), beanName);
@@ -454,10 +457,14 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see cn.taketoday.aop.AopInfrastructureBean
    */
   protected boolean isInfrastructureClass(Class<?> beanClass) {
-    return Advice.class.isAssignableFrom(beanClass)
+    boolean retVal = Advice.class.isAssignableFrom(beanClass)
             || Advisor.class.isAssignableFrom(beanClass)
             || Pointcut.class.isAssignableFrom(beanClass)
             || AopInfrastructureBean.class.isAssignableFrom(beanClass);
+    if (retVal && log.isTraceEnabled()) {
+      log.trace("Did not attempt to auto-proxy infrastructure class [{}]", beanClass.getName());
+    }
+    return retVal;
   }
 
   /**
@@ -503,7 +510,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
     // Handle prototypes correctly...
     Advisor[] commonInterceptors = resolveInterceptorNames();
 
-    List<Object> allInterceptors = new ArrayList<>();
+    ArrayList<Object> allInterceptors = new ArrayList<>();
     if (specificInterceptors != null) {
       if (specificInterceptors.length > 0) {
         // specificInterceptors may equal PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS
@@ -514,7 +521,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
           allInterceptors.addAll(0, Arrays.asList(commonInterceptors));
         }
         else {
-          allInterceptors.addAll(Arrays.asList(commonInterceptors));
+          CollectionUtils.addAll(allInterceptors, commonInterceptors);
         }
       }
     }
@@ -540,8 +547,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   private Advisor[] resolveInterceptorNames() {
     BeanFactory bf = this.beanFactory;
     ConfigurableBeanFactory cbf = (bf instanceof ConfigurableBeanFactory ? (ConfigurableBeanFactory) bf : null);
-    List<Advisor> advisors = new ArrayList<>();
-    for (String beanName : this.interceptorNames) {
+    ArrayList<Advisor> advisors = new ArrayList<>();
+    for (String beanName : interceptorNames) {
       if (cbf == null || !cbf.isCurrentlyInCreation(beanName)) {
         Assert.state(bf != null, "BeanFactory required for resolving interceptor names");
         Object next = bf.getBean(beanName);
@@ -579,6 +586,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see #DO_NOT_PROXY
    * @see #PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS
    */
+  @Nullable
   protected abstract Object[] getAdvicesAndAdvisorsForBean(
           Class<?> beanClass, String beanName, @Nullable TargetSource targetSource);
 
