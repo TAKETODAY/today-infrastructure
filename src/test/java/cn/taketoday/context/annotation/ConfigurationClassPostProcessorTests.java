@@ -60,8 +60,6 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
-import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -86,13 +84,9 @@ class ConfigurationClassPostProcessorTests {
 
   private StandardBeanFactory beanFactory;
 
-  private BootstrapContext loadingContext;
-
   @BeforeEach
   void setup() {
-    StandardApplicationContext context = new StandardApplicationContext();
-    beanFactory = context.getBeanFactory();
-    loadingContext = new BootstrapContext(beanFactory, context);
+    beanFactory = new StandardBeanFactory();
 
     QualifierAnnotationAutowireCandidateResolver acr = new QualifierAnnotationAutowireCandidateResolver();
     acr.setBeanFactory(this.beanFactory);
@@ -440,8 +434,9 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
 
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    beanFactory.getBean(Bar.class))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> beanFactory.getBean(Bar.class))
+            .havingRootCause()
             .withMessageContaining("OverridingSingletonBeanConfig.foo")
             .withMessageContaining(ExtendedFoo.class.getName())
             .withMessageContaining(Foo.class.getName())
@@ -1017,15 +1012,17 @@ class ConfigurationClassPostProcessorTests {
     beanFactory.registerBeanDefinition("configClass1", new RootBeanDefinition(A.class));
     beanFactory.registerBeanDefinition("configClass2", new RootBeanDefinition(AStrich.class));
     new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-                    beanFactory::preInstantiateSingletons)
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(beanFactory::preInstantiateSingletons)
+//            .havingRootCause()
             .withMessageContaining("Circular reference");
   }
 
   @Test
   void testCircularDependencyWithApplicationContext() {
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    new AnnotationConfigApplicationContext(A.class, AStrich.class))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(A.class, AStrich.class))
+            .havingRootCause()
             .withMessageContaining("Circular reference");
   }
 

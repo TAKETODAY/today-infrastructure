@@ -101,7 +101,7 @@ public class EventListenerMethodProcessor
   @Override
   public void afterSingletonsInstantiated() {
     ConfigurableBeanFactory beanFactory = this.beanFactory;
-    Assert.state(this.beanFactory != null, "No ConfigurableBeanFactory set");
+    Assert.state(beanFactory != null, "No ConfigurableBeanFactory set");
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
       if (ScopedProxyUtils.isScopedTarget(beanName)) {
