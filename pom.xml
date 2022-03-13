@@ -811,6 +811,13 @@
     -->
 
     <dependency>
+      <groupId>org.glassfish.external</groupId>
+      <artifactId>opendmk_jmxremote_optional_jar</artifactId>
+      <version>1.0-b01-ea</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.atomikos</groupId>
       <artifactId>transactions-jdbc</artifactId>
       <version>5.0.8</version>
