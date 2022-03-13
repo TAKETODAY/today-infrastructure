@@ -36,8 +36,10 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.core.bytecode.core.ClassLoaderAwareGeneratorStrategy;
+import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.bytecode.proxy.Callback;
 import cn.taketoday.core.bytecode.proxy.CallbackFilter;
 import cn.taketoday.core.bytecode.proxy.Dispatcher;
@@ -435,6 +437,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * proxy is not frozen.
    */
   private record DynamicAdvisedInterceptor(AdvisedSupport advised) implements MethodInterceptor, Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -452,20 +455,28 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           restore = true;
         }
 
+        Object retVal;
+
         // Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
         target = targetSource.getTarget();
-        Class<?> targetClass = (target != null ? target.getClass() : null);
+        Class<?> targetClass = target != null ? target.getClass() : null;
         org.aopalliance.intercept.MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
-        Object retVal;
         // Check whether we only have one InvokerInterceptor: that is,
         // no real advice, but just reflective invocation of the target.
-        if (ObjectUtils.isEmpty(chain) && Modifier.isPublic(method.getModifiers())) {
+        if (chain.length == 0 && isMethodProxyCompatible(method)) {
           // We can skip creating a MethodInvocation: just invoke the target directly.
           // Note that the final invoker must be an InvokerInterceptor, so we know
           // it does nothing but a reflective operation on the target, and no hot
           // swapping or fancy proxying.
           Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
-          retVal = methodProxy.invoke(target, argsToUse);
+
+          try {
+            retVal = methodProxy.invoke(target, argsToUse);
+          }
+          catch (CodeGenerationException ex) {
+            logFastClassGenerationFailure(method);
+            retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
+          }
         }
         else {
           // We need to create a CglibMethodInvocation...
@@ -485,20 +496,6 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       }
     }
 
-    @Override
-    public boolean equals(Object other) {
-      return (this == other ||
-              (other instanceof DynamicAdvisedInterceptor &&
-                      this.advised.equals(((DynamicAdvisedInterceptor) other).advised)));
-    }
-
-    /**
-     * CGLIB uses this to drive proxy creation.
-     */
-    @Override
-    public int hashCode() {
-      return this.advised.hashCode();
-    }
   }
 
   /**
@@ -524,18 +521,31 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
-    final MethodProxy proxy;
+    final MethodProxy methodProxy;
 
     public CglibMethodInvocation(Object proxyObject, Object target, Method method, Class<?> targetClass,
-            MethodProxy proxy, Object[] arguments,
+            MethodProxy methodProxy, Object[] arguments,
             org.aopalliance.intercept.MethodInterceptor[] advices) {
       super(proxyObject, target, method, targetClass, arguments, advices);
-      this.proxy = proxy;
+
+      this.methodProxy = isMethodProxyCompatible(method) ? methodProxy : null;
     }
 
+    /**
+     * Gives a marginal performance improvement versus using reflection to
+     * invoke the target when invoking public methods.
+     */
     @Override
     protected Object invokeJoinPoint() throws Throwable {
-      return proxy.invoke(target, args);
+      if (methodProxy != null) {
+        try {
+          return methodProxy.invoke(target, args);
+        }
+        catch (CodeGenerationException ex) {
+          logFastClassGenerationFailure(method);
+        }
+      }
+      return super.invokeJoinPoint();
     }
 
     @Override
@@ -555,6 +565,17 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         }
       }
     }
+
+  }
+
+  static boolean isMethodProxyCompatible(Method method) {
+    return Modifier.isPublic(method.getModifiers()) &&
+            method.getDeclaringClass() != Object.class && !ReflectionUtils.isEqualsMethod(method)
+            && !ReflectionUtils.isHashCodeMethod(method) && !ReflectionUtils.isToStringMethod(method);
+  }
+
+  static void logFastClassGenerationFailure(Method method) {
+    log.debug("Failed to generate CGLIB fast class for method: {}", method);
   }
 
   /**

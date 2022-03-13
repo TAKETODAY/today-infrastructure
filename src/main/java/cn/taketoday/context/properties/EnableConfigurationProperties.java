@@ -53,7 +53,7 @@ public @interface EnableConfigurationProperties {
   /**
    * Convenient way to quickly register
    * {@link ConfigurationProperties @ConfigurationProperties} annotated beans with
-   * Spring. Standard Framework Beans will also be scanned regardless of this value.
+   * Framework. Standard Framework Beans will also be scanned regardless of this value.
    *
    * @return {@code @ConfigurationProperties} annotated beans to register
    */

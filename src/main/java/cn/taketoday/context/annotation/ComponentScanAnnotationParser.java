@@ -61,16 +61,22 @@ class ComponentScanAnnotationParser {
             context.getEnvironment()
     );
 
-    Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("namePopulator");
+    Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 
     boolean useInheritedPopulator = BeanNameGenerator.class == generatorClass;
     scanner.setBeanNameGenerator(
             useInheritedPopulator ? context.getBeanNameGenerator()
                                   : BeanUtils.newInstance(generatorClass));
 
-    Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");
-    if (resolverClass != ScopeMetadataResolver.class) {
-      scanner.setScopeMetadataResolver(BeanUtils.newInstance(resolverClass));
+    ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy", ScopedProxyMode.class);
+    if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
+      scanner.setScopedProxyMode(scopedProxyMode);
+    }
+    else {
+      Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");
+      if (resolverClass != ScopeMetadataResolver.class) {
+        scanner.setScopeMetadataResolver(BeanUtils.newInstance(resolverClass));
+      }
     }
 
     scanner.setResourcePattern(componentScan.getString("resourcePattern"));

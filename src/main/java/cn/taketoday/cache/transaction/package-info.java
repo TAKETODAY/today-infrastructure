@@ -20,7 +20,7 @@
 
 /**
  * Transaction-aware decorators for the cn.taketoday.cache package.
- * Provides synchronization of put operations with Spring-managed transactions.
+ * Provides synchronization of put operations with Framework-managed transactions.
  */
 @NonNullApi
 @NonNullFields

@@ -111,7 +111,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
    * @throws BeanDefinitionStoreException if no unique name could be generated
    * for the given bean definition
    */
-  protected String resolveId(Element element, BeanDefinition definition, ParserContext parserContext)
+  protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
           throws BeanDefinitionStoreException {
 
     if (shouldGenerateId()) {
@@ -224,6 +224,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
    * @param componentDefinition the {@link BeanComponentDefinition} that is to be processed
    */
   protected void postProcessComponentDefinition(BeanComponentDefinition componentDefinition) {
+
   }
 
 }

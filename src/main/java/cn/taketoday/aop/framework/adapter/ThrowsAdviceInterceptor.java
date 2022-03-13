@@ -51,7 +51,7 @@ import cn.taketoday.logging.LoggerFactory;
  * <pre class="code">public void afterThrowing(Method method, Object[] args, Object target, Exception ex)</pre>
  * <pre class="code">public void afterThrowing(Method method, Object[] args, Object target, ServletException ex)</pre>
  *
- * <p>This is a framework class that need not be used directly by Spring users.
+ * <p>This is a framework class that need not be used directly by Framework users.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

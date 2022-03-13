@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
  * A type converter can convert values between different types encountered during
  * expression evaluation. This is an SPI for the expression parser; see
  * {@link cn.taketoday.core.conversion.ConversionService} for the primary
- * user API to Spring's conversion facilities.
+ * user API to Framework's conversion facilities.
  *
  * @author Andy Clement
  * @author Juergen Hoeller

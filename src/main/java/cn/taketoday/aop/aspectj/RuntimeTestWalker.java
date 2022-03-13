@@ -77,7 +77,7 @@ class RuntimeTestWalker {
     }
     catch (NoSuchFieldException ex) {
       throw new IllegalStateException("The version of aspectjtools.jar / aspectjweaver.jar " +
-              "on the classpath is incompatible with this version of Spring: " + ex);
+              "on the classpath is incompatible with this version of Framework: " + ex);
     }
   }
 
@@ -213,7 +213,7 @@ class RuntimeTestWalker {
         }
       }
       try {
-        // Don't use ResolvedType.isAssignableFrom() as it won't be aware of (Spring) mixins
+        // Don't use ResolvedType.isAssignableFrom() as it won't be aware of (Framework) mixins
         if (typeClass == null) {
           typeClass = ClassUtils.forName(type.getName(), this.matchClass.getClassLoader());
         }

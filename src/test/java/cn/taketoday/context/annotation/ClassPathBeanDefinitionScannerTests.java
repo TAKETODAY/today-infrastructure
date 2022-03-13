@@ -458,19 +458,19 @@ public class ClassPathBeanDefinitionScannerTests {
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setBeanNameGenerator(new TestBeanNameGenerator());
     int beanCount = scanner.scan(BASE_PACKAGE);
-    assertThat(beanCount).isGreaterThanOrEqualTo(9);
+    assertThat(beanCount).isGreaterThanOrEqualTo(12);
     context.refresh();
 
     FooServiceImpl fooService = context.getBean("fooService", FooServiceImpl.class);
     StandardBeanFactory myBf = (StandardBeanFactory) context.getBean("myBf");
     MessageSource ms = (MessageSource) context.getBean("messageSource");
     assertThat(fooService.isInitCalled()).isTrue();
-    assertThat(fooService.foo(113)).isEqualTo("bar");
-    assertThat(fooService.lookupFoo(113)).isEqualTo("bar");
+    assertThat(fooService.foo(123)).isEqualTo("bar");
+    assertThat(fooService.lookupFoo(123)).isEqualTo("bar");
     assertThat(fooService.beanFactory).isSameAs(context.getBeanFactory());
-    assertThat(fooService.BeanFactory.size()).isEqualTo(2);
-    assertThat(fooService.BeanFactory.get(0)).isSameAs(context.getBeanFactory());
-    assertThat(fooService.BeanFactory.get(1)).isSameAs(myBf);
+    assertThat(fooService.listableBeanFactory.size()).isEqualTo(2);
+    assertThat(fooService.listableBeanFactory.get(0)).isSameAs(context.getBeanFactory());
+    assertThat(fooService.listableBeanFactory.get(1)).isSameAs(myBf);
     assertThat(fooService.resourceLoader).isSameAs(context);
     assertThat(fooService.resourcePatternResolver).isSameAs(context);
     assertThat(fooService.eventPublisher).isSameAs(context);

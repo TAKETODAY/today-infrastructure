@@ -50,7 +50,7 @@ class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
   private static final String AGENT_ID_ATTRIBUTE = "agent-id";
 
   @Override
-  protected String resolveId(Element element, BeanDefinition definition, ParserContext parserContext) {
+  protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
     String id = element.getAttribute(ID_ATTRIBUTE);
     return (StringUtils.hasText(id) ? id : MBEAN_SERVER_BEAN_NAME);
   }

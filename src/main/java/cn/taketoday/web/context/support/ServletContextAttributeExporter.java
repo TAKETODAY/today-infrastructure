@@ -36,7 +36,7 @@ import jakarta.servlet.ServletContext;
  * <p>Useful to make Frameworkdefined beans available to code that is
  * not aware of Framework at all, but rather just of the Servlet API.
  * Client code can then use plain ServletContext attribute lookups
- * to access those objects, despite them being defined in a Spring
+ * to access those objects, despite them being defined in a Framework
  * application context.
  *
  * <p>Alternatively, consider using the WebApplicationContextUtils

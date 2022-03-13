@@ -67,7 +67,7 @@ import jakarta.servlet.ServletException;
  * <p>This filter leaves actual filtering to subclasses, which have to
  * implement the {@link jakarta.servlet.Filter#doFilter} method.
  *
- * <p>This generic filter base class has no dependency on the Spring
+ * <p>This generic filter base class has no dependency on the Framework
  * {@link cn.taketoday.context.ApplicationContext} concept.
  * Filters usually don't load their own context but rather access service
  * beans from the Framework root application context, accessible via the

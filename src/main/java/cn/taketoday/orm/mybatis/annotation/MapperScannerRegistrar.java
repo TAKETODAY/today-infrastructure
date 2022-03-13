@@ -81,9 +81,9 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
       builder.addPropertyValue("markerInterface", markerInterface);
     }
 
-    Class<? extends BeanNameGenerator> generatorClass = mapperScan.getClass("namePopulator");
+    Class<? extends BeanNameGenerator> generatorClass = mapperScan.getClass("nameGenerator");
     if (!BeanNameGenerator.class.equals(generatorClass)) {
-      builder.addPropertyValue("namePopulator", BeanUtils.newInstance(generatorClass));
+      builder.addPropertyValue("nameGenerator", BeanUtils.newInstance(generatorClass));
     }
 
     Class<? extends MapperFactoryBean<?>> mapperFactoryBeanClass = mapperScan.getClass("factoryBean");

@@ -116,7 +116,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
    * implementation searches methods in the class hierarchy of the controller first
    * and if not found, it continues searching for additional {@code @ExceptionHandler}
    * methods assuming some {@linkplain ControllerAdvice @ControllerAdvice}
-   * Spring-managed beans were detected.
+   * Framework-managed beans were detected.
    *
    * @param exception the raised exception
    * @return a method to handle the exception, or {@code null} if none

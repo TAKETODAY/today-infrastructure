@@ -24,19 +24,19 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 import cn.taketoday.beans.factory.NamedBean;
-import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
  * Convenient methods for creating advisors that may be used when autoproxying beans
- * created with the Spring IoC container, binding the bean name to the current
+ * created with the IoC container, binding the bean name to the current
  * invocation. May support a {@code bean()} pointcut designator with AspectJ.
  *
- * <p>Typically used in Spring auto-proxying, where the bean name is known
+ * <p>Typically used in auto-proxying, where the bean name is known
  * at proxy creation time.
  *
  * @author Rod Johnson
@@ -74,8 +74,8 @@ public abstract class ExposeBeanNameAdvisors {
    * @throws IllegalStateException if the bean name has not been exposed
    */
   public static String getBeanName(MethodInvocation mi) throws IllegalStateException {
-    if (!(mi instanceof AbstractBeanDefinition pmi)) {
-      throw new IllegalArgumentException("MethodInvocation is not a Spring ProxyMethodInvocation: " + mi);
+    if (!(mi instanceof ProxyMethodInvocation pmi)) {
+      throw new IllegalArgumentException("MethodInvocation is not a ProxyMethodInvocation: " + mi);
     }
     String beanName = (String) pmi.getAttribute(BEAN_NAME_ATTRIBUTE);
     if (beanName == null) {
@@ -97,7 +97,7 @@ public abstract class ExposeBeanNameAdvisors {
   /**
    * Create a new advisor that will expose the given bean name, introducing
    * the NamedBean interface to make the bean name accessible without forcing
-   * the target object to be aware of this Spring IoC concept.
+   * the target object to be aware of this IoC concept.
    *
    * @param beanName the bean name to expose
    */
@@ -108,19 +108,13 @@ public abstract class ExposeBeanNameAdvisors {
   /**
    * Interceptor that exposes the specified bean name as invocation attribute.
    */
-  private static class ExposeBeanNameInterceptor implements MethodInterceptor {
-
-    private final String beanName;
-
-    public ExposeBeanNameInterceptor(String beanName) {
-      this.beanName = beanName;
-    }
+  private record ExposeBeanNameInterceptor(String beanName) implements MethodInterceptor {
 
     @Override
     @Nullable
     public Object invoke(MethodInvocation mi) throws Throwable {
-      if (!(mi instanceof AbstractBeanDefinition pmi)) {
-        throw new IllegalStateException("MethodInvocation is not a Spring ProxyMethodInvocation: " + mi);
+      if (!(mi instanceof ProxyMethodInvocation pmi)) {
+        throw new IllegalStateException("MethodInvocation is not a ProxyMethodInvocation: " + mi);
       }
       pmi.setAttribute(BEAN_NAME_ATTRIBUTE, this.beanName);
       return mi.proceed();
@@ -141,8 +135,8 @@ public abstract class ExposeBeanNameAdvisors {
     @Override
     @Nullable
     public Object invoke(MethodInvocation mi) throws Throwable {
-      if (!(mi instanceof AbstractBeanDefinition pmi)) {
-        throw new IllegalStateException("MethodInvocation is not a Spring ProxyMethodInvocation: " + mi);
+      if (!(mi instanceof ProxyMethodInvocation pmi)) {
+        throw new IllegalStateException("MethodInvocation is not a ProxyMethodInvocation: " + mi);
       }
       pmi.setAttribute(BEAN_NAME_ATTRIBUTE, this.beanName);
       return super.invoke(mi);

@@ -25,7 +25,7 @@
  * that deals with Framework's caching annotations.
  *
  * <p>Builds on the AOP infrastructure in cn.taketoday.aop.framework.
- * Any POJO can be cache-advised with Spring.
+ * Any POJO can be cache-advised with Framework.
  */
 @NonNullApi
 @NonNullFields

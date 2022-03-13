@@ -25,7 +25,7 @@ import javax.management.Notification;
 import cn.taketoday.jmx.export.MBeanExporter;
 
 /**
- * Simple interface allowing Spring-managed MBeans to publish JMX notifications
+ * Simple interface allowing Framework-managed MBeans to publish JMX notifications
  * without being aware of how those notifications are being transmitted to the
  * {@link javax.management.MBeanServer}.
  *
@@ -41,7 +41,7 @@ import cn.taketoday.jmx.export.MBeanExporter;
  * registered for a particular mananaged resource.
  *
  * <p>Any existing, user-defined MBeans should use standard JMX APIs for notification
- * publication; this interface is intended for use only by Spring-created MBeans.
+ * publication; this interface is intended for use only by Framework-created MBeans.
  *
  * @author Rob Harrop
  * @see NotificationPublisherAware

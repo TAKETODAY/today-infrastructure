@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * Cache config object used for Spring cache configuration.
+ * Cache config object used for cache configuration.
  *
  * @author Nikita Koksharov
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

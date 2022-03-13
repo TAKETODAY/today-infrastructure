@@ -22,6 +22,7 @@ package cn.taketoday.framework.availability;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 
@@ -36,9 +37,7 @@ import cn.taketoday.lang.Assert;
  * @author Phillip Webb
  * @since 4.0
  */
-public class AvailabilityChangeEvent<S extends AvailabilityState> extends ApplicationEvent {
-
-  private final S state;
+public class AvailabilityChangeEvent<S extends AvailabilityState> extends PayloadApplicationEvent<S> {
 
   /**
    * Create a new {@link AvailabilityChangeEvent} instance.
@@ -47,9 +46,7 @@ public class AvailabilityChangeEvent<S extends AvailabilityState> extends Applic
    * @param state the availability state (never {@code null})
    */
   public AvailabilityChangeEvent(Object source, S state) {
-    super(source);
-    Assert.notNull(state, "state must not be null");
-    this.state = state;
+    super(source, state);
   }
 
   /**
@@ -58,9 +55,10 @@ public class AvailabilityChangeEvent<S extends AvailabilityState> extends Applic
    * @return the availability state
    */
   public S getState() {
-    return state;
+    return getPayload();
   }
 
+  @Override
   public ResolvableType getResolvableType() {
     return ResolvableType.fromClassWithGenerics(getClass(), getStateType());
   }

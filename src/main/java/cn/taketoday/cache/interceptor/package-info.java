@@ -21,7 +21,7 @@
 /**
  * AOP-based solution for declarative caching demarcation.
  * Builds on the AOP infrastructure in cn.taketoday.aop.framework.
- * Any POJO can be cache-advised with Spring.
+ * Any POJO can be cache-advised with Framework.
  */
 @NonNullApi
 @NonNullFields

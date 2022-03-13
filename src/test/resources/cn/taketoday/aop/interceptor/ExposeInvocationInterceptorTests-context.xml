@@ -19,7 +19,7 @@
 
 	<bean id="proxy" class="cn.taketoday.aop.framework.ProxyFactoryBean">
 		<property name="target">
-			<bean class="cn.taketoday.beans.aop.interceptor.InvocationCheckExposedInvocationTestBean" />
+			<bean class="cn.taketoday.aop.interceptor.InvocationCheckExposedInvocationTestBean" />
 		</property>
 		<property name="interceptorNames">
 			<value>exposeInvocation,countingBeforeAdvice,nopInterceptor</value>

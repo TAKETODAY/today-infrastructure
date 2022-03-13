@@ -36,8 +36,10 @@ import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -63,11 +65,10 @@ import cn.taketoday.util.CollectionUtils;
  * @see DefaultEventListenerFactory
  */
 public class EventListenerMethodProcessor
-        implements BeanFactoryPostProcessor, SmartInitializingSingleton {
+        implements BeanFactoryPostProcessor, SmartInitializingSingleton, ApplicationContextAware {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final ConfigurableApplicationContext context;
   @Nullable
   private List<EventListenerFactory> eventListenerFactories;
 
@@ -77,9 +78,14 @@ public class EventListenerMethodProcessor
 
   private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
-  public EventListenerMethodProcessor(ConfigurableApplicationContext context) {
-    Assert.notNull(context, "ApplicationContext must not be null");
-    this.context = context;
+  @Nullable
+  private ConfigurableApplicationContext applicationContext;
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) {
+    Assert.isTrue(applicationContext instanceof ConfigurableApplicationContext,
+            "ApplicationContext does not implement ConfigurableApplicationContext");
+    this.applicationContext = (ConfigurableApplicationContext) applicationContext;
   }
 
   @Override
@@ -161,7 +167,7 @@ public class EventListenerMethodProcessor
       }
       else {
         // Non-empty set of methods
-        ConfigurableApplicationContext context = this.context;
+        ConfigurableApplicationContext context = this.applicationContext;
         Assert.state(context != null, "No ApplicationContext set");
         List<EventListenerFactory> factories = this.eventListenerFactories;
         Assert.state(factories != null, "EventListenerFactory List not initialized");

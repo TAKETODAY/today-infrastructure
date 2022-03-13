@@ -24,7 +24,7 @@ package cn.taketoday.beans.factory;
  * Counterpart of {@link BeanNameAware}. Returns the bean name of an object.
  *
  * <p>This interface can be introduced to avoid a brittle dependence on
- * bean name in objects used with Spring IoC and Spring AOP.
+ * bean name in objects used with IoC and AOP.
  *
  * @author Rod Johnson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -34,7 +34,7 @@ package cn.taketoday.beans.factory;
 public interface NamedBean {
 
   /**
-   * Return the name of this bean in a Spring bean factory, if known.
+   * Return the name of this bean in a bean factory, if known.
    */
   String getBeanName();
 

@@ -103,12 +103,23 @@ public @interface ComponentScan {
    * @see AnnotationBeanNameGenerator
    * @see FullyQualifiedAnnotationBeanNameGenerator
    */
-  Class<? extends BeanNameGenerator> namePopulator() default BeanNameGenerator.class;
+  Class<? extends BeanNameGenerator> nameGenerator() default BeanNameGenerator.class;
 
   /**
    * The {@link ScopeMetadataResolver} to be used for resolving the scope of detected components.
    */
   Class<? extends ScopeMetadataResolver> scopeResolver() default ScopeMetadataResolver.class;
+
+  /**
+   * Indicates whether proxies should be generated for detected components, which may be
+   * necessary when using scopes in a proxy-style fashion.
+   * <p>The default is defer to the default behavior of the component scanner used to
+   * execute the actual scan.
+   * <p>Note that setting this attribute overrides any value set for {@link #scopeResolver}.
+   *
+   * @see ClassPathBeanDefinitionScanner#setScopedProxyMode(ScopedProxyMode)
+   */
+  ScopedProxyMode scopedProxy() default ScopedProxyMode.DEFAULT;
 
   /**
    * Controls the class files eligible for component detection.

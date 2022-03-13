@@ -87,7 +87,7 @@ public class MethodNameBasedMBeanInfoAssembler extends AbstractConfigurableMBean
   /**
    * Set the mappings of bean keys to a comma-separated list of method names.
    * The property key should match the bean key and the property value should match
-   * the list of method names. When searching for method names for a bean, Spring
+   * the list of method names. When searching for method names for a bean, Framework
    * will check these mappings first.
    *
    * @param mappings the mappings of bean keys to method names

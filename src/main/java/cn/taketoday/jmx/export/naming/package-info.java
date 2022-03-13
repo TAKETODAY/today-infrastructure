@@ -20,7 +20,7 @@
 
 /**
  * Provides a strategy for ObjectName creation. Used by MBeanExporter
- * to determine the JMX names to use for exported Spring-managed beans.
+ * to determine the JMX names to use for exported Framework-managed beans.
  */
 @NonNullApi
 @NonNullFields

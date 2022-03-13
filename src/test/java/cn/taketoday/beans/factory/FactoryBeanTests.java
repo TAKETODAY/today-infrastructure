@@ -53,7 +53,7 @@ class FactoryBeanTests {
     StandardBeanFactory factory = new StandardBeanFactory();
     new XmlBeanDefinitionReader(factory).loadBeanDefinitions(RETURNS_NULL_CONTEXT);
 
-    assertThat(factory.getBean("factoryBean").toString()).isEqualTo("null");
+    assertThat(factory.getBean("factoryBean")).isNull();
   }
 
   @Test

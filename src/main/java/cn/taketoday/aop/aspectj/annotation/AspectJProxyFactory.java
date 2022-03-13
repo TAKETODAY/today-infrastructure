@@ -22,8 +22,8 @@ package cn.taketoday.aop.aspectj.annotation;
 
 import org.aspectj.lang.reflect.PerClauseKind;
 
+import java.io.Serial;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
@@ -50,11 +50,12 @@ import cn.taketoday.util.ClassUtils;
  * @see cn.taketoday.aop.framework.ProxyFactory
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class AspectJProxyFactory extends ProxyCreatorSupport {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /** Cache for singleton aspect instances. */
-  private static final Map<Class<?>, Object> aspectCache = new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<Class<?>, Object> aspectCache = new ConcurrentHashMap<>();
 
   private final AspectJAdvisorFactory aspectFactory = new ReflectiveAspectJAdvisorFactory();
 

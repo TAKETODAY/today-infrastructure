@@ -42,7 +42,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -124,7 +123,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
   @Nullable
   private transient PointcutExpression pointcutExpression;
 
-  private transient Map<Method, ShadowMatch> shadowMatchCache = new ConcurrentHashMap<>(32);
+  private transient ConcurrentHashMap<Method, ShadowMatch> shadowMatchCache = new ConcurrentHashMap<>(32);
 
   /**
    * Create a new default AspectJExpressionPointcut.
@@ -572,7 +571,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
   }
 
   /**
-   * Handler for the Spring-specific {@code bean()} pointcut designator
+   * Handler for the Framework-specific {@code bean()} pointcut designator
    * extension to AspectJ.
    * <p>This handler must be added to each pointcut object that needs to
    * handle the {@code bean()} PCD. Matching context is obtained
@@ -662,16 +661,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
     }
   }
 
-  private static class DefensiveShadowMatch implements ShadowMatch {
-
-    private final ShadowMatch primary;
-
-    private final ShadowMatch other;
-
-    public DefensiveShadowMatch(ShadowMatch primary, ShadowMatch other) {
-      this.primary = primary;
-      this.other = other;
-    }
+  private record DefensiveShadowMatch(ShadowMatch primary, ShadowMatch other) implements ShadowMatch {
 
     @Override
     public boolean alwaysMatches() {

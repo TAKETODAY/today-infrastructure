@@ -114,7 +114,7 @@ public @interface MapperScan {
    *
    * @return the class of {@link BeanNameGenerator}
    */
-  Class<? extends BeanNameGenerator> namePopulator() default BeanNameGenerator.class;
+  Class<? extends BeanNameGenerator> nameGenerator() default BeanNameGenerator.class;
 
   /**
    * This property specifies the annotation that the scanner will search for.

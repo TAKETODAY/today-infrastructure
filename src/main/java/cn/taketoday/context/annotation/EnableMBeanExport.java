@@ -37,7 +37,7 @@ import cn.taketoday.jmx.support.RegistrationPolicy;
  * bean is defined under the name "mbeanExporter". Alternatively, consider defining a
  * custom {@link AnnotationMBeanExporter} bean explicitly.
  *
- * <p>This annotation is modeled after and functionally equivalent to Spring XML's
+ * <p>This annotation is modeled after and functionally equivalent to Framework XML's
  * {@code <context:mbean-export/>} element.
  *
  * @author Phillip Webb

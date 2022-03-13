@@ -77,7 +77,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * JMX exporter that allows for exposing any <i>Spring-managed bean</i> to a
+ * JMX exporter that allows for exposing any <i>Framework-managed bean</i> to a
  * JMX {@link MBeanServer}, without the need to define any
  * JMX-specific information in the bean classes.
  *

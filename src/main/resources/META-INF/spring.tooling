@@ -44,3 +44,7 @@ http\://www.springframework.org/schema/aop@name=aop Namespace
 http\://www.springframework.org/schema/aop@prefix=aop
 http\://www.springframework.org/schema/aop@icon=cn/taketoday/aop/config/spring-aop.gif
 
+# Tooling related information for the tx namespace
+http\://www.springframework.org/schema/tx@name=tx Namespace
+http\://www.springframework.org/schema/tx@prefix=tx
+http\://www.springframework.org/schema/tx@icon=cn/taketoday/transaction/config/spring-tx.gif

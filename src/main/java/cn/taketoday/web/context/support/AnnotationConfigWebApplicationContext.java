@@ -211,11 +211,11 @@ public class AnnotationConfigWebApplicationContext
     AnnotatedBeanDefinitionReader reader = getAnnotatedBeanDefinitionReader(beanFactory);
     ClassPathBeanDefinitionScanner scanner = getClassPathBeanDefinitionScanner(beanFactory);
 
-    BeanNameGenerator namePopulator = getBeanNameGenerator();
-    if (namePopulator != null) {
-      reader.setBeanNameGenerator(namePopulator);
-      scanner.setBeanNameGenerator(namePopulator);
-      beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, namePopulator);
+    BeanNameGenerator nameGenerator = getBeanNameGenerator();
+    if (nameGenerator != null) {
+      reader.setBeanNameGenerator(nameGenerator);
+      scanner.setBeanNameGenerator(nameGenerator);
+      beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, nameGenerator);
     }
 
     ScopeMetadataResolver scopeMetadataResolver = getScopeMetadataResolver();

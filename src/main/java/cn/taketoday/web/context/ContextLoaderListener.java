@@ -88,7 +88,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * <p>See {@link cn.taketoday.web.WebApplicationInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
    * ServletContext under the attribute name {@link
-   * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Spring
+   * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Framework
    * application context will be closed when the {@link #contextDestroyed} lifecycle
    * method is invoked on this listener.
    *

@@ -8,3 +8,4 @@ http\://www.springframework.org/schema/task=cn.taketoday.scheduling.config.TaskN
 http\://www.springframework.org/schema/jdbc=cn.taketoday.jdbc.config.JdbcNamespaceHandler
 http\://www.springframework.org/schema/aop=cn.taketoday.aop.config.AopNamespaceHandler
 http\://www.springframework.org/schema/cache=cn.taketoday.cache.config.CacheNamespaceHandler
+http\://www.springframework.org/schema/tx=cn.taketoday.transaction.config.TxNamespaceHandler

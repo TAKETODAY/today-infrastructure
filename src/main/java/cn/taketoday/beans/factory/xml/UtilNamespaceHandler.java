@@ -27,14 +27,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean;
 import cn.taketoday.beans.factory.config.ListFactoryBean;
 import cn.taketoday.beans.factory.config.MapFactoryBean;
 import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.config.PropertyPathFactoryBean;
 import cn.taketoday.beans.factory.config.SetFactoryBean;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -66,7 +66,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
 
     @Override
-    protected String resolveId(Element element, BeanDefinition definition, ParserContext parserContext) {
+    protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
       String id = super.resolveId(element, definition, parserContext);
       if (!StringUtils.hasText(id)) {
         id = element.getAttribute("static-field");
@@ -102,7 +102,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
 
     @Override
-    protected String resolveId(Element element, BeanDefinition definition, ParserContext parserContext) {
+    protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
       String id = super.resolveId(element, definition, parserContext);
       if (!StringUtils.hasText(id)) {
         id = element.getAttribute("path");

@@ -80,7 +80,7 @@ import cn.taketoday.util.StringUtils;
  * classes directly.
  *
  * <p>The process of actually registering the
- * {@code SimpleCacheBeanDefinitionParser} with the Spring XML parsing
+ * {@code SimpleCacheBeanDefinitionParser} with the Framework XML parsing
  * infrastructure is described in the Framework reference documentation
  * (in one of the appendices).
  *

@@ -440,7 +440,7 @@ class MapperScanTest {
 
   @Configuration
   @MapperScan(basePackages = "cn.taketoday.orm.mybatis.mapper",
-              namePopulator = BeanNameGenerator0.class)
+              nameGenerator = BeanNameGenerator0.class)
   public static class AppConfigWithNameGenerator {
   }
 

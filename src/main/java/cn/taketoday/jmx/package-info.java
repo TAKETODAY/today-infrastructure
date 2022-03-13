@@ -20,7 +20,7 @@
 
 /**
  * This package contains Framework's JMX support, which includes registration of
- * Spring-managed beans as JMX MBeans as well as access to remote JMX MBeans.
+ * Framework-managed beans as JMX MBeans as well as access to remote JMX MBeans.
  */
 @NonNullApi
 @NonNullFields

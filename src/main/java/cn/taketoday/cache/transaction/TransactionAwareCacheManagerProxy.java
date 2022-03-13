@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Proxy for a target {@link CacheManager}, exposing transaction-aware {@link Cache} objects
- * which synchronize their {@link Cache#put} operations with Spring-managed transactions
+ * which synchronize their {@link Cache#put} operations with Framework-managed transactions
  * (through Framework's {@link cn.taketoday.transaction.support.TransactionSynchronizationManager},
  * performing the actual cache put operation only in the after-commit phase of a successful transaction.
  * If no transaction is active, {@link Cache#put} operations will be performed immediately, as usual.

@@ -116,7 +116,7 @@ final class ConstructorResolver {
    * "autowire constructor" (with constructor arguments by type) behavior.
    * Also applied if explicit constructor argument values are specified,
    * matching all remaining arguments with beans from the bean factory.
-   * <p>This corresponds to constructor injection: In this mode, a Spring
+   * <p>This corresponds to constructor injection: In this mode, a Framework
    * bean factory is able to host components that expect constructor-based
    * dependency resolution.
    *
@@ -761,12 +761,12 @@ final class ConstructorResolver {
         MethodParameter methodParam = MethodParameter.forExecutable(executable, paramIndex);
         // No explicit match found: we're either supposed to autowire or
         // have to fail creating an argument array for the given constructor.
-//        if (!autowiring) { // FIXME delete this everything is ok
-//          throw new UnsatisfiedDependencyException(
-//                  definition.getResourceDescription(), beanName, new InjectionPoint(methodParam),
-//                  "Ambiguous argument values for parameter of type [" + paramType.getName() +
-//                          "] - did you specify the correct bean references as arguments?");
-//        }
+        if (!autowiring) { // FIXME delete this everything is ok
+          throw new UnsatisfiedDependencyException(
+                  definition.getResourceDescription(), beanName, new InjectionPoint(methodParam),
+                  "Ambiguous argument values for parameter of type [" + paramType.getName() +
+                          "] - did you specify the correct bean references as arguments?");
+        }
         try {
           Object autowiredArgument = resolveAutowiredArgument(
                   methodParam, beanName, autowiredBeanNames, converter, fallback);

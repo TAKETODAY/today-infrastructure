@@ -20,27 +20,25 @@
 
 package cn.taketoday.context.annotation.configuration;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Set;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.lang.Component;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Tests proving that @Qualifier annotations work when used
@@ -53,96 +51,93 @@ public class BeanMethodQualificationTests {
 
   @Test
   public void testStandard() {
-    StandardApplicationContext ctx =
-            new StandardApplicationContext(StandardConfig.class, StandardPojo.class);
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(StandardConfig.class, StandardPojo.class);
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
     StandardPojo pojo = ctx.getBean(StandardPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
-    assertThat(pojo.testBean2.getName()).isEqualTo("boring");
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean2.getName()).isEqualTo("boring");
   }
 
   @Test
   public void testScoped() {
-    StandardApplicationContext ctx =
-            new StandardApplicationContext(ScopedConfig.class, StandardPojo.class);
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(ScopedConfig.class, StandardPojo.class);
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
     StandardPojo pojo = ctx.getBean(StandardPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
-    assertThat(pojo.testBean2.getName()).isEqualTo("boring");
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean2.getName()).isEqualTo("boring");
   }
 
-/*  @Test
+  @Test
   public void testScopedProxy() {
-    StandardApplicationContext ctx =
-            new StandardApplicationContext(ScopedProxyConfig.class, StandardPojo.class);
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isTrue();  // a shared scoped proxy
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(ScopedProxyConfig.class, StandardPojo.class);
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isTrue();  // a shared scoped proxy
     StandardPojo pojo = ctx.getBean(StandardPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
-    assertThat(pojo.testBean2.getName()).isEqualTo("boring");
-  }*/
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean2.getName()).isEqualTo("boring");
+  }
 
   @Test
   public void testCustomWithLazyResolution() {
-    StandardApplicationContext ctx =
-            new StandardApplicationContext(CustomConfig.class, CustomPojo.class);
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
-    assertThat(BeanFactoryAnnotationUtils.isQualifierMatch(value -> value.equals("boring"),
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(CustomConfig.class, CustomPojo.class);
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
+    Assertions.assertThat(BeanFactoryAnnotationUtils.isQualifierMatch(value -> value.equals("boring"),
             "testBean2", ctx.getBeanFactory())).isTrue();
     CustomPojo pojo = ctx.getBean(CustomPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
     TestBean testBean2 = BeanFactoryAnnotationUtils.qualifiedBeanOfType(
             ctx.getBeanFactory(), TestBean.class, "boring");
-    assertThat(testBean2.getName()).isEqualTo("boring");
+    Assertions.assertThat(testBean2.getName()).isEqualTo("boring");
   }
 
   @Test
   public void testCustomWithEarlyResolution() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(CustomConfig.class, CustomPojo.class);
     ctx.refresh();
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
     ctx.getBean("testBean2");
-    assertThat(BeanFactoryAnnotationUtils.isQualifierMatch(value -> value.equals("boring"),
+    Assertions.assertThat(BeanFactoryAnnotationUtils.isQualifierMatch(value -> value.equals("boring"),
             "testBean2", ctx.getBeanFactory())).isTrue();
     CustomPojo pojo = ctx.getBean(CustomPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
   }
 
   @Test
   public void testCustomWithAsm() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("customConfig", new RootBeanDefinition(CustomConfig.class.getName()));
-    BeanDefinition customPojo = new RootBeanDefinition(CustomPojo.class.getName());
+    RootBeanDefinition customPojo = new RootBeanDefinition(CustomPojo.class.getName());
     customPojo.setLazyInit(true);
     ctx.registerBeanDefinition("customPojo", customPojo);
     ctx.refresh();
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
-    assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean1")).isFalse();
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBean2")).isFalse();
     CustomPojo pojo = ctx.getBean(CustomPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
   }
 
   @Test
   public void testCustomWithAttributeOverride() {
-    StandardApplicationContext ctx =
-            new StandardApplicationContext(CustomConfigWithAttributeOverride.class, CustomPojo.class);
-    assertThat(ctx.getBeanFactory().containsSingleton("testBeanX")).isFalse();
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(CustomConfigWithAttributeOverride.class, CustomPojo.class);
+    Assertions.assertThat(ctx.getBeanFactory().containsSingleton("testBeanX")).isFalse();
     CustomPojo pojo = ctx.getBean(CustomPojo.class);
-    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+    Assertions.assertThat(pojo.testBean.getName()).isEqualTo("interesting");
   }
 
   @Test
   public void testBeanNamesForAnnotation() {
-    StandardApplicationContext ctx = new StandardApplicationContext(StandardConfig.class);
-
-    Set<String> beanNamesForAnnotation = ctx.getBeanNamesForAnnotation(Configuration.class);
-    assertThat(beanNamesForAnnotation).isEqualTo(Set.of("standardConfig"));
-    assertThat(ctx.getBeanNamesForAnnotation(Lazy.class)).isEqualTo(Set.of("testBean1"));
-    assertThat(ctx.getBeanNamesForAnnotation(Boring.class)).isEqualTo(Set.of("testBean2"));
-    Set<String> beanNamesForAnnotation1 = ctx.getBeanNamesForAnnotation(Scope.class);
-    assertThat(beanNamesForAnnotation1.isEmpty()).isTrue();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(StandardConfig.class);
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Configuration.class)).isEqualTo(new String[] { "beanMethodQualificationTests.StandardConfig" });
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Scope.class)).isEqualTo(new String[] {});
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Lazy.class)).isEqualTo(new String[] { "testBean1" });
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Boring.class)).isEqualTo(new String[] { "testBean2" });
   }
 
   @Configuration
@@ -189,14 +184,14 @@ public class BeanMethodQualificationTests {
 
     @Bean
     @Qualifier("interesting")
-    @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+    @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public TestBean testBean1() {
       return new TestBean("interesting");
     }
 
     @Bean
     @Boring
-    @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+    @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public TestBean testBean2(TestBean testBean1) {
       TestBean tb = new TestBean("boring");
       tb.setSpouse(testBean1);

@@ -38,7 +38,7 @@ import jakarta.servlet.ServletResponse;
 /**
  * Proxy for a standard Servlet Filter, delegating to a Frameworkmanaged bean that
  * implements the Filter interface. Supports a "targetBeanName" filter init-param
- * in {@code web.xml}, specifying the name of the target bean in the Spring
+ * in {@code web.xml}, specifying the name of the target bean in the Framework
  * application context.
  *
  * <p>{@code web.xml} will usually contain a {@code DelegatingFilterProxy} definition,
@@ -138,7 +138,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * <p>For use with instance-based registration of filters.
    * <p>The target bean must implement the standard Servlet Filter interface.
    *
-   * @param targetBeanName name of the target filter bean to look up in the Spring
+   * @param targetBeanName name of the target filter bean to look up in the Framework
    * application context (must not be {@code null}).
    * @see #findWebApplicationContext()
    * @see #setEnvironment(cn.taketoday.core.env.Environment)
@@ -320,7 +320,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
   }
 
   /**
-   * Initialize the Filter delegate, defined as bean the given Spring
+   * Initialize the Filter delegate, defined as bean the given Framework
    * application context.
    * <p>The default implementation fetches the bean from the application context
    * and calls the standard {@code Filter.init} method on it, passing

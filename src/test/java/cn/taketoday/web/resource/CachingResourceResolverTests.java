@@ -127,7 +127,7 @@ public class CachingResourceResolverTests {
     Resource expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     String cacheKey = resourceKey(file);
-    assertThat(this.cache.get(cacheKey)).isSameAs(expected);
+    assertThat(this.cache.get(cacheKey).get()).isSameAs(expected);
 
     // 2. Resolve with Accept-Encoding
 
@@ -138,7 +138,7 @@ public class CachingResourceResolverTests {
     expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     cacheKey = resourceKey(file + "+encoding=br,gzip");
-    assertThat(this.cache.get(cacheKey)).isSameAs(expected);
+    assertThat(this.cache.get(cacheKey).get()).isSameAs(expected);
 
     // 3. Resolve with Accept-Encoding but no matching codings
 
@@ -149,7 +149,7 @@ public class CachingResourceResolverTests {
     expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     cacheKey = resourceKey(file);
-    assertThat(this.cache.get(cacheKey)).isSameAs(expected);
+    assertThat(this.cache.get(cacheKey).get()).isSameAs(expected);
   }
 
   @Test
@@ -161,7 +161,7 @@ public class CachingResourceResolverTests {
     Resource expected = this.chain.resolveResource(requestContext, file, this.locations);
 
     String cacheKey = resourceKey(file);
-    Object actual = this.cache.get(cacheKey);
+    Object actual = this.cache.get(cacheKey).get();
 
     assertThat(actual).isEqualTo(expected);
   }

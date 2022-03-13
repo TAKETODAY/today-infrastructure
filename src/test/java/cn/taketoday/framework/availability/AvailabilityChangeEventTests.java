@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.event.EventListener;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.ResolvableType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ class AvailabilityChangeEventTests {
   @Test
   void createWhenStateIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new AvailabilityChangeEvent<>(this.source, null))
-            .withMessage("state must not be null");
+            .withMessage("Payload must not be null");
   }
 
   @Test
@@ -88,7 +88,7 @@ class AvailabilityChangeEventTests {
 
   @Test
   void publishEvenToContextConsidersGenericType() {
-    StandardApplicationContext context = new StandardApplicationContext(Config.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
     AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
     AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
   }

@@ -44,7 +44,6 @@ import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -487,7 +486,6 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     MethodInterceptor[] cached = this.methodCache.get(cacheKey);
     if (cached == null) {
       cached = interceptorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(this, method, targetClass);
-      AnnotationAwareOrderComparator.sort(cached);
       this.methodCache.put(cacheKey, cached);
     }
     return cached;

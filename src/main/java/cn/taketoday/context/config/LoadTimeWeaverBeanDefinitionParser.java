@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.xml.AbstractSingleBeanDefinitionParser;
@@ -64,7 +65,7 @@ class LoadTimeWeaverBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
   }
 
   @Override
-  protected String resolveId(Element element, BeanDefinition definition, ParserContext parserContext) {
+  protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
     return ConfigurableApplicationContext.LOAD_TIME_WEAVER_BEAN_NAME;
   }
 

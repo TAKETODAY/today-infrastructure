@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.config.BeanReference;
  * create multiple {@link BeanDefinition BeanDefinitions} and {@link BeanReference RuntimeBeanReferences}
  * in order to provide more succinct configuration and greater convenience to end users. As such, it can
  * no longer be assumed that each configuration entity (e.g. XML tag) maps to one {@link BeanDefinition}.
- * For tool vendors and other users who wish to present visualization or support for configuring Spring
+ * For tool vendors and other users who wish to present visualization or support for configuring Framework
  * applications it is important that there is some mechanism in place to tie the {@link BeanDefinition BeanDefinitions}
  * in the {@link cn.taketoday.beans.factory.BeanFactory} back to the configuration data in a way
  * that has concrete meaning to the end user. As such, {@link cn.taketoday.beans.factory.xml.NamespaceHandler}

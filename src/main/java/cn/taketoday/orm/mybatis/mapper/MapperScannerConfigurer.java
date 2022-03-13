@@ -119,7 +119,7 @@ public class MapperScannerConfigurer
 
   private boolean processPropertyPlaceHolders;
 
-  private BeanNameGenerator namePopulator;
+  private BeanNameGenerator nameGenerator;
 
   private String defaultScope;
 
@@ -279,16 +279,16 @@ public class MapperScannerConfigurer
    * @return the BeanNameGenerator that has been configured
    */
   public BeanNameGenerator getNamePopulator() {
-    return namePopulator;
+    return nameGenerator;
   }
 
   /**
    * Sets BeanNameGenerator to be used while running the scanner.
    *
-   * @param namePopulator the BeanNameGenerator to set
+   * @param nameGenerator the BeanNameGenerator to set
    */
-  public void setNamePopulator(BeanNameGenerator namePopulator) {
-    this.namePopulator = namePopulator;
+  public void setNamePopulator(BeanNameGenerator nameGenerator) {
+    this.nameGenerator = nameGenerator;
   }
 
   /**
@@ -337,7 +337,7 @@ public class MapperScannerConfigurer
     scanner.setSqlSessionFactoryBeanName(this.sqlSessionFactoryBeanName);
     scanner.setSqlSessionTemplateBeanName(this.sqlSessionTemplateBeanName);
     scanner.getScanner().setResourceLoader(this.applicationContext);
-    scanner.getScanner().setBeanNameGenerator(this.namePopulator);
+    scanner.getScanner().setBeanNameGenerator(this.nameGenerator);
     scanner.setMapperFactoryBeanClass(this.mapperFactoryBeanClass);
 
     if (StringUtils.hasText(lazyInitialization)) {

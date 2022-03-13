@@ -58,7 +58,7 @@ class MBeanExportBeanDefinitionParser extends AbstractBeanDefinitionParser {
   private static final String REGISTRATION_REPLACE_EXISTING = "replaceExisting";
 
   @Override
-  protected String resolveId(Element element, BeanDefinition definition, ParserContext parserContext) {
+  protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
     return MBEAN_EXPORTER_BEAN_NAME;
   }
 

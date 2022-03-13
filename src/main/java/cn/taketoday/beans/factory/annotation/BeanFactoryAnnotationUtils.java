@@ -40,7 +40,7 @@ import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Convenience methods performing bean lookups related to Spring-specific annotations,
+ * Convenience methods performing bean lookups related to Framework-specific annotations,
  * for example Framework's {@link Qualifier @Qualifier} annotation.
  *
  * @author Juergen Hoeller

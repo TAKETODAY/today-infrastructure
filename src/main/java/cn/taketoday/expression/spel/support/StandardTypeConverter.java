@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Default implementation of the {@link TypeConverter} interface,
- * delegating to a core Spring {@link ConversionService}.
+ * delegating to a core {@link ConversionService}.
  *
  * @author Juergen Hoeller
  * @author Andy Clement

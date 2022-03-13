@@ -1471,7 +1471,7 @@ public class BeanDefinitionParserDelegate {
         error("Unable to locate NamespaceHandler for XML schema namespace [" + namespaceUri + "]", node);
       }
       else {
-        // A custom namespace, not to be handled by Spring - maybe "xml:...".
+        // A custom namespace, not to be handled by Framework - maybe "xml:...".
         if (log.isDebugEnabled()) {
           log.debug("No NamespaceHandler found for XML schema namespace [{}]", namespaceUri);
         }

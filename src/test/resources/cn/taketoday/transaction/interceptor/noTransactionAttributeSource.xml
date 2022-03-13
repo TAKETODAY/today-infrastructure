@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+  <!-- Simple target -->
+  <bean id="target" class="cn.taketoday.beans.testfixture.beans.DerivedTestBean">
+    <property name="name">
+      <value>custom</value>
+    </property>
+    <property name="age">
+      <value>666</value>
+    </property>
+  </bean>
+
+  <bean id="mockMan" class="cn.taketoday.transaction.interceptor.PlatformTransactionManagerFacade" />
+
+  <!--
+    Invalid: we need a transaction attribute source
+  -->
+  <bean id="noTransactionAttributeSource" class="cn.taketoday.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager">
+      <ref bean="mockMan" />
+    </property>
+    <property name="target">
+      <ref bean="target" />
+    </property>
+  </bean>
+
+</beans>

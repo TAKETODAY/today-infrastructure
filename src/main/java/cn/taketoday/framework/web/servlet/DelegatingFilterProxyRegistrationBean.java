@@ -65,7 +65,7 @@ public class DelegatingFilterProxyRegistrationBean extends AbstractFilterRegistr
    * Create a new {@link DelegatingFilterProxyRegistrationBean} instance to be
    * registered with the specified {@link ServletRegistrationBean}s.
    *
-   * @param targetBeanName name of the target filter bean to look up in the Spring
+   * @param targetBeanName name of the target filter bean to look up in the
    * application context (must not be {@code null}).
    * @param servletRegistrationBeans associate {@link ServletRegistrationBean}s
    */

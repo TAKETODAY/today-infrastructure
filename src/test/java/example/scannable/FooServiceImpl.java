@@ -24,18 +24,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.support.AbstractApplicationContext;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Lookup;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.annotation.DependsOn;
-import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Service;
 import cn.taketoday.scheduling.annotation.AsyncResult;
 import jakarta.annotation.PostConstruct;
@@ -47,7 +48,7 @@ import jakarta.annotation.PostConstruct;
 @Service
 @Lazy
 @DependsOn("myNamedComponent")
-public class FooServiceImpl implements FooService {
+public abstract class FooServiceImpl implements FooService {
 
   // Just to test ASM5's bytecode parsing of INVOKESPECIAL/STATIC on interfaces
   @SuppressWarnings("unused")
@@ -60,7 +61,7 @@ public class FooServiceImpl implements FooService {
   public BeanFactory beanFactory;
 
   @Autowired
-  public List<BeanFactory> BeanFactory;
+  public List<BeanFactory> listableBeanFactory;
 
   @Autowired
   public ResourceLoader resourceLoader;
@@ -114,9 +115,7 @@ public class FooServiceImpl implements FooService {
     return this.initCalled;
   }
 
-  //  @Lookup
-  protected FooDao fooDao() {
-    return fooDao;
-  }
+  @Lookup
+  protected abstract FooDao fooDao();
 
 }

@@ -104,7 +104,7 @@ public class InterfaceBasedMBeanInfoAssembler extends AbstractConfigurableMBeanI
   /**
    * Set the mappings of bean keys to a comma-separated list of interface names.
    * <p>The property key should match the bean key and the property value should match
-   * the list of interface names. When searching for interfaces for a bean, Spring
+   * the list of interface names. When searching for interfaces for a bean, Framework
    * will check these mappings first.
    *
    * @param mappings the mappings of bean keys to interface names

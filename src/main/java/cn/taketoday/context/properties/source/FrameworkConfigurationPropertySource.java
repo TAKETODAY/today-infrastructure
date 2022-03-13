@@ -34,7 +34,7 @@ import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.PropertySourceOrigin;
 
 /**
- * {@link ConfigurationPropertySource} backed by a non-enumerable Spring
+ * {@link ConfigurationPropertySource} backed by a non-enumerable Framework
  * {@link PropertySource} or a restricted {@link EnumerablePropertySource} implementation
  * (such as a security restricted {@code systemEnvironment} source). A
  * {@link PropertySource} is adapted with the help of a {@link PropertyMapper} which

@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides supporting infrastructure to allow Spring-created MBeans
+ * Provides supporting infrastructure to allow Framework-created MBeans
  * to send JMX notifications.
  */
 @NonNullApi

@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.annotation.componentscan.importing.ImportingConfig;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 /**
  * Tests covering overlapping use of @ComponentScan and @Import annotations.
@@ -37,7 +36,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
 
   @Test
   public void componentScanOverlapsWithImport() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config1.class);
     ctx.register(Config2.class);
     ctx.refresh(); // no conflicts found trying to register SimpleComponent
@@ -46,7 +45,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
 
   @Test
   public void componentScanOverlapsWithImportUsingAsm() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config1", new RootBeanDefinition(Config1.class.getName()));
     ctx.registerBeanDefinition("config2", new RootBeanDefinition(Config2.class.getName()));
     ctx.refresh(); // no conflicts found trying to register SimpleComponent
@@ -55,7 +54,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
 
   @Test
   public void componentScanViaImport() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config3.class);
     ctx.refresh();
     ctx.getBean(SimpleComponent.class);
@@ -63,7 +62,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
 
   @Test
   public void componentScanViaImportUsingAsm() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config", new RootBeanDefinition(Config3.class.getName()));
     ctx.refresh();
     ctx.getBean(SimpleComponent.class);
@@ -71,7 +70,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
 
   @Test
   public void componentScanViaImportUsingScan() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.scan("cn.taketoday.context.annotation.componentscan.importing");
     ctx.refresh();
     ctx.getBean(SimpleComponent.class);
@@ -79,7 +78,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
 
   @Test
   public void circularImportViaComponentScan() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config", new RootBeanDefinition(ImportingConfig.class.getName()));
     ctx.refresh();
     ctx.getBean(SimpleComponent.class);
@@ -89,7 +88,7 @@ public class ComponentScanAndImportAnnotationInteractionTests {
   static final class Config1 {
   }
 
-  @Import(SimpleComponent.class)
+  @Import(cn.taketoday.context.annotation.componentscan.simple.SimpleComponent.class)
   static final class Config2 {
   }
 

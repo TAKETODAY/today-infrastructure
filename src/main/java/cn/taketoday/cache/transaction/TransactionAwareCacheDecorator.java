@@ -30,7 +30,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Cache decorator which synchronizes its {@link #put}, {@link #evict} and
- * {@link #clear} operations with Spring-managed transactions (through Framework's
+ * {@link #clear} operations with Framework-managed transactions (through Framework's
  * {@link TransactionSynchronizationManager}, performing the actual cache
  * put/evict/clear operation only in the after-commit phase of a successful
  * transaction. If no transaction is active, {@link #put}, {@link #evict} and

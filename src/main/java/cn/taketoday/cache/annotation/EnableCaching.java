@@ -60,7 +60,7 @@ import cn.taketoday.core.Ordered;
  *     }
  * }</pre>
  *
- * <p>For reference, the example above can be compared to the following Spring XML
+ * <p>For reference, the example above can be compared to the following Framework XML
  * configuration:
  *
  * <pre class="code">
@@ -84,7 +84,7 @@ import cn.taketoday.core.Ordered;
  * </pre>
  *
  * In both of the scenarios above, {@code @EnableCaching} and {@code
- * <cache:annotation-driven/>} are responsible for registering the necessary Spring
+ * <cache:annotation-driven/>} are responsible for registering the necessary Framework
  * components that power annotation-driven cache management, such as the
  * {@link CacheInterceptor CacheInterceptor} and the
  * proxy- or AspectJ-based advice that weaves the interceptor into the call stack when
@@ -184,7 +184,7 @@ public @interface EnableCaching {
    * to standard Java interface-based proxies. The default is {@code false}. <strong>
    * Applicable only if {@link #mode()} is set to {@link AdviceMode#PROXY}</strong>.
    * <p>Note that setting this attribute to {@code true} will affect <em>all</em>
-   * Spring-managed beans requiring proxying, not just those marked with {@code @Cacheable}.
+   * Framework-managed beans requiring proxying, not just those marked with {@code @Cacheable}.
    * For example, other beans marked with Framework's {@code @Transactional} annotation will
    * be upgraded to subclass proxying at the same time. This approach has no negative
    * impact in practice unless one is explicitly expecting one type of proxy vs another,

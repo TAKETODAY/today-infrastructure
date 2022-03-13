@@ -33,14 +33,14 @@ import cn.taketoday.core.annotation.AliasFor;
  * Indicates one or more resources containing bean definitions to import.
  *
  * <p>Like {@link Import @Import}, this annotation provides functionality similar to
- * the {@code <import/>} element in Spring XML. It is typically used when designing
+ * the {@code <import/>} element in Framework XML. It is typically used when designing
  * {@link Configuration @Configuration} classes to be bootstrapped by an
  * {@link AnnotationConfigApplicationContext}, but where some XML functionality such
  * as namespaces is still necessary.
  *
  * <p>By default, arguments to the {@link #value} attribute will be processed using a
  * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader XmlBeanDefinitionReader}
- * will be used to parse Spring {@code <beans/>} XML files. Optionally, the {@link #reader}
+ * will be used to parse Framework {@code <beans/>} XML files. Optionally, the {@link #reader}
  * attribute may be declared, allowing the user to choose a custom {@link BeanDefinitionReader}
  * implementation.
  *

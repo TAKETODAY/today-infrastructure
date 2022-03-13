@@ -25,7 +25,7 @@ import cn.taketoday.cache.support.AbstractCacheManager;
 
 /**
  * Base class for CacheManager implementations that want to support built-in
- * awareness of Spring-managed transactions. This usually needs to be switched
+ * awareness of Framework-managed transactions. This usually needs to be switched
  * on explicitly through the {@link #setTransactionAware} bean property.
  *
  * @author Juergen Hoeller
@@ -41,7 +41,7 @@ public abstract class AbstractTransactionSupportingCacheManager extends Abstract
   /**
    * Set whether this CacheManager should expose transaction-aware Cache objects.
    * <p>Default is "false". Set this to "true" to synchronize cache put/evict
-   * operations with ongoing Spring-managed transactions, performing the actual cache
+   * operations with ongoing Framework-managed transactions, performing the actual cache
    * put/evict operation only in the after-commit phase of a successful transaction.
    */
   public void setTransactionAware(boolean transactionAware) {

@@ -68,7 +68,7 @@ import cn.taketoday.util.ObjectUtils;
  * returning signature does not comply with the JavaBeans specification.
  * {@code ExtendedBeanInfo}, on the other hand, will recognize and include it. This is
  * designed to allow APIs with "builder" or method-chaining style setter signatures to be
- * used within Spring {@code <beans>} XML. {@link #getPropertyDescriptors()} returns all
+ * used within Framework {@code <beans>} XML. {@link #getPropertyDescriptors()} returns all
  * existing property descriptors from the wrapped {@code BeanInfo} as well any added for
  * non-void returning setters. Both standard ("non-indexed") and
  * <a href="https://docs.oracle.com/javase/tutorial/javabeans/writing/properties.html">
