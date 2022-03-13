@@ -457,6 +457,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   }
 
   public void setProblemReporter(ProblemReporter problemReporter) {
+    Assert.notNull(problemReporter, "problemReporter is required");
     this.problemReporter = problemReporter;
   }
 

@@ -25,12 +25,11 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -43,7 +42,7 @@ public class AggressiveFactoryBeanInstantiationTests {
 
   @Test
   public void directlyRegisteredFactoryBean() {
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       context.register(SimpleFactoryBean.class);
       context.addBeanFactoryPostProcessor(factory ->
               BeanFactoryUtils.beanNamesForTypeIncludingAncestors(factory, String.class)
@@ -54,7 +53,7 @@ public class AggressiveFactoryBeanInstantiationTests {
 
   @Test
   public void beanMethodFactoryBean() {
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       context.register(BeanMethodConfiguration.class);
       context.addBeanFactoryPostProcessor(factory ->
               BeanFactoryUtils.beanNamesForTypeIncludingAncestors(factory, String.class)
@@ -65,15 +64,15 @@ public class AggressiveFactoryBeanInstantiationTests {
 
   @Test
   public void checkLinkageError() {
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       context.register(BeanMethodConfigurationWithExceptionInInitializer.class);
       context.refresh();
       fail("Should have thrown BeanCreationException");
     }
-    catch (ApplicationContextException ex) {
+    catch (BeanCreationException ex) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       PrintWriter pw = new PrintWriter(baos);
-      ex.getCause().printStackTrace(pw);
+      ex.printStackTrace(pw);
       pw.flush();
       String stackTrace = baos.toString();
       assertThat(stackTrace.contains(".<clinit>")).isTrue();

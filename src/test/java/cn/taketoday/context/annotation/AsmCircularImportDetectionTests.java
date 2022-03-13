@@ -35,18 +35,18 @@ import cn.taketoday.context.support.StandardApplicationContext;
 public class AsmCircularImportDetectionTests extends AbstractCircularImportDetectionTests {
   private StandardBeanFactory beanFactory;
 
-  private BootstrapContext loadingContext;
+  private BootstrapContext bootstrapContext;
 
   @BeforeEach
   void setup() {
     StandardApplicationContext context = new StandardApplicationContext();
     beanFactory = context.getBeanFactory();
-    loadingContext = new BootstrapContext(beanFactory, context);
+    bootstrapContext = new BootstrapContext(beanFactory, context);
   }
 
   @Override
   protected ConfigurationClassParser newParser() {
-    return new ConfigurationClassParser(loadingContext);
+    return new ConfigurationClassParser(bootstrapContext);
   }
 
   @Override
