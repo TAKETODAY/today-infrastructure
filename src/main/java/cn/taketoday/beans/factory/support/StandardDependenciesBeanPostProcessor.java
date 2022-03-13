@@ -243,13 +243,13 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
       if (AnnotationUtils.isCandidateClass(beanClass, Lookup.class)) {
         try {
           Class<?> targetClass = beanClass;
+
           do {
-            ConfigurableBeanFactory beanFactory = this.beanFactory;
-            Assert.state(beanFactory != null, "No BeanFactory available");
             ReflectionUtils.doWithLocalMethods(targetClass, method -> {
               Lookup lookup = method.getAnnotation(Lookup.class);
               if (lookup != null) {
                 LookupOverride override = new LookupOverride(method, lookup.value());
+                Assert.state(beanFactory != null, "No BeanFactory available");
                 try {
                   RootBeanDefinition mbd = (RootBeanDefinition)
                           beanFactory.getMergedBeanDefinition(beanName);
@@ -292,6 +292,7 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
           ArrayList<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
           Constructor<?> requiredConstructor = null;
           Constructor<?> defaultConstructor = null;
+          DependencyInjector dependencyInjector = obtainDependencyInjector();
           for (Constructor<?> candidate : rawCandidates) {
             boolean canInject = dependencyInjector.canInject(candidate);
             if (!canInject) {

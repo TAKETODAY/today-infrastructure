@@ -37,7 +37,6 @@ import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -51,10 +50,10 @@ public class DependencyInjector {
   @Nullable
   private DependencyResolvingStrategies resolvingStrategies;
 
+  @Nullable
   private final BeanFactory beanFactory;
 
-  public DependencyInjector(BeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "beanFactory is required");
+  public DependencyInjector(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
@@ -183,7 +182,7 @@ public class DependencyInjector {
     if (beanName != null && autowiredBeanNames != null
             && beanFactory instanceof ConfigurableBeanFactory configurable) {
       for (String autowiredBeanName : autowiredBeanNames) {
-        if (beanFactory.containsBean(autowiredBeanName)) {
+        if (configurable.containsBean(autowiredBeanName)) {
           configurable.registerDependentBean(autowiredBeanName, beanName);
         }
       }
