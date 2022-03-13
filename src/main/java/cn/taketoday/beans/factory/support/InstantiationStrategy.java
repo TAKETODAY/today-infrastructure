@@ -29,6 +29,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -165,7 +166,11 @@ public class InstantiationStrategy {
       Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
       try {
         currentlyInvokedFactoryMethod.set(factoryMethod);
-        return factoryMethod.invoke(factoryBean, args);
+        Object result = factoryMethod.invoke(factoryBean, args);
+        if (result == null) {
+          result = NullValue.INSTANCE;
+        }
+        return result;
       }
       finally {
         if (priorInvokedFactoryMethod != null) {

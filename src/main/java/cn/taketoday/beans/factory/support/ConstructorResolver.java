@@ -127,7 +127,7 @@ final class ConstructorResolver {
    * or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
-  public Object autowireConstructor(String beanName, RootBeanDefinition merged,
+  public BeanWrapper autowireConstructor(String beanName, RootBeanDefinition merged,
           @Nullable Constructor<?>[] chosenCtors, @Nullable Object[] explicitArgs) {
 
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
@@ -182,7 +182,8 @@ final class ConstructorResolver {
             merged.constructorArgumentsResolved = true;
             merged.resolvedConstructorArguments = EMPTY_ARGS;
           }
-          return instantiate(beanName, merged, uniqueCandidate, EMPTY_ARGS);
+          wrapper.setBeanInstance(instantiate(beanName, merged, uniqueCandidate, EMPTY_ARGS));
+          return wrapper;
         }
       }
 
@@ -298,7 +299,9 @@ final class ConstructorResolver {
     }
 
     Assert.state(argsToUse != null, "Unresolved constructor arguments");
-    return instantiate(beanName, merged, constructorToUse, argsToUse);
+
+    wrapper.setBeanInstance(instantiate(beanName, merged, constructorToUse, argsToUse));
+    return wrapper;
   }
 
   private Object instantiate(String beanName, RootBeanDefinition merged,
@@ -382,9 +385,9 @@ final class ConstructorResolver {
    * method, or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
-  public Object instantiateUsingFactoryMethod(String beanName, RootBeanDefinition merged, @Nullable Object[] explicitArgs) {
+  public BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition merged, @Nullable Object[] explicitArgs) {
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
-    this.beanFactory.initBeanWrapper(wrapper);
+    beanFactory.initBeanWrapper(wrapper);
 
     boolean isStatic;
     Object factoryBean;
@@ -472,7 +475,10 @@ final class ConstructorResolver {
             merged.constructorArgumentsResolved = true;
             merged.resolvedConstructorArguments = EMPTY_ARGS;
           }
-          return instantiate(beanName, merged, factoryBean, uniqueCandidate, EMPTY_ARGS);
+
+          wrapper.setBeanInstance(instantiate(beanName, merged, factoryBean, uniqueCandidate, EMPTY_ARGS));
+
+          return wrapper;
         }
       }
 
@@ -627,7 +633,8 @@ final class ConstructorResolver {
       }
     }
 
-    return instantiate(beanName, merged, factoryBean, factoryMethodToUse, argsToUse);
+    wrapper.setBeanInstance(instantiate(beanName, merged, factoryBean, factoryMethodToUse, argsToUse));
+    return wrapper;
   }
 
   private Object instantiate(String beanName, RootBeanDefinition merged,

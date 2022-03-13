@@ -76,6 +76,7 @@ import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcesso
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.ResolvableType;
@@ -130,7 +131,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   private boolean allowRawInjectionDespiteWrapping = false;
 
   /** Cache of unfinished FactoryBean instances: FactoryBean name to its instance. @since 4.0 */
-  private final ConcurrentHashMap<String, Object> factoryBeanInstanceCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, BeanWrapper> factoryBeanInstanceCache = new ConcurrentHashMap<>();
 
   /**
    * Dependency types to ignore on dependency check and autowire, as Set of
@@ -158,6 +159,12 @@ public abstract class AbstractAutowireCapableBeanFactory
   /** Cache of filtered BeanProperty: bean Class to PropertyDescriptor array. */
   private final ConcurrentMap<Class<?>, BeanProperty[]> filteredBeanPropertiesCache =
           new ConcurrentHashMap<>();
+
+  /**
+   * The name of the currently created bean, for implicit dependency registration
+   * on getBean etc invocations triggered from a user-specified Supplier callback.
+   */
+  private final NamedThreadLocal<String> currentlyCreatedBean = new NamedThreadLocal<>("Currently created bean");
 
   /**
    * Create a new AbstractAutowireCapableBeanFactory.
@@ -291,12 +298,14 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected Object doCreateBean(
           String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
 
-    Object bean = createIfNecessary(beanName, merged, args);
+    BeanWrapper instanceWrapper = createIfNecessary(beanName, merged, args);
+    Object bean = instanceWrapper.getWrappedInstance();
 
-    if (bean == null) {
+    if (bean == NullValue.INSTANCE) {
       return null;
     }
-    merged.resolvedTargetType = bean.getClass();
+
+    merged.resolvedTargetType = instanceWrapper.getWrappedClass();
 
     // Allow post-processors to modify the merged bean merged.
     synchronized(merged.postProcessingLock) {
@@ -322,13 +331,11 @@ public abstract class AbstractAutowireCapableBeanFactory
       addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, merged, bean));
     }
 
+    // Initialize the bean instance.
     Object fullyInitializedBean;
     try {
       // apply properties
-
-      BeanWrapperImpl beanWrapper = createBeanWrapper(merged, bean);
-
-      populateBean(beanName, merged, beanWrapper);
+      populateBean(beanName, merged, instanceWrapper);
       // Initialize the bean instance.
       fullyInitializedBean = initializeBean(bean, beanName, merged);
     }
@@ -371,7 +378,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // Register bean as disposable.
     try {
-      registerDisposableBeanIfNecessary(beanName, bean, merged);
+      registerDisposableBeanIfNecessary(beanName, instanceWrapper, merged);
     }
     catch (BeanDefinitionValidationException ex) {
       throw new BeanCreationException(
@@ -380,7 +387,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     return fullyInitializedBean;
   }
 
-  private BeanWrapperImpl createBeanWrapper(BeanDefinition merged, Object bean) {
+  protected BeanWrapperImpl createBeanWrapper(BeanDefinition merged, Object bean) {
     BeanMetadata metadata;
     if (merged.isSingleton()) {
       metadata = new BeanMetadata(bean.getClass());
@@ -395,17 +402,17 @@ public abstract class AbstractAutowireCapableBeanFactory
     return beanWrapper;
   }
 
-  @Nullable
-  private Object createIfNecessary(String beanName, RootBeanDefinition definition, @Nullable Object[] args) {
-    Object bean = null;
+  private BeanWrapper createIfNecessary(String beanName, RootBeanDefinition definition, @Nullable Object[] args) {
+    // Instantiate the bean.
+    BeanWrapper instanceWrapper = null;
     if (definition.isSingleton()) {
-      bean = this.factoryBeanInstanceCache.remove(beanName);
+      instanceWrapper = factoryBeanInstanceCache.remove(beanName);
     }
 
-    if (bean == null) {
-      bean = createBeanInstance(beanName, definition, args);
+    if (instanceWrapper == null) {
+      instanceWrapper = createBeanInstance(beanName, definition, args);
     }
-    return bean;
+    return instanceWrapper;
   }
 
   private boolean isEarlySingletonExposure(BeanDefinition definition, String beanName) {
@@ -685,11 +692,12 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param merged the bean merged for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
    * @return a BeanWrapper for the new instance
+   * @see #obtainFromSupplier
    * @see #instantiateUsingFactoryMethod
    * @see #autowireConstructor
+   * @see #instantiateBean
    */
-  @Nullable
-  protected Object createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object[] args) {
+  protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object[] args) {
     // Make sure bean class is actually resolved at this point.
     Class<?> beanClass = resolveBeanClass(beanName, merged);
 
@@ -702,7 +710,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     Supplier<?> instanceSupplier = merged.getInstanceSupplier();
     if (instanceSupplier != null) {
-      return instanceSupplier.get(); // maybe null
+      return obtainFromSupplier(merged, instanceSupplier, beanName); // maybe null
     }
 
     if (merged.getFactoryMethodName() != null) {
@@ -726,7 +734,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         return autowireConstructor(beanName, merged, null, null);
       }
       else {
-        return instantiateBean(beanName, merged).getWrappedInstance();
+        return instantiateBean(beanName, merged);
       }
     }
 
@@ -739,7 +747,58 @@ public abstract class AbstractAutowireCapableBeanFactory
       return autowireConstructor(beanName, merged, constructors, args);
     }
 
-    return instantiateBean(beanName, merged).getWrappedInstance();
+    return instantiateBean(beanName, merged);
+  }
+
+  /**
+   * Obtain a bean instance from the given supplier.
+   *
+   * @param merged merged bean def
+   * @param instanceSupplier the configured supplier
+   * @param beanName the corresponding bean name
+   * @return a BeanWrapper for the new instance
+   * @since 4.0
+   */
+  protected BeanWrapper obtainFromSupplier(RootBeanDefinition merged, Supplier<?> instanceSupplier, String beanName) {
+    Object instance;
+
+    String outerBean = this.currentlyCreatedBean.get();
+    this.currentlyCreatedBean.set(beanName);
+    try {
+      instance = instanceSupplier.get();
+    }
+    finally {
+      if (outerBean != null) {
+        this.currentlyCreatedBean.set(outerBean);
+      }
+      else {
+        this.currentlyCreatedBean.remove();
+      }
+    }
+
+    if (instance == null) {
+      instance = NullValue.INSTANCE;
+    }
+
+    return createBeanWrapper(merged, instance);
+  }
+
+  /**
+   * Overridden in order to implicitly register the currently created bean as
+   * dependent on further beans getting programmatically retrieved during a
+   * {@link Supplier} callback.
+   *
+   * @see #obtainFromSupplier
+   * @since 4.0
+   */
+  @Nullable
+  @Override
+  protected Object handleFactoryBean(String name, String beanName, @Nullable RootBeanDefinition definition, Object beanInstance) throws BeansException {
+    String currentlyCreatedBean = this.currentlyCreatedBean.get();
+    if (currentlyCreatedBean != null) {
+      registerDependentBean(beanName, currentlyCreatedBean);
+    }
+    return super.handleFactoryBean(name, beanName, definition, beanInstance);
   }
 
   /**
@@ -755,7 +814,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #getBean(String, Object[])
    * @since 4.0
    */
-  protected Object instantiateUsingFactoryMethod(
+  protected BeanWrapper instantiateUsingFactoryMethod(
           String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) {
     return new ConstructorResolver(this).instantiateUsingFactoryMethod(beanName, mbd, explicitArgs);
   }
@@ -776,7 +835,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @return a BeanWrapper for the new instance
    * @since 4.0
    */
-  protected Object autowireConstructor(
+  protected BeanWrapper autowireConstructor(
           String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
 
     return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
@@ -851,7 +910,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     RootBeanDefinition merged = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
     merged.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     if (merged.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR) {
-      return autowireConstructor(beanClass.getName(), merged, null, null);
+      return autowireConstructor(beanClass.getName(), merged, null, null).getWrappedInstance();
     }
     else {
       Object bean = getInstantiationStrategy().instantiate(merged, null, this);
@@ -1643,11 +1702,11 @@ public abstract class AbstractAutowireCapableBeanFactory
   private FactoryBean<?> getFactoryBeanForTypeCheck(String beanName, RootBeanDefinition def) {
     if (def.isSingleton()) {
       synchronized(getSingletonMutex()) {
-        Object instance = factoryBeanInstanceCache.get(beanName);
-        if (instance instanceof FactoryBean factory) {
+        BeanWrapper beanWrapper = this.factoryBeanInstanceCache.get(beanName);
+        if (beanWrapper != null && beanWrapper.getWrappedInstance() instanceof FactoryBean<?> factory) {
           return factory;
         }
-        instance = getSingleton(beanName, false);
+        Object instance = getSingleton(beanName, false);
         if (instance == NullValue.INSTANCE) { // created and its instance is null
           return null;
         }
@@ -1666,8 +1725,13 @@ public abstract class AbstractAutowireCapableBeanFactory
           // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
           instance = resolveBeforeInstantiation(beanName, def);
           if (instance == null) {
-            instance = createBeanInstance(beanName, def, null);
+            beanWrapper = createBeanInstance(beanName, def, null);
+            instance = beanWrapper.getWrappedInstance();
           }
+        }
+        catch (UnsatisfiedDependencyException ex) {
+          // Don't swallow, probably misconfiguration...
+          throw ex;
         }
         catch (BeanCreationException ex) {
           // Don't swallow a linkage error since it contains a full stacktrace on
@@ -1688,13 +1752,14 @@ public abstract class AbstractAutowireCapableBeanFactory
         }
         // put to factoryBeanInstanceCache
         FactoryBean<?> factory = getFactoryBean(beanName, instance);
-        if (factory != null) {
-          factoryBeanInstanceCache.put(beanName, factory);
+        if (beanWrapper != null) {
+          factoryBeanInstanceCache.put(beanName, beanWrapper);
         }
         return factory;
       }
     }
     else {
+      // prototype
       if (isPrototypeCurrentlyInCreation(beanName)) {
         return null;
       }
@@ -1706,8 +1771,13 @@ public abstract class AbstractAutowireCapableBeanFactory
         // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
         instance = resolveBeforeInstantiation(beanName, def);
         if (instance == null) {
-          instance = createBeanInstance(beanName, def, null);
+          BeanWrapper beanWrapper = createBeanInstance(beanName, def, null);
+          instance = beanWrapper.getWrappedInstance();
         }
+      }
+      catch (UnsatisfiedDependencyException ex) {
+        // Don't swallow, probably misconfiguration...
+        throw ex;
       }
       catch (BeanCreationException ex) {
         // Instantiation failure, maybe too early...
