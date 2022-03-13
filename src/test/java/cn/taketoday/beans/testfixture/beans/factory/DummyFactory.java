@@ -43,7 +43,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
  * @since 10.03.2003
  */
 public class DummyFactory
-        implements FactoryBean<Object>, BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {
+        implements FactoryBean<TestBean>, BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
   public static final String SINGLETON_NAME = "Factory singleton";
 
@@ -159,7 +159,7 @@ public class DummyFactory
    * @see FactoryBean#getObject()
    */
   @Override
-  public Object getObject() throws BeansException {
+  public TestBean getObject() throws BeansException {
     if (isSingleton()) {
       return this.testBean;
     }

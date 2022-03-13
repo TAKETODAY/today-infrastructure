@@ -21,6 +21,7 @@
 package example.scannable;
 
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 
 /**
@@ -37,7 +38,7 @@ public class ServiceInvocationCounter {
   @Pointcut("execution(* example.scannable.FooService+.*(..))")
   public void serviceExecution() { }
 
-  //  @Before("serviceExecution()")
+  @Before("serviceExecution()")
   public void countUse() {
     this.useCount++;
     threadLocalCount.set(this.useCount);

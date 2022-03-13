@@ -430,14 +430,18 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ParameterResolvingRegistry parameterResolvingRegistry(
-          ApplicationContext context, MultipartConfiguration multipartConfig) {
+          ApplicationContext context, MultipartConfiguration multipartConfig,
+          @Nullable RedirectModelManager redirectModelManager) {
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
     registry.setMultipartConfig(multipartConfig);
-    registry.registerDefaultStrategies();
+    registry.setRedirectModelManager(redirectModelManager);
+
     registry.setMessageConverters(getMessageConverters());
     registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
+
+    registry.registerDefaultStrategies();
 
     return registry;
   }

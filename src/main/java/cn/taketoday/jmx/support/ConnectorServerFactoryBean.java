@@ -232,7 +232,7 @@ public class ConnectorServerFactoryBean extends MBeanRegistrationSupport
     try {
       if (this.connectorServer != null) {
         if (log.isInfoEnabled()) {
-          log.info("Stopping JMX connector server: " + this.connectorServer);
+          log.info("Stopping JMX connector server: {}", this.connectorServer);
         }
         this.connectorServer.stop();
       }

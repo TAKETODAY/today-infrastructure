@@ -248,7 +248,7 @@ class MapperScanTest {
   private void assertBeanNotLoaded(String name) {
     try {
       applicationContext.getBean(name);
-      fail("Spring bean should not be defined for class " + name);
+      fail("bean should not be defined for class " + name);
     }
     catch (NoSuchBeanDefinitionException nsbde) {
       // success

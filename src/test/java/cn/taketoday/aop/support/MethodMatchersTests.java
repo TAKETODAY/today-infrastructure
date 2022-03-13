@@ -87,7 +87,8 @@ public class MethodMatchersTests {
     assertThat(intersection.isRuntime()).as("Intersection is a dynamic matcher").isTrue();
     assertThat(intersection.matches(ITESTBEAN_SETAGE, TestBean.class)).as("2Matched setAge method").isTrue();
 
-    DefaultMethodInvocation defaultMethodInvocation = new DefaultMethodInvocation(null, ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 });
+    DefaultMethodInvocation defaultMethodInvocation = new DefaultMethodInvocation(
+            null, new TestBean(), ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 }, null);
 
     assertThat(intersection.matches(defaultMethodInvocation)).as("3Matched setAge method").isTrue();
     // Knock out dynamic part

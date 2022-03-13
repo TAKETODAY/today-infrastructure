@@ -25,6 +25,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.BeanAge;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.lang.Component;
 
 /**
@@ -72,7 +73,7 @@ public class FactoryMethodComponent {
   }
 
   @Bean
-  @Scope(value = "request"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+  @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
   public TestBean requestScopedInstance() {
     return new TestBean("requestScopedInstance", 3);
   }

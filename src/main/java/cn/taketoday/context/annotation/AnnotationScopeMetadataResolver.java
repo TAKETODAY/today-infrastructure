@@ -21,6 +21,7 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -94,11 +95,15 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
         annotation = annDef.getMetadata().getAnnotation(scopeAnnotationType);
       }
       if (annotation.isPresent()) {
-        ScopedProxyMode proxyMode = annotation.getEnum("proxyMode", ScopedProxyMode.class);
-        if (proxyMode == ScopedProxyMode.DEFAULT) {
-          proxyMode = this.defaultProxyMode;
+        Optional<ScopedProxyMode> optional = annotation.getValue("proxyMode", ScopedProxyMode.class);
+        if (optional.isPresent()) {
+          ScopedProxyMode proxyMode = optional.get();
+          if (proxyMode == ScopedProxyMode.DEFAULT) {
+            proxyMode = this.defaultProxyMode;
+          }
+          metadata.setScopedProxyMode(proxyMode);
         }
-        metadata.setScopedProxyMode(proxyMode);
+
         metadata.setScopeName(annotation.getStringValue());
       }
     }

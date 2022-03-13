@@ -244,10 +244,6 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestHeaderParameterResolver());
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {
-      modelManager = context.getBean(RedirectModelManager.class);
-    }
-
-    if (modelManager == null) {
       log.info("RedirectModel disabled");
     }
 

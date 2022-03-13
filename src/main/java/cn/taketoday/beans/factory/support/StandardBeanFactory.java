@@ -332,12 +332,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public void removeSingleton(String name) {
-    super.removeSingleton(name);
-    manualSingletonNames.remove(name);
-  }
-
-  @Override
   public void destroySingleton(String beanName) {
     super.destroySingleton(beanName);
     removeManualSingletonName(beanName);
@@ -933,7 +927,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
             includeNonSingletons ? this.allBeanNamesByType : this.singletonBeanNamesByType;
     String[] resolvedBeanNames = cache.get(requiredType);
     if (resolvedBeanNames != null) {
-      return Set.of(resolvedBeanNames);
+      return CollectionUtils.newLinkedHashSet(resolvedBeanNames);
     }
 
     Set<String> resolvedBeanNamesSet = doGetBeanNamesForType(

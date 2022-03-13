@@ -487,7 +487,7 @@ public abstract class AbstractBeanFactory
     BeanFactory parentBeanFactory = getParentBeanFactory();
     if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
       // No bean definition found in this factory -> delegate to parent.
-      return parentBeanFactory.isTypeMatch(name, typeToMatch);
+      return parentBeanFactory.isTypeMatch(originalBeanName(name), typeToMatch);
     }
 
     // Retrieve corresponding bean definition.

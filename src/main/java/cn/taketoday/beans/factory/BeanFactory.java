@@ -639,7 +639,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    *
    * @param requiredType the class or interface to match, or {@code null} for all bean names
    * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty array if none
+   * the given object type (including subclasses), or an empty Set if none
    * @see FactoryBean#getObjectType()
    * @since 3.0
    */
@@ -659,7 +659,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @param includeNonSingletons whether to include prototype or scoped beans too
    * or just singletons (also applies to FactoryBeans)
    * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty array if none
+   * the given object type (including subclasses), or an empty Set if none
    * @see FactoryBean#getObjectType()
    * @since 3.0
    */
@@ -693,7 +693,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * eagerly initialized to determine their type: So be aware that passing in "true"
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty array if none
+   * the given object type (including subclasses), or an empty Set if none
    * @see FactoryBean#getObjectType()
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0

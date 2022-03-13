@@ -49,9 +49,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class ConnectorServerFactoryBeanTests extends AbstractMBeanServerTests {
 
-  private static final String OBJECT_NAME = "spring:type=connector,name=test";
+  private static final String OBJECT_NAME = "today:type=connector,name=test";
 
-  @SuppressWarnings("deprecation")
   private final String serviceUrl = "service:jmx:jmxmp://localhost:" + TestSocketUtils.findAvailableTcpPort();
 
   @Test
