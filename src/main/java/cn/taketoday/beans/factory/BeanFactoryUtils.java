@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.ResolvableType;
@@ -563,6 +564,22 @@ public abstract class BeanFactoryUtils {
 
   @Nullable
   public static <T> T find(BeanFactory beanFactory, String beanName, Class<T> requiredType) {
+    return find(beanFactory, beanName, requiredType, null);
+  }
+
+  @Nullable
+  public static <T> T find(BeanFactory beanFactory, String beanName, Class<T> requiredType, @Nullable Supplier<T> defaultValue) {
+    if (beanFactory.containsBean(beanName)) {
+      return beanFactory.getBean(beanName, requiredType);
+    }
+    if (defaultValue != null) {
+      return defaultValue.get();
+    }
+    return null;
+  }
+
+  @Nullable
+  public static <T> T findLocal(BeanFactory beanFactory, String beanName, Class<T> requiredType) {
     if (beanFactory instanceof HierarchicalBeanFactory hbc) {
       if (hbc.containsLocalBean(beanName)) {
         return hbc.getBean(beanName, requiredType);
@@ -573,6 +590,25 @@ public abstract class BeanFactoryUtils {
         return beanFactory.getBean(beanName, requiredType);
       }
       catch (NoSuchBeanDefinitionException ignored) { }
+    }
+    return null;
+  }
+
+  // type lookup
+
+  @Nullable
+  public static <T> T find(BeanFactory beanFactory, Class<T> requiredType) {
+    return find(beanFactory, requiredType, null);
+  }
+
+  @Nullable
+  public static <T> T find(BeanFactory beanFactory, Class<T> requiredType, @Nullable Supplier<T> defaultValue) {
+    try {
+      return beanFactory.getBean(requiredType);
+    }
+    catch (NoSuchBeanDefinitionException ignored) { }
+    if (defaultValue != null) {
+      return defaultValue.get();
     }
     return null;
   }

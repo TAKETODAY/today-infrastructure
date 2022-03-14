@@ -33,7 +33,7 @@ import jakarta.servlet.ServletContext;
  * initialized.
  *
  * @author Phillip Webb
- * @since 1.0.0
+ * @since 4.0
  */
 public class WebApplicationContextServletContextAwareProcessor extends ServletContextAwareProcessor {
 

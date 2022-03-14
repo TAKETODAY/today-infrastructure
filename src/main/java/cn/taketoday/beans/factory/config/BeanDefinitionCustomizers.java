@@ -94,7 +94,7 @@ public class BeanDefinitionCustomizers {
   }
 
   public void loadDefaultCustomizers(@Nullable BeanFactory beanFactory) {
-    addCustomizers(TodayStrategies.getStrategies(
+    addCustomizers(TodayStrategies.get(
             BeanDefinitionCustomizer.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory)));
   }
 

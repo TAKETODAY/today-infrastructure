@@ -104,7 +104,7 @@ public final class CachedIntrospectionResults {
   private static final boolean shouldIntrospectorIgnoreBeanInfoClasses = TodayStrategies.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
 
   /** Stores the BeanInfoFactory instances. */
-  private static final List<BeanInfoFactory> beanInfoFactories = TodayStrategies.getStrategies(
+  private static final List<BeanInfoFactory> beanInfoFactories = TodayStrategies.get(
           BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
 
   private static final Logger logger = LoggerFactory.getLogger(CachedIntrospectionResults.class);

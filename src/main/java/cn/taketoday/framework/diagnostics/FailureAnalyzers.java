@@ -137,7 +137,7 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
   }
 
   private boolean report(@Nullable FailureAnalysis analysis, ClassLoader classLoader) {
-    List<FailureAnalysisReporter> reporters = TodayStrategies.getStrategies(
+    List<FailureAnalysisReporter> reporters = TodayStrategies.get(
             FailureAnalysisReporter.class, classLoader);
     if (analysis == null || reporters.isEmpty()) {
       return false;

@@ -701,7 +701,7 @@ public abstract class AbstractApplicationContext
     beanFactory.registerDependency(ApplicationContext.class, this);
 
     // loading some outside beans
-    List<BeanDefinitionLoader> strategies = TodayStrategies.getStrategies(
+    List<BeanDefinitionLoader> strategies = TodayStrategies.get(
             BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
 
     if (!strategies.isEmpty()) {

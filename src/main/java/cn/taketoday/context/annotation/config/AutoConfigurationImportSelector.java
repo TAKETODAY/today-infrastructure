@@ -268,7 +268,7 @@ public class AutoConfigurationImportSelector
   }
 
   protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {
-    return TodayStrategies.getStrategies(AutoConfigurationImportFilter.class, this.beanClassLoader);
+    return TodayStrategies.get(AutoConfigurationImportFilter.class, this.beanClassLoader);
   }
 
   private ConfigurationClassFilter getConfigurationClassFilter() {
@@ -303,7 +303,7 @@ public class AutoConfigurationImportSelector
   }
 
   protected List<AutoConfigurationImportListener> getAutoConfigurationImportListeners() {
-    return TodayStrategies.getStrategies(AutoConfigurationImportListener.class, this.beanClassLoader);
+    return TodayStrategies.get(AutoConfigurationImportListener.class, this.beanClassLoader);
   }
 
   private void invokeAwareMethods(Object instance) {

@@ -95,7 +95,7 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   }
 
   protected Collection<String> getStrategiesNames(Class<?> source) {
-    List<String> strategies = TodayStrategies.getStrategies(source.getName(), getBeanClassLoader());
+    List<String> strategies = TodayStrategies.get(source.getName(), getBeanClassLoader());
     ImportCandidates.load(source, getBeanClassLoader()).forEach(strategies::add);
     return strategies;
   }

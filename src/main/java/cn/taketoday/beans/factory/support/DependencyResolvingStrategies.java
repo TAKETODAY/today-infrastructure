@@ -45,12 +45,9 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   @Override
   public boolean supports(Field field) {
-    DependencyResolvingStrategy[] strategies = resolvingStrategies.get();
-    if (strategies != null) {
-      for (DependencyResolvingStrategy resolvingStrategy : strategies) {
-        if (resolvingStrategy.supports(field)) {
-          return true;
-        }
+    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
+      if (resolvingStrategy.supports(field)) {
+        return true;
       }
     }
     return false;
@@ -58,12 +55,9 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
 
   @Override
   public boolean supports(Executable executable) {
-    DependencyResolvingStrategy[] strategies = resolvingStrategies.get();
-    if (strategies != null) {
-      for (DependencyResolvingStrategy resolvingStrategy : strategies) {
-        if (resolvingStrategy.supports(executable)) {
-          return true;
-        }
+    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
+      if (resolvingStrategy.supports(executable)) {
+        return true;
       }
     }
     return false;
@@ -74,13 +68,10 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
           DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
     resolvingContext.setDependency(null);
     resolvingContext.setDependencyResolved(false);
-    DependencyResolvingStrategy[] strategies = resolvingStrategies.get();
-    if (strategies != null) {
-      for (DependencyResolvingStrategy resolvingStrategy : strategies) {
-        resolvingStrategy.resolveDependency(descriptor, resolvingContext);
-        if (resolvingContext.isDependencyResolved()) {
-          return;
-        }
+    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
+      resolvingStrategy.resolveDependency(descriptor, resolvingContext);
+      if (resolvingContext.isDependencyResolved()) {
+        return;
       }
     }
     // TODO maybe check required status?
@@ -95,15 +86,15 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       if (beanFactory instanceof ConfigurableBeanFactory configurable) {
         beanClassLoader = configurable.getBeanClassLoader();
       }
-      strategies = TodayStrategies.getStrategies(
+      strategies = TodayStrategies.get(
               DependencyResolvingStrategy.class, beanClassLoader, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
     }
     else {
-      strategies = TodayStrategies.getStrategies(DependencyResolvingStrategy.class);
+      strategies = TodayStrategies.get(DependencyResolvingStrategy.class);
     }
 
     resolvingStrategies.addAll(strategies); // @since 4.0
-    resolvingStrategies.add(new BeanFactoryDependencyResolvingStrategy());
+    resolvingStrategies.add(new BeanFactoryDependencyResolver());
   }
 
   public ArrayHolder<DependencyResolvingStrategy> getStrategies() {

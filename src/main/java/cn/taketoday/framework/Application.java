@@ -159,7 +159,7 @@ public class Application {
     this.configSources = configSources;
     this.mainApplicationClass = deduceMainApplicationClass();
     this.applicationType = ApplicationType.deduceFromClasspath();
-    setInitializers(TodayStrategies.getStrategies(ApplicationContextInitializer.class));
+    setInitializers(TodayStrategies.get(ApplicationContextInitializer.class));
   }
 
   private Class<?> deduceMainApplicationClass() {
@@ -296,7 +296,7 @@ public class Application {
   protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
 
   private ApplicationStartupListeners getStartupListeners() {
-    List<ApplicationStartupListener> strategies = TodayStrategies.getStrategies(ApplicationStartupListener.class);
+    List<ApplicationStartupListener> strategies = TodayStrategies.get(ApplicationStartupListener.class);
     return new ApplicationStartupListeners(log, strategies);
   }
 
@@ -489,7 +489,7 @@ public class Application {
   }
 
   protected List<EnvironmentPostProcessor> getEnvironmentPostProcessors() {
-    return TodayStrategies.getStrategies(EnvironmentPostProcessor.class);
+    return TodayStrategies.get(EnvironmentPostProcessor.class);
   }
 
   /**
@@ -730,7 +730,7 @@ public class Application {
 
   private List<ApplicationExceptionReporter> getExceptionReporters(ConfigurableApplicationContext context) {
     try {
-      return TodayStrategies.getStrategies(
+      return TodayStrategies.get(
               ApplicationExceptionReporter.class, DependencyInjectorAwareInstantiator.forFunction(context));
     }
     catch (Throwable ex) {
