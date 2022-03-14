@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.aop.support.DelegatingIntroductionInterceptor
  * @since 4.0 2022/3/9 11:57
  */
-public interface ProxyMethodInvocation extends MethodInvocation {
+public interface ProxyMethodInvocation extends MethodInvocation, TargetClassAware {
 
   /**
    * Return the proxy that this method invocation was made through.

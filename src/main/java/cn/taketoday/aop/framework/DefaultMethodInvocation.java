@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.lang.Constant;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * @author TODAY <br>
@@ -63,7 +63,7 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
     this.target = target;
     this.method = method;
     this.targetClass = targetClass;
-    this.args = arguments == null ? Constant.EMPTY_OBJECT_ARRAY : arguments;
+    this.args = ClassUtils.adaptArgumentsIfNecessary(method, arguments);
     this.advices = advices;
     if (advices != null)
       this.adviceLength = advices.length;

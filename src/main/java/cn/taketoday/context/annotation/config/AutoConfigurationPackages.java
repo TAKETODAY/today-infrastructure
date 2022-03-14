@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
@@ -75,9 +76,12 @@ public abstract class AutoConfigurationPackages {
    * @throws IllegalStateException if autoconfiguration is not enabled
    */
   public static List<String> get(BeanFactory beanFactory) {
-    BasePackages basePackages = beanFactory.getBean(BEAN_NAME, BasePackages.class);
-    Assert.state(basePackages != null, "Unable to retrieve @EnableAutoConfiguration base packages");
-    return basePackages.get();
+    try {
+      return beanFactory.getBean(BEAN_NAME, BasePackages.class).get();
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      throw new IllegalStateException("Unable to retrieve @EnableAutoConfiguration base packages");
+    }
   }
 
   /**
