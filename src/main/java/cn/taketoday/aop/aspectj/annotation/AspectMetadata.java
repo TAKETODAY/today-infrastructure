@@ -120,7 +120,7 @@ public class AspectMetadata implements Serializable {
         this.perClausePointcut = new ComposablePointcut(new TypePatternClassFilter(findPerClause(aspectClass)));
       }
       default -> throw new AopConfigException(
-              "PerClause " + ajType.getPerClause().getKind() + " not supported by Framework AOP for " + aspectClass);
+              "PerClause " + ajType.getPerClause().getKind() + " not supported by AOP for " + aspectClass);
     }
   }
 

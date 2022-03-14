@@ -82,13 +82,6 @@ public interface WebServletApplicationContext extends WebApplicationContext {
   String CONTEXT_ATTRIBUTES_BEAN_NAME = "contextAttributes";
 
   /**
-   * Set ServletContext
-   *
-   * @param servletContext Target {@link ServletContext} object
-   */
-  void setServletContext(ServletContext servletContext);
-
-  /**
    * Return the standard Servlet API ServletContext for this application.
    */
   ServletContext getServletContext();

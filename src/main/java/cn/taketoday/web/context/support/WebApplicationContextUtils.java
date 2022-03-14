@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.env.PropertySource.StubPropertySource;
 import cn.taketoday.core.env.PropertySources;
@@ -47,6 +48,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
+ * Convenience methods for retrieving the root {@link WebApplicationContext} for
+ * a given {@link ServletContext}. This is useful for programmatically accessing
+ * a application context from within custom web views or MVC actions.
+ *
+ * <p>Note that there are more convenient ways of accessing the root context for
+ * many web frameworks, either part of Spring or available as an external library.
+ * This helper class is just the most generic way to access the root context.
+ *
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 17:12
  */
@@ -169,11 +179,12 @@ public class WebApplicationContextUtils {
    */
   public static void registerWebApplicationScopes(
           ConfigurableBeanFactory beanFactory, @Nullable ServletContext sc) {
-
-    WebSessionManager sessionManager = beanFactory.getBean(WebSessionManager.BEAN_NAME, WebSessionManager.class);
+    WebSessionManager sessionManager = BeanFactoryUtils.find(
+            beanFactory, WebSessionManager.BEAN_NAME, WebSessionManager.class);
     if (sessionManager == null) {
       sessionManager = new DefaultWebSessionManager();
     }
+
     beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
     beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(sessionManager));
     if (sc != null) {

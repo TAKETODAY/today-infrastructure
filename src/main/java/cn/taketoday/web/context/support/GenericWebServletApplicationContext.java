@@ -25,6 +25,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -167,15 +168,15 @@ public class GenericWebServletApplicationContext extends GenericWebApplicationCo
     return new ServletContextResource(this.servletContext, path);
   }
 
-//  /**
-//   * This implementation supports pattern matching in unexpanded WARs too.
-//   *
-//   * @see ServletContextResourcePatternResolver
-//   */
-//  @Override
-//  protected PatternResourceLoader getPatternResourceLoader() {
-//    return new ServletContextResourcePatternResolver(this);
-//  }
+  /**
+   * This implementation supports pattern matching in unexpanded WARs too.
+   *
+   * @see ServletContextResourcePatternLoader
+   */
+  @Override
+  protected PatternResourceLoader getPatternResourceLoader() {
+    return new ServletContextResourcePatternLoader(this);
+  }
 
   /**
    * Register request/session scopes, environment beans, a {@link ServletContextAwareProcessor}, etc.

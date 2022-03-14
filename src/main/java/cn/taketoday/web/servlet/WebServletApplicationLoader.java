@@ -39,12 +39,13 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.ServletParameterResolvers;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
-import cn.taketoday.web.bind.resolver.ServletParameterResolvers;
 import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
@@ -145,7 +146,7 @@ public class WebServletApplicationLoader
    * @return {@link WebServletApplicationContext}
    */
   protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
-    WebServletApplicationContext context = getWebServletApplicationContext();
+    ConfigurableWebServletApplicationContext context = getWebServletApplicationContext();
     if (context == null) {
       long startupDate = System.currentTimeMillis();
       log.info("Your application starts to be initialized at: [{}].",
@@ -166,12 +167,12 @@ public class WebServletApplicationLoader
    * create a {@link WebServletApplicationContext},
    * subclasses can override this method to create user customize context
    */
-  protected WebServletApplicationContext createContext() {
+  protected ConfigurableWebServletApplicationContext createContext() {
     return new AnnotationConfigServletWebApplicationContext();
   }
 
-  private WebServletApplicationContext getWebServletApplicationContext() {
-    return (WebServletApplicationContext) getApplicationContext();
+  private ConfigurableWebServletApplicationContext getWebServletApplicationContext() {
+    return (ConfigurableWebServletApplicationContext) getApplicationContext();
   }
 
   @Override
