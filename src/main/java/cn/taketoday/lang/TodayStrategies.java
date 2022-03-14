@@ -320,20 +320,20 @@ public final class TodayStrategies {
   /**
    * get first strategy
    *
-   * @see #getStrategies(Class)
+   * @see #get(Class)
    */
   @Nullable
   public static String getFirst(String strategyKey) {
-    return CollectionUtils.firstElement(getStrategies(strategyKey, null));
+    return CollectionUtils.firstElement(get(strategyKey, null));
   }
 
   /**
    * get first strategy
    *
-   * @see #getStrategies(Class)
+   * @see #get(Class)
    */
   public static <T> T getFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
-    T first = CollectionUtils.firstElement(getStrategies(strategyClass, (ClassLoader) null));
+    T first = CollectionUtils.firstElement(get(strategyClass, (ClassLoader) null));
     if (first == null && defaultValue != null) {
       return defaultValue.get();
     }
@@ -347,8 +347,8 @@ public final class TodayStrategies {
    * @param <T> target type
    * @return returns none repeatable strategies by given class
    */
-  public static <T> List<T> getStrategies(Class<T> strategyClass) {
-    return getStrategies(strategyClass, (ClassLoader) null);
+  public static <T> List<T> get(Class<T> strategyClass) {
+    return get(strategyClass, (ClassLoader) null);
   }
 
   /**
@@ -361,10 +361,10 @@ public final class TodayStrategies {
    * @param <T> target type
    * @return returns none repeatable strategies by given class
    */
-  public static <T> List<T> getStrategies(
+  public static <T> List<T> get(
           Class<T> strategyClass, @Nullable ClassLoader classLoader) {
     Assert.notNull(strategyClass, "strategy-class must not be null");
-    return getStrategies(strategyClass, classLoader, strategy -> {
+    return get(strategyClass, classLoader, strategy -> {
       try {
         return ReflectionUtils.accessibleConstructor(strategy).newInstance();
       }
@@ -384,8 +384,8 @@ public final class TodayStrategies {
    * @param <T> return type
    * @return collection of strategies
    */
-  public static <T> List<T> getStrategies(Class<T> strategyClass, Function<Class<T>, T> converter) {
-    return getStrategies(strategyClass, null, converter);
+  public static <T> List<T> get(Class<T> strategyClass, Function<Class<T>, T> converter) {
+    return get(strategyClass, null, converter);
   }
 
   /**
@@ -396,7 +396,7 @@ public final class TodayStrategies {
    * @param <T> return type
    * @return collection of strategies
    */
-  public static <T> List<T> getStrategies(
+  public static <T> List<T> get(
           Class<T> strategyClass, @Nullable ClassLoader classLoader, Function<Class<T>, T> converter) {
     Assert.notNull(converter, "converter is required");
     Assert.notNull(strategyClass, "strategy-class is required");
@@ -404,7 +404,7 @@ public final class TodayStrategies {
       classLoader = TodayStrategies.class.getClassLoader();
     }
     // get class list by class full name
-    List<String> strategies = getStrategies(strategyClass.getName(), classLoader);
+    List<String> strategies = get(strategyClass.getName(), classLoader);
     if (log.isTraceEnabled()) {
       log.trace("Loaded [{}] strategies: {}", strategyClass.getName(), strategies);
     }
@@ -438,8 +438,8 @@ public final class TodayStrategies {
    * @param strategyKey key
    * @return list of strategies
    */
-  public static List<String> getStrategies(String strategyKey) {
-    return getStrategies(strategyKey, null);
+  public static List<String> get(String strategyKey) {
+    return get(strategyKey, null);
   }
 
   /**
@@ -449,7 +449,7 @@ public final class TodayStrategies {
    * @param classLoader classLoader to load
    * @return list of strategies
    */
-  public static List<String> getStrategies(
+  public static List<String> get(
           String strategyKey, @Nullable ClassLoader classLoader) {
     Assert.notNull(strategyKey, "strategy-key must not be null");
     if (classLoader == null) {
@@ -472,7 +472,7 @@ public final class TodayStrategies {
   public static List<String> getStrategiesNames(
           Class<?> strategyClass, @Nullable ClassLoader classLoader) {
     Assert.notNull(strategyClass, "strategy-class must not be null");
-    return getStrategies(strategyClass.getName(), classLoader);
+    return get(strategyClass.getName(), classLoader);
   }
 
   private static MultiValueMap<String, String> loadStrategies(ClassLoader classLoader) {

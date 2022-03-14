@@ -86,11 +86,11 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       if (beanFactory instanceof ConfigurableBeanFactory configurable) {
         beanClassLoader = configurable.getBeanClassLoader();
       }
-      strategies = TodayStrategies.getStrategies(
+      strategies = TodayStrategies.get(
               DependencyResolvingStrategy.class, beanClassLoader, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
     }
     else {
-      strategies = TodayStrategies.getStrategies(DependencyResolvingStrategy.class);
+      strategies = TodayStrategies.get(DependencyResolvingStrategy.class);
     }
 
     resolvingStrategies.addAll(strategies); // @since 4.0
