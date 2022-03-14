@@ -156,7 +156,7 @@ public class DependencyInjectorAwareInstantiator {
 
   @Nullable
   private static DependencyInjectorAwareInstantiator find(BeanFactory beanFactory) {
-    return BeanFactoryUtils.find(beanFactory, BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+    return BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, DependencyInjectorAwareInstantiator.class);
   }
 
   /**

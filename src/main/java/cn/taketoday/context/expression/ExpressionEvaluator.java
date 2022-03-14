@@ -85,10 +85,10 @@ public class ExpressionEvaluator {
 
   public static ExpressionEvaluator from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
-    ExpressionEvaluator evaluator = BeanFactoryUtils.find(beanFactory, BEAN_NAME, ExpressionEvaluator.class);
+    ExpressionEvaluator evaluator = BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, ExpressionEvaluator.class);
     if (evaluator == null) {
       synchronized(beanFactory) {
-        evaluator = BeanFactoryUtils.find(beanFactory, BEAN_NAME, ExpressionEvaluator.class);
+        evaluator = BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, ExpressionEvaluator.class);
         if (evaluator == null) {
           evaluator = new ExpressionEvaluator(beanFactory.unwrap(ConfigurableBeanFactory.class));
           beanFactory.unwrap(ConfigurableBeanFactory.class)

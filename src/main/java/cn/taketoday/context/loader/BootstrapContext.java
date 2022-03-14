@@ -520,6 +520,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   @Nullable
   private static BootstrapContext findContext(BeanFactory beanFactory) {
-    return BeanFactoryUtils.find(beanFactory, BEAN_NAME, BootstrapContext.class);
+    return BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, BootstrapContext.class);
   }
 }
