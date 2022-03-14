@@ -154,7 +154,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     this.bean = bean;
     this.nonPublicAccessAllowed = true;
     this.beanName = bean.getClass().getName();
-    this.invokeDisposableBean = this.bean instanceof DisposableBean;
+    this.invokeDisposableBean = bean instanceof DisposableBean;
     this.beanPostProcessors = filterPostProcessors(postProcessors, bean);
   }
 
@@ -395,27 +395,12 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   private static List<DestructionAwareBeanPostProcessor> filterPostProcessors(
           List<DestructionAwareBeanPostProcessor> processors, Object bean) {
 
+    List<DestructionAwareBeanPostProcessor> filteredPostProcessors = null;
     if (CollectionUtils.isNotEmpty(processors)) {
-      ArrayList<DestructionAwareBeanPostProcessor> filteredPostProcessors = new ArrayList<>(processors.size());
+      filteredPostProcessors = new ArrayList<>(processors.size());
       for (DestructionAwareBeanPostProcessor processor : processors) {
         if (processor.requiresDestruction(bean)) {
           filteredPostProcessors.add(processor);
-        }
-      }
-      return filteredPostProcessors;
-    }
-    return null;
-  }
-
-  @Nullable
-  static ArrayList<DestructionAwareBeanPostProcessor> filter(
-          Object obj, List<DestructionAwareBeanPostProcessor> postProcessors) {
-    ArrayList<DestructionAwareBeanPostProcessor> filteredPostProcessors = null;
-    if (CollectionUtils.isNotEmpty(postProcessors)) {
-      filteredPostProcessors = new ArrayList<>(postProcessors.size());
-      for (DestructionAwareBeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor.requiresDestruction(obj)) {
-          filteredPostProcessors.add(postProcessor);
         }
       }
     }

@@ -36,8 +36,8 @@ import cn.taketoday.beans.factory.BeanCreationNotAllowedException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -110,7 +110,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   private boolean singletonsCurrentlyInDestruction = false;
 
   /** Disposable bean instances: bean name to disposable instance. */
-  private final LinkedHashMap<String, Object> disposableBeans = new LinkedHashMap<>();
+  private final LinkedHashMap<String, DisposableBean> disposableBeans = new LinkedHashMap<>();
 
   /** Map between containing bean names: bean name to Set of bean names that the bean contains. */
   private final ConcurrentHashMap<String, Set<String>> containedBeanMap = new ConcurrentHashMap<>(16);
@@ -578,8 +578,8 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
     // Destroy the corresponding DisposableBean instance.
     DisposableBean disposableBean;
-    synchronized(this.disposableBeans) {
-      disposableBean = (DisposableBean) this.disposableBeans.remove(beanName);
+    synchronized(disposableBeans) {
+      disposableBean = disposableBeans.remove(beanName);
     }
     destroyBean(beanName, disposableBean);
   }

@@ -463,7 +463,7 @@ public abstract class AbstractApplicationEventMulticaster
   private class DefaultListenerRetriever {
 
     public final LinkedHashSet<String> applicationListenerBeans = new LinkedHashSet<>();
-    public final LinkedHashSet<ApplicationListener<ApplicationEvent>> applicationListeners = new LinkedHashSet<>();
+    public final LinkedHashSet<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
     public Collection<ApplicationListener<?>> getApplicationListeners() {
       ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>(

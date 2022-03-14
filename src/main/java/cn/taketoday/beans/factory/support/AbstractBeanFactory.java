@@ -637,8 +637,8 @@ public abstract class AbstractBeanFactory
    * @see DestructionAwareBeanPostProcessor
    */
   protected boolean requiresDestruction(Object bean, RootBeanDefinition mbd) {
-    return DisposableBeanAdapter.hasDestroyMethod(bean, mbd)
-            || DisposableBeanAdapter.hasApplicableProcessors(bean, postProcessors().destruction);
+    return bean != null && (DisposableBeanAdapter.hasDestroyMethod(bean, mbd)
+            || DisposableBeanAdapter.hasApplicableProcessors(bean, postProcessors().destruction));
   }
 
   /**
@@ -658,8 +658,8 @@ public abstract class AbstractBeanFactory
         // Register a DisposableBean implementation that performs all destruction
         // work for the given bean: DestructionAwareBeanPostProcessors,
         // DisposableBean interface, custom destroy method.
-        registerDisposableBean(beanName, new DisposableBeanAdapter(beanName,
-                bean, mbd, DisposableBeanAdapter.filter(bean, postProcessors().destruction)));
+        registerDisposableBean(beanName, new DisposableBeanAdapter(
+                beanName, bean, mbd, postProcessors().destruction));
       }
       else {
         // A bean with a custom scope...
@@ -668,8 +668,7 @@ public abstract class AbstractBeanFactory
           throw new IllegalStateException("No Scope registered for scope name '" + mbd.getScope() + "'");
         }
         scope.registerDestructionCallback(
-                beanName, new DisposableBeanAdapter(beanName, bean, mbd,
-                        DisposableBeanAdapter.filter(bean, postProcessors().destruction)));
+                beanName, new DisposableBeanAdapter(beanName, bean, mbd, postProcessors().destruction));
       }
     }
   }

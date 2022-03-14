@@ -378,7 +378,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     // Register bean as disposable.
     try {
-      registerDisposableBeanIfNecessary(beanName, instanceWrapper, merged);
+      registerDisposableBeanIfNecessary(beanName, bean, merged);
     }
     catch (BeanDefinitionValidationException ex) {
       throw new BeanCreationException(
