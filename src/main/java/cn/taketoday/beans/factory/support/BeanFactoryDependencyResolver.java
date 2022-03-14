@@ -37,9 +37,9 @@ import cn.taketoday.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/27 22:18
  */
-public class BeanFactoryDependencyResolvingStrategy
+public class BeanFactoryDependencyResolver
         extends AnnotationDependencyResolvingStrategy {
-  protected static final Logger log = LoggerFactory.getLogger(BeanFactoryDependencyResolvingStrategy.class);
+  protected static final Logger log = LoggerFactory.getLogger(BeanFactoryDependencyResolver.class);
 
   @SuppressWarnings("rawtypes")
   private static final Class[] supportedAnnotations;
@@ -48,7 +48,7 @@ public class BeanFactoryDependencyResolvingStrategy
     LinkedHashSet<Class<? extends Annotation>> injectableAnnotations = new LinkedHashSet<>();
     injectableAnnotations.add(Value.class);
     injectableAnnotations.add(Autowired.class);
-    ClassLoader classLoader = BeanFactoryDependencyResolvingStrategy.class.getClassLoader();
+    ClassLoader classLoader = BeanFactoryDependencyResolver.class.getClassLoader();
     try {
       injectableAnnotations.add(
               ClassUtils.forName("jakarta.inject.Inject", classLoader));
@@ -93,19 +93,12 @@ public class BeanFactoryDependencyResolvingStrategy
           if (factory.containsBeanDefinition(beanName)) {
             resourceDescription = factory.getBeanDefinition(beanName).getResourceDescription();
           }
-
-          if (descriptor.isProperty()) {
-            throw new UnsatisfiedDependencyException(
-                    resourceDescription, beanName, descriptor.getDependencyName(), ex);
-          }
-          else {
-            throw new UnsatisfiedDependencyException(
-                    resourceDescription, beanName, descriptor, ex);
-          }
+          throw new UnsatisfiedDependencyException(
+                  resourceDescription, beanName, descriptor, ex);
         }
         else {
           throw new UnsatisfiedDependencyException(
-                  null, null, descriptor.getDependencyName(), ex);
+                  null, null, descriptor, ex);
         }
       }
     }
