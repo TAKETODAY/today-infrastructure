@@ -137,12 +137,12 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     }
     Executor executor = getTaskExecutor();
     if (executor != null) {
-      for (ApplicationListener<ApplicationEvent> listener : getApplicationListeners(event, eventType)) {
+      for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
         executor.execute(() -> invokeListener(listener, event));
       }
     }
     else {
-      for (ApplicationListener<ApplicationEvent> listener : getApplicationListeners(event, eventType)) {
+      for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
         invokeListener(listener, event);
       }
     }

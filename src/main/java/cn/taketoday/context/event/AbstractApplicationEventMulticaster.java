@@ -23,7 +23,6 @@ package cn.taketoday.context.event;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -64,10 +63,11 @@ import cn.taketoday.util.ClassUtils;
  * @see SimpleApplicationEventMulticaster
  * @since 4.0
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class AbstractApplicationEventMulticaster
         implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
-  private final ListenerRetriever retriever = new ListenerRetriever();
+  private final DefaultListenerRetriever listenerRetriever = new DefaultListenerRetriever();
 
   final ConcurrentHashMap<ListenerCacheKey, CachedListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
@@ -103,63 +103,63 @@ public abstract class AbstractApplicationEventMulticaster
 
   @Override
   public void addApplicationListener(ApplicationListener listener) {
-    synchronized(this.retriever) {
+    synchronized(this.listenerRetriever) {
       // Explicitly remove target for a proxy, if registered already,
       // in order to avoid double invocations of the same listener.
       Object singletonTarget = AopProxyUtils.getSingletonTarget(listener);
       if (singletonTarget instanceof ApplicationListener) {
-        this.retriever.applicationListeners.remove(singletonTarget);
+        this.listenerRetriever.applicationListeners.remove(singletonTarget);
       }
-      this.retriever.applicationListeners.add(listener);
+      this.listenerRetriever.applicationListeners.add(listener);
       this.retrieverCache.clear();
     }
   }
 
   @Override
   public void addApplicationListenerBean(String listenerBeanName) {
-    synchronized(this.retriever) {
-      this.retriever.applicationListenerBeans.add(listenerBeanName);
+    synchronized(this.listenerRetriever) {
+      this.listenerRetriever.applicationListenerBeans.add(listenerBeanName);
       this.retrieverCache.clear();
     }
   }
 
   @Override
   public void removeApplicationListener(ApplicationListener<?> listener) {
-    synchronized(this.retriever) {
-      this.retriever.applicationListeners.remove(listener);
+    synchronized(this.listenerRetriever) {
+      this.listenerRetriever.applicationListeners.remove(listener);
       this.retrieverCache.clear();
     }
   }
 
   @Override
   public void removeApplicationListenerBean(String listenerBeanName) {
-    synchronized(this.retriever) {
-      this.retriever.applicationListenerBeans.remove(listenerBeanName);
+    synchronized(this.listenerRetriever) {
+      this.listenerRetriever.applicationListenerBeans.remove(listenerBeanName);
       this.retrieverCache.clear();
     }
   }
 
   @Override
   public void removeApplicationListeners(Predicate<ApplicationListener<?>> predicate) {
-    synchronized(this.retriever) {
-      this.retriever.applicationListeners.removeIf(predicate);
+    synchronized(this.listenerRetriever) {
+      this.listenerRetriever.applicationListeners.removeIf(predicate);
       this.retrieverCache.clear();
     }
   }
 
   @Override
   public void removeApplicationListenerBeans(Predicate<String> predicate) {
-    synchronized(this.retriever) {
-      this.retriever.applicationListenerBeans.removeIf(predicate);
+    synchronized(this.listenerRetriever) {
+      this.listenerRetriever.applicationListenerBeans.removeIf(predicate);
       this.retrieverCache.clear();
     }
   }
 
   @Override
   public void removeAllListeners() {
-    synchronized(this.retriever) {
-      this.retriever.applicationListeners.clear();
-      this.retriever.applicationListenerBeans.clear();
+    synchronized(this.listenerRetriever) {
+      this.listenerRetriever.applicationListeners.clear();
+      this.listenerRetriever.applicationListenerBeans.clear();
       this.retrieverCache.clear();
     }
   }
@@ -171,8 +171,8 @@ public abstract class AbstractApplicationEventMulticaster
    * @see ApplicationListener
    */
   protected Collection<ApplicationListener<?>> getApplicationListeners() {
-    synchronized(this.retriever) {
-      return this.retriever.getApplicationListeners();
+    synchronized(this.listenerRetriever) {
+      return this.listenerRetriever.getApplicationListeners();
     }
   }
 
@@ -186,7 +186,7 @@ public abstract class AbstractApplicationEventMulticaster
    * @return a Collection of ApplicationListeners
    * @see ApplicationListener
    */
-  protected Collection<ApplicationListener<ApplicationEvent>> getApplicationListeners(
+  protected Collection<ApplicationListener<?>> getApplicationListeners(
           ApplicationEvent event, ResolvableType eventType) {
 
     Object source = event.getSource();
@@ -212,7 +212,7 @@ public abstract class AbstractApplicationEventMulticaster
     }
 
     if (existingRetriever != null) {
-      Collection<ApplicationListener<ApplicationEvent>> result = existingRetriever.getApplicationListeners();
+      Collection<ApplicationListener<?>> result = existingRetriever.getApplicationListeners();
       if (result != null) {
         return result;
       }
@@ -231,18 +231,18 @@ public abstract class AbstractApplicationEventMulticaster
    * @param retriever the ListenerRetriever, if supposed to populate one (for caching purposes)
    * @return the pre-filtered list of application listeners for the given event and source type
    */
-  private Collection<ApplicationListener<ApplicationEvent>> retrieveApplicationListeners(
+  private Collection<ApplicationListener<?>> retrieveApplicationListeners(
           ResolvableType eventType, @Nullable Class<?> sourceType, @Nullable CachedListenerRetriever retriever) {
 
-    ArrayList<ApplicationListener<ApplicationEvent>> allListeners = new ArrayList<>();
-    LinkedHashSet<ApplicationListener<ApplicationEvent>> filteredListeners = (retriever != null ? new LinkedHashSet<>() : null);
-    LinkedHashSet<String> filteredListenerBeans = (retriever != null ? new LinkedHashSet<>() : null);
+    ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>();
+    LinkedHashSet<ApplicationListener<?>> filteredListeners = retriever != null ? new LinkedHashSet<>() : null;
+    LinkedHashSet<String> filteredListenerBeans = retriever != null ? new LinkedHashSet<>() : null;
 
     Set<ApplicationListener<?>> listeners;
     Set<String> listenerBeans;
-    synchronized(this.retriever) {
-      listeners = new LinkedHashSet<>(this.retriever.applicationListeners);
-      listenerBeans = new LinkedHashSet<>(this.retriever.applicationListenerBeans);
+    synchronized(this.listenerRetriever) {
+      listeners = new LinkedHashSet<>(this.listenerRetriever.applicationListeners);
+      listenerBeans = new LinkedHashSet<>(this.listenerRetriever.applicationListenerBeans);
     }
 
     // Add programmatically registered listeners, including ones coming
@@ -388,7 +388,8 @@ public abstract class AbstractApplicationEventMulticaster
   /**
    * Cache key for ListenerRetrievers, based on event type and source type.
    */
-  private record ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) implements Comparable<ListenerCacheKey> {
+  private record ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType)
+          implements Comparable<ListenerCacheKey> {
 
     private ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) {
       Assert.notNull(eventType, "Event type must not be null");
@@ -423,18 +424,18 @@ public abstract class AbstractApplicationEventMulticaster
     public volatile Set<String> applicationListenerBeans;
 
     @Nullable
-    public volatile Set<ApplicationListener<ApplicationEvent>> applicationListeners;
+    public volatile Set<ApplicationListener<?>> applicationListeners;
 
     @Nullable
-    public Collection<ApplicationListener<ApplicationEvent>> getApplicationListeners() {
-      Set<ApplicationListener<ApplicationEvent>> applicationListeners = this.applicationListeners;
+    public Collection<ApplicationListener<?>> getApplicationListeners() {
+      Set<ApplicationListener<?>> applicationListeners = this.applicationListeners;
       Set<String> applicationListenerBeans = this.applicationListenerBeans;
       if (applicationListeners == null || applicationListenerBeans == null) {
         // Not fully populated yet
         return null;
       }
 
-      ArrayList<ApplicationListener<ApplicationEvent>> allListeners = new ArrayList<>(
+      ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>(
               applicationListeners.size() + applicationListenerBeans.size());
       allListeners.addAll(applicationListeners);
       if (!applicationListenerBeans.isEmpty()) {
@@ -459,18 +460,18 @@ public abstract class AbstractApplicationEventMulticaster
   /**
    * Helper class that encapsulates a general set of target listeners.
    */
-  private class ListenerRetriever {
+  private class DefaultListenerRetriever {
 
     public final LinkedHashSet<String> applicationListenerBeans = new LinkedHashSet<>();
     public final LinkedHashSet<ApplicationListener<ApplicationEvent>> applicationListeners = new LinkedHashSet<>();
 
     public Collection<ApplicationListener<?>> getApplicationListeners() {
-      List<ApplicationListener<?>> allListeners = new ArrayList<>(
-              this.applicationListeners.size() + this.applicationListenerBeans.size());
-      allListeners.addAll(this.applicationListeners);
-      if (!this.applicationListenerBeans.isEmpty()) {
+      ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>(
+              applicationListeners.size() + applicationListenerBeans.size());
+      allListeners.addAll(applicationListeners);
+      if (!applicationListenerBeans.isEmpty()) {
         BeanFactory beanFactory = getBeanFactory();
-        for (String listenerBeanName : this.applicationListenerBeans) {
+        for (String listenerBeanName : applicationListenerBeans) {
           try {
             ApplicationListener<?> listener =
                     beanFactory.getBean(listenerBeanName, ApplicationListener.class);

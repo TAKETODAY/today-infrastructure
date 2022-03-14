@@ -29,6 +29,7 @@ import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -129,17 +130,15 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           // JSR-330 API not available - Provider interface simply not supported then.
           ClassUtils.load("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
 
+  /** Optional id for this factory, for serialization purposes. @since 4.0 */
+  @Nullable
+  private String serializationId;
+
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;
 
   /** Map of bean definition objects, keyed by bean name */
   private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
-
-  /** List of bean definition names, in registration order. */
-  private final LinkedHashSet<String> beanDefinitionNames = new LinkedHashSet<>(256);
-
-  /** List of names of manually registered singletons, in registration order. */
-  private final LinkedHashSet<String> manualSingletonNames = new LinkedHashSet<>(16);
 
   /** Whether to allow eager class loading even for lazy-init beans. */
   private boolean allowEagerClassLoading = true;
@@ -150,13 +149,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   /** Resolver to use for checking if a bean definition is an autowire candidate. */
   private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
-
-  /** Whether bean definition metadata may be cached for all beans. */
-  private volatile boolean configurationFrozen;
-
-  /** Cached array of bean definition names in case of frozen configuration. */
-  @Nullable
-  private volatile String[] frozenBeanDefinitionNames;
 
   /** Map of singleton and non-singleton bean names, keyed by dependency type. */
   private final ConcurrentHashMap<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>(64);
@@ -171,9 +163,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /** Map from bean name to merged BeanDefinitionHolder. @since 4.0 */
   private final Map<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
 
-  /** Optional id for this factory, for serialization purposes. @since 4.0 */
+  /** Whether bean definition metadata may be cached for all beans. */
+  private volatile boolean configurationFrozen;
+
+  /** Cached array of bean definition names in case of frozen configuration. */
   @Nullable
-  private String serializationId;
+  private volatile String[] frozenBeanDefinitionNames;
+
+  /** List of bean definition names, in registration order. */
+  private volatile ArrayList<String> beanDefinitionNames = new ArrayList<>(256);
+
+  /** List of names of manually registered singletons, in registration order. */
+  private volatile LinkedHashSet<String> manualSingletonNames = new LinkedHashSet<>(16);
 
   /**
    * Create a new StandardBeanFactory.
@@ -320,7 +321,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
     super.registerSingleton(beanName, singletonObject);
-    updateManualSingletonNames(set -> set.add(beanName), set -> !this.beanDefinitionMap.containsKey(beanName));
+    updateManualSingletonNames(set -> set.add(beanName), set -> !beanDefinitionMap.containsKey(beanName));
     clearByTypeCache();
   }
 
@@ -389,9 +390,21 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * (if this condition does not apply, the action can be skipped)
    */
   private void updateManualSingletonNames(Consumer<Set<String>> action, Predicate<Set<String>> condition) {
-    // Still in startup registration phase
-    if (condition.test(this.manualSingletonNames)) {
-      action.accept(this.manualSingletonNames);
+    if (hasBeanCreationStarted()) {
+      // Cannot modify startup-time collection elements anymore (for stable iteration)
+      synchronized(beanDefinitionMap) {
+        if (condition.test(manualSingletonNames)) {
+          LinkedHashSet<String> updatedSingletons = new LinkedHashSet<>(manualSingletonNames);
+          action.accept(updatedSingletons);
+          this.manualSingletonNames = updatedSingletons;
+        }
+      }
+    }
+    else {
+      // Still in startup registration phase
+      if (condition.test(manualSingletonNames)) {
+        action.accept(manualSingletonNames);
+      }
     }
   }
 
@@ -488,9 +501,25 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         }
       }
 
-      beanDefinitionMap.put(beanName, def);
-      beanDefinitionNames.add(beanName);
+      if (hasBeanCreationStarted()) {
+        // Cannot modify startup-time collection elements anymore (for stable iteration)
+        synchronized(beanDefinitionMap) {
+          beanDefinitionMap.put(beanName, def);
+          ArrayList<String> updatedDefinitions = new ArrayList<>(beanDefinitionNames.size() + 1);
+          updatedDefinitions.addAll(beanDefinitionNames);
+          updatedDefinitions.add(beanName);
+          this.beanDefinitionNames = updatedDefinitions;
+          removeManualSingletonName(beanName);
+        }
+      }
+      else {
+        // Still in startup registration phase
+        beanDefinitionMap.put(beanName, def);
+        beanDefinitionNames.add(beanName);
+        removeManualSingletonName(beanName);
+      }
       this.frozenBeanDefinitionNames = null;
+
     }
 
     if (existBeanDef != null || containsSingleton(beanName)) {
@@ -504,13 +533,29 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public void removeBeanDefinition(String beanName) {
     Assert.hasText(beanName, "'beanName' must not be empty");
-    BeanDefinition removed = beanDefinitionMap.remove(beanName);
-    if (removed == null) {
-      log.trace("No bean named '{}' found in {}", beanName, this);
+    BeanDefinition bd = beanDefinitionMap.remove(beanName);
+    if (bd == null) {
+      if (log.isTraceEnabled()) {
+        log.trace("No bean named '{}' found in {}", beanName, this);
+      }
+      throw new NoSuchBeanDefinitionException(beanName);
     }
-    beanDefinitionNames.remove(beanName);
-    resetBeanDefinition(beanName);
+
+    if (hasBeanCreationStarted()) {
+      // Cannot modify startup-time collection elements anymore (for stable iteration)
+      synchronized(beanDefinitionMap) {
+        ArrayList<String> updatedDefinitions = new ArrayList<>(beanDefinitionNames);
+        updatedDefinitions.remove(beanName);
+        this.beanDefinitionNames = updatedDefinitions;
+      }
+    }
+    else {
+      // Still in startup registration phase
+      beanDefinitionNames.remove(beanName);
+    }
     this.frozenBeanDefinitionNames = null;
+
+    resetBeanDefinition(beanName);
   }
 
   @Override
@@ -1212,6 +1257,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     // Notify all post-processors that the specified bean definition has been reset.
     for (MergedBeanDefinitionPostProcessor processor : postProcessors().definitions) {
       processor.resetBeanDefinition(beanName);
+    }
+
+    // Reset all bean definitions that have the given bean as parent (recursively).
+    for (String bdName : this.beanDefinitionNames) {
+      if (!beanName.equals(bdName)) {
+        BeanDefinition bd = this.beanDefinitionMap.get(bdName);
+        // Ensure bd is non-null due to potential concurrent modification of beanDefinitionMap.
+        if (bd != null && beanName.equals(bd.getParentName())) {
+          resetBeanDefinition(bdName);
+        }
+      }
     }
   }
 

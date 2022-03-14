@@ -817,9 +817,9 @@ public abstract class AbstractApplicationContext
       }
 
       // Stop all Lifecycle beans, to avoid delays during individual destruction.
-      if (this.lifecycleProcessor != null) {
+      if (lifecycleProcessor != null) {
         try {
-          this.lifecycleProcessor.onClose();
+          lifecycleProcessor.onClose();
         }
         catch (Throwable ex) {
           log.warn("Exception thrown from LifecycleProcessor on context close", ex);
@@ -1472,10 +1472,10 @@ public abstract class AbstractApplicationContext
   @Override
   public void addApplicationListener(ApplicationListener<?> listener) {
     Assert.notNull(listener, "ApplicationListener is required");
-    if (this.applicationEventMulticaster != null) {
-      this.applicationEventMulticaster.addApplicationListener(listener);
+    if (applicationEventMulticaster != null) {
+      applicationEventMulticaster.addApplicationListener(listener);
     }
-    this.applicationListeners.add(listener);
+    applicationListeners.add(listener);
   }
 
   /**
@@ -1514,7 +1514,8 @@ public abstract class AbstractApplicationContext
   }
 
   /**
-   * Context start success
+   * Finish the refresh of this context, invoking the LifecycleProcessor's
+   * onRefresh() method and publishing the {@link ContextRefreshedEvent}.
    */
   protected void finishRefresh() {
     // Clear context-level resource caches (such as ASM metadata from scanning).

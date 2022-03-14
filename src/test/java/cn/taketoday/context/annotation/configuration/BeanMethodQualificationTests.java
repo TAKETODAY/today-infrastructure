@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Set;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
@@ -134,10 +135,10 @@ public class BeanMethodQualificationTests {
   @Test
   public void testBeanNamesForAnnotation() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(StandardConfig.class);
-    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Configuration.class)).isEqualTo(new String[] { "beanMethodQualificationTests.StandardConfig" });
-    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Scope.class)).isEqualTo(new String[] {});
-    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Lazy.class)).isEqualTo(new String[] { "testBean1" });
-    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Boring.class)).isEqualTo(new String[] { "testBean2" });
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Configuration.class)).isEqualTo(Set.of("beanMethodQualificationTests.StandardConfig"));
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Scope.class)).isEqualTo(Set.of());
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Lazy.class)).isEqualTo(Set.of("testBean1"));
+    Assertions.assertThat(ctx.getBeanNamesForAnnotation(Boring.class)).isEqualTo(Set.of("testBean2"));
   }
 
   @Configuration
