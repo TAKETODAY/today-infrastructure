@@ -23,6 +23,8 @@ package cn.taketoday.web;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
@@ -61,18 +63,29 @@ public class RequestContextUtils {
 
   @Nullable
   public static <T> T getBean(RequestContext request, Class<T> requiredType) {
-    return request.getApplicationContext().getBean(requiredType);
+    ApplicationContext beanFactory = request.getApplicationContext();
+    if (beanFactory != null) {
+      return BeanFactoryUtils.find(beanFactory, requiredType);
+    }
+    return null;
   }
 
   @Nullable
-  @SuppressWarnings("unchecked")
   public static <T> T getBean(RequestContext request, String beanName) {
-    return (T) request.getApplicationContext().getBean(beanName);
+    ApplicationContext beanFactory = request.getApplicationContext();
+    if (beanFactory != null) {
+      return BeanFactoryUtils.find(beanFactory, beanName);
+    }
+    return null;
   }
 
   @Nullable
   public static <T> T getBean(RequestContext request, String beanName, Class<T> requiredType) {
-    return request.getApplicationContext().getBean(beanName, requiredType);
+    ApplicationContext beanFactory = request.getApplicationContext();
+    if (beanFactory != null) {
+      return BeanFactoryUtils.find(beanFactory, beanName, requiredType);
+    }
+    return null;
   }
 
   /**

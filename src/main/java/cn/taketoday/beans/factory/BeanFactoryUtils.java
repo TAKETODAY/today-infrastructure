@@ -563,12 +563,17 @@ public abstract class BeanFactoryUtils {
   }
 
   @Nullable
-  public static <T> T find(BeanFactory beanFactory, String beanName, Class<T> requiredType) {
+  public static <T> T find(BeanFactory beanFactory, String beanName) {
+    return find(beanFactory, beanName, null);
+  }
+
+  @Nullable
+  public static <T> T find(BeanFactory beanFactory, String beanName, @Nullable Class<T> requiredType) {
     return find(beanFactory, beanName, requiredType, null);
   }
 
   @Nullable
-  public static <T> T find(BeanFactory beanFactory, String beanName, Class<T> requiredType, @Nullable Supplier<T> defaultValue) {
+  public static <T> T find(BeanFactory beanFactory, String beanName, @Nullable Class<T> requiredType, @Nullable Supplier<T> defaultValue) {
     if (beanFactory.containsBean(beanName)) {
       return beanFactory.getBean(beanName, requiredType);
     }
