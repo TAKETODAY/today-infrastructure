@@ -143,7 +143,7 @@
 		<property name="factoryBeanProperty"><value>instanceFactory</value></property>
 	</bean>
 
-	<bean name="javaMailSession" class="cn.taketoday.beans.factory.parsing.xml.MailSession"
+	<bean name="javaMailSession" class="cn.taketoday.beans.factory.xml.MailSession"
 		  factory-method="getDefaultInstance">
 		<constructor-arg>
 			<props>

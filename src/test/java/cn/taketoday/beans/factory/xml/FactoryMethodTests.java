@@ -370,24 +370,3 @@ public class FactoryMethodTests {
   }
 }
 
-class MailSession {
-
-  private Properties props;
-
-  private MailSession() {
-  }
-
-  public void setProperties(Properties props) {
-    this.props = props;
-  }
-
-  public static MailSession getDefaultInstance(Properties props) {
-    MailSession session = new MailSession();
-    session.setProperties(props);
-    return session;
-  }
-
-  public Object getProperty(String key) {
-    return this.props.get(key);
-  }
-}
