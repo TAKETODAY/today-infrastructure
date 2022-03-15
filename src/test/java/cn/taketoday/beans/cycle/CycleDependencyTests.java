@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 import cn.taketoday.aop.Logger;
 import cn.taketoday.aop.aspectj.annotation.JoinPoint;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.Order;
@@ -227,7 +226,6 @@ class CycleDependencyTests {
 
   }
 
-  @EnableAspectAutoProxy
   static class LoggingAspect {
 
     Object around(@JoinPoint Joinpoint joinPoint) throws Throwable {

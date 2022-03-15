@@ -37,7 +37,6 @@ import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
-import cn.taketoday.context.annotation.EnableAspectAutoProxy;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.context.support.StandardApplicationContext;
@@ -308,7 +307,6 @@ public class EnableTransactionManagementTests {
   }
 
   @Configuration
-  @EnableAspectAutoProxy
   @EnableTransactionManagement
   @Import(PlaceholderConfig.class)
   static class EnableTxConfig {
