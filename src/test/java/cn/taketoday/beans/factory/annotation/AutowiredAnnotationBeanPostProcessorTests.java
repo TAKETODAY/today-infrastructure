@@ -1560,8 +1560,9 @@ public class AutowiredAnnotationBeanPostProcessorTests {
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredMethodResourceInjectionBean.class));
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(() ->
-                    bf.getBean("customBean"))
+
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> bf.getBean("customBean"))
             .satisfies(methodParameterDeclaredOn(CustomAnnotationRequiredMethodResourceInjectionBean.class));
   }
 
@@ -1589,7 +1590,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
     statusRetriever.setRequiredParameterName("optional");
     statusRetriever.setRequiredParameterValue(false);
     bpp.setRequiredStatusRetriever(statusRetriever);
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalFieldResourceInjectionBean.class));
@@ -1609,7 +1610,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
     statusRetriever.setRequiredParameterName("optional");
     statusRetriever.setRequiredParameterValue(false);
     bpp.setRequiredStatusRetriever(statusRetriever);
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalFieldResourceInjectionBean.class));
@@ -1627,7 +1628,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
     statusRetriever.setRequiredParameterName("optional");
     statusRetriever.setRequiredParameterValue(false);
     bpp.setRequiredStatusRetriever(statusRetriever);
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalFieldResourceInjectionBean.class));
@@ -1646,7 +1647,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
     statusRetriever.setRequiredParameterName("optional");
     statusRetriever.setRequiredParameterValue(false);
     bpp.setRequiredStatusRetriever(statusRetriever);
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalMethodResourceInjectionBean.class));
@@ -1666,7 +1667,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
     statusRetriever.setRequiredParameterName("optional");
     statusRetriever.setRequiredParameterValue(false);
     bpp.setRequiredStatusRetriever(statusRetriever);
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalMethodResourceInjectionBean.class));
@@ -1684,7 +1685,7 @@ public class AutowiredAnnotationBeanPostProcessorTests {
     statusRetriever.setRequiredParameterName("optional");
     statusRetriever.setRequiredParameterValue(false);
     bpp.setRequiredStatusRetriever(statusRetriever);
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
 
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalMethodResourceInjectionBean.class));

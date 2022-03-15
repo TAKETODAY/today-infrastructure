@@ -48,7 +48,8 @@ public class AnnotationDependencyDecorator extends DependencyResolvingDecorator 
     super(delegate);
   }
 
-  public void addAnnotationTypes(Class<? extends Annotation>... supportedAnnotations) {
+  @SafeVarargs
+  public final void addAnnotationTypes(Class<? extends Annotation>... supportedAnnotations) {
     CollectionUtils.addAll(this.supportedAnnotations, supportedAnnotations);
     this.supportedAnnotations.trimToSize();
   }

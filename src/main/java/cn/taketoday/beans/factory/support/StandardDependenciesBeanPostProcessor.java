@@ -159,26 +159,9 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
    * (non-Framework-specific) annotation type to indicate that a member is supposed
    * to be autowired.
    */
-  public void setAutowiredAnnotationType(Class<? extends Annotation> autowiredAnnotationType) {
+  public void addAutowiredAnnotationType(Class<? extends Annotation> autowiredAnnotationType) {
     Assert.notNull(autowiredAnnotationType, "'autowiredAnnotationType' must not be null");
     AnnotationDependencyDecorator strategyDecorator = new AnnotationDependencyDecorator(new BeanFactoryDependencyResolver(), autowiredAnnotationType);
-    obtainDependencyInjector().getResolvingStrategies().addStrategies(strategyDecorator);
-  }
-
-  /**
-   * Set the 'autowired' annotation types, to be used on constructors, fields,
-   * setter methods, and arbitrary config methods.
-   * <p>The default autowired annotation types are the Framework-provided
-   * {@link Autowired @Autowired} and {@link Value @Value} annotations as well
-   * as the common {@code @Inject} annotation, if available.
-   * <p>This setter property exists so that developers can provide their own
-   * (non-Framework-specific) annotation types to indicate that a member is supposed
-   * to be autowired.
-   */
-  public void setAutowiredAnnotationTypes(Set<Class<? extends Annotation>> autowiredAnnotationTypes) {
-    Assert.notEmpty(autowiredAnnotationTypes, "'autowiredAnnotationTypes' must not be empty");
-    AnnotationDependencyDecorator strategyDecorator = new AnnotationDependencyDecorator(new BeanFactoryDependencyResolver());
-    strategyDecorator.setAnnotationTypes(autowiredAnnotationTypes);
     obtainDependencyInjector().getResolvingStrategies().addStrategies(strategyDecorator);
   }
 
