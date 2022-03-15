@@ -1086,20 +1086,20 @@ public abstract class AbstractAutowireCapableBeanFactory
       else {
         String propertyName = pv.getName();
         Object originalValue = pv.getValue();
-        BeanProperty property = beanWrapper.getBeanProperty(propertyName);
 
         Object resolvedValue;
         if (originalValue instanceof PropertyValueRetriever retriever) {
-          resolvedValue = retriever.retrieve(property.getName(), beanWrapper, this);
+          resolvedValue = retriever.retrieve(propertyName, beanWrapper, this);
           if (resolvedValue == PropertyValueRetriever.DO_NOT_SET) {
             continue;
           }
         }
         else {
           if (originalValue == AutowiredPropertyMarker.INSTANCE) {
-            if (!property.isWriteable()) {
+            if (!beanWrapper.isWritableProperty(propertyName)) {
               throw new IllegalArgumentException("Autowire marker for property without write method: " + pv);
             }
+            BeanProperty property = beanWrapper.getBeanProperty(propertyName);
             MethodParameter writeMethodParameter = property.getWriteMethodParameter();
             if (writeMethodParameter != null) {
               originalValue = new DependencyDescriptor(writeMethodParameter, true);
@@ -1112,7 +1112,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         }
 
         Object convertedValue = resolvedValue;
-        boolean convertible = property.isWriteable()
+        boolean convertible = beanWrapper.isWritableProperty(propertyName)
                 && !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
         if (convertible) {
           convertedValue = convertForProperty(resolvedValue, propertyName, beanWrapper, converter);
@@ -1178,11 +1178,11 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param pvs the PropertyValues to register wired objects with
    */
   protected void autowireByName(
-          String beanName, BeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
+          String beanName, AbstractBeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, bw);
     for (String propertyName : propertyNames) {
-      Object bean = getBean(propertyName);
-      if (bean != null) {
+      if (containsBean(propertyName)) {
+        Object bean = getBean(propertyName);
         pvs.add(propertyName, bean);
         registerDependentBean(propertyName, beanName);
         if (log.isTraceEnabled()) {
