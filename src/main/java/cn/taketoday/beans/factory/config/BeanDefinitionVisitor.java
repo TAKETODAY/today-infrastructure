@@ -79,6 +79,7 @@ public class BeanDefinitionVisitor {
    * @see #resolveStringValue(String)
    */
   public void visitBeanDefinition(BeanDefinition beanDefinition) {
+    visitParentName(beanDefinition);
     visitBeanClassName(beanDefinition);
     visitFactoryBeanName(beanDefinition);
     visitFactoryMethodName(beanDefinition);
@@ -92,6 +93,16 @@ public class BeanDefinitionVisitor {
       ConstructorArgumentValues cas = beanDefinition.getConstructorArgumentValues();
       visitIndexedArgumentValues(cas.getIndexedArgumentValues());
       visitGenericArgumentValues(cas.getGenericArgumentValues());
+    }
+  }
+
+  protected void visitParentName(BeanDefinition beanDefinition) {
+    String parentName = beanDefinition.getParentName();
+    if (parentName != null) {
+      String resolvedName = resolveStringValue(parentName);
+      if (!parentName.equals(resolvedName)) {
+        beanDefinition.setParentName(resolvedName);
+      }
     }
   }
 
@@ -165,7 +176,13 @@ public class BeanDefinitionVisitor {
   @SuppressWarnings("rawtypes")
   @Nullable
   protected Object resolveValue(@Nullable Object value) {
-    if (value instanceof RuntimeBeanReference ref) {
+    if (value instanceof BeanDefinition) {
+      visitBeanDefinition((BeanDefinition) value);
+    }
+    else if (value instanceof BeanDefinitionHolder) {
+      visitBeanDefinition(((BeanDefinitionHolder) value).getBeanDefinition());
+    }
+    else if (value instanceof RuntimeBeanReference ref) {
       String newBeanName = resolveStringValue(ref.getBeanName());
       if (newBeanName == null) {
         return null;
@@ -173,9 +190,6 @@ public class BeanDefinitionVisitor {
       if (!newBeanName.equals(ref.getBeanName())) {
         return new RuntimeBeanReference(newBeanName);
       }
-    }
-    else if (value instanceof BeanDefinitionHolder) {
-      visitBeanDefinition(((BeanDefinitionHolder) value).getBeanDefinition());
     }
     else if (value instanceof RuntimeBeanNameReference ref) {
       String newBeanName = resolveStringValue(ref.getBeanName());
@@ -185,9 +199,6 @@ public class BeanDefinitionVisitor {
       if (!newBeanName.equals(ref.getBeanName())) {
         return new RuntimeBeanNameReference(newBeanName);
       }
-    }
-    else if (value instanceof BeanDefinition) {
-      visitBeanDefinition((BeanDefinition) value);
     }
     else if (value instanceof Object[]) {
       visitArray((Object[]) value);
