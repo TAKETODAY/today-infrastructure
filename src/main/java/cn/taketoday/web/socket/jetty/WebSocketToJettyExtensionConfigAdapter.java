@@ -10,7 +10,7 @@ import org.eclipse.jetty.websocket.common.JettyExtensionConfig;
  * {@link ExtensionConfig}.
  *
  * @author Rossen Stoyanchev
- * @author yanghaijian 2021/11/12 17:53
+ * @author Harry Yang 2021/11/12 17:53
  * @since 4.0
  */
 public class WebSocketToJettyExtensionConfigAdapter extends JettyExtensionConfig {

@@ -36,7 +36,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
- * @author yanghaijian 2021/11/5 11:10
+ * @author Harry Yang 2021/11/5 11:10
  * @since 4.0
  */
 public final class Conventions {

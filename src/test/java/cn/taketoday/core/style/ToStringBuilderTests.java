@@ -15,7 +15,7 @@ import cn.taketoday.util.ObjectUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author yanghaijian 2021/10/11 14:54
+ * @author Harry Yang 2021/10/11 14:54
  */
 class ToStringBuilderTests {
 

@@ -3,7 +3,7 @@ package cn.taketoday.core.io;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author yanghaijian 2021/10/9 10:12
+ * @author Harry Yang 2021/10/9 10:12
  */
 class PropertiesUtilsTests {
 

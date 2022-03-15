@@ -42,7 +42,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
  * is different than that of the @{@link Lazy} annotation, for example.
  *
  * @author Chris Beams
- * @author yanghaijian 2021/10/14 14:26
+ * @author Harry Yang 2021/10/14 14:26
  * @see BeanDefinition#ROLE_APPLICATION
  * @see BeanDefinition#ROLE_INFRASTRUCTURE
  * @see cn.taketoday.lang.Component

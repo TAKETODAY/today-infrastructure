@@ -16,7 +16,7 @@ import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author yanghaijian 2021/11/12 17:00
+ * @author Harry Yang 2021/11/12 17:00
  */
 class DefaultLifecycleProcessorTests {
 

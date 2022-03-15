@@ -25,7 +25,7 @@ import cn.taketoday.context.ApplicationContext;
  * Event raised when an {@code ApplicationContext} gets initialized or refreshed.
  *
  * @author Juergen Hoeller
- * @author yanghaijian 2021/11/12 17:08
+ * @author Harry Yang 2021/11/12 17:08
  * @see ContextClosedEvent
  * @since 4.0
  */
