@@ -39,7 +39,6 @@ import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.i18n.LocaleContextHolder;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -71,7 +70,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0 2022/3/2 22:45
  */
 class ExceptionHandlerAnnotationExceptionHandlerTests {
-  AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Config.class);
 
   private ExceptionHandlerAnnotationExceptionHandler handler;
 
@@ -88,9 +86,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   @BeforeEach
   public void setup() throws Exception {
     this.handler = new ExceptionHandlerAnnotationExceptionHandler();
-    handler.setHandlerFactory(context.getBean(AnnotationHandlerFactory.class));
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
-    handler.setApplicationContext(context);
 
     this.request = new MockHttpServletRequest("GET", "/");
     this.response = new MockHttpServletResponse();
@@ -99,6 +95,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   @Test
   void nullHandler() throws Exception {
     Object handler = null;
+    this.handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
+
     this.handler.afterPropertiesSet();
     Object mav = this.handler.handleException(new MockServletRequestContext(this.request, this.response), null, handler);
     assertThat(mav).as("Exception can be resolved only if there is a TestHandlerMethod").isNull();
@@ -108,6 +106,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void resolveNoExceptionHandlerForException() throws Exception {
     Exception npe = new NullPointerException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new IoExceptionController(), "handle");
+    handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
+
     this.handler.afterPropertiesSet();
     ModelAndView mav = handleException(npe, handlerMethod);
     assertThat(mav).as("NPE should not have been handled").isNull();
@@ -117,6 +117,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionModelAndView() throws Exception {
     IllegalArgumentException ex = new IllegalArgumentException("Bad argument");
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ModelAndViewController(), "handle");
+    handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
     this.handler.afterPropertiesSet();
 
     ModelAndView mav = handleException(ex, handlerMethod);// ViewRenderingException
@@ -128,6 +129,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   private ModelAndView handleException(Exception ex, TestHandlerMethod handlerMethod) throws Exception {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.refresh();
     return handleException(context, ex, handlerMethod);
   }
 
@@ -158,6 +161,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionResponseBody() throws Exception {
     IllegalArgumentException ex = new IllegalArgumentException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ResponseBodyController(), "handle");
+    handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
+
     this.handler.afterPropertiesSet();
     ModelAndView mav = handleException(ex, handlerMethod);
 
@@ -171,6 +176,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionResponseBodyMatchingCauseLevel2() throws Exception {
     Exception ex = new Exception(new Exception(new IllegalArgumentException()));
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ResponseBodyController(), "handle");
+    handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
     this.handler.afterPropertiesSet();
     ModelAndView mav = handleException(ex, handlerMethod);
 
@@ -183,6 +189,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionResponseWriter() throws Exception {
     IllegalArgumentException ex = new IllegalArgumentException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ResponseWriterController(), "handle");
+    handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
     this.handler.afterPropertiesSet();
     ModelAndView mav = handleException(ex, handlerMethod);
 
@@ -196,6 +203,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionModelAtArgument() throws Exception {
     IllegalArgumentException ex = new IllegalArgumentException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ModelArgumentController(), "handle");
+    handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
     this.handler.afterPropertiesSet();
     ResolvableParameterFactory factory = new ResolvableParameterFactory();
 
@@ -207,7 +215,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       }
     };
 
-    MockServletRequestContext context = new MockServletRequestContext(this.context, request, response);
+    MockServletRequestContext context = new MockServletRequestContext(null, request, response);
     Object ret = this.handler.handleException(context, ex, handler);
 
     assertThat(context.getModel().asMap().size()).isEqualTo(1);
@@ -333,7 +341,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   @Test
   void handleExceptionControllerAdviceHandler() throws Exception {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyControllerAdviceConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
     this.handler.setApplicationContext(ctx);
     this.handler.afterPropertiesSet();
 
@@ -379,13 +387,12 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     // SPR-16496
   void handleExceptionControllerAdviceAgainstProxy() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
-    ExceptionHandlerAnnotationExceptionHandler handler = new ExceptionHandlerAnnotationExceptionHandler();
     handler.setApplicationContext(ctx);
     handler.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ProxyFactory(new ResponseBodyController()).getProxy(), "handle");
-    ModelAndView mav = handleException(ex, handlerMethod);
+    ModelAndView mav = handleException(ctx, ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav.isEmpty()).isTrue();
@@ -395,7 +402,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   @Test
     // gh-22619
   void handleExceptionViaMappedHandler() throws Exception {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyControllerAdviceConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
     this.handler.setMappedHandlerClasses(RequestHandler.class);
     this.handler.setApplicationContext(ctx);
     this.handler.afterPropertiesSet();
@@ -528,6 +535,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     }
   }
 
+  @EnableWebMvc
   @Configuration
   static class MyConfig {
 
@@ -577,6 +585,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     }
   }
 
+  @EnableWebMvc
   @Configuration
   static class MyControllerAdviceConfig {
 
