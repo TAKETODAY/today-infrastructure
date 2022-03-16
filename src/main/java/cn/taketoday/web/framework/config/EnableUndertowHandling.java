@@ -27,7 +27,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.properties.Props;
-import cn.taketoday.web.framework.server.UndertowServer;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

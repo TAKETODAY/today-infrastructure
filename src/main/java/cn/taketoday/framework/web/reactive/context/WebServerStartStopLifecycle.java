@@ -21,12 +21,14 @@
 package cn.taketoday.framework.web.reactive.context;
 
 import cn.taketoday.context.SmartLifecycle;
+import cn.taketoday.framework.web.server.WebServer;
 
 /**
  * {@link SmartLifecycle} to start and stop the {@link WebServer} in a
  * {@link ReactiveWebServerApplicationContext}.
  *
  * @author Andy Wilkinson
+ * @since 4.0
  */
 class WebServerStartStopLifecycle implements SmartLifecycle {
 

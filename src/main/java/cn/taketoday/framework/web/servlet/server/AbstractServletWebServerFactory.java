@@ -47,6 +47,7 @@ import cn.taketoday.util.PropertyMapper;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.SessionCookieConfig;
+import jakarta.servlet.SessionTrackingMode;
 
 /**
  * Abstract base class for {@link ConfigurableServletWebServerFactory} implementations.
@@ -94,8 +95,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   /**
    * Create a new {@link AbstractServletWebServerFactory} instance.
    */
-  public AbstractServletWebServerFactory() {
-  }
+  public AbstractServletWebServerFactory() { }
 
   /**
    * Create a new {@link AbstractServletWebServerFactory} instance with the specified
@@ -280,8 +280,8 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    * appearing first)
    */
   protected final ServletContextInitializer[] mergeInitializers(ServletContextInitializer... initializers) {
-    List<ServletContextInitializer> mergedInitializers = new ArrayList<>();
-    mergedInitializers.add((servletContext) -> this.initParameters.forEach(servletContext::setInitParameter));
+    ArrayList<ServletContextInitializer> mergedInitializers = new ArrayList<>();
+    mergedInitializers.add(servletContext -> this.initParameters.forEach(servletContext::setInitParameter));
     mergedInitializers.add(new SessionConfiguringInitializer(this.session));
     mergedInitializers.addAll(Arrays.asList(initializers));
     mergedInitializers.addAll(this.initializers);
@@ -357,13 +357,13 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     }
 
     @Nullable
-    private Set<jakarta.servlet.SessionTrackingMode> unwrap(@Nullable Set<Session.SessionTrackingMode> modes) {
+    private Set<SessionTrackingMode> unwrap(@Nullable Set<Session.SessionTrackingMode> modes) {
       if (modes == null) {
         return null;
       }
-      Set<jakarta.servlet.SessionTrackingMode> result = new LinkedHashSet<>();
+      LinkedHashSet<SessionTrackingMode> result = new LinkedHashSet<>();
       for (Session.SessionTrackingMode mode : modes) {
-        result.add(jakarta.servlet.SessionTrackingMode.valueOf(mode.name()));
+        result.add(SessionTrackingMode.valueOf(mode.name()));
       }
       return result;
     }

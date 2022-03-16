@@ -27,10 +27,7 @@ import jakarta.servlet.ServletException;
 
 /**
  * Interface used to configure a Servlet 3.0+ {@link ServletContext context}
- * programmatically. Unlike {@link WebApplicationInitializer}, classes that implement this
- * interface (and do not implement {@link WebApplicationInitializer}) will <b>not</b> be
- * detected by {@link SpringServletContainerInitializer} and hence will not be
- * automatically bootstrapped by the Servlet container.
+ * programmatically.
  * <p>
  * This interface is designed to act in a similar way to
  * {@link ServletContainerInitializer}, but have a lifecycle that's managed by Framework and

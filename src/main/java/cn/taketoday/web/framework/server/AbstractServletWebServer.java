@@ -36,7 +36,6 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.framework.WebServerApplicationContext;
 import cn.taketoday.web.framework.config.DefaultServletConfiguration;
 import cn.taketoday.web.framework.config.JspServletConfiguration;
 import cn.taketoday.web.servlet.initializer.OrderedServletContextInitializer;

@@ -197,7 +197,7 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   }
 
   private HttpProtocol[] listProtocols() {
-    List<HttpProtocol> protocols = new ArrayList<>();
+    ArrayList<HttpProtocol> protocols = new ArrayList<>();
     protocols.add(HttpProtocol.HTTP11);
     if (getHttp2() != null && getHttp2().isEnabled()) {
       if (getSsl() != null && getSsl().isEnabled()) {

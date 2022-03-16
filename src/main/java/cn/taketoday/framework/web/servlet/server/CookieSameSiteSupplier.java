@@ -66,7 +66,7 @@ public interface CookieSameSiteSupplier {
    */
   default CookieSameSiteSupplier whenHasName(String name) {
     Assert.hasText(name, "Name must not be empty");
-    return when((cookie) -> ObjectUtils.nullSafeEquals(cookie.getName(), name));
+    return when(cookie -> ObjectUtils.nullSafeEquals(cookie.getName(), name));
   }
 
   /**
@@ -78,7 +78,7 @@ public interface CookieSameSiteSupplier {
    */
   default CookieSameSiteSupplier whenHasName(Supplier<String> nameSupplier) {
     Assert.notNull(nameSupplier, "NameSupplier must not be empty");
-    return when((cookie) -> ObjectUtils.nullSafeEquals(cookie.getName(), nameSupplier.get()));
+    return when(cookie -> ObjectUtils.nullSafeEquals(cookie.getName(), nameSupplier.get()));
   }
 
   /**
@@ -104,7 +104,7 @@ public interface CookieSameSiteSupplier {
    */
   default CookieSameSiteSupplier whenHasNameMatching(Pattern pattern) {
     Assert.notNull(pattern, "Pattern must not be null");
-    return when((cookie) -> pattern.matcher(cookie.getName()).matches());
+    return when(cookie -> pattern.matcher(cookie.getName()).matches());
   }
 
   /**
@@ -116,7 +116,7 @@ public interface CookieSameSiteSupplier {
    */
   default CookieSameSiteSupplier when(Predicate<Cookie> predicate) {
     Assert.notNull(predicate, "Predicate must not be null");
-    return (cookie) -> predicate.test(cookie) ? getSameSite(cookie) : null;
+    return cookie -> predicate.test(cookie) ? getSameSite(cookie) : null;
   }
 
   /**
@@ -158,7 +158,7 @@ public interface CookieSameSiteSupplier {
    */
   static CookieSameSiteSupplier of(SameSite sameSite) {
     Assert.notNull(sameSite, "SameSite must not be null");
-    return (cookie) -> sameSite;
+    return cookie -> sameSite;
   }
 
 }

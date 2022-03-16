@@ -56,7 +56,6 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.framework.StandardWebServerApplicationContext;
 import cn.taketoday.web.framework.WebApplication;
 import cn.taketoday.web.framework.config.EnableTomcatHandling;
 import cn.taketoday.web.framework.reactive.EnableNettyHandling;

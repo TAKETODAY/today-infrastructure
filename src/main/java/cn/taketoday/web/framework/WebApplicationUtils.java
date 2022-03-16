@@ -24,7 +24,6 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.framework.server.AbstractWebServer;
 import cn.taketoday.web.framework.server.ConfigurableWebServer;
-import cn.taketoday.web.framework.server.WebServer;
 
 /**
  * @author TODAY 2019-06-19 20:05

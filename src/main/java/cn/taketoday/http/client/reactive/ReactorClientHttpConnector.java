@@ -75,18 +75,19 @@ public class ReactorClientHttpConnector implements ClientHttpConnector {
    */
   public ReactorClientHttpConnector(ReactorResourceFactory factory, Function<HttpClient, HttpClient> mapper) {
     ConnectionProvider provider = factory.getConnectionProvider();
-		Assert.notNull(provider, "No ConnectionProvider: is ReactorResourceFactory not initialized yet?");
-		this.httpClient = defaultInitializer.andThen(mapper).andThen(applyLoopResources(factory))
-				.apply(HttpClient.create(provider));
-	}
+    Assert.notNull(provider, "No ConnectionProvider: is ReactorResourceFactory not initialized yet?");
+    this.httpClient = defaultInitializer.andThen(mapper)
+            .andThen(applyLoopResources(factory))
+            .apply(HttpClient.create(provider));
+  }
 
-	private static Function<HttpClient, HttpClient> applyLoopResources(ReactorResourceFactory factory) {
-		return httpClient -> {
-			LoopResources resources = factory.getLoopResources();
-			Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
-			return httpClient.runOn(resources);
-		};
-	}
+  private static Function<HttpClient, HttpClient> applyLoopResources(ReactorResourceFactory factory) {
+    return httpClient -> {
+      LoopResources resources = factory.getLoopResources();
+      Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
+      return httpClient.runOn(resources);
+    };
+  }
 
   /**
    * Constructor with a pre-configured {@code HttpClient} instance.
@@ -107,8 +108,9 @@ public class ReactorClientHttpConnector implements ClientHttpConnector {
             .uri(uri.toString())
             .send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
             .responseConnection((response, connection) -> {
-              responseRef.set(new ReactorClientHttpResponse(response, connection));
-              return Mono.just((ClientHttpResponse) responseRef.get());
+              ReactorClientHttpResponse newValue = new ReactorClientHttpResponse(response, connection);
+              responseRef.set(newValue);
+              return Mono.just((ClientHttpResponse) newValue);
             })
             .next()
             .doOnCancel(() -> {

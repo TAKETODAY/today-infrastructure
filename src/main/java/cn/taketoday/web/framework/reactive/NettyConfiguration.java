@@ -8,6 +8,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.properties.Props;
+import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -59,8 +60,8 @@ public class NettyConfiguration {
   @EnableDependencyInjection
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Props("server.netty")
-  NettyWebServer nettyWebServer() {
-    return new NettyWebServer();
+  NettyReactiveWebServerFactory nettyWebServer() {
+    return new NettyReactiveWebServerFactory();
   }
 
   /**
