@@ -34,11 +34,10 @@ import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;
 import static org.junit.platform.commons.support.AnnotationSupport.findAnnotation;
 
 /**
- * {@link ExecutionCondition} for Spring's {@link TestGroup} support.
+ * {@link ExecutionCondition} for  {@link TestGroup} support.
  *
  * @author Sam Brannen
  * @see EnabledForTestGroups @EnabledForTestGroups
- * @since 4.0
  */
 class TestGroupsCondition implements ExecutionCondition {
 
@@ -47,7 +46,7 @@ class TestGroupsCondition implements ExecutionCondition {
   @Override
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
     Optional<EnabledForTestGroups> optional = findAnnotation(context.getElement(), EnabledForTestGroups.class);
-    if (!optional.isPresent()) {
+    if (optional.isEmpty()) {
       return ENABLED_BY_DEFAULT;
     }
     TestGroup[] testGroups = optional.get().value();

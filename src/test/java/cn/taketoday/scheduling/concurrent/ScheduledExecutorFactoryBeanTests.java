@@ -27,9 +27,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
 import cn.taketoday.core.task.NoOpRunnable;
-import cn.taketoday.core.type.EnabledForTestGroups;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.willThrow;

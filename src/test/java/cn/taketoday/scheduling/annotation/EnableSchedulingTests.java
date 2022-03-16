@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.core.type.EnabledForTestGroups;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskScheduler;
 import cn.taketoday.scheduling.config.IntervalTask;
@@ -38,7 +38,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskHolder;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

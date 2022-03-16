@@ -34,7 +34,6 @@ import java.lang.annotation.Target;
  * test method for one or more {@link TestGroup} {@linkplain #value values}.
  *
  * @author Sam Brannen
- * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

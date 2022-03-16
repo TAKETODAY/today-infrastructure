@@ -37,7 +37,7 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.core.type.EnabledForTestGroups;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.jdbc.UncategorizedSQLException;
 import cn.taketoday.transaction.CannotCreateTransactionException;
@@ -54,7 +54,7 @@ import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

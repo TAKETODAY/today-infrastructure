@@ -27,12 +27,12 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.core.type.EnabledForTestGroups;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 import cn.taketoday.scripting.Messenger;
 import cn.taketoday.scripting.ScriptCompilationException;
 import cn.taketoday.scripting.groovy.GroovyScriptFactory;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

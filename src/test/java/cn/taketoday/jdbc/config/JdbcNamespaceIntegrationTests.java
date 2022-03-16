@@ -33,14 +33,14 @@ import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.type.EnabledForTestGroups;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 import cn.taketoday.jdbc.BadSqlGrammarException;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.AbstractDriverBasedDataSource;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseFactoryBean;
 import cn.taketoday.jdbc.datasource.init.DataSourceInitializer;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseFactory.DEFAULT_DATABASE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

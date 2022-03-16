@@ -26,11 +26,12 @@ import java.net.URL;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -23,9 +23,9 @@ package cn.taketoday.aop.target.dynamic;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.target.AbstractRefreshableTargetSource;
-import cn.taketoday.core.type.EnabledForTestGroups;
+import cn.taketoday.core.testfixture.EnabledForTestGroups;
 
-import static cn.taketoday.core.type.TestGroup.LONG_RUNNING;
+import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

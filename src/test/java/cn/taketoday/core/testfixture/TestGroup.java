@@ -27,15 +27,12 @@ import java.util.Set;
 
 import cn.taketoday.util.StringUtils;
 
-import static java.lang.String.format;
-
 /**
  * A test group used to limit when certain tests are run.
  *
  * @author Phillip Webb
  * @author Chris Beams
  * @author Sam Brannen
- * @see EnabledForTestGroups @EnabledForTestGroups
  */
 public enum TestGroup {
 
@@ -104,7 +101,7 @@ public enum TestGroup {
         groups.add(valueOf(group.trim().toUpperCase()));
       }
       catch (IllegalArgumentException ex) {
-        throw new IllegalArgumentException(format(
+        throw new IllegalArgumentException(String.format(
                 "Unable to find test group '%s' when parsing testGroups value: '%s'. " +
                         "Available groups include: [%s]", group.trim(), originalValue,
                 StringUtils.arrayToCommaDelimitedString(TestGroup.values())));
