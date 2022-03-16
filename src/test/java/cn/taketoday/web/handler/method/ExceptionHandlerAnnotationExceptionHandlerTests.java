@@ -378,9 +378,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   @Test
     // SPR-16496
   void handleExceptionControllerAdviceAgainstProxy() throws Exception {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyControllerAdviceConfig.class);
-    this.handler.setApplicationContext(ctx);
-    this.handler.afterPropertiesSet();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
+    ExceptionHandlerAnnotationExceptionHandler handler = new ExceptionHandlerAnnotationExceptionHandler();
+    handler.setApplicationContext(ctx);
+    handler.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException();
     TestHandlerMethod handlerMethod = new TestHandlerMethod(new ProxyFactory(new ResponseBodyController()).getProxy(), "handle");

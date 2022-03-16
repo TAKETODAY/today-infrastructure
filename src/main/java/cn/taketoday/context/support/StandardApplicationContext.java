@@ -45,7 +45,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Standard {@link ApplicationContext}
  *
- * like Framework's AnnotationConfigApplicationContext
+ * like Spring's AnnotationConfigApplicationContext
  *
  * @author TODAY 2018-09-06 13:47
  */

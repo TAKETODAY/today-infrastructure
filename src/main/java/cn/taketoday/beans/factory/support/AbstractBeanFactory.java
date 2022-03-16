@@ -20,8 +20,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.beans.PropertyEditor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,7 +84,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -880,81 +877,6 @@ public abstract class AbstractBeanFactory
       }
     }
     return ResolvableType.NONE;
-  }
-
-  /**
-   * get instance-method or it's static factory method declaring-class
-   *
-   * @param beanName bean name
-   * @param definition BeanDefinition
-   * @return Factory class
-   */
-  protected Class<?> getFactoryClass(String beanName, RootBeanDefinition definition) {
-    Class<?> factoryClass;
-    String factoryBeanName = definition.getFactoryBeanName();
-
-    if (factoryBeanName != null) {
-      if (factoryBeanName.equals(beanName)) {
-        throw new BeanDefinitionStoreException(definition.getResourceDescription(), beanName,
-                "factory-bean reference points back to the same bean definition");
-      }
-      // instance method
-      Object factoryBean = getBean(factoryBeanName);
-      if (factoryBean == null) {
-        throw new NoSuchBeanDefinitionException(factoryBeanName);
-      }
-      if (definition.isSingleton() && containsSingleton(beanName)) {
-        throw new ImplicitlyAppearedSingletonException();
-      }
-      registerDependentBean(factoryBeanName, beanName);
-      factoryClass = ClassUtils.getUserClass(factoryBean.getClass());
-    }
-    else {
-      // bean class is its factory-class
-      factoryClass = resolveBeanClass(beanName, definition);
-      if (factoryClass == null) {
-        throw new IllegalStateException(
-                "factory-method: '" + definition.getFactoryMethodName() + "' its factory bean: '" +
-                        beanName + "' not found in this factory: " + this);
-      }
-    }
-    return factoryClass;
-  }
-
-  @Nullable
-  protected Method getFactoryMethod(RootBeanDefinition def, Class<?> factoryClass, String factoryMethodName) {
-    Method resolvedFactoryMethod = def.getResolvedFactoryMethod();
-    if (resolvedFactoryMethod != null) {
-      return resolvedFactoryMethod;
-    }
-
-    ArrayList<Method> candidates = new ArrayList<>();
-    ReflectionUtils.doWithMethods(factoryClass, method -> {
-      if (factoryMethodName.equals(method.getName()) && def.isFactoryMethod(method)) {
-        candidates.add(method);
-      }
-    }, ReflectionUtils.USER_DECLARED_METHODS);
-
-    if (candidates.isEmpty()) {
-      return null;
-    }
-    if (candidates.size() > 1) {
-      candidates.sort((o2, o1) -> {
-        // static first, parameter
-        int result = Boolean.compare(Modifier.isPublic(o1.getModifiers()), Modifier.isPublic(o2.getModifiers()));
-        if (result == 0) {
-          result = Boolean.compare(Modifier.isStatic(o1.getModifiers()), Modifier.isStatic(o2.getModifiers()));
-          return result == 0 ? Integer.compare(o1.getParameterCount(), o2.getParameterCount()) : result;
-        }
-        return result;
-      });
-    }
-    Method method = candidates.get(0);
-    if (log.isDebugEnabled()) {
-      log.debug("bean-definition {} using factory-method {} to create bean instance", def, method);
-    }
-    def.setResolvedFactoryMethod(method);
-    return method;
   }
 
   /**

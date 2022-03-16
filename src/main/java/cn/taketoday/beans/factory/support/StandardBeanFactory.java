@@ -1162,7 +1162,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
           String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
 
-    // find oon factory-method then find on class
+    // find on factory-method then find on class
 
     boolean containsBeanDefinition = containsBeanDefinition(beanName);
     if (containsBeanDefinition) {
@@ -1171,22 +1171,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         // find on factory method
         MethodMetadata methodMetadata = annotated.getFactoryMethodMetadata();
         if (methodMetadata != null) {
-          return methodMetadata.getAnnotation(annotationType);
-        }
-        return annotated.getMetadata().getAnnotation(annotationType);
-      }
-      else {
-        String factoryMethodName = definition.getFactoryMethodName();
-        if (factoryMethodName != null) {
-          RootBeanDefinition merged = getMergedBeanDefinition(beanName, definition);
-          Class<?> factoryClass = getFactoryClass(beanName, merged);
-          Method factoryMethod = getFactoryMethod(merged, factoryClass, factoryMethodName);
-          if (factoryMethod != null) {
-            return MergedAnnotations.from(factoryMethod, SearchStrategy.TYPE_HIERARCHY).get(annotationType);
+          MergedAnnotation<A> annotation = methodMetadata.getAnnotation(annotationType);
+          if (annotation.isPresent()) {
+            return annotation;
           }
+          // factory-method not found
+        }
+        else {
+          return annotated.getMetadata().getAnnotation(annotationType);
         }
       }
     }
+
     // find it on class
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
     if (beanType != null) {
