@@ -39,6 +39,7 @@ import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Version;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -229,7 +230,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
           configController(ele);
         } // ELEMENT_RESOURCES // TODO
         else {
-          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.VERSION);
+          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Version.get());
         }
       }
     }

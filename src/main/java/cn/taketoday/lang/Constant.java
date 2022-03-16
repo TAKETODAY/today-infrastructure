@@ -55,9 +55,6 @@ public interface Constant extends Serializable {
 
   int DEFAULT_CAPACITY = 0; // @since 3.0
 
-  String KEY_ROOT = "root";
-  String KEY_RESULT = "result";
-
   int[] EMPTY_INT_ARRAY = {};
 
   String[] EMPTY_STRING_ARRAY = {};

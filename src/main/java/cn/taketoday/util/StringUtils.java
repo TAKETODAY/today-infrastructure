@@ -51,6 +51,7 @@ public abstract class StringUtils {
 
   public static final String TOP_PATH = "..";
   public static final String CURRENT_PATH = ".";
+  public static final char FOLDER_SEPARATOR_CHAR = Constant.PATH_SEPARATOR;
   public static final String FOLDER_SEPARATOR = "/";
   public static final String WINDOWS_FOLDER_SEPARATOR = "\\";
   public static final char EXTENSION_SEPARATOR = Constant.PACKAGE_SEPARATOR;
@@ -523,7 +524,7 @@ public abstract class StringUtils {
       }
     }
     if (matchesFirst(pathToUse, Constant.PATH_SEPARATOR)) {
-      prefix = prefix + FOLDER_SEPARATOR;
+      prefix = prefix + FOLDER_SEPARATOR_CHAR;
       pathToUse = pathToUse.substring(1);
     }
 
@@ -919,7 +920,7 @@ else */
     if (path == null) {
       return null;
     }
-    int separatorIndex = path.lastIndexOf(FOLDER_SEPARATOR);
+    int separatorIndex = path.lastIndexOf(FOLDER_SEPARATOR_CHAR);
     return (separatorIndex != -1 ? path.substring(separatorIndex + 1) : path);
   }
 
@@ -940,7 +941,7 @@ else */
       return null;
     }
 
-    int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR);
+    int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR_CHAR);
     if (folderIndex > extIndex) {
       return null;
     }
@@ -961,7 +962,7 @@ else */
       return path;
     }
 
-    int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR);
+    int folderIndex = path.lastIndexOf(FOLDER_SEPARATOR_CHAR);
     if (folderIndex > extIndex) {
       return path;
     }
