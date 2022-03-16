@@ -745,7 +745,7 @@ final class ConstructorResolver {
         else {
           MethodParameter methodParam = MethodParameter.forExecutable(executable, paramIndex);
           try {
-            convertedValue = convertIfNecessary(originalValue, paramType, methodParam);
+            convertedValue = converter.convertIfNecessary(originalValue, paramType, methodParam);
           }
           catch (TypeMismatchException ex) {
             throw new UnsatisfiedDependencyException(
@@ -804,14 +804,6 @@ final class ConstructorResolver {
     return args;
   }
 
-  private Object convertIfNecessary(Object originalValue, Class<?> paramType, MethodParameter methodParam) {
-    if (paramType.isInstance(originalValue)) {
-      return originalValue;
-    }
-    TypeConverter typeConverter = beanFactory.getTypeConverter();
-    return typeConverter.convertIfNecessary(originalValue, paramType, methodParam);
-  }
-
   /**
    * Resolve the prepared arguments stored in the given bean definition.
    */
@@ -840,7 +832,7 @@ final class ConstructorResolver {
       }
       Class<?> paramType = paramTypes[argIndex];
       try {
-        resolvedArgs[argIndex] = convertIfNecessary(argValue, paramType, methodParam);
+        resolvedArgs[argIndex] = converter.convertIfNecessary(argValue, paramType, methodParam);
       }
       catch (TypeMismatchException ex) {
         throw new UnsatisfiedDependencyException(
