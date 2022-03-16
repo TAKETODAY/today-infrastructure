@@ -52,7 +52,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import lombok.Getter;
@@ -325,8 +324,6 @@ public class Jetty {
   }
 
   /**
-   * Use {@link ServletWebServerApplicationLoader} load application
-   *
    * @author TODAY <br>
    * 2019-10-14 01:07
    */

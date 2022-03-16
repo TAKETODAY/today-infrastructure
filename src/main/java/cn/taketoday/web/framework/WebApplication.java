@@ -20,6 +20,7 @@
 package cn.taketoday.web.framework;
 
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.web.context.WebServerApplicationContext;
 import cn.taketoday.lang.Experimental;
 
 /**
@@ -31,16 +32,6 @@ public class WebApplication extends Application {
 
   public WebApplication(Class<?>... configSources) {
     super(configSources);
-  }
-
-  /**
-   * Startup Web Application
-   *
-   * @param config Startup class
-   * @param args Startup arguments
-   */
-  public static WebServerApplicationContext run(Class<?> config, String... args) {
-    return (WebServerApplicationContext) new WebApplication(config).run(args);
   }
 
   /**
