@@ -27,6 +27,7 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.instrument.InstrumentationSavingAgent;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -34,12 +35,12 @@ import cn.taketoday.util.ClassUtils;
 /**
  * {@link LoadTimeWeaver} relying on VM {@link Instrumentation}.
  * *
- * <p><code>-javaagent:path/to/instrument-{version}.jar</code>
+ * <p><code>-javaagent:path/to/today-instrument-{version}.jar</code>
  *
  * <p>In Eclipse, for example, add something similar to the following to the
  * JVM arguments for the Eclipse "Run configuration":
  *
- * <p><code>-javaagent:${project_loc}/lib/instrument-{version}.jar</code>
+ * <p><code>-javaagent:${project_loc}/lib/today-instrument-{version}.jar</code>
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -80,8 +81,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
   @Override
   public void addTransformer(ClassFileTransformer transformer) {
     Assert.notNull(transformer, "Transformer must not be null");
-    FilteringClassFileTransformer actualTransformer =
-            new FilteringClassFileTransformer(transformer, this.classLoader);
+    var actualTransformer = new FilteringClassFileTransformer(transformer, this.classLoader);
     synchronized(this.transformers) {
       Assert.state(this.instrumentation != null,
               "Must start with Java agent to use InstrumentationLoadTimeWeaver.");
@@ -161,14 +161,10 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
   /**
    * Decorator that only applies the given target transformer to a specific ClassLoader.
    */
-  private static class FilteringClassFileTransformer implements ClassFileTransformer {
+  private record FilteringClassFileTransformer(
+          ClassFileTransformer targetTransformer, @Nullable ClassLoader targetClassLoader) implements ClassFileTransformer {
 
-    private final ClassFileTransformer targetTransformer;
-
-    @Nullable
-    private final ClassLoader targetClassLoader;
-
-    public FilteringClassFileTransformer(
+    private FilteringClassFileTransformer(
             ClassFileTransformer targetTransformer, @Nullable ClassLoader targetClassLoader) {
 
       this.targetTransformer = targetTransformer;
@@ -178,7 +174,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
     @Override
     @Nullable
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
       if (this.targetClassLoader != loader) {
         return null;
@@ -189,7 +185,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
 
     @Override
     public String toString() {
-      return "FilteringClassFileTransformer for: " + this.targetTransformer.toString();
+      return "FilteringClassFileTransformer for: " + this.targetTransformer;
     }
   }
 
