@@ -25,22 +25,22 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.junit4.rules.SpringClassRule;
-import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
+import cn.taketoday.test.context.junit4.rules.SpringClassRule;
+import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
-import cn.taketoday.test.context.web.ServletTestExecutionListener;
 import cn.taketoday.test.context.testng.AbstractTestNGSpringContextTests;
+import cn.taketoday.test.context.web.ServletTestExecutionListener;
 
 /**
  * Abstract base test class which integrates the <em>Spring TestContext

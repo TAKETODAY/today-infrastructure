@@ -29,9 +29,9 @@ import java.lang.reflect.Method;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.MethodInvoker;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ReflectiveMethodInvoker;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -431,7 +431,7 @@ public abstract class ReflectionTestUtils {
    * @return the invocation result, if any
    * @see #invokeMethod(Class, String, Object...)
    * @see #invokeMethod(Object, Class, String, Object...)
-   * @see MethodInvoker
+   * @see cn.taketoday.util.ReflectiveMethodInvoker
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
@@ -454,11 +454,10 @@ public abstract class ReflectionTestUtils {
    * @return the invocation result, if any
    * @see #invokeMethod(Object, String, Object...)
    * @see #invokeMethod(Object, Class, String, Object...)
-   * @see MethodInvoker
+   * @see ReflectiveMethodInvoker
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
-   * @since 4.0
    */
   @Nullable
   public static <T> T invokeMethod(Class<?> targetClass, String name, Object... args) {
@@ -483,11 +482,10 @@ public abstract class ReflectionTestUtils {
    * @return the invocation result, if any
    * @see #invokeMethod(Object, String, Object...)
    * @see #invokeMethod(Class, String, Object...)
-   * @see MethodInvoker
+   * @see ReflectiveMethodInvoker
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   @Nullable
@@ -499,7 +497,7 @@ public abstract class ReflectionTestUtils {
     Assert.hasText(name, "Method name must not be empty");
 
     try {
-      MethodInvoker methodInvoker = new MethodInvoker();
+      ReflectiveMethodInvoker methodInvoker = new ReflectiveMethodInvoker();
       methodInvoker.setTargetObject(targetObject);
       if (targetClass != null) {
         methodInvoker.setTargetClass(targetClass);

@@ -24,7 +24,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -39,7 +39,7 @@ class MockServerContainerContextCustomizer implements ContextCustomizer {
 
   @Override
   public void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
-    if (context instanceof WebApplicationContext wac) {
+    if (context instanceof WebServletApplicationContext wac) {
       ServletContext sc = wac.getServletContext();
       if (sc != null) {
         sc.setAttribute("jakarta.websocket.server.ServerContainer", new MockServerContainer());

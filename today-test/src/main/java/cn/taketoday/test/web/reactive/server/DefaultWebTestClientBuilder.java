@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import cn.taketoday.core.LinkedMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
@@ -37,13 +39,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.reactive.function.client.ExchangeFilterFunction;
 import cn.taketoday.web.reactive.function.client.ExchangeFunction;
 import cn.taketoday.web.reactive.function.client.ExchangeFunctions;
 import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
-import cn.taketoday.web.server.adapter.WebHttpHandlerBuilder;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
 

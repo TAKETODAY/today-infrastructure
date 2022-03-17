@@ -35,7 +35,6 @@ import java.util.Set;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
-import cn.taketoday.core.io.support.SpringFactoriesLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -415,15 +414,14 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
 
   /**
    * Get the {@link ContextCustomizerFactory} instances for this bootstrapper.
-   * <p>The default implementation uses the {@link SpringFactoriesLoader} mechanism
+   * <p>The default implementation uses the {@link TodayStrategies} mechanism
    * for loading factories configured in all {@code META-INF/today-strategies.properties}
    * files on the classpath.
    *
-   * @see SpringFactoriesLoader#loadFactories
-   * @since 4.0
+   * @see TodayStrategies#get
    */
   protected List<ContextCustomizerFactory> getContextCustomizerFactories() {
-    return SpringFactoriesLoader.loadFactories(ContextCustomizerFactory.class, getClass().getClassLoader());
+    return TodayStrategies.get(ContextCustomizerFactory.class, getClass().getClassLoader());
   }
 
   /**
@@ -460,7 +458,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
       logger.trace(String.format("Using ContextLoader class [%s] for test class [%s]",
               contextLoaderClass.getName(), testClass.getName()));
     }
-    return BeanUtils.newInstance(contextLoaderClass, ContextLoader.class);
+    return BeanUtils.newInstance(contextLoaderClass);
   }
 
   /**

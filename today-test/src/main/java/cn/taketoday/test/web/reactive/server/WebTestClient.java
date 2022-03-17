@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.HttpHeaders;
@@ -395,14 +395,14 @@ public interface WebTestClient {
   /**
    * Steps for customizing the {@link WebClient} used to test with,
    * internally delegating to a
-   * {@link cn.taketoday.web.reactive.function.client.WebClient.Builder
+   * {@link WebClient.Builder
    * WebClient.Builder}.
    */
   interface Builder {
 
     /**
      * Configure a base URI as described in
-     * {@link cn.taketoday.web.reactive.function.client.WebClient#create(String)
+     * {@link WebClient#create(String)
      * WebClient.create(String)}.
      */
     Builder baseUrl(String baseUrl);
@@ -736,7 +736,7 @@ public interface WebTestClient {
 
     /**
      * Set the body to the given {@code Object} value. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#bodyValue(Object)
+     * {@link WebClient.RequestBodySpec#bodyValue(Object)
      * bodyValue} method on the underlying {@code WebClient}.
      *
      * @param body the value to write to the request body
@@ -770,11 +770,11 @@ public interface WebTestClient {
      * @since 4.0
      */
     <T, S extends Publisher<T>> RequestHeadersSpec<?> body(
-            S publisher, ParameterizedTypeReference<T> elementTypeRef);
+            S publisher, TypeReference<T> elementTypeRef);
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(Object, Class)
+     * {@link WebClient.RequestBodySpec#body(Object, Class)
      * body(Object, Class)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
@@ -788,8 +788,8 @@ public interface WebTestClient {
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(Object, ParameterizedTypeReference)
-     * body(Object, ParameterizedTypeReference)} method on the underlying {@code WebClient}.
+     * {@link WebClient.RequestBodySpec#body(Object, TypeReference)
+     * body(Object, TypeReference)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
      * {@link Publisher} or another producer adaptable to a
@@ -798,17 +798,17 @@ public interface WebTestClient {
      * @return spec for further declaration of the request
      * @since 4.0
      */
-    RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef);
+    RequestHeadersSpec<?> body(Object producer, TypeReference<?> elementTypeRef);
 
     /**
      * Set the body of the request to the given {@code BodyInserter}.
      * This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(BodyInserter)
+     * {@link WebClient.RequestBodySpec#body(BodyInserter)
      * body(BodyInserter)} method on the underlying {@code WebClient}.
      *
      * @param inserter the body inserter to use
      * @return spec for further declaration of the request
-     * @see cn.taketoday.web.reactive.function.BodyInserters
+     * @see BodyInserters
      */
     RequestHeadersSpec<?> body(BodyInserter<?, ? super ClientHttpRequest> inserter);
 
@@ -900,7 +900,7 @@ public interface WebTestClient {
      * Alternative to {@link #expectBody(Class)} that accepts information
      * about a target type with generics.
      */
-    <B> BodySpec<B, ?> expectBody(ParameterizedTypeReference<B> bodyType);
+    <B> BodySpec<B, ?> expectBody(TypeReference<B> bodyType);
 
     /**
      * Consume and decode the response body to {@code List<E>} and then apply
@@ -914,7 +914,7 @@ public interface WebTestClient {
      * Alternative to {@link #expectBodyList(Class)} that accepts information
      * about a target type with generics.
      */
-    <E> ListBodySpec<E> expectBodyList(ParameterizedTypeReference<E> elementType);
+    <E> ListBodySpec<E> expectBodyList(TypeReference<E> elementType);
 
     /**
      * Consume and decode the response body to {@code byte[]} and then apply
@@ -936,7 +936,7 @@ public interface WebTestClient {
      * Alternative to {@link #returnResult(Class)} that accepts information
      * about a target type with generics.
      */
-    <T> FluxExchangeResult<T> returnResult(ParameterizedTypeReference<T> elementTypeRef);
+    <T> FluxExchangeResult<T> returnResult(TypeReference<T> elementTypeRef);
 
     /**
      * {@link Consumer} of a {@link ResponseSpec}.

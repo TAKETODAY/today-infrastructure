@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.io.support.ResourcePatternUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -42,8 +42,8 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.util.ResourceUtils
  * @see cn.taketoday.core.io.Resource
  * @see cn.taketoday.core.io.ClassPathResource
- * @see cn.taketoday.core.io.FileSystemResource
- * @see cn.taketoday.core.io.UrlResource
+ * @see cn.taketoday.core.io.FileBasedResource
+ * @see cn.taketoday.core.io.UrlBasedResource
  * @see cn.taketoday.core.io.ResourceLoader
  * @since 4.0
  */
@@ -92,9 +92,8 @@ public abstract class TestContextResourceUtils {
    * @param paths the paths to be converted
    * @return a new array of converted resource paths
    * @see #convertToResources
-   * @see ResourceUtils#CLASSPATH_URL_PREFIX
+   * @see ResourceLoader#CLASSPATH_URL_PREFIX
    * @see ResourceUtils#FILE_URL_PREFIX
-   * @since 4.0
    */
   public static String[] convertToClasspathResourcePaths(Class<?> clazz, boolean preservePlaceholders, String... paths) {
     String[] convertedPaths = new String[paths.length];
@@ -103,11 +102,11 @@ public abstract class TestContextResourceUtils {
 
       // Absolute path
       if (path.startsWith(SLASH)) {
-        convertedPaths[i] = ResourceUtils.CLASSPATH_URL_PREFIX + path;
+        convertedPaths[i] = ResourceLoader.CLASSPATH_URL_PREFIX + path;
       }
       // Relative path
-      else if (!ResourcePatternUtils.isUrl(path)) {
-        convertedPaths[i] = ResourceUtils.CLASSPATH_URL_PREFIX + SLASH +
+      else if (!PatternResourceLoader.isUrl(path)) {
+        convertedPaths[i] = ResourceLoader.CLASSPATH_URL_PREFIX + SLASH +
                 ClassUtils.classPackageAsResourcePath(clazz) + SLASH + path;
       }
       // URL
@@ -145,7 +144,6 @@ public abstract class TestContextResourceUtils {
    * @return a new list of resources
    * @see #convertToResources(ResourceLoader, String...)
    * @see #convertToClasspathResourcePaths
-   * @since 4.0
    */
   public static List<Resource> convertToResourceList(ResourceLoader resourceLoader, String... paths) {
     return stream(resourceLoader, paths).collect(Collectors.toList());

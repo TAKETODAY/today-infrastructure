@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -317,7 +317,7 @@ class DefaultWebTestClient implements WebTestClient {
 
     @Override
     public <T, P extends Publisher<T>> RequestHeadersSpec<?> body(
-            P publisher, ParameterizedTypeReference<T> elementTypeRef) {
+            P publisher, TypeReference<T> elementTypeRef) {
       this.inserter = BodyInserters.fromPublisher(publisher, elementTypeRef);
       return this;
     }
@@ -335,7 +335,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef) {
+    public RequestHeadersSpec<?> body(Object producer, TypeReference<?> elementTypeRef) {
       this.inserter = BodyInserters.fromProducer(producer, elementTypeRef);
       return this;
     }
@@ -453,7 +453,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public <B> BodySpec<B, ?> expectBody(ParameterizedTypeReference<B> bodyType) {
+    public <B> BodySpec<B, ?> expectBody(TypeReference<B> bodyType) {
       B body = this.response.bodyToMono(bodyType).block(this.timeout);
       EntityExchangeResult<B> entityResult = initEntityExchangeResult(body);
       return new DefaultBodySpec<>(entityResult);
@@ -465,7 +465,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public <E> ListBodySpec<E> expectBodyList(ParameterizedTypeReference<E> elementType) {
+    public <E> ListBodySpec<E> expectBodyList(TypeReference<E> elementType) {
       Flux<E> flux = this.response.bodyToFlux(elementType);
       return getListBodySpec(flux);
     }
@@ -504,7 +504,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public <T> FluxExchangeResult<T> returnResult(ParameterizedTypeReference<T> elementTypeRef) {
+    public <T> FluxExchangeResult<T> returnResult(TypeReference<T> elementTypeRef) {
       Flux<T> body = this.response.bodyToFlux(elementTypeRef);
       return new FluxExchangeResult<>(this.exchangeResult, body);
     }

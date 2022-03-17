@@ -40,7 +40,7 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.jdbc.datasource.init.ScriptUtils
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
  * @see cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils
- * @since 2.5.4
+ * @since 4.0
  */
 public abstract class JdbcTestUtils {
 

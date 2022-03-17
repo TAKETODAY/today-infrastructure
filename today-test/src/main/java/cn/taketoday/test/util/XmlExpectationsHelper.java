@@ -30,14 +30,11 @@ import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.ElementSelectors;
 
 import java.io.StringReader;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
-
-import cn.taketoday.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -84,8 +81,6 @@ public class XmlExpectationsHelper {
    *
    * @param expected the expected XML content
    * @param actual the actual XML content
-   * @see MockMvcResultMatchers#xpath(String, Object...)
-   * @see MockMvcResultMatchers#xpath(String, Map, Object...)
    */
   public void assertXmlEqual(String expected, String actual) throws Exception {
     XmlUnitDiff diff = new XmlUnitDiff(expected, actual);

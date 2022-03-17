@@ -147,7 +147,7 @@ public class SpringExtension implements BeforeAllCallback, AfterAllCallback, Tes
    * Validate that test methods and test lifecycle methods in the supplied
    * test class are not annotated with {@link Autowired @Autowired}.
    *
-   * @since 4.0.2
+   * @since 4.0
    */
   private void validateAutowiredConfig(ExtensionContext context) {
     // We save the result in the ExtensionContext.Store so that we don't

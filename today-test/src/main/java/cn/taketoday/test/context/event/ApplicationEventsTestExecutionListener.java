@@ -21,8 +21,8 @@
 package cn.taketoday.test.context.event;
 
 import java.io.Serializable;
+import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.ObjectFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.AbstractApplicationContext;
@@ -125,10 +125,10 @@ public class ApplicationEventsTestExecutionListener extends AbstractTestExecutio
    * Factory that exposes the current {@link ApplicationEvents} object on demand.
    */
   @SuppressWarnings("serial")
-  private static class ApplicationEventsObjectFactory implements ObjectFactory<ApplicationEvents>, Serializable {
+  private static class ApplicationEventsObjectFactory implements Supplier<ApplicationEvents>, Serializable {
 
     @Override
-    public ApplicationEvents getObject() {
+    public ApplicationEvents get() {
       return ApplicationEventsHolder.getRequiredApplicationEvents();
     }
 
