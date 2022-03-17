@@ -23,8 +23,6 @@ package cn.taketoday.beans.factory.support;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
@@ -78,29 +76,13 @@ public class BeanFactoryDependencyResolver
   public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
     if (context.getBeanFactory() instanceof AutowireCapableBeanFactory factory) {
       String beanName = context.getBeanName();
-      try {
-        // resolve dependency and check required
-        Object dependency = factory.resolveDependency(descriptor, beanName, context.getDependentBeans(), context.getTypeConverter());
-        if (dependency == null) {
-          // not required dependency
-          dependency = DependencyDescriptor.DO_NOT_SET;
-        }
-        context.setDependencyResolved(dependency);
+      // resolve dependency and check required
+      Object dependency = factory.resolveDependency(descriptor, beanName, context.getDependentBeans(), context.getTypeConverter());
+      if (dependency == null) {
+        // not required dependency
+        dependency = DependencyDescriptor.DO_NOT_SET;
       }
-      catch (BeansException ex) {
-        if (beanName != null) {
-          String resourceDescription = null;
-          if (factory.containsBeanDefinition(beanName)) {
-            resourceDescription = factory.getBeanDefinition(beanName).getResourceDescription();
-          }
-          throw new UnsatisfiedDependencyException(
-                  resourceDescription, beanName, descriptor, ex);
-        }
-        else {
-          throw new UnsatisfiedDependencyException(
-                  null, null, descriptor, ex);
-        }
-      }
+      context.setDependencyResolved(dependency);
     }
   }
 

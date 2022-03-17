@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InjectionPoint;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.Value;
@@ -46,6 +47,7 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
@@ -86,14 +88,15 @@ public class ConfigurationClassProcessingTests {
 
   private void customBeanNameIsRespected(Class<?> testClass, Supplier<TestBean> testBeanSupplier, String beanName) {
     StandardApplicationContext ac = new StandardApplicationContext();
-//    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
     ac.registerBeanDefinition("config", new RootBeanDefinition(testClass));
     ac.refresh();
 
     assertThat(ac.getBean(beanName)).isSameAs(testBeanSupplier.get());
 
     // method name should not be registered
-    assertThat(ac.getBean("methodName")).isNull();
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> ac.getBean("methodName"));
   }
 
   @Test
@@ -120,7 +123,8 @@ public class ConfigurationClassProcessingTests {
             .forEach(alias -> assertThat(alias).isSameAs(testBean));
 
     // method name should not be registered
-    assertThat(factory.getBean("methodName")).isNull();
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
+            .isThrownBy(() -> factory.getBean("methodName"));
   }
 
   @Test  // SPR-11830
