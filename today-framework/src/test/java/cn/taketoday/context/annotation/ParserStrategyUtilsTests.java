@@ -150,8 +150,7 @@ public class ParserStrategyUtilsTests {
   }
 
   private <T> T instantiateClass(Class<T> clazz) {
-
-    return ParserStrategyUtils.instantiateClass(clazz, clazz, loadingContext);
+    return ParserStrategyUtils.newInstance(clazz, clazz, loadingContext);
   }
 
   static class NoArgsConstructor
