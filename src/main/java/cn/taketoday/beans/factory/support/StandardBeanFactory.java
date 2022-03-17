@@ -2020,8 +2020,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     public DependencyObjectProvider(DependencyDescriptor descriptor, @Nullable String beanName) {
       this.beanName = beanName;
-      this.descriptor = new NestedDependencyDescriptor(descriptor);
+      descriptor = new NestedDependencyDescriptor(descriptor);
       this.optional = descriptor.getDependencyType() == Optional.class;
+      this.descriptor = descriptor;
     }
 
     @Override
