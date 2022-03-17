@@ -27,9 +27,9 @@ import java.util.Random;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
-import cn.taketoday.http.server.reactive.bootstrap.HttpServer;
 import cn.taketoday.web.client.RestTemplate;
+import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
+import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

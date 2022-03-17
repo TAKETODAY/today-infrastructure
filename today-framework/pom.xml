@@ -36,4 +36,14 @@
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
+  <dependencies>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-instrument</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+  </dependencies>
+
 </project>

@@ -36,9 +36,9 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.http.server.reactive.bootstrap.HttpServer;
-import cn.taketoday.http.server.reactive.bootstrap.ReactorHttpsServer;
 import cn.taketoday.web.client.RestTemplate;
+import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
+import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.ReactorHttpsServer;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

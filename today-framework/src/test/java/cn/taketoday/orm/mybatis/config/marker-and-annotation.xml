@@ -36,5 +36,5 @@
        autowired. -->
   <mybatis:scan base-package="cn.taketoday.orm.mybatis.mapper"
       marker-interface="cn.taketoday.orm.mybatis.mapper.MapperInterface"
-      annotation="cn.taketoday.stereotype.Component" />
+      annotation="cn.taketoday.lang.Component" />
 </beans>
